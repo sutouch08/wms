@@ -21,10 +21,28 @@ class Address_model extends CI_Model
 
   public function get_shipping_address_by_code($code)
   {
-    $rs = $this->db->where('code', $code)->limit(1)->get('address_ship_to');
+    $rs = $this->db->where('code', $code)->order_by('is_default', 'DESC')->limit(1)->get('address_ship_to');
     if($rs->num_rows() === 1)
     {
       return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+	public function get_shipping_address_id_by_code($code)
+  {
+    $rs = $this->db
+		->select('id')
+		->where('code', $code)
+		->order_by('is_default', 'DESC')
+		->limit(1)
+		->get('address_ship_to');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id;
     }
 
     return NULL;
@@ -59,9 +77,38 @@ class Address_model extends CI_Model
       return $rs->result();
     }
 
-    return array();
+    return NULL;
   }
 
+
+
+	public function get_ship_to_address($code)
+  {
+    $rs = $this->db->where('customer_code', $code)->get('address_ship_to');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+	public function get_default_ship_to_address_id($code)
+	{
+		$rs = $this->db
+		->select('id')
+		->where('customer_code', $code)
+		->order_by('is_default', 'DESC')
+		->limit(1)
+		->get('address_ship_to');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->id;
+		}
+
+		return NULL;
+	}
 
 
   public function add_shipping_address(array $ds = array())

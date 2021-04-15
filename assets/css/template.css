@@ -1184,3 +1184,18 @@ input[type=number]::-webkit-outer-spin-button {
   overflow-x: auto;
   overflow-y: auto;
 }
+
+
+.sweet-alert {
+    box-sizing : border-box;
+    max-height : 100% !important;
+    overflow-y : auto !important;
+    padding : 0 17px 17px !important;
+    width : 512px;
+}
+.sweet-alert:before {
+    content : "";
+    display : block;
+    height : 17px;
+    width : 0;
+}

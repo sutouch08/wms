@@ -74,13 +74,48 @@ function goDelete(code){
 function addNew()
 {
   var date_add = $('#dateAdd').val();
+	var is_wms = $('#is_wms').val();
   var remark = $('#remark').val();
+
   if(!isDate(date_add)){
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
-  $('#addForm').submit();
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data:{
+			'date_add' : date_add,
+			'is_wms' : is_wms,
+			'remark' : remark
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(isJson(rs)) {
+				var ds = $.parseJSON(rs);
+				goEdit(ds.code);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+
 }
 
 

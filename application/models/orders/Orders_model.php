@@ -127,6 +127,23 @@ class Orders_model extends CI_Model
 
 
 
+	//--- use by wms api
+	public function get_order_uncount_details($order_code)
+	{
+		$rs = $this->db
+		->where('order_code', $order_code)
+		->where('is_count', 0)
+		->get('order_details');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
   public function get_detail($id)
   {
     $rs = $this->db->where('id', $id)->get('order_details');
@@ -138,6 +155,24 @@ class Orders_model extends CI_Model
     return FALSE;
   }
 
+
+
+	public function get_only_count_stock_details($order_code)
+	{
+		$rs = $this->db
+		->select('od.*, pd.unit_code')
+		->from('order_details AS od')
+		->join('products AS pd', 'od.product_code = pd.code', 'left')
+		->where('od.order_code', $order_code)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
 
 
@@ -527,7 +562,7 @@ class Orders_model extends CI_Model
       $this->db->like('orders.quotation_no', $ds['qt_no']);
     }
 
-    
+
     //--- รหัส/ชื่อ ลูกค้า
     if( ! empty($ds['customer']))
     {

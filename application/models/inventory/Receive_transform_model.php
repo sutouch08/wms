@@ -183,7 +183,7 @@ class Receive_transform_model extends CI_Model
   public function get_transform_details($order_code)
   {
     $rs = $this->db
-    ->select('order_transform_detail.*, products.name, products.cost AS price, products.barcode')
+    ->select('order_transform_detail.*, products.name, products.cost AS price, products.barcode, products.unit_code')
     ->select_sum('order_transform_detail.sold_qty', 'sold_qty')
     ->select_sum('order_transform_detail.receive_qty', 'receive_qty')
     ->from('order_transform_detail')
@@ -221,6 +221,25 @@ class Receive_transform_model extends CI_Model
     return $rs->row()->amount === NULL ? 0.00 : $rs->row()->amount;
   }
 
+
+
+
+	public function get_transform_backlogs($code, $product_code)
+	{
+		$rs = $this->db
+		->select_sum('sold_qty')
+		->select_sum('receive_qty')
+		->where('order_code', $code)
+		->where('product_code', $product_code)
+		->get('order_transform_detail');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
 
 
   public function set_status($code, $status)
@@ -262,6 +281,11 @@ class Receive_transform_model extends CI_Model
     {
       $this->db->where('status', $ds['status']);
     }
+
+		if($ds['is_wms'] !== 'all')
+		{
+			$this->db->where('is_wms', $ds['is_wms']);
+		}
 
 
     $rs = $this->db->get('receive_transform');
@@ -305,6 +329,11 @@ class Receive_transform_model extends CI_Model
     {
       $this->db->where('status', $ds['status']);
     }
+
+		if($ds['is_wms'] !== 'all')
+		{
+			$this->db->where('is_wms', $ds['is_wms']);
+		}
 
     $this->db->order_by('code', 'DESC');
     if($perpage != '')

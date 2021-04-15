@@ -475,6 +475,7 @@ class Orders extends PS_Controller
     $this->load->model('masters/bank_model');
     $this->load->model('orders/order_payment_model');
     $this->load->helper('bank');
+		$this->load->helper('sender');
     $ds = array();
     $rs = $this->orders_model->get($code);
     if(!empty($rs))
@@ -499,13 +500,16 @@ class Orders extends PS_Controller
     }
 
     $details = $this->orders_model->get_order_details($code);
-    $ship_to = $this->address_model->get_shipping_address($rs->customer_ref);
+    $ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
     $banks = $this->bank_model->get_active_bank();
+		$wms_warehouse = getConfig('WMS_WAREHOUSE');
+
     $ds['state'] = $ost;
     $ds['order'] = $rs;
     $ds['details'] = $details;
     $ds['addr']  = $ship_to;
     $ds['banks'] = $banks;
+		$ds['is_wms'] = $rs->warehouse_code === $wms_warehouse ? TRUE : FALSE;
     $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
     $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
     $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -655,6 +659,61 @@ class Orders extends PS_Controller
         }
       }
     }
+
+		//--- ถ้าไม่ได้ระบุ ที่อยู่กับผู้จัดส่ง พยายามเติมให้ก่อน
+
+
+
+		if(empty($order->id_address))
+		{
+			$this->load->model('address/address_model');
+			$id_address = NULL;
+
+			if(!empty($order->customer_ref))
+			{
+				$id_address = $this->address_model->get_shipping_address_id_by_code($order->customer_ref);
+			}
+			else
+			{
+				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
+			}
+
+			if(!empty($id_address))
+			{
+				$arr = array(
+					'id_address' => $id_address
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
+
+
+		if(empty($order->id_sender))
+		{
+			$this->load->model('masters/sender_model');
+			$id_sender = NULL;
+
+			$sender = $this->sender_model->get_customer_sender_list($order->customer_code);
+
+			if(!empty($sender))
+			{
+				if(!empty($sender->main_sender))
+				{
+					$id_sender = $sender->main_sender;
+				}
+			}
+
+			if(!empty($id_sender))
+			{
+				$arr = array(
+					'id_sender' => $id_sender
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
+
 
 
     if($sc === TRUE)
@@ -1602,12 +1661,13 @@ class Orders extends PS_Controller
   public function save_address()
   {
     $sc = TRUE;
-    if($this->input->post('customer_ref'))
+		$customer_code = trim($this->input->post('customer_code'));
+		$cus_ref = trim($this->input->post('customer_ref'));
+
+    if(!empty($customer_code) OR !empty($cus_ref))
     {
       $this->load->model('address/address_model');
       $id = $this->input->post('id_address');
-      $cus_ref = $this->input->post('customer_ref');
-      $customer_code = $this->input->post('customer_code');
 
       if(!empty($id))
       {
@@ -1635,7 +1695,7 @@ class Orders extends PS_Controller
       else
       {
         $arr = array(
-          'address_code' => $this->address_model->get_new_code($this->input->post('customer_ref')),
+          'address_code' => '0000', //$this->address_model->get_new_code($this->input->post('customer_ref')),
           'code' => $cus_ref,
           'customer_code' => $customer_code,
           'name' => trim($this->input->post('name')),
@@ -1662,7 +1722,7 @@ class Orders extends PS_Controller
     else
     {
       $sc = FALSE;
-      $this->error = 'ไมพบชื่อลูกค้าออนไลน์';
+      $this->error = 'Missing required parameter : customer code';
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
@@ -1673,39 +1733,35 @@ class Orders extends PS_Controller
   public function get_address_table()
   {
     $sc = TRUE;
-    if($this->input->post('customer_ref'))
+
+		$customer_code = trim($this->input->post('customer_code'));
+		$customer_ref = trim($this->input->post('customer_ref'));
+
+    if(!empty($customer_code) OR !empty($customer_ref))
     {
-      $code = $this->input->post('customer_ref');
-      if(!empty($code))
-      {
-        $ds = array();
-        $this->load->model('address/address_model');
-        $adrs = $this->address_model->get_shipping_address($code);
-        if(!empty($adrs))
-        {
-          foreach($adrs as $rs)
-          {
-            $arr = array(
-              'id' => $rs->id,
-              'name' => $rs->name,
-              'address' => $rs->address.' '.$rs->sub_district.' '.$rs->district.' '.$rs->province.' '.$rs->postcode,
-              'phone' => $rs->phone,
-              'email' => $rs->email,
-              'alias' => $rs->alias,
-              'default' => $rs->is_default == 1 ? 1 : ''
-            );
-            array_push($ds, $arr);
-          }
-        }
-        else
-        {
-          $sc = FALSE;
-        }
-      }
-      else
-      {
-        $sc = FALSE;
-      }
+			$ds = array();
+			$this->load->model('address/address_model');
+			$adrs = empty($customer_ref) ? $this->address_model->get_ship_to_address($customer_code) : $this->address_model->get_shipping_address($customer_ref);
+			if(!empty($adrs))
+			{
+				foreach($adrs as $rs)
+				{
+					$arr = array(
+						'id' => $rs->id,
+						'name' => $rs->name,
+						'address' => $rs->address.' '.$rs->sub_district.' '.$rs->district.' '.$rs->province.' '.$rs->postcode,
+						'phone' => $rs->phone,
+						'email' => $rs->email,
+						'alias' => $rs->alias,
+						'default' => $rs->is_default == 1 ? 1 : ''
+					);
+					array_push($ds, $arr);
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+			}
     }
 
     echo $sc === TRUE ? json_encode($ds) : 'noaddress';
@@ -1726,6 +1782,46 @@ class Orders extends PS_Controller
     echo $rs === TRUE ? 'success' :'fail';
   }
 
+
+	public function set_address()
+	{
+		$sc = TRUE;
+		$order_code = $this->input->post('order_code');
+		$id_address = $this->input->post('id_address');
+
+		$arr = array(
+			'id_address' => $id_address
+		);
+
+		if(! $this->orders_model->update($order_code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	public function set_sender()
+	{
+		$sc = TRUE;
+		$order_code = trim($this->input->post('order_code'));
+		$id_sender = trim($this->input->post('id_sender'));
+
+		$arr = array(
+			'id_sender' => $id_sender
+		);
+
+		if(! $this->orders_model->update($order_code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
   public function get_shipping_address()
@@ -1873,8 +1969,15 @@ class Orders extends PS_Controller
       $state = $this->input->post('state');
       $order = $this->orders_model->get($code);
       $details = $this->orders_model->get_order_details($code);
+
       if(! empty($order))
       {
+				if($order->state >= 3 && $order->is_wms && $state != 9)
+				{
+					echo "ออเดอร์ถูกส่งไประบบ WMS แล้วไม่อนุญาติให้ย้อนสถานะ";
+					exit;
+				}
+
         //--- ถ้าเป็นเบิกแปรสภาพ จะมีการผูกสินค้าไว้
         if($order->role == 'T')
         {
@@ -2707,6 +2810,33 @@ class Orders extends PS_Controller
 
   	echo 'success';
   }
+
+
+
+
+  public function set_order_wms()
+	{
+		$code = trim($this->input->post('order_code'));
+		if(!empty($code))
+		{
+			$arr = array(
+				'is_wms' => 1
+			);
+
+			if(! $this->orders_model->update($code, $arr))
+			{
+				echo "failed";
+			}
+			else
+			{
+				echo "success";
+			}
+		}
+		else
+		{
+			echo "no order code";
+		}
+	}
 
 
 

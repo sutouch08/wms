@@ -22,7 +22,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ที่อยู่ 1</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="address1" class="width-100" required />
+			<input type="text" name="address1" class="width-100" />
     </div>
   </div>
 
@@ -60,6 +60,16 @@
         <option value="ปลายทาง">เก็บเงินปลายทาง</option>
         <option value="ต้นทาง">เก็บเงินต้นทาง</option>
       </select>
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"></label>
+    <div class="col-xs-12 col-sm-3">
+			<label>
+				<input type="checkbox" name="in_list" id="in_list" class="ace" value="1" />
+				<span class="lbl">  แสดงในตัวเลือก</span>
+			</label>
     </div>
   </div>
 

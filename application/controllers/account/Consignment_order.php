@@ -487,7 +487,7 @@ class Consignment_order extends PS_Controller
             else
             {
               $sc = FALSE;
-              $this->error = "ยอดในโซนไม่พอตัด";
+              $this->error = "ยอดในโซนไม่พอตัด {$product_code}";
             }
           }
         }
@@ -956,7 +956,7 @@ class Consignment_order extends PS_Controller
                       {
                         $sc = FALSE;
                         $this->error .= "<span>{$item->code} ยอดในโซนไม่พอตัด  ในโซน: {$stock} ยอดตัด : {$sum_qty} </span><br/>";
-                        $this->error = "ยอดในโซนไม่พอตัด";
+
                       }
                     } //--- end if empty detail
                   }

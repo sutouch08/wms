@@ -3,7 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Sender extends PS_Controller{
 	public $menu_code = 'DBSEND'; //--- Add/Edit Users
-	public $menu_group_code = 'TRANSPORT'; //--- System security
+	public $menu_group_code = 'DB';
+	public $menu_sub_group_code = 'TRANSPORT'; //--- System security
 	public $title = 'เพิ่ม/แก้ไข ขนส่ง';
 
   public function __construct()
@@ -66,6 +67,7 @@ class Sender extends PS_Controller{
 			$open = $this->input->post('open');
 			$close = $this->input->post('close');
 			$type = $this->input->post('type');
+			$show_in_list = $this->input->post('in_list');
 
 			$arr = array(
 				'name' => $name,
@@ -74,7 +76,8 @@ class Sender extends PS_Controller{
 				'phone' => $phone,
 				'open' => $open,
 				'close' => $close,
-				'type' => $type
+				'type' => $type,
+				'show_in_list' => $show_in_list
 			);
 
 			if($this->sender_model->add($arr))
@@ -117,6 +120,7 @@ class Sender extends PS_Controller{
 				$open = $this->input->post('open');
 				$close = $this->input->post('close');
 				$type = $this->input->post('type');
+				$show_in_list = $this->input->post('in_list');
 
 				$arr = array(
 					'name' => $name,
@@ -125,7 +129,8 @@ class Sender extends PS_Controller{
 					'phone' => $phone,
 					'open' => $open,
 					'close' => $close,
-					'type' => $type
+					'type' => $type,
+					'show_in_list' => $show_in_list
 				);
 
 				if($this->sender_model->update($id, $arr))

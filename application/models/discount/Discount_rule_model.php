@@ -43,6 +43,17 @@ class Discount_rule_model extends CI_Model
     return array();
   }
 
+
+	public function get_policy_id($id)
+	{
+		$rs = $this->db->select('id_policy')->where('id', $id)->get('discount_rule');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->id_policy;
+		}
+
+		return NULL;
+	}
   /*
   |----------------------------------
   | BEGIN ใช้สำหรับแสดงรายละเอียดในหน้าพิมพ์

@@ -32,11 +32,13 @@
 				<?php if($order->status == 0 && $order->is_expired == 0) : ?>
 					<button type="button" class="btn btn-sm btn-success" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
 				<?php endif; ?>
+				<?php if($is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
+					<button type="button" class="btn btn-sm btn-success" onclick="sendToWMS()">Send to WMS</button>
+				<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
 <hr/>
-<input type="hidden" id="order_code" name="order_code" value="<?php echo $order->code; ?>" />
 
 <?php $this->load->view('orders/order_edit_header'); ?>
 <?php $this->load->view('orders/order_panel'); ?>
@@ -49,5 +51,8 @@
 <script src="<?php echo base_url(); ?>scripts/orders/order_online.js"></script>
 <script src="<?php echo base_url(); ?>scripts/print/print_order.js"></script>
 <script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
+<?php if($is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
+	<script src="<?php echo base_url(); ?>scripts/wms/wms_order.js?v=<?php echo date('Ymd'); ?>"></script>
+<?php endif; ?>
 
 <?php $this->load->view('include/footer'); ?>

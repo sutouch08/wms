@@ -58,16 +58,16 @@ date_default_timezone_set('Asia/Bangkok');
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	//define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'production');
-switch($_SERVER["HTTP_HOST"])
-{
- 	case "localhost":
-    define('ENVIRONMENT', 'development');
- 	break;
- 	default:
-    define('ENVIRONMENT', 'production');
- 	break;
- }
+	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+// switch($_SERVER["HTTP_HOST"])
+// {
+//  	case "localhost":
+//     define('ENVIRONMENT', 'development');
+//  	break;
+//  	default:
+//     define('ENVIRONMENT', 'production');
+//  	break;
+//  }
 
 /*
  *---------------------------------------------------------------

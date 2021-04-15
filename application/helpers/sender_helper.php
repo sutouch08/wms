@@ -18,4 +18,64 @@ function sender_in($txt)
 }
 
 
+
+function select_common_sender($customer_code = NULL, $id = NULL)
+{
+	$sc = "";
+
+	$CI =& get_instance();
+  $CI->load->model('masters/sender_model');
+
+
+	$sender = $CI->sender_model->get_customer_sender_list($customer_code);
+
+	if(!empty($sender))
+	{
+		$list = array();
+
+		if(!empty($sender->main_sender))
+		{
+			$list[] = $sender->main_sender;
+		}
+
+		if(!empty($sender->second_sender))
+		{
+			$list[] = $sender->second_sender;
+		}
+
+
+		if(!empty($sender->third_sender))
+		{
+			$list[] = $sender->third_sender;
+		}
+
+
+		if(!empty($list))
+		{
+			$ds = $CI->sender_model->get_sender_in($list);
+
+			if(!empty($ds))
+			{
+				foreach($ds as $rs)
+				{
+					$sc .= '<option value="'.$rs->id.'" '.(empty($id) ? is_selected($rs->id, $list[0]) : is_selected($rs->id, $id)).'>'.$rs->name.'</option>';
+				}
+			}
+		}
+	}
+
+	$common = $CI->sender_model->get_common_list($list);
+
+	if(!empty($common))
+	{
+		foreach($common as $rs)
+		{
+			$sc .= '<option value="'.$rs->id.'" '.is_selected($rs->id, $id).'>'.$rs->name.'</option>';
+		}
+	}
+
+	return $sc;
+}
+
+
  ?>

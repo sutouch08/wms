@@ -5,7 +5,7 @@ class Transfer extends PS_Controller
 {
   public $menu_code = 'ICTRWH';
 	public $menu_group_code = 'IC';
-  public $menu_sub_group_code = 'TRANFER';
+  public $menu_sub_group_code = 'TRANSFER';
 	public $title = 'โอนสินค้าระหว่างคลัง';
   public $filter;
   public $error;

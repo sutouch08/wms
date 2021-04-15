@@ -3,7 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Transport extends PS_Controller{
 	public $menu_code = 'DBTRSP'; //--- Add/Edit Users
-	public $menu_group_code = 'TRANSPORT'; //--- System security
+	public $menu_group_code = 'DB';
+	public $menu_sub_group_code = 'TRANSPORT'; //--- System security
 	public $title = 'เชื่อมโยงขนส่ง';
 
   public function __construct()

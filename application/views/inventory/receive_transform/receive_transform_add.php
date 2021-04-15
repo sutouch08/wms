@@ -29,11 +29,18 @@
 				<input type="text" class="form-control input-sm" value="" disabled />
 			<?php endif; ?>
     </div>
-		<div class="col-sm-1 padding-5">
+		<div class="col-sm-1 col-1-harf padding-5">
     	<label>วันที่</label>
       <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" readonly />
     </div>
-    <div class="col-sm-8 padding-5">
+		<div class="col-sm-1 col-1-harf padding-5">
+			<label>ช่องทางการรับ</label>
+			<select class="form-control input-sm header-box" name="is_wms" id="is_wms">
+				<option value="1" selected>WMS</option>
+				<option value="0">Warrix</option>
+			</select>
+		</div>
+    <div class="col-sm-6 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
     </div>
@@ -51,6 +58,6 @@
 </form>
 <hr class="margin-top-15"/>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

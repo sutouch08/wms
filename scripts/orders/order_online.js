@@ -417,20 +417,54 @@ function editAddress(id)
 }
 
 
-
-
-
-//--------- set address as default address  ------------------//
-function setDefault(id)
+function setSender()
 {
-	var customer_ref = $('#customer_ref').val();
+	var order_code = $('#order_code').val();
+	var id_sender = $('#id_sender').val();
+	if(id_sender == "" ) {
+		swal("กรุณาเลือกผู้จัดส่ง");
+		return false;
+	}
+
 	$.ajax({
-		url:BASE_URL + 'orders/orders/set_default_address',
+		url:BASE_URL + 'orders/orders/set_sender',
+		type:'POST',
+		cache:false,
+		data:{
+			'order_code' : order_code,
+			'id_sender' : id_sender
+		},
+		success:function(rs) {
+			if(rs == 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}
+
+
+//---------   ------------------//
+function setAddress(id)
+{
+	var order_code = $('#order_code').val();
+	$.ajax({
+		url:BASE_URL + 'orders/orders/set_address',
 		type:"POST",
 		cache:"false",
 		data:{
 			"id_address" : id,
-			"customer_ref" : customer_ref
+			"order_code" : order_code
 		},
 		success: function(rs){
 			$(".btn-address").removeClass('btn-success');
@@ -445,13 +479,14 @@ function setDefault(id)
 
 function reloadAddressTable()
 {
-	var order_code = $("#order_code").val();
+	var customer_code = $("#customerCode").val();
 	var customer_ref = $('#customer_ref').val();
 	$.ajax({
 		url:BASE_URL + 'orders/orders/get_address_table',
 		type:"POST",
 		cache:"false",
 		data:{
+			'customer_code' : customer_code,
 			'customer_ref' : customer_ref
 		},
 		success: function(rs){
@@ -475,6 +510,7 @@ function reloadAddressTable()
 
 function saveAddress()
 {
+	var customer_code = $('#customerCode').val();
 	var code 			= $('#customer_ref').val();
 	var name			= $("#Fname").val();
 	var addr			= $("#address1").val();
@@ -483,11 +519,6 @@ function saveAddress()
 	var province  = $('#province').val();
 	var email			= $("#email").val();
 	var alias 		= $("#alias").val();
-
-	if(code == ''){
-		swal('กรุณาระบุชื่อลูกค้า[ออนไลน์]');
-		return false;
-	}
 
 
 	if( name == '' ){
@@ -530,6 +561,7 @@ function saveAddress()
 	var ds = [];
 
 	ds.push( {"name" : "id_address", "value" : $("#id_address").val() } );
+	ds.push( {"name" : "customer_code", "value" : $("#customerCode").val() });
 	ds.push( {"name" : "customer_ref", "value" : $("#customer_ref").val() } );
 	ds.push( {"name" : "name", "value" : $("#Fname").val() } );
 	ds.push( {"name" : "address", "value" : $("#address1").val() } );

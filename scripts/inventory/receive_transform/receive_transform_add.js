@@ -15,6 +15,7 @@ function editHeader(){
 function updateHeader(){
 	var code = $('#receive_code').val();
 	var date_add = $('#dateAdd').val();
+	var is_wms = $('#is_wms').val();
 	var remark = $('#remark').val();
 	if(!isDate(date_add)){
 		swal("วันที่ไม่ถูกต้อง");
@@ -27,6 +28,7 @@ function updateHeader(){
 		cache:false,
 		data:{
 			'code' : code,
+			'is_wms' : is_wms,
 			'date_add' : date_add,
 			'remark' : remark
 		},
@@ -80,10 +82,83 @@ function receiveProduct(pdCode){
 	}
 }
 
+function save_wms() {
+	var is_wms = $('#is_wms').val();
+	if(is_wms) {
+		var code = $('#receive_code').val();
+		var order_code = $.trim($('#order_code').val());
+		var invoice = $.trim($('#invoice').val());
+
+		//--- ตรวจสอบความถูกต้องของข้อมูล
+		if(code == '' || code == undefined){
+			swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครับ ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
+			return false;
+		}
+
+		//--- ใบสั่งซื้อถูกต้องหรือไม่
+		if(order_code == ''){
+			swal('กรุณาระบุใบเบิกแปรสภาพ');
+			return false;
+		}
+
+		//--- ตรวจสอบใบส่งของ (ต้องระบุ)
+		if(invoice.length == 0){
+			swal('กรุณาระบุใบส่งสินค้า');
+			return false;
+		}
+
+		load_in();
+
+		$.ajax({
+			url:HOME + 'save_wms',
+			type:'POST',
+			cache:false,
+			data:{
+				'code' : code,
+				'order_code' : order_code,
+				'invoice' : invoice
+			},
+			success:function(rs) {
+				load_out();
+				var rs = $.trim(rs);
+				if(rs == 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function() {
+						viewDetail(code);
+					}, 1200);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error',
+						html:true
+					})
+				}
+			},
+			error:function(xhr, status, error) {
+				load_out();
+				swal({
+					title:'Error',
+					text:xhr.responseText,
+					type:'error',
+					html:true
+				});
+			}
+		})
+
+	}
+}
 
 
+function save() {
 
-function save(){
+	is_wms = $('#is_wms').val();
 
 	code = $('#receive_code').val();
 
@@ -117,22 +192,26 @@ function save(){
 		return false;
 	}
 
-	//--- มีรายการในใบสั่งซื้อหรือไม่
-	if(count = 0){
-		swal('Error!', 'ไม่พบรายการรับเข้า','error');
-		return false;
-	}
-
 	//--- ตรวจสอบใบส่งของ (ต้องระบุ)
 	if(invoice.length == 0){
 		swal('กรุณาระบุใบส่งสินค้า');
 		return false;
 	}
 
-	//--- ตรวจสอบโซนรับเข้า
-	if(zone_code == '' || zoneName == ''){
-		swal('กรุณาระบุโซนเพื่อรับเข้า');
-		return false;
+	if(is_wms == 0) {
+		//--- มีรายการในใบสั่งซื้อหรือไม่
+		if(count = 0){
+			swal('Error!', 'ไม่พบรายการรับเข้า','error');
+			return false;
+		}
+
+
+
+		//--- ตรวจสอบโซนรับเข้า
+		if(zone_code == '' || zoneName == ''){
+			swal('กรุณาระบุโซนเพื่อรับเข้า');
+			return false;
+		}
 	}
 
 
@@ -175,10 +254,16 @@ function save(){
 		return false;
 	}
 
+	var url = HOME + 'save';
+
+	if(is_wms == 1) {
+		url = HOME + 'save_wms';
+	}
+
 	load_in();
 
 	$.ajax({
-		url: HOME + 'save',
+		url: url,
 		type:"POST",
 		cache:"false",
 		data: ds,
@@ -212,30 +297,32 @@ function save(){
 
 
 function checkLimit(){
-	var limit = $("#overLimit").val();
-	var over = 0;
-	$(".barcode").each(function(index, element) {
-    var arr = $(this).attr("id").split('_');
-		var barcode = arr[1];
-		var limit = parseInt($("#limit_"+barcode).val() );
-		var qty = parseInt($("#receive_"+barcode).val() );
-		if( ! isNaN(limit) && ! isNaN( qty ) ){
-			if( qty > limit ){
-				over++;
-				}
-			}
-    });
 
-	if( over > 0 ){
-		swal({
-			title:'Error!',
-			text:'ยอดรับเกินยอดค้างรับ กรุณาตรวจสอบ',
-			type:'error'
-		});
-		//getApprove();
-	}else{
-		save();
-	}
+		var limit = $("#overLimit").val();
+		var over = 0;
+		$(".barcode").each(function(index, element) {
+	    var arr = $(this).attr("id").split('_');
+			var barcode = arr[1];
+			var limit = parseInt($("#limit_"+barcode).val() );
+			var qty = parseInt($("#receive_"+barcode).val() );
+			if( ! isNaN(limit) && ! isNaN( qty ) ){
+				if( qty > limit ){
+					over++;
+					}
+				}
+	    });
+
+		if( over > 0 ){
+			swal({
+				title:'Error!',
+				text:'ยอดรับเกินยอดค้างรับ กรุณาตรวจสอบ',
+				type:'error'
+			});
+			//getApprove();
+		}else{
+			save();
+		}
+
 }
 
 

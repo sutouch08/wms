@@ -5,7 +5,7 @@ class Move extends PS_Controller
 {
   public $menu_code = 'ICTRMV';
 	public $menu_group_code = 'IC';
-  public $menu_sub_group_code = 'TRANFER';
+  public $menu_sub_group_code = 'TRANSFER';
 	public $title = 'ย้ายพื้นที่จัดเก็บ';
   public $filter;
   public $error;

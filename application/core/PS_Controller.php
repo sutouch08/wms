@@ -61,6 +61,25 @@ class PS_Controller extends CI_Controller
       $this->WL = get_permission('ICLEND', $uid);
     }
   }
+
+
+  public function deny_page()
+  {
+    return $this->load->view('deny_page');
+  }
+
+
+  public function error_page($err = NULL)
+  {
+		$error = array('error_message' => $err);
+    return $this->load->view('page_error', $error);
+  }
+
+	public function page_error($err = NULL)
+  {
+		$error = array('error_message' => $err);
+    return $this->load->view('page_error', $error);
+  }
 }
 
 ?>

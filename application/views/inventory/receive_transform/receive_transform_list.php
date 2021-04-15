@@ -38,6 +38,16 @@
 			<option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่บันทึก</option>
 			<option value="1" <?php echo is_selected('1', $status); ?>>บันทึกแล้ว</option>
 			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
+			<option value="3" <?php echo is_selected('3', $status); ?>>WMS Process</option>
+		</select>
+  </div>
+
+	<div class="col-sm-1 col-1-harf padding-5">
+    <label>ช่องทาง</label>
+		<select name="is_wms" class="form-control input-sm" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $is_wms); ?>>Warrix</option>
+			<option value="1" <?php echo is_selected('1', $is_wms); ?>>WMS</option>
 		</select>
   </div>
 
@@ -68,6 +78,7 @@
       สถานะ : ว่างๆ = ปกติ, &nbsp;
       <span class="red">CN</span> = ยกเลิก, &nbsp;
       <span class="blue">NC</span> = ยังไม่บันทึก
+			<span class="purple">OP</span> = รอรับที่ WMS
     </p>
   </div>
 	<div class="col-sm-12">
@@ -101,7 +112,10 @@
                   <span class="blue"><strong>NC</strong></span>
                 <?php endif; ?>
                 <?php if($rs->status == 2) : ?>
-                <span class="red"><strong>CN</strong></span>
+                	<span class="red"><strong>CN</strong></span>
+								<?php endif; ?>
+								<?php if($rs->status == 3) : ?>
+									<span class="purple"><strong>OP</strong></span>
                 <?php endif; ?>
               </td>
 							<td class="middle"><?php echo $rs->user; ?></td>

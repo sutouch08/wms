@@ -9,6 +9,8 @@ class Receive_transform extends PS_Controller
 	public $title = 'รับสินค้าจากการแปรสภาพ';
   public $filter;
   public $error;
+	public $wms;
+
   public function __construct()
   {
     parent::__construct();
@@ -27,7 +29,8 @@ class Receive_transform extends PS_Controller
       'order_code' => get_filter('order_code', 'trans_order_code', ''),
       'from_date' => get_filter('from_date', 'trans_from_date', ''),
       'to_date' => get_filter('to_date', 'trans_to_date', ''),
-      'status' => get_filter('status', 'trans_status', 'all')
+      'status' => get_filter('status', 'trans_status', 'all'),
+			'is_wms' => get_filter('is_wms', 'trans_is_wms', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -111,6 +114,132 @@ class Receive_transform extends PS_Controller
     $this->load->view('print/print_received_transform', $ds);
   }
 
+
+	public function save_wms()
+	{
+		$sc = TRUE;
+		$this->load->model('masters/products_model');
+
+		$code = trim($this->input->post('receive_code'));
+		$order_code = trim($this->input->post('order_code'));
+		$invoice = trim($this->input->post('invoice'));
+		$receive = $this->input->post('receive');
+		$backlogs = $this->input->post('backlogs');
+		$prices = $this->input->post('prices');
+
+		$doc = $this->receive_transform_model->get($code);
+
+		if(!empty($doc))
+		{
+			if($doc->status == 0)
+			{
+				if($doc->is_wms == 1)
+				{
+					//$details = $this->receive_transform_model->get_transform_details($order_code);
+
+					if(!empty($receive))
+					{
+						$details = array();
+
+						foreach($receive as $item => $qty)
+						{
+							if($qty > 0)
+							{
+								$pd = $this->products_model->get($item);
+								$price = $this->get_avg_cost($item);
+								$cost = $price == 0 ? $pd->cost : $price;
+								$ds = new stdClass;
+								$ds->receive_code = $code;
+								$ds->style_code = $pd->style_code;
+								$ds->product_code = $pd->code;
+								$ds->product_name = $pd->name;
+								$ds->unit_code = $pd->unit_code;
+								$ds->price = $cost;
+								$ds->qty = $qty;
+								$ds->amount = $qty * $cost;
+
+								$details[] = $ds;
+							}
+						}
+
+
+						$this->load->library('wms_receive_api');
+
+						$rs = $this->wms_receive_api->export_receive_transform($doc, $order_code, $invoice, $details);
+
+						if($rs === TRUE)
+						{
+
+							//--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
+		          $this->receive_transform_model->drop_details($code);
+
+							//--- เพิ่มรายการเข้า list
+		          foreach($details as $rs)
+		          {
+
+								$arr = array(
+									'receive_code' => $rs->receive_code,
+									'style_code' => $rs->style_code,
+									'product_code' => $rs->product_code,
+									'product_name' => $rs->product_name,
+									'price' => $rs->price,
+									'qty' => $rs->qty,
+									'amount' => $rs->amount
+								);
+
+								$this->receive_transform_model->add_detail($arr);
+		          } //--- end foreach
+
+
+							//--- update document
+							$arr = array(
+								'order_code' => $order_code,
+								'invoice_code' => $invoice,
+								'zone_code' => getConfig('WMS_ZONE'),
+								'warehouse_code' => getConfig('WMS_WAREHOUSE'),
+								'update_user' => get_cookie('uname'),
+								'status' => 3 //--- 0 = not save, 1 = saved, 2 = cancle , 3 = on process at wms
+							);
+
+							if(! $this->receive_transform_model->update($code, $arr))
+							{
+								$sc = FALSE;
+								$this->error = "Update document failed";
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = trim($this->wms_receive_api->error);
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "No data";
+					}
+
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "This document must receive by Warrix";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document number";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 
@@ -467,8 +596,22 @@ class Receive_transform extends PS_Controller
   public function edit($code)
   {
     $document = $this->receive_transform_model->get($code);
-    $ds['document'] = $document;
-    $this->load->view('inventory/receive_transform/receive_transform_edit', $ds);
+
+		if(!empty($document))
+		{
+			$ds['document'] = $document;
+
+			if($document->is_wms)
+			{
+				$ds['details'] = !empty($document) ? $this->receive_transform_model->get_details($code) : NULL;
+			}
+
+	    $this->load->view('inventory/receive_transform/receive_transform_edit', $ds);
+		}
+		else
+		{
+			$this->page_error();
+		}
   }
 
 
@@ -476,11 +619,13 @@ class Receive_transform extends PS_Controller
 		$sc = TRUE;
     $code = $this->input->post('code');
     $date = db_date($this->input->post('date_add'));
+		$is_wms = $this->input->post('is_wms');
     $remark = get_null($this->input->post('remark'));
 
     if(!empty($code))
     {
 			$arr = array(
+				'is_wms' => $is_wms,
 	      'date_add' => $date,
 	      'remark' => $remark
 	    );
@@ -498,7 +643,7 @@ class Receive_transform extends PS_Controller
 			$this->error = "Missing required parameter : code";
 		}
 
-		$this->response($sc);
+		echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -527,7 +672,6 @@ class Receive_transform extends PS_Controller
 
   public function add()
   {
-    $sc = array();
 
     if($this->input->post('date_add'))
     {
@@ -541,22 +685,27 @@ class Receive_transform extends PS_Controller
         'invoice_code' => NULL,
         'remark' => $this->input->post('remark'),
         'date_add' => $date_add,
-        'user' => get_cookie('uname')
+        'user' => get_cookie('uname'),
+				'is_wms' => $this->input->post('is_wms')
       );
 
       $rs = $this->receive_transform_model->add($arr);
 
       if($rs)
       {
-        redirect($this->home.'/edit/'.$code);
+        $arr = array('code' => $code);
+
+				echo json_encode($arr);
       }
       else
       {
-        set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-        redirect($this->home.'/add_new');
+        echo 'เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
       }
-
     }
+		else
+		{
+			echo "Missing required parameter";
+		}
   }
 
 
@@ -607,9 +756,16 @@ class Receive_transform extends PS_Controller
   }
 
 
+
+	public function get_transform_backlogs($code, $product_code)
+	{
+		return $this->receive_transform_model->get_transform_backlogs($code, $product_code);
+	}
+
+
   public function clear_filter()
   {
-    $filter = array('trans_code','trans_invoice','trans_order_code','trans_from_date','trans_to_date', 'trans_status');
+    $filter = array('trans_code','trans_invoice','trans_order_code','trans_from_date','trans_to_date', 'trans_status', 'trans_is_wms');
     clear_filter($filter);
   }
 

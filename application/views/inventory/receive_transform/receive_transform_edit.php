@@ -24,7 +24,14 @@
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center header-box" name="date_add" id="dateAdd" value="<?php echo thai_date($document->date_add); ?>" disabled />
   </div>
-	<div class="col-sm-8 col-8-harf padding-5">
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>ช่องทางการรับ</label>
+		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
+			<option value="0" <?php echo is_selected('0', $document->is_wms); ?>>Warrix</option>
+			<option value="1" <?php echo is_selected('1', $document->is_wms); ?>>WMS</option>
+		</select>
+	</div>
+	<div class="col-sm-7 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm header-box" name="remark" id="remark" value="<?php echo $document->remark; ?>" disabled />
 	</div>
@@ -170,7 +177,7 @@
 <?php else : ?>
   <?php redirect($this->home.'/view_detail/'.$document->code); ?>
 <?php endif; ?>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

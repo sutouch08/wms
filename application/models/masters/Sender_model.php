@@ -48,7 +48,53 @@ class Sender_model extends CI_Model
 
 
 
+	public function get_common_list($list =  array())
+	{
 
+		$this->db->where('show_in_list', 1);
+		
+		if(!empty($list))
+		{
+			$this->db->where_not_in('id', $list);
+		}
+
+		$rs = $this->db->get('address_sender');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function get_customer_sender_list($customer_code)
+	{
+		$rs = $this->db->where('customer_code', $customer_code)->get('address_transport');
+
+		if($rs->num_rows() == 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function get_sender_in($arr)
+	{
+		$rs = $this->db->where_in('id', $arr)->get('address_sender');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
   public function get_sender($id)
   {

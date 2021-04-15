@@ -118,6 +118,7 @@ class Support extends PS_Controller
       $has_term = 1; //--- ถือว่าเป็นเครดิต
 
       $ds = array(
+				'date_add' => $date_add,
         'code' => $code,
         'role' => $role,
         'bookcode' => $book_code,

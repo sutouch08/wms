@@ -7,7 +7,9 @@
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
       <button type="button" class="btn btn-sm btn-info" onclick="printReceived()"><i class="fa fa-print"></i> พิมพ์</button>
+			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+			<?php endif; ?>
     </p>
   </div>
 </div>
@@ -40,7 +42,25 @@
   	<label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled/>
   </div>
-  <div class="col-sm-12 padding-5 first last">
+	<div class="col-sm-1 col-1-harf padding-5 first">
+		<label>ช่องทางการรับ</label>
+		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
+			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
+			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</option>
+		</select>
+	</div>
+
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>สถานะ</label>
+		<select class="form-control input-sm header-box" name="status" id="status" disabled>
+			<option value="0" <?php echo is_selected('0', $doc->status); ?>>ยังไม่บันทึก</option>
+			<option value="1" <?php echo is_selected('1', $doc->status); ?>>บันทึกแล้ว</option>
+			<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
+			<option value="2" <?php echo is_selected('2', $doc->status); ?>>ยกเลิก</option>
+		</select>
+	</div>
+
+  <div class="col-sm-9 padding-5 last">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
 	</div>
@@ -51,6 +71,11 @@
 if($doc->status == 2)
 {
   $this->load->view('cancle_watermark');
+}
+
+if($doc->status == 3)
+{
+	$this->load->view('on_process_watermark');
 }
 ?>
 <hr class="margin-top-15 margin-bottom-15"/>
