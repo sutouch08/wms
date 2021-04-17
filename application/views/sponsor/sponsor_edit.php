@@ -36,6 +36,9 @@
 				<?php if($order->state == 1 && $order->is_approved == 1 && $order->status == 1 && $order->is_expired == 0 && $this->pm->can_approve) : ?>
 						<button type="button" class="btn btn-sm btn-danger" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
 				<?php endif; ?>
+				<?php if($order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
+					<button type="button" class="btn btn-sm btn-success" onclick="sendToWMS()">Send to WMS</button>
+				<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
@@ -43,8 +46,9 @@
 
 <?php $this->load->view('sponsor/sponsor_edit_header'); ?>
 <?php if(empty($approve_view)) : ?>
-<?php $this->load->view('orders/order_state'); ?>
+<?php $this->load->view('orders/order_panel'); ?>
 <?php $this->load->view('sponsor/sponsor_discount_bar'); ?>
+<?php $this->load->view('orders/order_online_modal'); ?>
 <?php endif; ?>
 <?php $this->load->view('sponsor/sponsor_detail'); ?>
 
@@ -70,8 +74,13 @@
 <?php endif; ?>
 
 
-<script src="<?php echo base_url(); ?>scripts/sponsor/sponsor.js"></script>
-<script src="<?php echo base_url(); ?>scripts/sponsor/sponsor_add.js?v=<?php echo date('YmdHis'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/print/print_order.js"></script>
+<script src="<?php echo base_url(); ?>scripts/sponsor/sponsor.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/sponsor/sponsor_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_order.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_online.js?v=<?php echo date('Ymd'); ?>"></script>
+<?php if($order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
+	<script src="<?php echo base_url(); ?>scripts/wms/wms_order.js?v=<?php echo date('Ymd'); ?>"></script>
+<?php endif; ?>
 
 <?php $this->load->view('include/footer'); ?>

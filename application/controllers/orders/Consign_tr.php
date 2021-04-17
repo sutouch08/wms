@@ -48,7 +48,8 @@ class Consign_tr extends PS_Controller
       'onlyMe' => get_filter('onlyMe', 'consign_onlyMe', NULL),
       'isExpire' => get_filter('isExpire', 'consign_isExpire', NULL),
       'isApprove' => get_filter('isApprove', 'consign_isApprove', 'all'),
-      'isValid' => get_filter('isValid', 'consign_isValid', 'all')
+      'isValid' => get_filter('isValid', 'consign_isValid', 'all'),
+			'warehouse' => get_filter('warehouse', 'consign_warehouse', '')
     );
 
     $state = array(
@@ -200,6 +201,7 @@ class Consign_tr extends PS_Controller
 
   public function add()
   {
+		$this->load->model('masters/warehouse_model');
     if($this->input->post('customerCode'))
     {
       $book_code = getConfig('BOOK_CODE_CONSIGN_TR');
@@ -215,7 +217,7 @@ class Consign_tr extends PS_Controller
 
       $role = 'N'; //--- C = ฝากขายโอนคลัง
       $zone = $this->input->post('zone_code');
-      $warehouse_code = $this->input->post('warehouse');
+      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
       if(!empty($zone))
       {
         $ds = array(
@@ -228,7 +230,8 @@ class Consign_tr extends PS_Controller
           'user' => get_cookie('uname'),
           'remark' => $this->input->post('remark'),
           'zone_code' => $zone,
-          'warehouse_code' => $warehouse_code
+          'warehouse_code' => $wh->code,
+					'is_wms' => $wh->is_wms
         );
 
         if($this->orders_model->add($ds) === TRUE)
@@ -269,6 +272,8 @@ class Consign_tr extends PS_Controller
   public function edit_order($code, $approve_view = NULL)
   {
     $this->load->model('approve_logs_model');
+		$this->load->model('address/address_model');
+		$this->load->helper('sender');
 
     $ds = array();
     $rs = $this->orders_model->get($code);
@@ -293,12 +298,14 @@ class Consign_tr extends PS_Controller
 
     $approve_logs = $this->approve_logs_model->get($code);
     $details = $this->orders_model->get_order_details($code);
+		$ship_to = $this->address_model->get_ship_to_address($rs->customer_code);
 
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $approve_logs;
     $ds['state'] = $ost;
     $ds['order'] = $rs;
     $ds['details'] = $details;
+		$ds['addr']  = $ship_to;
     $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
     $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
     $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -335,9 +342,11 @@ class Consign_tr extends PS_Controller
 
     if($this->input->post('order_code'))
     {
+			$this->load->model('masters/warehouse_model');
+
       $code = $this->input->post('order_code');
       $zone = $this->input->post('zone_code');
-      $warehouse_code = $this->input->post('warehouse_code');
+      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
       if(!empty($code))
       {
         $ds = array(
@@ -346,7 +355,10 @@ class Consign_tr extends PS_Controller
           'date_add' => db_date($this->input->post('date_add')),
           'remark' => $this->input->post('remark'),
           'zone_code' => $zone,
-          'warehouse_code' => $warehouse_code
+					'warehouse_code' => $wh->code,
+					'is_wms' => $wh->is_wms,
+					'id_address' => NULL,
+					'id_sender' => NULL
         );
 
         $rs = $this->orders_model->update($code, $ds);
@@ -397,6 +409,55 @@ class Consign_tr extends PS_Controller
       }
     }
 
+		if(empty($order->id_address))
+		{
+			$this->load->model('address/address_model');
+			$id_address = NULL;
+
+			if(!empty($order->customer_ref))
+			{
+				$id_address = $this->address_model->get_shipping_address_id_by_code($order->customer_ref);
+			}
+			else
+			{
+				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
+			}
+
+			if(!empty($id_address))
+			{
+				$arr = array(
+					'id_address' => $id_address
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
+
+
+		if(empty($order->id_sender))
+		{
+			$this->load->model('masters/sender_model');
+			$id_sender = NULL;
+
+			$sender = $this->sender_model->get_customer_sender_list($order->customer_code);
+
+			if(!empty($sender))
+			{
+				if(!empty($sender->main_sender))
+				{
+					$id_sender = $sender->main_sender;
+				}
+			}
+
+			if(!empty($id_sender))
+			{
+				$arr = array(
+					'id_sender' => $id_sender
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
 
     if($sc === TRUE)
     {
@@ -446,6 +507,7 @@ class Consign_tr extends PS_Controller
       'consign_toDate',
       'consign_isApprove',
       'consign_isValid',
+			'consign_warehouse',
       'consign_notSave',
       'consign_onlyMe',
       'consign_isExpire',

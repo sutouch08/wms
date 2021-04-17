@@ -1,22 +1,3 @@
-
-<!--  สรุปยอดส่ง Line --------->
-<div class="modal fade" id="orderSummaryTab" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="max-width:500px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            </div>
-            <div class="modal-body" >
-            <div id="summaryText"></div>
-            </div>
-            <div class="modal-footer">
-               <button class="btn btn-sm btn-info btn-block" data-dismiss="modal" data-clipboard-action="copy" data-clipboard-target="#summaryText">Copy</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <!--  Add New Address Modal  --------->
 <div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width:500px;">
@@ -75,6 +56,27 @@
         </div>
     </div>
 </div>
+
+<?php if($order->role == 'S') : ?>
+<!--  สรุปยอดส่ง Line --------->
+<div class="modal fade" id="orderSummaryTab" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body" >
+            <div id="summaryText"></div>
+            </div>
+            <div class="modal-footer">
+               <button class="btn btn-sm btn-info btn-block" id="btn" data-dismiss="modal" data-clipboard-action="copy" data-clipboard-target="#summaryText">Copy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 
 
@@ -271,52 +273,6 @@
     </div>
 </div>
 
-
-
-<script id="addressTemplate" type="text/x-handlebars-template">
-<tr style="font-size:12px;" id="{{ id }}">
-	<td align="center">{{ alias }}</td>
-	<td>{{ name }}</td>
-	<td>{{ address }}</td>
-	<td>{{ email }}</td>
-	<td>{{ phone }}</td>
-	<td align="right">
-	{{#if default}}
-		<button type="button" class="btn btn-xs btn-success btn-address" id="btn-{{ id }}" onClick="setDefault({{ id }})"><i class="fa fa-check"></i></button>
-	{{else}}
-		<button type="button" class="btn btn-xs btn-address" id="btn-{{ id }}" onClick="setDefault({{ id }})"><i class="fa fa-check"></i></button>
-	{{/if}}
-		<button type="button" class="btn btn-xs btn-warning" onClick="editAddress({{ id }})"><i class="fa fa-pencil"></i></button>
-		<button type="button" class="btn btn-xs btn-danger" onClick="removeAddress({{ id }})"><i class="fa fa-trash"></i></button>
-	</td>
-</tr>
-</script>
-
-
-
-<script id="addressTableTemplate" type="text/x-handlebars-template">
-{{#each this}}
-<tr style="font-size:12px;" id="{{ id }}">
-	<td align="center">{{ alias }}</td>
-	<td>{{ name }}</td>
-	<td>{{ address }}</td>
-	<td>{{ email }}</td>
-	<td>{{ phone }}</td>
-	<td align="right">
-	{{#if default}}
-		<button type="button" class="btn btn-xs btn-success btn-address" id="btn-{{ id }}" onClick="setDefault({{ id }})"><i class="fa fa-check"></i></button>
-	{{else}}
-		<button type="button" class="btn btn-xs btn-address" id="btn-{{ id }}" onClick="setDefault({{ id }})"><i class="fa fa-check"></i></button>
-	{{/if}}
-		<button type="button" class="btn btn-xs btn-warning" onClick="editAddress({{ id }})"><i class="fa fa-pencil"></i></button>
-		<button type="button" class="btn btn-xs btn-danger" onClick="removeAddress({{ id }})"><i class="fa fa-trash"></i></button>
-	</td>
-</tr>
-{{/each}}
-</script>
-
-
-
 <script id="detailTemplate" type="text/x-handlebars-template">
 <div class="row">
 	<div class="col-sm-12 text-center">ข้อมูลการชำระเงิน</div>
@@ -338,4 +294,48 @@
 		<div class="col-sm-12 col-xs-12 top-row top-col text-center">---  ไม่พบไฟล์แนบ  ---</div>
 	{{/if}}
 </div>
+</script>
+
+<?php endif; ?>
+
+<script id="addressTemplate" type="text/x-handlebars-template">
+<tr style="font-size:12px;" id="{{ id }}">
+	<td align="center">{{ alias }}</td>
+	<td>{{ name }}</td>
+	<td>{{ address }}</td>
+	<td>{{ email }}</td>
+	<td>{{ phone }}</td>
+	<td align="right">
+	{{#if default}}
+		<button type="button" class="btn btn-xs btn-success btn-address" id="btn-{{ id }}" onClick="setAddress({{ id }})"><i class="fa fa-check"></i></button>
+	{{else}}
+		<button type="button" class="btn btn-xs btn-address" id="btn-{{ id }}" onClick="setAddress({{ id }})"><i class="fa fa-check"></i></button>
+	{{/if}}
+		<button type="button" class="btn btn-xs btn-warning" onClick="editAddress({{ id }})"><i class="fa fa-pencil"></i></button>
+		<button type="button" class="btn btn-xs btn-danger" onClick="removeAddress({{ id }})"><i class="fa fa-trash"></i></button>
+	</td>
+</tr>
+</script>
+
+
+
+<script id="addressTableTemplate" type="text/x-handlebars-template">
+{{#each this}}
+<tr style="font-size:12px;" id="{{ id }}">
+	<td align="center">{{ alias }}</td>
+	<td>{{ name }}</td>
+	<td>{{ address }}</td>
+	<td>{{ email }}</td>
+	<td>{{ phone }}</td>
+	<td align="right">
+	{{#if default}}
+		<button type="button" class="btn btn-xs btn-success btn-address" id="btn-{{ id }}" onClick="setAddress({{ id }})"><i class="fa fa-check"></i></button>
+	{{else}}
+		<button type="button" class="btn btn-xs btn-address" id="btn-{{ id }}" onClick="setAddress({{ id }})"><i class="fa fa-check"></i></button>
+	{{/if}}
+		<button type="button" class="btn btn-xs btn-warning" onClick="editAddress({{ id }})"><i class="fa fa-pencil"></i></button>
+		<button type="button" class="btn btn-xs btn-danger" onClick="removeAddress({{ id }})"><i class="fa fa-trash"></i></button>
+	</td>
+</tr>
+{{/each}}
 </script>

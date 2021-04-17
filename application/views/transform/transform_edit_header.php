@@ -56,5 +56,7 @@
 		<input type="hidden" id="role" name="role" value="<?php echo $this->role; ?>" />
 		<input type="hidden" id="is_approved" value="<?php echo $order->is_approved; ?>" />
 		<input type="hidden" name="zoneCode" id="zoneCode" value="<?php echo $order->zone_code; ?>">
+		<input type="hidden" name="is_wms" id="is_wms" value="<?php echo $order->is_wms; ?>" />
+		<input type="hidden" name="address_id" id="address_id" value="<?php echo $order->id_address; //--- id_address ใช้แล้วใน online modal?>" />
 </div>
 <hr class="margin-bottom-15 padding-5"/>

@@ -47,5 +47,7 @@
     <input type="hidden" name="order_code" id="order_code" value="<?php echo $order->code; ?>" />
 		<input type="hidden" id="is_approved" value="<?php echo $order->is_approved; ?>" />
     <input type="hidden" name="customerCode" id="customerCode" value="<?php echo $order->customer_code; ?>" />
+		<input type="hidden" name="is_wms" id="is_wms" value="<?php echo $order->is_wms; ?>" />
+		<input type="hidden" name="address_id" id="address_id" value="<?php echo $order->id_address; //--- id_address ใช้แล้วใน online modal?>" />
 </div>
 <hr class="margin-bottom-15 padding-5"/>

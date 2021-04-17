@@ -1,12 +1,16 @@
-
+<?php if($order->role == 'S') : ?>
+	<?php 	$paymentLabel = paymentLabel($order->code, paymentExists($order->code), $order->is_paid);	?>
+	<?php if(!empty($paymentLabel)) : ?>
+		<div class="row">
+		  <div class="col-sm-12 col-xs-12 padding-5">
+		  	<?php echo $paymentLabel; ?>
+		  </div>
+		</div>
+		<hr class="padding-5"/>
+	<?php endif; ?>
+<?php endif; ?>
 <div class="row">
-  <div class="col-sm-12">
-  <?php echo paymentLabel($order->code, paymentExists($order->code), $order->is_paid); ?>
-  </div>
-</div>
-<hr />
-<div class="row">
-  <div class="col-sm-12">
+  <div class="col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
     	<ul class="nav nav-tabs" role="tablist">
         <li class="active">
@@ -26,22 +30,22 @@
           <div class='row'>
             <div class="col-sm-12">
             <div class="table-responsive">
-              <table class='table table-bordered' style="margin-bottom:0px;">
+              <table class='table table-bordered' style="margin-bottom:0px; border-collapse:collapse; border:0;">
                 <thead>
-                  <tr>
-                    <td colspan="6" align="center">ที่อยู่สำหรับจัดส่ง
+                  <tr style="background-color:white;">
+                    <th colspan="6" align="center">ที่อยู่สำหรับจัดส่ง
                       <p class="pull-right top-p">
                         <button type="button" class="btn btn-info btn-xs" onClick="addNewAddress()"> เพิ่มที่อยู่ใหม่</button>
                       </p>
-                    </td>
+                    </th>
                   </tr>
-                  <tr style="font-size:12px;">
-                    <td align="center" width="10%">ชื่อเรียก</td>
-                    <td width="12%">ผู้รับ</td>
-                    <td width="35%">ที่อยู่</td>
-                    <td width="15%">อีเมล์</td>
-                    <td width="15%">โทรศัพท์</td>
-                    <td ></td>
+                  <tr style="font-size:12px; background-color:white;">
+                    <th align="center" width="10%">ชื่อเรียก</th>
+                    <th width="12%">ผู้รับ</th>
+                    <th width="35%">ที่อยู่</th>
+                    <th width="15%">อีเมล์</th>
+                    <th width="15%">โทรศัพท์</th>
+                    <th ></td>
                   </tr>
                 </thead>
                 <tbody id="adrs">
@@ -54,20 +58,31 @@
                     <td><?php echo $rs->email; ?></td>
                     <td><?php echo $rs->phone; ?></td>
                     <td align="right">
+									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
+										<?php $func = "onClick='setAddress({$rs->id})'"; ?>
+									<?php else : ?>
+										<?php $func = ""; ?>
+									<?php endif; ?>
+
               <?php if( $rs->id == $order->id_address ) : ?>
-                      <button type="button" class="btn btn-minier btn-success btn-address" id="btn-<?php echo $rs->id; ?>" onClick="setAddress(<?php echo $rs->id; ?>)">
+                      <button type="button" class="btn btn-minier btn-success btn-address" id="btn-<?php echo $rs->id; ?>" <?php echo $func; ?>>
                         <i class="fa fa-check"></i>
                       </button>
               <?php else : ?>
-                      <button type="button" class="btn btn-minier btn-address" id="btn-<?php echo $rs->id; ?>" onClick="setAddress(<?php echo $rs->id; ?>)">
+                      <button type="button" class="btn btn-minier btn-address" id="btn-<?php echo $rs->id; ?>" <?php echo $func; ?>>
                         <i class="fa fa-check"></i>
                       </button>
               <?php endif; ?>
-											<button type="button" class="btn btn-minier btn-primary" onclick="printOnlineAddress(<?php echo $rs->id; ?>, '<?php echo $order->code; ?>')"><i class="fa fa-print"></i></button>
+											<button type="button" class="btn btn-minier btn-primary" onclick="printOnlineAddress(<?php echo $rs->id; ?>, '<?php echo $order->code; ?>')">
+												<i class="fa fa-print"></i>
+											</button>
+										<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
                       <button type="button" class="btn btn-minier btn-warning" onClick="editAddress(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>
                       <button type="button" class="btn btn-minier btn-danger" onClick="removeAddress(<?php echo $rs->id; ?>)"><i class="fa fa-trash"></i></button>
+										<?php endif; ?>
                     </td>
                   </tr>
+
           <?php 	endforeach; ?>
           <?php else : ?>
                   <tr><td colspan="6" align="center">ไม่พบที่อยู่</td></tr>
@@ -84,7 +99,7 @@
       </div>
 			<div role="tabpanel" class="tab-pane fade" id="sender">
 				<div class="row" style="padding:15px;">
-					<div class="col-sm-6">
+					<div class="col-sm-6 col-xs-12 padding-5">
 						<table class="table" style="margin-bottom:0px;">
 							<tr>
 								<td class="width-20 middle text-right" style="border:none;">เลือกผู้จัดส่ง : </td>
@@ -95,7 +110,9 @@
 									</select>
 								</td>
 								<td class="width-20 middle" style="border:none;">
+									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
 									<button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
+									<?php endif; ?>
 								</td>
 							</tr>
 						</table>
@@ -107,3 +124,4 @@
       </div>
 	</div>
 </div>
+<hr class="padding-5"/>

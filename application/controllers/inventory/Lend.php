@@ -40,7 +40,8 @@ class Lend extends PS_Controller
       'user_ref'  => get_filter('user_ref', 'lend_user_ref', ''),
       'from_date' => get_filter('fromDate', 'lend_fromDate', ''),
       'to_date'   => get_filter('toDate', 'lend_toDate', ''),
-      'isApprove' => get_filter('isApprove', 'lend_isApprove', 'all')
+      'isApprove' => get_filter('isApprove', 'lend_isApprove', 'all'),
+			'warehouse' => get_filter('warehouse', 'lend_warehouse', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -86,6 +87,8 @@ class Lend extends PS_Controller
   {
     if($this->input->post('empID'))
     {
+			$this->load->model('masters/warehouse_model');
+
       $book_code = getConfig('BOOK_CODE_LEND');
       $date_add = db_date($this->input->post('date'));
 
@@ -101,6 +104,7 @@ class Lend extends PS_Controller
       $role = 'L'; //--- L = ยืมสินค้า
       $has_term = 1; //--- ถือว่าเป็นเครดิต
       $zone = $this->zone_model->get($this->input->post('zone_code'));
+			$wh = $this->warehouse_model->get($this->input->post('warehouse'));
 
       $ds = array(
         'date_add' => $date_add,
@@ -114,7 +118,8 @@ class Lend extends PS_Controller
         'empID' => $this->input->post('empID'),
         'empName' => $this->input->post('empName'),
         'zone_code' => $zone->code, //---- zone ที่จะโอนสินค้าไปเก็บ
-        'warehouse_code' => $this->input->post('warehouse') //--- คลังที่จะจัดสินค้าออก
+        'warehouse_code' => $wh->code, //--- คลังที่จะจัดสินค้าออก
+				'is_wms' => $wh->is_wms
       );
 
       if($this->orders_model->add($ds) === TRUE)
@@ -147,6 +152,9 @@ class Lend extends PS_Controller
   public function edit_order($code, $approve_view = NULL)
   {
     $this->load->model('approve_logs_model');
+		$this->load->model('address/address_model');
+		$this->load->helper('sender');
+
     $ds = array();
     $rs = $this->orders_model->get($code);
     if(!empty($rs))
@@ -171,6 +179,7 @@ class Lend extends PS_Controller
     $ds['state'] = $ost;
     $ds['order'] = $rs;
     $ds['details'] = $details;
+		$ds['addr'] = $this->address_model->get_ship_to_address($rs->empID);
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $this->load->view('lend/lend_edit', $ds);
@@ -196,6 +205,9 @@ class Lend extends PS_Controller
         }
         else
         {
+					$this->load->model('masters/warehouse_model');
+					$wh = $this->warehouse_model->get($this->input->post('warehouse'));
+
           $ds = array(
             'empID' => $this->input->post('empID'),
             'empName' => $this->input->post('empName'),
@@ -203,7 +215,10 @@ class Lend extends PS_Controller
             'user_ref' => $this->input->post('user_ref'),
             'zone_code' => $this->input->post('zone_code'),
             'remark' => $this->input->post('remark'),
-            'warehouse_code' => $this->input->post('warehouse_code'),
+            'warehouse_code' => $wh->code,
+						'is_wms' => $wh->is_wms,
+						'id_address' => NULL,
+						'id_sender' => NULL,
             'status' => 0
           );
         }
@@ -318,7 +333,8 @@ class Lend extends PS_Controller
       'lend_user_ref',
       'lend_fromDate',
       'lend_toDate',
-      'lend_isApprove'
+      'lend_isApprove',
+			'lend_warehouse'
     );
 
     clear_filter($filter);

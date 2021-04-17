@@ -155,7 +155,7 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
 	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-bordered table-hover dataTable">
+		<table class="table table-striped table-hover dataTable" style="border-collapse:inherit;">
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>

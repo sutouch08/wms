@@ -1,11 +1,11 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
@@ -16,7 +16,7 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
@@ -26,13 +26,23 @@
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
+	<!--
 	<div class="col-sm-1 col-1-harf padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
+	-->
+
+	<div class="col-sm-2 col-xs-6 padding-5">
+		<label>คลังต้นทาง</label>
+		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
+			<option value="">ทั้งหมด</option>
+			<?php echo select_warehouse($warehouse); ?>
+		</select>
+	</div>
 
 	<div class="col-sm-1 col-1-harf padding-5">
-    <label>โซน</label>
+    <label>โซนปลายทาง</label>
 		<input type="text" class="form-control input-sm search" name="zone" value="<?php echo $zone_code; ?>" />
   </div>
 
@@ -64,10 +74,19 @@
     </div>
   </div>
 
-
+	<?php if($this->menu_code != 'SOCCTR') : ?>
+	<div class="col-sm-1 padding-5">
+		<label class="display-block not-show">search</label>
+		<button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<label class="display-block not-show">search</label>
+		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+	</div>
+	<?php endif; ?>
 </div>
 <div class="row margin-top-10">
-	<div class="col-sm-1 padding-5 first">
+	<div class="col-sm-1 padding-5">
 		<button type="button" id="btn-state-3" class="btn btn-sm btn-block <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
 	</div>
 	<div class="col-sm-1 padding-5">
@@ -97,12 +116,16 @@
 	<div class="col-sm-1 padding-5">
 		<button type="button" id="btn-only-me" class="btn btn-sm btn-block <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
 	</div>
+
+	<?php if($this->menu_code == 'SOCCTR') : ?>
 	<div class="col-sm-1 padding-5">
-    <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
-  </div>
-	<div class="col-sm-1 padding-5 last">
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
-  </div>
+		<button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" class="btn btn-sm btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+	</div>
+	<?php endif; ?>
+
 </div>
 <input type="hidden" name="state_1" id="state_1" value="<?php echo $state[1]; ?>" />
 <input type="hidden" name="state_2" id="state_2" value="<?php echo $state[2]; ?>" />
@@ -120,7 +143,7 @@
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>

@@ -10,6 +10,7 @@ class Orders extends PS_Controller
   public $filter;
   public $error;
   public $isAPI;
+	public $wms;
   public function __construct()
   {
     parent::__construct();
@@ -198,6 +199,7 @@ class Orders extends PS_Controller
     if($this->input->post('customerCode'))
     {
       $this->load->model('inventory/invoice_model');
+			$this->load->model('masters/warehouse_model');
 
       $book_code = getConfig('BOOK_CODE_ORDER');
       $date_add = db_date($this->input->post('date'));
@@ -228,6 +230,7 @@ class Orders extends PS_Controller
       }
       else
       {
+				$wh = $this->warehouse_model->get($this->input->post('warehouse'));
         $ds = array(
           'date_add' => $date_add,
           'code' => $code,
@@ -238,11 +241,12 @@ class Orders extends PS_Controller
           'customer_ref' => $this->input->post('cust_ref'),
           'channels_code' => $this->input->post('channels'),
           'payment_code' => $this->input->post('payment'),
-          'warehouse_code' => get_null($this->input->post('warehouse')),
+          'warehouse_code' => $wh->code,
           'sale_code' => $sale_code,
           'is_term' => ($has_term === TRUE ? 1 : 0),
           'user' => get_cookie('uname'),
-          'remark' => addslashes($this->input->post('remark'))
+          'remark' => addslashes($this->input->post('remark')),
+					'is_wms' => $wh->is_wms
         );
 
         if($this->orders_model->add($ds) === TRUE)
@@ -502,14 +506,13 @@ class Orders extends PS_Controller
     $details = $this->orders_model->get_order_details($code);
     $ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
     $banks = $this->bank_model->get_active_bank();
-		$wms_warehouse = getConfig('WMS_WAREHOUSE');
+
 
     $ds['state'] = $ost;
     $ds['order'] = $rs;
     $ds['details'] = $details;
     $ds['addr']  = $ship_to;
     $ds['banks'] = $banks;
-		$ds['is_wms'] = $rs->warehouse_code === $wms_warehouse ? TRUE : FALSE;
     $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
     $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
     $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -525,7 +528,7 @@ class Orders extends PS_Controller
     if($this->input->post('order_code'))
     {
       $this->load->model('inventory/invoice_model');
-
+			$this->load->model('masters/warehouse_model');
       $code = $this->input->post('order_code');
       $recal = $this->input->post('recal');
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment_code'));
@@ -546,6 +549,8 @@ class Orders extends PS_Controller
       }
       else
       {
+				$wh = $this->warehouse_model->get($this->input->post('warehouse_code'));
+
         $ds = array(
           'reference' => $this->input->post('reference'),
           'customer_code' => $this->input->post('customer_code'),
@@ -555,9 +560,12 @@ class Orders extends PS_Controller
           'sale_code' => $sale_code,
           'is_term' => $has_term,
           'date_add' => db_date($this->input->post('date_add')),
-          'warehouse_code' => get_null($this->input->post('warehouse_code')),
+          'warehouse_code' => $wh->code,
           'remark' => $this->input->post('remark'),
-          'status' => 0
+					'is_wms' => $wh->is_wms,
+          'status' => 0,
+					'id_address' => NULL,
+					'id_sender' => NULL
         );
 
         $rs = $this->orders_model->update($code, $ds);
@@ -1968,7 +1976,6 @@ class Orders extends PS_Controller
       $code = $this->input->post('order_code');
       $state = $this->input->post('state');
       $order = $this->orders_model->get($code);
-      $details = $this->orders_model->get_order_details($code);
 
       if(! empty($order))
       {
@@ -2117,8 +2124,19 @@ class Orders extends PS_Controller
             $this->db->trans_rollback();
           }
 
-          if($sc === TRUE && $order->state == 8)
+					//---- export
+					if($sc === TRUE && $state == 3 && $order->is_wms)
+					{
+						$this->wms = $this->load->database('wms', TRUE);
+						$this->load->library('wms_order_api');
+
+						$this->wms_order_api->export_order($code);
+					}
+
+          if($sc === TRUE && $order->state == 8 && $this->isAPI)
           {
+						$details = $this->orders_model->get_order_details($code);
+
             if(!empty($details))
             {
               foreach($details as $rs)

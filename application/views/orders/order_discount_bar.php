@@ -1,9 +1,8 @@
 <?php
 if(empty($order->has_payment) && !$order->is_paid && !$order->is_expired && !$order->is_approved) :
 ?>
-<hr/>
 <div class="row">
-	<div class="col-sm-12 margin-top-5 margin-bottom-5">
+	<div class="col-sm-12 margin-top-5 padding-5 margin-bottom-5">
 		<?php if( $allowEditDisc && ($order->role == 'S' OR $order->role == 'C') OR $order->role == 'N') : ?>
     	<button type="button" class="btn btn-sm btn-warning" id="btn-edit-discount" onclick="showDiscountBox()">
 				<?php if($order->role == 'C' OR $order->role == 'N') : ?>
@@ -26,6 +25,7 @@ if(empty($order->has_payment) && !$order->is_paid && !$order->is_expired && !$or
 		<?php endif; ?>
     </div>
 </div>
+<hr/>
 <?php endif; ?>
 
 <?php $this->load->view('validate_credentials'); ?>

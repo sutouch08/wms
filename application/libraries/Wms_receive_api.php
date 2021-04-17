@@ -13,9 +13,7 @@ class Wms_receive_api
 
   public function __construct()
   {
-		$this->ci =& get_instance();
-		$this->ci->load->model('rest/V1/wms_error_logs_model');
-
+		
   }
 
 

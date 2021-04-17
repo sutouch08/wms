@@ -39,7 +39,8 @@ class Support extends PS_Controller
       'user_ref'  => get_filter('user_ref', 'support_user_ref', ''),
       'from_date' => get_filter('fromDate', 'support_fromDate', ''),
       'to_date'   => get_filter('toDate', 'support_toDate', ''),
-      'isApprove' => get_filter('isApprove', 'support_isApprove', 'all')
+      'isApprove' => get_filter('isApprove', 'support_isApprove', 'all'),
+			'warehouse' => get_filter('warehouse', 'support_warehouse', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -102,6 +103,8 @@ class Support extends PS_Controller
   {
     if($this->input->post('customerCode'))
     {
+			$this->load->model('masters/warehouse_model');
+
       $book_code = getConfig('BOOK_CODE_SUPPORT');
       $date_add = db_date($this->input->post('date'));
 
@@ -116,7 +119,7 @@ class Support extends PS_Controller
 
       $role = 'U'; //--- U = เบิกอภินันท์
       $has_term = 1; //--- ถือว่าเป็นเครดิต
-
+			$wh = $this->warehouse_model->get($this->input->post('warehouse'));
       $ds = array(
 				'date_add' => $date_add,
         'code' => $code,
@@ -124,8 +127,9 @@ class Support extends PS_Controller
         'bookcode' => $book_code,
         'customer_code' => $this->input->post('customerCode'),
         'user' => get_cookie('uname'),
-        'warehouse_code' => $this->input->post('warehouse'),
+        'warehouse_code' => $wh->code,
         'remark' => $this->input->post('remark'),
+				'is_wms' => $wh->is_wms,
         'user_ref' => $this->input->post('empName')
       );
 
@@ -159,6 +163,9 @@ class Support extends PS_Controller
   public function edit_order($code, $approve_view = NULL)
   {
     $this->load->model('approve_logs_model');
+		$this->load->model('address/address_model');
+		$this->load->helper('sender');
+
     $ds = array();
     $rs = $this->orders_model->get($code);
     if(!empty($rs))
@@ -185,6 +192,7 @@ class Support extends PS_Controller
           $ds['approve_view'] = $approve_view;
           $ds['approve_logs'] = $this->approve_logs_model->get($code);
           $ds['details'] = $details;
+					$ds['addr'] = $this->address_model->get_ship_to_address($rs->customer_code);
           $ds['allowEditDisc'] = FALSE; //getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
           $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
           $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -206,30 +214,54 @@ class Support extends PS_Controller
     if($this->input->post('order_code'))
     {
       $code = $this->input->post('order_code');
-      $ds = array(
-        'customer_code' => $this->input->post('customer_code'),
-        'date_add' => db_date($this->input->post('date_add')),
-        'user_ref' => $this->input->post('user_ref'),
-        'warehouse_code' => $this->input->post('warehouse'),
-        'remark' => $this->input->post('remark'),
-        'status' => 0
-      );
+			$order = $this->orders_model->get($code);
+			if(!empty($order))
+			{
+				if($order->state > 1)
+				{
+					$ds = array(
+            'remark' => $this->input->post('remark')
+          );
+				}
+				else
+				{
+					$this->load->model('masters/warehouse_model');
+					$wh = $this->warehouse_model->get($this->input->post('warehouse'));
 
-      $rs = $this->orders_model->update($code, $ds);
+		      $ds = array(
+		        'customer_code' => $this->input->post('customer_code'),
+		        'date_add' => db_date($this->input->post('date_add')),
+		        'user_ref' => $this->input->post('user_ref'),
+		        'warehouse_code' => $wh->code,
+						'is_wms' => $wh->is_wms,
+						'id_address' => NULL,
+						'id_sender' => NULL,
+		        'remark' => $this->input->post('remark'),
+		        'status' => 0
+		      );
+				}
 
-      if($rs === FALSE)
-      {
-        $sc = FALSE;
-        $message = 'ปรับปรุงข้อมูลไม่สำเร็จ';
-      }
+	      $rs = $this->orders_model->update($code, $ds);
+
+	      if($rs === FALSE)
+	      {
+	        $sc = FALSE;
+	        $this->error = 'ปรับปรุงข้อมูลไม่สำเร็จ';
+	      }
+			}
+			else
+			{
+				$sc = FALSE;
+        $this->error = "เลขที่เอกสารไม่ถูกต้อง : {$code}";
+			}
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบเลขที่เอกสาร';
+      $this->error = 'ไม่พบเลขที่เอกสาร';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -273,6 +305,56 @@ class Support extends PS_Controller
       $sc = FALSE;
       $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
     }
+
+		if(empty($order->id_address))
+		{
+			$this->load->model('address/address_model');
+			$id_address = NULL;
+
+			if(!empty($order->customer_ref))
+			{
+				$id_address = $this->address_model->get_shipping_address_id_by_code($order->customer_ref);
+			}
+			else
+			{
+				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
+			}
+
+			if(!empty($id_address))
+			{
+				$arr = array(
+					'id_address' => $id_address
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
+
+
+		if(empty($order->id_sender))
+		{
+			$this->load->model('masters/sender_model');
+			$id_sender = NULL;
+
+			$sender = $this->sender_model->get_customer_sender_list($order->customer_code);
+
+			if(!empty($sender))
+			{
+				if(!empty($sender->main_sender))
+				{
+					$id_sender = $sender->main_sender;
+				}
+			}
+
+			if(!empty($id_sender))
+			{
+				$arr = array(
+					'id_sender' => $id_sender
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
 
     if($sc === TRUE)
     {
@@ -338,7 +420,8 @@ class Support extends PS_Controller
       'support_user_ref',
       'support_fromDate',
       'support_toDate',
-      'support_isApprove'
+      'support_isApprove',
+			'support_warehouse'
     );
 
     clear_filter($filter);

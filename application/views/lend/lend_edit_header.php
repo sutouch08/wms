@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-1 col-1-harf padding-5 first">
+	<div class="col-sm-1 col-1-harf padding-5">
     	<label>เลขที่เอกสาร</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
     </div>
@@ -15,12 +15,12 @@
 	    <label>โซน[คลังยืม]</label>
 			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $order->zone_name; ?>" disabled />
 	  </div>
-    <div class="col-sm-3 padding-5 last">
+    <div class="col-sm-3 padding-5">
     	<label>ผู้รับ</label>
       <input type="text" class="form-control input-sm edit" id="user_ref" name="user_ref" value="<?php echo $order->user_ref; ?>" disabled />
     </div>
 
-		<div class="col-sm-2 col-xs-12 padding-5 first">
+		<div class="col-sm-2 col-xs-12 padding-5">
 			<label>คลัง</label>
 	    <select class="form-control input-sm edit" name="warehouse" id="warehouse" disabled required>
 				<option value="">เลือกคลัง</option>
@@ -40,19 +40,19 @@
 			  <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 			</div>
 			<?php if($order->state >= 8) : ?>
-				<div class="col-sm-1 col-1-harf col-xs-6 padding-5 last">
+				<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 					<label class="display-block">SAN No.</label>
 					<input type="text" class="form-control input-sm text-center" value="<?php echo $order->inv_code; ?>" disabled />
 				</div>
 			<?php else : ?>
-				<div class="col-sm-1 col-1-harf col-xs-6 padding-5 last">
+				<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 					<label class="display-block not-show">แก้ไข</label>
 					<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"><i class="fa fa-pencil"></i> แก้ไข</i></button>
 					<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="validUpdate()"><i class="fa fa-save"></i> บันทึก</i></button>
 				</div>
 			<?php endif; ?>
 	<?php else : ?>
-		<div class="col-sm-8 col-xs-12 padding-5 last">
+		<div class="col-sm-8 col-xs-12 padding-5">
 			<label>หมายเหตุ</label>
 			<input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 		</div>
@@ -61,7 +61,10 @@
 
     <input type="hidden" name="order_code" id="order_code" value="<?php echo $order->code; ?>" />
     <input type="hidden" name="empID" id="empID" value="<?php echo $order->empID; ?>" />
+		<input type="hidden" name="customerCode" id="customerCode" value="<?php echo $order->empID; ?>" />
 		<input type="hidden" id="is_approved" value="<?php echo $order->is_approved; ?>" />
 		<input type="hidden" name="zone_code" id="zone_code" value="<?php echo $order->zone_code; ?>" />
+		<input type="hidden" name="is_wms" id="is_wms" value="<?php echo $order->is_wms; ?>" />
+		<input type="hidden" name="address_id" id="address_id" value="<?php echo $order->id_address; //--- id_address ใช้แล้วใน online modal?>" />
 </div>
 <hr class="margin-bottom-15"/>

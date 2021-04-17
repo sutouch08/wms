@@ -20,7 +20,7 @@ function sendToWMS()
 					timer:1000
 				})
 
-				setWms(order_code);
+				//setWms(order_code);
 			}
 			else {
 				swal({

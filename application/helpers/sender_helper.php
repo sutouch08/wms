@@ -28,11 +28,11 @@ function select_common_sender($customer_code = NULL, $id = NULL)
 
 
 	$sender = $CI->sender_model->get_customer_sender_list($customer_code);
+	$list = array();
 
 	if(!empty($sender))
 	{
-		$list = array();
-
+		
 		if(!empty($sender->main_sender))
 		{
 			$list[] = $sender->main_sender;

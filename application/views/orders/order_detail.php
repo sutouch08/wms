@@ -5,8 +5,8 @@
 	?>
 <form id="discount-form">
 <div class="row">
-	<div class="col-sm-12 col-xs-12 table-responsive">
-			<table class="table table-striped border-1">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
+			<table class="table table-striped border-1" style="border-collapse:inherit;">
         <thead>
         	<tr class="font-size-12">
             	<th class="width-5 text-center">No.</th>
@@ -84,8 +84,12 @@
       					<button type="button" class="btn btn-mini btn-warning" id="btn-show-price-<?php echo $rs->id; ?>" onclick="showNonCountPriceBox(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>
       					<button type="button" class="btn btn-mini btn-info hide" id="btn-update-price-<?php echo $rs->id; ?>" onclick="updateNonCountPrice(<?php echo $rs->id; ?>)"><i class="fa fa-save"></i></button>
       				<?php endif; ?>
-              <?php if( ( $order->is_paid == 0 && $order->state != 2 && $order->is_expired == 0 ) && ($edit OR $add) && $order->state < 4 ) : ?>
-              	<button type="button" class="btn btn-mini btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')"><i class="fa fa-trash"></i></button>
+              <?php if( ( $order->is_paid == 0 && $order->state != 2 && $order->is_expired == 0 ) && ($edit OR $add)) : ?>
+								<?php if(($order->is_wms == 0 && $order->state < 4 ) OR ($order->is_wms == 1 && $order->state < 3) OR $rs->is_count == 0) : ?>
+              			<button type="button" class="btn btn-mini btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')">
+											<i class="fa fa-trash"></i>
+										</button>
+								<?php endif; ?>
               <?php endif; ?>
               </td>
 

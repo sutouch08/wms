@@ -462,6 +462,23 @@ function recalDiscount(){
 function changeState(){
     var order_code = $("#order_code").val();
     var state = $("#stateList").val();
+		var is_wms = $('#is_wms').val();
+
+		if(is_wms) {
+			var id_address = $('#address_id').val();
+			var id_sender = $('#id_sender').val();
+
+			if(state == 3 && id_address == "") {
+				swal("กรุณาระบุที่อยู่จัดส่ง");
+				return false;
+			}
+
+			if(state == 3 && id_sender == "") {
+				swal("กรุณาระบุผู้จัดส่ง");
+				return false;
+			}
+		}
+
     if( state != 0){
       load_in();
         $.ajax({

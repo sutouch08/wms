@@ -31,10 +31,19 @@
     <input type="text" class="form-control input-sm search" name="user_ref" value="<?php echo $user_ref; ?>" />
   </div>
 
+	<!--
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
+	-->
+	<div class="col-sm-2 col-xs-6 padding-5">
+		<label>คลังสินค้า</label>
+		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
+			<option value="">ทั้งหมด</option>
+			<?php echo select_warehouse($warehouse); ?>
+		</select>
+	</div>
 
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label>การอนุมัติ</label>

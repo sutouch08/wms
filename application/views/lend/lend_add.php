@@ -8,21 +8,19 @@
 	<input type="hidden" id="runNo" value="<?php echo $runNo; ?>">
 <?php endif; ?>
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title">
-      <i class="fa fa-users"></i> <?php echo $this->title; ?>
-    </h3>
-    </div>
-    <div class="col-sm-6">
-    	<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-      </p>
-    </div>
+	<div class="col-sm-6 col-xs-6 padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
+  </div>
+  <div class="col-sm-6 col-xs-6 padding-5">
+  	<p class="pull-right top-p">
+      <button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+    </p>
+  </div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="addForm" method="post" action="<?php echo $this->home; ?>/add">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label>เลขที่เอกสาร</label>
 		<?php if($manual_code == 1) : ?>
 	    <input type="text" class="form-control input-sm" name="code" id="code" value="" />
@@ -46,12 +44,12 @@
 		<input type="text" class="form-control input-sm" name="zone" id="zone" value="" />
   </div>
 
-	<div class="col-sm-2 padding-5 last">
+	<div class="col-sm-2 padding-5">
 		<label>ผู้รับ[คนสั่งงาน]</label>
 		<input type="text" class="form-control input-sm" name="user_ref" id="user_ref" value="" />
 	</div>
 
-	<div class="col-sm-2 col-xs-12 padding-5 first">
+	<div class="col-sm-2 col-xs-12 padding-5">
 		<label>คลัง</label>
     <select class="form-control input-sm" name="warehouse" id="warehouse" required>
 			<option value="">เลือกคลัง</option>
@@ -63,7 +61,7 @@
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>
-  <div class="col-sm-1 padding-5 last">
+  <div class="col-sm-1 padding-5">
     <label class="display-block not-show">Submit</label>
     <button type="button" class="btn btn-xs btn-success btn-block" onclick="add()"><i class="fa fa-plus"></i> เพิ่ม</button>
   </div>
@@ -73,7 +71,7 @@
 <input type="hidden" name="zone_code" id="zone_code" value="" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/lend/lend.js"></script>
-<script src="<?php echo base_url(); ?>scripts/lend/lend_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/lend/lend.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/lend/lend_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

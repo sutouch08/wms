@@ -44,7 +44,8 @@ class Sponsor extends PS_Controller
       'notSave' => get_filter('notSave', 'sponsor_notSave', NULL),
       'onlyMe' => get_filter('onlyMe', 'sponsor_onlyMe', NULL),
       'isExpire' => get_filter('isExpire', 'sponsor_isExpire', NULL),
-      'isApprove' => get_filter('isApprove', 'sponsor_isApprove', 'all')
+      'isApprove' => get_filter('isApprove', 'sponsor_isApprove', 'all'),
+			'warehouse' => get_filter('warehouse', 'sponsor_warehouse', '')
     );
 
     $state = array(
@@ -141,6 +142,7 @@ class Sponsor extends PS_Controller
 
   public function add()
   {
+		$this->load->model('masters/warehouse_model');
     if($this->input->post('customerCode'))
     {
       $book_code = getConfig('BOOK_CODE_SPONSOR');
@@ -155,7 +157,7 @@ class Sponsor extends PS_Controller
       }
 
       $role = 'P'; //--- P = Sponsor
-      $warehouse = $this->input->post('warehouse');
+      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
       $ds = array(
         'date_add' => $date_add,
         'code' => $code,
@@ -165,7 +167,8 @@ class Sponsor extends PS_Controller
         'user' => get_cookie('uname'),
         'remark' => $this->input->post('remark'),
         'user_ref' => $this->input->post('empName'),
-        'warehouse_code' => $warehouse
+        'warehouse_code' => $wh->code,
+				'is_wms' => $wh->is_wms
       );
 
       if($this->orders_model->add($ds) === TRUE)
@@ -198,6 +201,8 @@ class Sponsor extends PS_Controller
   public function edit_order($code, $approve_view = NULL)
   {
     $this->load->model('approve_logs_model');
+		$this->load->model('address/address_model');
+		$this->load->helper('sender');
     $ds = array();
     $rs = $this->orders_model->get($code);
     if(!empty($rs))
@@ -218,12 +223,14 @@ class Sponsor extends PS_Controller
       }
 
       $details = $this->orders_model->get_order_details($code);
+			$ship_to = $this->address_model->get_ship_to_address($rs->customer_code);
 
       $ds['state'] = $ost;
       $ds['approve_view'] = $approve_view;
       $ds['approve_logs'] = $this->approve_logs_model->get($code);
       $ds['order'] = $rs;
       $ds['details'] = $details;
+			$ds['addr']  = $ship_to;
       $ds['allowEditDisc'] = FALSE; //getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
       $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
       $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -243,6 +250,8 @@ class Sponsor extends PS_Controller
 
     if($this->input->post('order_code'))
     {
+			$this->load->model('masters/warehouse_model');
+
       $code = $this->input->post('order_code');
       $order = $this->orders_model->get($code);
 
@@ -256,13 +265,17 @@ class Sponsor extends PS_Controller
         }
         else
         {
+					$wh = $this->warehouse_model->get($this->input->post('warehouse'));
           $ds = array(
             'customer_code' => $this->input->post('customer_code'),
             'date_add' => db_date($this->input->post('date_add')),
             'user_ref' => $this->input->post('user_ref'),
-            'warehouse_code' => $this->input->post('warehouse'),
+            'warehouse_code' => $wh->code,
             'remark' => $this->input->post('remark'),
-            'status' => 0
+            'status' => 0,
+						'id_address' => NULL,
+						'id_sender' => NULL,
+						'is_wms' => $wh->is_wms
           );
         }
 
@@ -329,6 +342,56 @@ class Sponsor extends PS_Controller
       $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
     }
 
+		if(empty($order->id_address))
+		{
+			$this->load->model('address/address_model');
+			$id_address = NULL;
+
+			if(!empty($order->customer_ref))
+			{
+				$id_address = $this->address_model->get_shipping_address_id_by_code($order->customer_ref);
+			}
+			else
+			{
+				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
+			}
+
+			if(!empty($id_address))
+			{
+				$arr = array(
+					'id_address' => $id_address
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
+
+
+		if(empty($order->id_sender))
+		{
+			$this->load->model('masters/sender_model');
+			$id_sender = NULL;
+
+			$sender = $this->sender_model->get_customer_sender_list($order->customer_code);
+
+			if(!empty($sender))
+			{
+				if(!empty($sender->main_sender))
+				{
+					$id_sender = $sender->main_sender;
+				}
+			}
+
+			if(!empty($id_sender))
+			{
+				$arr = array(
+					'id_sender' => $id_sender
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
+
     if($sc === TRUE)
     {
       $rs = $this->orders_model->set_status($code, 1);
@@ -394,6 +457,7 @@ class Sponsor extends PS_Controller
       'sponsor_fromDate',
       'sponsor_toDate',
       'sponsor_isApprove',
+			'sponsor_warehouse',
       'sponsor_notSave',
       'sponsor_onlyMe',
       'sponsor_isExpire',

@@ -62,6 +62,25 @@ $("#toDate").datepicker({
 function approve()
 {
   var order_code = $('#order_code').val();
+	var is_wms = $('#is_wms').val();
+
+	if(is_wms == 1) {
+		var id_address = $('#address_id').val();
+		var id_sender = $('#id_sender').val();
+
+		if(id_address == "") {
+			swal("กรุณาระบุที่อยู่จัดส่ง");
+			return false;
+		}
+
+		if(id_sender == "") {
+			swal("กรุณาระบุผู้จัดส่ง");
+			return false;
+		}
+	}
+
+	load_in();
+
   $.ajax({
     url:BASE_URL + 'orders/orders/do_approve/'+order_code,
     type:'POST',
@@ -70,13 +89,23 @@ function approve()
       if(rs === 'success'){
         change_state();
       }else{
+				load_out();
         swal({
           title:'Error!',
           text:rs,
           type:'error'
         });
       }
-    }
+    },
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
   });
 }
 
@@ -113,7 +142,6 @@ function unapprove()
 
 function change_state(){
   var order_code = $('#order_code').val();
-  load_in();
   $.ajax({
     url:BASE_URL + 'orders/orders/order_state_change',
     type:'POST',
@@ -142,6 +170,15 @@ function change_state(){
           type:'error'
         });
       }
-    }
+    },
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
   });
 }

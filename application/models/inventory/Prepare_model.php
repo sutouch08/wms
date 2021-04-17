@@ -202,6 +202,7 @@ class Prepare_model extends CI_Model
     ->join('customers', 'customers.code = orders.customer_code', 'left')
     ->join('order_details', 'orders.code = order_details.order_code', 'left')
     ->join('products', 'order_details.product_code = products.code', 'left')
+		->where('orders.is_wms', 0)
     ->where('orders.state', $state)
     ->where('orders.status', 1);
 
@@ -291,8 +292,6 @@ class Prepare_model extends CI_Model
 
     $this->db->group_by('orders.code');
 
-    //$rs = $this->db->get();
-
     return $this->db->count_all_results();
   }
 
@@ -300,14 +299,17 @@ class Prepare_model extends CI_Model
 
   public function get_data(array $ds = array(), $perpage = '', $offset = '', $state = 3)
   {
-    $this->db->select('orders.*, channels.name AS channels_name')
+    $this->db
+		->select('orders.*, channels.name AS channels_name')
     ->select('customers.name AS customer_name, user.name AS display_name')
     ->select_sum('order_details.qty', 'qty')
     ->from('orders')
     ->join('channels', 'channels.code = orders.channels_code','left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
     ->join('order_details', 'orders.code = order_details.order_code','left')
-    ->join('products', 'order_details.product_code = products.code', 'left');
+    ->join('products', 'order_details.product_code = products.code', 'left')
+		->where('orders.is_wms', 0);
+
     if($state == 4)
     {
       $this->db->join('user', 'user.uname = orders.update_user', 'left');

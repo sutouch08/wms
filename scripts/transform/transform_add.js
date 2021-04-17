@@ -397,7 +397,7 @@ function updateOrder(){
   		"customer_code" : customer_code,
       "user_ref" : user_ref,
       "zone_code" : zoneCode,
-      "warehouse_code" : warehouse_code,
+      "warehouse" : warehouse_code,
   		"remark" : remark,
     },
 		success: function(rs){
@@ -430,7 +430,28 @@ function updateOrder(){
 function changeState(){
     var order_code = $("#order_code").val();
     var state = $("#stateList").val();
+
+		var order_code = $("#order_code").val();
+    var state = $("#stateList").val();
+		var is_wms = $('#is_wms').val();
+
+		if(is_wms) {
+			var id_address = $('#address_id').val();
+			var id_sender = $('#id_sender').val();
+
+			if(state == 3 && id_address == "") {
+				swal("กรุณาระบุที่อยู่จัดส่ง");
+				return false;
+			}
+
+			if(state == 3 && id_sender == "") {
+				swal("กรุณาระบุผู้จัดส่ง");
+				return false;
+			}
+		}
+
     if( state != 0){
+			load_in();
         $.ajax({
             url:BASE_URL + 'orders/orders/order_state_change',
             type:"POST",
@@ -440,6 +461,7 @@ function changeState(){
               "state" : state
             },
             success:function(rs){
+							load_out();
                 var rs = $.trim(rs);
                 if(rs == 'success'){
                     swal({
@@ -454,9 +476,24 @@ function changeState(){
                     }, 1500);
 
                 }else{
-                    swal("Error !", rs, "error");
+                    swal({
+											title:'Error!',
+											text:rs,
+											type:'error',
+											html:true
+										})
                 }
-            }
+            },
+						error:function(xhr, status, error) {
+							load_out();
+
+							swal({
+								title:'Error!',
+								text:xhr.responseText,
+								type:'error',
+								html:true
+							})
+						}
         });
     }
 }

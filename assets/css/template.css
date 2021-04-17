@@ -1199,3 +1199,16 @@ input[type=number]::-webkit-outer-spin-button {
     height : 17px;
     width : 0;
 }
+
+/*
+.table {
+	border-collapse: inherit;
+}
+*/
+.table > thead > tr {
+	background-color: #eee;
+}
+
+.table > thead > tr > th {
+	border-bottom: 0px;
+}

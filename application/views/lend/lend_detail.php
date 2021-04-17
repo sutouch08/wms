@@ -5,8 +5,8 @@
 	?>
 <form id="discount-form">
 <div class="row">
-	<div class="col-sm-12">
-    	<table class="table table-striped border-1">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
+    	<table class="table table-striped border-1" style="border-collapse:inherit;">
         <thead>
         	<tr class="font-size-12">
             	<th class="width-5 text-center">No.</th>
@@ -63,8 +63,12 @@
 
               <td class="middle text-right">
 						<?php if(empty($approve_view)) : ?>
-              <?php if( ( $order->is_paid == 0 && $order->state != 2 && $order->is_expired == 0 ) && ($edit OR $add) && $order->state < 4 ) : ?>
-              	<button type="button" class="btn btn-mini btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')"><i class="fa fa-trash"></i></button>
+              <?php if( ($order->is_wms == 0 && $order->state < 4) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
+								<?php if($order->is_paid == 0 && $order->state != 2 && $order->is_expired == 0 && ($edit OR $add)) : ?>
+	              	<button type="button" class="btn btn-mini btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')">
+										<i class="fa fa-trash"></i>
+									</button>
+								<?php endif; ?>
               <?php endif; ?>
 						<?php endif; ?>
               </td>

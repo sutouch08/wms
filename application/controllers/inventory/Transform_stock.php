@@ -41,7 +41,8 @@ class Transform_stock extends PS_Controller
       'user_ref'  => get_filter('user_ref', 'transform_user_ref', ''),
       'from_date' => get_filter('fromDate', 'transform_fromDate', ''),
       'to_date'   => get_filter('toDate', 'transform_toDate', ''),
-      'isApprove' => get_filter('isApprove', 'transform_isApprove', 'all')
+      'isApprove' => get_filter('isApprove', 'transform_isApprove', 'all'),
+			'warehouse' => get_filter('warehouse', 'transform_warehouse', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -89,7 +90,7 @@ class Transform_stock extends PS_Controller
   {
     if($this->input->post('customerCode'))
     {
-      $this->load->model('masters/zone_model');
+      $this->load->model('masters/warehouse_model');
 
       $book_code = getConfig('BOOK_CODE_TRANSFORM_STOCK');
       $date_add = db_date($this->input->post('date'));
@@ -103,7 +104,7 @@ class Transform_stock extends PS_Controller
       }
       $role = 'Q'; //--- T = เบิกแปรสภาพ
       $zone_code = $this->input->post('zoneCode');
-      $warehouse_code = $this->input->post('warehouse');
+      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
 
       $ds = array(
         'code' => $code,
@@ -114,7 +115,8 @@ class Transform_stock extends PS_Controller
         'remark' => $this->input->post('remark'),
         'user_ref' => $this->input->post('empName'),
         'zone_code' => $zone_code,
-        'warehouse_code' => $warehouse_code
+        'warehouse_code' => $wh->code,
+				'is_wms' => $wh->is_wms
       );
 
       if($this->orders_model->add($ds) === TRUE)
@@ -151,6 +153,8 @@ class Transform_stock extends PS_Controller
     $this->load->helper('transform');
     $this->load->model('masters/zone_model');
     $this->load->model('approve_logs_model');
+		$this->load->model('address/address_model');
+		$this->load->helper('sender');
 
     $ds = array();
     $rs = $this->orders_model->get($code);
@@ -187,6 +191,7 @@ class Transform_stock extends PS_Controller
     $ds['state'] = $ost;
     $ds['order'] = $rs;
     $ds['details'] = $details;
+		$ds['addr'] = $this->address_model->get_ship_to_address($rs->customer_code);
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $ds['approve_view'] = $approve_view;
     $this->load->view('transform/transform_edit', $ds);
@@ -200,12 +205,12 @@ class Transform_stock extends PS_Controller
 
     if($this->input->post('order_code'))
     {
-      $this->load->model('masters/zone_model');
+			$this->load->model('masters/warehouse_model');
 
       $code = $this->input->post('order_code');
       $customer_code = $this->input->post('customer_code');
       $zone_code = $this->input->post('zone_code');
-      $warehouse_code = $this->input->post('warehouse_code');
+      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
       $user_ref = $this->input->post('user_ref');
       $remark = get_null($this->input->post('remark'));
 
@@ -216,8 +221,11 @@ class Transform_stock extends PS_Controller
         'remark' => $this->input->post('remark'),
         'status' => 0,
         'zone_code' => $zone_code,
-        'warehouse_code' => $warehouse_code,
-        'remark' => $remark
+        'warehouse_code' => $wh->code,
+        'remark' => $remark,
+				'is_wms' => $wh->is_wms,
+				'id_address' => NULL,
+				'id_sender' => NULL
       );
 
       $rs = $this->orders_model->update($code, $ds);
@@ -281,6 +289,56 @@ class Transform_stock extends PS_Controller
   {
     $sc = TRUE;
     $order = $this->orders_model->get($code);
+
+		if(empty($order->id_address))
+		{
+			$this->load->model('address/address_model');
+			$id_address = NULL;
+
+			if(!empty($order->customer_ref))
+			{
+				$id_address = $this->address_model->get_shipping_address_id_by_code($order->customer_ref);
+			}
+			else
+			{
+				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
+			}
+
+			if(!empty($id_address))
+			{
+				$arr = array(
+					'id_address' => $id_address
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
+
+
+		if(empty($order->id_sender))
+		{
+			$this->load->model('masters/sender_model');
+			$id_sender = NULL;
+
+			$sender = $this->sender_model->get_customer_sender_list($order->customer_code);
+
+			if(!empty($sender))
+			{
+				if(!empty($sender->main_sender))
+				{
+					$id_sender = $sender->main_sender;
+				}
+			}
+
+			if(!empty($id_sender))
+			{
+				$arr = array(
+					'id_sender' => $id_sender
+				);
+
+				$this->orders_model->update($order->code, $arr);
+			}
+		}
 
     if($sc === TRUE)
     {
@@ -508,7 +566,8 @@ class Transform_stock extends PS_Controller
       'transform_user_ref',
       'transform_fromDate',
       'transform_toDate',
-      'transform_isApprove'
+      'transform_isApprove',
+			'transform_warehouse'
     );
 
     clear_filter($filter);

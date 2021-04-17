@@ -469,6 +469,7 @@ function setAddress(id)
 		success: function(rs){
 			$(".btn-address").removeClass('btn-success');
 			$("#btn-"+id).addClass('btn-success');
+			$('#address_id').val(id);
 		}
 	});
 }
@@ -698,8 +699,10 @@ function clearAddressField()
 
 
 
+if($('#btn').length) {
+	var clipboard = new Clipboard('#btn');
+}
 
-var clipboard = new Clipboard('.btn');
 
 
 

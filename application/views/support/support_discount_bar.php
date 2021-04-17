@@ -1,7 +1,7 @@
 <?php
 if(!$order->is_expired ) :
 ?>
-<hr/>
+
 <div class="row">
 	<div class="col-sm-12 margin-top-5 margin-bottom-5 padding-5">
 		<?php if($allowEditPrice) : ?>
@@ -10,6 +10,7 @@ if(!$order->is_expired ) :
 		<?php endif; ?>
     </div>
 </div>
+<hr/>
 <?php endif; ?>
 
 <?php $this->load->view('validate_credentials'); ?>
