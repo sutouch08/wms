@@ -271,10 +271,10 @@ class Transfer_model extends CI_Model
   public function get_details($code)
   {
     $rs = $this->db
-    ->select('transfer_detail.*, products.barcode')
-    ->from('transfer_detail')
-    ->join('products', 'products.code = transfer_detail.product_code', 'left')
-    ->where('transfer_detail.transfer_code', $code)
+    ->select('td.*, pd.barcode, pd.unit_code')
+    ->from('transfer_detail AS td')
+    ->join('products AS pd', 'td.product_code = pd.code', 'left')
+    ->where('td.transfer_code', $code)
     ->get();
 
     if($rs->num_rows() > 0)
@@ -289,11 +289,50 @@ class Transfer_model extends CI_Model
 
   public function get_detail($id)
   {
-    $rs = $this->db->where('id', $id)->get('transfer_detail');
+    $rs = $this->db
+		->select('td.*, pd.barcode, pd.unit_code')
+		->from('transfer_detail AS td')
+		->join('products AS pd', 'td.product_code = pd.code', 'left')
+		->where('td.id', $id)
+		->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
     }
+
+		return NULL;
+  }
+
+
+
+	public function update_detail($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('transfer_detail', $ds);
+		}
+
+		return FALSE;
+	}
+
+
+	public function get_detail_by_product($code, $product_code)
+  {
+    $rs = $this->db
+		->select('td.*, pd.barcode, pd.unit_code')
+		->from('transfer_detail AS td')
+		->join('products AS pd', 'td.product_code = pd.code', 'left')
+		->where('td.transfer_code', $code)
+		->where('td.product_code', $product_code)
+		->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+		return NULL;
   }
 
 

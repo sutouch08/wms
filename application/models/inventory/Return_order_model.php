@@ -137,6 +137,17 @@ class Return_order_model extends CI_Model
   }
 
 
+	public function update_detail($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('return_order_detail', $ds);
+		}
+
+		return FALSE;
+	}
+
+
   public function update_inv($code, $doc_num)
   {
     return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('return_order');
@@ -186,7 +197,13 @@ class Return_order_model extends CI_Model
 
   public function get_details($code)
   {
-    $rs = $this->db->where('return_code', $code)->get('return_order_detail');
+    $rs = $this->db
+		->select('rd.*, pd.unit_code AS unit_code')
+		->from('return_order_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->get();
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -194,6 +211,32 @@ class Return_order_model extends CI_Model
 
     return FALSE;
   }
+
+
+	public function get_detail_by_product($code, $product_code)
+	{
+		$rs = $this->db
+		->select('rd.*, pd.unit_code')
+		->from('return_order_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->where('rd.product_code', $product_code)
+		->get();
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+	public function drop_not_valid_details($code)
+	{
+		return $this->db->where('return_code', $code)->where('valid', 0)->delete('return_order_detail');
+	}
+
 
 
   public function drop_sap_exists_details($code)
@@ -216,25 +259,6 @@ class Return_order_model extends CI_Model
 
   public function get_invoice_details($invoice)
   {
-    // $rs = $this->ms
-    // ->select('OINV.DocEntry, OINV.DocNum, OINV.NumAtCard')
-    // ->select('INV1.LineNum, INV1.ItemCode AS product_code')
-    // ->select('INV1.Dscription AS product_name')
-    // ->select('INV1.Quantity AS qty')
-    // ->select('INV1.PriceBefDi AS price')
-    // ->select('INV1.DiscPrcnt AS discount')
-    // ->from('INV1')
-    // ->join('OINV', 'INV1.DocEntry = OINV.DocEntry')
-    // ->where('OINV.DocNum', $invoice)
-    // ->get();
-    //
-    // if($rs->num_rows() > 0)
-    // {
-    //   return $rs->result();
-    // }
-    //
-    // return FALSE;
-
     $qr = "SELECT DISTINCT ivd.DocEntry, iv.DocNum, iv.NumAtCard,
     ivd.ItemCode AS product_code, ivd.Dscription AS product_name,
     (SELECT SUM(Quantity) FROM INV1 WHERE DocEntry = ivd.DocEntry AND ItemCode = ivd.ItemCode) AS qty,
@@ -251,7 +275,6 @@ class Return_order_model extends CI_Model
 
     return NULL;
   }
-
 
 
 

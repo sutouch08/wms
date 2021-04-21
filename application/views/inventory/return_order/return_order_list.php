@@ -33,6 +33,7 @@
   			<option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่บันทึก</option>
   			<option value="1" <?php echo is_selected('1', $status); ?>>บันทึกแล้ว</option>
   			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
+				<option value="3" <?php echo is_selected('3', $status); ?>>WMS Process</option>
   		</select>
     </div>
     <div class="col-sm-1 col-1-harf padding-5">
@@ -65,7 +66,7 @@
 
 <div class="row">
   <div class="col-sm-12">
-    <p class="pull-right top-p">สถานะ : ว่างๆ = ปกติ,&nbsp;  <span class="blue">NC</span> = ยังไม่บันทึก,&nbsp;  <span class="red">CN</span> = ยกเลิก</p>
+    <p class="pull-right top-p">สถานะ : ว่างๆ = ปกติ,&nbsp;  <span class="blue">NC</span> = ยังไม่บันทึก,&nbsp;  <span class="purple">OP</span> = รอรับที่ WMS,&nbsp;  <span class="red">CN</span> = ยกเลิก</p>
     <table class="table table-striped border-1">
       <thead>
         <tr>
@@ -99,6 +100,9 @@
               <?php endif;?>
               <?php if($rs->status == 0) : ?>
                 <span class="blue">NC</span>
+              <?php endif; ?>
+							<?php if($rs->status == 3) : ?>
+                <span class="purple">OP</span>
               <?php endif; ?>
             </td>
             <td class="middle text-center">

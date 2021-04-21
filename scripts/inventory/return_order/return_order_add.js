@@ -153,6 +153,49 @@ function doExport(){
 }
 
 
+function sendToWms() {
+	var code = $('#return_code').val();
+
+	load_in();
+	$.ajax({
+		url:HOME + 'send_to_wms',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+}
+
+
 
 function editHeader(){
 	$('.edit').removeAttr('disabled');
@@ -254,6 +297,7 @@ function addNew()
 	var invoice = $('#invoice').val();
 	var customer_code = $('#customer_code').val();
 	var zone_code = $('#zone_code').val();
+	var is_wms = $('#is_wms').val();
 
   if(!isDate(date_add)){
     swal('วันที่ไม่ถูกต้อง');
@@ -270,14 +314,11 @@ function addNew()
 		return false;
 	}
 
-	// if(warehouse_code.length == 0){
-	// 	swal('กรุณาระบุคลังสินค้า');
-	// 	return false;
-	// }
-
-	if(zone_code.length == 0){
-		swal('กรุณาระบุโซนรับสินค้า');
-		return false;
+	if(is_wms == 0) {
+		if(zone_code.length == 0){
+			swal('กรุณาระบุโซนรับสินค้า');
+			return false;
+		}
 	}
 
   $('#addForm').submit();

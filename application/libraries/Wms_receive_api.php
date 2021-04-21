@@ -13,8 +13,222 @@ class Wms_receive_api
 
   public function __construct()
   {
-		
+		$this->ci =& get_instance();
+		$this->ci->load->model('rest/V1/wms_error_logs_model');
   }
+
+
+	//--- export return order
+	public function export_return_order($doc, $details)
+	{
+		// Assign the CodeIgniter super-object
+
+		$sc = TRUE;
+		$order_type = "SM";
+		$xml = "";
+
+		if(!empty($doc))
+		{
+
+			if(!empty($details))
+			{
+				$xml .= "<WIB>";
+
+				//--- Header_list section
+				$xml .= "<HEADER>";
+				$xml .=   "<WH_NO>".$this->WH_NO."</WH_NO>";
+				$xml .=   "<CUST_CODE>".$this->CUS_CODE."</CUST_CODE>";
+				$xml .= "</HEADER>";
+				//---- End header_list section
+
+				//--- Order Start
+				$xml .= "<ORDER>";
+				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
+				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
+				$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
+				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
+				$xml .=   "<REF_NO1>".$doc->invoice."</REF_NO1>";
+				$xml .=   "<REF_NO2></REF_NO2>";
+				$xml .=   "<REMARK>".$doc->remark."</REMARK>";
+				$xml .= "</ORDER>";
+					//--- Item start
+				$xml .= "<ITEMS>";
+
+				foreach($details as $rs)
+				{
+					if($rs->qty > 0)
+					{
+						$xml .= "<ITEM>";
+						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
+						$xml .= "<ITEM_DESC>".$rs->product_name."</ITEM_DESC>";
+						$xml .= "<VARIANT></VARIANT>";
+						$xml .= "<LOT_NO></LOT_NO>";
+						$xml .= "<EXP_DATE></EXP_DATE>";
+						$xml .= "<SERIAL_NO></SERIAL_NO>";
+						$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
+						$xml .= "<UOM>".$rs->unit_code."</UOM>";
+						$xml .= "</ITEM>";
+					}
+				}
+
+				$xml .= "</ITEMS>";
+				//--- End header section
+				$xml .= "</WIB>";
+
+
+				if($sc === TRUE && !empty($xml))
+		    {
+		      $ch = curl_init();
+
+		      curl_setopt($ch, CURLOPT_URL, $this->url);
+		      curl_setopt($ch, CURLOPT_POST, TRUE);
+		      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+		      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+
+		      $response = curl_exec($ch);
+
+		      curl_close($ch);
+
+
+		      $res = json_decode(json_encode(simplexml_load_string($response)));
+
+
+					if(!empty($res))
+					{
+
+						if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+						{
+							$sc = FALSE;
+							$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+						}
+					}
+		    }
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "No data";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document data";
+		}
+
+		return $sc;
+	}
+
+
+
+	//--- export return lend
+	public function export_return_lend($doc, $details)
+	{
+		$sc = TRUE;
+		$order_type = "RN";
+		$xml = "";
+
+		if(!empty($doc))
+		{
+
+			if(!empty($details))
+			{
+				$xml .= "<WIB>";
+
+				//--- Header_list section
+				$xml .= "<HEADER>";
+				$xml .=   "<WH_NO>".$this->WH_NO."</WH_NO>";
+				$xml .=   "<CUST_CODE>".$this->CUS_CODE."</CUST_CODE>";
+				$xml .= "</HEADER>";
+				//---- End header_list section
+
+				//--- Order Start
+				$xml .= "<ORDER>";
+				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
+				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
+				$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
+				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
+				$xml .=   "<REF_NO1>".$doc->lend_code."</REF_NO1>";
+				$xml .=   "<REF_NO2></REF_NO2>";
+				$xml .=   "<REMARK>".$doc->remark."</REMARK>";
+				$xml .= "</ORDER>";
+					//--- Item start
+				$xml .= "<ITEMS>";
+
+				foreach($details as $rs)
+				{
+					if($rs->qty > 0)
+					{
+						$xml .= "<ITEM>";
+						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
+						$xml .= "<ITEM_DESC>".$rs->product_name."</ITEM_DESC>";
+						$xml .= "<VARIANT></VARIANT>";
+						$xml .= "<LOT_NO></LOT_NO>";
+						$xml .= "<EXP_DATE></EXP_DATE>";
+						$xml .= "<SERIAL_NO></SERIAL_NO>";
+						$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
+						$xml .= "<UOM>".$rs->unit_code."</UOM>";
+						$xml .= "</ITEM>";
+					}
+				}
+
+				$xml .= "</ITEMS>";
+				//--- End header section
+				$xml .= "</WIB>";
+
+				if($sc === TRUE && !empty($xml))
+		    {
+		      $ch = curl_init();
+
+		      curl_setopt($ch, CURLOPT_URL, $this->url);
+		      curl_setopt($ch, CURLOPT_POST, TRUE);
+		      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+		      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+
+		      $response = curl_exec($ch);
+
+		      curl_close($ch);
+
+
+		      $res = json_decode(json_encode(simplexml_load_string($response)));
+
+
+					if(!empty($res))
+					{
+
+						if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+						{
+							$sc = FALSE;
+							$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+						}
+					}
+		    }
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "No data";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document data";
+		}
+
+		return $sc;
+	}
+
 
 
 	//---- export receive transform
@@ -107,11 +321,129 @@ class Wms_receive_api
 		}
 		else
 		{
+			$sc = FALSE;
 			$this->error = "No data";
 		}
 
 		return $sc;
   }
+
+
+
+	//--- export receive transfer to  wms
+	public function export_transfer($doc, $details)
+	{
+		// Assign the CodeIgniter super-object
+
+		$sc = TRUE;
+		$order_type = "WW";
+		$xml = "";
+
+		if(!empty($doc))
+		{
+
+			if(!empty($details))
+			{
+				$xml .= "<WIB>";
+
+				//--- Header_list section
+				$xml .= "<HEADER>";
+				$xml .=   "<WH_NO>".$this->WH_NO."</WH_NO>";
+				$xml .=   "<CUST_CODE>".$this->CUS_CODE."</CUST_CODE>";
+				$xml .= "</HEADER>";
+				//---- End header_list section
+
+				//--- Order Start
+				$xml .= "<ORDER>";
+				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
+				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
+				$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
+				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
+				$xml .=   "<REF_NO1></REF_NO1>";
+				$xml .=   "<REF_NO2></REF_NO2>";
+				$xml .=   "<REMARK>".$doc->remark."</REMARK>";
+				$xml .= "</ORDER>";
+					//--- Item start
+				$xml .= "<ITEMS>";
+
+				foreach($details as $rs)
+				{
+					if($rs->qty > 0)
+					{
+						$xml .= "<ITEM>";
+						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
+						$xml .= "<ITEM_DESC>".$rs->product_name."</ITEM_DESC>";
+						$xml .= "<VARIANT></VARIANT>";
+						$xml .= "<LOT_NO></LOT_NO>";
+						$xml .= "<EXP_DATE></EXP_DATE>";
+						$xml .= "<SERIAL_NO></SERIAL_NO>";
+						$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
+						$xml .= "<UOM>".$rs->unit_code."</UOM>";
+						$xml .= "</ITEM>";
+					}
+				}
+
+				$xml .= "</ITEMS>";
+				//--- End header section
+				$xml .= "</WIB>";
+
+
+				if($sc === TRUE && !empty($xml))
+		    {
+		      $ch = curl_init();
+
+		      curl_setopt($ch, CURLOPT_URL, $this->url);
+		      curl_setopt($ch, CURLOPT_POST, TRUE);
+		      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+		      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+
+		      $response = curl_exec($ch);
+
+		      curl_close($ch);
+
+
+		      $res = json_decode(json_encode(simplexml_load_string($response)));
+
+
+					if(!empty($res))
+					{
+
+						if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+						{
+							$sc = FALSE;
+							$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+						}
+					}
+		    }
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "No data";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document data";
+		}
+
+		if($sc === TRUE)
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+		}
+		else
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
+		}
+
+		return $sc;
+	}
 
 }
 ?>

@@ -16,4 +16,13 @@ function select_channels($code = '')
   return $sc;
 }
 
+
+function select_channels_type($code = NULL)
+{
+	$sc  = '<option value="WO" '.is_selected('WO', $code).'>WO</option>';
+	$sc .= '<option value="WO-B2C" '.is_selected('WO-B2C', $code).'>WO-B2C</option>';
+	$sc .= '<option value="WO-Made2Order" '.is_selected('WO-Made2Order', $code).'>WO-Made2Order</option>';
+
+	return $sc;
+}
  ?>

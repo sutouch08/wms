@@ -2979,5 +2979,34 @@ class Orders extends PS_Controller
       }
     }
   }
+
+
+	public function send_to_wms()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		if(!empty($code))
+		{
+			$this->wms = $this->load->database('wms', TRUE);
+			$this->load->library('wms_order_api');
+
+			$rs = $this->wms_order_api->export_order($code);
+
+			if(! $rs)
+			{
+				$sc = FALSE;
+				$this->error = $this->wms_order_api->error;
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
 }
 ?>

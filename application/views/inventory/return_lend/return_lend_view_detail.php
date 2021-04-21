@@ -12,9 +12,12 @@
 					<button type="button" class="btn btn-sm btn-danger" onclick="unsave()">ยกเลิกการบันทึก</button>
 				<?php endif; ?>
 				<?php if($doc->status == 1) : ?>
-				<button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP </button>
+				<button type="button" class="btn btn-sm btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP </button>
 				<?php endif; ?>
-				<button type="button" class="btn btn-sm btn-success" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
+				<?php if($doc->is_wms == 1 && $doc->status == 3) : ?>
+					<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+				<?php endif; ?>
+				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
       </p>
     </div>
 </div>
@@ -58,10 +61,16 @@
         <input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled/>
     </div>
 </div>
+
 <?php
 if($doc->status == 2)
 {
   $this->load->view('cancle_watermark');
+}
+
+if($doc->status == 3)
+{
+	$this->load->view('on_process_watermark');
 }
 ?>
 <hr class="margin-top-15"/>

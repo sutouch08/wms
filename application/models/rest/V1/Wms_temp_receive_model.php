@@ -15,7 +15,22 @@ class Wms_temp_receive_model extends CI_Model
 	{
 		if(!empty($ds))
 		{
-			return $this->wms->insert($this->tb, $ds);
+			if($this->wms->insert($this->tb, $ds))
+			{
+				return $this->wms->insert_id();
+			}
+		}
+
+		return FALSE;
+	}
+
+
+	public function is_exists($code)
+	{
+		$rs = $this->wms->where('status', 0)->where('code', $code)->count_all_results($this->tb);
+		if($rs > 0)
+		{
+			return TRUE;
 		}
 
 		return FALSE;
@@ -33,23 +48,27 @@ class Wms_temp_receive_model extends CI_Model
 	}
 
 
-	public function get($code)
+	public function is_exists_details($code, $product_code)
 	{
-		$rs = $this->wms->where('code', $code)->get($this->tb);
+		$rs = $this->wms
+		->where('receive_code', $code)
+		->where('product_code', $product_code)
+		->where('status', 0)
+		->count_all_results($this->tb);
 
-		if($rs->num_rows() === 1)
+		if($rs > 0)
 		{
-			return $rs->row();
+			return TRUE;
 		}
 
-		return NULL;
+		return FALSE;
 	}
 
 
 
-	public function get_details($code)
+	public function get_details($id_receive)
 	{
-		$rs = $this->wms->where('receive_code', $code)->get($this->td);
+		$rs = $this->wms->where('id_receive', $id_receive)->where('status', 0)->get($this->td);
 
 		if($rs->num_rows() > 0)
 		{
@@ -60,18 +79,6 @@ class Wms_temp_receive_model extends CI_Model
 	}
 
 
-
-	public function get_unprocess($code)
-	{
-		$rs = $this->wms->where('status', 0)->where('code', $code)->get($this->tb);
-
-		if($rs->num_rows() === 1)
-		{
-			return $rs->row();
-		}
-
-		return NULL;
-	}
 
 
 	public function get_unprocess_list($limit = 100)
@@ -87,18 +94,7 @@ class Wms_temp_receive_model extends CI_Model
 	}
 
 
-	public function get_error_list($limit = 100)
-	{
-		$rs = $this->wms->where('status', 3)->limit($limit)->get($this->tb);
-
-		if($rs->num_rows() > 0)
-		{
-			return $rs->result();
-		}
-
-		return NULL;
-	}
-
+	
 
 	public function update_status($code, $status, $message = NULL)
 	{

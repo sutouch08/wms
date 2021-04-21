@@ -50,16 +50,18 @@ class Wms_auto_delivery_order extends CI_Controller
 						$sc = FALSE;
 						$this->error = "Order already delivered";
 						$this->wms_order_import_logs_model->add($order->code, 'E', $this->error);
+						$this->wms_temp_order_model->update_status($order->code, 3, $this->error);
 					}
-					else if($order->state == 0)
+					else if($order->state == 9)
 					{
 						$sc = FALSE;
 						$this->error = "Invalid status : Order already canceled";
 						$this->wms_order_import_logs_model->add($order->code, 'E', $this->error);
+						$this->wms_temp_order_model->update_status($order->code, 3, $this->error);
 					}
 					else
 					{
-						$details = $this->wms_temp_order_model->get_details($order->code);
+						$details = $this->wms_temp_order_model->get_details($data->id);
 
 						if(!empty($details))
 						{
@@ -311,25 +313,18 @@ class Wms_auto_delivery_order extends CI_Controller
 								} //--- end foreach non count
 							} //--- end if ! empty non count detail
 
-							//--- update temp status
+
 							if($sc === TRUE)
 							{
+								$this->db->trans_commit();
+								$this->wms_order_import_logs_model->add($order->code, 'S', NULL);
 								$this->wms_temp_order_model->update_status($order->code, 1, NULL);
 							}
 							else
 							{
-								$this->wms_temp_order_model->update_status($order->code, 3, $this->error);
-							}
-
-
-							if($sc === TRUE && $this->test_mode === FALSE)
-							{
-								$this->db->trans_commit();
-								$this->wms_order_import_logs_model->add($order->code, 'S', NULL);
-							}
-							else
-							{
 								$this->db->trans_rollback();
+								$this->wms_order_import_logs_model->add($order->code, 'S', NULL);
+								$this->wms_temp_order_model->update_status($order->code, 3, $this->error);
 							}
 
 							if($sc === TRUE)
@@ -341,6 +336,7 @@ class Wms_auto_delivery_order extends CI_Controller
 						{
 							$sc = FALSE;
 							$this->wms_order_import_logs_model->add($order->code, 'E', "No Items In Order List");
+							$this->wms_temp_order_model->update_status($data->code, 3, "Order not found");
 						}
 					}
 

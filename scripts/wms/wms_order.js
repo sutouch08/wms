@@ -4,7 +4,7 @@ function sendToWMS()
 
 	load_in();
 	$.ajax({
-		url:BASE_URL + 'api/wms/wms_order_api/do_export',
+		url:BASE_URL + 'orders/orders/send_to_wms/',
 		type:'POST',
 		cache:false,
 		data:{

@@ -9,9 +9,14 @@
     	<p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		    <?php if($doc->status == 1) : ?>
+					<?php if($doc->is_wms == 0) : ?>
 					<button type="button" class="btn btn-sm btn-danger" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
+					<?php endif; ?>
 		      <button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 		    <?php endif; ?>
+				<?php if($doc->status == 3) : ?>
+					<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+				<?php endif; ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="printTransfer()"><i class="fa fa-print"></i> พิมพ์</button>
       </p>
     </div>

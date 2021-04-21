@@ -49,10 +49,11 @@ class Return_lend_model extends CI_Model
 
   public function get_details($code)
   {
-    $qr  = "SELECT rld.*, old.qty AS lend_qty, old.receive AS receive ";
+    $qr  = "SELECT rld.*, old.qty AS lend_qty, old.receive AS receive, pd.unit_code ";
     $qr .= "FROM return_lend_detail AS rld ";
     $qr .= "LEFT JOIN order_lend_detail AS old ON old.order_code = rld.lend_code ";
     $qr .= "AND old.product_code = rld.product_code ";
+		$qr .= "LEFT JOIN products AS pd ON rld.product_code = pd.code ";
     $qr .= "WHERE rld.return_code = '{$code}'";
     $rs  = $this->db->query($qr);
 

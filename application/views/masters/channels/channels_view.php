@@ -45,12 +45,12 @@
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-15 middle">รหัส</th>
-					<th class="width-20 middle">ชื่อ</th>
+					<th class="width-10 middle">รหัส</th>
+					<th class="width-15 middle">ชื่อ</th>
 					<th class="width-30 middle">ลูกค้าเริ่มต้น</th>
+					<th class="width-15 middle text-center">Type code</th>
 					<th class="width-5 middle text-center">Online</th>
 					<th class="width-5 middle text-center">Default</th>
-					<th class="width-15 middle">ปรับปรุง</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -63,6 +63,7 @@
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->customer_name; ?></td>
+						<td class="middle text-center"><?php echo $rs->type_code; ?></td>
 						<td class="middle text-center">
 						<?php if($this->pm->can_edit) : ?>
 							<input type="hidden" id="online-<?php echo $rs->code; ?>" value="<?php echo $rs->is_online; ?>" />
@@ -88,7 +89,7 @@
 								<i class="fa fa-times"></i>
 							<?php endif; ?>
 						</td>
-            <td class="middle"><?php echo thai_date($rs->date_upd, TRUE, '/'); ?></td>
+
 						<td class="text-right">
 							<?php if($this->pm->can_edit) : ?>
 								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">

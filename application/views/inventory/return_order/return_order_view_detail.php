@@ -1,23 +1,29 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     	<h3 class="title" >
         <?php echo $this->title; ?>
       </h3>
 	</div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-6 padding-5">
       <p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-  <?php if($doc->is_approve == 1) : ?>
+
+  <?php if($doc->status == 1 && $doc->is_complete == 1 && $doc->is_approve == 1) : ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 	<?php endif; ?>
+
+	<?php if($doc->is_wms == 1 && $doc->status != 0 && $doc->status !=2 && $doc->is_complete != 1 && $doc->is_approve == 1) : ?>
+				<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+	<?php endif; ?>
+
 	<?php if($doc->status == 1 &&$doc->is_approve == 0 && $this->pm->can_edit) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="unsave()">ยกเลิกการบันทึก</button>
 	<?php endif; ?>
 	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
 	<?php endif; ?>
-	<?php if($doc->status == 1 && $doc->is_approve == 1 && $this->pm->can_approve) : ?>
+	<?php if($doc->is_wms == 0 && $doc->status == 1 && $doc->is_approve == 1 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
 	<?php endif; ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
@@ -28,7 +34,7 @@
 
 
 <div class="row">
-    <div class="col-sm-1 col-1-harf padding-5 first">
+    <div class="col-sm-1 col-1-harf padding-5">
     	<label>เลขที่เอกสาร</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
     </div>
@@ -44,22 +50,31 @@
 			<label>ลูกค้า</label>
 			<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
 		</div>
-		<div class="col-sm-3 padding-5 last">
+		<div class="col-sm-3 padding-5">
 			<label>คลัง[รับคืน]</label>
 			<input type="text" class="form-control input-sm edit" name="warehouse" id="warehouse" value="<?php echo $doc->warehouse_name; ?>" disabled />
 		</div>
-		<div class="col-sm-3 padding-5 first">
+		<div class="col-sm-3 padding-5">
 			<label>โซน[รับคืน]</label>
 			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
 		</div>
-    <div class="col-sm-7 padding-5">
+		<div class="col-sm-1 col-1-harf padding-5">
+			<label>สถานะ</label>
+			<select class="form-control input-sm" name="status" disabled>
+  			<option value="all">ทั้งหมด</option>
+  			<option value="0" <?php echo is_selected('0', $doc->status); ?>>ยังไม่บันทึก</option>
+  			<option value="1" <?php echo is_selected('1', $doc->status); ?>>บันทึกแล้ว</option>
+  			<option value="2" <?php echo is_selected('2', $doc->status); ?>>ยกเลิก</option>
+				<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
+  		</select>
+		</div>
+    <div class="col-sm-6 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
     </div>
-		<div class="col-sm-2 padding-5 last">
+		<div class="col-sm-1 col-1-harf padding-5">
 			<label>SAP No.</label>
 			<input type="text" class="form-control input-sm" value="<?php echo $doc->inv_code; ?>" disabled/>
-
 		</div>
 </div>
 
@@ -76,7 +91,7 @@ if($doc->status == 2)
 }
 ?>
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-striped border-1">
 			<thead>
 				<tr>

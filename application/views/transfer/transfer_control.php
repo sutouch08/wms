@@ -1,13 +1,13 @@
 <?php if($barcode) : ?>
 
   <div class="row">
-  	<div class="col-sm-2">
+  	<div class="col-sm-2 padding-5">
       	<button type="button" class="btn btn-xs btn-default btn-block" onclick="showTransferTable()">แสดงรายการ</button>
       </div>
-  	<div class="col-sm-2 control-btn">
+  	<div class="col-sm-2 padding-5 control-btn">
       	<button type="button" class="btn btn-xs btn-danger btn-block" onclick="getMoveOut()">ย้ายสินค้าออก</button>
       </div>
-      <div class="col-sm-2 control-btn">
+      <div class="col-sm-2 padding-5 control-btn">
       	<button type="button" class="btn btn-xs btn-info btn-block" onclick="getMoveIn()">ย้ายสินค้าเข้า</button>
       </div>
   </div>
@@ -15,9 +15,9 @@
   <hr id="barcode-hr" class="margin-top-15 margin-bottom-15 hide" />
 
   <div class="row">
-  	<div class="col-sm-12 moveOut-zone hide">
+  	<div class="col-sm-12 padding-5 moveOut-zone hide">
       <div class="row">
-        <div class="col-sm-3 padding-5 first">
+        <div class="col-sm-3 padding-5">
           <label>โซนต้นทาง</label>
           <input type="text" class="form-control input-sm" id="fromZone-barcode" placeholder="ยิงบาร์โค้ดโซน" />
         </div>
@@ -39,9 +39,9 @@
       </div>
     </div>
 
-    <div class="col-sm-12 moveIn-zone hide">
+    <div class="col-sm-12 padding-5 moveIn-zone hide">
       <div class="row">
-        <div class="col-sm-3 padding-5 first">
+        <div class="col-sm-3 padding-5">
           <label>บาร์โค้ดโซน</label>
           <input type="text" class="form-control input-sm" id="toZone-barcode" placeholder="ยิงบาร์โค้ดโซนปลายทาง" />
         </div>
@@ -57,7 +57,7 @@
           <label>จำนวน</label>
           <input type="number" class="form-control input-sm text-center" id="qty-to" value="1" disabled />
         </div>
-        <div class="col-sm-3 padding-5 last">
+        <div class="col-sm-3 padding-5">
           <label>บาร์โค้ดสินค้า</label>
           <input type="text" class="form-control input-sm" id="barcode-item-to" placeholder="ยิงบาร์โค้ดเพื่อย้ายสินค้าออก" disabled />
         </div>
@@ -68,7 +68,7 @@
 <?php else : ?>
 
 <div class="row">
-  <div class="col-sm-4 padding-5 first">
+  <div class="col-sm-4 padding-5">
     <label>ต้นทาง</label>
     <input type="text" class="form-control input-sm" id="from-zone" placeholder="ค้นหาชื่อโซน" autofocus />
   </div>
@@ -83,7 +83,7 @@
     <input type="text" class="form-control input-sm" id="to-zone" placeholder="ค้นหาชื่อโซน" />
   </div>
 
-  <div class="col-sm-2 col-sm-offset-1 last">
+  <div class="col-sm-2 col-sm-offset-1">
     <label class="display-block not-show">ok</label>
     <button type="button" class="btn btn-xs btn-default btn-block" onclick="showTransferTable()">รายการโอนย้าย</button>
   </div>

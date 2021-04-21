@@ -70,41 +70,54 @@ class Delivery extends REST_Controller
 
 					$this->wms->trans_begin();
 
-					if(!$this->wms_temp_order_model->add($arr))
+					$is_exists = $this->wms_temp_order_model->is_exists($ds->order_number);
+
+					if($is_exists)
 					{
 						$sc = FALSE;
-						$error = $this->wms->error();
-						$err = $error['code'] == '23000/1062' ? $ds->order_number.' already exists' : $error['message'];
+						$err = $ds->order_number.' already exists';
 						array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
 					}
 					else
 					{
-						$details = $ds->details;
-						if(!empty($details))
+						$id = $this->wms_temp_order_model->add($arr);
+						if(! $id)
 						{
-							foreach($details as $rs)
-							{
-								$arr = array(
-									'order_code' => $ds->order_number,
-									'product_code' => $rs->item,
-									'qty' => $rs->qty
-								);
-
-								if(! $this->wms_temp_order_model->add_detail($arr))
-								{
-									$sc = FALSE;
-									$error = $this->wms->error();
-									$err = $error['code'] == '23000/1062' ? $rs->item.' already exists' : $error['message'];
-									array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
-
-								}
-							}
+							$sc = FALSE;
+							$error = $this->wms->error();
+							$err = $error['message'];
+							array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
 						}
 						else
 						{
-							$sc = FALSE;
-							$err = "Empty Order details";
-							array_push($error_mesage, array('order_number' => $ds->order_number, 'status' => 'Empty Order details'));
+							$details = $ds->details;
+							if(!empty($details))
+							{
+								foreach($details as $rs)
+								{
+									$arr = array(
+										'id_order' => $id,
+										'order_code' => $ds->order_number,
+										'product_code' => $rs->item,
+										'qty' => $rs->qty
+									);
+
+									if(! $this->wms_temp_order_model->add_detail($arr))
+									{
+										$sc = FALSE;
+										$error = $this->wms->error();
+										$err = $error['message'];
+										array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
+
+									}
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$err = "Empty Order details";
+								array_push($error_mesage, array('order_number' => $ds->order_number, 'status' => 'Empty Order details'));
+							}
 						}
 					}
 

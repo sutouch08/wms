@@ -15,7 +15,22 @@ class Wms_temp_order_model extends CI_Model
 	{
 		if(!empty($ds))
 		{
-			return $this->wms->insert($this->tb, $ds);
+			if( $this->wms->insert($this->tb, $ds))
+			{
+				return $this->wms->insert_id();
+			}
+		}
+
+		return FALSE;
+	}
+
+
+	public function is_exists($code)
+	{
+		$rs = $this->wms->where('code', $code)->where('status', 0)->count_all_results($this->tb);
+		if($rs > 0)
+		{
+			return TRUE;
 		}
 
 		return FALSE;
@@ -33,41 +48,13 @@ class Wms_temp_order_model extends CI_Model
 	}
 
 
-	public function get($code)
+	public function get_details($id_order)
 	{
-		$rs = $this->wms->where('code', $code)->get($this->tb);
-
-		if($rs->num_rows() === 1)
-		{
-			return $rs->row();
-		}
-
-		return NULL;
-	}
-
-
-
-	public function get_details($code)
-	{
-		$rs = $this->wms->where('order_code', $code)->get($this->td);
+		$rs = $this->wms->where('id_order', $id_order)->where('status', 0)->get($this->td);
 
 		if($rs->num_rows() > 0)
 		{
 			return $rs->result();
-		}
-
-		return NULL;
-	}
-
-
-
-	public function get_unprocess($code)
-	{
-		$rs = $this->wms->where('status', 0)->where('code', $code)->get($this->tb);
-
-		if($rs->num_rows() === 1)
-		{
-			return $rs->row();
 		}
 
 		return NULL;
@@ -86,18 +73,6 @@ class Wms_temp_order_model extends CI_Model
 		return NULL;
 	}
 
-
-	public function get_error_list($limit = 100)
-	{
-		$rs = $this->wms->where('status', 3)->limit($limit)->get($this->tb);
-
-		if($rs->num_rows() > 0)
-		{
-			return $rs->result();
-		}
-
-		return NULL;
-	}
 
 
 	public function update_status($code, $status, $message = NULL)

@@ -1,12 +1,12 @@
 <?php $this->load->view('include/header'); ?>
 <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
 <div class="row">
-	<div class="col-sm-3">
+	<div class="col-sm-3 col-xs-12 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-9">
+    <div class="col-sm-9 col-xs-12 padding-5">
     	<p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		    <?php if($doc->status == 1) : ?>
@@ -21,9 +21,11 @@
 		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseKeyboard()">คีย์มือ</button>
 		      <?php endif; ?>
 
+					<!--
 		      <?php if($doc->status == 0 && $barcode === FALSE) : ?>
 		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseBarcode()">ใช้บาร์โค้ด</button>
 		      <?php endif; ?>
+				-->
 					<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 		      <button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
 					<?php endif; ?>

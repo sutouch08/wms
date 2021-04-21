@@ -1,11 +1,11 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     	<h3 class="title" >
         <?php echo $this->title; ?>
       </h3>
 	</div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-6 padding-5">
       <p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 	<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
@@ -21,35 +21,41 @@
 
 
 <div class="row">
-    <div class="col-sm-1 col-1-harf padding-5 first">
+    <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     	<label>เลขที่เอกสาร</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
     </div>
-		<div class="col-sm-1 col-1-harf padding-5">
+		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     	<label>วันที่</label>
       <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
     </div>
-		<div class="col-sm-2 padding-5">
+		<div class="col-sm-2 col-xs-6 padding-5">
 			<label>เลขที่บิล[SAP]</label>
 			<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
 		</div>
-		<div class="col-sm-4 padding-5">
+		<div class="col-sm-4 col-xs-6 padding-5">
 			<label>ลูกค้า</label>
 			<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
 		</div>
-		<!-- <div class="col-sm-3 padding-5 last">
-			<label>คลัง[รับคืน]</label>
-			<input type="text" class="form-control input-sm edit" name="warehouse" id="warehouse" value="<?php echo $doc->warehouse_name; ?>" disabled />
-		</div> -->
-		<div class="col-sm-3 padding-5 last">
+
+		<div class="col-sm-3 col-xs-6 padding-5">
 			<label>โซน[รับคืน]</label>
 			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
 		</div>
-    <div class="col-sm-11 padding-5 first">
+
+		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+			<label>ช่องทางการรับ</label>
+			<select class="form-control input-sm edit" name="is_wms" id="is_wms" disabled>
+				<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</optoin>
+				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
+			</select>
+		</div>
+
+    <div class="col-sm-9 col-9-harf col-xs-8 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
     </div>
-		<div class="col-sm-1 padding-5 last">
+		<div class="col-sm-1 col-xs-4 padding-5">
 			<label class="display-block not-show">save</label>
 			<?php 	if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 							<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">แก้ไข</button>

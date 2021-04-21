@@ -38,6 +38,7 @@
 			<option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่บันทึก</option>
 			<option value="1" <?php echo is_selected('1', $status); ?>>บันทึกแล้ว</option>
 			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
+			<option value="3" <?php echo is_selected('3', $status); ?>>Wms Process</option>
 		</select>
   </div>
 
@@ -76,6 +77,7 @@
 		<p  class="pull-right top-p">
 			ว่างๆ = ปกติ, &nbsp;
 			<span class="blue">NC</span> = ยังไม่บันทึก, &nbsp;
+			<span class="purple">OP</span> = อยู่ที่ WMS, &nbsp;
 			<span class="red">CN</span> = ยกเลิก, &nbsp;
 			<span class="red">NE</span> = ยังไม่ส่งออก
 		</p>
@@ -109,6 +111,9 @@
 								<?php endif; ?>
 								<?php if($rs->status == 0) : ?>
 									<span class="blue">NC</span>
+								<?php endif; ?>
+								<?php if($rs->status == 3) : ?>
+									<span class="purple">OP</span>
 								<?php endif; ?>
 								<?php if($rs->status == 1 && $rs->is_export == 0) : ?>
 									<span class="red">NE</span>

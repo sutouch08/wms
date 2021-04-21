@@ -68,8 +68,7 @@ class Return_order extends PS_Controller
   public function add_details($code)
   {
     $sc = TRUE;
-    // print_r($this->input->post());
-    // exit();
+
     if($this->input->post())
     {
       $this->load->model('inventory/movement_model');
@@ -120,20 +119,23 @@ class Return_order extends PS_Controller
               }
               else
               {
-                $ds = array(
-                  'reference' => $code,
-                  'warehouse_code' => $doc->warehouse_code,
-                  'zone_code' => $doc->zone_code,
-                  'product_code' => $item[$row],
-                  'move_in' => $qty,
-                  'date_add' => $doc->date_add
-                );
+								if($doc->is_wms == 0)
+								{
+									$ds = array(
+	                  'reference' => $code,
+	                  'warehouse_code' => $doc->warehouse_code,
+	                  'zone_code' => $doc->zone_code,
+	                  'product_code' => $item[$row],
+	                  'move_in' => $qty,
+	                  'date_add' => $doc->date_add
+	                );
 
-                if($this->movement_model->add($ds) === FALSE)
-                {
-                  $sc = FALSE;
-                  $message = 'บันทึก movement ไม่สำเร็จ';
-                }
+	                if($this->movement_model->add($ds) === FALSE)
+	                {
+	                  $sc = FALSE;
+	                  $message = 'บันทึก movement ไม่สำเร็จ';
+	                }
+								}
               }
             } //--- end if qty > 0
           } //--- end foreach
@@ -215,24 +217,85 @@ class Return_order extends PS_Controller
 
   public function approve($code)
   {
+		$sc = TRUE;
+
     if($this->pm->can_approve)
     {
       $this->load->model('approve_logs_model');
-      if($this->return_order_model->approve($code))
-      {
-        $this->approve_logs_model->add($code, 1, get_cookie('uname'));
-        $export = $this->do_export($code);
-        echo $export === TRUE ? 'success' : $this->error;
-      }
-      else
-      {
-        echo 'อนุมัติเอกสารไม่สำเร็จ';
-      }
+			$doc = $this->return_order_model->get($code);
+			if(!empty($doc))
+			{
+				if($doc->status == 1 ) //--- status บันทึกแล้วเท่านั้น
+				{
+					if($this->return_order_model->approve($code))
+					{
+						$this->approve_logs_model->add($code, 1, get_cookie('uname'));
+
+						if($doc->is_wms == 1)
+						{
+							$details = $this->return_order_model->get_details($doc->code);
+
+							if(!empty($details))
+							{
+
+								$this->load->library('wms_receive_api');
+								$rs = $this->wms_receive_api->export_return_order($doc, $details);  //--- send data to WMS ;
+
+								if($rs)
+								{
+									$this->return_order_model->set_status($code, 3); //--- on wms process;
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "อนุมัติสำเร็จ แต่ส่งข้อมูลเข้า WMS ไม่สำเร็จ กรุณา refresh หน้าจอแล้วกดส่งข้อมูลอีกครั้ง";
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "No return item fonud";
+							}
+
+						}
+						else
+						{
+							$export = $this->do_export($code);
+
+							if(! $export)
+							{
+								$sc = FALSE;
+								$this->error = "อนุมัติสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ กรุณา refresh หน้าจอแล้วกดส่งข้อมูลอีกครั้ง";
+							}
+
+						}
+
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = 'อนุมัติเอกสารไม่สำเร็จ';
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = 'เลขที่เอกสารไม่ถูกต้อง';
+			}
     }
     else
     {
-      echo 'คุณไม่มีสิทธิ์อนุมัติ';
+			$sc = FALSE;
+			$this->error = 'คุณไม่มีสิทธิ์อนุมัติ';
     }
+
+		echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -278,8 +341,16 @@ class Return_order extends PS_Controller
       $date_add = db_date($this->input->post('date_add'), TRUE);
       $invoice = trim($this->input->post('invoice'));
       $customer_code = trim($this->input->post('customer_code'));
-      $zone = $this->zone_model->get($this->input->post('zone_code'));
+			$is_wms = trim($this->input->post('is_wms'));
+			$zone_code = trim($this->input->post('zone_code'));
       $remark = trim($this->input->post('remark'));
+
+			if($is_wms == 1)
+			{
+				$zone_code = getConfig('WMS_ZONE');
+			}
+
+			$zone = $this->zone_model->get($zone_code);
 
       if($this->input->post('code'))
       {
@@ -299,7 +370,8 @@ class Return_order extends PS_Controller
         'zone_code' => $zone->code,
         'user' => get_cookie('uname'),
         'date_add' => $date_add,
-        'remark' => $remark
+        'remark' => $remark,
+				'is_wms' => $is_wms
       );
 
       $rs = $this->return_order_model->add($arr);
@@ -633,6 +705,64 @@ class Return_order extends PS_Controller
       echo $this->error;
     }
   }
+
+
+	public function send_to_wms()
+	{
+		$sc = TRUE;
+
+		if($this->input->post('code'))
+		{
+			$code = trim($this->input->post('code'));
+
+			$doc = $this->return_order_model->get($code);
+			if(!empty($doc))
+			{
+				if($doc->status != 2 && $doc->status != 0)
+				{
+					$details = $this->return_order_model->get_details($doc->code);
+
+					if(!empty($details))
+					{
+						$this->load->library('wms_receive_api');
+						$rs = $this->wms_receive_api->export_return_order($doc, $details);
+
+						if($rs)
+						{
+							$this->return_order_model->set_status($doc->code, 3);
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = $this->wms_receive_api->error;
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ไม่พบรายการคืนสินค้า";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "สถานะเอกสารไม่ถุกต้อง";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "รหัสเอกสารไม่ถูกต้อง";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 

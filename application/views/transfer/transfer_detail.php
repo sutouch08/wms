@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-12 hide" id="zone-table">
+	<div class="col-sm-12 padding-5 hide" id="zone-table">
     <form id="productForm">
     	<table class="table table-striped table-bordered">
       	<thead>
@@ -39,7 +39,7 @@
 
 
 
-	<div class="col-sm-12" id="transfer-table">
+	<div class="col-sm-12 padding-5" id="transfer-table">
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>

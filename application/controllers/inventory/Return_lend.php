@@ -8,6 +8,8 @@ class Return_lend extends PS_Controller
 	public $title = 'คืนสินค้าจากการยืม';
   public $filter;
   public $error;
+	public $wms;
+
   public function __construct()
   {
     parent::__construct();
@@ -79,6 +81,8 @@ class Return_lend extends PS_Controller
     {
       $this->load->model('inventory/lend_model');
       $this->load->model('inventory/movement_model');
+			$this->load->model('masters/warehouse_model');
+
       //--- retrive data form
       $date_add = db_date($this->input->post('date_add'), TRUE);
       $empID = $this->input->post('empID');
@@ -89,8 +93,11 @@ class Return_lend extends PS_Controller
       //--- end data form
 
       $lend = $this->lend_model->get($lend_code);
-      $zone = $this->zone_model->get($zone_code);
+      $zone = $this->zone_model->get($zone_code); //--- โซนปลายทาง
       $from_warehouse = $this->zone_model->get_warehouse_code($lend->zone_code);
+
+			$wh = $this->warehouse_model->get($zone->warehouse_code); //--- คลังปลายทาง
+
       $isManual = getConfig('MANUAL_DOC_CODE');
 
       if($this->input->post('code'))
@@ -102,7 +109,7 @@ class Return_lend extends PS_Controller
         $code = $this->get_new_code($date_add);
       }
 
-
+			$is_wms = $wh->is_wms == 1 ? 1 : 0;
 
       $arr = array(
         'code' => $code,
@@ -116,7 +123,8 @@ class Return_lend extends PS_Controller
         'date_add' => $date_add,
         'user' => get_cookie('uname'),
         'remark' => $remark,
-        'status' => 1
+				'is_wms' => $is_wms,
+        'status' => $is_wms == 1 ? 3 : 1 //--- ถ้าต้องรับเข้าที่ wms ให้ set สถานะเป็น 3
       );
 
       //--- start transection;
@@ -151,35 +159,38 @@ class Return_lend extends PS_Controller
             }
             else
             {
-              //--- insert Movement out
-              $arr = array(
-                'reference' => $code,
-                'warehouse_code' => $lend->warehouse_code,
-                'zone_code' => $lend->zone_code,
-                'product_code' => $item->code,
-                'move_in' => 0,
-                'move_out' => $qty,
-                'date_add' => db_date($this->input->post('date_add'), TRUE)
-              );
-              $this->movement_model->add($arr);
+							if($is_wms == 0)
+							{
+								//--- insert Movement out
+	              $arr = array(
+	                'reference' => $code,
+	                'warehouse_code' => $lend->warehouse_code,
+	                'zone_code' => $lend->zone_code,
+	                'product_code' => $item->code,
+	                'move_in' => 0,
+	                'move_out' => $qty,
+	                'date_add' => db_date($this->input->post('date_add'), TRUE)
+	              );
+	              $this->movement_model->add($arr);
 
-              //--- insert Movement in
-              $arr = array(
-                'reference' => $code,
-                'warehouse_code' => $zone->warehouse_code,
-                'zone_code' => $zone->code,
-                'product_code' => $item->code,
-                'move_in' => $qty,
-                'move_out' => 0,
-                'date_add' => db_date($this->input->post('date_add'), TRUE)
-              );
-              $this->movement_model->add($arr);
+	              //--- insert Movement in
+	              $arr = array(
+	                'reference' => $code,
+	                'warehouse_code' => $zone->warehouse_code,
+	                'zone_code' => $zone->code,
+	                'product_code' => $item->code,
+	                'move_in' => $qty,
+	                'move_out' => 0,
+	                'date_add' => db_date($this->input->post('date_add'), TRUE)
+	              );
+	              $this->movement_model->add($arr);
 
-              if( ! $this->return_lend_model->update_receive($lend_code, $item->code, $qty))
-              {
-                $sc = FALSE;
-                $this->error = "Update ยอดรับไม่สำเร็จ {$item->code}";
-              }
+	              if( ! $this->return_lend_model->update_receive($lend_code, $item->code, $qty))
+	              {
+	                $sc = FALSE;
+	                $this->error = "Update ยอดรับไม่สำเร็จ {$item->code}";
+	              }
+							}
             }
           }
         }
@@ -199,6 +210,27 @@ class Return_lend extends PS_Controller
         $this->db->trans_commit();
       }
 
+			if($sc === TRUE)
+			{
+				if($is_wms == 1)
+				{
+					//--- send to wms
+					$this->wms = $this->load->database('wms', TRUE);
+					$this->load->library('wms_receive_api');
+
+					$doc = $this->return_lend_model->get($code);
+					$details = $this->return_lend_model->get_details($code);
+					$rs = $this->wms_receive_api->export_return_lend($doc, $details);
+
+					if($rs)
+					{
+						$this->error = $this->wms_receive_api->error;
+						set_error($this->error);
+						//set_error("บันทึกรายการสำเร็จแต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณากดส่งข้อมูลอีกครั้ง");
+					}
+				}
+			}
+
       if($sc === FALSE)
       {
         set_error($this->error);
@@ -206,7 +238,10 @@ class Return_lend extends PS_Controller
       }
       else
       {
-        $this->export_return_lend($code);
+				if($is_wms == 0)
+				{
+					$this->export_return_lend($code);
+				}
 
         redirect($this->home.'/view_detail/'.$code);
       }
@@ -219,6 +254,50 @@ class Return_lend extends PS_Controller
   }
 
 
+
+	public function send_to_wms($code)
+	{
+		$sc = TRUE;
+		$doc = $this->return_lend_model->get($code);
+		if(!empty($doc))
+		{
+			if($doc->status == 3)
+			{
+				$details = $this->return_lend_model->get_details($code);
+
+				if(!empty($details))
+				{
+					$this->wms = $this->load->database('wms', TRUE);
+					$this->load->library('wms_receive_api');
+
+					$rs = $this->wms_receive_api->export_return_lend($doc, $details);
+					if(! $rs)
+					{
+						$sc = FALSE;
+						$this->error = $this->wms_receive_api->error;
+						
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Return items not found";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
   public function unsave($code)
@@ -344,6 +423,7 @@ class Return_lend extends PS_Controller
     {
       $this->load->model('inventory/lend_model');
       $this->load->model('inventory/movement_model');
+			$this->load->model('masters/warehouse_model');
 
       //--- retrive data form
       $date_add = db_date($this->input->post('date_add', TRUE));
@@ -356,6 +436,9 @@ class Return_lend extends PS_Controller
 
       $lend = $this->lend_model->get($lend_code);
       $zone = $this->zone_model->get($zone_code);
+			$wh = $this->warehouse_model->get($zone->warehouse_code); //--- คลังปลายทาง
+
+			$is_wms = $wh->is_wms == 1 ? 1 : 0;
 
       $arr = array(
         'lend_code' => $lend_code,
@@ -367,7 +450,8 @@ class Return_lend extends PS_Controller
         'date_add' => $date_add,
         'update_user' => get_cookie('uname'),
         'remark' => $remark,
-        'status' => 1
+				'is_wms' => $is_wms,
+        'status' => $is_wms == 1 ? 3 : 1
       );
 
       //--- start transection;
@@ -411,38 +495,41 @@ class Return_lend extends PS_Controller
               }
               else
               {
-                //--- insert Movement out
-                $arr = array(
-                  'reference' => $code,
-                  'warehouse_code' => $lend->warehouse_code,
-                  'zone_code' => $lend->zone_code,
-                  'product_code' => $item->code,
-                  'move_in' => 0,
-                  'move_out' => $qty,
-                  'date_add' => db_date($this->input->post('date_add'), TRUE)
-                );
+								if($is_wms == 0)
+								{
+									//--- insert Movement out
+	                $arr = array(
+	                  'reference' => $code,
+	                  'warehouse_code' => $lend->warehouse_code,
+	                  'zone_code' => $lend->zone_code,
+	                  'product_code' => $item->code,
+	                  'move_in' => 0,
+	                  'move_out' => $qty,
+	                  'date_add' => db_date($this->input->post('date_add'), TRUE)
+	                );
 
-                $this->movement_model->add($arr);
+	                $this->movement_model->add($arr);
 
-                //--- insert Movement in
-                $arr = array(
-                  'reference' => $code,
-                  'warehouse_code' => $zone->warehouse_code,
-                  'zone_code' => $zone->code,
-                  'product_code' => $item->code,
-                  'move_in' => $qty,
-                  'move_out' => 0,
-                  'date_add' => db_date($this->input->post('date_add'), TRUE)
-                );
+	                //--- insert Movement in
+	                $arr = array(
+	                  'reference' => $code,
+	                  'warehouse_code' => $zone->warehouse_code,
+	                  'zone_code' => $zone->code,
+	                  'product_code' => $item->code,
+	                  'move_in' => $qty,
+	                  'move_out' => 0,
+	                  'date_add' => db_date($this->input->post('date_add'), TRUE)
+	                );
 
-                $this->movement_model->add($arr);
+	                $this->movement_model->add($arr);
 
-                //--- update backlogs
-                if( ! $this->return_lend_model->update_receive($lend_code, $item->code, $qty))
-                {
-                  $sc = FALSE;
-                  $this->error = "Update ยอดรับไม่สำเร็จ {$item->code}";
-                }
+	                //--- update backlogs
+	                if( ! $this->return_lend_model->update_receive($lend_code, $item->code, $qty))
+	                {
+	                  $sc = FALSE;
+	                  $this->error = "Update ยอดรับไม่สำเร็จ {$item->code}";
+	                }
+								}
               } //--- end add detail
             } //-- end if qty
           } //--- end foreach;
@@ -462,6 +549,28 @@ class Return_lend extends PS_Controller
       {
         $this->db->trans_commit();
       }
+
+
+			if($sc === TRUE)
+			{
+				if($is_wms == 1)
+				{
+					//--- send to wms
+					$this->wms = $this->load->database('wms', TRUE);
+					$this->load->library('wms_receive_api');
+
+					$doc = $this->return_lend_model->get($code);
+					$details = $this->return_lend_model->get_details($code);
+					$rs = $this->wms_receive_api->export_return_lend($doc, $details);
+
+					if($rs)
+					{
+						$this->error = $this->wms_receive_api->error;
+						set_error($this->error);
+					}
+				}
+			}
+
 
       if($sc === FALSE)
       {

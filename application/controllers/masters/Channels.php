@@ -12,6 +12,7 @@ class Channels extends PS_Controller
     parent::__construct();
     $this->home = base_url().'masters/channels';
     $this->load->model('masters/channels_model');
+		$this->load->helper('channels');
   }
 
 
@@ -64,12 +65,14 @@ class Channels extends PS_Controller
       $name = $this->input->post('name');
       $customer_code = $this->input->post('customer_code');
       $customer_name = $this->input->post('customer_name');
+			$type_code = $this->input->post('type_code');
       $is_online = $this->input->post('is_online');
       $ds = array(
         'code' => $code,
         'name' => $name,
         'customer_code' => empty($customer_code) ? NULL : $customer_code,
         'customer_name' => empty($customer_name) ? NULL : $customer_code,
+				'type_code' => empty($type_code) ? NULL : $type_code,
         'is_online' => empty($is_online) ? 0 : 1
       );
 
@@ -133,6 +136,7 @@ class Channels extends PS_Controller
       $name = $this->input->post('name');
       $customer_code = $this->input->post('customer_code');
       $customer_name = $this->input->post('customer_name');
+			$type_code = $this->input->post('type_code');
       $is_online = $this->input->post('is_online');
 
       $ds = array(
@@ -140,6 +144,7 @@ class Channels extends PS_Controller
         'name' => $name,
         'customer_code' => empty($customer_code) ? NULL : $customer_code,
         'customer_name' => empty($customer_name) ? NULL : $customer_name,
+				'type_code' => empty($type_code) ? NULL : $type_code,
         'is_online' => empty($is_online) ? 0 : 1
       );
 
