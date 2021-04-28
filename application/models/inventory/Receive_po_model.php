@@ -58,7 +58,14 @@ class Receive_po_model extends CI_Model
 
   public function get_details($code)
   {
-    $rs = $this->db->where('receive_code', $code)->get('receive_product_detail');
+		$rs = $this->db
+		->select('rd.*')
+		->select('pd.unit_code')
+		->from('receive_product_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.receive_code', $code)
+		->get();
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -68,11 +75,38 @@ class Receive_po_model extends CI_Model
   }
 
 
+	public function get_detail_by_product($code, $product_code)
+	{
+		$rs = $this->db->where('receive_code', $code)->where('product_code', $product_code)->get('receive_product_detail');
+		if($rs->num_rows === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+	public function update_detail($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('receive_product_detail', $ds);
+		}
+
+		return FALSE;
+	}
 
   public function drop_details($code)
   {
     return $this->db->where('receive_code', $code)->delete('receive_product_detail');
   }
+
+
+	public function drop_not_valid_details($code)
+	{
+		return $this->db->where('receive_code', $code)->where('valid', 0)->delete('receive_product_detail');
+	}
 
 
 
@@ -278,6 +312,11 @@ class Receive_po_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
+		if($ds['is_wms'] !== 'all')
+		{
+			$this->db->where('is_wms', $ds['is_wms']);
+		}
+
     if($ds['status'] !== 'all')
     {
       $this->db->where('status', $ds['status']);
@@ -341,6 +380,11 @@ class Receive_po_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
+		if($ds['is_wms'] !== 'all')
+		{
+			$this->db->where('is_wms', $ds['is_wms']);
+		}
+		
     if($ds['status'] !== 'all')
     {
       $this->db->where('status', $ds['status']);

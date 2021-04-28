@@ -196,15 +196,21 @@ class Prepare_model extends CI_Model
 
   public function count_rows(array $ds = array(), $state = 3)
   {
+		$wms_full_mode = getConfig('WMS_FULL_METHOD') == 1 ? TRUE : FALSE;
+
     $this->db->select('state')
     ->from('orders')
     ->join('channels', 'channels.code = orders.channels_code','left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
     ->join('order_details', 'orders.code = order_details.order_code', 'left')
     ->join('products', 'order_details.product_code = products.code', 'left')
-		->where('orders.is_wms', 0)
     ->where('orders.state', $state)
     ->where('orders.status', 1);
+
+		if($wms_full_mode)
+		{
+			$this->db->where('orders.is_wms', 0);
+		}
 
     if(!empty($ds['code']))
     {
@@ -299,6 +305,8 @@ class Prepare_model extends CI_Model
 
   public function get_data(array $ds = array(), $perpage = '', $offset = '', $state = 3)
   {
+		$wms_full_mode = getConfig('WMS_FULL_METHOD') == 1 ? TRUE : FALSE;
+
     $this->db
 		->select('orders.*, channels.name AS channels_name')
     ->select('customers.name AS customer_name, user.name AS display_name')
@@ -307,8 +315,12 @@ class Prepare_model extends CI_Model
     ->join('channels', 'channels.code = orders.channels_code','left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
     ->join('order_details', 'orders.code = order_details.order_code','left')
-    ->join('products', 'order_details.product_code = products.code', 'left')
-		->where('orders.is_wms', 0);
+    ->join('products', 'order_details.product_code = products.code', 'left');
+
+		if($wms_full_mode)
+		{
+			$this->db->where('orders.is_wms', 0);
+		}
 
     if($state == 4)
     {

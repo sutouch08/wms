@@ -6,22 +6,22 @@
 	<input type="hidden" id="runNo" value="<?php echo getConfig('RUN_DIGIT_RECEIVE_PO'); ?>">
 <?php endif; ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     	<h3 class="title" >
         <?php echo $this->title; ?>
       </h3>
 	</div>
-    <div class="col-sm-6">
-      	<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-        </p>
+    <div class="col-sm-6 col-xs-6 padding-5">
+      <p class="pull-right top-p">
+				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+      </p>
     </div>
 </div>
 <hr />
 
 <form id="addForm" action="<?php echo $this->home.'/add'; ?>" method="post">
 <div class="row">
-    <div class="col-sm-1 col-1-harf padding-5 first">
+    <div class="col-sm-1 col-1-harf padding-5">
     	<label>เลขที่เอกสาร</label>
 			<?php if($manual_code == 1) : ?>
 				<input type="text" class="form-control input-sm" name="code" id="code" value="" required />
@@ -33,11 +33,18 @@
     	<label>วันที่</label>
       <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" readonly/>
     </div>
-    <div class="col-sm-8 padding-5">
+		<div class="col-sm-1 col-1-harf padding-5">
+			<label>ช่องทางการรับ</label>
+			<select class="form-control input-sm" name="is_wms" id="is_wms">
+				<option value="1">WMS</option>
+				<option value="0">Warrix</option>
+			</select>
+		</div>
+    <div class="col-sm-6 col-6-harf padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
     </div>
-		<div class="col-sm-1 col-1-harf padding-5 last">
+		<div class="col-sm-1 col-1-harf padding-5">
 			<label class="display-block not-show">save</label>
 			<?php if($this->pm->can_add) : ?>
 				<?php if($manual_code == 1) : ?>
@@ -51,6 +58,6 @@
 </form>
 <hr class="margin-top-15"/>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=1.1"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

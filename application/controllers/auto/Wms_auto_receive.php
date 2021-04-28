@@ -63,6 +63,161 @@ class Wms_auto_receive extends CI_Controller
   }
 
 
+	private function receive_po($data)
+	{
+		$this->load->model('inventory/receive_po_model');
+
+		$code = $data->code;
+		$order = $this->receive_po_model->get($code);
+
+		if(!empty($order))
+		{
+			$sc = TRUE;
+
+			if($order->status == 1)
+			{
+				$sc = FALSE;
+				$this->error = "Document already received";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else if($order->status == 2)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid status : Document already canceled";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else if($order->status == 0)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid status : Document not saved";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else
+			{
+				$details = $this->wms_temp_receive_model->get_details($data->id);
+
+				if(!empty($details))
+				{
+					$this->db->trans_begin();
+
+					$warehouse_code = getConfig('WMS_WAREHOUSE'); //--- คลัง wms
+					$zone_code = getConfig('WMS_ZONE'); //--- โซน wms
+
+					foreach($details as $rs)
+					{
+						if($sc === FALSE)
+						{
+							break;
+						}
+
+						if($rs->qty > 0 && $sc === TRUE)
+						{
+							$row = $this->receive_po_model->get_detail_by_product($order->code, $rs->product_code);
+
+							if(!empty($row))
+							{
+								$amount = $row->price * $rs->qty;
+								$after_backlogs = $row->before_backlogs - $rs->qty;
+								$arr = array(
+									'qty' => $rs->qty,
+									'amount' => round($amount, 2),
+									'after_backlogs' => $after_backlogs,
+									'valid' => 1
+								);
+
+
+								if(! $this->receive_po_model->update_detail($row->id, $arr))
+								{
+									$sc = FALSE;
+									$this->error = "Error : Update detail failed : {$rs->product_code}";
+								}
+
+								//--- add movement
+								if($sc === TRUE)
+								{
+									$ds = array(
+										'reference' => $order->code,
+										'warehouse_code' => $warehouse_code,
+										'zone_code' => $zone_code,
+										'product_code' => $rs->code,
+										'move_in' => $rs->qty,
+										'date_add' => db_date($order->date_add, TRUE)
+									);
+
+									if($this->movement_model->add($ds) === FALSE)
+									{
+										$sc = FALSE;
+										$this->error = 'บันทึก movement ไม่สำเร็จ';
+									}
+								}
+
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "Invalid Product code : {$rs->product_code} OR product code not in document";
+							}
+						}//--- end if qty > 0
+					} //--- end foreach
+
+					//--- drop not valid detail
+					if($sc === TRUE)
+					{
+						if(! $this->receive_po_model->drop_not_valid_details($order->code))
+						{
+							$sc = FALSE;
+							$this->error = "Drop not valid detail failed";
+						}
+					}
+
+					//--- change document status
+					if($sc === TRUE)
+					{
+						if(! $this->receive_po_model->set_status($order->code, 1))
+						{
+							$sc = FALSE;
+							$this->error = "Change document status failed";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+						$this->wms_temp_receive_model->update_status($order->code, 1, 'success');
+						$this->wms_receive_import_logs_model->add($order->code, 'S', 'success');
+					}
+					else
+					{
+						$this->db->trans_rollback();
+						$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+						$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+					}
+
+					if($sc === TRUE)
+					{
+						$this->export_receive($order->code);
+					}
+
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->wms_temp_receive_model->update_status($order->code, 3, "No Items In Order List");
+					$this->wms_receive_import_logs_model->add($order->code, 'E', "No Items In Order List");
+				}
+			}
+		}
+		else
+		{
+			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
+			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
+		}//--- end if !empty($order)
+	}
+
+
 
 	private function return_order($data)
 	{
@@ -330,7 +485,7 @@ class Wms_auto_receive extends CI_Controller
 
 					if($sc === TRUE)
 					{
-						$this->export_return($order->code);
+						$this->export_return_lend($order->code);
 					}
 				}
 				else
@@ -479,7 +634,7 @@ class Wms_auto_receive extends CI_Controller
 
 					if($sc === TRUE)
 					{
-						$this->export_receive($order->code);
+						$this->export_receive_transform($order->code);
 					}
 
 				}
@@ -668,6 +823,20 @@ class Wms_auto_receive extends CI_Controller
 	{
 		$sc = TRUE;
 		$this->load->library('export');
+		if(! $this->export->export_receive($code))
+		{
+			$sc = FALSE;
+			$this->error = trim($this->export->error);
+		}
+
+		return $sc;
+	}
+
+
+	private function export_receive_transform($code)
+	{
+		$sc = TRUE;
+		$this->load->library('export');
 		if(! $this->export->export_receive_transform($code))
 		{
 			$sc = FALSE;
@@ -690,6 +859,22 @@ class Wms_auto_receive extends CI_Controller
 
 		return $sc;
 	}
+
+
+
+	private function export_return_lend($code)
+	{
+		$sc = TRUE;
+		$this->load->library('export');
+		if(! $this->export->export_return_lend($code))
+		{
+			$sc = FALSE;
+			$this->error = trim($this->export->error);
+		}
+
+		return $sc;
+	}
+
 
 	private function export_transfer($code)
 	{

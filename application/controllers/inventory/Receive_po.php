@@ -32,6 +32,7 @@ class Receive_po extends PS_Controller
       'from_date' => get_filter('from_date', 'receive_from_date', ''),
       'to_date' => get_filter('to_date', 'receive_to_date', ''),
       'status' => get_filter('status', 'receive_status', 'all'),
+			'is_wms' => get_filter('is_wms', 'receive_is_wms', 'all'),
       'sap' => get_filter('sap', 'receive_sap', 'all')
     );
 
@@ -265,6 +266,225 @@ class Receive_po extends PS_Controller
     echo $sc === TRUE ? 'success' : $this->error;
   }
 
+
+
+
+	public function save_wms()
+  {
+    $sc = TRUE;
+
+    if($this->input->post('receive_code'))
+    {
+      $this->load->model('masters/products_model');
+      $this->load->model('masters/zone_model');
+
+      $code = $this->input->post('receive_code');
+      $vendor_code = $this->input->post('vendor_code');
+      $vendor_name = $this->input->post('vendorName');
+      $po_code = $this->input->post('poCode');
+      $invoice = $this->input->post('invoice');
+      $zone_code = getConfig('WMS_ZONE');
+      $warehouse_code = getConfig('WMS_WAREHOUSE');
+      $receive = $this->input->post('receive');
+      $backlogs = $this->input->post('backlogs');
+      $prices = $this->input->post('prices');
+      $approver = $this->input->post('approver') == '' ? NULL : $this->input->post('approver');
+      $request_code = get_null($this->input->post('requestCode'));
+
+      $doc = $this->receive_po_model->get($code);
+
+			if(!empty($doc))
+			{
+				if($doc->status == 0)
+				{
+					if($doc->is_wms == 1)
+					{
+						if(!empty($receive))
+						{
+							$details = array();
+
+							foreach($receive as $item => $qty)
+							{
+								if($qty > 0)
+								{
+									$pd = $this->products_model->get($item);
+
+									if(!empty($pd))
+									{
+										$bf = $backlogs[$item]; ///--- ยอดค้ารับ ก่อนรับ
+										$af = ($bf - $qty) > 0 ? ($bf - $qty) : 0;  //--- ยอดค้างรับหลังรับแล้ว
+										$ds = new stdClass;
+										$ds->receive_code = $code;
+										$ds->style_code = $pd->style_code;
+										$ds->product_code = $pd->code;
+										$ds->product_name = $pd->name;
+										$ds->unit_code = $pd->unit_code;
+										$ds->price = $prices[$item];
+										$ds->qty = $qty;
+										$ds->amount = $qty * $prices[$item];
+										$ds->before_backlogs = $bf;
+										$ds->after_backlogs = $af;
+
+										$details[] = $ds;
+									}
+								}
+							}
+
+							$this->db->trans_begin();
+
+							//--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
+							$this->receive_po_model->drop_details($code);
+
+							foreach($details as $rs)
+							{
+								if($sc === FALSE)
+								{
+									break;
+								}
+
+								$arr = array(
+									'receive_code' => $rs->receive_code,
+									'style_code' => $rs->style_code,
+									'product_code' => $rs->product_code,
+									'product_name' => $rs->product_name,
+									'price' => $rs->price,
+									'qty' => $rs->qty,
+									'amount' => $rs->amount,
+									'before_backlogs' => $rs->before_backlogs,
+									'after_backlogs' => $rs->after_backlogs
+								);
+
+								if(! $this->receive_po_model->add_detail($arr))
+								{
+									$sc = FALSE;
+									$this->error = "Error : Insert detail failed : {$rs->product_code}";
+								}
+
+							} //---- end foreach
+
+							if($sc === TRUE)
+							{
+								$arr = array(
+									'vendor_code' => $vendor_code,
+									'vendor_name' => $vendor_name,
+									'po_code' => $po_code,
+									'invoice_code' => $invoice,
+									'zone_code' => $zone_code,
+									'warehouse_code' => $warehouse_code,
+									'update_user' => get_cookie('uname'),
+									'approver' => $approver,
+									'request_code' => $request_code,
+									'status' => 3
+								);
+
+								if(! $this->receive_po_model->update($code, $arr))
+								{
+									$sc = FALSE;
+									$this->error = "Update document failed";
+								}
+							}
+
+							if($sc === TRUE)
+							{
+								$this->db->trans_commit();
+							}
+							else
+							{
+								$this->db->trans_rollback();
+							}
+
+							if($sc === TRUE)
+							{
+								$this->wms = $this->load->database('wms', TRUE);
+								$this->load->library('wms_receive_api');
+
+								$rs = $this->wms_receive_api->export_receive_po($doc, $po_code, $invoice, $details);
+
+								if(!$rs)
+								{
+									$sc = FALSE;
+									$this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> ".$this->wms_receive_api->error;
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "No data";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "This document must receive by Warrix";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid Document Status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document number";
+			}
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = 'ไม่พบข้อมูล';
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+	public function send_to_wms($code)
+	{
+		$sc = TRUE;
+		$doc = $this->receive_po_model->get($code);
+
+		if(!empty($doc))
+		{
+			if($doc->status == 3)
+			{
+				$details = $this->receive_po_model->get_details($code);
+
+				if(!empty($details))
+				{
+					$this->wms = $this->load->database('wms', TRUE);
+					$this->load->library('wms_receive_api');
+
+					$ex = $this->wms_receive_api->export_receive_po($doc, $doc->po_code, $doc->invoice_code, $details);
+
+					if(!$ex)
+					{
+						$sc = FALSE;
+						$thiis->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>{$this->wms_receive_api->error}";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "No items in document";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
   public function do_export($code)
@@ -521,6 +741,7 @@ class Receive_po extends PS_Controller
     if($this->input->post('date_add'))
     {
       $date_add = db_date($this->input->post('date_add'), TRUE);
+
       if($this->input->post('code'))
       {
         $code = $this->input->post('code');
@@ -530,7 +751,6 @@ class Receive_po extends PS_Controller
         $code = $this->get_new_code($date_add);
       }
 
-
       $arr = array(
         'code' => $code,
         'bookcode' => getConfig('BOOK_CODE_RECEIVE_PO'),
@@ -538,12 +758,14 @@ class Receive_po extends PS_Controller
         'vendor_name' => NULL,
         'po_code' => NULL,
         'invoice_code' => NULL,
-        'remark' => $this->input->post('remark'),
+        'remark' => get_null(trim($this->input->post('remark'))),
         'date_add' => $date_add,
-        'user' => get_cookie('uname')
+        'user' => get_cookie('uname'),
+				'is_wms' => $this->input->post('is_wms')
       );
 
       $rs = $this->receive_po_model->add($arr);
+
       if($rs)
       {
         redirect($this->home.'/edit/'.$code);
@@ -563,18 +785,21 @@ class Receive_po extends PS_Controller
     $sc = TRUE;
     $code = $this->input->post('code');
     $date = db_date($this->input->post('date_add'), TRUE);
-    $remark = trim($this->input->post('remark'));
+    $remark = get_null(trim($this->input->post('remark')));
+		$is_wms = $this->input->post('is_wms');
 
     if(!empty($code))
     {
       $doc = $this->receive_po_model->get($code);
+
       if(!empty($doc))
       {
         if($doc->status == 0)
         {
           $arr = array(
             'date_add' => $date,
-            'remark' => $remark
+            'remark' => $remark,
+						'is_wms' => $is_wms
           );
 
           if(! $this->receive_po_model->update($code, $arr))
@@ -690,7 +915,8 @@ class Receive_po extends PS_Controller
       'receive_from_date',
       'receive_to_date',
       'receive_status',
-      'receive_sap'
+      'receive_sap',
+			'receive_is_wms'
     );
 
     clear_filter($filter);

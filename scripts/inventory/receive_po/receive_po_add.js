@@ -17,6 +17,7 @@ function updateHeader(){
 	var code = $('#receive_code').val();
 	var date_add = $('#dateAdd').val();
 	var remark = $('#remark').val();
+	var is_wms = $('#is_wms').val();
 
 	if(!isDate(date_add)){
 		swal('วันที่ไม่ถูกต้อง');
@@ -31,7 +32,8 @@ function updateHeader(){
 		data:{
 			'code' : code,
 			'date_add' : date_add,
-			'remark' : remark
+			'remark' : remark,
+			'is_wms' : is_wms
 		},
 		success:function(rs){
 			load_out();
@@ -89,6 +91,8 @@ function receiveProduct(pdCode){
 
 
 function save(){
+	is_wms = $('#is_wms').val();
+
 	code = $('#receive_code').val();
 
 	over_po = $('#over_po').val()
@@ -147,11 +151,14 @@ function save(){
 		return false;
 	}
 
-	//--- ตรวจสอบโซนรับเข้า
-	if(zone_code == '' || zoneName == ''){
-		swal('กรุณาระบุโซนเพื่อรับเข้า');
-		return false;
+	if(is_wms == 0) {
+		//--- ตรวจสอบโซนรับเข้า
+		if(zone_code == '' || zoneName == ''){
+			swal('กรุณาระบุโซนเพื่อรับเข้า');
+			return false;
+		}
 	}
+
 
 
 
@@ -196,10 +203,16 @@ function save(){
 		return false;
 	}
 
+	var url = HOME + 'save';
+
+	if(is_wms == 1) {
+		url = HOME + 'save_wms';
+	}
+
 	load_in();
 
 	$.ajax({
-		url: HOME + 'save',
+		url: url,
 		type:"POST",
 		cache:"false",
 		data: ds,
@@ -216,10 +229,8 @@ function save(){
 				});
 
 				setTimeout(function(){
-					update_api_stock(code);
 					viewDetail(code);
 				}, 1200);
-
 			}
 			else
 			{
@@ -231,23 +242,6 @@ function save(){
 
 }	//--- end save
 
-
-
-function update_api_stock(code)
-{
-	$.ajax({
-		url:HOME + 'update_receive_stock',
-		type:'POST',
-		cache:false,
-		data:{
-			'receive_code' : code
-		},
-		success:function(rs){
-			console.log(rs);
-		}
-	});
-
-}
 
 
 function checkLimit(){

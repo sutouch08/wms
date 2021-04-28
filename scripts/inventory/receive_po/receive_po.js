@@ -144,6 +144,45 @@ function doExport(){
 }
 
 
+function sendToWms() {
+	var code = $('#receive_code').val();
+	load_in();
+	$.ajax({
+		url:HOME + 'send_to_wms/'+code,
+		type:'POST',
+		cache:false,
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			});
+		}
+	});
+}
+
+
 function clearFilter(){
   var url = HOME + 'clear_filter';
   $.get(url, function(rs){

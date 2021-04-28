@@ -1,20 +1,25 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     	<h3 class="title" ><?php echo $this->title; ?></h3>
 	</div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-6 padding-5">
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
       <button type="button" class="btn btn-sm btn-info" onclick="printReceived()"><i class="fa fa-print"></i> พิมพ์</button>
+			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+			<?php endif; ?>
+			<?php if($doc->is_wms == 1 && $doc->status == 3) : ?>
+			<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+			<?php endif; ?>
     </p>
   </div>
 </div>
 <hr />
 
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-sm-1 col-1-harf padding-5">
   	<label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
   </div>
@@ -36,11 +41,11 @@
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->po_code; ?>" disabled />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5 last">
+  <div class="col-sm-1 col-1-harf padding-5">
   	<label>ใบส่งสินค้า</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->invoice_code; ?>" disabled/>
   </div>
-	<div class="col-sm-1 col-1-harf padding-5 first">
+	<div class="col-sm-1 col-1-harf padding-5">
     <label>ใบขออนุมัติ</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->request_code; ?>" disabled />
   </div>
@@ -49,15 +54,15 @@
     <label>รหัสโซน</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->zone_code; ?>" disabled />
   </div>
-  <div class="col-sm-8 col-8-harf padding-5 last">
+  <div class="col-sm-8 col-8-harf padding-5">
   	<label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled/>
   </div>
-  <div class="col-sm-10 padding-5 first">
+  <div class="col-sm-10 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
 	</div>
-	<div class="col-sm-2 padding-5 last">
+	<div class="col-sm-2 padding-5">
 		<label>Document No. [SAP]</label>
 		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled />
 	</div>
@@ -68,6 +73,10 @@
 if($doc->status == 2)
 {
   $this->load->view('cancle_watermark');
+}
+if($doc->status == 3)
+{
+  $this->load->view('on_process_watermark');
 }
 ?>
 <hr class="margin-top-15 margin-bottom-15"/>
@@ -129,7 +138,7 @@ if($doc->status == 2)
 	</div>
 <?php endif; ?>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

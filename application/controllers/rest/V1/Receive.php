@@ -7,7 +7,7 @@ class Receive extends REST_Controller
 	public $error;
   public $user;
   public $wms;
-	public $test_mode = TRUE;
+	public $test_mode = FALSE;
 
 	public function __construct()
   {
@@ -16,6 +16,8 @@ class Receive extends REST_Controller
 
 		$this->load->model('rest/V1/wms_temp_receive_model');
 		$this->load->model('rest/V1/wms_error_logs_model');
+
+		$this->test_mode = getConfig('WMS_TEST_MODE') == 1 ? TRUE : FALSE;
   }
 
 
@@ -73,8 +75,15 @@ class Receive extends REST_Controller
 
 					$this->wms->trans_begin();
 
-					$is_exists = $this->wms_temp_receive_model->is_exists($ds->order_number);
-
+					if($this->test_mode)
+					{
+						$is_exists = FALSE;
+					}
+					else
+					{
+						$is_exists = $this->wms_temp_receive_model->is_exists($ds->order_number);
+					}
+					
 					if($is_exists)
 					{
 						$sc = FALSE;

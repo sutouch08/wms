@@ -1,10 +1,10 @@
 <?php $this->load->view('include/header'); ?>
 <?php if($document->status == 0) : ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     	<h3 class="title" ><?php echo $this->title; ?></h3>
 	</div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-6 padding-5">
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="leave()"><i class="fa fa-arrow-left"></i> กลับ</button>
     <?php if($this->pm->can_add) : ?>
@@ -16,7 +16,7 @@
 <hr />
 
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-sm-1 col-1-harf padding-5">
   	<label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $document->code; ?>" disabled />
   </div>
@@ -24,11 +24,18 @@
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center header-box" name="date_add" id="dateAdd" value="<?php echo thai_date($document->date_add); ?>" disabled />
   </div>
-	<div class="col-sm-8 col-8-harf padding-5">
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>ช่องทางการรับ</label>
+		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
+			<option value="1" <?php echo is_selected('1', $document->is_wms); ?>>WMS</option>
+			<option value="0" <?php echo is_selected('0', $document->is_wms); ?>>Warrix</option>
+		</select>
+	</div>
+	<div class="col-sm-7 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm header-box" name="remark" id="remark" value="<?php echo $document->remark; ?>" disabled />
 	</div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-sm-1 padding-5">
 <?php if($this->pm->can_edit && $document->status == 0) : ?>
 		<label class="display-block not-show">edit</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">
@@ -195,7 +202,7 @@
 <?php else : ?>
   <?php redirect($this->home.'/view_detail/'.$document->code); ?>
 <?php endif; ?>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=1"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>
