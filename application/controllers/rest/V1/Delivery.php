@@ -62,7 +62,8 @@ class Delivery extends REST_Controller
 				foreach($data_set->data as $ds)
 				{
 					$arr = array(
-						'code' => $ds->order_number
+						'code' => $ds->order_number,
+						'reference' => get_null($ds->reference)
 					);
 
 					$sc = TRUE;

@@ -63,7 +63,7 @@ class Wms_receive_api
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC>".$rs->product_name."</ITEM_DESC>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
 						$xml .= "<VARIANT></VARIANT>";
 						$xml .= "<LOT_NO></LOT_NO>";
 						$xml .= "<EXP_DATE></EXP_DATE>";
@@ -119,6 +119,15 @@ class Wms_receive_api
 		{
 			$sc = FALSE;
 			$this->error = "Invalid document data";
+		}
+
+		if($sc === TRUE)
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+		}
+		else
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
 		}
 
 		return $sc;
@@ -169,7 +178,7 @@ class Wms_receive_api
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC>".$rs->product_name."</ITEM_DESC>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
 						$xml .= "<VARIANT></VARIANT>";
 						$xml .= "<LOT_NO></LOT_NO>";
 						$xml .= "<EXP_DATE></EXP_DATE>";
@@ -210,6 +219,7 @@ class Wms_receive_api
 						{
 							$sc = FALSE;
 							$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+
 						}
 					}
 		    }
@@ -224,6 +234,15 @@ class Wms_receive_api
 		{
 			$sc = FALSE;
 			$this->error = "Invalid document data";
+		}
+
+		if($sc === TRUE)
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+		}
+		else
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
 		}
 
 		return $sc;
@@ -273,7 +292,7 @@ class Wms_receive_api
 				{
 					$xml .= "<ITEM>";
 					$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-					$xml .= "<ITEM_DESC>".$rs->product_name."</ITEM_DESC>";
+					$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
 					$xml .= "<VARIANT></VARIANT>";
 					$xml .= "<LOT_NO></LOT_NO>";
 					$xml .= "<EXP_DATE></EXP_DATE>";
@@ -323,6 +342,15 @@ class Wms_receive_api
 		{
 			$sc = FALSE;
 			$this->error = "No data";
+		}
+
+		if($sc === TRUE)
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+		}
+		else
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
 		}
 
 		return $sc;
@@ -375,7 +403,7 @@ class Wms_receive_api
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC>".$rs->product_name."</ITEM_DESC>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
 						$xml .= "<VARIANT></VARIANT>";
 						$xml .= "<LOT_NO></LOT_NO>";
 						$xml .= "<EXP_DATE></EXP_DATE>";

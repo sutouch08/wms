@@ -162,7 +162,7 @@ class Receive_transform extends PS_Controller
 							}
 						}
 
-
+						$this->wms = $this->load->database('wms', TRUE);
 						$this->load->library('wms_receive_api');
 
 						$rs = $this->wms_receive_api->export_receive_transform($doc, $order_code, $invoice, $details);
@@ -241,6 +241,50 @@ class Receive_transform extends PS_Controller
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
+
+	public function send_to_wms($code)
+	{
+		$sc = TRUE;
+		$doc = $this->receive_transform_model->get($code);
+		if(!empty($doc))
+		{
+			if($doc->status == 3)
+			{
+				$details = $this->receive_transform_model->get_details($code);
+
+				if(!empty($details))
+				{
+					$this->wms = $this->load->database('wms', TRUE);
+					$this->load->library('wms_receive_api');
+
+					$ex = $this->wms_receive_api->export_receive_transform($doc, $doc->order_code, $doc->invoice_code, $details);
+
+					if(!$ex)
+					{
+						$sc = FALSE;
+						$thiis->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>{$this->wms_receive_api->error}";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "No items in document";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
   public function save()

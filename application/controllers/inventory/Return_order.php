@@ -9,6 +9,7 @@ class Return_order extends PS_Controller
 	public $title = 'คืนสินค้า(ลดหนี้ขาย)';
   public $filter;
   public $error;
+	public $wms;
   public function __construct()
   {
     parent::__construct();
@@ -237,7 +238,7 @@ class Return_order extends PS_Controller
 
 							if(!empty($details))
 							{
-
+								$this->wms = $this->load->database('wms', TRUE);
 								$this->load->library('wms_receive_api');
 								$rs = $this->wms_receive_api->export_return_order($doc, $details);  //--- send data to WMS ;
 
@@ -724,6 +725,7 @@ class Return_order extends PS_Controller
 
 					if(!empty($details))
 					{
+						$this->wms = $this->load->database('wms', TRUE);
 						$this->load->library('wms_receive_api');
 						$rs = $this->wms_receive_api->export_return_order($doc, $details);
 

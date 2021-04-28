@@ -113,6 +113,9 @@ function get_summary($order, $details, $banks)
 		}
 	}
 
+	$orderTxt .= "<br/>";
+	$orderTxt .= '** หากต้องการใบกำกับภาษี รบกวนแจ้งขอใบกำกับภาษีภายใน 5 วันทำการ';
+
 	return $orderTxt;
 }
 

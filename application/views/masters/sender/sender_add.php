@@ -11,43 +11,48 @@
 </div><!-- End Row -->
 <hr class="title-block"/>
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add"; ?>">
-
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="text" name="code" id="code" class="width-100" maxlength="20" onkeyup="validateCode(this)" autofocus required />
+    </div>
+  </div>
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="name" class="width-100" required />
+			<input type="text" name="name" id="name" class="width-100" maxlength="250" required />
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ที่อยู่ 1</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="address1" class="width-100" />
+			<input type="text" name="address1" id="address1" class="width-100" />
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ที่อยู่ 2</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="address2" class="width-100" />
+			<input type="text" name="address2" id="address2" class="width-100" />
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">เบอร์โทร</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="phone" class="width-100" />
+			<input type="text" name="phone" id="phone" class="width-100" />
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">เวลาทำการ</label>
     <div class="col-xs-12 col-sm-3">
-      <select class="form-control input-sm input-small" name="open" style="display:inline-block;">
+      <select class="form-control input-sm input-small" name="open" id="open" style="display:inline-block;">
       <?php echo selectTime(); ?>
       </select>
       -
-      <select class="form-control input-sm input-small" name="close" style="display:inline-block;">
+      <select class="form-control input-sm input-small" name="close" id="close" style="display:inline-block;">
       <?php echo selectTime(); ?>
       </select>
     </div>
@@ -56,7 +61,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">เงื่อนไข</label>
     <div class="col-xs-12 col-sm-3">
-			<select class="form-control input-sm" name="type">
+			<select class="form-control input-sm" name="type" id="type">
         <option value="ปลายทาง">เก็บเงินปลายทาง</option>
         <option value="ต้นทาง">เก็บเงินต้นทาง</option>
       </select>
@@ -80,7 +85,7 @@
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
       <p class="pull-right">
-        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Save</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> Save</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
@@ -89,5 +94,6 @@
   </div>
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/masters/sender.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/sender.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/code_validate.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

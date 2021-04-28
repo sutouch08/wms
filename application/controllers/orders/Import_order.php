@@ -4,12 +4,14 @@ class Import_order extends CI_Controller
   public $ms;
   public $mc;
 	public $sync_web_stock = FALSE;
+	public $wms;
 
   public function __construct()
   {
     parent::__construct();
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
+		$this->wms = $this->load->database('wms', TRUE);
 
     $this->load->model('orders/orders_model');
     $this->load->model('masters/channels_model');
@@ -18,6 +20,8 @@ class Import_order extends CI_Controller
     $this->load->model('masters/customers_model');
     $this->load->model('orders/order_state_model');
     $this->load->model('masters/products_model');
+		$this->load->model('masters/warehouse_model');
+		$this->load->model('masters/sender_model');
     $this->load->model('address/address_model');
     $this->load->model('stock/stock_model');
 
@@ -25,7 +29,6 @@ class Import_order extends CI_Controller
     $this->load->library('api');
 
 		$this->sync_web_stock = getConfig('SYNC_WEB_STOCK') == 1 ? TRUE : FALSE;
-
 
   }
 
@@ -46,6 +49,7 @@ class Import_order extends CI_Controller
 			);
 
 			$this->load->library("upload", $config);
+			$this->load->library("wms_order_api");
 
 			if(! $this->upload->do_upload($file))
       {
@@ -101,6 +105,13 @@ class Import_order extends CI_Controller
 
           $role = 'S';
 
+					//--- คลังสินค้า
+					$warehouse_code = getConfig('WEB_SITE_WAREHOUSE_CODE');
+
+					$wh = $this->warehouse_model->get($warehouse_code);
+
+					$is_wms = empty($wh) ? 0 : $wh->is_wms;
+
           //---- กำหนดช่องทางขายสำหรับเว็บไซต์ เพราะมีลูกค้าแยกตามช่องทางการชำระเงินอีกที
           //---- เลยต้องกำหนดลูกค้าแยกตามช่องทางการชำระเงินต่างๆ สำหรับเว็บไซต์เท่านั้น
           //---- เพราะช่องทางอื่นๆในการนำเข้าจะใช้ช่องทางการชำระเงินแบบเดียวทั้งหมด
@@ -125,6 +136,9 @@ class Import_order extends CI_Controller
           //--- ไว้เช็คว่าเพิ่มรหัสค่าจัดส่งไปแล้วหรือยัง หากเพิ่มแล้วจะใส่ order_code ไว้ที่นี่
           //--- หาก order_code ไม่ตรงกันหมายถึงยังไม่ได้ใส่
           $shipping_added = NULL;
+
+					$orderCode = NULL;
+					$hold = NULL;
 
           foreach($ds as $rs)
           {
@@ -157,9 +171,10 @@ class Import_order extends CI_Controller
                 'Q' => 'shipping fee',
                 'R' => 'service fee',
                 'S' => 'force update',
-                'T' => 'Is DHL',
+                'T' => 'Shipping code',
 								'U' => 'Hold',
-								'V' => 'Remark'
+								'V' => 'Remark',
+								'W' => 'Carrier'
               );
 
               foreach($headCol as $col => $field)
@@ -189,12 +204,12 @@ class Import_order extends CI_Controller
               $ref_code = $rs['I'];
 
               //--- shipping Number
-              $shipping_code = '';
+              $shipping_code = $rs['T'];
 
-              if($rs['T'] == 'Y' OR $rs['T'] == 'y' OR $rs['T'] == '1')
-              {
-                $shipping_code = $prefix.$ref_code;
-              }
+              // if($rs['T'] == 'Y' OR $rs['T'] == 'y' OR $rs['T'] == '1')
+              // {
+              //   $shipping_code = $prefix.$ref_code;
+              // }
 
               //---- กำหนดช่องทางการขายเป็นรหัส
               $channels = $this->channels_model->get($rs['L']);
@@ -214,9 +229,6 @@ class Import_order extends CI_Controller
                 $payment = $this->payment_methods_model->get_default();
               }
 
-              //--- คลังสินค้า
-              $warehouse_code = getConfig('WEB_SITE_WAREHOUSE_CODE');
-
 							//-- remark
 							$remark = $rs['V'];
 
@@ -229,6 +241,11 @@ class Import_order extends CI_Controller
               if(empty($order_code))
               {
                 $order_code = $this->get_new_code($date_add);
+
+								if(!empty($orderCode) && $hold === FALSE)
+								{
+									$this->wms_order_api->export_order($orderCode);
+								}
               }
               else
               {
@@ -318,12 +335,17 @@ class Import_order extends CI_Controller
                     'warehouse_code' => $warehouse_code,
                     'user' => get_cookie('uname'),
                     'is_import' => 1,
-										'remark' => $remark
+										'remark' => $remark,
+										'is_wms' => $is_wms,
+										'id_sender' => empty($rs['W']) ? NULL : $this->sender_model->get_id($rs['W'])
                   );
 
                   //--- เพิ่มเอกสาร
                   if($this->orders_model->add($ds) === TRUE)
                   {
+										$orderCode = $order_code;
+										$hold = $state === 3 ? FALSE : TRUE;
+
                     $arr = array(
                       'order_code' => $order_code,
                       'state' => $state,
@@ -349,9 +371,10 @@ class Import_order extends CI_Controller
                         'is_default' => 1
                       );
 
-                      $id = $this->address_model->add_shipping_address($arr);
-                      $this->orders_model->set_address_id($order_code, $id);
+                      $id_address = $this->address_model->add_shipping_address($arr);
                     }
+
+										$this->orders_model->set_address_id($order_code, $id_address);
 
                     $import++;
                   }
@@ -503,7 +526,7 @@ class Import_order extends CI_Controller
 
 
               //----- ใส่รหัสค่าจัดส่งสินค้า
-              if($shipping_fee > 0 && !empty($shipping_item))
+              if(!empty($shipping_fee) && !empty($shipping_item))
               {
                 //---- เช็คข้อมูล ว่ามีรายละเอียดนี้อยู่ในออเดอร์แล้วหรือยัง
                 //---- ถ้ามีข้อมูลอยู่แล้ว (TRUE)ให้ข้ามการนำเข้ารายการนี้ไป
@@ -572,6 +595,11 @@ class Import_order extends CI_Controller
             } //--- end header column
 
           } //--- end foreach
+
+					if(!empty($orderCode) && $hold === FALSE)
+					{
+						$this->wms_order_api->export_order($orderCode);
+					}
         }
         else
         {

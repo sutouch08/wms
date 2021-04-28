@@ -274,8 +274,8 @@ class Return_lend extends PS_Controller
 					if(! $rs)
 					{
 						$sc = FALSE;
-						$this->error = $this->wms_receive_api->error;
-						
+						$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>({$this->wms_receive_api->error})";
+
 					}
 				}
 				else

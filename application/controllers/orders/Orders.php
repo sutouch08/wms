@@ -2130,7 +2130,13 @@ class Orders extends PS_Controller
 						$this->wms = $this->load->database('wms', TRUE);
 						$this->load->library('wms_order_api');
 
-						$this->wms_order_api->export_order($code);
+						$ex = $this->wms_order_api->export_order($code);
+
+						if(! $ex)
+						{
+							$sc = FALSE;
+							$this->error = "เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง";
+						}
 					}
 
           if($sc === TRUE && $order->state == 8 && $this->isAPI)
@@ -2995,7 +3001,7 @@ class Orders extends PS_Controller
 			if(! $rs)
 			{
 				$sc = FALSE;
-				$this->error = $this->wms_order_api->error;
+				$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_api->error.")";
 			}
 		}
 		else

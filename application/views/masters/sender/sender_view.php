@@ -1,12 +1,10 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title">
-      <i class="fa fa-users"></i> <?php echo $this->title; ?>
-    </h3>
+	<div class="col-sm-6 col-xs-6 padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
     </div>
-    <div class="col-sm-6">
-    	<p class="pull-right">
+    <div class="col-sm-6 col-xs-6 padding-5">
+    	<p class="pull-right top-p">
         <?php if($this->pm->can_add) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
         <?php endif; ?>
@@ -16,7 +14,11 @@
 <hr class="title-block"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
+	<div class="col-sm-2 padding-5">
+    <label>รหัส</label>
+    <input type="text" class="form-control input-sm search-box" name="code" value="<?php echo $code; ?>" />
+  </div>
+  <div class="col-sm-2 padding-5">
     <label>ชื่อ</label>
     <input type="text" class="form-control input-sm search-box" name="name" value="<?php echo $name; ?>" />
   </div>
@@ -57,8 +59,9 @@
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
+					<th class="width-10 middle">รหัส</th>
 					<th class="width-15 middle">ชื่อ</th>
-          <th class="width-40 middle">ที่อยู่</th>
+          <th class="width-30 middle">ที่อยู่</th>
           <th class="width-10 middle">เบอร์โทร</th>
           <th class="width-10 middle">เวลาทำการ</th>
 					<th class="width-10 middle">เงื่อนไข</th>
@@ -71,6 +74,7 @@
 				<?php foreach($data as $rs) : ?>
 					<tr id="row-<?php echo $rs->id; ?>">
 						<td class="middle text-center"><?php echo $no; ?></td>
+						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->address1.' '.$rs->address2; ?></td>
             <td class="middle"><?php echo $rs->phone; ?></td>

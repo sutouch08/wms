@@ -47,12 +47,25 @@ class Sender_model extends CI_Model
   }
 
 
+	public function get_id($code)
+	{
+		$rs = $this->db->select('id')->where('code', $code)->get('address_sender');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->id;
+		}
+
+		return NULL;
+	}
+
+
 
 	public function get_common_list($list =  array())
 	{
 
 		$this->db->where('show_in_list', 1);
-		
+
 		if(!empty($list))
 		{
 			$this->db->where_not_in('id', $list);
@@ -121,6 +134,46 @@ class Sender_model extends CI_Model
 
 
 
+
+	public function is_exists_code($code, $id = NULL)
+	{
+		$this->db->where('code', $code);
+		if(!empty($id))
+		{
+			$this->db->where('id !=', $id);
+		}
+
+		$rs = $this->db->count_all_results('address_sender');
+
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
+	public function is_exists_name($name, $id = NULL)
+	{
+		$this->db->where('name', $name);
+		if(!empty($id))
+		{
+			$this->db->where('id !=', $id);
+		}
+
+		$rs = $this->db->count_all_results('address_sender');
+
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
+
   public function is_exists($name, $id = NULL)
   {
     if(! empty($id))
@@ -144,73 +197,73 @@ class Sender_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    if(!empty($ds))
-    {
-      $qr = "SELECT count(*) AS row FROM address_sender WHERE id > 0 ";
+		if(!empty($ds['code']))
+		{
+			$this->db->like('code', $ds['code']);
+		}
 
-      if(!empty($ds['name']))
-      {
-        $qr .= "AND name LIKE '%{$ds['name']}%' ";
-      }
+		if(!empty($ds['name']))
+		{
+			$this->db->like('name', $ds['name']);
+		}
 
-      if(!empty($ds['addr']))
-      {
-        $qr .= "AND (address1 LIKE '%{$ds['addr']}%' OR address2 LIKE '%{$ds['addr']}%') ";
-      }
+		if(!empty($addr))
+		{
+			$this->db->group_start();
+			$this->db->like('address1', $ds['addr'])->or_like('address2', $ds['addr']);
+			$this->db->group_end();
+		}
 
-      if(!empty($ds['phone']))
-      {
-        $qr .= "AND phone LIKE '%{$ds['phone']}%' ";
-      }
+		if(isset($ds['phone']) && $ds['phone'] != '')
+		{
+			$this->db->like('phone', $ds['phone']);
+		}
 
-      if($ds['type'] != 'all')
-      {
-        $qr .= "AND type = '{$ds['type']}' ";
-      }
+		if(!empty($ds['type']) && $ds['type'] !== 'all')
+		{
+			$this->db->where('type', $ds['type']);
+		}
 
-      $rs = $this->db->query($qr);
+		return $this->db->count_all_results('address_sender');
 
-      return $rs->row()->row;
-    }
-
-    return 0;
   }
 
 
-  public function get_list(array $ds = array(), $perpage, $offset)
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     if(!empty($ds))
     {
-      $qr = "SELECT * FROM address_sender WHERE id > 0 ";
 
-      if(!empty($ds['name']))
-      {
-        $qr .= "AND name LIKE '%{$ds['name']}%' ";
-      }
+			if(!empty($ds['code']))
+			{
+				$this->db->like('code', $ds['code']);
+			}
 
-      if(!empty($ds['addr']))
-      {
-        $qr .= "AND (address1 LIKE '%{$ds['addr']}%' OR address2 LIKE '%{$ds['addr']}%') ";
-      }
+			if(!empty($ds['name']))
+			{
+				$this->db->like('name', $ds['name']);
+			}
 
-      if(!empty($ds['phone']))
-      {
-        $qr .= "AND phone LIKE '%{$ds['phone']}%' ";
-      }
+			if(!empty($addr))
+			{
+				$this->db->group_start();
+				$this->db->like('address1', $ds['addr'])->or_like('address2', $ds['addr']);
+				$this->db->group_end();
+			}
 
-      if($ds['type'] != 'all')
-      {
-        $qr .= "AND type = '{$ds['type']}' ";
-      }
+			if(isset($ds['phone']) && $ds['phone'] != '')
+			{
+				$this->db->like('phone', $ds['phone']);
+			}
 
-      if(empty($offset))
-      {
-        $offset = 0;
-      }
+			if(!empty($ds['type']) && $ds['type'] !== 'all')
+			{
+				$this->db->where('type', $ds['type']);
+			}
 
-      $qr .= "LIMIT {$perpage} OFFSET {$offset}";
+			$this->db->order_by('code', 'DESC')->limit($perpage, $offset);
 
-      $rs = $this->db->query($qr);
+			$rs = $this->db->get('address_sender');
 
       if($rs->num_rows() > 0)
       {

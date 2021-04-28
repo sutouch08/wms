@@ -32,6 +32,145 @@ function getEdit(id){
 }
 
 
+
+function save() {
+	var code = $('#code').val();
+	var name = $('#name').val();
+	var adr1 = $('#address1').val();
+	var adr2 = $('#address2').val();
+	var phone = $('#phone').val();
+	var open = $('#open').val();
+	var close = $('#close').val();
+	var type = $('#type').val();
+	var inlist = $('#in_list').is(':checked') ? 1 : 0;
+
+	if(code.length === 0) {
+		swal("กรุณากำหนดรหัส");
+		return false;
+	}
+
+	if(name.length === 0) {
+		swal("กรุณากำหนดชื่อ");
+		return false;
+	}
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code,
+			'name' : name,
+			'address1' : adr1,
+			'address2' : adr2,
+			'phone' : phone,
+			'open' : open,
+			'close' : close,
+			'type' : type,
+			'show_in_list' : inlist
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function() {
+					addNew();
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				})
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title: 'Error',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			});
+		}
+	})
+}
+
+
+
+function update() {
+	var id = $('#id').val();
+	var code = $('#code').val();
+	var name = $('#name').val();
+	var adr1 = $('#address1').val();
+	var adr2 = $('#address2').val();
+	var phone = $('#phone').val();
+	var open = $('#open').val();
+	var close = $('#close').val();
+	var type = $('#type').val();
+	var inlist = $('#in_list').is(':checked') ? 1 : 0;
+
+	if(code.length === 0) {
+		swal("กรุณากำหนดรหัส");
+		return false;
+	}
+
+	if(name.length === 0) {
+		swal("กรุณากำหนดชื่อ");
+		return false;
+	}
+
+	$.ajax({
+		url:HOME + 'update/'+id,
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code,
+			'name' : name,
+			'address1' : adr1,
+			'address2' : adr2,
+			'phone' : phone,
+			'open' : open,
+			'close' : close,
+			'type' : type,
+			'show_in_list' : inlist
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				})
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title: 'Error',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			});
+		}
+	})
+}
+
 function getDelete(id, name){
   swal({
     title:'Are sure ?',

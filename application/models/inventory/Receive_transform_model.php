@@ -149,7 +149,7 @@ class Receive_transform_model extends CI_Model
   public function get_details($code)
   {
     $rs = $this->db
-    ->select('receive_transform_detail.*, products.barcode')
+    ->select('receive_transform_detail.*, products.barcode, products.unit_code')
     ->from('receive_transform_detail')
     ->join('products', 'products.code = receive_transform_detail.product_code', 'left')
     ->where('receive_code', $code)

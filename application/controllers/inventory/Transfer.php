@@ -445,7 +445,7 @@ class Transfer extends PS_Controller
 
 							$rs = $this->wms_order_api->export_transfer_order($doc, $details);
 
-							if($rs)
+							if(! $rs)
 							{
 								$sc = FALSE;
 								$this->error = "Error! - ".$this->wms_order_api->error;

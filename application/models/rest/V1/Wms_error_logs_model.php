@@ -109,4 +109,10 @@ class Wms_error_logs_model extends CI_Model
 	}
 
 
+
+	public function log_xml($ds = array())
+	{
+		return $this->wms->insert('test_xml', $ds);
+	}
+
 } //---

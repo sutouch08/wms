@@ -10,6 +10,9 @@
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
+			<?php if($doc->status == 3 && $doc->is_wms == 1) : ?>
+				<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+			<?php endif; ?>
     </p>
   </div>
 </div>
@@ -116,7 +119,7 @@ if($doc->status == 3)
     </div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

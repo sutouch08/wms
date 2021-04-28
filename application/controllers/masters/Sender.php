@@ -19,10 +19,11 @@ class Sender extends PS_Controller{
   public function index()
   {
 		$filter = array(
-			'name' => get_filter('name', 'name', ''),
-			'addr' => get_filter('addr', 'addr', ''),
-			'phone' => get_filter('phone', 'phone', ''),
-			'type' => get_filter('type', 'type', 'all')
+			'code' => get_filter('code', 'sender_code', ''),
+			'name' => get_filter('name', 'sender_name', ''),
+			'addr' => get_filter('addr', 'sender_addr', ''),
+			'phone' => get_filter('phone', 'sender_phone', ''),
+			'type' => get_filter('type', 'sender_type', 'all')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -56,47 +57,68 @@ class Sender extends PS_Controller{
 	}
 
 
+
 	public function add()
 	{
-		if($this->input->post('name'))
+		$sc = TRUE;
+
+		$code = trim($this->input->post('code'));
+		$name = trim($this->input->post('name'));
+
+		if($code !== NULL && $code !== "")
 		{
-			$name = addslashes(trim($this->input->post('name')));
-			$addr1 = addslashes(trim($this->input->post('address1')));
-			$addr2 = addslashes(trim($this->input->post('address2')));
-			$phone = trim($this->input->post('phone'));
-			$open = $this->input->post('open');
-			$close = $this->input->post('close');
-			$type = $this->input->post('type');
-			$show_in_list = $this->input->post('in_list');
-
-			$arr = array(
-				'name' => $name,
-				'address1' => $addr1,
-				'address2' => $addr2,
-				'phone' => $phone,
-				'open' => $open,
-				'close' => $close,
-				'type' => $type,
-				'show_in_list' => $show_in_list
-			);
-
-			if($this->sender_model->add($arr))
+			if($name !== NULL && $name !== "")
 			{
-				set_message('เพิ่มรายการเรียบร้อยแล้ว');
+				//--- check duplicate code
+				if(! $this->sender_model->is_exists_code($code))
+				{
+					if(! $this->sender_model->is_exists_name($name))
+					{
+						$arr = array(
+							'code' => $code,
+							'name' => $name,
+							'address1' => get_null(trim($this->input->post('address1'))),
+							'address2' => get_null(trim($this->input->post('address2'))),
+							'phone' => get_null(trim($this->input->post('phone'))),
+							'open' => trim($this->input->post('open')),
+							'close' => trim($this->input->post('close')),
+							'type' => trim($this->input->post('type')),
+							'show_in_list' => empty($this->input->post('show_in_list')) ? 0 : 1
+						);
+
+						if(! $this->sender_model->add($arr))
+						{
+							$sc = FALSE;
+							$this->error = "เพิ่มรายการไม่สำเร็จ";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "รหัสซ้ำ กรุณากำหนดรหัสใหม่";
+				}
 			}
 			else
 			{
-				set_error('เพิ่มรายการไม่สำเร็จ');
+				$sc = FALSE;
+				$this->error = "Missing required parameter : name";
 			}
 		}
 		else
 		{
-			set_error('ไม่พบข้อมูลในฟอร์ม');
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
 		}
 
-		redirect($this->home.'/add_new');
-	}
+		echo $sc === TRUE ? 'success' : $this->error;
 
+	}
 
 
 	public function edit($id)
@@ -105,55 +127,68 @@ class Sender extends PS_Controller{
 		$this->load->view('masters/sender/sender_edit', $rs);
 	}
 
-
 	public function update($id)
 	{
-		if($this->input->post('name'))
+		$sc = TRUE;
+
+		$code = trim($this->input->post('code'));
+		$name = trim($this->input->post('name'));
+
+		if($code !== NULL && $code !== "")
 		{
-			$name = addslashes(trim($this->input->post('name')));
-
-			if(! $this->sender_model->is_exists($name, $id))
+			if($name !== NULL && $name !== "")
 			{
-				$addr1 = addslashes(trim($this->input->post('address1')));
-				$addr2 = addslashes(trim($this->input->post('address2')));
-				$phone = trim($this->input->post('phone'));
-				$open = $this->input->post('open');
-				$close = $this->input->post('close');
-				$type = $this->input->post('type');
-				$show_in_list = $this->input->post('in_list');
-
-				$arr = array(
-					'name' => $name,
-					'address1' => $addr1,
-					'address2' => $addr2,
-					'phone' => $phone,
-					'open' => $open,
-					'close' => $close,
-					'type' => $type,
-					'show_in_list' => $show_in_list
-				);
-
-				if($this->sender_model->update($id, $arr))
+				//--- check duplicate code
+				if(! $this->sender_model->is_exists_code($code, $id))
 				{
-					set_message('ปรับปรุงข้อมูลเรียบร้อยแล้ว');
+					if(! $this->sender_model->is_exists_name($name, $id))
+					{
+						$arr = array(
+							'code' => $code,
+							'name' => $name,
+							'address1' => get_null(trim($this->input->post('address1'))),
+							'address2' => get_null(trim($this->input->post('address2'))),
+							'phone' => get_null(trim($this->input->post('phone'))),
+							'open' => trim($this->input->post('open')),
+							'close' => trim($this->input->post('close')),
+							'type' => trim($this->input->post('type')),
+							'show_in_list' => empty($this->input->post('show_in_list')) ? 0 : 1
+						);
+
+						if(! $this->sender_model->update($id, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "แก้ไขรายการไม่สำเร็จ";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+					}
 				}
 				else
 				{
-					set_error('ปรับปรุงข้อมูลไม่สำเร็จ');
+					$sc = FALSE;
+					$this->error = "รหัสซ้ำ กรุณากำหนดรหัสใหม่";
 				}
 			}
 			else
 			{
-				set_error("ชื่อ {$name} มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+				$sc = FALSE;
+				$this->error = "Missing required parameter : name";
 			}
 		}
 		else
 		{
-			set_error('ไม่พบข้อมูลในฟอร์ม');
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
 		}
 
-		redirect($this->home.'/edit/'.$id);
+		echo $sc === TRUE ? 'success' : $this->error;
+
 	}
+
 
 
 
@@ -183,7 +218,7 @@ class Sender extends PS_Controller{
 
 	public function clear_filter()
 	{
-		$filter = array('name', 'addr', 'phone', 'type');
+		$filter = array('sender_code', 'sender_name', 'sender_addr', 'sender_phone', 'sender_type');
 		clear_filter($filter);
 	}
 

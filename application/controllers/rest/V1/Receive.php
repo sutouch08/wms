@@ -63,6 +63,7 @@ class Receive extends REST_Controller
 				{
 					$arr = array(
 						'code' => $ds->order_number,
+						'reference' => get_null($ds->reference),
 						'type' => $ds->type
 					);
 
