@@ -17,6 +17,10 @@
   <li class="li-block"><a href="#document" data-toggle="tab">เลขที่เอกสาร</a></li>
 	<li class="li-block"><a href="#bookcode" data-toggle="tab">เล่มเอกสาร</a></li>
 	<li class="li-block"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
+<?php if($this->_SuperAdmin) : ?>
+	<li class="li-block"><a href="#WMS" data-toggle="tab">ข้อมูล WMS</a></li>
+<?php endif; ?>
+
 </ul>
 </div>
 <div class="col-sm-10" style="padding-top:15px; border-left:solid 1px #ccc; min-height:600px; max-height:1500px;">
@@ -43,6 +47,13 @@
 <?php $this->load->view('setting/setting_sap'); ?>
 
 <?php $this->load->view('setting/setting_inventory'); ?>
+
+<?php
+			if($this->_SuperAdmin)
+			{
+				$this->load->view('setting/setting_wms');
+			}
+?>
 
 
 </div>

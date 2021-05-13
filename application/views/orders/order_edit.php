@@ -2,9 +2,7 @@
 <?php $isAdmin = (get_cookie('id_profile') == -987654321 ? TRUE : FALSE); ?>
 <div class="row">
 	<div class="col-sm-2 col-xs-12 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
+    <h3 class="title"><?php echo $this->title; ?></h3>
     </div>
     <div class="col-sm-10 col-xs-12 padding-5">
     	<p class="pull-right top-p" >
@@ -42,7 +40,7 @@
       </p>
     </div>
 </div><!-- End Row -->
-<hr class="padding-5"/>
+<hr/>
 
 <?php $this->load->view('orders/order_edit_header'); ?>
 <?php $this->load->view('orders/order_panel'); ?>

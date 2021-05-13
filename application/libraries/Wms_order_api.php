@@ -2,10 +2,9 @@
 class Wms_order_api
 {
 
-  private $url = "http://plcig.pioneer.co.th:8099/plcwhapi_uat/wob";
-  private $WH_NO = "PLCWH-01"; //--- Wharehouse no from WMS
-	private $CUS_CODE = "PLC-00207"; //---- Customer No from WMS
-	private $ORDER_LIST_NO = "";  //---- will be generate
+  private $url;
+  private $WH_NO; //--- Wharehouse no from WMS
+	private $CUS_CODE; //---- Customer No from WMS
   public $home;
 	public $wms;
 	protected $ci;
@@ -16,6 +15,9 @@ class Wms_order_api
   {
 		$this->ci =& get_instance();
 		$this->ci->load->model('rest/V1/wms_error_logs_model');
+		$this->url = getConfig('WMS_OB_URL');
+		$this->WH_NO = getConfig('WMS_WH_NO');
+		$this->CUS_CODE = getConfig('WMS_CUST_CODE');
 		$this->log_xml = getConfig('LOG_XML');
   }
 
@@ -26,6 +28,8 @@ class Wms_order_api
 		$this->ci->load->model('orders/orders_model');
 		$this->ci->load->model('address/address_model');
     $this->ci->load->model('masters/sender_model');
+		$this->ci->load->model('masters/channels_model');
+
 
 		$sc = TRUE;
 
@@ -74,8 +78,10 @@ class Wms_order_api
 			if($sc === TRUE)
 			{
 				$details = $this->ci->orders_model->get_only_count_stock_details($code);
-				$order_type = $order->role === 'S' ? $this->get_type_code($order->channels_code) : $role_type_list[$order->role];
-				$channels_code = $order->role === 'S' ? $order->channels_code : $role_type_list[$order->role];
+				$channels = $order->role === 'S' ? $this->ci->channels_model->get($order->channels_code) : NULL;
+				$order_type = !empty($channels) ? $channels->type_code : $role_type_list[$order->role];
+				$channels_code = !empty($channels) ? $order->channels_code : $role_type_list[$order->role];
+				$channels_name = !empty($channels) ? $channels->name : "";
 				$amount = $order->role === 'S' ? $this->ci->orders_model->get_order_total_amount($code) : 0.00;
 				$cod = $order->role === 'S' ? ($order->payment_code === 'COD' ? 'COD' : 'NON-COD') : 'NON-COD';
 				if(!empty($details))
@@ -114,7 +120,8 @@ class Wms_order_api
             $xml .=   "<RECEIPT_POSTCODE>".(!empty($addr) ? $addr->postcode : "")."</RECEIPT_POSTCODE>";
             $xml .=   "<PAYMENT_METHOD>".$cod."</PAYMENT_METHOD>";
             $xml .=   "<COD_AMOUNT>".round($amount,2)."</COD_AMOUNT>";
-						$xml .=   "<SALES_CHANNEL>".$channels_code."</SALES_CHANNEL>";
+						$xml .=   "<SALES_CHANNEL_CODE>".$channels_code."</SALES_CHANNEL_CODE>";
+						$xml .=   "<SALES_CHANNEL_NAME>".$channels_name."</SALES_CHANNEL_NAME>";
 						$xml .=   "<REF_NO1>".$order->reference."</REF_NO1>";
 						$xml .=   "<REF_NO2>".$order->shipping_code."</REF_NO2>";
 						$xml .=   "<REMARK>".$order->remark."</REMARK>";
@@ -148,6 +155,16 @@ class Wms_order_api
 					$xml .= "</ORDER_LIST>";
 					//--- End header section
 					$xml .= "</WOB>";
+
+					if($this->log_xml)
+					{
+						$arr = array(
+							'order_code' => $code,
+							'xml_text' => $xml
+						);
+
+						$this->ci->wms_error_logs_model->log_xml($arr);
+					}
 				}
 				else
 				{
@@ -162,16 +179,6 @@ class Wms_order_api
 			$this->error = "Invalid Order Code";
 		}
 
-		//echo $xml; exit();
-		if($this->log_xml)
-		{
-			$arr = array(
-				'order_code' => $code,
-				'xml_text' => $xml
-			);
-
-			$this->ci->wms_error_logs_model->log_xml($arr);
-		}
 
     if($sc === TRUE && !empty($xml))
     {
@@ -269,6 +276,8 @@ class Wms_order_api
 					$xml .=   "<RECEIPT_POSTCODE></RECEIPT_POSTCODE>";
 					$xml .=   "<PAYMENT_METHOD>NON-COD</PAYMENT_METHOD>";
 					$xml .=   "<COD_AMOUNT>0.00</COD_AMOUNT>";
+					$xml .=   "<SALES_CHANNEL_CODE></SALES_CHANNEL_CODE>";
+					$xml .=   "<SALES_CHANNEL_NAME></SALES_CHANNEL_NAME>";
 					$xml .=   "<REF_NO1></REF_NO1>";
 					$xml .=   "<REF_NO2></REF_NO2>";
 					$xml .=   "<REMARK>".$order->remark."</REMARK>";

@@ -1,11 +1,11 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
@@ -16,7 +16,7 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
@@ -42,7 +42,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-sm-1 padding-5">
     <label>SAP</label>
 		<select class="form-control input-sm" name="is_export" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -51,6 +51,14 @@
 		</select>
   </div>
 
+	<div class="col-sm-1 padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm edit" name="api" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $api); ?>>ปกติ</option>
+			<option value="0" <?php echo is_selected('0', $api); ?>>ไม่ส่ง</option>
+		</select>
+	</div>
 	<div class="col-sm-2 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
@@ -64,7 +72,7 @@
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -73,7 +81,7 @@
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-12 padding-5">
 		<p  class="pull-right top-p">
 			ว่างๆ = ปกติ, &nbsp;
 			<span class="blue">NC</span> = ยังไม่บันทึก, &nbsp;
@@ -86,11 +94,12 @@
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-10 middle text-center">วันที่</th>
-					<th class="width-15 middle">เลขที่เอกสาร</th>
+					<th class="middle" style="width:12%;">เลขที่เอกสาร</th>
 					<th class="width-20 middle">ต้นทาง</th>
 					<th class="width-20 middle">ปลายทาง</th>
 					<th class="width-15 middle">พนักงาน</th>
-					<th class="width-5 middle">สถานะ</th>
+					<th class="width-5 middle text-center">สถานะ</th>
+					<th class="width-5 middle text-center">WMS</th>
 					<th class="middle"></th>
 				</tr>
 			</thead>
@@ -119,10 +128,13 @@
 									<span class="red">NE</span>
 								<?php endif; ?>
 							</td>
+							<td class="middle text-center">
+								<?php echo (($rs->api == 1) ? 'Y' : 'N'); ?>
+							</td>
 							<td class="middle text-right">
-								<?php if($rs->status == 1) : ?>
+								<?php /*if($rs->status == 1) : ?>
 									<button type="button" class="btn btn-minier btn-primary" onclick="sendToSAP('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> SAP</button>
-								<?php endif; ?>
+								<?php endif; */?>
 								<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
 								<?php if($rs->status == 0 && $this->pm->can_edit) : ?>
 									<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
@@ -140,7 +152,7 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer.js"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer.js?v=<?php echo date('Ymd'); ?>"></script>
 <script>
 function sendToSAP(code)
 {

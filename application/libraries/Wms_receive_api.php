@@ -294,8 +294,8 @@ class Wms_receive_api
 			$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
 			$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
 			$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
-			$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
-			$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+			$xml .=   "<SUPPLIER_CODE>".$doc->vendor_code."</SUPPLIER_CODE>";
+			$xml .=   "<SUPPLIER_NAME>".$doc->vendor_name."</SUPPLIER_NAME>";
 			$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 			$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
 			$xml .=   "<REF_NO1>".$po_code."</REF_NO1>";

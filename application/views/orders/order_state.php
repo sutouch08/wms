@@ -2,6 +2,9 @@
 $pm = get_permission('SOREST', get_cookie('uid'), get_cookie('id_profile')); //--- ย้อนสถานะออเดอร์ได้หรือไม่
 $px	= get_permission('SORECT', get_cookie('uid'), get_cookie('id_profile')); //--- ย้อนสถานะออเดอร์ที่เปิดบิลแล้วได้หรือไม่
 $pc = get_permission('SOREUP', get_cookie('uid'), get_cookie('id_profile')); //--- ปล่อยออเดอร์ที่ยังไม่ชำระเงิน (เงินสด)
+$pr = get_permission('SOREPR', get_cookie('uid'), get_cookie('id_profile')); //--- ปล่อยออเดอร์ได้หรือไม่
+
+$canSetPrepare = ($pr->can_add + $pr->can_edit + $pr->can_delete) > 0 ? TRUE : FALSE;
 $canChange	= ($pm->can_add + $pm->can_edit + $pm->can_delete) > 0 ? TRUE : FALSE;
 $canUnbill	= ($px->can_add + $px->can_edit + $px->can_delete) > 0 ? TRUE : FALSE;
 $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
@@ -29,7 +32,11 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 
 												<?php if($order->state != 3 && $order->role == 'S') : ?>
 
-													<?php if($order->is_paid == 1 OR $order->is_term == 1 OR $canSkip) : ?>
+													<?php /*if($order->is_paid == 1 OR $order->is_term == 1 OR $canSkip) : ?>
+                        		<option value="3">รอจัดสินค้า</option>
+													<?php endif; */?>
+
+													<?php if($order->is_paid == 1 OR $canSetPrepare OR $canSkip) : ?>
                         		<option value="3">รอจัดสินค้า</option>
 													<?php endif; ?>
 

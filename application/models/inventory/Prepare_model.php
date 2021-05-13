@@ -196,7 +196,7 @@ class Prepare_model extends CI_Model
 
   public function count_rows(array $ds = array(), $state = 3)
   {
-		$wms_full_mode = getConfig('WMS_FULL_METHOD') == 1 ? TRUE : FALSE;
+		$full_mode = getConfig('WMS_FULL_MODE') == 1 ? TRUE : FALSE;
 
     $this->db->select('state')
     ->from('orders')
@@ -207,7 +207,7 @@ class Prepare_model extends CI_Model
     ->where('orders.state', $state)
     ->where('orders.status', 1);
 
-		if($wms_full_mode)
+		if($full_mode === TRUE)
 		{
 			$this->db->where('orders.is_wms', 0);
 		}
@@ -305,7 +305,7 @@ class Prepare_model extends CI_Model
 
   public function get_data(array $ds = array(), $perpage = '', $offset = '', $state = 3)
   {
-		$wms_full_mode = getConfig('WMS_FULL_METHOD') == 1 ? TRUE : FALSE;
+		$full_mode = getConfig('WMS_FULL_MODE') == 1 ? TRUE : FALSE;
 
     $this->db
 		->select('orders.*, channels.name AS channels_name')
@@ -317,7 +317,7 @@ class Prepare_model extends CI_Model
     ->join('order_details', 'orders.code = order_details.order_code','left')
     ->join('products', 'order_details.product_code = products.code', 'left');
 
-		if($wms_full_mode)
+		if($full_mode === TRUE)
 		{
 			$this->db->where('orders.is_wms', 0);
 		}

@@ -40,7 +40,7 @@ function get_permission($menu, $uid = NULL, $id_profile = NULL)
     }
     else
     {
-      if($CI->close_system == 2)
+      if(getConfig('CLOSE_SYSTEM') == 2)
       {
         $pm->can_add = 0;
         $pm->can_edit = 0;

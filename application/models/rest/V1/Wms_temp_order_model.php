@@ -37,6 +37,40 @@ class Wms_temp_order_model extends CI_Model
 	}
 
 
+	public function drop_temp_exists_data($id)
+	{
+		$this->wms->trans_start();
+		$this->wms->where('id_order', $id)->delete($this->td);
+		$this->wms->where('id', $id)->delete($this->tb);
+		$this->wms->trans_complete();
+
+		return $this->wms->trans_status();
+	}
+
+
+	public function get_temp_notcomplete_order($code)
+	{
+		$rs = $this->wms->where('code', $code)->where_in('status', array(0, 3))->get($this->tb);
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+	public function is_order_completed($code)
+	{
+		$rs = $this->wms->where('code', $code)->where('status', 1)->get($this->tb);
+		if($rs->num_rows() > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
 	public function add_detail(array $ds = array())
 	{
 		if(!empty($ds))

@@ -78,7 +78,8 @@ class Receive_po_model extends CI_Model
 	public function get_detail_by_product($code, $product_code)
 	{
 		$rs = $this->db->where('receive_code', $code)->where('product_code', $product_code)->get('receive_product_detail');
-		if($rs->num_rows === 1)
+
+		if($rs->num_rows() === 1)
 		{
 			return $rs->row();
 		}
@@ -384,7 +385,7 @@ class Receive_po_model extends CI_Model
 		{
 			$this->db->where('is_wms', $ds['is_wms']);
 		}
-		
+
     if($ds['status'] !== 'all')
     {
       $this->db->where('status', $ds['status']);

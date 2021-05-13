@@ -31,7 +31,8 @@ class Transfer extends PS_Controller
       'from_date' => get_filter('fromDate', 'tr_fromDate', ''),
       'to_date'   => get_filter('toDate', 'tr_toDate', ''),
       'status' => get_filter('status', 'tr_status', 'all'),
-      'is_export' => get_filter('is_export', 'tr_is_export', 'all')
+      'is_export' => get_filter('is_export', 'tr_is_export', 'all'),
+			'api' => get_filter('api', 'tr_api', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -112,11 +113,13 @@ class Transfer extends PS_Controller
       $isManual = getConfig('MANUAL_DOC_CODE');
 
 			$is_wms = 0;
+			$api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
 
 			$fromWh = $this->warehouse_model->get($from_warehouse);
 			$toWh = $this->warehouse_model->get($to_warehouse);
 
 			$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
+			$api =
 
 			$direction = 0;
 
@@ -146,7 +149,8 @@ class Transfer extends PS_Controller
         'user' => get_cookie('uname'),
         'date_add' => $date_add,
 				'is_wms' => $is_wms,
-				'direction' => $direction
+				'direction' => $direction,
+				'api' => $api
       );
 
       $rs = $this->transfer_model->add($ds);
@@ -206,6 +210,7 @@ class Transfer extends PS_Controller
 		$toWh = $this->warehouse_model->get($this->input->post('to_warehouse'));
 
 		$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
+		$api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
 
 		$direction = 0;
 
@@ -223,6 +228,7 @@ class Transfer extends PS_Controller
       'remark' => get_null(trim($this->input->post('remark'))),
 			'is_wms' => $is_wms,
 			'direction' => $direction,
+			'api' => $api,
       'update_user' => get_cookie('uname')
     );
 
@@ -270,7 +276,7 @@ class Transfer extends PS_Controller
 				if(!empty($details))
 				{
 					//--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-					if($doc->is_wms == 1)
+					if($doc->is_wms == 1 && $doc->api == 1)
 					{
 						$this->wms = $this->load->database('wms', TRUE);
 						//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
@@ -422,7 +428,7 @@ class Transfer extends PS_Controller
 				if(!empty($details))
 				{
 					//--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-					if($doc->is_wms == 1)
+					if($doc->is_wms == 1 && $doc->api == 1)
 					{
 						$this->wms = $this->load->database('wms', TRUE);
 						//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
@@ -1139,7 +1145,8 @@ class Transfer extends PS_Controller
       'tr_fromDate',
       'tr_toDate',
       'tr_status',
-      'tr_is_export'
+      'tr_is_export',
+			'tr_api'
     );
 
     clear_filter($filter);

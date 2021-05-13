@@ -7,12 +7,10 @@
 <?php endif; ?>
 
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
+	<div class="col-sm-6 col-xs-6 padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
         <button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
       </p>
@@ -21,7 +19,7 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo $this->home; ?>/add">
 <div class="row">
-  <div class="col-sm-1 col-1-harf hidden-xs padding-5 first">
+  <div class="col-sm-1 col-1-harf hidden-xs padding-5">
     <label>เลขที่เอกสาร</label>
 	<?php if($manual_code == 1) : ?>
     <input type="text" class="form-control input-sm" name="code" id="code" value="" />
@@ -53,7 +51,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-12 padding-5 last">
+	<div class="col-sm-1 col-1-harf col-xs-12 padding-5">
     <label>การชำระเงิน</label>
 		<select class="form-control input-sm" name="payment" id="payment" required>
 			<option value="">ทั้งหมด</option>
@@ -61,7 +59,7 @@
 		</select>
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-12 padding-5 first">
+  <div class="col-sm-1 col-1-harf col-xs-12 padding-5">
     <label>อ้างอิงออเดอร์</label>
 		<input type="text" class="form-control input-sm" name="reference" value="" />
   </div>
@@ -78,7 +76,7 @@
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>
-  <div class="col-sm-1 padding-5 col-xs-12 last">
+  <div class="col-sm-1 padding-5 col-xs-12">
     <label class="display-block not-show">Submit</label>
 	<?php if($manual_code == 1) : ?>
     <button type="Button" class="btn btn-xs btn-success btn-block" onclick="validateOrder()"><i class="fa fa-plus"></i> เพิ่ม</button>

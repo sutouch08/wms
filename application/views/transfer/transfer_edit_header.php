@@ -9,18 +9,26 @@
     <input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($doc->date_add); ?>" readonly required disabled />
   </div>
 
-  <div class="col-sm-4 col-4-harf padding-5">
+  <div class="col-sm-2 padding-5">
     <label>คลังต้นทาง</label>
     <input type="text" class="form-control input-sm edit" name="from_warehouse" id="from_warehouse" value="<?php echo $doc->from_warehouse_name; ?>" required disabled/>
   </div>
 
-	<div class="col-sm-4 col-4-harf padding-5">
+	<div class="col-sm-2 padding-5">
     <label>คลังปลายทาง</label>
 		<input type="text" class="form-control input-sm edit" name="to_warehouse" id="to_warehouse" value="<?php echo $doc->to_warehouse_name; ?>" required disabled/>
   </div>
 
+	<div class="col-sm-1 padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm edit" name="api" id="api" disabled>
+			<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
+			<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
+		</select>
+	</div>
+
   <?php if($doc->status == 0) : ?>
-  <div class="col-sm-11 padding-5">
+  <div class="col-sm-3 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>
@@ -30,7 +38,7 @@
 		<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="update()"><i class="fa fa-save"></i> บันทึก</button>
   </div>
   <?php else : ?>
-    <div class="col-sm-12 padding-5">
+    <div class="col-sm-4 padding-5">
       <label>หมายเหตุ</label>
       <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
     </div>

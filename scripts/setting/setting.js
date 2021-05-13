@@ -1,3 +1,4 @@
+var wms_warehouse = "";
 
 function updateConfig(formName)
 {
@@ -293,6 +294,58 @@ function toggleAutoClose(option){
 }
 
 
+function toggleFullMode(option) {
+	$('#wms-full-mode').val(option);
+
+	if(option == 1) {
+		$('#btn-full-off').removeClass('btn-danger');
+		$('#btn-full-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-full-on').removeClass('btn-success');
+		$('#btn-full-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
+function toggleExportItem(option) {
+	$('#wms-export-item').val(option);
+
+	if(option == 1) {
+		$('#btn-item-off').removeClass('btn-danger');
+		$('#btn-item-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-item-on').removeClass('btn-success');
+		$('#btn-item-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
+function toggleLogXml(option) {
+
+	$('#log-xml').val(option);
+
+	if(option == 1) {
+		$('#btn-xml-off').removeClass('btn-danger');
+		$('#btn-xml-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-xml-on').removeClass('btn-success');
+		$('#btn-xml-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
 function checkCompanySetting(){
 	vat = parseFloat($('#VAT').val());
 	year = parseInt($('#startYear').val());
@@ -361,3 +414,44 @@ $('#transform-warehouse').autocomplete({
 		}
 	}
 })
+
+
+$('#wms-warehouse').autocomplete({
+	source: BASE_URL + 'auto_complete/get_warehouse_by_role/1',
+	autoFocus:true,
+	close:function(){
+		let rs = $(this).val();
+		let arr = rs.split(' | ');
+
+		if(arr[0] === 'not found'){
+			$(this).val('');
+		}else{
+			$(this).val(arr[0]);
+			set_wms_warehouse(arr[0]);
+		}
+	}
+})
+
+
+$(document).ready(function(){
+	wms_warehouse = $('#wms-warehouse').val();
+	set_wms_warehouse(wms_warehouse);
+});
+
+function set_wms_warehouse(wms_wh_code) {
+	$('#wms-zone').autocomplete({
+		source: BASE_URL + 'auto_complete/get_zone_code_and_name/'+ wms_wh_code,
+		autoFocus:true,
+		close:function() {
+			let rs = $(this).val();
+			let arr = rs.split(' | ');
+
+			if(arr[0] === 'ไม่พบรายการ') {
+				$(this).val('');
+			}
+			else {
+				$(this).val(arr[0]);
+			}
+		}
+	})
+}

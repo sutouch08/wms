@@ -19,6 +19,8 @@ class PS_Controller extends CI_Controller
   public $RR;
   public $WL;
   public $isViewer;
+	public $_user;
+	public $_SuperAdmin = FALSE;
 
   public function __construct()
   {
@@ -28,16 +30,19 @@ class PS_Controller extends CI_Controller
     //--- check is user has logged in ?
     _check_login();
 
-    $this->close_system   = getConfig('CLOSE_SYSTEM'); //--- ปิดระบบทั้งหมดหรือไม่
+    $uid = get_cookie('uid');
 
-    if($this->close_system == 1)
+		$this->_user = $this->user_model->get_user_by_uid($uid);
+    //$this->isViewer = $this->user_model->is_viewer($uid);
+		$this->isViewer = $this->_user->is_viewer == 1 ? TRUE : FALSE;
+		$this->_SuperAdmin = $this->_user->id_profile == -987654321 ? TRUE : FALSE;
+
+		$this->close_system   = getConfig('CLOSE_SYSTEM'); //--- ปิดระบบทั้งหมดหรือไม่
+
+    if($this->close_system == 1 && $this->_SuperAdmin === FALSE)
     {
       redirect('setting/maintenance');
     }
-
-    $uid = get_cookie('uid');
-
-    $this->isViewer = $this->user_model->is_viewer($uid);
 
     $this->notibars = getConfig('NOTI_BAR');
 

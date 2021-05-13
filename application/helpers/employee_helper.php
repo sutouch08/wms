@@ -10,7 +10,7 @@ function employee_in($txt)
   {
     foreach($rs as $cs)
     {
-      $sc[] = $cs->id;
+      $sc[] = $cs->empID;
     }
   }
 

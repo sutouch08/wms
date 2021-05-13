@@ -1979,7 +1979,9 @@ class Orders extends PS_Controller
 
       if(! empty($order))
       {
-				if($order->state >= 3 && $order->is_wms && $state != 9)
+        $full_mode = getConfig('WMS_FULL_MODE') == 1 ? TRUE : FALSE;
+
+				if($full_mode === TRUE && $order->state >= 3 && $order->is_wms && $state != 9)
 				{
 					echo "ออเดอร์ถูกส่งไประบบ WMS แล้วไม่อนุญาติให้ย้อนสถานะ";
 					exit;

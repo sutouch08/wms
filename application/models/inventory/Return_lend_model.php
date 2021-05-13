@@ -33,6 +33,18 @@ class Return_lend_model extends CI_Model
 
 
 
+	public function update_detail($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('return_lend_detail', $ds);
+		}
+
+		return FALSE;
+	}
+
+
+
 
   public function get($code)
   {
@@ -79,14 +91,37 @@ class Return_lend_model extends CI_Model
   }
 
 
+
+	public function get_detail_by_product($code, $product_code)
+	{
+		$rs = $this->db
+		->select('rd.*, pd.unit_code')
+		->from('return_lend_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->where('rd.product_code', $product_code)
+		->get();
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
   //--- delete received details
   public function drop_details($code)
   {
     return $this->db->where('return_code', $code)->delete('return_lend_detail');
   }
 
-
-
+	//--- drop detail that not receive qty from wms
+	public function drop_not_valid_details($code)
+	{
+		return $this->db->where('return_code', $code)->where('valid', 0)->delete('return_lend_detail');
+	}
 
   //--- get return backlogs
   public function get_backlogs($code)
@@ -186,6 +221,9 @@ class Return_lend_model extends CI_Model
   }
 
 
+
+
+
   public function count_rows(array $ds = array())
   {
     $this->db->select('status');
@@ -206,7 +244,7 @@ class Return_lend_model extends CI_Model
     if(!empty($ds['empName']))
     {
       $emp_in = employee_in($ds['empName']); //--- employee_helper;
-      $this->db->where_in($emp_in);
+      $this->db->where_in('empID', $emp_in);
     }
 
     if(!empty($ds['status']) && $ds['status'] != 'all')
@@ -248,7 +286,7 @@ class Return_lend_model extends CI_Model
     if(!empty($ds['empName']))
     {
       $emp_in = employee_in($ds['empName']); //--- employee_helper;
-      $this->db->where_in($emp_in);
+      $this->db->where_in('empID', $emp_in);
     }
 
     if($ds['status'] != 'all')

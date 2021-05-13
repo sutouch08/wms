@@ -38,7 +38,7 @@ class Employee_model extends CI_Model
   {
     $qr  = "SELECT empID, firstName, lastName FROM OHEM ";
     $qr .= "WHERE firstName LIKE N'%{$txt}%' OR lastName LIKE N'%{$txt}%'";
-    $rs = $this->db->query($qr);
+    $rs = $this->ms->query($qr);
     if($rs->num_rows() > 0)
     {
       return $rs->result();

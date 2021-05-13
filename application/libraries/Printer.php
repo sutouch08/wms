@@ -207,18 +207,9 @@ public function print_header()
 		foreach($rd[$i] as $label => $value)
 		{
 			//$width = '50%';
-			$header .= '<div style="font-size:12px; width:'.$width.'; min-height:10mm; line-height:10mm; float:left; padding-left:10px; padding-right:10px;">';
+			$header .= '<div style="font-size:12px; width:'.$width.'; min-height:10mm; line-height:10mm; float:left; padding-left:10px; padding-right:10px; white-space:nowrap; overflow:hidden;">';
 			$header .=  $label.' : '.$value; //'<input type="text" class="print-row" value="'.$label.' : &nbsp;&nbsp;'.$value.'" />';
 			$header .= '</div>';
-
-			//$header .= "<div style='width:50%; min-height:10mm; line-height:10mm; float:left; padding-left:10px; '>".$label." : ".$value."</div>";
-
-			// $header .= '<div style="width:10%; min-height:10mm; line-height:10mm; float:left; padding-left:5px; padding-right:5px; font-size:12px;">';
-			// $header .= '<span class="pull-left">'.$label.' : </span>';
-			// $header .= '</div>';
-			// $header .= '<div style="width:40%; min-height:10mm; line-height:10mm; float:left; padding-left:10px; padding-right:5px; font-size:12px;">';
-			// $header .= '<input type="text" class="print-row" value="'.$value.'" />';
-			// $header .= '</div>';
 
 		}
 		$x++;

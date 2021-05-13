@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     	<label>เลขที่เอกสาร</label>
       <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
     </div>
@@ -20,7 +20,7 @@
       <input type="text" class="form-control input-sm edit" id="customer_ref" name="customer_ref" value="<?php echo $order->customer_ref; ?>" disabled />
     </div>
 
-    <div class="col-sm-1 col-1-harf col-xs-6 padding-5 last">
+    <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     	<label>ช่องทางขาย</label>
 			<select class="form-control input-sm edit" name="channels" id="channels" required disabled>
 				<option value="">เลือกรายการ</option>
@@ -28,7 +28,7 @@
 			</select>
 
     </div>
-    <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
+    <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     	<label>การชำระเงิน</label>
 			<select class="form-control input-sm edit" name="payment" id="payment" required disabled>
 				<option value="">เลือกรายการ</option>
@@ -58,7 +58,7 @@
 		 	<label>หมายเหตุ</label>
 		  <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 		</div>
-		<div class="col-sm-1 col-1-harf col-xs-12 padding-5 last">
+		<div class="col-sm-1 col-1-harf col-xs-12 padding-5">
 		 	<label>SAP No.</label>
 		  <input type="text" class="form-control input-sm edit" value="<?php echo $order->inv_code; ?>" disabled />
 		</div>

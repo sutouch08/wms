@@ -11,7 +11,7 @@
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		    <?php if($doc->status == 1) : ?>
 		      <button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-				<?php if($this->pm->can_edit) : ?>
+				<?php if($this->pm->can_edit && ($doc->is_wms = 0 OR $doc->api = 0)) : ?>
 					<button type="button" class="btn btn-sm btn-danger" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
 				<?php endif; ?>
 		    <?php endif; ?>
@@ -54,10 +54,10 @@
 <?php else : ?>
 <?php $this->load->view('deny_page'); ?>
 <?php endif; ?>
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer_control.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer_detail.js"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer_detail.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>

@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-12" id="transfer-table">
+	<div class="col-sm-12 padding-5" id="transfer-table">
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>

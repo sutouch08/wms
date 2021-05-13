@@ -28,9 +28,9 @@
 	$this->load->view('transfer/transfer_view_detail');
 ?>
 
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer_control.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transfer/transfer_detail.js"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transfer/transfer_detail.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

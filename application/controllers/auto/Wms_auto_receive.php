@@ -142,7 +142,7 @@ class Wms_auto_receive extends CI_Controller
 										'reference' => $order->code,
 										'warehouse_code' => $warehouse_code,
 										'zone_code' => $zone_code,
-										'product_code' => $rs->code,
+										'product_code' => $rs->receive_code,
 										'move_in' => $rs->qty,
 										'date_add' => db_date($order->date_add, TRUE)
 									);
@@ -406,12 +406,11 @@ class Wms_auto_receive extends CI_Controller
 					{
 						if($rs->qty > 0 && $sc === TRUE)
 						{
-							$row = $this->return_order_model->get_detail_by_product($order->code, $rs->product_code);
+							$row = $this->return_lend_model->get_detail_by_product($order->code, $rs->product_code);
 
 							if(!empty($row))
 							{
-	              $disc_amount = $row->discount_percent == 0 ? 0 : $rs->qty * ($row->price * ($row->discount_percent * 0.01));
-	              $amount = ($rs->qty * $row->price) - $disc_amount;
+	              $amount = ($rs->qty * $row->price);
 
 	              $arr = array(
 	                'qty' => round($rs->qty, 2),
@@ -421,30 +420,51 @@ class Wms_auto_receive extends CI_Controller
 	              );
 
 
-								if($this->return_order_model->update_detail($row->id, $arr) === FALSE)
+								if($this->return_lend_model->update_detail($row->id, $arr) === FALSE)
 								{
 									$sc = FALSE;
 									$this->error = 'Update detail failed';
 									break;
 								}
 
-								//--- update movement
+								//--- update movement in / out
 								if($sc === TRUE)
 								{
-									$ds = array(
+									$move_out = array(
 										'reference' => $order->code,
-										'warehouse_code' => $order->warehouse_code,
-										'zone_code' => $order->zone_code,
+										'warehouse_code' => $order->from_warehouse,
+										'zone_code' => $order->from_zone,
+										'product_code' => $row->product_code,
+										'move_out' => $rs->qty,
+										'date_add' => db_date($order->date_add, TRUE)
+									);
+
+									$move_in = array(
+										'reference' => $order->code,
+										'warehouse_code' => $order->to_warehouse,
+										'zone_code' => $order->to_zone,
 										'product_code' => $row->product_code,
 										'move_in' => $rs->qty,
 										'date_add' => db_date($order->date_add, TRUE)
 									);
 
-									if($this->movement_model->add($ds) === FALSE)
+									if($this->movement_model->add($move_out) === FALSE)
 									{
 										$sc = FALSE;
-										$this->error = 'บันทึก movement ไม่สำเร็จ';
+										$this->error = 'บันทึก movement ออกไม่สำเร็จ';
 									}
+
+									if($this->movement_model->add($move_in) === FALSE)
+									{
+										$sc = FALSE;
+										$this->error = 'บันทึก movement เข้าไม่สำเร็จ';
+									}
+
+									if(!$this->return_lend_model->update_receive($order->lend_code, $row->product_code, $rs->qty))
+		              {
+		                $sc = FALSE;
+		                $this->error = "Update ยอดรับไม่สำเร็จ {$rs->product_code}";
+		              }
 								}
 							} //---
 						}//--- end if qty > 0
@@ -453,7 +473,7 @@ class Wms_auto_receive extends CI_Controller
 					if($sc === TRUE)
 					{
 						//---- drop not valid detail
-						if(! $this->return_order_model->drop_not_valid_details($order->code))
+						if(! $this->return_lend_model->drop_not_valid_details($order->code))
 						{
 							$sc = FALSE;
 							$this->error = "ลบรายการที่ไม่มีจำนวนไม่สำเร็จ";
@@ -462,11 +482,10 @@ class Wms_auto_receive extends CI_Controller
 						{
 							//--- เปลี่ยนสถานะเอกสาร
 							$arr = array(
-								'status' => 1,
-								'is_complete' => 1
+								'status' => 1
 							);
 
-							$this->return_order_model->update($order->code, $arr);
+							$this->return_lend_model->update($order->code, $arr);
 						}
 					}
 
@@ -884,6 +903,10 @@ class Wms_auto_receive extends CI_Controller
 		{
 			$sc = FALSE;
 			$this->error = trim($this->export->error);
+		}
+		else
+		{
+			$this->transfer_model->set_export($code, 1);
 		}
 
 		return $sc;

@@ -7,6 +7,8 @@ class Products extends PS_Controller
   public $menu_sub_group_code = 'PRODUCT';
 	public $title = 'เพิ่ม/แก้ไข รายการสินค้า';
   public $error = '';
+	public $wms;
+	public $wms_export_item;
 
   public function __construct()
   {
@@ -35,6 +37,11 @@ class Products extends PS_Controller
     $this->load->helper('product_sub_group');
     $this->load->helper('product_images');
     $this->load->helper('unit');
+
+		$this->wms = $this->load->database('wms', TRUE);
+		$this->load->library('wms_product_api');
+
+		$this->wms_export_item = getConfig('WMS_EXPORT_ITEMS');
 
   }
 
@@ -339,6 +346,8 @@ class Products extends PS_Controller
 
       if($this->products_model->update($code, $ds))
       {
+
+
         $this->do_export($code, 'U'); //--- A = add, U = update
 
         echo 'success';
@@ -1185,6 +1194,8 @@ class Products extends PS_Controller
 
   public function do_export($code, $method = 'A')
   {
+		$sc = TRUE;
+
     $item = $this->products_model->get($code);
     //--- เช็คข้อมูลในฐานข้อมูลจริง
     $exst = $this->products_model->is_sap_exists($item->code);
@@ -1237,7 +1248,20 @@ class Products extends PS_Controller
       'F_E_CommerceDate' => sap_date(now(), TRUE)
     );
 
-    return $this->products_model->add_item($ds);
+    if($this->products_model->add_item($ds))
+		{
+			if($this->wms_export_item)
+			{
+				$this->wms_product_api->export_item($item->code, $item);
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Update Item failed";
+		}
+
+		return $sc;
   }
 
 
@@ -1267,40 +1291,6 @@ class Products extends PS_Controller
 
     echo $sc === TRUE ? 'success' : "Success : {$success}, Fail : {$fail}";
   }
-
-
-
-  public function export_products_to_web()
-  {
-    $sc = TRUE;
-    $style_code = $this->input->post('style_code');
-    if(!empty($style_code))
-    {
-      $this->load->library('api');
-      $this->load->helper('stock');
-      $products = $this->products_model->get_style_items($style_code);
-      if(!empty($products))
-      {
-        foreach($products as $item)
-        {
-          $rs = $this->api->create_products($item, get_available_stock($item->code));
-        }
-      }
-      else
-      {
-        $sc = FALSE;
-        $this->error = "ไม่พบรายการสินค้าในระบบ";
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "ไม่พบรหัสสินค้า";
-    }
-
-    echo $sc === TRUE ? 'success' : $this->error;
-  }
-
 
 
   public function export_barcode($code, $token)

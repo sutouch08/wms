@@ -7,7 +7,6 @@ class Receive extends REST_Controller
 	public $error;
   public $user;
   public $wms;
-	public $test_mode = FALSE;
 
 	public function __construct()
   {
@@ -16,8 +15,6 @@ class Receive extends REST_Controller
 
 		$this->load->model('rest/V1/wms_temp_receive_model');
 		$this->load->model('rest/V1/wms_error_logs_model');
-
-		$this->test_mode = getConfig('WMS_TEST_MODE') == 1 ? TRUE : FALSE;
   }
 
 
@@ -75,62 +72,74 @@ class Receive extends REST_Controller
 
 					$this->wms->trans_begin();
 
-					if($this->test_mode)
-					{
-						$is_exists = FALSE;
-					}
-					else
-					{
-						$is_exists = $this->wms_temp_receive_model->is_exists($ds->order_number);
-					}
-					
-					if($is_exists)
+					$is_completed = $this->wms_temp_receive_model->is_order_completed($ds->order_number);
+
+					if($is_completed)
 					{
 						$sc = FALSE;
-						$err = $ds->order_number.' already exists';
+						$err = $ds->order_number.' already completed';
 						array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
 					}
 					else
 					{
-						$id = $this->wms_temp_receive_model->add($arr);
+						$not_complete = $this->wms_temp_receive_model->get_temp_notcomplete_order($ds->order_number);
 
-						if(! $id)
+						if(!empty($not_complete))
 						{
-							$sc = FALSE;
-							$error = $this->wms->error();
-							$err = $error['message'];
-							array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
-						}
-						else
-						{
-							$details = $ds->details;
-							if(!empty($details))
+							foreach($not_complete as $rows)
 							{
-								foreach($details as $rs)
+								//--- drop not complete before add new data
+								if(! $this->wms_temp_receive_model->drop_temp_exists_data($rows->id))
 								{
-									$arr = array(
-										'id_receive' => $id,
-										'receive_code' => $ds->order_number,
-										'product_code' => $rs->item,
-										'qty' => $rs->qty
-									);
-
-									if(! $this->wms_temp_receive_model->add_detail($arr))
-									{
-										$sc = FALSE;
-										$error = $this->wms->error();
-										$err = $error['message'];
-										array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
-									}
+									$sc = FALSE;
+									$this->error = "ลบข้อมูลเก่าใน Temp ไม่สำเร็จ";
 								}
+							}
+						}
+
+						if($sc === TRUE)
+						{
+							$id = $this->wms_temp_receive_model->add($arr);
+
+							if(! $id)
+							{
+								$sc = FALSE;
+								$error = $this->wms->error();
+								$err = $error['message'];
+								array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
 							}
 							else
 							{
-								$sc = FALSE;
-								$err = "Empty Order details";
-								array_push($error_mesage, array('order_number' => $ds->order_number, 'status' => 'Empty Order details'));
+								$details = $ds->details;
+								if(!empty($details))
+								{
+									foreach($details as $rs)
+									{
+										$arr = array(
+											'id_receive' => $id,
+											'receive_code' => $ds->order_number,
+											'product_code' => $rs->item,
+											'qty' => $rs->qty
+										);
+
+										if(! $this->wms_temp_receive_model->add_detail($arr))
+										{
+											$sc = FALSE;
+											$error = $this->wms->error();
+											$err = $error['message'];
+											array_push($error_mesage, array('order_number' => $ds->order_number, 'error_message' => $err));
+										}
+									}
+								}
+								else
+								{
+									$sc = FALSE;
+									$err = "Empty Order details";
+									array_push($error_mesage, array('order_number' => $ds->order_number, 'status' => 'Empty Order details'));
+								}
 							}
 						}
+
 					}
 
 

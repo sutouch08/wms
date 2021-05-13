@@ -934,5 +934,34 @@ class Products_model extends CI_Model
     return FALSE;
   }
 
+
+	public function get_attribute($code)
+	{
+		$rs = $this->db
+		->select('pd.*')
+		->select('co.name AS color_name, si.name AS size_name')
+		->select('pg.name AS group_name, pu.name AS sub_group_name')
+		->select('pc.name AS category_name, pk.name AS kind_name')
+		->select('pt.name AS type_name, br.name AS brand_name')
+		->from('products AS pd')
+		->join('product_color AS co', 'pd.color_code = co.code', 'left')
+		->join('product_size AS si', 'pd.size_code = si.code', 'left')
+		->join('product_group AS pg', 'pd.group_code = pg.code', 'left')
+		->join('product_sub_group AS pu', 'pd.sub_group_code = pu.code', 'left')
+		->join('product_category AS pc', 'pd.category_code = pc.code', 'left')
+		->join('product_kind AS pk', 'pd.kind_code = pk.code', 'left')
+		->join('product_type AS pt', 'pd.type_code = pt.code', 'left')
+		->join('product_brand AS br', 'pd.brand_code = br.code', 'left')
+		->where('pd.code', $code)
+		->get();
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
 }
 ?>

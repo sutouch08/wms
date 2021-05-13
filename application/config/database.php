@@ -74,10 +74,10 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 $db['default'] = array(
-	'dsn'	=> 'mysql:host=localhost;port=3306;dbname=warrix_sap_wms',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => 'ZT20o15u21c3H808',
+	'dsn'	=> 'mysql:host=172.21.12.29;port=3306;dbname=warrix_sap_wms',
+	'hostname' => '172.21.12.29',
+	'username' => 'wrxadmin',
+	'password' => 'W@rr1X$p0rt',
 	'database' => 'warrix_sap_wms',
 	'dbdriver' => 'pdo',
 	'dbprefix' => '',
@@ -166,10 +166,10 @@ $db['cn'] = array(
 
 
 $db['wms'] = array(
-	'dsn'	=> 'mysql:host=localhost;port=3306;dbname=warrix_wms_temp',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => 'ZT20o15u21c3H808',
+	'dsn'	=> 'mysql:host=172.21.12.29;port=3306;dbname=warrix_wms_temp',
+	'hostname' => '172.21.12.29',
+	'username' => 'wrxadmin',
+	'password' => 'W@rr1X$p0rt',
 	'database' => 'warrix_wms_temp',
 	'dbdriver' => 'pdo',
 	'dbprefix' => '',

@@ -582,7 +582,6 @@ class Transfer_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $this->db->where('code IS NOT NULL',NULL, FALSE);
 
     if(!empty($ds['code']))
     {
@@ -616,6 +615,11 @@ class Transfer_model extends CI_Model
     {
       $this->db->where('is_export', $ds['is_export']);
     }
+
+		if($ds['api'] != 'all')
+		{
+			$this->db->where('api', $ds['api']);
+		}
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
@@ -627,9 +631,9 @@ class Transfer_model extends CI_Model
   }
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '')
+  public function get_data(array $ds = array(), $perpage = 20, $offset = 0)
   {
-    $this->db->where('code IS NOT NULL',NULL, FALSE);
+
     if(!empty($ds['code']))
     {
       $this->db->like('code', $ds['code']);
@@ -663,6 +667,11 @@ class Transfer_model extends CI_Model
       $this->db->where('is_export', $ds['is_export']);
     }
 
+		if($ds['api'] != 'all')
+		{
+			$this->db->where('api', $ds['api']);
+		}
+
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
@@ -671,15 +680,16 @@ class Transfer_model extends CI_Model
 
     $this->db->order_by('code', 'DESC');
 
-    if($perpage != '')
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
+		$this->db->limit($perpage, $offset);
 
     $rs = $this->db->get('transfer');
-    //echo $this->db->get_compiled_select('transfer');
-    return $rs->result();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
   }
 
 

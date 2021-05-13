@@ -149,7 +149,7 @@ function update(){
     return false;
   }
 
-  
+
   //--- ตรวจสอบหากมีการเปลี่ยนคลัง ต้องเช็คก่อนว่ามีการทำรายการไปแล้วหรือยัง
   if(from_warehouse != old_from_wh || to_warehouse != old_to_wh)
   {
@@ -186,6 +186,8 @@ function update(){
 
 function do_update(code, date_add, from_warehouse, to_warehouse, remark)
 {
+	var api = $('#api').val();
+
   load_in();
   //--- ถ้าไม่มีอะไรผิดพลาด ส่งข้อมูไป update
   $.ajax({
@@ -193,10 +195,11 @@ function do_update(code, date_add, from_warehouse, to_warehouse, remark)
     type:'POST',
     cache:'false',
     data:{
-      'date_add'    : date_add,
+      'date_add' : date_add,
       'from_warehouse' : from_warehouse,
       'to_warehouse' : to_warehouse,
-      'remark'      : remark
+      'remark' : remark,
+			'api' : api
     },
     success:function(rs){
       load_out();

@@ -44,7 +44,14 @@
 		<input type="text" class="form-control input-sm" name="to_warehouse" id="to_warehouse" value="" required />
   </div>
 
-  <div class="col-sm-4 padding-5">
+	<div class="col-sm-1 padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm" name="api" id="api">
+			<option value="1">ปกติ</option>
+			<option value="0">ไม่ส่ง</option>
+		</select>
+	</div>
+  <div class="col-sm-3 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>

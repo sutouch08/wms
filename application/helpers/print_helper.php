@@ -123,7 +123,7 @@ function get_header($order)
 		$header	= array(
 							"ลูกค้า"	=> $order->customer_name,
 							"วันที่"		=> thai_date($order->date_add, FALSE, '/'),
-							"พนักงาน" => $order->sale_code,
+							"พนักงาน" => $CI->user_model->get_name($order->user),
 							"เลขที่" => $order->code.$ref
 							);
 	}

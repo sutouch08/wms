@@ -7,11 +7,18 @@ class Items extends PS_Controller
   public $menu_sub_group_code = 'PRODUCT';
 	public $title = 'เพิ่ม/แก้ไข รายการสินค้า';
   public $error = '';
+	public $wms;
 
   public function __construct()
   {
     parent::__construct();
     $this->home = base_url().'masters/items';
+
+		//--- load database
+		$this->wms = $this->load->database('wms', TRUE);
+		$this->load->library('wms_product_api');
+		$this->wms_export_item = getConfig('WMS_EXPORT_ITEMS');
+
     //--- load model
     $this->load->model('masters/products_model');
     $this->load->model('masters/product_group_model');
@@ -637,6 +644,8 @@ class Items extends PS_Controller
 
   public function do_export($code, $method = 'A')
   {
+		$sc = TRUE;
+
     $item = $this->products_model->get($code);
     //--- เช็คข้อมูลในฐานข้อมูลจริง
     $exst = $this->products_model->is_sap_exists($item->code);
@@ -688,7 +697,20 @@ class Items extends PS_Controller
       'F_E_CommerceDate' => sap_date(now(), TRUE)
     );
 
-    return $this->products_model->add_item($ds);
+		if($this->products_model->add_item($ds))
+		{
+			if($this->wms_export_item)
+			{
+				$this->wms_product_api->export_item($item->code, $item);
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Update Item failed";
+		}
+
+    return $sc;
 
   }
 
