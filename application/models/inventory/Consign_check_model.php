@@ -63,10 +63,34 @@ class Consign_check_model extends CI_Model
   }
 
 
+	public function get_detail_id_by_product($check_code, $product_code)
+	{
+		$rs = $this->db
+		->select('id')
+		->where('check_code', $check_code)
+		->where('product_code', $product_code)
+		->get('consign_check_detail');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->id;
+		}
+
+		return NULL;
+	}
+
+
   //--- get document details
   public function get_details($code)
   {
-    $rs = $this->db->where('check_code', $code)->get('consign_check_detail');
+    $rs = $this->db
+		->select('ckd.*')
+		->select('pd.barcode, pd.unit_code')
+		->from('consign_check_detail AS ckd')
+		->join('products AS pd', 'ckd.product_code = pd.code', 'left')
+		->where('ckd.check_code', $code)
+		->get();
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -162,6 +186,16 @@ class Consign_check_model extends CI_Model
   }
 
 
+
+	public function update_detail($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('consign_check_detail', $ds);
+		}
+
+		return FALSE;
+	}
 
   public function update_stock_qty($id, $qty)
   {
@@ -469,6 +503,11 @@ class Consign_check_model extends CI_Model
       $this->db->where('status', $ds['status']);
     }
 
+		if($ds['is_wms'] != 'all')
+		{
+			$this->db->where('is_wms', $ds['is_wms']);
+		}
+
     if($ds['valid'] != 'all')
     {
       $this->db->where('valid', $ds['valid']);
@@ -524,6 +563,13 @@ class Consign_check_model extends CI_Model
       $this->db->where('status', $ds['status']);
     }
 
+
+		if($ds['is_wms'] != 'all')
+		{
+			$this->db->where('is_wms', $ds['is_wms']);
+		}
+
+
     if($ds['valid'] != 'all')
     {
       $this->db->where('valid', $ds['valid']);
@@ -564,6 +610,16 @@ class Consign_check_model extends CI_Model
   }
 
 
+	public function is_not_close_exists($zone_code)
+	{
+		$rows = $this->db->where('zone_code', $zone_code)->where('is_wms', 1)->where_in('status', array(0, 3))->count_all_results('consign_check');
+		if($rows > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 
 } //--- end class
 

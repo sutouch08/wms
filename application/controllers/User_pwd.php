@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class User_pwd extends CI_Controller
+class User_pwd extends PS_Controller
 {
   public $title = 'เปลี่ยนรหัสผ่าน';
 	public $menu_code = 'change password';
@@ -16,6 +16,7 @@ class User_pwd extends CI_Controller
 		$this->pm->can_view = 1;
     $this->load->model('users/user_model');
     $this->home = base_url().'user_pwd';
+
 	}
 
 

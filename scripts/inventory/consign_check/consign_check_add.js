@@ -42,6 +42,7 @@ function unsave()
 
 function getEdit(){
   $('#dateAdd').removeAttr('disabled');
+	$('#is_wms').removeAttr('disabled');
   $('#remark').removeAttr('disabled');
   $('#btn-edit').addClass('hide');
   $('#btn-update').removeClass('hide');
@@ -52,6 +53,7 @@ function getEdit(){
 function update(){
   var code = $('#check_code').val();
   var date_add = $('#dateAdd').val();
+	var is_wms = $('#is_wms').val();
   var remark   = $('#remark').val();
 
   if(! isDate(date_add)){
@@ -67,6 +69,7 @@ function update(){
     cache:'false',
     data:{
       'date_add' : date_add,
+			'is_wms' : is_wms,
       'remark' : remark
     },
     success:function(rs){
@@ -80,6 +83,7 @@ function update(){
         });
 
         $('#dateAdd').attr('disabled', 'disabled');
+				$('#is_wms').attr('disabled', 'disabled');
         $('#remark').attr('disabled', 'disabled');
         $('#btn-update').addClass('hide');
         $('#btn-edit').removeClass('hide');
@@ -187,3 +191,44 @@ $(document).ready(function(){
 	let customer_code = $('#customer_code').val();
 	zoneInit(customer_code, false);
 })
+
+
+function sendToWms() {
+	var code = $('#check_code').val();
+
+	load_in();
+	$.ajax({
+		url:HOME + 'send_to_wms/'+code,
+		type:'POST',
+		cache:false,
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'succcess',
+					timer:1000
+				});
+			}
+			else
+			{
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+}

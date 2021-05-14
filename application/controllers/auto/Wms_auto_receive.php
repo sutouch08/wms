@@ -56,6 +56,9 @@ class Wms_auto_receive extends CI_Controller
 					case 'WW' :
 						$this->transfer($data);
 						break;
+
+					case 'WX' :
+						$this->consign_check($data);
 				}
 			} //-- end foreach $list as $data
 		}
@@ -820,6 +823,115 @@ class Wms_auto_receive extends CI_Controller
 					if($sc === TRUE)
 					{
 						$this->export_transfer($order->code);
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->wms_temp_receive_model->update_status($order->code, 3, "No Items In Order List");
+					$this->wms_receive_import_logs_model->add($order->code, 'E', "No Items In Order List");
+				}
+			}
+		}
+		else
+		{
+			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
+			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
+		}//--- end if !empty($order)
+	}
+
+
+
+	private function consign_check($data)
+	{
+		$this->load->model('inventory/consign_check_model');
+		$code = $data->code;
+		$order = $this->consign_check_model->get($code);
+
+		if(!empty($order))
+		{
+			$sc = TRUE;
+
+			if($order->status == 1)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid status : Document already received";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else if($order->status == 2)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid status : Document already canceled";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else if($order->status == 0)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid status : Document not saved";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else
+			{
+				$details = $this->wms_temp_receive_model->get_details($data->id);
+
+				if(!empty($details))
+				{
+					$this->db->trans_begin();
+
+					foreach($details as $rs)
+					{
+						if($rs->qty > 0 && $sc === TRUE)
+						{
+							$id = $this->consign_check_model->get_detail_by_product($order->code, $rs->product_code);
+							if(!empty($id))
+							{
+								$arr = array('qty' => $rs->qty);
+
+								if(! $this->consign_check_model->update_detail($id, $arr))
+								{
+									$sc = FALSE;
+									$this->error = "Update failed : {$rs->product_code}";
+								}
+							}
+							else
+							{
+								//--- ถ้าไม่มีในเอกสาร ก็เพิ่มรายการเข้าเอกสาร แต่ยอดตั้งต้นเป็น 0
+								$arr = array(
+	              'check_code' => $order->code,
+	              'product_code' => $rs->product_code,
+	              'product_name' => $this->products_model->get_name($rs->product_code),
+	              'stock_qty' => 0,
+								'qty' => $rs->qty
+	              );
+
+								$this->consign_check_model->add_detail($arr);
+							}
+						}//--- end if qty > 0
+					} //--- end foreach
+
+					if($sc === TRUE)
+					{
+						if(!$this->consign_check_model->change_status($order->code, 1))
+						{
+							$sc = FALSE;
+							$this->error = "Update failed : change document status failed";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+						$this->wms_temp_receive_model->update_status($order->code, 1, 'success');
+						$this->wms_receive_import_logs_model->add($order->code, 'S', 'success');
+					}
+					else
+					{
+						$this->db->trans_rollback();
+						$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+						$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
 					}
 				}
 				else

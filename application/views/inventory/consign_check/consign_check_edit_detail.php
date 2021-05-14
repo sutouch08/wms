@@ -16,13 +16,15 @@
     <span><h4 class="title" id="total-diff">Loading...</h4></span>
   </div>
   <div class="col-sm-3 text-right top-col">
+		<?php if($doc->is_wms == 0) : ?>
     <button type="button" class="btn btn-sm btn-info" onclick="getBoxList()"><i class="fa fa-file-text"></i> พิมพ์ใบปะหน้ากล่อง</button>
+		<?php endif; ?>
   </div>
 </div>
 <hr/>
 <div class="row"></div>
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-12 padding-5">
 		<table class="table table-striped border-1">
 			<thead>
 				<tr>
@@ -45,7 +47,7 @@
 					<?php echo $no; ?>
           <input type="hidden" id="barcode_<?php echo $rs->barcode; ?>" value="<?php echo $rs->barcode; ?>">
 				</td>
-				<td class="middle b-click">          
+				<td class="middle b-click">
 					<?php echo $rs->barcode; ?>
           </span>
 				</td>
@@ -102,7 +104,7 @@
 
 <script id="box-detail-template" type="text/handlebarsTemplate">
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-sm-12 padding-5">
     <table class="table table-bordered">
       <tr>
         <td colspan="3" class="text-center">{{pdCode}}</td>
@@ -153,7 +155,7 @@
 
 <script id="box-list-template" type="text-handlebarsTemplate">
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-sm-12 padding-5">
     <table class="table" style="margin-bottom:0px;">
 
       <tbody>

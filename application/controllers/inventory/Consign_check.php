@@ -8,6 +8,7 @@ class Consign_check extends PS_Controller
 	public $title = 'กระทบยอดสินค้า';
   public $filter;
   public $error;
+	public $wms;
 
   public function __construct()
   {
@@ -30,7 +31,8 @@ class Consign_check extends PS_Controller
       'to_date' => get_filter('to_date', 'check_to_date', ''),
       'status' => get_filter('status', 'check_status', 'all'),
       'valid' => get_filter('valid', 'check_valid', 'all'),
-      'consign_code' => get_filter('consign_code', 'check_consign_code', '')
+      'consign_code' => get_filter('consign_code', 'check_consign_code', ''),
+			'is_wms' => get_filter('is_wms', 'check_is_wms', 'all')
     );
 
     //--- แสดงผลกี่รายการต่อหน้า
@@ -85,81 +87,113 @@ class Consign_check extends PS_Controller
       $customer_name = $this->input->post('customer');
       $zone = $this->zone_model->get($this->input->post('zone_code'));
       $remark = $this->input->post('remark');
+			$is_wms = $this->input->post('is_wms');
 
-      $code = $this->get_new_code($date);
-      $arr = array(
-        'code' => $code,
-        'customer_code' => $customer_code,
-        'customer_name' => $customer_name,
-        'zone_code' => $zone->code,
-        'warehouse_code' => $zone->warehouse_code,
-        'user' => get_cookie('uname'),
-        'date_add' => $date,
-        'remark' => $remark
-      );
+			if($is_wms == 1 && $this->consign_check_model->is_not_close_exists($zone->code))
+			{
+				$sc = FALSE;
+				$this->error = "เพิ่มเอกสารไม่สำเร็จ เนื่องจากพบเอกสารกระทบยอดของโซนนี้ที่ยังไม่ปิด";
+			}
+			else
+			{
+				$code = $this->get_new_code($date);
+	      $arr = array(
+	        'code' => $code,
+	        'customer_code' => $customer_code,
+	        'customer_name' => $customer_name,
+	        'zone_code' => $zone->code,
+	        'warehouse_code' => $zone->warehouse_code,
+	        'user' => get_cookie('uname'),
+	        'date_add' => $date,
+	        'remark' => $remark,
+					'is_wms' => $is_wms,
+					'status' => $is_wms == 1 ? 3 : 0
+	      );
 
-      $this->db->trans_begin();
+	      $this->db->trans_begin();
 
-      if($this->consign_check_model->add($arr))
-      {
-        //---- get stock balance in zone
-        $warehouse = $this->warehouse_model->get($zone->warehouse_code);
-        if(!empty($warehouse))
-        {
-          if($warehouse->is_consignment == 1)
-          {
-            $stocks = $this->stock_model->get_all_stock_consignment_zone($zone->code);
-          }
-          else
-          {
-            $stocks = $this->stock_model->get_all_stock_in_zone($zone->code);
-          }
+	      if($this->consign_check_model->add($arr))
+	      {
+	        //---- get stock balance in zone
+	        $warehouse = $this->warehouse_model->get($zone->warehouse_code);
+	        if(!empty($warehouse))
+	        {
+	          if($warehouse->is_consignment == 1)
+	          {
+	            $stocks = $this->stock_model->get_all_stock_consignment_zone($zone->code);
+	          }
+	          else
+	          {
+	            $stocks = $this->stock_model->get_all_stock_in_zone($zone->code);
+	          }
 
-          if(!empty($stocks))
-          {
-            foreach($stocks as $rs)
-            {
-              if($sc === FALSE)
-              {
-                break;
-              }
+	          if(!empty($stocks))
+	          {
+	            foreach($stocks as $rs)
+	            {
+	              if($sc === FALSE)
+	              {
+	                break;
+	              }
 
-              $ds = array(
-              'check_code' => $code,
-              'product_code' => $rs->product_code,
-              'product_name' => $this->products_model->get_name($rs->product_code),
-              'stock_qty' => $rs->qty
-              );
+	              $ds = array(
+	              'check_code' => $code,
+	              'product_code' => $rs->product_code,
+	              'product_name' => $this->products_model->get_name($rs->product_code),
+	              'stock_qty' => $rs->qty
+	              );
 
-              if( ! $this->consign_check_model->add_detail($ds))
-              {
-                $sc = FALSE;
-                $this->error = "เพิ่มยอดตั้งต้นไม่สำเร็จ";
-              }
+	              if( ! $this->consign_check_model->add_detail($ds))
+	              {
+	                $sc = FALSE;
+	                $this->error = "เพิ่มยอดตั้งต้นไม่สำเร็จ";
+	              }
 
-            } //-- edn foreach
-          }
-        }
-        else
-        {
-          $sc = FALSE;
-          $this->error = "คลังสินค้าไม่ถูกต้อง";
-        }
-      }
-      else
-      {
-        $sc = FALSE;
-        $this->error = "เพิ่มเอกสารไม่สำเร็จ";
-      }
+	            } //-- edn foreach
+	          }
+	        }
+	        else
+	        {
+	          $sc = FALSE;
+	          $this->error = "คลังสินค้าไม่ถูกต้อง";
+	        }
+	      }
+	      else
+	      {
+	        $sc = FALSE;
+	        $this->error = "เพิ่มเอกสารไม่สำเร็จ";
+	      }
 
-      if($sc === FALSE)
-      {
-        $this->db->trans_rollback();
-      }
-      else
-      {
-        $this->db->trans_commit();
-      }
+	      if($sc === FALSE)
+	      {
+	        $this->db->trans_rollback();
+	      }
+	      else
+	      {
+	        $this->db->trans_commit();
+	      }
+
+				if($sc === TRUE)
+				{
+					if($is_wms == 1)
+					{
+						//--- send to wms
+						$this->wms = $this->load->database('wms', TRUE);
+						$this->load->library('wms_receive_api');
+
+						$doc = $this->consign_check_model->get($code);
+						$details = $this->consign_check_model->get_details($code);
+						$rs = $this->wms_receive_api->export_consign_check($doc, $details);
+
+						if($rs)
+						{
+							$this->error = $this->wms_receive_api->error;
+							//set_error($this->error);
+							set_error("บันทึกรายการสำเร็จแต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณากดส่งข้อมูลอีกครั้ง");
+						}
+					}
+				}
+			}
     }
     else
     {
@@ -185,21 +219,37 @@ class Consign_check extends PS_Controller
   public function edit($code)
   {
     $doc = $this->consign_check_model->get($code);
-    $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
 
-    $details = $this->consign_check_model->get_details($code);
-    if(!empty($details))
-    {
-      foreach($details as $rs)
-      {
-        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
-      }
-    }
+		if(!empty($doc))
+		{
+			if($doc->status != 0)
+			{
+				redirect($this->home.'/view_detail/'.$code);
+			}
+			else
+			{
+				$doc->zone_name = $this->zone_model->get_name($doc->zone_code);
 
-    $ds['doc'] = $doc;
-    $ds['details'] = $details;
+		    $details = $this->consign_check_model->get_details($code);
+		    if(!empty($details))
+		    {
+		      foreach($details as $rs)
+		      {
+		        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
+		      }
+		    }
 
-    $this->load->view('inventory/consign_check/consign_check_edit', $ds);
+		    $ds['doc'] = $doc;
+		    $ds['details'] = $details;
+
+		    $this->load->view('inventory/consign_check/consign_check_edit', $ds);
+			}
+		}
+		else
+		{
+			$this->page_error();
+		}
+
   }
 
 
@@ -423,7 +473,7 @@ class Consign_check extends PS_Controller
 
     $doc = $this->consign_check_model->get($code);
 
-    if($doc->valid == 0 && $doc->status == 0)
+    if($doc->valid == 0 && $doc->status == 0 && $doc->is_wms == 0)
     {
       //--- change status to 1 (saved)
       if(! $this->consign_check_model->change_status($code, 1))
@@ -435,14 +485,18 @@ class Consign_check extends PS_Controller
     else
     {
       $sc = FALSE;
+
       if($doc->valid == 1)
       {
         $this->error = "เอกสารถูกดึงไปตัดยอดขายแล้ว";
       }
-
-      if($doc->status != 0)
+			else if($doc->is_wms == 1 && $doc->status == 0)
+			{
+				$this->error = "เอกสารต้องดำเนินการบนระบบ WMS ไม่สามารถบันทึกเองได้";
+			}
+			else if($doc->status != 0)
       {
-        $this->error = $doc->status == 2 ? "เอกสารถูกยกเลิกไปแล้ว" : "เอกสารถูกบันทึกไปแล้ว";
+        $this->error = $doc->status == 2 ? "เอกสารถูกยกเลิกไปแล้ว" : ($doc->status == 3 ? "เอกสารอยู่ระหว่างดำเนินการบนระบบ WMS ไม่สามารถบันทึกเองได้" : "เอกสารถูกบันทึกไปแล้ว");
       }
     }
 
@@ -492,9 +546,11 @@ class Consign_check extends PS_Controller
 
     $date_add = db_date($this->input->post('date_add'), TRUE);
     $remark = $this->input->post('remark');
+		$is_wms = $this->input->post('is_wms');
 
     $arr = array(
       'date_add' => $date_add,
+			'is_wms' => $is_wms,
       'remark' => $remark
     );
 
@@ -512,7 +568,7 @@ class Consign_check extends PS_Controller
   public function reload_stock($code)
   {
     $sc = TRUE;
-    
+
     $doc = $this->consign_check_model->get($code);
     if( ! empty($doc))
     {
@@ -721,6 +777,66 @@ class Consign_check extends PS_Controller
     $this->load->view('print/print_consign_box', $ds);
   }
 
+
+	public function send_to_wms($code)
+	{
+		$sc = TRUE;
+		$doc = $this->consign_check_model->get($code);
+
+		if(!empty($doc))
+		{
+			if($doc->is_wms == 1 && ($doc->status == 3 OR $doc->status == 0))
+			{
+				$details = $this->consign_check_model->get_details($code);
+
+				if(!empty($details))
+				{
+					$this->wms = $this->load->database('wms', TRUE);
+					$this->load->library('wms_receive_api');
+
+					$rs = $this->wms_receive_api->export_consign_check($doc, $details);
+
+					if(! $rs)
+					{
+						$sc = FALSE;
+						$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>({$this->wms_receive_api->error})";
+					}
+
+					if($sc === TRUE)
+					{
+						if($doc->status == 0)
+						{
+							//--- change doc status
+							$arr = array(
+								'status' => 3
+							);
+
+							$this->consign_check_model->update($code, $arr);
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Return items not found";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
   public function get_new_code($date)
   {
     $date = $date == '' ? date('Y-m-d') : $date;
@@ -754,9 +870,10 @@ class Consign_check extends PS_Controller
       'check_to_date',
       'check_status',
       'check_valid',
-      'check_consign_code'
+      'check_consign_code',
+			'check_is_wms'
     );
-    
+
     clear_filter($filter);
   }
 
