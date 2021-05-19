@@ -9,6 +9,7 @@ class Return_lend extends PS_Controller
   public $filter;
   public $error;
 	public $wms;
+	public $isAPI;
 
   public function __construct()
   {
@@ -21,6 +22,7 @@ class Return_lend extends PS_Controller
     $this->load->model('masters/products_model');
 
     $this->load->helper('employee');
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 
@@ -124,7 +126,7 @@ class Return_lend extends PS_Controller
         'user' => get_cookie('uname'),
         'remark' => $remark,
 				'is_wms' => $is_wms,
-        'status' => $is_wms == 1 ? 3 : 1 //--- ถ้าต้องรับเข้าที่ wms ให้ set สถานะเป็น 3
+        'status' => ($this->isAPI && $is_wms == 1) ? 3 : 1 //--- ถ้าต้องรับเข้าที่ wms ให้ set สถานะเป็น 3
       );
 
       //--- start transection;
@@ -159,7 +161,7 @@ class Return_lend extends PS_Controller
             }
             else
             {
-							if($is_wms == 0)
+							if($this->isAPI === FALSE OR $is_wms == 0)
 							{
 								//--- insert Movement out
 	              $arr = array(
@@ -212,7 +214,7 @@ class Return_lend extends PS_Controller
 
 			if($sc === TRUE)
 			{
-				if($is_wms == 1)
+				if($this->isAPI === TRUE && $is_wms == 1)
 				{
 					//--- send to wms
 					$this->wms = $this->load->database('wms', TRUE);

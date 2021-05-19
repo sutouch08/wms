@@ -160,6 +160,11 @@ class Wms_temp_receive_model extends CI_Model
 			$this->wms->like('code', $ds['code']);
 		}
 
+		if(!empty($ds['reference']))
+		{
+			$this->wms->like('reference', $ds['reference']);
+		}
+
 		if($ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);
@@ -181,6 +186,11 @@ class Wms_temp_receive_model extends CI_Model
 			$this->wms->like('code', $ds['code']);
 		}
 
+		if(!empty($ds['reference']))
+		{
+			$this->wms->like('reference', $ds['reference']);
+		}
+		
 		if($ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);

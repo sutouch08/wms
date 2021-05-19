@@ -9,6 +9,8 @@ class Transform_stock extends PS_Controller
 	public $title = 'เบิกแปรสภาพ(สต็อก)';
   public $filter;
   public $role = 'Q';
+	public $isAPI;
+
   public function __construct()
   {
     parent::__construct();
@@ -29,6 +31,8 @@ class Transform_stock extends PS_Controller
     $this->load->helper('product_images');
     $this->load->helper('transform');
     $this->load->helper('warehouse');
+
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 

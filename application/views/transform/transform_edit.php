@@ -37,7 +37,7 @@
 				<?php if($order->state == 1 && $order->is_approved == 1 && $order->status == 1 && $order->is_expired == 0 && $this->pm->can_approve) : ?>
 						<button type="button" class="btn btn-sm btn-danger" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
 				<?php endif; ?>
-				<?php if($order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
+				<?php if($this->isAPI && $order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
 					<button type="button" class="btn btn-sm btn-success" onclick="sendToWMS()">Send to WMS</button>
 				<?php endif; ?>
       </p>

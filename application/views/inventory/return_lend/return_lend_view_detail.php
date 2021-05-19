@@ -14,7 +14,7 @@
 				<?php if($doc->status == 1) : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP </button>
 				<?php endif; ?>
-				<?php if($doc->is_wms == 1 && $doc->status == 3) : ?>
+				<?php if($this->isAPI && $doc->is_wms == 1 && $doc->status == 3) : ?>
 					<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 				<?php endif; ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>

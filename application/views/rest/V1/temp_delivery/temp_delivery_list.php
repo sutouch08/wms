@@ -1,52 +1,40 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-		<div class="col-sm-6">
-			<p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-success" onclick="export_diff()">Export ยอดต่าง</button>
-			</p>
-		</div>
+		<div class="col-sm-6 padding-5"></div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
   <div class="col-sm-1 col-1-harf padding-5">
-    <label>ลูกค้า/ผู้เบิก</label>
-    <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
+		<label>เลขที่อ้างอิง</label>
+    <input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
   </div>
 
   <div class="col-sm-2 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
-      <option value="Y" <?php echo is_selected('Y', $status); ?>>เข้าแล้ว</option>
-      <option value="N" <?php echo is_selected('N', $status); ?>>ยังไม่เข้า</option>
-      <option value="E" <?php echo is_selected('E', $status); ?>>Error</option>
+      <option value="1" <?php echo is_selected('1', $status); ?>>เข้าแล้ว</option>
+      <option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่เข้า</option>
+      <option value="3" <?php echo is_selected('3', $status); ?>>Error</option>
     </select>
-  </div>
-
-	<div class="col-sm-2 padding-5">
-    <label>วันที่</label>
-    <div class="input-daterange input-group">
-      <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
-      <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
-    </div>
   </div>
 
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -60,7 +48,7 @@
     <p class="pull-right">
       สถานะ : ว่างๆ = ปกติ, &nbsp;
       <span class="red">ERROR</span> = เกิดข้อผิดพลาด, &nbsp;
-      <span class="blue">NC</span> = ยังไม่เข้า SAP
+      <span class="blue">NC</span> = ยังไม่เข้า IX
     </p>
   </div>
   <div class="col-sm-12">
@@ -68,12 +56,10 @@
       <thead>
         <tr>
           <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-8 text-center">วันที่</th>
-          <th class="width-10">เลขที่เอกสาร </th>
-          <th class="width-10">รหัสลูกค้า</th>
-          <th class="width-20">ชื่อลูกค้า</th>
-          <th class="width-15">เข้าถังกลาง</th>
-          <th class="width-15">เข้า SAP</th>
+          <th class="width-15">เลขที่เอกสาร </th>
+					<th class="width-15">เลขที่อ้างอิง </th>
+          <th class="width-15">เข้า Temp</th>
+          <th class="width-15">เข้า IX</th>
           <th class="width-5 text-center">สถานะ</th>
 					<th class="">หมายเหตุ</th>
 					<th class="width-5"></th>
@@ -81,64 +67,44 @@
       </thead>
       <tbody>
 <?php if(!empty($orders))  : ?>
-<?php $no = $this->uri->segment(4) + 1; ?>
+<?php $no = $this->uri->segment(5) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 
         <tr class="font-size-12">
           <td class="middle text-center"><?php echo $no; ?></td>
-
-          <td class="middle text-center"><?php echo thai_date($rs->DocDate); ?></td>
-
-          <td class="middle">
-						<?php if($rs->U_BOOKCODE === 'WM') : ?>
-							<a href="javascript:void(0)" onclick="getConsign('<?php echo $rs->U_ECOMNO; ?>')">
-							<?php echo $rs->U_ECOMNO; ?>
-							</a>
-						<?php else : ?>
-						<a href="javascript:void(0)" onclick="getInvoice('<?php echo $rs->U_ECOMNO; ?>')">
-						<?php echo $rs->U_ECOMNO; ?>
-						</a>
-						<?php endif; ?>
-					</td>
-
-          <td class="middle"><?php echo $rs->CardCode; ?></td>
-
-          <td class="middle hide-text"><?php echo $rs->CardName; ?></td>
-
-          <td class="middle" ><?php echo thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
+          <td class="middle"><?php echo $rs->code; ?></td>
+					<td class="middle"><?php echo $rs->reference; ?></td>
+          <td class="middle" ><?php echo thai_date($rs->temp_date, TRUE); ?></td>
 
           <td class="middle">
 						<?php
-							if(!empty($rs->F_SapDate))
+							if($rs->status != 0 && !empty($rs->ix_date))
 							{
-								echo thai_date($rs->F_SapDate, TRUE);
+								echo thai_date($rs->ix_date, TRUE);
 							}
 					 	?>
 				 	</td>
 					<td class="middle text-center">
-            <?php if($rs->F_Sap === NULL) : ?>
+            <?php if($rs->status == 0) : ?>
               <span class="blue">NC</span>
-            <?php elseif($rs->F_Sap === 'N') : ?>
+            <?php elseif($rs->status == 3) : ?>
               <span class="red">ERROR</span>
-						<?php elseif($rs->F_Sap === 'Y') : ?>
+						<?php elseif($rs->status == 1) : ?>
 							<span class="green">สำเร็จ</span>
             <?php endif; ?>
           </td>
           <td class="middle">
             <?php
-            if($rs->F_Sap === 'N')
+            if($rs->status == 3)
             {
-              echo $rs->Message;
+              echo $rs->message;
             }
             ?>
           </td>
 					<td class="middle text-right">
-						<?php if($rs->F_Sap === 'N') : ?>
-						<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
+						<button type="button" class="btn btn-minier btn-info" onclick="getDetails(<?php echo $rs->id; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-						<?php endif; ?>
-
 					</td>
         </tr>
 <?php  $no++; ?>
@@ -152,9 +118,7 @@
     </table>
   </div>
 </div>
-<form id="reportForm" method="post" action="<?php echo $this->home; ?>/export_diff">
-	<input type="hidden" id="token" name="token" value="<?php echo uniqid(); ?>">
-</form>
-<script src="<?php echo base_url(); ?>scripts/inventory/temp/temp_list.js?v=<?php echo date('YmdH'); ?>"></script>
+
+<script src="<?php echo base_url(); ?>scripts/wms/wms_temp_delivery.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

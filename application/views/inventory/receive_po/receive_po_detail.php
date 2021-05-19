@@ -10,7 +10,7 @@
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
-			<?php if($doc->is_wms == 1 && $doc->status == 3) : ?>
+			<?php if($this->isAPI && $doc->is_wms == 1 && ($doc->status == 3 OR $doc->status == 0)) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 			<?php endif; ?>
     </p>
@@ -50,11 +50,19 @@
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->request_code; ?>" disabled />
   </div>
 
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>ช่องทางการรับ</label>
+		<select class="form-control input-sm" disabled>
+			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</option>
+			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
+		</select>
+	</div>
+
   <div class="col-sm-2 padding-5">
     <label>รหัสโซน</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->zone_code; ?>" disabled />
   </div>
-  <div class="col-sm-8 col-8-harf padding-5">
+  <div class="col-sm-7 padding-5">
   	<label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled/>
   </div>

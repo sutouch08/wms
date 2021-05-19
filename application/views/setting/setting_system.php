@@ -39,7 +39,7 @@
     </div>
     <div class="divider-hidden"></div>
 
-
+<!--
     <div class="col-sm-3"><span class="form-control left-label">ใช้งาน Web API</span></div>
     <div class="col-sm-9">
       <div class="btn-group input-medium">
@@ -70,7 +70,7 @@
       <span class="help-block">Api access token</span>
     </div>
     <div class="divider-hidden"></div>
-
+-->
 
       <div class="col-sm-9 col-sm-offset-3">
         <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>

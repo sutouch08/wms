@@ -9,6 +9,8 @@ class Transfer extends PS_Controller
 	public $title = 'โอนสินค้าระหว่างคลัง';
   public $filter;
   public $error;
+	public $isAPI;
+
   public function __construct()
   {
     parent::__construct();
@@ -18,6 +20,7 @@ class Transfer extends PS_Controller
     $this->load->model('masters/zone_model');
     $this->load->model('stock/stock_model');
 
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 
@@ -119,11 +122,11 @@ class Transfer extends PS_Controller
 			$toWh = $this->warehouse_model->get($to_warehouse);
 
 			$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
-			$api =
+
 
 			$direction = 0;
 
-			if($is_wms == 1)
+			if($this->isAPI === TRUE && $is_wms == 1)
 			{
 				//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
 				$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
@@ -154,6 +157,7 @@ class Transfer extends PS_Controller
       );
 
       $rs = $this->transfer_model->add($ds);
+
       if($rs === TRUE)
       {
         redirect($this->home.'/edit/'.$code);
@@ -214,7 +218,7 @@ class Transfer extends PS_Controller
 
 		$direction = 0;
 
-		if($is_wms == 1)
+		if($this->isAPI === TRUE && $is_wms == 1)
 		{
 			//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
 			$direction = $toWh->is_wms == 1 ? 2 :($fromWh->is_wms == 1 ? 1 : 0);
@@ -273,10 +277,11 @@ class Transfer extends PS_Controller
 			if($doc->status == 0)
 			{
 				$details = $this->transfer_model->get_details($code);
+
 				if(!empty($details))
 				{
 					//--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-					if($doc->is_wms == 1 && $doc->api == 1)
+					if($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api == 1)
 					{
 						$this->wms = $this->load->database('wms', TRUE);
 						//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx

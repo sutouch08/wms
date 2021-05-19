@@ -307,6 +307,16 @@ class Wms_order_api
 				$xml .= "</ORDER_LIST>";
 				//--- End header section
 				$xml .= "</WOB>";
+
+				if($this->log_xml)
+				{
+					$arr = array(
+						'order_code' => $order->code,
+						'xml_text' => $xml
+					);
+
+					$this->ci->wms_error_logs_model->log_xml($arr);
+				}
 			}
 			else
 			{
@@ -364,7 +374,7 @@ class Wms_order_api
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add('Code not found', 'E', $this->error);
 		}
 
 		return $sc;

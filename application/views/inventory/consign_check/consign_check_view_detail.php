@@ -26,7 +26,7 @@
 	      </button>
 	    <?php endif; ?>
 
-			<?php if($doc->is_wms == 1 && ($doc->status == 3 OR $doc->status == 0) && $doc->valid == 0) : ?>
+			<?php if($this->isAPI && $doc->is_wms == 1 && ($doc->status == 3 OR $doc->status == 0) && $doc->valid == 0) : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 			<?php endif; ?>
 

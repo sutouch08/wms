@@ -3,8 +3,9 @@ class Import_order extends CI_Controller
 {
   public $ms;
   public $mc;
-	public $sync_web_stock = FALSE;
+	public $isAPI = FALSE;
 	public $wms;
+
 
   public function __construct()
   {
@@ -26,9 +27,8 @@ class Import_order extends CI_Controller
     $this->load->model('stock/stock_model');
 
     $this->load->library('excel');
-    $this->load->library('api');
 
-		$this->sync_web_stock = getConfig('SYNC_WEB_STOCK') == 1 ? TRUE : FALSE;
+		$this->isAPI = is_true(getConfig('WMS_API'));
 
   }
 
@@ -242,7 +242,7 @@ class Import_order extends CI_Controller
               {
                 $order_code = $this->get_new_code($date_add);
 
-								if(!empty($orderCode) && $hold === FALSE)
+								if($this->isAPI && !empty($orderCode) && $hold === FALSE)
 								{
 									$this->wms_order_api->export_order($orderCode);
 								}
@@ -475,14 +475,7 @@ class Import_order extends CI_Controller
                   $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
                   break;
                 }
-                else
-                {
-									if($this->sync_web_stock)
-									{
-										$this->update_api_stock($item->code, $item->old_code);
-									}
 
-                }
               }
               else
               {
@@ -513,13 +506,6 @@ class Import_order extends CI_Controller
                     $sc = FALSE;
                     $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
                     break;
-                  }
-                  else
-                  {
-                    if($this->sync_web_stock)
-										{
-											$this->update_api_stock($item->code, $item->old_code);
-										}
                   }
                 } //--- enf force update
               } //--- end if exists detail
@@ -596,7 +582,7 @@ class Import_order extends CI_Controller
 
           } //--- end foreach
 
-					if(!empty($orderCode) && $hold === FALSE)
+					if($this->isAPI && !empty($orderCode) && $hold === FALSE)
 					{
 						$this->wms_order_api->export_order($orderCode);
 					}
@@ -611,20 +597,6 @@ class Import_order extends CI_Controller
     echo $sc === TRUE ? 'success' : $message;
   }
 
-
-
-  public function update_api_stock($code, $old_code)
-  {
-    if($this->sync_web_stock)
-    {
-      $sell_stock = $this->stock_model->get_sell_stock($code);
-      $reserv_stock = $this->orders_model->get_reserv_stock($code);
-      $qty = $sell_stock - $reserv_stock;
-      $item = empty($old_code) ? $code : $old_code;
-      $this->api->update_web_stock($item, $qty);
-    }
-
-  }
 
 
   public function get_new_code($date)

@@ -14,6 +14,10 @@
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>เลขที่อ้างอิง</label>
+    <input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
+  </div>
 
   <div class="col-sm-1 col-1-harf padding-5">
     <label>ประเภทเอกสาร</label>
@@ -64,6 +68,7 @@
         <tr>
           <th class="width-5 text-center">ลำดับ</th>
           <th class="width-15">เลขที่เอกสาร </th>
+					<th class="width-15">เลขที่อ้างอิง </th>
           <th class="width-15">เข้า Temp</th>
           <th class="width-15">เข้า IX</th>
           <th class="width-5 text-center">สถานะ</th>
@@ -79,6 +84,7 @@
         <tr class="font-size-12">
           <td class="middle text-center"><?php echo $no; ?></td>
           <td class="middle"><?php echo $rs->code; ?></td>
+					<td class="middle"><?php echo $rs->reference; ?></td>
           <td class="middle" ><?php echo thai_date($rs->temp_date, TRUE); ?></td>
 
           <td class="middle">

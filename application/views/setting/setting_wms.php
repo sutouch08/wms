@@ -9,6 +9,9 @@
 
 		$xml_on = $LOG_XML == 1 ? 'btn-success' : '';
 		$xml_off = $LOG_XML == 0 ? 'btn-danger' : '';
+
+		$api_on = $WMS_API == 1 ? 'btn-success' : '';
+		$api_off = $WMS_API == 0 ? 'btn-danger' : '';
 	 ?>
 	<form id="wmsForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
@@ -52,6 +55,22 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="col-sm-4">
+        <span class="form-control left-label">WMS Cancelation endpoint</span>
+      </div>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm input-xxlarge" name="WMS_CN_URL" value="<?php echo $WMS_CN_URL; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+        <span class="form-control left-label">WMS Compare Stock endpoint</span>
+      </div>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm input-xxlarge" name="WMS_STOCK_URL" value="<?php echo $WMS_STOCK_URL; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
       <div class="col-sm-4">
         <span class="form-control left-label">รหัสคลัง WMS</span>
       </div>
@@ -65,6 +84,19 @@
       </div>
       <div class="col-sm-8">
         <input type="text" class="form-control input-sm input-large" id="wms-zone" name="WMS_ZONE" value="<?php echo $WMS_ZONE; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+        <span class="form-control left-label">WMS API</span>
+      </div>
+      <div class="col-sm-8">
+				<div class="btn-group">
+					<button type="button" class="btn btn-sm <?php echo $api_on; ?>" style="width:50%;" id="btn-api-on" onClick="toggleWmsApi(1)">ON</button>
+					<button type="button" class="btn btn-sm <?php echo $api_off; ?>" style="width:50%;" id="btn-api-off" onClick="toggleWmsApi(0)">OFF</button>
+				</div>
+				<input type="hidden" name="WMS_API" id="wms-api" value="<?php echo $WMS_API; ?>" />
+				<span class="help-block">เปิดใช้งาน WMS API หรือไม่ หากปิด ระบบจะไม่ส่งข้อมูลไป WMS</span>
       </div>
       <div class="divider-hidden"></div>
 

@@ -293,6 +293,20 @@ function toggleAutoClose(option){
 	}
 }
 
+//--- เปิด/ปิด WMS API
+function toggleWmsApi(option){
+	$('#wms-api').val(option);
+	if(option == 1){
+		$('#btn-api-on').addClass('btn-success');
+		$('#btn-api-off').removeClass('btn-danger');
+		return;
+	}else if(option == 0){
+		$('#btn-api-on').removeClass('btn-success');
+		$('#btn-api-off').addClass('btn-danger');
+		return;
+	}
+}
+
 
 function toggleFullMode(option) {
 	$('#wms-full-mode').val(option);

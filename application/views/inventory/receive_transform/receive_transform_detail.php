@@ -10,7 +10,7 @@
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
-			<?php if($doc->status == 3 && $doc->is_wms == 1) : ?>
+			<?php if($this->isAPI && $doc->status == 3 && $doc->is_wms == 1) : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 			<?php endif; ?>
     </p>

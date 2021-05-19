@@ -10,6 +10,7 @@ class Receive_transform extends PS_Controller
   public $filter;
   public $error;
 	public $wms;
+	public $isAPI;
 
   public function __construct()
   {
@@ -17,6 +18,8 @@ class Receive_transform extends PS_Controller
     $this->home = base_url().'inventory/receive_transform';
     $this->load->model('inventory/receive_transform_model');
     $this->load->model('inventory/transform_model');
+
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 
@@ -115,133 +118,6 @@ class Receive_transform extends PS_Controller
   }
 
 
-	public function save_wms()
-	{
-		$sc = TRUE;
-		$this->load->model('masters/products_model');
-
-		$code = trim($this->input->post('receive_code'));
-		$order_code = trim($this->input->post('order_code'));
-		$invoice = trim($this->input->post('invoice'));
-		$receive = $this->input->post('receive');
-		$backlogs = $this->input->post('backlogs');
-		$prices = $this->input->post('prices');
-
-		$doc = $this->receive_transform_model->get($code);
-
-		if(!empty($doc))
-		{
-			if($doc->status == 0)
-			{
-				if($doc->is_wms == 1)
-				{
-					//$details = $this->receive_transform_model->get_transform_details($order_code);
-
-					if(!empty($receive))
-					{
-						$details = array();
-
-						foreach($receive as $item => $qty)
-						{
-							if($qty > 0)
-							{
-								$pd = $this->products_model->get($item);
-								$price = $this->get_avg_cost($item);
-								$cost = $price == 0 ? $pd->cost : $price;
-								$ds = new stdClass;
-								$ds->receive_code = $code;
-								$ds->style_code = $pd->style_code;
-								$ds->product_code = $pd->code;
-								$ds->product_name = $pd->name;
-								$ds->unit_code = $pd->unit_code;
-								$ds->price = $cost;
-								$ds->qty = $qty;
-								$ds->amount = $qty * $cost;
-
-								$details[] = $ds;
-							}
-						}
-
-						$this->wms = $this->load->database('wms', TRUE);
-						$this->load->library('wms_receive_api');
-
-						$rs = $this->wms_receive_api->export_receive_transform($doc, $order_code, $invoice, $details);
-
-						if($rs === TRUE)
-						{
-
-							//--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
-		          $this->receive_transform_model->drop_details($code);
-
-							//--- เพิ่มรายการเข้า list
-		          foreach($details as $rs)
-		          {
-
-								$arr = array(
-									'receive_code' => $rs->receive_code,
-									'style_code' => $rs->style_code,
-									'product_code' => $rs->product_code,
-									'product_name' => $rs->product_name,
-									'price' => $rs->price,
-									'qty' => $rs->qty,
-									'amount' => $rs->amount
-								);
-
-								$this->receive_transform_model->add_detail($arr);
-		          } //--- end foreach
-
-
-							//--- update document
-							$arr = array(
-								'order_code' => $order_code,
-								'invoice_code' => $invoice,
-								'zone_code' => getConfig('WMS_ZONE'),
-								'warehouse_code' => getConfig('WMS_WAREHOUSE'),
-								'update_user' => get_cookie('uname'),
-								'status' => 3 //--- 0 = not save, 1 = saved, 2 = cancle , 3 = on process at wms
-							);
-
-							if(! $this->receive_transform_model->update($code, $arr))
-							{
-								$sc = FALSE;
-								$this->error = "Update document failed";
-							}
-						}
-						else
-						{
-							$sc = FALSE;
-							$this->error = trim($this->wms_receive_api->error);
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "No data";
-					}
-
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "This document must receive by Warrix";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid document status";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Invalid document number";
-		}
-
-		echo $sc === TRUE ? 'success' : $this->error;
-	}
-
-
 	public function send_to_wms($code)
 	{
 		$sc = TRUE;
@@ -290,129 +166,181 @@ class Receive_transform extends PS_Controller
   public function save()
   {
     $sc = TRUE;
-    $message = 'ทำรายการไม่สำเร็จ';
-    $this->load->model('inventory/movement_model');
-    if($this->input->post('receive_code'))
+
+		$code = $this->input->post('receive_code');
+
+    if(!empty($code))
     {
       $this->load->model('masters/products_model');
       $this->load->model('masters/zone_model');
 
-      $code = $this->input->post('receive_code');
+			if($this->isAPI === FALSE)
+			{
+				$this->load->model('inventory/movement_model');
+			}
+
       $doc = $this->receive_transform_model->get($code);
-      $order_code = $this->input->post('order_code');
-      $invoice = $this->input->post('invoice');
-      $zone_code = $this->input->post('zone_code');
-      $warehouse_code = $this->zone_model->get_warehouse_code($zone_code);
-      $receive = $this->input->post('receive');
-      $backlogs = $this->input->post('backlogs');
-      $prices = $this->input->post('prices');
 
-      $arr = array(
-        'order_code' => $order_code,
-        'invoice_code' => $invoice,
-        'zone_code' => $zone_code,
-        'warehouse_code' => $warehouse_code,
-        'update_user' => get_cookie('uname')
-      );
+			if(!empty($doc))
+			{
+				$order_code = $this->input->post('order_code');
+	      $invoice = $this->input->post('invoice');
+	      $zone_code = ($this->isAPI && $doc->is_wms) ? getConfig('WMS_ZONE') : $this->input->post('zone_code');
+	      $warehouse_code = ($this->isAPI && $doc->is_wms) ? getConfig('WMS_WAREHOUSE') : $this->zone_model->get_warehouse_code($zone_code);
+	      $receive = $this->input->post('receive');
+	      $backlogs = $this->input->post('backlogs');
+	      $prices = $this->input->post('prices');
 
-      $this->db->trans_start();
+	      $arr = array(
+	        'order_code' => $order_code,
+	        'invoice_code' => $invoice,
+	        'zone_code' => $zone_code,
+	        'warehouse_code' => $warehouse_code,
+	        'update_user' => get_cookie('uname')
+	      );
 
-      if($this->receive_transform_model->update($code, $arr) === FALSE)
-      {
-        $sc = FALSE;
-        $message = 'Update Document Fail';
-      }
+	      $this->db->trans_begin();
 
-      //--- If update success
-      if($sc === TRUE)
-      {
-        if(!empty($receive))
-        {
-          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
-          $this->receive_transform_model->drop_details($code);
+	      if($this->receive_transform_model->update($code, $arr) === FALSE)
+	      {
+	        $sc = FALSE;
+	        $this->error = 'Update Document Failed';
+	      }
 
-          foreach($receive as $item => $qty)
-          {
-            if($qty != 0 && $sc === TRUE)
-            {
-              $pd = $this->products_model->get($item);
-							$price = $this->get_avg_cost($item);
-							$cost = $price == 0 ? $pd->cost : $price;
-              $ds = array(
-                'receive_code' => $code,
-                'style_code' => $pd->style_code,
-                'product_code' => $item,
-                'product_name' => $pd->name,
-                'price' => $cost,
-                'qty' => $qty,
-                'amount' => $qty * $cost
-              );
+	      //--- If update success
+	      if($sc === TRUE)
+	      {
+	        if(!empty($receive))
+	        {
+	          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
+	          $this->receive_transform_model->drop_details($code);
 
-              if($this->receive_transform_model->add_detail($ds) === FALSE)
-              {
-                $sc = FALSE;
-                $message = 'Add Receive Row Fail';
-                break;
-              }
+						$details = array();
 
-              if($sc === TRUE)
-              {
-                $ds = array(
-                  'reference' => $code,
-                  'warehouse_code' => $warehouse_code,
-                  'zone_code' => $zone_code,
-                  'product_code' => $item,
-                  'move_in' => $qty,
-                  'date_add' => db_date($doc->date_add, TRUE)
-                );
+	          foreach($receive as $item => $qty)
+	          {
+	            if($qty != 0 && $sc === TRUE)
+	            {
+	              $pd = $this->products_model->get($item);
+								$price = $this->get_avg_cost($item);
+								$cost = $price == 0 ? $pd->cost : $price;
 
-                if($this->movement_model->add($ds) === FALSE)
-                {
-                  $sc = FALSE;
-                  $message = 'บันทึก movement ไม่สำเร็จ';
-                }
-              }
+								if($this->isAPI && $doc->is_wms)
+								{
+									$de = new stdClass;
+									$de->receive_code = $code;
+									$de->style_code = $pd->style_code;
+									$de->product_code = $pd->code;
+									$de->product_name = $pd->name;
+									$de->unit_code = $pd->unit_code;
+									$de->price = $cost;
+									$de->qty = $qty;
+									$de->amount = $qty * $cost;
+
+									$details[] = $de;
+								}
+
+	              $ds = array(
+	                'receive_code' => $code,
+	                'style_code' => $pd->style_code,
+	                'product_code' => $item,
+	                'product_name' => $pd->name,
+	                'price' => $cost,
+	                'qty' => $qty,
+	                'amount' => $qty * $cost
+	              );
+
+	              if($this->receive_transform_model->add_detail($ds) === FALSE)
+	              {
+	                $sc = FALSE;
+	                $this->error = 'Add Receive Row Fail';
+	                break;
+	              }
+
+	              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
+	              {
+	                $ds = array(
+	                  'reference' => $code,
+	                  'warehouse_code' => $warehouse_code,
+	                  'zone_code' => $zone_code,
+	                  'product_code' => $item,
+	                  'move_in' => $qty,
+	                  'date_add' => db_date($doc->date_add, TRUE)
+	                );
+
+	                if($this->movement_model->add($ds) === FALSE)
+	                {
+	                  $sc = FALSE;
+	                  $this->error = 'บันทึก movement ไม่สำเร็จ';
+	                }
+	              }
 
 
-              //--- update receive_qty in order_transform_detail
-              if($sc === TRUE)
-              {
-                $this->update_transform_receive_qty($order_code, $item, $qty);
-              }
+	              //--- update receive_qty in order_transform_detail
+	              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
+	              {
+	                $this->update_transform_receive_qty($order_code, $item, $qty);
+	              }
 
-            }//--- end if qty > 0
-          } //--- end foreach
+	            }//--- end if qty > 0
+	          } //--- end foreach
 
-          if($sc === TRUE)
-          {
-            $this->receive_transform_model->set_status($code, 1);
-            if($this->transform_model->is_complete($order_code) === TRUE)
-            {
-              $this->transform_model->close_transform($order_code);
-            }
-          }
-        } //--- end if !empty($receive)
-      } //--- if $sc === TRUE
+						if($this->isAPI === TRUE && $doc->is_wms == 1)
+						{
+							$this->wms = $this->load->database('wms', TRUE);
+							$this->load->library('wms_receive_api');
 
-      $this->db->trans_complete();
+							$rs = $this->wms_receive_api->export_receive_transform($doc, $order_code, $invoice, $details);
+						}
 
-      if($this->db->trans_status() === FALSE)
-      {
-        $sc = FALSE;
-      }
+	          if($sc === TRUE)
+	          {
+							if($this->isAPI === TRUE && $doc->is_wms == 1)
+							{
+								$this->receive_transform_model->set_status($code, 3);
+							}
+							else
+							{
+								$this->receive_transform_model->set_status($code, 1);
+
+		            if($this->transform_model->is_complete($order_code) === TRUE)
+		            {
+		              $this->transform_model->close_transform($order_code);
+		            }
+							}
+	          }
+
+	        } //--- end if !empty($receive)
+
+	      } //--- if $sc === TRUE
+
+	      if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบข้อมูล';
+      $this->error = 'ไม่พบข้อมูล';
     }
 
-    if($sc === TRUE)
+    if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
     {
       $this->export_receive($code);
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

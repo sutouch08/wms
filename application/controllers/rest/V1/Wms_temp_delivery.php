@@ -1,31 +1,30 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Wms_temp_receive extends PS_Controller
+class Wms_temp_delivery extends PS_Controller
 {
-	public $menu_code = 'WMSTRE';
+	public $menu_code = 'WMSTDO';
 	public $menu_group_code = 'WMS';
-  public $menu_sub_group_code = 'WMS_RECEIVE';
-	public $title = 'WMS Receive Temp';
+  public $menu_sub_group_code = '';
+	public $title = 'WMS Temp Delivery';
   public $filter;
 
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'rest/V1/wms_temp_receive';
+    $this->home = base_url().'rest/V1/wms_temp_delivery';
 		$this->wms = $this->load->database('wms', TRUE); //--- Temp database
   	$this->load->model('rest/V1/wms_error_logs_model');
-		$this->load->model('rest/V1/wms_temp_receive_model');
+		$this->load->model('rest/V1/wms_temp_order_model');
   }
 
 
   public function index()
   {
     $filter = array(
-      'code' => get_filter('code', 'receive_code', ''),
-      'status' => get_filter('status', 'receive_status', 'all'),
-			'type' => get_filter('type', 'reveice_type', 'all'),
-			'reference' => get_filter('reference', 'receive_reference', '')
+      'code' => get_filter('code', 'do_code', ''),
+      'status' => get_filter('status', 'do_status', 'all'),
+			'reference' => get_filter('reference', 'do_reference', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -37,27 +36,27 @@ class Wms_temp_receive extends PS_Controller
 		}
 
 		$segment  = 5; //-- url segment
-		$rows     = $this->wms_temp_receive_model->count_rows($filter);
+		$rows     = $this->wms_temp_order_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->wms_temp_receive_model->get_list($filter, $perpage, $this->uri->segment($segment));
+		$orders   = $this->wms_temp_order_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
     $filter['orders'] = $orders;
 
 		$this->pagination->initialize($init);
 
-    $this->load->view('rest/V1/temp_receive/temp_receive_list', $filter);
+    $this->load->view('rest/V1/temp_delivery/temp_delivery_list', $filter);
   }
 
 
 
 	  public function get_detail($id)
 	  {
-			$order = $this->wms_temp_receive_model->get($id);
+			$order = $this->wms_temp_order_model->get($id);
 
-	    $ds['details'] = $this->wms_temp_receive_model->get_details($id);
+	    $ds['details'] = $this->wms_temp_order_model->get_details($id);
 			$ds['code'] = !empty($order) ? $order->code : NULL;
-	    $this->load->view('rest/V1/temp_receive/temp_receive_detail', $ds);
+	    $this->load->view('rest/V1/temp_delivery/temp_delivery_detail', $ds);
 	  }
 
 
@@ -65,10 +64,9 @@ class Wms_temp_receive extends PS_Controller
 	public function clear_filter()
 	{
 		$filter = array(
-			'receive_code',
-			'receive_status',
-			'receive_type',
-			'receive_reference'
+			'do_code',
+			'do_status',
+			'do_reference'
 		);
 
 		clear_filter($filter);

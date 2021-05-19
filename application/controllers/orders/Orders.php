@@ -37,7 +37,7 @@ class Orders extends PS_Controller
     $this->load->helper('warehouse');
 
     $this->filter = getConfig('STOCK_FILTER');
-    $this->isAPI = is_true(getConfig('WEB_API'));
+    $this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 
@@ -1981,7 +1981,7 @@ class Orders extends PS_Controller
       {
         $full_mode = getConfig('WMS_FULL_MODE') == 1 ? TRUE : FALSE;
 
-				if($full_mode === TRUE && $order->state >= 3 && $order->is_wms && $state != 9)
+				if($this->isAPI && $full_mode === TRUE && $order->state >= 3 && $order->is_wms && $state != 9)
 				{
 					echo "ออเดอร์ถูกส่งไประบบ WMS แล้วไม่อนุญาติให้ย้อนสถานะ";
 					exit;
@@ -2101,14 +2101,7 @@ class Orders extends PS_Controller
                 $sc = FALSE;
                 $this->error = "Add state failed";
               }
-              else
-              {
-                if($this->isAPI && ! empty($order->order_id))
-                {
-                  $this->load->library('api');
-                  $this->api->update_order_status($order->order_id, $order->state, $state);
-                }
-              }
+
             }
             else
             {
@@ -2127,7 +2120,7 @@ class Orders extends PS_Controller
           }
 
 					//---- export
-					if($sc === TRUE && $state == 3 && $order->is_wms)
+					if($this->isAPI && $sc === TRUE && $state == 3 && $order->is_wms)
 					{
 						$this->wms = $this->load->database('wms', TRUE);
 						$this->load->library('wms_order_api');
@@ -2140,23 +2133,6 @@ class Orders extends PS_Controller
 							$this->error = "เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง";
 						}
 					}
-
-          if($sc === TRUE && $order->state == 8 && $this->isAPI)
-          {
-						$details = $this->orders_model->get_order_details($code);
-
-            if(!empty($details))
-            {
-              foreach($details as $rs)
-              {
-                $item = $this->products_model->get($rs->product_code);
-                if($rs->is_count == 1 && $item->is_api == 1 && $rs->is_complete == 1)
-                {
-                  $this->update_api_stock($item->code, $item->old_code);
-                }
-              }
-            }
-          }
         }
       }
       else

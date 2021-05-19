@@ -9,6 +9,8 @@ class Lend extends PS_Controller
 	public $title = 'เบิกยืมสินค้า';
   public $filter;
   public $error;
+	public $isAPI;
+
   public function __construct()
   {
     parent::__construct();
@@ -28,6 +30,8 @@ class Lend extends PS_Controller
     $this->load->helper('state');
     $this->load->helper('product_images');
     $this->load->helper('warehouse');
+
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 

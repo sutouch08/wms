@@ -34,7 +34,7 @@
 				<?php if($order->status == 0 && $order->is_expired == 0) : ?>
 					<button type="button" class="btn btn-sm btn-success" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
 				<?php endif; ?>
-				<?php if($order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
+				<?php if($this->isAPI && $order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
 					<button type="button" class="btn btn-sm btn-success" onclick="sendToWMS()">Send to WMS</button>
 				<?php endif; ?>
       </p>

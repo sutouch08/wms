@@ -9,6 +9,7 @@ class Consign_check extends PS_Controller
   public $filter;
   public $error;
 	public $wms;
+	public $isAPI;
 
   public function __construct()
   {
@@ -19,6 +20,8 @@ class Consign_check extends PS_Controller
     $this->load->model('masters/zone_model');
     $this->load->model('masters/warehouse_model');
     $this->load->model('stock/stock_model');
+
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
   public function index()

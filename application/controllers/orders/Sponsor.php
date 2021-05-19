@@ -9,6 +9,7 @@ class Sponsor extends PS_Controller
 	public $title = 'สปอนเซอร์';
   public $filter;
   public $error;
+	public $isAPI;
 
   public function __construct()
   {
@@ -29,6 +30,8 @@ class Sponsor extends PS_Controller
     $this->load->helper('state');
     $this->load->helper('product_images');
     $this->load->helper('warehouse');
+
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 

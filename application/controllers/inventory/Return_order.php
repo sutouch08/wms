@@ -10,6 +10,8 @@ class Return_order extends PS_Controller
   public $filter;
   public $error;
 	public $wms;
+	public $isAPI;
+
   public function __construct()
   {
     parent::__construct();
@@ -19,6 +21,8 @@ class Return_order extends PS_Controller
     $this->load->model('masters/zone_model');
     $this->load->model('masters/customers_model');
     $this->load->model('masters/products_model');
+
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 
@@ -232,7 +236,7 @@ class Return_order extends PS_Controller
 					{
 						$this->approve_logs_model->add($code, 1, get_cookie('uname'));
 
-						if($doc->is_wms == 1)
+						if($this->isAPI === TRUE && $doc->is_wms == 1)
 						{
 							$details = $this->return_order_model->get_details($doc->code);
 

@@ -9,6 +9,8 @@ class Consign_tr extends PS_Controller
 	public $title = 'ฝากขาย(โอนคลัง)';
   public $filter;
   public $role = 'N';
+	public $isAPI;
+
   public function __construct()
   {
     parent::__construct();
@@ -32,6 +34,7 @@ class Consign_tr extends PS_Controller
     $this->load->helper('warehouse');
 
     $this->filter = getConfig('STOCK_FILTER');
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 

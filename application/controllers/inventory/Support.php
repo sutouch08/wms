@@ -8,6 +8,8 @@ class Support extends PS_Controller
   public $menu_sub_group_code = 'REQUEST';
 	public $title = 'เบิกอภินันท์';
   public $filter;
+	public $isAPI;
+
   public function __construct()
   {
     parent::__construct();
@@ -27,6 +29,8 @@ class Support extends PS_Controller
     $this->load->helper('state');
     $this->load->helper('product_images');
     $this->load->helper('warehouse');
+
+		$this->isAPI = is_true(getConfig('WMS_API'));
   }
 
 

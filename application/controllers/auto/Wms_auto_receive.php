@@ -145,7 +145,7 @@ class Wms_auto_receive extends CI_Controller
 										'reference' => $order->code,
 										'warehouse_code' => $warehouse_code,
 										'zone_code' => $zone_code,
-										'product_code' => $rs->receive_code,
+										'product_code' => $rs->product_code,
 										'move_in' => $rs->qty,
 										'date_add' => db_date($order->date_add, TRUE)
 									);
