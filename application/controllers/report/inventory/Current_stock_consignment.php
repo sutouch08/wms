@@ -1,19 +1,18 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class Current_stock extends PS_Controller
+class Current_stock_consignment extends PS_Controller
 {
-  public $menu_code = 'RICSTC';
+  public $menu_code = 'RICSCM';
 	public $menu_group_code = 'RE';
   public $menu_sub_group_code = 'REINVT';
-	public $title = 'รายงานสินค้าคงเหลือปัจจุบัน';
+	public $title = 'รายงานสินค้าคงเหลือปัจจุบัน (ฝากขายเทียม)';
   public $filter;
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'report/inventory/current_stock';
-    $this->load->model('report/inventory/current_stock_report_model');
+    $this->home = base_url().'report/inventory/Current_stock_consignment';
+    $this->load->model('report/inventory/current_stock_consignment_report_model');
     $this->load->model('masters/products_model');
-    $this->load->model('masters/product_style_model');
     $this->load->model('masters/product_group_model');
     $this->load->helper('product_images');
   }
@@ -22,21 +21,21 @@ class Current_stock extends PS_Controller
   {
 
 		//--- จำนวนคงเหลือ มูลค่าคงเหลือ
-    $stock = $this->current_stock_report_model->get_stock_summary();
+    $stock = $this->current_stock_consignment_report_model->get_stock_summary();
 
     $ds['allQty'] = !empty($stock) ? $stock->qty : 0;
 
     $ds['allAmount'] = !empty($stock) ? $stock->amount : 0;
 
     //--- จำนวนรุ่นสินค้า
-    $ds['allModel'] = $this->current_stock_report_model->get_count_style();
+    $ds['allModel'] = $this->current_stock_consignment_report_model->get_count_style();
 
     //--- จำนวนรายการสินค้า
-    $ds['allSku'] = $this->current_stock_report_model->get_count_item();
+    $ds['allSku'] = $this->current_stock_consignment_report_model->get_count_item();
 
 		$ds['product_group'] = $this->product_group_model->get_data();
 
-    $this->load->view('report/inventory/current_stock_report_view', $ds);
+    $this->load->view('report/inventory/current_stock_consignment_report_view', $ds);
 
   }
 
@@ -50,17 +49,17 @@ class Current_stock extends PS_Controller
     $show_stock = TRUE;
 
     //--- จำนวนคงเหลือ มูลค่าคงเหลือ
-    $stock = $this->current_stock_report_model->get_stock_summary();
+    $stock = $this->current_stock_consignment_report_model->get_stock_summary();
 
     $sumQty = !empty($stock) ? $stock->qty : 0;
 
     $sumCost = !empty($stock) ? $stock->amount : 0;
 
     //--- จำนวนรุ่นสินค้า
-    $sumStyle = $this->current_stock_report_model->get_count_style();
+    $sumStyle = $this->current_stock_consignment_report_model->get_count_style();
 
     //--- จำนวนรายการสินค้า
-    $sumItem = $this->current_stock_report_model->get_count_item();
+    $sumItem = $this->current_stock_consignment_report_model->get_count_item();
 
     $page = '';
     $page .= '<div class="row">';
@@ -116,15 +115,15 @@ class Current_stock extends PS_Controller
         $page .= '<div role="tabpanel" class="tab-pane '.($i == 1 ? 'active' : '').'" id="'.$rs->code.'">';
 
         //--- จำนวนคงเหลือ มูลค่าคงเหลือ
-        $stock = $this->current_stock_report_model->get_stock_summary_by_group($rs->code);
+        $stock = $this->current_stock_consignment_report_model->get_stock_summary_by_group($rs->code);
         $sumQty = !empty($stock) ? $stock->qty : 0;
         $sumCost = !empty($stock) ? $stock->amount : 0;
 
         //--- จำนวนรุ่นสินค้า
-        $sumStyle = $this->current_stock_report_model->get_count_style_by_group($rs->code);
+        $sumStyle = $this->current_stock_consignment_report_model->get_count_style_by_group($rs->code);
 
         //--- จำนวนรายการสินค้า
-        $sumItem = $this->current_stock_report_model->get_count_item_by_group($rs->code);
+        $sumItem = $this->current_stock_consignment_report_model->get_count_item_by_group($rs->code);
 
         $page .= '<div class="row">';
         $page .= '  <div class="col-sm-3 padding-5">';
@@ -146,7 +145,7 @@ class Current_stock extends PS_Controller
         $page .= '</div>';
         $page .= '<hr/>';
 
-        $style = $this->current_stock_report_model->get_sum_stock_style_by_group($rs->code);
+        $style = $this->current_stock_consignment_report_model->get_sum_stock_style_by_group($rs->code);
 
         if(!empty($style))
         {
@@ -216,10 +215,10 @@ class Current_stock extends PS_Controller
     $code = $this->input->get('style_code');
     if(!empty($code))
     {
-      $this->load->library('product_grid');
+      $this->load->library('consign_stock_grid');
 
-      $rs = $this->product_grid->getOrderGrid($code);
-      $tableWidth	= $this->products_model->countAttribute($code) == 1 ? 600 : $this->product_grid->getOrderTableWidth($code);
+      $rs = $this->consign_stock_grid->getConsignStockGrid($code);
+      $tableWidth	= $this->products_model->countAttribute($code) == 1 ? 600 : $this->consign_stock_grid->getOrderTableWidth($code);
       $rs .= ' | ' . $tableWidth;
       $rs .= ' | ' . $code;
       $rs .= ' | ' ;

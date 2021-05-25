@@ -98,7 +98,7 @@
 					<p class="lead" style="color:#CCC;">
 						รายงานนี้แสดงสินค้าคงเหลือ ณ เวลาที่เรียกรายงาน โดยรายงานแสดงผลลัพธ์ตามนี้ <br/>
 						- แสดงเฉพาะสินค้าที่มีสต็อกคงเหลือเท่านั้น<br/>
-						- แสดงเฉพาะสต็อกที่มีในคลังของ Warrix เท่านั้น (ไม่รวมสินค้าฝากขายที่มีการเปิดใบกำกับภาษีไปแล้ว)<br/>
+						- แสดงเฉพาะสต็อกที่มีในคลังฝากขายเทียมเท่านั้น (สินค้าฝากขายที่มีการเปิดใบกำกับภาษีไปแล้ว)<br/>
 						- แสดงรายการสินค้า ตามกลุ่มสินค้า ที่กำหนดโดยฐานข้อมูลรายการสินค้า<br/>
 					</p>
 				</blockquote>
@@ -132,7 +132,7 @@ function getReport()
 {
 	load_in();
 	$.ajax({
-		url:BASE_URL + 'report/inventory/current_stock/get_report',
+		url:BASE_URL + 'report/inventory/current_stock_consignment/get_report',
 		type:'GET',
 		cache:false,
 		success:function(rs){
@@ -157,7 +157,7 @@ function getData(code)
 {
 	load_in();
 	$.ajax({
-		url:BASE_URL + 'report/inventory/current_stock/get_stock_grid',
+		url:BASE_URL + 'report/inventory/current_stock_consignment/get_stock_grid',
 		type:'GET',
 		cache:false,
 		data:{

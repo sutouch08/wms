@@ -1,15 +1,14 @@
 <?php
 class Wms_order_api
 {
-
   private $url;
   private $WH_NO; //--- Wharehouse no from WMS
 	private $CUS_CODE; //---- Customer No from WMS
-  public $home;
 	public $wms;
 	protected $ci;
   public $error;
 	public $log_xml;
+	public $type = 'OB';
 
   public function __construct()
   {
@@ -206,23 +205,23 @@ class Wms_order_api
 				{
 					$sc = FALSE;
 					$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-					$this->ci->wms_error_logs_model->add($order->code, 'E', 'Error-'.$res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE);
+					$this->ci->wms_error_logs_model->add($order->code, 'E', $this->error, $this->type);
 				}
 			}
 			else
 			{
-				$this->ci->wms_error_logs_model->add($order->code, 'S', 'No response');
+				$this->ci->wms_error_logs_model->add($order->code, 'S', 'No response', $this->type);
 			}
     }
 
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($order->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($order->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add($code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
@@ -358,27 +357,28 @@ class Wms_order_api
 				{
 					$sc = FALSE;
 					$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-					$this->ci->wms_error_logs_model->add($order->code, 'E', 'Error-'.$res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE);
+					$this->ci->wms_error_logs_model->add($order->code, 'E', $this->error, $this->type);
 				}
 			}
 			else
 			{
-				$this->ci->wms_error_logs_model->add($order->code, 'S', 'No response');
+				$this->ci->wms_error_logs_model->add($order->code, 'S', 'No response', $this->type);
 			}
     }
 
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($order->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($order->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add('Code not found', 'E', $this->error);
+			$this->ci->wms_error_logs_model->add('Code not found', 'E', $this->error, $this->type);
 		}
 
 		return $sc;
   }
+
 
 
 	public function get_type_code($channels_code)

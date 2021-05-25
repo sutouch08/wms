@@ -111,6 +111,19 @@ class stock_model extends CI_Model
   }
 
 
+	//--- ยอดรวมสินค้าทั้งหมดในคลังฝากขายเทียมเท่านั้น
+  public function get_consignment_stock($item)
+  {
+    $rs = $this->cn
+    ->select_sum('OIBQ.OnHandQty', 'qty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry', 'left')
+    ->where('ItemCode', $item)
+    ->get();
+    return intval($rs->row()->qty);
+  }
+
+
 
 
 

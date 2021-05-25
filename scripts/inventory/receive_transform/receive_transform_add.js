@@ -254,16 +254,11 @@ function save() {
 		return false;
 	}
 
-	var url = HOME + 'save';
-
-	if(is_wms == 1) {
-		url = HOME + 'save_wms';
-	}
 
 	load_in();
 
 	$.ajax({
-		url: url,
+		url: HOME + 'save',
 		type:"POST",
 		cache:"false",
 		data: ds,

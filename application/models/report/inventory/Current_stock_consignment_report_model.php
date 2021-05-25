@@ -1,5 +1,5 @@
 <?php
-class Current_stock_report_model extends CI_Model
+class Current_stock_consignment_report_model extends CI_Model
 {
   public function __construct()
   {
@@ -16,7 +16,7 @@ class Current_stock_report_model extends CI_Model
     $qr .= "AND ITM1.PriceList = 13 ";
     $qr .= "WHERE OIBQ.OnHandQty != 0 ";
 
-    $rs = $this->ms->query($qr);
+    $rs = $this->cn->query($qr);
 
     if($rs->num_rows() === 1)
     {
@@ -39,7 +39,7 @@ class Current_stock_report_model extends CI_Model
     $qr .= "WHERE OIBQ.OnHandQty != 0 ";
     $qr .= "AND OITM.U_GROUP = '{$code}' ";
 
-    $rs = $this->ms->query($qr);
+    $rs = $this->cn->query($qr);
 
     if($rs->num_rows() === 1)
     {
@@ -61,7 +61,7 @@ class Current_stock_report_model extends CI_Model
     $qr .= "WHERE OIBQ.OnHandQty != 0 ";
     $qr .= "AND OITM.U_MODEL = '{$code}' ";
 
-    $rs = $this->ms->query($qr);
+    $rs = $this->cn->query($qr);
 
     if($rs->num_rows() === 1)
     {
@@ -104,7 +104,7 @@ class Current_stock_report_model extends CI_Model
 		WHERE OITM.U_GROUP = '{$group_code}' AND OIBQ.OnHandQty != 0
 		GROUP BY OITM.U_MODEL";
 
-		$rs = $this->ms->query($qr);
+		$rs = $this->cn->query($qr);
 
 		if($rs->num_rows() > 0)
 		{

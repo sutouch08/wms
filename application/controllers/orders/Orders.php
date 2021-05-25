@@ -200,6 +200,9 @@ class Orders extends PS_Controller
     {
       $this->load->model('inventory/invoice_model');
 			$this->load->model('masters/warehouse_model');
+			$this->load->model('masters/sender_model');
+      $this->load->model('address/address_model');
+
 
       $book_code = getConfig('BOOK_CODE_ORDER');
       $date_add = db_date($this->input->post('date'));
@@ -213,6 +216,7 @@ class Orders extends PS_Controller
       }
 
       $customer = $this->customers_model->get($this->input->post('customerCode'));
+			$customer_ref = trim($this->input->post('cust_ref'));
       $role = 'S'; //--- S = ขาย
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
       $sale_code = $customer->sale_code;//$this->customers_model->get_sale_code($this->input->post('customerCode'));
@@ -231,14 +235,16 @@ class Orders extends PS_Controller
       else
       {
 				$wh = $this->warehouse_model->get($this->input->post('warehouse'));
+				$ship_to = empty($customer_ref) ? $this->address_model->get_ship_to_address($customer->code) : $this->address_model->get_shipping_address($customer_ref);
+        $id_address = empty($ship_to) ? NULL : (count($ship_to) == 1 ? $ship_to[0]->id : NULL);
         $ds = array(
           'date_add' => $date_add,
           'code' => $code,
           'role' => $role,
           'bookcode' => $book_code,
           'reference' => $this->input->post('reference'),
-          'customer_code' => $this->input->post('customerCode'),
-          'customer_ref' => $this->input->post('cust_ref'),
+          'customer_code' => $customer->code,
+          'customer_ref' => $customer_ref,
           'channels_code' => $this->input->post('channels'),
           'payment_code' => $this->input->post('payment'),
           'warehouse_code' => $wh->code,
@@ -246,6 +252,8 @@ class Orders extends PS_Controller
           'is_term' => ($has_term === TRUE ? 1 : 0),
           'user' => get_cookie('uname'),
           'remark' => addslashes($this->input->post('remark')),
+					'id_address' => $id_address,
+					'id_sender' => $this->sender_model->get_main_sender($customer->code),
 					'is_wms' => $wh->is_wms
         );
 
@@ -256,7 +264,7 @@ class Orders extends PS_Controller
             'state' => 1,
             'update_user' => get_cookie('uname')
           );
-
+				
           $this->order_state_model->add_state($arr);
 
           redirect($this->home.'/edit_detail/'.$code);
@@ -1987,6 +1995,21 @@ class Orders extends PS_Controller
 					exit;
 				}
 
+        //---- ถ้าเป็น wms ก่อนยกเลิกให้เช็คก่อนว่ามีออเดอร์เข้ามาที่ temp หรือเปล่า
+        if($this->isAPI && $order->is_wms && $state == 9)
+        {
+          $this->wms = $this->load->database('wms', TRUE);
+					$this->load->model('rest/V1/wms_temp_order_model');
+
+          $is_exists_temp = $this->wms_temp_order_model->is_exists($code);
+
+					if($is_exists_temp)
+					{
+						echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
+						exit;
+					}
+        }
+
         //--- ถ้าเป็นเบิกแปรสภาพ จะมีการผูกสินค้าไว้
         if($order->role == 'T')
         {
@@ -2066,7 +2089,7 @@ class Orders extends PS_Controller
             }
             else if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms) )
               {
                 $sc = FALSE;
               }
@@ -2077,7 +2100,7 @@ class Orders extends PS_Controller
           {
             if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms) )
               {
                 $sc = FALSE;
               }
@@ -2328,7 +2351,7 @@ class Orders extends PS_Controller
   }
 
 
-  public function cancle_order($code, $role, $state)
+  public function cancle_order($code, $role, $state, $is_wms = 0)
   {
     $this->load->model('inventory/prepare_model');
     $this->load->model('inventory/qc_model');
@@ -2504,6 +2527,22 @@ class Orders extends PS_Controller
         }
       }
     }
+
+		if($sc === TRUE)
+		{
+			if($this->isAPI && $is_wms)
+			{
+				$this->wms = $this->load->database('wms', TRUE);
+				$this->load->library('wms_order_cancle_api');
+				$ex = $this->wms_order_cancle_api->send_data($code);
+
+				if(! $ex)
+				{
+					$sc = FALSE;
+					$this->error = $this->wms_order_cancle_api->error;
+				}
+			}
+		}
 
     return $sc;
   }

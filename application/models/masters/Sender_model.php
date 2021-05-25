@@ -292,5 +292,17 @@ class Sender_model extends CI_Model
 
   }
 
+
+	public function get_main_sender($customer_code)
+	{
+		$rs = $this->db->select('main_sender')->where('customer_code', $customer_code)->get('address_transport');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->main_sender;
+		}
+
+		return NULL;
+	}
+
 }
  ?>

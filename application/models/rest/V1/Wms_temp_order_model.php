@@ -39,7 +39,7 @@ class Wms_temp_order_model extends CI_Model
 
 	public function is_exists($code)
 	{
-		$rs = $this->wms->where('code', $code)->where('status', 0)->count_all_results($this->tb);
+		$rs = $this->wms->where('code', $code)->count_all_results($this->tb);
 		if($rs > 0)
 		{
 			return TRUE;

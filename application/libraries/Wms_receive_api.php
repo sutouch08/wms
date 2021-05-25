@@ -2,21 +2,27 @@
 class Wms_receive_api
 {
 
-  private $url = "http://plcig.pioneer.co.th:8099/plcwhapi_uat/wib";
-  private $WH_NO = "PLCWH-01"; //--- Wharehouse no from WMS
-	private $CUS_CODE = "PLC-00207"; //---- Customer No from WMS
+  private $url;
+  private $WH_NO; //--- Wharehouse no from WMS
+	private $CUS_CODE; //---- Customer No from WMS
 	private $ORDER_LIST_NO = "";  //---- will be generate
-  public $home;
 	public $wms;
 	protected $ci;
   public $error;
 	public $log_xml;
+	public $type = 'IB';
+	public $sup_code = "WARRIX";
+	public $sup_name = "Warrix Co., Ltd.";
+
 
   public function __construct()
   {
 		$this->ci =& get_instance();
 		$this->ci->load->model('rest/V1/wms_error_logs_model');
 		$this->log_xml = getConfig('LOG_XML');
+		$this->url = getConfig('WMS_IB_URL');
+		$this->WH_NO = getConfig('WMS_WH_NO');
+		$this->CUS_CODE = getConfig('WMS_CUST_CODE');
   }
 
 
@@ -48,8 +54,8 @@ class Wms_receive_api
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
 				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
-				$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
-				$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME>{$this->sup_name}</SUPPLIER_NAME>";
 				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
 				$xml .=   "<REF_NO1>".$doc->invoice."</REF_NO1>";
@@ -135,11 +141,11 @@ class Wms_receive_api
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
@@ -173,8 +179,8 @@ class Wms_receive_api
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
 				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
-				$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
-				$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME>{$this->sup_name}</SUPPLIER_NAME>";
 				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
 				$xml .=   "<REF_NO1>".$doc->lend_code."</REF_NO1>";
@@ -260,11 +266,11 @@ class Wms_receive_api
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
@@ -375,11 +381,11 @@ class Wms_receive_api
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
@@ -411,8 +417,8 @@ class Wms_receive_api
 			$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
 			$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
 			$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
-			$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
-			$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+			$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
+			$xml .=   "<SUPPLIER_NAME>{$this->sup_name}</SUPPLIER_NAME>";
 			$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 			$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
 			$xml .=   "<REF_NO1>".$order_code."</REF_NO1>";
@@ -492,11 +498,11 @@ class Wms_receive_api
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
@@ -532,8 +538,8 @@ class Wms_receive_api
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
 				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
-				$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
-				$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME>{$this->sup_name}</SUPPLIER_NAME>";
 				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
 				$xml .=   "<REF_NO1></REF_NO1>";
@@ -618,11 +624,11 @@ class Wms_receive_api
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
@@ -657,8 +663,8 @@ class Wms_receive_api
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
 				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
-				$xml .=   "<SUPPLIER_CODE></SUPPLIER_CODE>";
-				$xml .=   "<SUPPLIER_NAME></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME>{$this->sup_name}</SUPPLIER_NAME>";
 				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
 				$xml .=   "<REF_NO1></REF_NO1>";
@@ -743,11 +749,11 @@ class Wms_receive_api
 
 		if($sc === TRUE)
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL);
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error);
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
