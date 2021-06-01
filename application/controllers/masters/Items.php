@@ -22,6 +22,7 @@ class Items extends PS_Controller
     //--- load model
     $this->load->model('masters/products_model');
     $this->load->model('masters/product_group_model');
+		$this->load->model('masters/product_main_group_model');
     $this->load->model('masters/product_sub_group_model');
     $this->load->model('masters/product_kind_model');
     $this->load->model('masters/product_type_model');
@@ -41,6 +42,7 @@ class Items extends PS_Controller
     $this->load->helper('product_type');
     $this->load->helper('product_group');
     $this->load->helper('product_category');
+		$this->load->helper('product_main_group');
     $this->load->helper('product_sub_group');
     $this->load->helper('product_images');
     $this->load->helper('unit');
@@ -149,19 +151,20 @@ class Items extends PS_Controller
                 'E' => 'Color',
                 'F' => 'Size',
                 'G' => 'Group',
-                'H' => 'SubGroup',
-                'I' => 'Category',
-                'J' => 'Kind',
-                'K' => 'Type',
-                'L' => 'Brand',
-                'M' => 'Year',
-                'N' => 'Cost',
-                'O' => 'Price',
-                'P' => 'Unit',
-                'Q' => 'CountStock',
-                'R' => 'IsAPI',
-                'S' => 'OldModel',
-                'T' => 'OldCode'
+								'H' => 'MainGroup',
+                'I' => 'SubGroup',
+                'J' => 'Category',
+                'K' => 'Kind',
+                'L' => 'Type',
+                'M' => 'Brand',
+                'N' => 'Year',
+                'O' => 'Cost',
+                'P' => 'Price',
+                'Q' => 'Unit',
+                'R' => 'CountStock',
+                'S' => 'IsAPI',
+                'T' => 'OldModel',
+                'U' => 'OldCode'
               );
 
               foreach($headCol as $col => $field)
@@ -191,16 +194,17 @@ class Items extends PS_Controller
               $rs['D'] = str_replace(array("\n", "\r"), '', $rs['D']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
 
               $style = preg_replace($code_pattern, '', get_null(trim($rs['D'])));
-              $old_style = get_null(trim($rs['S'])) === NULL ? $style : trim($rs['S']);
+              $old_style = get_null(trim($rs['T'])) === NULL ? $style : trim($rs['S']);
               $color_code = get_null(trim($rs['E']));
               $size_code = get_null(trim($rs['F']));
               $group_code = get_null(trim($rs['G']));
-              $sub_group_code = get_null(trim($rs['H']));
-              $category_code = get_null(trim($rs['I']));
-              $kind_code = get_null(trim($rs['J']));
-              $type_code = get_null(trim($rs['K']));
-              $brand_code = get_null(trim($rs['L']));
-              $year = empty($rs['M']) ? '0000' : trim($rs['M']);
+							$main_group_code = get_null(trim($rs['H']));
+              $sub_group_code = get_null(trim($rs['I']));
+              $category_code = get_null(trim($rs['J']));
+              $kind_code = get_null(trim($rs['K']));
+              $type_code = get_null(trim($rs['L']));
+              $brand_code = get_null(trim($rs['M']));
+              $year = empty($rs['N']) ? '0000' : trim($rs['N']);
 
               if(!empty($color_code) && ! $this->product_color_model->is_exists($color_code))
               {
@@ -216,6 +220,11 @@ class Items extends PS_Controller
               {
                 $sc = FALSE;
                 $this->error = "Product Group : {$group_code}  does not exists";
+              }
+							else if(!empty($main_group_code) && ! $this->product_main_group_model->is_exists($main_group_code))
+              {
+                $sc = FALSE;
+                $this->error = "Product Sub Group : {$sub_roup_code}  does not exists";
               }
               else if(!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
               {
@@ -256,17 +265,18 @@ class Items extends PS_Controller
                     'code' => $style,
                     'name' => $style,
                     'group_code' => $group_code,
+										'main_group_code' => $main_group_code,
                     'sub_group_code' => $sub_group_code,
                     'category_code' => $category_code,
                     'kind_code' => $kind_code,
                     'type_code' => $type_code,
                     'brand_code' => $brand_code,
                     'year' => $year,
-                    'cost' => round(trim($rs['N']), 2),
-                    'price' => round(trim($rs['O']), 2),
-                    'unit_code' => trim($rs['P']),
-                    'count_stock' => trim($rs['Q']) === 'N' ? 0:1,
-                    'is_api' => trim($rs['R']) === 'N' ? 0 : 1,
+                    'cost' => round(trim($rs['O']), 2),
+                    'price' => round(trim($rs['P']), 2),
+                    'unit_code' => trim($rs['Q']),
+                    'count_stock' => trim($rs['R']) === 'N' ? 0:1,
+                    'is_api' => trim($rs['S']) === 'N' ? 0 : 1,
                     'update_user' => get_cookie('uname'),
                     'old_code' => $old_style
                   );
@@ -281,7 +291,7 @@ class Items extends PS_Controller
 
               $rs['A'] = str_replace(array("\n", "\r"), '', $rs['A']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
               $code = preg_replace($code_pattern, '', trim($rs['A']));
-              $old_code = get_null(trim($rs['T'])) === NULL ? $code : trim($rs['T']);
+              $old_code = get_null(trim($rs['U'])) === NULL ? $code : trim($rs['U']);
               $arr = array(
                 'code' => $code,
                 'name' => trim($rs['B']),
@@ -290,17 +300,18 @@ class Items extends PS_Controller
                 'color_code' => get_null(trim($rs['E'])),
                 'size_code' => get_null(trim($rs['F'])),
                 'group_code' => get_null(trim($rs['G'])),
-                'sub_group_code' => get_null(trim($rs['H'])),
-                'category_code' => get_null(trim($rs['I'])),
-                'kind_code' => get_null(trim($rs['J'])),
-                'type_code' => get_null(trim($rs['K'])),
-                'brand_code' => get_null(trim($rs['L'])),
-                'year' => trim($rs['M']),
-                'cost' => round(trim($rs['N']), 2),
-                'price' => round(trim($rs['O']), 2),
-                'unit_code' => empty(trim($rs['P'])) ? 'PCS' : trim($rs['P']),
-                'count_stock' => trim($rs['Q']) === 'N' ? 0:1,
-                'is_api' => trim($rs['R']) === 'N' ? 0 : 1,
+								'main_group_code' => get_null(trim($rs['H'])),
+                'sub_group_code' => get_null(trim($rs['I'])),
+                'category_code' => get_null(trim($rs['J'])),
+                'kind_code' => get_null(trim($rs['K'])),
+                'type_code' => get_null(trim($rs['L'])),
+                'brand_code' => get_null(trim($rs['M'])),
+                'year' => trim($rs['N']),
+                'cost' => round(trim($rs['O']), 2),
+                'price' => round(trim($rs['P']), 2),
+                'unit_code' => empty(trim($rs['Q'])) ? 'PCS' : trim($rs['Q']),
+                'count_stock' => trim($rs['R']) === 'N' ? 0:1,
+                'is_api' => trim($rs['S']) === 'N' ? 0 : 1,
                 'update_user' => get_cookie('uname'),
                 'old_style' => $old_style,
                 'old_code' => $old_code
@@ -366,6 +377,7 @@ class Items extends PS_Controller
           'color_code' => get_null($this->input->post('color')),
           'size_code' => get_null($this->input->post('size')),
           'group_code' => get_null($this->input->post('group_code')),
+					'main_group_code' => get_null($this->input->post('main_group_code')),
           'sub_group_code' => get_null($this->input->post('sub_group_code')),
           'category_code' => get_null($this->input->post('category_code')),
           'kind_code' => get_null($this->input->post('kind_code')),
@@ -429,6 +441,7 @@ class Items extends PS_Controller
           'color_code' => get_null($this->input->post('color')),
           'size_code' => get_null($this->input->post('size')),
           'group_code' => get_null($this->input->post('group_code')),
+					'main_group_code' => get_null($this->input->post('main_group_code')),
           'sub_group_code' => get_null($this->input->post('sub_group_code')),
           'category_code' => get_null($this->input->post('category_code')),
           'kind_code' => get_null($this->input->post('kind_code')),
@@ -515,6 +528,7 @@ class Items extends PS_Controller
       'color_code' => get_null($this->input->post('color')),
       'size_code' => get_null($this->input->post('size')),
       'group_code' => get_null($this->input->post('group_code')),
+			'main_group_code' => get_null($this->input->post('main_group_code')),
       'sub_group_code' => get_null($this->input->post('sub_group_code')),
       'category_code' => get_null($this->input->post('category_code')),
       'kind_code' => get_null($this->input->post('kind_code')),
@@ -684,6 +698,7 @@ class Items extends PS_Controller
       'U_COLOR' => $item->color_code,
       'U_SIZE' => $item->size_code,
       'U_GROUP' => $item->group_code,
+			'U_MAINGROUP' => $item->main_group_code,
       'U_MAJOR' => $item->sub_group_code,
       'U_CATE' => $item->category_code,
       'U_SUBTYPE' => $item->kind_code,

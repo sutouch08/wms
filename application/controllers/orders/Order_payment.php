@@ -105,6 +105,8 @@ class Order_payment extends PS_Controller
       $this->load->model('orders/order_state_model');
       $id = $this->input->post('id');
       $detail = $this->order_payment_model->get_detail($id);
+			$order = $this->orders_model->get($detail->order_code);
+
       $arr = array(
         'order_code' => $detail->order_code,
         'state' => 3,
@@ -120,12 +122,15 @@ class Order_payment extends PS_Controller
       //--- mark order as paid
       $this->orders_model->paid($detail->order_code, TRUE);
 
-      //--- change state to waiting for prepare
-      $this->orders_model->change_state($detail->order_code, 3);
+			if($order->state < 3)
+			{
+				//--- change state to waiting for prepare
+	      $this->orders_model->change_state($detail->order_code, 3);
 
-      //--- add state event
-      $this->order_state_model->add_state($arr);
-
+	      //--- add state event
+	      $this->order_state_model->add_state($arr);
+			}
+      
       //--- complete transecrtion with commit or rollback if any error
       $this->db->trans_complete();
 

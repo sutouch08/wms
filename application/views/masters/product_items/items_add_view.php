@@ -128,6 +128,18 @@
 		</div>
 
 		<div class="form-group">
+			<label class="col-sm-3 control-label no-padding-right">กลุ่มหลัก</label>
+			<div class="col-xs-12 col-sm-3">
+				<select name="main_group_code" id="mainGroup" class="form-control" required>
+					<option value="">โปรดเลือก</option>
+				<?php echo select_product_main_group(); ?>
+				</select>
+			</div>
+			<div class="help-block col-xs-12 col-sm-reset inline red" id="mainGroup-error"></div>
+		</div>
+
+
+		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">กลุ่มย่อย</label>
 			<div class="col-xs-12 col-sm-3">
 				<select name="sub_group_code" id="subGroup" class="form-control">

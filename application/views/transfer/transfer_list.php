@@ -132,9 +132,9 @@
 								<?php echo (($rs->api == 1) ? 'Y' : 'N'); ?>
 							</td>
 							<td class="middle text-right">
-								<?php /*if($rs->status == 1) : ?>
-									<button type="button" class="btn btn-minier btn-primary" onclick="sendToSAP('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> SAP</button>
-								<?php endif; */?>
+								<?php if($rs->is_wms == 1 && $rs->direction == 1 && $rs->status == 1) : ?>
+									<button type="button" class="btn btn-minier btn-primary" onclick="send_to_wms('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> WMS</button>
+								<?php endif; ?>
 								<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
 								<?php if($rs->status == 0 && $this->pm->can_edit) : ?>
 									<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>

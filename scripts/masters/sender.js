@@ -43,6 +43,9 @@ function save() {
 	var close = $('#close').val();
 	var type = $('#type').val();
 	var inlist = $('#in_list').is(':checked') ? 1 : 0;
+	var force_tracking = $('#force_tracking').is(':checked') ? 1 : 0;
+	var auto_gen = $('#auto_gen').is(':checked') ? 1 : 0;
+	var prefix = $('#tracking_prefix').val();
 
 	if(code.length === 0) {
 		swal("กรุณากำหนดรหัส");
@@ -67,7 +70,10 @@ function save() {
 			'open' : open,
 			'close' : close,
 			'type' : type,
-			'show_in_list' : inlist
+			'show_in_list' : inlist,
+			'force_tracking' : force_tracking,
+			'auto_gen' : auto_gen,
+			'prefix' : prefix
 		},
 		success:function(rs) {
 			var rs = $.trim(rs);
@@ -115,6 +121,9 @@ function update() {
 	var close = $('#close').val();
 	var type = $('#type').val();
 	var inlist = $('#in_list').is(':checked') ? 1 : 0;
+	var force_tracking = $('#force_tracking').is(':checked') ? 1 : 0;
+	var auto_gen = $('#auto_gen').is(':checked') ? 1 : 0;
+	var prefix = $('#tracking_prefix').val();
 
 	if(code.length === 0) {
 		swal("กรุณากำหนดรหัส");
@@ -139,7 +148,10 @@ function update() {
 			'open' : open,
 			'close' : close,
 			'type' : type,
-			'show_in_list' : inlist
+			'show_in_list' : inlist,
+			'force_tracking' : force_tracking,
+			'auto_gen' : auto_gen,
+			'prefix' : prefix
 		},
 		success:function(rs) {
 			var rs = $.trim(rs);
@@ -184,4 +196,30 @@ function getDelete(id, name){
   },function(){
     window.location.href = HOME +'delete/' + id;
   })
+}
+
+function toggleAutoGen() {
+	var el = $('#force_tracking');
+
+	if(el.is(':checked')) {
+		$('#gen_potion').removeClass('hide');
+	}
+	else {
+		$('#gen_potion').addClass('hide');
+		$('#prefix').addClass('hide');
+	}
+
+	$('#auto_gen').prop('checked', false);
+}
+
+
+function togglePrefix() {
+	var el = $('#auto_gen');
+	if(el.is(':checked')) {
+		$('#prefix').removeClass('hide');
+	}
+	else {
+		$('#prefix').addClass('hide');
+	}
+
 }

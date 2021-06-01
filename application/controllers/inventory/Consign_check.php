@@ -178,7 +178,7 @@ class Consign_check extends PS_Controller
 
 				if($sc === TRUE)
 				{
-					if($is_wms == 1)
+					if($this->isAPI && $is_wms == 1)
 					{
 						//--- send to wms
 						$this->wms = $this->load->database('wms', TRUE);

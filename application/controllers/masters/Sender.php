@@ -83,7 +83,10 @@ class Sender extends PS_Controller{
 							'open' => trim($this->input->post('open')),
 							'close' => trim($this->input->post('close')),
 							'type' => trim($this->input->post('type')),
-							'show_in_list' => empty($this->input->post('show_in_list')) ? 0 : 1
+							'show_in_list' => empty($this->input->post('show_in_list')) ? 0 : 1,
+							'force_tracking' => empty($this->input->post('force_tracking')) ? 0 : 1,
+							'auto_gen' => empty($this->input->post('auto_gen')) ? 0 :1,
+							'prefix' => get_null(trim($this->input->post('prefix')))
 						);
 
 						if(! $this->sender_model->add($arr))
@@ -152,7 +155,10 @@ class Sender extends PS_Controller{
 							'open' => trim($this->input->post('open')),
 							'close' => trim($this->input->post('close')),
 							'type' => trim($this->input->post('type')),
-							'show_in_list' => empty($this->input->post('show_in_list')) ? 0 : 1
+							'show_in_list' => empty($this->input->post('show_in_list')) ? 0 : 1,
+							'force_tracking' => empty($this->input->post('force_tracking')) ? 0 : 1,
+							'auto_gen' => empty($this->input->post('auto_gen')) ? 0 :1,
+							'prefix' => get_null(trim($this->input->post('prefix')))
 						);
 
 						if(! $this->sender_model->update($id, $arr))

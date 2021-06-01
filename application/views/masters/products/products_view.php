@@ -1,9 +1,9 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 padding-5">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
@@ -14,7 +14,7 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
+  <div class="col-sm-2 padding-5">
     <label>รหัส</label>
     <input type="text" class="width-100" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
@@ -29,6 +29,14 @@
     <select class="form-control" name="group" id="group" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
 			<?php echo select_product_group($group); ?>
+		</select>
+  </div>
+
+	<div class="col-sm-2 padding-5">
+    <label>กลุ่มหลัก</label>
+		<select class="form-control" name="main_group" id="main_group" onchange="getSearch()">
+			<option value="">ทั้งหมด</option>
+			<?php echo select_product_main_group($main_group); ?>
 		</select>
   </div>
 
@@ -48,7 +56,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-2 padding-5 last">
+	<div class="col-sm-2 padding-5">
     <label>ประเภท</label>
 		<select class="form-control" name="kind" id="kind" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -56,7 +64,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-2 padding-5 first">
+	<div class="col-sm-2 padding-5">
     <label>ชนิด</label>
 		<select class="form-control" name="type" id="type" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -110,7 +118,7 @@
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-12 padding-5">
 		<table class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -174,6 +182,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/masters/products.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/products.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

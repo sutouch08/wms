@@ -155,6 +155,11 @@ class Product_style_model extends CI_Model
         $this->db->where('group_code', $ds['group']);
       }
 
+			if(!empty($ds['main_group']))
+			{
+				$this->db->where('main_group_code', $ds['main_group']);
+			}
+
       if(!empty($ds['sub_group']))
       {
         $this->db->where('sub_group_code', $ds['sub_group']);
@@ -264,6 +269,11 @@ class Product_style_model extends CI_Model
       {
         $this->db->where('group_code', $ds['group']);
       }
+
+			if(!empty($ds['main_group']))
+			{
+				$this->db->where('main_group_code', $ds['main_group']);
+			}
 
       if(!empty($ds['sub_group']))
       {

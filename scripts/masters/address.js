@@ -178,10 +178,10 @@ function saveAddress()
 		return false;
 	}
 
-	if( email != '' && ! validEmail(email) ){
-		swal("อีเมล์ไม่ถูกต้องกรุณาตรวจสอบ");
-		return false;
-	}
+	// if( email != '' && ! validEmail(email) ){
+	// 	swal("อีเมล์ไม่ถูกต้องกรุณาตรวจสอบ");
+	// 	return false;
+	// }
 
 	var ds = [];
 

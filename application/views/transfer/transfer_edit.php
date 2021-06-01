@@ -21,11 +21,11 @@
 		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseKeyboard()">คีย์มือ</button>
 		      <?php endif; ?>
 
-					<!--
+
 		      <?php if($doc->status == 0 && $barcode === FALSE) : ?>
 		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseBarcode()">ใช้บาร์โค้ด</button>
 		      <?php endif; ?>
-				-->
+				
 					<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 		      <button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
 					<?php endif; ?>

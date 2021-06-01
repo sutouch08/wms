@@ -79,6 +79,34 @@
 			</label>
     </div>
   </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"></label>
+    <div class="col-xs-12 col-sm-3">
+			<label>
+				<input type="checkbox" name="force_tracking" id="force_tracking" class="ace" value="1" onchange="toggleAutoGen()" <?php echo is_checked($force_tracking, '1'); ?>/>
+				<span class="lbl">  บังคับใส่ Tracking</span>
+			</label>
+    </div>
+  </div>
+
+	<div class="form-group <?php echo ($auto_gen == 1 ? "" : 'hide'); ?>" id="gen_potion">
+    <label class="col-sm-3 control-label no-padding-right"></label>
+    <div class="col-xs-12 col-sm-3">
+			<label>
+				<input type="checkbox" name="auto_gen" id="auto_gen" class="ace" value="1" onchange="togglePrefix()" <?php echo is_checked($auto_gen, '1'); ?>/>
+				<span class="lbl">  Auto Generate Tracking No</span>
+			</label>
+    </div>
+  </div>
+
+	<div class="form-group <?php echo ($auto_gen == 1 ? "" : 'hide'); ?>" id="prefix">
+    <label class="col-sm-3 control-label no-padding-right">Tracking Prefix</label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="text" name="tracking_prefix" id="tracking_prefix" maxlength="10" class="form-control input-medium" value="<?php echo $prefix; ?>"/>
+    </div>
+  </div>
+
 	<div class="divider-hidden">
 
 	</div>

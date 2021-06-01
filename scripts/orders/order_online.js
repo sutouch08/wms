@@ -426,6 +426,18 @@ function setSender()
 		return false;
 	}
 
+	if($('#sender option:selected').data('gen') == 1) {
+		//--- gen tracking no
+		//--- get prfix
+		let prefix = $('#sender option:selected').data('prefix');
+		prefix = prefix+order_code;
+		$('#tracking').val(prefix);
+	}
+	else {
+		$('#tracking').val('');
+	}
+
+
 	$.ajax({
 		url:BASE_URL + 'orders/orders/set_sender',
 		type:'POST',
@@ -474,7 +486,38 @@ function setAddress(id)
 	});
 }
 
+function update_tracking() {
+	var trackingNo = $('#tracking').val();
+	var order_code = $('#order_code').val();
+	$.ajax({
+		url: BASE_URL + 'orders/orders/update_shipping_code/',
+		type:"POST",
+		cache:"false",
+		data:{
+			"shipping_code" : trackingNo,
+			"order_code" : order_code },
+		success: function(rs){
+			var rs = $.trim(rs);
+			if( rs == 'success')
+			{
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
 
+				$('#trackingNo').val(trackingNo);
+			}
+			else {
+				swal({
+					title:'Error!',
+					type:'error',
+					text:rs
+				});
+			}
+		}
+	});
+}
 
 
 

@@ -99,21 +99,32 @@
       </div>
 			<div role="tabpanel" class="tab-pane fade" id="sender">
 				<div class="row" style="padding:15px;">
-					<div class="col-sm-6 col-xs-12 padding-5">
+					<div class="col-sm-12 col-xs-12 padding-5">
 						<table class="table" style="margin-bottom:0px;">
 							<tr>
-								<td class="width-20 middle text-right" style="border:none;">เลือกผู้จัดส่ง : </td>
-								<td style="border:none;">
+								<td class="width-10 middle text-right" style="border:none;">เลือกผู้จัดส่ง : </td>
+								<td class="width-20"style="border:none;">
 									<select class="form-control input-sm" id="id_sender">
 										<option value="">เลือก</option>
 										<?php echo select_common_sender($order->customer_code, $order->id_sender); //--- sender helper?>
 									</select>
 								</td>
-								<td class="width-20 middle" style="border:none;">
+								<td class="width-10 middle" style="border:none;">
 									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
 									<button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
 									<?php endif; ?>
 								</td>
+								<td class="width-15 middle text-right" style="border:none;">Tracking No: </td>
+								<td class="width-20 middle" style="border:none;">
+									<input type="text" class="form-control input-sm" id="tracking" value="<?php echo $order->shipping_code; ?>">
+									<input type="hidden" id="trackingNo" value="<?php echo $order->shipping_code; ?>">
+								</td>
+								<td class="width-10 middle" style="border:none;">
+									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
+									<button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
+									<?php endif; ?>
+								</td>
+								<td style="border:none;"></td>
 							</tr>
 						</table>
 

@@ -71,7 +71,7 @@ class Wms_receive_api
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
 						$xml .= "<VARIANT></VARIANT>";
 						$xml .= "<LOT_NO></LOT_NO>";
 						$xml .= "<EXP_DATE></EXP_DATE>";
@@ -196,7 +196,7 @@ class Wms_receive_api
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
 						$xml .= "<VARIANT></VARIANT>";
 						$xml .= "<LOT_NO></LOT_NO>";
 						$xml .= "<EXP_DATE></EXP_DATE>";
@@ -318,7 +318,7 @@ class Wms_receive_api
 				{
 					$xml .= "<ITEM>";
 					$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-					$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
+					$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
 					$xml .= "<VARIANT></VARIANT>";
 					$xml .= "<LOT_NO></LOT_NO>";
 					$xml .= "<EXP_DATE></EXP_DATE>";
@@ -435,7 +435,7 @@ class Wms_receive_api
 				{
 					$xml .= "<ITEM>";
 					$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-					$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
+					$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
 					$xml .= "<VARIANT></VARIANT>";
 					$xml .= "<LOT_NO></LOT_NO>";
 					$xml .= "<EXP_DATE></EXP_DATE>";
@@ -555,7 +555,7 @@ class Wms_receive_api
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
 						$xml .= "<VARIANT></VARIANT>";
 						$xml .= "<LOT_NO></LOT_NO>";
 						$xml .= "<EXP_DATE></EXP_DATE>";
@@ -680,7 +680,7 @@ class Wms_receive_api
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name." Btw: 5<6 and 6>5]]></ITEM_DESC>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
 						$xml .= "<VARIANT></VARIANT>";
 						$xml .= "<LOT_NO></LOT_NO>";
 						$xml .= "<EXP_DATE></EXP_DATE>";

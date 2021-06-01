@@ -438,6 +438,20 @@ function changeState(){
 				swal("กรุณาระบุผู้จัดส่ง");
 				return false;
 			}
+
+			if($('#sender option:selected').data('tracking') == 1) {
+				let trackingNo = $('#trackingNo').val();
+				let tracking = $('#tracking').val();
+				if(trackingNo != tracking) {
+					swal("กรุณากดบันทึก Tracking No");
+					return false;
+				}
+
+				if(trackingNo.length === 0) {
+					swal("กรุณาระบุ Tracking No");
+					return false;
+				}
+			}
 		}
 
     if( state != 0){

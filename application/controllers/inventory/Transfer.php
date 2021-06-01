@@ -115,7 +115,6 @@ class Transfer extends PS_Controller
       $bookcode = getConfig('BOOK_CODE_TRANSFER');
       $isManual = getConfig('MANUAL_DOC_CODE');
 
-			$is_wms = 0;
 			$api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
 
 			$fromWh = $this->warehouse_model->get($from_warehouse);
@@ -123,15 +122,8 @@ class Transfer extends PS_Controller
 
 			$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
 
-
-			$direction = 0;
-
-			if($this->isAPI === TRUE && $is_wms == 1)
-			{
-				//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-				$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
-			}
-
+			//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+			$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
 
       if($isManual == 1 && $this->input->post('code'))
       {
@@ -216,13 +208,8 @@ class Transfer extends PS_Controller
 		$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
 		$api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
 
-		$direction = 0;
-
-		if($this->isAPI === TRUE && $is_wms == 1)
-		{
-			//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-			$direction = $toWh->is_wms == 1 ? 2 :($fromWh->is_wms == 1 ? 1 : 0);
-		}
+		//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+		$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
 
 
     $arr = array(
@@ -421,7 +408,7 @@ class Transfer extends PS_Controller
 
 		if(!empty($doc))
 		{
-			if($doc->status != 3)
+			if($doc->status == 0) //--- if($doc->status != 3)
 			{
 				$sc = FALSE;
 				$this->error = "Invalid Document status";

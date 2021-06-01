@@ -139,3 +139,40 @@ function printTransfer(){
   var target = HOME + 'print_transfer/'+code;
   window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
 }
+
+function send_to_wms(code) {
+	load_in();
+	$.ajax({
+		url:HOME + 'send_to_wms/'+code,
+		type:'POST',
+		cache:false,
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+}

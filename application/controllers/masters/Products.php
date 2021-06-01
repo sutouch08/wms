@@ -33,6 +33,7 @@ class Products extends PS_Controller
     $this->load->helper('product_kind');
     $this->load->helper('product_type');
     $this->load->helper('product_group');
+		$this->load->helper('product_main_group');
     $this->load->helper('product_category');
     $this->load->helper('product_sub_group');
     $this->load->helper('product_images');
@@ -52,6 +53,7 @@ class Products extends PS_Controller
       'code'      => get_filter('code', 'pd_code', ''),
       'name'      => get_filter('name', 'pd_name', ''),
       'group'     => get_filter('group', 'pd_group', ''),
+			'main_group' => get_filter('main_group', 'pd_main_group', ''),
       'sub_group' => get_filter('sub_group', 'pd_sub_group', ''),
       'category'  => get_filter('category', 'pd_category', ''),
       'kind'      => get_filter('kind', 'pd_kind', ''),
@@ -120,19 +122,20 @@ class Products extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('E1', 'Color');
     $this->excel->getActiveSheet()->setCellValue('F1', 'Size');
     $this->excel->getActiveSheet()->setCellValue('G1', 'Group');
-    $this->excel->getActiveSheet()->setCellValue('H1', 'SubGroup');
-    $this->excel->getActiveSheet()->setCellValue('I1', 'Category');
-    $this->excel->getActiveSheet()->setCellValue('J1', 'Kind');
-    $this->excel->getActiveSheet()->setCellValue('K1', 'Type');
-    $this->excel->getActiveSheet()->setCellValue('L1', 'Brand');
-    $this->excel->getActiveSheet()->setCellValue('M1', 'Year');
-    $this->excel->getActiveSheet()->setCellValue('N1', 'Cost');
-    $this->excel->getActiveSheet()->setCellValue('O1', 'Price');
-    $this->excel->getActiveSheet()->setCellValue('P1', 'Unit');
-    $this->excel->getActiveSheet()->setCellValue('Q1', 'CountStock');
-    $this->excel->getActiveSheet()->setCellValue('R1', 'IsAPI');
-    $this->excel->getActiveSheet()->setCellValue('S1', 'OldModel');
-    $this->excel->getActiveSheet()->setCellValue('T1', 'OldCode');
+		$this->excel->getActiveSheet()->setCellValue('H1', 'MainGroup');
+    $this->excel->getActiveSheet()->setCellValue('I1', 'SubGroup');
+    $this->excel->getActiveSheet()->setCellValue('J1', 'Category');
+    $this->excel->getActiveSheet()->setCellValue('K1', 'Kind');
+    $this->excel->getActiveSheet()->setCellValue('L1', 'Type');
+    $this->excel->getActiveSheet()->setCellValue('M1', 'Brand');
+    $this->excel->getActiveSheet()->setCellValue('N1', 'Year');
+    $this->excel->getActiveSheet()->setCellValue('O1', 'Cost');
+    $this->excel->getActiveSheet()->setCellValue('P1', 'Price');
+    $this->excel->getActiveSheet()->setCellValue('Q1', 'Unit');
+    $this->excel->getActiveSheet()->setCellValue('R1', 'CountStock');
+    $this->excel->getActiveSheet()->setCellValue('S1', 'IsAPI');
+    $this->excel->getActiveSheet()->setCellValue('T1', 'OldModel');
+    $this->excel->getActiveSheet()->setCellValue('U1', 'OldCode');
 
     $row = 2;
 
@@ -140,6 +143,7 @@ class Products extends PS_Controller
       'code' => $this->input->post('export_code'),
       'name' => $this->input->post('export_name'),
       'group' => $this->input->post('export_group'),
+			'main_group' => $this->input->post('export_main_group'),
       'sub_group' => $this->input->post('export_sub_group'),
       'category' => $this->input->post('export_category'),
       'kind' => $this->input->post('export_kind'),
@@ -161,19 +165,20 @@ class Products extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->color_code);
         $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->size_code);
         $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->group_code);
-        $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->sub_group_code);
-        $this->excel->getActiveSheet()->setCellValue('I'.$row, $rs->category_code);
-        $this->excel->getActiveSheet()->setCellValue('J'.$row, $rs->kind_code);
-        $this->excel->getActiveSheet()->setCellValue('K'.$row, $rs->type_code);
-        $this->excel->getActiveSheet()->setCellValue('L'.$row, $rs->brand_code);
-        $this->excel->getActiveSheet()->setCellValue('M'.$row, $rs->year);
-        $this->excel->getActiveSheet()->setCellValue('N'.$row, $rs->cost);
-        $this->excel->getActiveSheet()->setCellValue('O'.$row, $rs->price);
-        $this->excel->getActiveSheet()->setCellValue('P'.$row, $rs->unit_code);
-        $this->excel->getActiveSheet()->setCellValue('Q'.$row, ($rs->count_stock == 1 ? 'Y':'N'));
-        $this->excel->getActiveSheet()->setCellValue('R'.$row, ($rs->is_api == 1 ? 'Y':'N'));
-        $this->excel->getActiveSheet()->setCellValue('S'.$row, $rs->old_style);
-        $this->excel->getActiveSheet()->setCellValue('T'.$row, $rs->old_code);
+				$this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->main_group_code);
+        $this->excel->getActiveSheet()->setCellValue('I'.$row, $rs->sub_group_code);
+        $this->excel->getActiveSheet()->setCellValue('J'.$row, $rs->category_code);
+        $this->excel->getActiveSheet()->setCellValue('K'.$row, $rs->kind_code);
+        $this->excel->getActiveSheet()->setCellValue('L'.$row, $rs->type_code);
+        $this->excel->getActiveSheet()->setCellValue('M'.$row, $rs->brand_code);
+        $this->excel->getActiveSheet()->setCellValue('N'.$row, $rs->year);
+        $this->excel->getActiveSheet()->setCellValue('O'.$row, $rs->cost);
+        $this->excel->getActiveSheet()->setCellValue('P'.$row, $rs->price);
+        $this->excel->getActiveSheet()->setCellValue('Q'.$row, $rs->unit_code);
+        $this->excel->getActiveSheet()->setCellValue('R'.$row, ($rs->count_stock == 1 ? 'Y':'N'));
+        $this->excel->getActiveSheet()->setCellValue('S'.$row, ($rs->is_api == 1 ? 'Y':'N'));
+        $this->excel->getActiveSheet()->setCellValue('T'.$row, $rs->old_style);
+        $this->excel->getActiveSheet()->setCellValue('U'.$row, $rs->old_code);
         $row++;
       }
     }
@@ -202,6 +207,7 @@ class Products extends PS_Controller
       $code     = trim($this->input->post('code')); //--- ตัดช่องว่างหัว-ท้าย
       $name     = addslashes(trim($this->input->post('name'))); //--- escape string
       $group    = get_null($this->input->post('group_code'));
+			$main_group = get_null($this->input->post('main_group_code'));
       $sub_group = get_null($this->input->post('sub_group_code'));
       $category = get_null($this->input->post('category_code'));
       $kind     = get_null($this->input->post('kind_code'));
@@ -223,6 +229,7 @@ class Products extends PS_Controller
         'code' => $code,
         'name' => $name,
         'group_code' => $group,
+				'main_group_code' => $main_group,
         'sub_group_code' => $sub_group,
         'category_code' => $category,
         'kind_code' => $kind,
@@ -382,6 +389,7 @@ class Products extends PS_Controller
       $unit = $this->input->post('unit_code');
       $brand = $this->input->post('brand_code');
       $group = $this->input->post('group_code');
+			$main_group = $this->input->post('main_group_code');
       $sub_group = $this->input->post('sub_group_code');
       $category = $this->input->post('category_code');
       $kind = $this->input->post('kind_code');
@@ -401,6 +409,7 @@ class Products extends PS_Controller
       $ds = array(
         'name' => addslashes(trim($name)),
         'group_code' => get_null($group),
+				'main_group_code' => get_null($main_group),
         'sub_group_code' => get_null($sub_group),
         'category_code' => get_null($category),
         'kind_code' => get_null($kind),
@@ -438,6 +447,7 @@ class Products extends PS_Controller
         {
           $ds = array(
             'group_code' => get_null($group),
+						'main_group_code' => get_null($main_group),
             'sub_group_code' => get_null($sub_group),
             'category_code' => get_null($category),
             'kind_code' => get_null($kind),
@@ -784,6 +794,7 @@ class Products extends PS_Controller
           'color_code' => $color,
           'size_code' => $size,
           'group_code' => $ds->group_code,
+					'main_group_code' => $ds->main_group_code,
           'sub_group_code' => $ds->sub_group_code,
           'category_code' => $ds->category_code,
           'kind_code' => $ds->kind_code,
@@ -839,6 +850,7 @@ class Products extends PS_Controller
         'color_code' => $color,
         'size_code' => NULL,
         'group_code' => $ds->group_code,
+				'main_group_code' => $ds->main_group_code,
         'sub_group_code' => $ds->sub_group_code,
         'category_code' => $ds->category_code,
         'kind_code' => $ds->kind_code,
@@ -884,6 +896,7 @@ class Products extends PS_Controller
         'color_code' => NULL,
         'size_code' => $size,
         'group_code' => $ds->group_code,
+				'main_group_code' => $ds->main_group_code,
         'sub_group_code' => $ds->sub_group_code,
         'category_code' => $ds->category_code,
         'kind_code' => $ds->kind_code,
@@ -1235,6 +1248,7 @@ class Products extends PS_Controller
       'U_COLOR' => $item->color_code,
       'U_SIZE' => $item->size_code,
       'U_GROUP' => $item->group_code,
+			'U_MAINGROUP' => $item->main_group_code,
       'U_MAJOR' => $item->sub_group_code,
       'U_CATE' => $item->category_code,
       'U_SUBTYPE' => $item->kind_code,
@@ -1334,7 +1348,7 @@ class Products extends PS_Controller
 
   public function clear_filter()
 	{
-    $filter = array('pd_code','pd_name','pd_group','pd_sub_group','pd_category','pd_kind','pd_type','pd_brand','pd_year');
+    $filter = array('pd_code','pd_name','pd_group','pd_main_group', 'pd_sub_group','pd_category','pd_kind','pd_type','pd_brand','pd_year');
     clear_filter($filter);
 	}
 }

@@ -45,7 +45,7 @@ class Wms_product_api
 			{
 				$xml .= "<ITEM>";
 				$xml .=  "<SKU>{$item->code}</SKU>";
-				$xml .=  "<NAME><![CDATA[{$item->name} Btw: 5<6 and 6>5]]></NAME>";
+				$xml .=  "<NAME><![CDATA[{$item->name}]]></NAME>";
 				$xml .=  "<UOM>{$item->unit_code}</UOM>";
 				$xml .=  "<BARCODE>{$item->barcode}</BARCODE>";
 				$xml .=  "<HEIGHT></HEIGHT>";
@@ -148,7 +148,7 @@ class Wms_product_api
 			$xml .= "<ITEMS>";
 			$xml .= "<ITEM>";
 			$xml .=  "<SKU>{$item->code}</SKU>";
-			$xml .=  "<NAME><![CDATA[{$item->name} Btw: 5<6 and 6>5]]></NAME>";
+			$xml .=  "<NAME><![CDATA[{$item->name}]]></NAME>";
 			$xml .=  "<UOM>{$item->unit_code}</UOM>";
 			$xml .=  "<BARCODE>{$item->barcode}</BARCODE>";
 			$xml .=  "<HEIGHT></HEIGHT>";
@@ -259,7 +259,7 @@ class Wms_product_api
 
 				$xml .= "<ITEM>";
 				$xml .=  "<SKU>{$item->code}</SKU>";
-				$xml .=  "<NAME><![CDATA[{$item->name} Btw: 5<6 and 6>5]]></NAME>";
+				$xml .=  "<NAME><![CDATA[{$item->name}]]></NAME>";
 				$xml .=  "<UOM>{$item->unit_code}</UOM>";
 				$xml .=  "<BARCODE>{$item->barcode}</BARCODE>";
 				$xml .=  "<HEIGHT></HEIGHT>";

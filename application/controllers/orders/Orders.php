@@ -264,7 +264,7 @@ class Orders extends PS_Controller
             'state' => 1,
             'update_user' => get_cookie('uname')
           );
-				
+
           $this->order_state_model->add_state($arr);
 
           redirect($this->home.'/edit_detail/'.$code);

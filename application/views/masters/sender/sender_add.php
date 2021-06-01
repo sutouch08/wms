@@ -14,7 +14,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="code" id="code" class="width-100" maxlength="20" onkeyup="validateCode(this)" autofocus required />
+			<input type="text" name="code" id="code" class="width-100" maxlength="20" onkeyup="validCode(this)" autofocus required />
     </div>
   </div>
   <div class="form-group">
@@ -78,6 +78,33 @@
     </div>
   </div>
 
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"></label>
+    <div class="col-xs-12 col-sm-3">
+			<label>
+				<input type="checkbox" name="force_tracking" id="force_tracking" class="ace" value="1" onchange="toggleAutoGen()" />
+				<span class="lbl">  บังคับใส่ Tracking</span>
+			</label>
+    </div>
+  </div>
+
+	<div class="form-group hide" id="gen_potion">
+    <label class="col-sm-3 control-label no-padding-right"></label>
+    <div class="col-xs-12 col-sm-3">
+			<label>
+				<input type="checkbox" name="auto_gen" id="auto_gen" class="ace" value="1" onchange="togglePrefix()" />
+				<span class="lbl">  Auto Generate Tracking No</span>
+			</label>
+    </div>
+  </div>
+
+	<div class="form-group hide" id="prefix">
+    <label class="col-sm-3 control-label no-padding-right">Tracking Prefix</label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="text" name="tracking_prefix" id="tracking_prefix" maxlength="10" class="form-control input-medium" />
+    </div>
+  </div>
+
 	<div class="divider-hidden">
 
 	</div>
@@ -96,4 +123,5 @@
 
 <script src="<?php echo base_url(); ?>scripts/masters/sender.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/code_validate.js?v=<?php echo date('Ymd'); ?>"></script>
+
 <?php $this->load->view('include/footer'); ?>
