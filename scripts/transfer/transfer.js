@@ -140,6 +140,16 @@ function printTransfer(){
   window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
 }
 
+
+function printWmsTransfer(){
+	var center = ($(document).width() - 800) /2;
+  var code = $('#transfer_code').val();
+  var target = HOME + 'print_wms_transfer/'+code;
+  window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
+}
+
+
+
 function send_to_wms(code) {
 	load_in();
 	$.ajax({

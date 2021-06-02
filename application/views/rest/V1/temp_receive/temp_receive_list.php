@@ -5,7 +5,11 @@
       <?php echo $this->title; ?>
     </h3>
     </div>
-		<div class="col-sm-6"></div>
+		<div class="col-sm-6">
+			<p class="pull-right top-p">
+				<button type="button" class="btn btn-sm btn-primary" onclick="process()">Process</button>
+			</p>
+		</div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
@@ -116,6 +120,11 @@
 						<button type="button" class="btn btn-minier btn-info" onclick="getDetails(<?php echo $rs->id; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
+					<?php if($rs->status != 1) : ?>
+						<button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
+							<i class="fa fa-trash"></i>
+						</button>
+					<?php endif; ?>
 					</td>
         </tr>
 <?php  $no++; ?>
@@ -131,5 +140,88 @@
 </div>
 
 <script src="<?php echo base_url(); ?>scripts/wms/wms_temp_receive.js?v=<?php echo date('Ymd'); ?>"></script>
+<script>
+	function process() {
+		load_in();
+		$.ajax({
+			url:BASE_URL + "auto/wms_auto_receive/do_receive",
+			type:'GET',
+			success:function(rs) {
+				load_out();
+				if(rs == 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
 
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal({
+						title:'Error',
+						type:'error',
+						text:rs,
+						html:true
+					});
+				}
+			},
+			error:function(xhr, status, error) {
+				load_out();
+				swal({
+					title:'Error',
+					type:'error',
+					text:xhr.responseText,
+					html:true
+				})
+			}
+		})
+	}
+
+	function getDelete(id, code) {
+		swal({
+			title:"Are you sure ?",
+			text:'ต้องการลบ '+code+' หรือไม่ ?',
+			type:'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#DD6855',
+			confirmButtonText: 'ใช่ ลบเลย',
+			cancelButtonText: 'ยกเลิก',
+			closeOnConfirm: false
+		}, function() {
+			doDelete(id);
+		});
+	}
+
+
+	function doDelete(id){
+		$.ajax({
+			url:HOME + "delete/"+id,
+			type:'POST',
+			cache:false,
+			success:function(rs) {
+				if(rs == 'success') {
+					swal({
+						title:'Deleted',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal({
+						title:'Error',
+						text:rs,
+						type:'error'
+					})
+				}
+			}
+		})
+	}
+</script>
 <?php $this->load->view('include/footer'); ?>

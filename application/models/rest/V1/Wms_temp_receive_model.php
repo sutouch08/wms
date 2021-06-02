@@ -190,7 +190,7 @@ class Wms_temp_receive_model extends CI_Model
 		{
 			$this->wms->like('reference', $ds['reference']);
 		}
-		
+
 		if($ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);
@@ -211,6 +211,27 @@ class Wms_temp_receive_model extends CI_Model
 		}
 
 		return  NULL;
+	}
+
+
+	public function delete($id)
+	{
+		$this->wms->trans_begin();
+		$rd = $this->wms->where('id_receive', $id)->delete('wms_temp_receive_detail');
+		$rs = $this->wms->where('id', $id)->delete('wms_temp_receive');
+
+		if($rd && $rs)
+		{
+			$this->wms->trans_commit();
+			return TRUE;
+		}
+		else
+		{
+			$this->wms->trans_rollback();
+			return FALSE;
+		}
+
+		return FALSE;
 	}
 
 } //--- end model

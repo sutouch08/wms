@@ -73,5 +73,18 @@ class Wms_temp_delivery extends PS_Controller
 		echo "done";
 	}
 
+
+	public function delete($id) {
+		$sc = TRUE;
+		$rs = $this->wms_temp_order_model->delete($id);
+		if(! $rs)
+		{
+			$sc = FALSE;
+			$this->error = "Delete failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
 } //--- end classs
 ?>

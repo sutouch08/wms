@@ -59,11 +59,57 @@ class Wms_auto_receive extends CI_Controller
 
 					case 'WX' :
 						$this->consign_check($data);
+						break;
 				}
 			} //-- end foreach $list as $data
 		}
 
   }
+
+
+	public function do_receive()
+	{
+		$sc = TRUE;
+
+		$limit = 10;
+
+		$list = $this->wms_temp_receive_model->get_unprocess_list($limit);
+
+		if(!empty($list))
+		{
+			foreach($list as $data)
+			{
+				switch($data->type)
+				{
+					case 'RT' :
+						$sc = $this->receive_transform($data);
+						break;
+
+					case 'RN' :
+						$sc = $this->return_lend($data);
+						break;
+
+					case 'SM' :
+						$sc = $this->return_order($data);
+						break;
+
+					case 'WR' :
+						$sc = $this->receive_po($data);
+						break;
+
+					case 'WW' :
+						$sc = $this->transfer($data);
+						break;
+
+					case 'WX' :
+						$sc = $this->consign_check($data);
+						break;
+				}
+			} //-- end foreach $list as $data
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 	private function receive_po($data)
@@ -218,6 +264,8 @@ class Wms_auto_receive extends CI_Controller
 			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
 			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
 		}//--- end if !empty($order)
+
+		return $sc;
 	}
 
 
@@ -361,6 +409,8 @@ class Wms_auto_receive extends CI_Controller
 			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
 			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
 		}//--- end if !empty($order)
+
+		return $sc;
 	}
 
 
@@ -523,6 +573,8 @@ class Wms_auto_receive extends CI_Controller
 			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
 			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
 		}//--- end if !empty($order)
+
+		return $sc;
 	}
 
 
@@ -673,6 +725,8 @@ class Wms_auto_receive extends CI_Controller
 			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
 			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
 		}//--- end if !empty($order)
+
+		return $sc;
 	}
 
 
@@ -838,6 +892,8 @@ class Wms_auto_receive extends CI_Controller
 			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
 			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
 		}//--- end if !empty($order)
+
+		return $sc;
 	}
 
 
@@ -947,6 +1003,8 @@ class Wms_auto_receive extends CI_Controller
 			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
 			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
 		}//--- end if !empty($order)
+
+		return $sc;
 	}
 
 

@@ -18,6 +18,9 @@
 					<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 				<?php endif; ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="printTransfer()"><i class="fa fa-print"></i> พิมพ์</button>
+				<?php if($doc->is_wms == 1) : ?>
+				<button type="button" class="btn btn-sm btn-primary" onclick="printWmsTransfer()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+				<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->

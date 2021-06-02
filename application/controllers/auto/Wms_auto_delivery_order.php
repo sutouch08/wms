@@ -31,6 +31,7 @@ class Wms_auto_delivery_order extends CI_Controller
 
   public function index()
   {
+		$sc = TRUE;
 		$limit = 10;
 
 		$list = $this->wms_temp_order_model->get_unprocess_list($limit);
@@ -43,8 +44,7 @@ class Wms_auto_delivery_order extends CI_Controller
 
 				if(!empty($order))
 				{
-					$sc = TRUE;
-
+					
 					if($order->state == 8)
 					{
 						$sc = FALSE;
@@ -349,8 +349,17 @@ class Wms_auto_delivery_order extends CI_Controller
 
 			} //-- end foreach $list as $data
 		}
+
+		return $sc;
   }
 
+
+	public function do_delivery()
+	{
+		$sc = $this->index();
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 	private function export_order($code)
 	{

@@ -185,6 +185,27 @@ class Wms_temp_order_model extends CI_Model
 	}
 
 
+	public function delete($id)
+	{
+		$this->wms->trans_begin();
+		$rd = $this->wms->where('id_order', $id)->delete('wms_temp_order_detail');
+		$rs = $this->wms->where('id', $id)->delete('wms_temp_order');
+
+		if($rd && $rs)
+		{
+			$this->wms->trans_commit();
+			return TRUE;
+		}
+		else
+		{
+			$this->wms->trans_rollback();
+			return FALSE;
+		}
+
+		return FALSE;
+	}
+
+
 
 } //--- end model
 ?>

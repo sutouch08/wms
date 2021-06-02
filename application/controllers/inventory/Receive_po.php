@@ -296,7 +296,9 @@ class Receive_po extends PS_Controller
 			{
 				$this->wms = $this->load->database('wms', TRUE);
 				$this->load->library('wms_receive_api');
-
+				$doc->vendor_code = $vendor_code;
+				$doc->vendor_name = $vendor_name;
+				
 				$rs = $this->wms_receive_api->export_receive_po($doc, $po_code, $invoice, $details);
 
 				if(!$rs)

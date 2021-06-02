@@ -1046,6 +1046,26 @@ class Transfer extends PS_Controller
     $this->load->view('print/print_transfer', $ds);
   }
 
+	public function print_wms_transfer($code)
+  {
+    $this->load->library('xprinter');
+    $doc = $this->transfer_model->get($code);
+		if(!empty($doc))
+    {
+      $doc->from_warehouse_name = $this->warehouse_model->get_name($doc->from_warehouse);
+      $doc->to_warehouse_name = $this->warehouse_model->get_name($doc->to_warehouse);
+    }
+
+    $details = $this->transfer_model->get_details($code);
+
+    $ds = array(
+      'order' => $doc,
+      'details' => $details
+    );
+
+    $this->load->view('print/print_wms_transfer', $ds);
+  }
+
 
 
   private function do_export($code)
