@@ -17,17 +17,17 @@
 <div class="row">
   <div class="col-sm-1 col-1-harf padding-5 first">
     <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
+    <input type="text" class="form-control input-sm search-box" name="code"  value="<?php echo $code; ?>" />
   </div>
 
   <div class="col-sm-1 col-1-harf padding-5">
     <label>ลูกค้า</label>
-    <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
+    <input type="text" class="form-control input-sm search-box" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
 	<div class="col-sm-1 col-1-harf padding-5">
     <label>พนักงาน</label>
-    <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
+    <input type="text" class="form-control input-sm search-box" name="user" value="<?php echo $user; ?>" />
   </div>
 
 	<div class="col-sm-1 col-1-harf padding-5">
@@ -150,7 +150,7 @@
   </div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed_list.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed_list.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

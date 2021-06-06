@@ -102,7 +102,8 @@ class Current_stock_consignment_report_model extends CI_Model
 		LEFT JOIN OITM ON OIBQ.ItemCode = OITM.ItemCode
 		LEFT JOIN ITM1 ON OIBQ.ItemCode = ITM1.ItemCode AND ITM1.PriceList = 13
 		WHERE OITM.U_GROUP = '{$group_code}' AND OIBQ.OnHandQty != 0
-		GROUP BY OITM.U_MODEL";
+		GROUP BY OITM.U_MODEL
+		ORDER BY qty DESC";
 
 		$rs = $this->cn->query($qr);
 

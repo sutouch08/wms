@@ -24,7 +24,7 @@ class Wms_temp_receive extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'receive_code', ''),
       'status' => get_filter('status', 'receive_status', 'all'),
-			'type' => get_filter('type', 'reveice_type', 'all'),
+			'type' => get_filter('type', 'receive_type', 'all'),
 			'reference' => get_filter('reference', 'receive_reference', '')
     );
 

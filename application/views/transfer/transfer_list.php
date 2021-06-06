@@ -133,13 +133,19 @@
 							</td>
 							<td class="middle text-right">
 								<?php if($rs->is_wms == 1 && $rs->direction == 1 && $rs->status == 1) : ?>
+									<!--
 									<button type="button" class="btn btn-minier btn-primary" onclick="send_to_wms('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> WMS</button>
+								-->
 								<?php endif; ?>
+
+								<?php if($rs->status != 2) : ?>
 								<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+								<?php endif; ?>
+
 								<?php if($rs->status == 0 && $this->pm->can_edit) : ?>
 									<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 								<?php endif; ?>
-								<?php if($rs->status == 0 && $this->pm->can_delete) : ?>
+								<?php if(($rs->status == 0 OR $rs->status == 3) && $this->pm->can_delete) : ?>
 									<button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>', <?php echo $rs->status; ?>)"><i class="fa fa-trash"></i></button>
 								<?php endif; ?>
 							</td>

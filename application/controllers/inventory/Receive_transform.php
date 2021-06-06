@@ -173,12 +173,8 @@ class Receive_transform extends PS_Controller
     {
       $this->load->model('masters/products_model');
       $this->load->model('masters/zone_model');
-
-			if($this->isAPI === FALSE)
-			{
-				$this->load->model('inventory/movement_model');
-			}
-
+			$this->load->model('inventory/movement_model');
+			
       $doc = $this->receive_transform_model->get($code);
 
 			if(!empty($doc))

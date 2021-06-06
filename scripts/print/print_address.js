@@ -1,6 +1,6 @@
 
 //--- properties for print
-var prop 			= "width=800, height=900. left="+center+", scrollbars=yes";
+var prop 			= "width=800, height=900, left="+center+", scrollbars=yes";
 var center    = ($(document).width() - 800)/2;
 
 //--- พิมพ์ใบนำส่งสำหรับแปะหน้ากล่อง

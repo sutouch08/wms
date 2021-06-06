@@ -27,11 +27,11 @@
     <label>ประเภทเอกสาร</label>
     <select class="form-control input-sm" name="type" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
-			<option value="RT">รับเข้า(RT)</option>
-			<option value="RN">รับคืน(RN)</option>
-			<option value="SM">รับคืน(SM)</option>
-			<option value="WR">รับเข้า(WR)</option>
-			<option value="WW">โอนคลัง(WW)</option>
+			<option value="RT" <?php echo is_selected('RT', $type); ?>>รับเข้า(RT)</option>
+			<option value="RN" <?php echo is_selected('RN', $type); ?>>รับคืน(RN)</option>
+			<option value="SM" <?php echo is_selected('SM', $type); ?>>รับคืน(SM)</option>
+			<option value="WR" <?php echo is_selected('WR', $type); ?>>รับเข้า(WR)</option>
+			<option value="WW" <?php echo is_selected('WW', $type); ?>>โอนคลัง(WW)</option>
 		</select>
   </div>
 

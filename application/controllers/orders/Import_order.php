@@ -582,7 +582,7 @@ class Import_order extends CI_Controller
 
           } //--- end foreach
 
-					if($this->isAPI && !empty($orderCode) && $hold === FALSE)
+					if($this->isAPI && $is_wms && !empty($orderCode) && $hold === FALSE)
 					{
 						$this->wms_order_api->export_order($orderCode);
 					}

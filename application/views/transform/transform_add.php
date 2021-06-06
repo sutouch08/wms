@@ -72,7 +72,7 @@
 <input type="hidden" name="zoneCode" id="zoneCode" value="">
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/transform/transform.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transform/transform_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/transform/transform.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transform/transform_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>
