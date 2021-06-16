@@ -196,4 +196,24 @@ class stock_model extends CI_Model
     return NULL;
   }
 
+	//--- for compare stock
+	public function get_items_stock($warehouse_code)
+	{
+		$rs = $this->ms
+		->select('OITM.ItemCode AS code, OITM.ItemName AS name, OITM.CodeBars AS barcode, OITM.InvntryUom AS unit_code')
+		->select('OITW.OnHand AS qty')
+		->from('OITW')
+		->join('OITM', 'OITW.ItemCode = OITM.ItemCode', 'left')
+		->where('OITW.WhsCode', $warehouse_code)
+		->where('OITM.InvntItem', 'Y')
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
 }//--- end class

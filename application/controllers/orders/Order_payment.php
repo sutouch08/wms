@@ -8,6 +8,9 @@ class Order_payment extends PS_Controller
   public $menu_sub_group_code = '';
 	public $title = 'ตรวจสอบยอดชำระเงิน';
   public $filter;
+	public $wms;
+	public $error;
+
   public function __construct()
   {
     parent::__construct();
@@ -104,6 +107,7 @@ class Order_payment extends PS_Controller
       $this->load->model('orders/orders_model');
       $this->load->model('orders/order_state_model');
       $id = $this->input->post('id');
+			$isAPI = is_true(getConfig('WMS_API'));
       $detail = $this->order_payment_model->get_detail($id);
 			$order = $this->orders_model->get($detail->order_code);
 
@@ -114,7 +118,7 @@ class Order_payment extends PS_Controller
       );
 
       //--- start transection
-      $this->db->trans_start();
+      $this->db->trans_begin();
 
       //--- mark payment as paid
       $this->order_payment_model->valid_payment($id);
@@ -129,25 +133,39 @@ class Order_payment extends PS_Controller
 
 	      //--- add state event
 	      $this->order_state_model->add_state($arr);
-			}
-      
-      //--- complete transecrtion with commit or rollback if any error
-      $this->db->trans_complete();
 
-      //--- check for any error
-      if($this->db->trans_status() === FALSE)
-      {
-        $sc = FALSE;
-        $message = $this->db->error();
-      }
+				if($order->is_wms && $isAPI)
+				{
+					$this->wms = $this->load->database('wms', TRUE);
+					$this->load->library('wms_order_api');
+
+					$ex = $this->wms_order_api->export_order($order->code);
+
+					if(! $ex)
+					{
+						$sc = FALSE;
+						$this->error = $this->wms_order_api->error;//"เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง";
+					}
+				}
+			}
+
+      //--- complete transecrtion with commit or rollback if any error
+			if($sc === TRUE)
+			{
+				$this->db->trans_commit();
+			}
+			else
+			{
+				$this->db->trans_rollback();
+			}
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบรายการชำระเงิน';
+      $this->error = 'ไม่พบรายการชำระเงิน';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -162,6 +180,8 @@ class Order_payment extends PS_Controller
       $this->load->model('orders/order_state_model');
       $id = $this->input->post('id');
       $detail = $this->order_payment_model->get_detail($id);
+			$order = $this->orders_model->get($detail->order_code);
+
       $arr = array(
         'order_code' => $detail->order_code,
         'state' => 2,
@@ -177,21 +197,24 @@ class Order_payment extends PS_Controller
       //--- mark order as unpaid
       $this->orders_model->paid($detail->order_code, FALSE);
 
-      //--- change state to waiting for payment
-      $this->orders_model->change_state($detail->order_code, 2);
+			if($order->state != 8 && $order->state != 9)
+			{
+	      //--- change state to waiting for payment
+	      $this->orders_model->change_state($detail->order_code, 2);
 
-      //--- add state event
-      $this->order_state_model->add_state($arr);
+	      //--- add state event
+	      $this->order_state_model->add_state($arr);
+			}
 
-      //--- complete transecrtion with commit or rollback if any error
-      $this->db->trans_complete();
+	    //--- complete transecrtion with commit or rollback if any error
+	    $this->db->trans_complete();
 
-      //--- check for any error
-      if($this->db->trans_status() === FALSE)
-      {
-        $sc = FALSE;
-        $message = $this->db->error();
-      }
+	    //--- check for any error
+	    if($this->db->trans_status() === FALSE)
+	    {
+	      $sc = FALSE;
+	      $message = $this->db->error();
+	    }
     }
     else
     {
@@ -212,24 +235,31 @@ class Order_payment extends PS_Controller
       $this->load->model('orders/order_state_model');
       $id = $this->input->post('id');
       $detail = $this->order_payment_model->get_detail($id);
+
       if(!empty($detail))
       {
+				$order = $this->orders_model->get($detail->order_code);
+
         //--- start transection
         $this->db->trans_start();
 
         //--- mark order as unpaid
         $this->orders_model->paid($detail->order_code, FALSE);
 
-        //--- change state to pending
-        $this->orders_model->change_state($detail->order_code, 1);
+				if($order->state != 8 && $order->state != 9)
+				{
+	        //--- change state to pending
+	        $this->orders_model->change_state($detail->order_code, 1);
 
-        //--- add state event
-        $arr = array(
-          'order_code' => $detail->order_code,
-          'state' => 1,
-          'update_user' => get_cookie('uname')
-        );
-        $this->order_state_model->add_state($arr);
+	        //--- add state event
+	        $arr = array(
+	          'order_code' => $detail->order_code,
+	          'state' => 1,
+	          'update_user' => get_cookie('uname')
+	        );
+
+	        $this->order_state_model->add_state($arr);
+				}
 
         //--- now remove payment row
         $this->order_payment_model->delete($id);

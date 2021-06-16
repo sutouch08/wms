@@ -24,7 +24,9 @@ class Wms_temp_delivery extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'do_code', ''),
       'status' => get_filter('status', 'do_status', 'all'),
-			'reference' => get_filter('reference', 'do_reference', '')
+			'reference' => get_filter('reference', 'do_reference', ''),
+			'from_date' => get_filter('from_date', 'do_from_date', ''),
+			'to_date' => get_filter('to_date', 'do_to_date', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -66,7 +68,9 @@ class Wms_temp_delivery extends PS_Controller
 		$filter = array(
 			'do_code',
 			'do_status',
-			'do_reference'
+			'do_reference',
+			'do_from_date',
+			'do_to_date'
 		);
 
 		clear_filter($filter);

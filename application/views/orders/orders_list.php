@@ -166,6 +166,9 @@
 					<th class="width-10 middle">ช่องทางขาย</th>
 					<th class="width-10 middle">การชำระเงิน</th>
 					<th class="width-10 middle">สถานะ</th>
+					<?php if($this->_SuperAdmin) : ?>
+						<th class="width-5 middle"></th>
+					<?php endif; ?>
 				</tr>
 			</thead>
 			<tbody>
@@ -189,7 +192,9 @@
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->channels_name; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->payment_name; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
-              </td>
+              <?php if($this->_SuperAdmin) : ?>
+							<td class="middle text-right"><button type="button" class="btn btn-minier btn-primary" onclick="sendToWms('<?php echo $rs->code; ?>')">Wms</button></td>
+							<?php endif; ?>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>
@@ -204,7 +209,7 @@ if($can_upload == 1) :
 	 $this->load->view('orders/import_order');
 endif;
 ?>
-<script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=1"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/order_list.js?v=1"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_list.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

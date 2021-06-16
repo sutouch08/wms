@@ -174,7 +174,8 @@ class Import_order extends CI_Controller
                 'T' => 'Shipping code',
 								'U' => 'Hold',
 								'V' => 'Remark',
-								'W' => 'Carrier'
+								'W' => 'Carrier',
+								'X' => 'Warehouse code'
               );
 
               foreach($headCol as $col => $field)
@@ -242,7 +243,7 @@ class Import_order extends CI_Controller
               {
                 $order_code = $this->get_new_code($date_add);
 
-								if($this->isAPI && !empty($orderCode) && $hold === FALSE)
+								if($this->isAPI && $is_wms && !empty($orderCode) && $hold === FALSE)
 								{
 									$this->wms_order_api->export_order($orderCode);
 								}
@@ -311,6 +312,9 @@ class Import_order extends CI_Controller
                 //--- ค่าบริการอื่นๆ
                 $service_fee = 0; //empty($rs['R']) ? 0.00 : $rs['R'];
 
+								//--- กำหนดรหัสคลังมาหรือไม่ ถ้าไม่กำหนดมาให้ใช้ค่าตามที่ config ไว้
+								$xWh = empty($rs['X']) ? NULL : $this->warehouse_model->get(trim($rs['X']));
+
                 //---- กรณียังไม่มีออเดอร์
                 if($is_exists === FALSE)
                 {
@@ -332,11 +336,11 @@ class Import_order extends CI_Controller
                     'shipping_fee' => 0,
                     'status' => 1,
                     'date_add' => $date_add,
-                    'warehouse_code' => $warehouse_code,
+                    'warehouse_code' => (empty($xWh) ? $xWh->code : $warehouse_code),
                     'user' => get_cookie('uname'),
                     'is_import' => 1,
 										'remark' => $remark,
-										'is_wms' => $is_wms,
+										'is_wms' => (empty($xWh) ? $xWh->is_wms : $is_wms),
 										'id_sender' => empty($rs['W']) ? NULL : $this->sender_model->get_id($rs['W'])
                   );
 

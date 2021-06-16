@@ -129,7 +129,14 @@ class Wms_temp_receive_model extends CI_Model
 
 	public function get_unprocess_list($limit = 100)
 	{
-		$rs = $this->wms->where('status', 0)->limit($limit)->get($this->tb);
+		$date = $this->last_minute();
+
+		$rs = $this->wms
+		->where('status', 0)
+		->where('temp_date <=', $date)
+		->order_by('temp_date', 'ASC')
+		->limit($limit)
+		->get($this->tb);
 
 		if($rs->num_rows() > 0)
 		{
@@ -140,7 +147,25 @@ class Wms_temp_receive_model extends CI_Model
 	}
 
 
+	public function last_minute()
+	{
+		$i = date('i');
+		$h = date('H');
+		if($i == 0)
+		{
+			if($h != 0)
+			{
+				$i = 59;
+				$h--;
+			}
+		}
+		else
+		{
+			$i--;
+		}
 
+		return date("Y-m-d {$h}:{$i}:s");
+	}
 
 	public function update_status($code, $status, $message = NULL)
 	{
@@ -175,6 +200,12 @@ class Wms_temp_receive_model extends CI_Model
 			$this->wms->where('type', $ds['type']);
 		}
 
+		if(!empty($ds['from_date']) && !empty($ds['to_date']))
+		{
+			$this->wms->where('temp_date >=', from_date($ds['from_date']));
+			$this->wms->where('temp_date <=', to_date($ds['to_date']));
+		}
+
 		return $this->wms->count_all_results($this->tb)		;
 	}
 
@@ -199,6 +230,12 @@ class Wms_temp_receive_model extends CI_Model
 		if($ds['type'] !== 'all')
 		{
 			$this->wms->where('type', $ds['type']);
+		}
+
+		if(!empty($ds['from_date']) && !empty($ds['to_date']))
+		{
+			$this->wms->where('temp_date >=', from_date($ds['from_date']));
+			$this->wms->where('temp_date <=', to_date($ds['to_date']));
 		}
 
 		$this->wms->order_by('id', 'DESC')->limit($perpage, $offset);

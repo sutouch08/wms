@@ -173,19 +173,34 @@ class Receive_transform extends PS_Controller
     {
       $this->load->model('masters/products_model');
       $this->load->model('masters/zone_model');
+			$this->load->model('masters/warehouse_model');
 			$this->load->model('inventory/movement_model');
-			
+
       $doc = $this->receive_transform_model->get($code);
 
 			if(!empty($doc))
 			{
 				$order_code = $this->input->post('order_code');
 	      $invoice = $this->input->post('invoice');
-	      $zone_code = ($this->isAPI && $doc->is_wms) ? getConfig('WMS_ZONE') : $this->input->post('zone_code');
-	      $warehouse_code = ($this->isAPI && $doc->is_wms) ? getConfig('WMS_WAREHOUSE') : $this->zone_model->get_warehouse_code($zone_code);
+				$zone = $this->zone_model->get($this->input->post('zone_code'));
+				$warehouse = $this->warehouse_model->get($zone->warehouse_code);
+
+				if($doc->is_wms == 1 && $warehouse->is_wms == 0)
+				{
+					$sc = FALSE;
+					$this->error = "เอกสารต้องรับเข้าที่ WMS";
+				}
+
+				if($doc->is_wms == 0 && $warehouse->is_wms == 1)
+				{
+					$sc = FALSE;
+					$this->error = "เอกสารต้องรับเข้าที่ WARRIX";
+				}
+
+	      $zone_code = $zone->code;
+	      $warehouse_code = $warehouse->code;
 	      $receive = $this->input->post('receive');
-	      $backlogs = $this->input->post('backlogs');
-	      $prices = $this->input->post('prices');
+				$products = $this->input->post('products');
 
 	      $arr = array(
 	        'order_code' => $order_code,
@@ -213,70 +228,83 @@ class Receive_transform extends PS_Controller
 
 						$details = array();
 
-	          foreach($receive as $item => $qty)
+	          foreach($receive as $index => $qty)
 	          {
+							if($sc === FALSE)
+							{
+								break;
+							}
+
 	            if($qty != 0 && $sc === TRUE)
 	            {
-	              $pd = $this->products_model->get($item);
-								$price = $this->get_avg_cost($item);
-								$cost = $price == 0 ? $pd->cost : $price;
-
-								if($this->isAPI && $doc->is_wms)
+	              $pd = $this->products_model->get($products[$index]);
+								if(!empty($pd))
 								{
-									$de = new stdClass;
-									$de->receive_code = $code;
-									$de->style_code = $pd->style_code;
-									$de->product_code = $pd->code;
-									$de->product_name = $pd->name;
-									$de->unit_code = $pd->unit_code;
-									$de->price = $cost;
-									$de->qty = $qty;
-									$de->amount = $qty * $cost;
+									$price = $this->get_avg_cost($pd->code);
+									$cost = $price == 0 ? $pd->cost : $price;
 
-									$details[] = $de;
+									if($this->isAPI && $doc->is_wms)
+									{
+										$de = new stdClass;
+										$de->receive_code = $code;
+										$de->style_code = $pd->style_code;
+										$de->product_code = $pd->code;
+										$de->product_name = $pd->name;
+										$de->unit_code = $pd->unit_code;
+										$de->price = $cost;
+										$de->qty = $qty;
+										$de->amount = $qty * $cost;
+
+										$details[] = $de;
+									}
+
+		              $ds = array(
+		                'receive_code' => $code,
+		                'style_code' => $pd->style_code,
+		                'product_code' => $pd->code,
+		                'product_name' => $pd->name,
+		                'price' => $cost,
+		                'qty' => $qty,
+		                'amount' => $qty * $cost
+		              );
+
+		              if($this->receive_transform_model->add_detail($ds) === FALSE)
+		              {
+		                $sc = FALSE;
+		                $this->error = 'Add Receive Row Fail';
+		                break;
+		              }
+
+		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
+		              {
+		                $ds = array(
+		                  'reference' => $code,
+		                  'warehouse_code' => $warehouse_code,
+		                  'zone_code' => $zone_code,
+		                  'product_code' => $pd->code,
+		                  'move_in' => $qty,
+		                  'date_add' => db_date($doc->date_add, TRUE)
+		                );
+
+		                if($this->movement_model->add($ds) === FALSE)
+		                {
+		                  $sc = FALSE;
+		                  $this->error = 'บันทึก movement ไม่สำเร็จ';
+		                }
+		              }
+
+
+		              //--- update receive_qty in order_transform_detail
+		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
+		              {
+		                $this->update_transform_receive_qty($order_code, $pd->code, $qty);
+		              }
 								}
-
-	              $ds = array(
-	                'receive_code' => $code,
-	                'style_code' => $pd->style_code,
-	                'product_code' => $item,
-	                'product_name' => $pd->name,
-	                'price' => $cost,
-	                'qty' => $qty,
-	                'amount' => $qty * $cost
-	              );
-
-	              if($this->receive_transform_model->add_detail($ds) === FALSE)
-	              {
-	                $sc = FALSE;
-	                $this->error = 'Add Receive Row Fail';
-	                break;
-	              }
-
-	              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
-	              {
-	                $ds = array(
-	                  'reference' => $code,
-	                  'warehouse_code' => $warehouse_code,
-	                  'zone_code' => $zone_code,
-	                  'product_code' => $item,
-	                  'move_in' => $qty,
-	                  'date_add' => db_date($doc->date_add, TRUE)
-	                );
-
-	                if($this->movement_model->add($ds) === FALSE)
-	                {
-	                  $sc = FALSE;
-	                  $this->error = 'บันทึก movement ไม่สำเร็จ';
-	                }
-	              }
-
-
-	              //--- update receive_qty in order_transform_detail
-	              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
-	              {
-	                $this->update_transform_receive_qty($order_code, $item, $qty);
-	              }
+								else
+								{
+									$sc = FALSE;
+									$this->error = "ไม่พบรหัสสินค้า : {$products[$index]}";
+								}
 
 	            }//--- end if qty > 0
 	          } //--- end foreach

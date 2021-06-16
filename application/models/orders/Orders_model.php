@@ -400,6 +400,7 @@ class Orders_model extends CI_Model
       $this->db->group_start();
       $this->db->like('customers.code', $ds['customer']);
       $this->db->or_like('customers.name', $ds['customer']);
+			$this->db->or_like('orders.customer_ref', $ds['customer']);
       $this->db->group_end();
     }
 
@@ -569,6 +570,7 @@ class Orders_model extends CI_Model
       $this->db->group_start();
       $this->db->like('customers.code', $ds['customer']);
       $this->db->or_like('customers.name', $ds['customer']);
+			$this->db->or_like('orders.customer_ref', $ds['customer']);
       $this->db->group_end();
     }
 

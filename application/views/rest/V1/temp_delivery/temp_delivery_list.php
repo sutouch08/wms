@@ -34,6 +34,14 @@
     </select>
   </div>
 
+	<div class="col-sm-2 padding-5">
+    <label>วันที่เข้า temp</label>
+    <div class="input-daterange input-group">
+      <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>">
+      <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>">
+    </div>
+  </div>
+
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
@@ -213,5 +221,21 @@
 			}
 		})
 	}
+
+
+	$("#fromDate").datepicker({
+		dateFormat:'dd-mm-yy',
+		onClose:function(sd){
+			$("#toDate").datepicker('option', 'minDate', sd);
+		}
+	});
+
+
+	$("#toDate").datepicker({
+		dateFormat:'dd-mm-yy',
+		onClose:function(sd){
+			$("#fromDate").datepicker('option', 'maxDate', sd);
+		}
+	});
 </script>
 <?php $this->load->view('include/footer'); ?>

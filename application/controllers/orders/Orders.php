@@ -464,19 +464,51 @@ class Orders extends PS_Controller
 
   public function remove_detail($id)
   {
+		$sc = TRUE;
     $detail = $this->orders_model->get_detail($id);
-    $item = $this->products_model->get($detail->product_code);
-    $rs = $this->orders_model->remove_detail($id);
-    if($rs)
-    {
-      if($detail->is_count == 1 && $item->is_api == 1)
-      {
-        $this->update_api_stock($item->code, $item->old_code);
-      }
+		if(!empty($detail))
+		{
+			$order = $this->orders_model->get($detail->order_code);
+			if(!empty($order))
+			{
+				//--- อนุญาติให้ลบได้แค่ 2 สถานะ
+				if($order->state == 1 OR $order->state == 3)
+				{
+					if($order->state == 3 && $order->is_wms == 1)
+					{
+						$sc = FALSE;
+						$this->error = "Delete failed : ออเดอร์อยู่ในระหว่างจัดการที่คลัง Pionerr ไม่อนุญาติให้แก้ไขรายการ";
+					}
+					else
+					{
+						if(! $this->orders_model->remove_detail($id))
+						{
+							$sc = FALSE;
+							$this->error = "Delete filed";
+						}
+					}
 
-    }
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Delete failed : Invalid order status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Order not found";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Item not found";
+		}
 
-    echo $rs === TRUE ? 'success' : 'Can not delete please try again';
+		echo $sc === TRUE ? 'success' : $this->error;
+
   }
 
 
@@ -1540,6 +1572,9 @@ class Orders extends PS_Controller
       $m = $this->input->post('payMin');
       $dhm = $date.' '.$h.':'.$m.':00';
       $pay_date = db_date($dhm, TRUE);
+
+      $order = $this->orders_model->get($order_code);
+
       $arr = array(
         'order_code' => $order_code,
         'order_amount' => $this->input->post('orderAmount'),
@@ -1553,22 +1588,25 @@ class Orders extends PS_Controller
       //--- บันทึกรายการ
       if($this->order_payment_model->add($arr))
       {
-        $rs = $this->orders_model->change_state($order_code, 2);  //--- แจ้งชำระเงิน
-
-        if($rs)
+        if($order->state == 1)
         {
-          $arr = array(
-            'order_code' => $order_code,
-            'state' => 2,
-            'update_user' => get_cookie('uname')
-          );
-          $this->order_state_model->add_state($arr);
-        }
+          $rs = $this->orders_model->change_state($order_code, 2);  //--- แจ้งชำระเงิน
 
-        if($rs === FALSE)
-        {
-          $sc = FALSE;
-          $message = 'เปลี่ยนสถานะออเดอร์ไม่สำเร็จ';
+          if($rs)
+          {
+            $arr = array(
+              'order_code' => $order_code,
+              'state' => 2,
+              'update_user' => get_cookie('uname')
+            );
+            $this->order_state_model->add_state($arr);
+          }
+
+          if($rs === FALSE)
+          {
+            $sc = FALSE;
+            $message = 'เปลี่ยนสถานะออเดอร์ไม่สำเร็จ';
+          }
         }
       }
       else
@@ -2007,6 +2045,16 @@ class Orders extends PS_Controller
 					{
 						echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
 						exit;
+					}
+        }
+
+        if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
+        {
+          $sap = $this->orders_model->get_sap_doc_num($order->code);
+					if(!empty($sap))
+					{
+						$sc = FALSE;
+						$this->error = 'กรุณายกเลิกใบส่งสินค้า SAP ก่อนย้อนสถานะ';
 					}
         }
 

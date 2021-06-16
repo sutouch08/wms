@@ -196,13 +196,8 @@ class Sales_report extends CI_Controller
         }
       }
 
-      echo $response;
+      //echo $response;
     }
-    else
-    {
-      echo "no data to send";
-    }
-
   }
 
 
@@ -338,13 +333,8 @@ class Sales_report extends CI_Controller
         }
       }
 
-      echo $response;
+      //echo $response;
     }
-    else
-    {
-      echo "no data to send";
-    }
-
   }
 
 

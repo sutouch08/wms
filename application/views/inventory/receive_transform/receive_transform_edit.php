@@ -151,24 +151,21 @@
     {{else}}
         <tr class="font-size-12">
             <td class="middle text-center">{{ no }}</td>
-            <td class="middle barcode" id="barcode_{{pdCode}}">{{barcode}}</td>
+            <td class="middle barcode" id="barcode_{{no}}">{{barcode}}</td>
             <td class="middle">{{pdCode}}</td>
             <td class="middle">{{pdName}}</td>
-            <td class="middle text-center" id="qty_{{pdCode}}">
-      				{{qty}}
-      				<input type="hidden" id="limit_{{pdCode}}" value="{{limit}}"/>
-      				{{#if barcode}}
-      				<input type="hidden" id="{{barcode}}" value="{{pdCode}}" />
-      				{{/if}}
-			      </td>
+            <td class="middle text-center" id="qty_{{no}}">{{qty}}</td>
+            <td class="middle text-center">{{backlog}}</td>
             <td class="middle text-center">
-						{{backlog}}
-						<input type="hidden" id="backlog_{{pdCode}}" value="{{backlog}}" />
-						<input type="hidden" id="price_{{pdCode}}" value="{{price}}" />
-						</td>
-            <td class="middle text-center">
-                <input type="text" class="form-control input-sm text-center receive-box pdCode" name="receive[{{pdCode}}]" id="receive_{{pdCode}}" />
+                <input type="text" class="form-control input-sm text-center receive-box pdCode" name="receive[{{no}}]" id="receive_{{no}}" data-no="{{no}}" />
             </td>
+						<input type="hidden" id="product_{{no}}" value="{{pdCode}}"/>
+						<input type="hidden" id="limit_{{no}}" value="{{limit}}"/>
+						{{#if barcode}}
+						<input type="hidden" id="{{barcode}}" value="{{no}}" />
+						{{/if}}
+						<input type="hidden" id="backlog_{{no}}" value="{{backlog}}" />
+						<input type="hidden" id="price_{{no}}" value="{{price}}" />
         </tr>
     {{/if}}
 {{/each}}
@@ -177,7 +174,7 @@
 <?php else : ?>
   <?php redirect($this->home.'/view_detail/'.$document->code); ?>
 <?php endif; ?>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js?v=<?php echo date('YmdH'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

@@ -57,10 +57,10 @@ function updateHeader(){
 
 
 
-function receiveProduct(pdCode){
+function receiveProduct(no){
 	var qty = isNaN( parseInt( $("#qty").val() ) ) ? 1 : parseInt( $("#qty").val() );
 	var bc = $("#barcode");
-	var input = $("#receive_"+ pdCode);
+	var input = $("#receive_"+ no);
 	if(input.length == 1 ){
 		bc.val('');
 		bc.attr('disabled', 'disabled');
@@ -205,8 +205,6 @@ function save() {
 			return false;
 		}
 
-
-
 		//--- ตรวจสอบโซนรับเข้า
 		if(zone_code == '' || zoneName == ''){
 			swal('กรุณาระบุโซนเพื่อรับเข้า');
@@ -226,30 +224,24 @@ function save() {
 
 
 	$('.receive-box').each(function(index, el) {
+		var no = $(this).data('no');
 		qty = parseInt($(this).val());
-		arr = $(this).attr('id').split('_');
-		pdCode = arr[1];
-		name = "receive["+pdCode+"]";
-		backlogs = $('#limit_'+pdCode).val();
-		bname = "backlogs["+pdCode+"]";
-		pname = "prices["+pdCode+"]";
-		price = $('#price_'+pdCode).val();
+		pdCode = $('#product_'+no).val();
+		pdName = "products["+no+"]";
+		qtyName = "receive["+no+"]";
+
 		if($(this).val() > 0 && !isNaN(qty)){
 			ds.push({
-				'name' : name, 'value' : qty
+				'name' : pdName, 'value' : pdCode
 			});
 
 			ds.push({
-				'name' : pname, 'value' : price
-			});
-
-			ds.push({
-				'name' : bname, 'value' : backlogs
+				'name' : qtyName, 'value' : qty
 			});
 		}
 	});
 
-	if(ds.length < 8){
+	if(ds.length < 7){
 		swal('ไม่พบรายการรับเข้า');
 		return false;
 	}
@@ -295,11 +287,10 @@ function checkLimit(){
 
 		var limit = $("#overLimit").val();
 		var over = 0;
-		$(".barcode").each(function(index, element) {
-	    var arr = $(this).attr("id").split('_');
-			var barcode = arr[1];
-			var limit = parseInt($("#limit_"+barcode).val() );
-			var qty = parseInt($("#receive_"+barcode).val() );
+		$(".receive-box").each(function(index, element) {
+			var no = $(this).data('no');
+			var limit = parseInt($("#limit_"+no).val());
+			var qty = parseInt($("#receive_"+no).val() );
 			if( ! isNaN(limit) && ! isNaN( qty ) ){
 				if( qty > limit ){
 					over++;
@@ -566,8 +557,8 @@ function checkBarcode(){
 	barcode = $('#barcode').val();
 
 	if($('#'+barcode).length == 1){
-		pdCode = $('#'+barcode).val();
-		receiveProduct(pdCode);
+		no = $('#'+barcode).val();
+		receiveProduct(no);
 	}else{
 		$('#barcode').val('');
 		swal({
@@ -590,23 +581,21 @@ $("#barcode").keyup(function(e) {
 });
 
 
-
-
 function sumReceive(){
-
 	var qty = 0;
 	$(".receive-box").each(function(index, element) {
-			var arr = $(this).attr('id').split('receive_');
-			var code = arr[1];
-			var limit = parseInt($('#backlog_'+code).val());
-    	var cqty = isNaN( parseInt( $(this).val() ) ) ? 0 : parseInt( $(this).val() );
-			qty += cqty;
-			if(cqty > limit){
-				$(this).addClass('has-error');
-			}else{
-				$(this).removeClass('has-error');
-			}
-    });
+		var no = $(this).data('no');
+		var limit = parseInt($('#backlog_'+no).val());
+		var cqty = isNaN(parseInt($(this).val())) ? 0 : parseInt($(this).val());
+		qty += cqty;
+		if(cqty > limit) {
+			$(this).addClass('has-error');
+		}
+		else {
+			$(this).removeClass('has-error');
+		}
+  });
+
 	$("#total-receive").text( addCommas(qty) );
 }
 

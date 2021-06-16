@@ -126,10 +126,34 @@ class Product_image_model extends CI_Model
     {
       return $rs->row()->id;
     }
+		else
+		{
+			return $this->get_exists_style_image($code);
+		}
 
     return 0;
   }
 
+	//--- pick a single image randomly in style
+	public function get_exists_style_image($code)
+	{
+		 $rs = $this->db
+		 ->select('image_product.id_image')
+		 ->from('image_product')
+		 ->join('products', 'image_product.code = products.code', 'left')
+		 ->where('products.style_code', $code)
+		 ->where('image_product.id_image IS NOT NULL', NULL, FALSE)
+		 ->order_by('image_product.id_image', 'ASC')
+		 ->limit(1)
+		 ->get();
+
+		 if($rs->num_rows() > 0)
+		 {
+			 return $rs->row()->id_image;
+		 }
+
+		 return 0;
+	}
 
 
 

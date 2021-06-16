@@ -15,7 +15,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="code" id="code" class="width-100" maxlength="20" value="<?php echo $code; ?>" onkeyup="validCode(this)" autofocus required />
+			<input type="text" name="code" id="code" class="width-100" maxlength="9" value="<?php echo $code; ?>" onkeyup="validCode(this)" autofocus required />
     </div>
   </div>
 

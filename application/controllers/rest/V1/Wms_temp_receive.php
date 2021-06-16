@@ -25,7 +25,9 @@ class Wms_temp_receive extends PS_Controller
       'code' => get_filter('code', 'receive_code', ''),
       'status' => get_filter('status', 'receive_status', 'all'),
 			'type' => get_filter('type', 'receive_type', 'all'),
-			'reference' => get_filter('reference', 'receive_reference', '')
+			'reference' => get_filter('reference', 'receive_reference', ''),
+			'from_date' => get_filter('from_date', 'receive_from_date', ''),
+			'to_date' => get_filter('to_date', 'receive_to_date', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -68,7 +70,9 @@ class Wms_temp_receive extends PS_Controller
 			'receive_code',
 			'receive_status',
 			'receive_type',
-			'receive_reference'
+			'receive_reference',
+			'receive_from_date',
+			'receive_to_date'
 		);
 
 		clear_filter($filter);

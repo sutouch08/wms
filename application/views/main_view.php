@@ -45,7 +45,7 @@
 
 <div class="row">
   <div class="col-sm-12" id="result">
-
+		
   </div>
 </div>
 

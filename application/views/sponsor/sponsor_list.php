@@ -16,32 +16,28 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2 col-xs-6 padding-5">
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-2 col-xs-6 padding-5">
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
-
-<!--
-	<div class="col-sm-2 col-xs-6 padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
--->
-
-<div class="col-sm-2 col-xs-6 padding-5">
-	<label>คลังสินค้า</label>
-	<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
-		<option value="">ทั้งหมด</option>
-		<?php echo select_warehouse($warehouse); ?>
-	</select>
-</div>
-
 	<div class="col-sm-2 col-xs-6 padding-5">
+		<label>คลังสินค้า</label>
+		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
+			<option value="">ทั้งหมด</option>
+			<?php echo select_warehouse($warehouse); ?>
+		</select>
+	</div>
+
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label>การอนุมัติ</label>
 		<select class="form-control input-sm" name="isApprove" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -124,10 +120,11 @@
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-10 middle text-center">วันที่</th>
-					<th class="width-20 middle">เลขที่เอกสาร</th>
+					<th class="width-15 middle">เลขที่เอกสาร</th>
 					<th class="middle">ลูกค้า</th>
 					<th class="width-10 middle">ยอดเงิน</th>
 					<th class="width-10 middle">สถานะ</th>
+					<th class="width-10 middle">พนักงาน</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -141,6 +138,7 @@
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->customer_name; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
+							<td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->user; ?></td>
               </td>
             </tr>
             <?php $no++; ?>
