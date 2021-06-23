@@ -73,6 +73,10 @@ class Orders_model extends CI_Model
   }
 
 
+	public function log_delete(array $ds = array())
+	{
+		return $this->db->insert('order_delete_logs', $ds);
+	}
 
 
   public function is_exists_detail($order_code, $item_code)

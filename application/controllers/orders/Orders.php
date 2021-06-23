@@ -11,6 +11,8 @@ class Orders extends PS_Controller
   public $error;
   public $isAPI;
 	public $wms;
+  public $log_delete = TRUE;
+
   public function __construct()
   {
     parent::__construct();
@@ -486,6 +488,21 @@ class Orders extends PS_Controller
 							$sc = FALSE;
 							$this->error = "Delete filed";
 						}
+            else
+            {
+              if($this->log_delete)
+              {
+                $arr = array(
+                  'order_code' => $detail->order_code,
+                  'product_code' => $detail->product_code,
+                  'qty' => $detail->qty,
+                  'user' => $this->_user->uname
+                );
+
+                $this->orders_model->log_delete($arr);
+              }
+
+            }
 					}
 
 				}
@@ -689,11 +706,11 @@ class Orders extends PS_Controller
     if($order->is_term == 1 && $order->role === 'S')
     {
       //---- check credit balance
-      $amount = $this->orders_model->get_order_total_amount($code);
+      //$amount = $this->orders_model->get_order_total_amount($code);
       //--- creadit used
-      $credit_used = $this->orders_model->get_sum_not_complete_amount($order->customer_code);
+      $credit_used = round($this->orders_model->get_sum_not_complete_amount($order->customer_code), 2);
       //--- credit balance from sap
-      $credit_balance = $this->customers_model->get_credit($order->customer_code);
+      $credit_balance = round($this->customers_model->get_credit($order->customer_code), 2);
 
       $skip = getConfig('CONTROL_CREDIT');
 
@@ -704,6 +721,7 @@ class Orders extends PS_Controller
           $diff = $credit_used - $credit_balance;
           $sc = FALSE;
           $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+					//$message = 'เครดิตคงเหลือไม่พอ ยอด :'.$credit_used.', คงเหลือ : '.$credit_balance.', (ขาด : '.$diff.')';
         }
       }
     }
@@ -1520,21 +1538,44 @@ class Orders extends PS_Controller
 
   public function get_pay_amount()
   {
-    $pay_amount = 0;
+		$sc = TRUE;
+		$ds = array();
 
     if($this->input->get('order_code'))
     {
-      $code = $this->input->get('order_code');
+			$order = $this->orders_model->get($this->input->get('order_code'));
 
-      //--- ยอดรวมหลังหักส่วนลด ตาม item
-      $amount = $this->orders_model->get_order_total_amount($code);
-      //--- ส่วนลดท้ายบิล
-      $bDisc = $this->orders_model->get_bill_discount($code);
+			if(!empty($order))
+			{
+				//--- ยอดรวมหลังหักส่วนลด ตาม item
+	      $amount = $this->orders_model->get_order_total_amount($order->code);
 
-      $pay_amount = $amount - $bDisc;
+	      //--- ส่วนลดท้ายบิล
+	      $bDisc = $order->bDiscAmount; //$this->orders_model->get_bill_discount($code);
+
+	      $pay_amount = $amount - $bDisc;
+
+				$ds = array(
+					'pay_amount' => $pay_amount,
+					'id_sender' => empty($order->id_sender) ? FALSE : $order->id_sender,
+					'id_address' => empty($order->id_address) ? FALSE : $order->id_address,
+					'is_wms' => is_true($order->is_wms),
+					'isAPI' => $this->isAPI
+				);
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Order code";
+			}
     }
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : order code";
+		}
 
-    echo $pay_amount;
+    echo $sc === TRUE ? json_encode($ds) : $this->error;
   }
 
 

@@ -47,7 +47,6 @@ class Auto_expire_order extends CI_Controller
 			}
 		}
 
-		echo "success";
 	}
 
 

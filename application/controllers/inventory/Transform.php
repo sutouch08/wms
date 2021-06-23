@@ -91,6 +91,7 @@ class Transform extends PS_Controller
 
   public function add()
   {
+		
     if($this->input->post('customerCode'))
     {
 			$this->load->model('masters/warehouse_model');
@@ -210,7 +211,6 @@ class Transform extends PS_Controller
   public function update_order()
   {
     $sc = TRUE;
-
     if($this->input->post('order_code'))
     {
 			$this->load->model('masters/warehouse_model');

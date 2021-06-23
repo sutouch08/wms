@@ -39,6 +39,7 @@
 			<option value="1" <?php echo is_selected('1', $status); ?>>บันทึกแล้ว</option>
 			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
 			<option value="3" <?php echo is_selected('3', $status); ?>>Wms Process</option>
+			<option value="4" <?php echo is_selected('4', $status); ?>>สินค้าไม่ครบ</option>
 		</select>
   </div>
 
@@ -84,6 +85,7 @@
 	<div class="col-sm-12 padding-5">
 		<p  class="pull-right top-p">
 			ว่างๆ = ปกติ, &nbsp;
+			<span class="red">DF</span> = สินค้าไม่ครบ, &nbsp;
 			<span class="blue">NC</span> = ยังไม่บันทึก, &nbsp;
 			<span class="purple">OP</span> = อยู่ที่ WMS, &nbsp;
 			<span class="red">CN</span> = ยกเลิก, &nbsp;
@@ -107,7 +109,8 @@
         <?php if(!empty($docs)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
           <?php foreach($docs as $rs) : ?>
-            <tr id="row-<?php echo $rs->code; ?>">
+						<?php $color = $rs->valid == 0 ? 'color:red;' : ''; ?>
+            <tr id="row-<?php echo $rs->code; ?>" style="<?php echo $color; ?>">
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle"><?php echo $rs->code; ?></td>
@@ -126,6 +129,9 @@
 								<?php endif; ?>
 								<?php if($rs->status == 1 && $rs->is_export == 0) : ?>
 									<span class="red">NE</span>
+								<?php endif; ?>
+								<?php if($rs->status == 1 && $rs->is_wms == 1 && $rs->valid == 0) : ?>
+									<span class="red">DF</span>
 								<?php endif; ?>
 							</td>
 							<td class="middle text-center">

@@ -606,9 +606,17 @@ class Transfer_model extends CI_Model
       $this->db->where_in('user', $users);
     }
 
-    if($ds['status'] != 'all')
-    {
-      $this->db->where('status', $ds['status']);
+
+		if($ds['status'] != 'all')
+		{
+			if($ds['status'] == 4)
+			{
+				$this->db->where('status', 1)->where('valid', 0);
+			}
+			else
+			{
+				$this->db->where('status', $ds['status']);
+			}
     }
 
     if($ds['is_export'] != 'all')
@@ -659,7 +667,15 @@ class Transfer_model extends CI_Model
 
     if($ds['status'] != 'all')
     {
-      $this->db->where('status', $ds['status']);
+			if($ds['status'] == 4)
+			{
+				$this->db->where('status', 1)->where('valid', 0);
+			}
+			else
+			{
+				$this->db->where('status', $ds['status']);
+			}
+
     }
 
     if($ds['is_export'] != 'all')

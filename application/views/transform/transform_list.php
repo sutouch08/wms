@@ -111,6 +111,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/transform/transform.js"></script>
+<script src="<?php echo base_url(); ?>scripts/transform/transform.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

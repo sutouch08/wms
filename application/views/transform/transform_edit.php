@@ -75,10 +75,10 @@
 <?php endif; ?>
 
 
-<script src="<?php echo base_url(); ?>scripts/transform/transform.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transform/transform_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/transform/transform_detail.js"></script>
-<script src="<?php echo base_url(); ?>scripts/print/print_order.js"></script>
+<script src="<?php echo base_url(); ?>scripts/transform/transform.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transform/transform_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/transform/transform_detail.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_order.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/order_online.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php if($order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>

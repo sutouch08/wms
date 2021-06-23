@@ -116,7 +116,11 @@
           $totalPrice = 0;
   ?>
   <?php   foreach($details as $rs) :  ?>
-    <?php     $color = ($rs->order_qty == $rs->qc OR $rs->is_count == 0) ? '' : 'red'; ?>
+		<?php  if($order->is_wms) : ?>
+    <?php     $color = ($rs->order_qty == $rs->sold OR $rs->is_count == 0) ? '' : 'red'; ?>
+		<?php 	else : ?>
+		<?php     $color = ($rs->order_qty == $rs->qc OR $rs->is_count == 0) ? '' : 'red'; ?>
+		<?php 	endif; ?>
             <tr class="font-size-12 <?php echo $color; ?>">
               <td class="text-center">
                 <?php echo $no; ?>

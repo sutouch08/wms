@@ -735,7 +735,7 @@ class Wms_auto_receive extends CI_Controller
 		$this->load->model('inventory/transfer_model');
 		$code = $data->code;
 		$order = $this->transfer_model->get($code);
-
+		$valid = 1;
 		if(!empty($order))
 		{
 			$sc = TRUE;
@@ -790,6 +790,11 @@ class Wms_auto_receive extends CI_Controller
 												'wms_qty' => $qty,
 												'valid' => $qty == $de->qty ? 1 : 0
 											);
+
+											if($qty != $de->qty)
+											{
+												$valid = 0;
+											}
 
 											if(! $this->transfer_model->update_detail($de->id, $arr))
 											{
@@ -854,7 +859,12 @@ class Wms_auto_receive extends CI_Controller
 
 					if($sc === TRUE)
 					{
-						if(!$this->transfer_model->set_status($order->code, 1))
+						$arr = array(
+							'status' => 1,
+							'valid' => $valid
+						);
+
+						if(!$this->transfer_model->update($order->code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Update failed : change document status failed";

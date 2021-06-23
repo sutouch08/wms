@@ -3,16 +3,17 @@
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>
-        	<th colspan="6" class="text-center">รายการโอนย้าย</th>
+        	<th colspan="7" class="text-center">รายการโอนย้าย</th>
         </tr>
 
       	<tr>
         	<th class="width-5 text-center">ลำดับ</th>
           <th class="width-15">บาร์โค้ด</th>
           <th class="width-20">สินค้า</th>
-          <th class="width-25">ต้นทาง</th>
-          <th class="width-25">ปลายทาง</th>
-          <th class="width-15 text-right">จำนวน</th>
+          <th class="width-20">ต้นทาง</th>
+          <th class="width-20">ปลายทาง</th>
+          <th class="width-10 text-right">จำนวนออก</th>
+					<th class="width-10 text-right">จำนวนเข้า</th>
         </tr>
       </thead>
 
@@ -20,8 +21,11 @@
 <?php if(!empty($details)) : ?>
 <?php		$no = 1;						?>
 <?php   $total_qty = 0; ?>
+<?php 	$total_receive = 0; ?>
 <?php		foreach($details as $rs) : 	?>
-				<tr class="font-size-12" id="row-<?php echo $rs->id; ?>">
+	<?php $color = $rs->valid == 0 ? 'color:red;' : ''; ?>
+
+				<tr class="font-size-12" id="row-<?php echo $rs->id; ?>" style="<?php echo $color; ?>">
 	      	<td class="middle text-center">
 						<?php echo $no; ?>
 					</td>
@@ -45,17 +49,22 @@
 					<td class="middle text-right" >
 						<?php echo number($rs->qty); ?>
 					</td>
+					<td class="middle text-right" >
+						<?php echo ($doc->is_wms && $doc->api ? number($rs->wms_qty) : number($rs->qty)); ?>
+					</td>
 	      </tr>
 <?php			$no++;			?>
 <?php     $total_qty += $rs->qty; ?>
+<?php 		$total_receive += ($doc->is_wms && $doc->api ? $rs->wms_qty : $rs->qty); ?>
 <?php		endforeach;			?>
 				<tr>
 					<td colspan="5" class="middle text-right"><strong>รวม</strong></td>
 					<td class="middle text-right"><strong><?php echo number($total_qty); ?></strong></td>
+					<td class="middle text-right"><strong><?php echo number($total_receive); ?></strong></td>
 				</tr>
 <?php	else : ?>
  				<tr>
-        	<td colspan="6" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        	<td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
         </tr>
 <?php	endif; ?>
       </tbody>

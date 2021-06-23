@@ -788,45 +788,90 @@ public function export_transfer($code)
               $line = 0;
               foreach($details as $rs)
               {
-                $arr = array(
-                  'DocEntry' => $docEntry,
-                  'U_ECOMNO' => $rs->transfer_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->qty,
-                  'unitMsr' => NULL,
-                  'PriceBefDi' => 0.000000,
-                  'LineTotal' => 0.000000,
-                  'ShipDate' => sap_date($doc->date_add, TRUE),
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'DiscPrcnt' => 0.000000,
-                  'Price' => 0.000000,
-                  'TotalFrgn' => 0.000000,
-                  'FromWhsCod' => $doc->from_warehouse,
-                  'WhsCode' => $doc->to_warehouse,
-                  'FisrtBin' => $rs->from_zone,
-                  'F_FROM_BIN' => $rs->from_zone,
-                  'F_TO_BIN' => $rs->to_zone,
-                  'AllocBinC' => $rs->to_zone,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => 0.000000,
-                  'VatGroup' => NULL,
-                  'PriceAfVAT' => 0.000000,
-                  'VatSum' => 0.000000,
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => 'A',
-                  'F_E_CommerceDate' => sap_date(now(), TRUE)
-                );
+								if($doc->is_wms == 1 && $rs->wms_qty > 0)
+								{
+									$arr = array(
+	                  'DocEntry' => $docEntry,
+	                  'U_ECOMNO' => $rs->transfer_code,
+	                  'LineNum' => $line,
+	                  'ItemCode' => $rs->product_code,
+	                  'Dscription' => limitText($rs->product_name, 95),
+	                  'Quantity' => $rs->wms_qty,
+	                  'unitMsr' => NULL,
+	                  'PriceBefDi' => 0.000000,
+	                  'LineTotal' => 0.000000,
+	                  'ShipDate' => sap_date($doc->date_add, TRUE),
+	                  'Currency' => $currency,
+	                  'Rate' => 1,
+	                  'DiscPrcnt' => 0.000000,
+	                  'Price' => 0.000000,
+	                  'TotalFrgn' => 0.000000,
+	                  'FromWhsCod' => $doc->from_warehouse,
+	                  'WhsCode' => $doc->to_warehouse,
+	                  'FisrtBin' => $rs->from_zone,
+	                  'F_FROM_BIN' => $rs->from_zone,
+	                  'F_TO_BIN' => $rs->to_zone,
+	                  'AllocBinC' => $rs->to_zone,
+	                  'TaxStatus' => 'Y',
+	                  'VatPrcnt' => 0.000000,
+	                  'VatGroup' => NULL,
+	                  'PriceAfVAT' => 0.000000,
+	                  'VatSum' => 0.000000,
+	                  'TaxType' => 'Y',
+	                  'F_E_Commerce' => 'A',
+	                  'F_E_CommerceDate' => sap_date(now(), TRUE)
+	                );
 
-                if( ! $this->ci->transfer_model->add_sap_transfer_detail($arr))
-                {
-                  $sc = FALSE;
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
+									if( ! $this->ci->transfer_model->add_sap_transfer_detail($arr))
+	                {
+	                  $sc = FALSE;
+	                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
+	                }
 
-                $line++;
+	                $line++;
+								}
+								else if($doc->is_wms == 0)
+								{
+									$arr = array(
+	                  'DocEntry' => $docEntry,
+	                  'U_ECOMNO' => $rs->transfer_code,
+	                  'LineNum' => $line,
+	                  'ItemCode' => $rs->product_code,
+	                  'Dscription' => limitText($rs->product_name, 95),
+	                  'Quantity' => $rs->qty,
+	                  'unitMsr' => NULL,
+	                  'PriceBefDi' => 0.000000,
+	                  'LineTotal' => 0.000000,
+	                  'ShipDate' => sap_date($doc->date_add, TRUE),
+	                  'Currency' => $currency,
+	                  'Rate' => 1,
+	                  'DiscPrcnt' => 0.000000,
+	                  'Price' => 0.000000,
+	                  'TotalFrgn' => 0.000000,
+	                  'FromWhsCod' => $doc->from_warehouse,
+	                  'WhsCode' => $doc->to_warehouse,
+	                  'FisrtBin' => $rs->from_zone,
+	                  'F_FROM_BIN' => $rs->from_zone,
+	                  'F_TO_BIN' => $rs->to_zone,
+	                  'AllocBinC' => $rs->to_zone,
+	                  'TaxStatus' => 'Y',
+	                  'VatPrcnt' => 0.000000,
+	                  'VatGroup' => NULL,
+	                  'PriceAfVAT' => 0.000000,
+	                  'VatSum' => 0.000000,
+	                  'TaxType' => 'Y',
+	                  'F_E_Commerce' => 'A',
+	                  'F_E_CommerceDate' => sap_date(now(), TRUE)
+	                );
+
+									if( ! $this->ci->transfer_model->add_sap_transfer_detail($arr))
+	                {
+	                  $sc = FALSE;
+	                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
+	                }
+
+	                $line++;
+								}                
               }
             }
             else

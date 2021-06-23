@@ -328,6 +328,7 @@ function payOnThis(id, acc_no)
 function payOrder()
 {
 	var order_code = $("#order_code").val();
+
 	$.ajax({
 		url: BASE_URL + 'orders/orders/get_pay_amount',
 		type:"GET",
@@ -337,14 +338,35 @@ function payOrder()
 		},
 		success: function(rs){
 			var rs = $.trim(rs);
-			$("#orderAmount").val(rs);
-			$("#payAmountLabel").text("ยอดชำระ "+ addCommas(rs) +" บาท");
+			if(isJson(rs)) {
+				var ds = $.parseJSON(rs);
+
+				if(ds.isAPI && ds.is_wms) {
+					if(!ds.id_address) {
+						swal("กรุณาระบุที่อยู่จัดส่ง");
+						return false;
+					}
+
+					if(!ds.id_sender) {
+						swal("กรุณาระบุผู้จัดส่ง");
+						return false;
+					}
+				}
+			
+				$("#orderAmount").val(ds.pay_amount);
+				$("#payAmountLabel").text("ยอดชำระ "+ addCommas(ds.pay_amount) +" บาท");
+				$("#selectBankModal").modal('show');
+			}
+			else {
+				swal({
+					title:"Error!",
+					text:rs,
+					type:'error'
+				});
+			}
 		}
 	});
-	$("#selectBankModal").modal('show');
 }
-
-
 
 
 

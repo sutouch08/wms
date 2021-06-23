@@ -193,6 +193,12 @@ class Buffer_model extends CI_Model
   }
 
 
+	public function drop_buffer($order_code)
+	{
+		return $this->db->where('order_code', $order_code)->delete('buffer');
+	}
+
+
   public function is_exists($order_code, $product_code, $zone_code)
   {
     $rs = $this->db->select('id')

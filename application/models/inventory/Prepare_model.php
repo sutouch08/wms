@@ -80,6 +80,19 @@ class Prepare_model extends CI_Model
   }
 
 
+	public function add(array $ds = array())
+	{
+		return $this->db->insert('prepare', $ds);
+	}
+
+
+
+	public function drop_prepare($order_code)
+	{
+		return $this->db->where('order_code', $order_code)->delete('prepare');
+	}
+	
+
   public function update_prepare($order_code, $product_code, $zone_code, $qty)
   {
     if(!$this->is_exists_prepare($order_code, $product_code, $zone_code))

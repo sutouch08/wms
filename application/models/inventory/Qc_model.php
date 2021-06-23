@@ -9,17 +9,9 @@ class Qc_model extends CI_Model
   }
 
 
-  public function add($order_code, $product_code, $box_id, $qty)
+  public function add(array $ds = array())
   {
-    $arr = array(
-      'order_code' => $order_code,
-      'product_code' => $product_code,
-      'qty' => $qty,
-      'box_id' => $box_id,
-      'user' => get_cookie('uname')
-    );
-
-    return $this->db->insert('qc', $arr);
+    return $this->db->insert('qc', $ds);
   }
 
 
@@ -321,7 +313,15 @@ class Qc_model extends CI_Model
     }
     else
     {
-      return $this->add($order_code, $product_code, $box_id, $qty);
+			$arr = array(
+				'order_code' => $order_code,
+				'product_code' => $product_code,
+				'box_id' => $box_id,
+				'qty' => $qty,
+				'user' => $this->_user->uname
+			);
+
+      return $this->add($arr);
     }
   }
 
@@ -332,6 +332,13 @@ class Qc_model extends CI_Model
     return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('qc');
   }
 
+
+	public function drop_qc($order_code)
+	{
+		return $this->db->where('order_code', $order_code)->delete('qc');
+	}
+
+	
 
   public function drop_zero_qc($order_code)
   {
@@ -351,7 +358,7 @@ class Qc_model extends CI_Model
     ->where('qc.order_code', $order_code)
     ->where('qc.box_id', $box_id)
     ->get();
-    
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
