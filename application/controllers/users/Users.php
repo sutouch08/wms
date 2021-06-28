@@ -16,9 +16,11 @@ class Users extends PS_Controller{
 
   public function index()
   {
-		$uname = get_filter('user', 'user', '');
-		$dname = get_filter('dname', 'dname', '');
-		$profile = get_filter('profile', 'profile', '');
+		$filter = array(
+			'uname' => get_filter('uname', 'user', ''),
+			'dname' => get_filter('dname', 'dname', ''),
+			'profile' => get_filter('profile', 'profile', '')
+		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -29,20 +31,17 @@ class Users extends PS_Controller{
 		}
 
 		$segment = 4; //-- url segment
-		$rows = $this->user_model->count_rows($uname, $dname, $profile);
+		$rows = $this->user_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
-		$rs = $this->user_model->get_users($uname, $dname, $profile, $perpage, $this->uri->segment($segment));
-    $ds = array(
-      'user' => $uname,
-      'dname' => $dname,
-      'profile' => $profile,
-			'data' => $rs
-    );
+		$rs = $this->user_model->get_users($filter, $perpage, $this->uri->segment($segment));
+
+		$filter['data'] = $rs;
+
 		$this->pagination->initialize($init);
-    $this->load->view('users/users_view', $ds);
+    $this->load->view('users/users_view', $filter);
   }
 
 
@@ -85,6 +84,11 @@ class Users extends PS_Controller{
 
 			if($rs === TRUE)
 			{
+				$arr = array(
+					'last_pass_change' => date('Y-m-d')
+				);
+				//--- update last pass change
+				$this->user_model->update_user($user->id, $arr);
 				$this->session->set_flashdata('success', 'Password changed');
 			}
 			else
@@ -100,9 +104,31 @@ class Users extends PS_Controller{
 
 	public function delete_user($id)
 	{
-		$rs = $this->user_model->delete_user($id);
+		$sc = TRUE;
+		$user = $this->user_model->get_user($id);
+		if(!empty($user))
+		{
+			if(!$this->user_model->has_transection($user->uname))
+			{
+				if(!$this->user_model->delete_user($id))
+				{
+					$sc = FALSE;
+					$this->error = "Delete user failed";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "ไม่สามารถลบ user ได้ เนื่องจากมี transection ในระบบแล้ว";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบ User ที่ต้องการลบ";
+		}
 
-		echo $rs === TRUE ? 'success' : 'fail';
+		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
 
@@ -172,10 +198,12 @@ class Users extends PS_Controller{
 				'id_profile' => $id_profile,
 				'sale_id' => $sale_id,
 				'active' => $status,
-				'is_viewer' => $is_viewer
+				'is_viewer' => $is_viewer,
+				'last_pass_change' => date('Y-m-d')
 			);
 
 			$rs = $this->user_model->new_user($data);
+
 			if($rs === FALSE)
 			{
 				set_error('Create User fail');

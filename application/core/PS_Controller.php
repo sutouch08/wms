@@ -44,7 +44,12 @@ class PS_Controller extends CI_Controller
       redirect('setting/maintenance');
     }
 
-    $this->notibars = getConfig('NOTI_BAR');
+		if(!$this->isViewer && $this->is_expire_password($this->_user->last_pass_change))
+		{
+			redirect('change_password');
+		}
+
+
 
     //--- get permission for user
     $this->pm = get_permission($this->menu_code, $uid, get_cookie('id_profile'));
@@ -54,16 +59,21 @@ class PS_Controller extends CI_Controller
     $this->cn = $this->load->database('cn', TRUE); //--- consign Database
     //$this->is = $this->load->database('is', TRUE); //---- Ecom database
 
-    if($this->notibars == 1 && $this->isViewer === FALSE)
+    if(empty($this->menu_code) && $this->isViewer === FALSE)
     {
-      $this->WC = get_permission('SOCCSO', $uid);
-  		$this->WT = get_permission('SOCCTR', $uid);
-  		$this->WS = get_permission('SOODSP', $uid);
-  		$this->WU = get_permission('ICSUPP', $uid);
-  		$this->WQ = get_permission('ICTRFM', $uid);
-      $this->WV = get_permission('ICTRFS', $uid);
-      $this->RR = get_permission('ICRQRC', $uid);
-      $this->WL = get_permission('ICLEND', $uid);
+			$this->notibars = getConfig('NOTI_BAR');
+			if($this->notibars == 1 )
+			{
+				$this->WC = get_permission('SOCCSO', $uid);
+	  		$this->WT = get_permission('SOCCTR', $uid);
+	  		$this->WS = get_permission('SOODSP', $uid);
+	  		$this->WU = get_permission('ICSUPP', $uid);
+	  		$this->WQ = get_permission('ICTRFM', $uid);
+	      $this->WV = get_permission('ICTRFS', $uid);
+	      $this->RR = get_permission('ICRQRC', $uid);
+	      $this->WL = get_permission('ICLEND', $uid);
+			}
+
     }
   }
 
@@ -85,6 +95,23 @@ class PS_Controller extends CI_Controller
 		$error = array('error_message' => $err);
     return $this->load->view('page_error', $error);
   }
+
+	public function is_expire_password($last_pass_change)
+	{
+		$today = date('Y-m-d');
+		$last_change = empty($last_pass_change) ? date('2021-01-01') : $last_pass_change;
+
+		$expire_days = intval(getConfig('USER_PASSWORD_AGE'));
+
+		$expire_date = date('Y-m-d', strtotime("+{$expire_days} days", strtotime($last_change)));
+
+		if($today > $expire_date)
+		{
+			return true;
+		}
+
+		return FALSE;
+	}
 }
 
 ?>

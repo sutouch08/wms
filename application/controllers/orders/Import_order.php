@@ -139,7 +139,7 @@ class Import_order extends CI_Controller
 
 					$orderCode = NULL;
 					$hold = NULL;
-
+          $isWMS = 0;
           foreach($ds as $rs)
           {
             //--- ถ้าพบ Error ให้ออกจากลูปทันที
@@ -243,7 +243,7 @@ class Import_order extends CI_Controller
               {
                 $order_code = $this->get_new_code($date_add);
 
-								if($this->isAPI && $is_wms && !empty($orderCode) && $hold === FALSE)
+								if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
 								{
 									$this->wms_order_api->export_order($orderCode);
 								}
@@ -336,11 +336,11 @@ class Import_order extends CI_Controller
                     'shipping_fee' => 0,
                     'status' => 1,
                     'date_add' => $date_add,
-                    'warehouse_code' => (empty($xWh) ? $xWh->code : $warehouse_code),
+                    'warehouse_code' => (!empty($xWh) ? $xWh->code : $warehouse_code),
                     'user' => get_cookie('uname'),
                     'is_import' => 1,
 										'remark' => $remark,
-										'is_wms' => (empty($xWh) ? $xWh->is_wms : $is_wms),
+										'is_wms' => (!empty($xWh) ? $xWh->is_wms : $is_wms),
 										'id_sender' => empty($rs['W']) ? NULL : $this->sender_model->get_id($rs['W'])
                   );
 
@@ -349,6 +349,7 @@ class Import_order extends CI_Controller
                   {
 										$orderCode = $order_code;
 										$hold = $state === 3 ? FALSE : TRUE;
+                    $isWMS = (!empty($xWh) ? $xWh->is_wms : $is_wms);
 
                     $arr = array(
                       'order_code' => $order_code,
@@ -586,7 +587,7 @@ class Import_order extends CI_Controller
 
           } //--- end foreach
 
-					if($this->isAPI && $is_wms && !empty($orderCode) && $hold === FALSE)
+					if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
 					{
 						$this->wms_order_api->export_order($orderCode);
 					}

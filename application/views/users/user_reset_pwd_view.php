@@ -48,7 +48,7 @@
 				<i class="ace-icon fa fa-key"></i>
 			</span>
     </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="pwd-error"></div>
+		<div class="help-block col-xs-12 col-sm-reset inline red" style="padding-left:15px;" id="pwd-error"></div>
   </div>
 
 	<div class="form-group">
@@ -59,7 +59,7 @@
 				<i class="ace-icon fa fa-key"></i>
 			</span>
     </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="cm-pwd-error"></div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" style="padding-left:15px;" id="cm-pwd-error"></div>
   </div>
 
 	<div class="divider-hidden">
@@ -79,5 +79,5 @@
 	<input type="hidden" name="user_id" id="user_id" value="<?php echo $data->id; ?>" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/users/users.js"></script>
+<script src="<?php echo base_url(); ?>scripts/users/users.js?v=<?php date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

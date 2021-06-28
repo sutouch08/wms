@@ -56,7 +56,7 @@ function getDelete(id, uname){
         }else{
           swal({
             title:'Error!',
-            text:'Cannot delete user',
+            text:rs,
             type:'error'
           });
         }
@@ -103,13 +103,26 @@ function updateUser(){
 }
 
 
+function validatePassword(input)
+{
+	var passw = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/;
+
+	if(input.match(passw))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 
 function changePassword(){
   var id = $('#user_id').val();
   var pwd = $('#pwd').val();
   var cmp = $('#pwd').val();
-  if(pwd.length == 0 || cmp.length == 0){
+  if(pwd.length == 0 || cmp.length == 0) {
     validPWD();
   }
 
@@ -125,22 +138,35 @@ function changePassword(){
 function validPWD(){
   var pwd = $('#pwd').val();
   var cmp = $('#cm-pwd').val();
-  if(pwd.length > 0 && cmp.length > 0){
-    if(pwd != cmp){
-      $('#cm-pwd-error').text('Password missmatch!');
+  if(pwd.length > 0) {
+
+		if(!validatePassword(pwd)) {
+			$('#pwd-error').text('รหัสผ่านต้องมีความยาว 8 - 20 ตัวอักษร และต้องประกอบด้วย ตัวอักษรภาษาอังกฤษ พิมพ์เล็ก พิมพ์ใหญ่ และตัวเลขอย่างน้อย อย่างละตัว');
       $('#pwd').addClass('has-error');
+			validPwd = false;
+      return false;
+		}
+		else {
+			$('#pwd-error').text('');
+			$('#pwd').removeClass('has-error');
+			validPwd = true;
+		}
+
+    if(pwd != cmp) {
+      $('#cm-pwd-error').text('Password missmatch!');
       $('#cm-pwd').addClass('has-error');
       validPwd = false;
-    }else{
+			return false;
+    }
+		else {
       $('#cm-pwd-error').text('');
-      $('#pwd').removeClass('has-error');
       $('#cm-pwd').removeClass('has-error');
       validPwd = true;
     }
-  }else{
-    $('#cm-pwd-error').text('Password is required!');
+  }
+	else {
+    $('#pwd-error').text('Password is required!');
     $('#pwd').addClass('has-error');
-    $('#cm-pwd').addClass('has-error');
     validPwd = false;
   }
 }
@@ -219,15 +245,12 @@ $('#pwd').focusout(function(){
 })
 
 
-
-$('#pwd').keyup(function(e){
-  validPWD();
-});
-
-
-
 $('#cm-pwd').keyup(function(e){
-  validPWD(e);
+  validPWD();
+})
+
+$('#cm-pwd').focusout(function(){
+  validPWD();
 })
 
 

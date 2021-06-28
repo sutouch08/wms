@@ -90,68 +90,65 @@ class User_model extends CI_Model
   }
 
 
-  public function get_users($uname = '', $dname = '', $profile = '', $perpage = 50, $offset = 0)
+  public function get_users(array $ds = array(), $perpage = 50, $offset = 0)
   {
-    $offset = $offset === NULL ? 0 : $offset;
-    $qr  = "SELECT u.id AS id, u.id_profile AS id_profile, u.uname AS uname, u.name AS dname, ";
-    $qr .= "p.name AS pname, u.date_add, u.active ";
-    $qr .= "FROM user AS u ";
-    $qr .= "LEFT JOIN profile AS p ON u.id_profile = p.id ";
-    $qr .= "WHERE u.id != 0 ";
 
-    if($uname !== '')
-    {
-      $qr .= "AND u.uname LIKE '%".$uname."%' ";
-    }
+		$this->db
+		->select('user.*, user.name AS dname, profile.name AS pname')
+		->from('user')
+		->join('profile', 'user.id_profile = profile.id', 'left');
 
-    if($dname !== '')
-    {
-      $qr .= "AND u.name LIKE '%".$dname."%' ";
-    }
+		if(!empty($ds['uname']))
+		{
+			$this->db->like('user.uname', $ds['uname']);
+		}
 
-    if($profile !== '')
-    {
-      $qr .= "AND p.name LIKE '%".$profile."%' ";
-    }
+		if(!empty($ds['dname']))
+		{
+			$this->db->like('user.name', $ds['dname']);
+		}
 
-    $qr .= "ORDER BY u.name ASC ";
-    $qr .= "LIMIT ".$perpage;
-    $qr .= " OFFSET ".$offset;
+		if(!empty($ds['profile']))
+		{
+			$this->db->like('profile.name', $ds['profile']);
+		}
 
-    $rs = $this->db->query($qr);
+		$rs = $this->db->order_by('user.name', 'ASC')->limit($perpage, $offset)->get();
 
-    return $rs->result();
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+    return NULL;
   }
 
 
 
 
 
-  public function count_rows($uname = '', $dname = '', $profile = '')
+  public function count_rows(array $ds = array())
   {
-    $qr = "SELECT u.id ";
-    $qr .= "FROM user AS u ";
-    $qr .= "LEFT JOIN profile AS p ON u.id_profile = p.id ";
-    $qr .= "WHERE u.id != 0 ";
+		$this->db
+		->from('user')
+		->join('profile', 'user.id_profile = profile.id', 'left');
 
-    if($uname !== '')
-    {
-      $qr .= "AND u.uname LIKE '%".$uname."%' ";
-    }
+		if(!empty($ds['uname']))
+		{
+			$this->db->like('user.uname', $ds['uname']);
+		}
 
-    if($dname !== '')
-    {
-      $qr .= "AND u.name LIKE '%".$dname."%' ";
-    }
+		if(!empty($ds['dname']))
+		{
+			$this->db->like('user.name', $ds['dname']);
+		}
 
-    if($profile !== '')
-    {
-      $qr .= "AND p.name LIKE '%".$profile."%' ";
-    }
+		if(!empty($ds['profile']))
+		{
+			$this->db->like('profile.name', $ds['profile']);
+		}
 
-    $rs = $this->db->query($qr);
-
-    return $rs->num_rows();
+    return $this->db->count_all_results();
   }
 
 
@@ -360,6 +357,84 @@ class User_model extends CI_Model
     }
 
   }
+
+
+	public function has_transection($uname)
+	{
+		//-- all orders
+		if($this->db->where('user', $uname)->count_all_results('orders') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- Receive product
+		if($this->db->where('user', $uname)->count_all_results('receive_product') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- Receive transform
+		if($this->db->where('user', $uname)->count_all_results('receive_transfrom') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- Return order
+		if($this->db->where('user', $uname)->count_all_results('return_order') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- Transfer
+		if($this->db->where('user', $uname)->count_all_results('transfer') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- Move
+		if($this->db->where('user', $uname)->count_all_results('move') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- WD
+		if($this->db->where('user', $uname)->count_all_results('consignment_order') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- WM
+		if($this->db->where('user', $uname)->count_all_results('consign_order') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- AJ
+		if($this->db->where('user', $uname)->count_all_results('adjust') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- AC
+		if($this->db->where('user', $uname)->count_all_results('adjust_consignment') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- WG
+		if($this->db->where('user', $uname)->count_all_results('adjust_transfrom') > 0)
+		{
+			return TRUE;
+		}
+
+		//--- WX
+		if($this->db->where('user', $uname)->count_all_results('consign_check') > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 
 
 } //---- End class

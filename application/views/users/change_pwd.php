@@ -1,16 +1,16 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 padding-5">
     <h3 class="title">
       <i class="fa fa-users"></i> <?php echo $this->title; ?>
     </h3>
     </div>
-		<div class="col-sm-6">
-
+		<div class="col-sm-6 padding-5">
+			<p class="pull-right top-p"></p>
 		</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
-<form class="form-horizontal" id="resetForm" method="post" action="<?php echo $this->home."/change_password"; ?>">
+<hr class="padding-5"/>
+<form class="form-horizontal" id="resetForm" method="post">
 
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">Display name</label>
@@ -36,28 +36,37 @@
     <div class="help-block col-xs-12 col-sm-reset inline red" id="uname-error"></div>
   </div>
 
-
-
-  <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">New password</label>
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">รหัสผ่านปัจจุบัน</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-        <input type="password" name="pwd" id="pwd" class="width-100" autofocus required />
+        <input type="password" name="cu-pwd" id="cu-pwd" class="width-100" autofocus />
 				<i class="ace-icon fa fa-key"></i>
 			</span>
     </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="pwd-error"></div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" style="padding-left:15px;" id="cu-pwd-error"></div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">รหัสผ่านใหม่</label>
+    <div class="col-xs-12 col-sm-3">
+			<span class="input-icon input-icon-right width-100">
+        <input type="password" name="pwd" id="pwd" class="width-100" />
+				<i class="ace-icon fa fa-key"></i>
+			</span>
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" style="padding-left:15px;" id="pwd-error"></div>
   </div>
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Confirm password</label>
+    <label class="col-sm-3 control-label no-padding-right">ยืนยันรหัสผ่านใหม่</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
         <input type="password" name="cm-pwd" id="cm-pwd" class="width-100" required />
 				<i class="ace-icon fa fa-key"></i>
 			</span>
     </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="cm-pwd-error"></div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" style="padding-left:15px;" id="cm-pwd-error"></div>
   </div>
 
 	<div class="divider-hidden">
@@ -80,13 +89,13 @@
 
 <hr/>
 
-
 <form class="form-horizontal">
+
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Secret key</label>
+    <label class="col-sm-3 control-label no-padding-right">New PIN</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-        <input type="password" name="skey" id="skey" class="width-100" autofocus required />
+        <input type="password" name="skey" id="skey" class="width-100" />
 				<i class="ace-icon fa fa-key"></i>
 			</span>
     </div>
@@ -94,10 +103,10 @@
   </div>
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Confirm Secret key</label>
+    <label class="col-sm-3 control-label no-padding-right">Confirm New PIN</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-        <input type="password" name="cm-skey" id="cm-skey" class="width-100" required />
+        <input type="password" name="cm-skey" id="cm-skey" class="width-100" />
 				<i class="ace-icon fa fa-key"></i>
 			</span>
     </div>
@@ -121,5 +130,5 @@
 	<input type="hidden" name="uid" id="uid" value="<?php echo $data->uid; ?>" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/users/user_pwd.js"></script>
+<script src="<?php echo base_url(); ?>scripts/users/user_pwd.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>
