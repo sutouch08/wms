@@ -376,6 +376,7 @@ function updateOrder(){
   var customer_name = $("#customer").val();
 	var user_ref = $('#user_ref').val();
   var warehouse = $('#warehouse').val();
+	var transformed = $('#transformed').val();
 	var remark = $("#remark").val();
 
 	load_in();
@@ -390,6 +391,7 @@ function updateOrder(){
   		"customer_code" : customer_code,
       "user_ref" : user_ref,
       "warehouse" : warehouse,
+			"transformed" : transformed,
   		"remark" : remark,
     },
 		success: function(rs){

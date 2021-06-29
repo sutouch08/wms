@@ -45,6 +45,14 @@
 		  <input type="text" class="form-control input-sm text-center edit" name="reference" id="reference" value="<?php echo $order->reference; ?>" disabled />
 		</div>
 
+		<div class="col-sm-1 col-xs-6 padding-5">
+			<label>งานแปรสภาพ</label>
+		  <select class="form-control input-sm edit" name="transformed" id="transformed" disabled>
+				<option value="0" <?php echo is_selected('0', $order->transformed); ?>>No</option>
+				<option value="1" <?php echo is_selected('1', $order->transformed); ?>>Yes</option>
+			</select>
+		</div>
+
 		<div class="col-sm-2 col-2-harf col-xs-12 padding-5">
 			<label>คลัง</label>
 	    <select class="form-control input-sm edit" name="warehouse" id="warehouse" disabled>
@@ -54,12 +62,12 @@
 	  </div>
 
 	<?php if($order->state < 4 && $order->is_expired == 0) : ?>
-		<div class="col-sm-5 col-5-harf col-xs-12 padding-5">
+		<div class="col-sm-4 col-4-harf col-xs-12 padding-5">
 		 	<label>หมายเหตุ</label>
 		  <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 		</div>
 	<?php else : ?>
-		<div class="col-sm-4 col-xs-12 padding-5">
+		<div class="col-sm-3 col-xs-12 padding-5">
 		 	<label>หมายเหตุ</label>
 		  <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 		</div>

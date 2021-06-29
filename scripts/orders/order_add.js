@@ -405,6 +405,7 @@ function updateOrder(recal){
 	var payment_code = $("#payment").val();
 	var reference = $('#reference').val();
   var warehouse_code = $('#warehouse').val();
+	var transformed = $('#transformed').val();
 	var remark = $("#remark").val();
 
 	load_in();
@@ -423,6 +424,7 @@ function updateOrder(recal){
   		"reference" : reference,
       "warehouse_code" : warehouse_code,
   		"remark" : remark,
+			"transformed" : transformed,
       "recal" : recal
     },
 		success: function(rs){

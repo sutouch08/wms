@@ -48,6 +48,15 @@
     <label>ผู้เบิก[พนักงาน/คนสั่ง]</label>
     <input type="text" class="form-control input-sm" name="empName" id="empName" value="" required />
   </div>
+
+	<div class="col-sm-1 col-xs-12 padding-5">
+    <label>งานแปรสภาพ</label>
+		<select class="form-control input-sm" name="transformed">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</select>
+  </div>
+
 	<div class="col-sm-2 col-2-harf col-xs-12 padding-5">
 		<label>คลัง</label>
     <select class="form-control input-sm" name="warehouse" id="warehouse" required>
@@ -55,7 +64,7 @@
 			<?php echo select_sell_warehouse(); ?>
 		</select>
   </div>
-  <div class="col-sm-8 col-xs-12 padding-5">
+  <div class="col-sm-7 col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>

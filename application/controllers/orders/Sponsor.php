@@ -171,7 +171,8 @@ class Sponsor extends PS_Controller
         'remark' => $this->input->post('remark'),
         'user_ref' => $this->input->post('empName'),
         'warehouse_code' => $wh->code,
-				'is_wms' => $wh->is_wms
+				'is_wms' => $wh->is_wms,
+				'transformed' => $this->input->post('transformed')
       );
 
       if($this->orders_model->add($ds) === TRUE)
@@ -278,7 +279,8 @@ class Sponsor extends PS_Controller
             'status' => 0,
 						'id_address' => NULL,
 						'id_sender' => NULL,
-						'is_wms' => $wh->is_wms
+						'is_wms' => $wh->is_wms,
+						'transformed' => $this->input->post('transformed')
           );
         }
 

@@ -35,6 +35,8 @@ class Import_order extends CI_Controller
 
   public function index()
   {
+		ini_set('max_execution_time', 1200);
+
     $sc = TRUE;
     $import = 0;
     $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
@@ -245,7 +247,24 @@ class Import_order extends CI_Controller
 
 								if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
 								{
-									$this->wms_order_api->export_order($orderCode);
+									if(!$this->wms_order_api->export_order($orderCode))
+									{
+										$arr = array(
+											'wms_export' => 3,
+											'wms_export_error' => $this->wms_order_api->error
+										);
+
+										$this->orders_model->update($orderCode, $arr);
+									}
+									else
+									{
+										$arr = array(
+											'wms_export' => 1,
+											'wms_export_error' => NULL
+										);
+
+										$this->orders_model->update($orderCode, $arr);
+									}
 								}
               }
               else
@@ -589,7 +608,24 @@ class Import_order extends CI_Controller
 
 					if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
 					{
-						$this->wms_order_api->export_order($orderCode);
+						if(!$this->wms_order_api->export_order($orderCode))
+						{
+							$arr = array(
+								'wms_export' => 3,
+								'wms_export_error' => $this->wms_order_api->error
+							);
+
+							$this->orders_model->update($orderCode, $arr);
+						}
+						else
+						{
+							$arr = array(
+								'wms_export' => 1,
+								'wms_export_error' => NULL
+							);
+
+							$this->orders_model->update($orderCode, $arr);
+						}
 					}
         }
         else

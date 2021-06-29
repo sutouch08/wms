@@ -71,7 +71,6 @@ class Wms_order_cancle_api
 				{
 					$sc = FALSE;
 					$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-					$this->ci->wms_error_logs_model->add($code, 'E', $this->error, $this->type);
 				}
 				else
 				{
@@ -79,13 +78,13 @@ class Wms_order_cancle_api
 					{
 						$sc = FALSE;
 						$this->error = $res->SERVICE_RESULT->RESULT_DETAIL->ORDERS->ORDER->NOTE;
-						$this->ci->wms_error_logs_model->add($code, 'E', $this->error, $this->type);
 					}
 				}
 			}
 			else
 			{
-				$this->ci->wms_error_logs_model->add($code, 'S', 'No response');
+				$sc = FALSE;
+				$this->error = "No response";
 			}
     }
 

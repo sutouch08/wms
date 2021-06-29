@@ -64,6 +64,14 @@
 		<input type="text" class="form-control input-sm" name="reference" value="" />
   </div>
 
+	<div class="col-sm-1 col-xs-12 padding-5">
+    <label>งานแปรสภาพ</label>
+		<select class="form-control input-sm" name="transformed">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</select>
+  </div>
+
 	<div class="col-sm-2 col-2-harf col-xs-12 padding-5">
 		<label>คลัง</label>
     <select class="form-control input-sm" name="warehouse" id="warehouse" required>
@@ -72,7 +80,7 @@
 		</select>
   </div>
 
-  <div class="col-sm-7 col-xs-12 padding-5">
+  <div class="col-sm-6 col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>
@@ -90,7 +98,7 @@
 <input type="hidden" name="customerCode" id="customerCode" value="" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/orders/orders.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/order_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

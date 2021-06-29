@@ -25,7 +25,7 @@ function confirmPayment(id)
         });
 				$("#row-"+id).remove();
 			}else{
-				swal("ข้อผิดพลาด", "ยืนยันการชำระเงินไม่สำเร็จ", "error");
+				swal("ข้อผิดพลาด", rs, "error");
 			}
 		}
 	});
@@ -56,7 +56,7 @@ function unConfirmPayment(id)
         });
 				$("#row-"+id).remove();
 			}else{
-				swal("ข้อผิดพลาด", "ยืนยันการชำระเงินไม่สำเร็จ", "error");
+				swal("ข้อผิดพลาด", rs, "error");
 			}
 		}
 	});

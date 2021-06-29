@@ -256,7 +256,8 @@ class Orders extends PS_Controller
           'remark' => addslashes($this->input->post('remark')),
 					'id_address' => $id_address,
 					'id_sender' => $this->sender_model->get_main_sender($customer->code),
-					'is_wms' => $wh->is_wms
+					'is_wms' => $wh->is_wms,
+					'transformed' => $this->input->post('transformed')
         );
 
         if($this->orders_model->add($ds) === TRUE)
@@ -620,6 +621,7 @@ class Orders extends PS_Controller
           'warehouse_code' => $wh->code,
           'remark' => $this->input->post('remark'),
 					'is_wms' => $wh->is_wms,
+					'transformed' => $this->input->post('transformed'),
           'status' => 0,
 					'id_address' => NULL,
 					'id_sender' => NULL
@@ -2066,38 +2068,66 @@ class Orders extends PS_Controller
 
       if(! empty($order))
       {
-        $full_mode = getConfig('WMS_FULL_MODE') == 1 ? TRUE : FALSE;
-
-				if($this->isAPI && $full_mode === TRUE && $order->state >= 3 && $order->is_wms && $state != 9)
+				if($this->isAPI && $order->state >= 3 && $order->is_wms && $state != 9)
 				{
 					echo "ออเดอร์ถูกส่งไประบบ WMS แล้วไม่อนุญาติให้ย้อนสถานะ";
 					exit;
 				}
 
-        //---- ถ้าเป็น wms ก่อนยกเลิกให้เช็คก่อนว่ามีออเดอร์เข้ามาที่ temp หรือเปล่า
+        //---- ถ้าเป็น wms ก่อนยกเลิกให้เช็คก่อนว่ามีออเดอร์เข้ามาที่ SAP แล้วหรือยัง ถ้ายังไม่มียกเลิกได้
         if($this->isAPI && $order->is_wms && $state == 9)
         {
           $this->wms = $this->load->database('wms', TRUE);
 					$this->load->model('rest/V1/wms_temp_order_model');
 
-          $is_exists_temp = $this->wms_temp_order_model->is_exists($code);
+					if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
+	        {
+	          $sap = $this->orders_model->get_sap_doc_num($order->code);
+						if(!empty($sap))
+						{
+							echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
+							exit;
+						}
+	        }
 
-					if($is_exists_temp)
-					{
-						echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
-						exit;
-					}
-        }
+
+					//---
+	        if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
+	        {
+						$this->load->model('inventory/transfer_model');
+						$sap = $this->transfer_model->get_sap_transfer_doc($code);
+						if(! empty($sap))
+						{
+							echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
+							exit;
+						}
+	        }
+
+        } //--- end if isAPI
+
 
         if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
         {
           $sap = $this->orders_model->get_sap_doc_num($order->code);
 					if(!empty($sap))
 					{
-						$sc = FALSE;
-						$this->error = 'กรุณายกเลิกใบส่งสินค้า SAP ก่อนย้อนสถานะ';
+						echo 'กรุณายกเลิกใบส่งสินค้า SAP ก่อนย้อนสถานะ';
+						exit;
 					}
         }
+
+
+				if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
+				{
+					$this->load->model('inventory/transfer_model');
+					$sap = $this->transfer_model->get_sap_transfer_doc($code);
+					if(! empty($sap))
+					{
+						echo "กรุณายกเลิกใบโอนสินค้าใน SAP ก่อนย้อนสถานะ";
+						exit;
+					}
+				}
+
 
         //--- ถ้าเป็นเบิกแปรสภาพ จะมีการผูกสินค้าไว้
         if($order->role == 'T')
@@ -2107,19 +2137,8 @@ class Orders extends PS_Controller
           $is_received = $this->transform_model->is_received($code);
           if($is_received === TRUE)
           {
-            $sc = FALSE;
-            $this->error = 'ใบเบิกมีการรับสินค้าแล้วไม่อนุญาติให้ย้อนสถานะ';
-          }
-
-          if($order->state == 8)
-          {
-            $this->load->model('inventory/transfer_model');
-            $sap = $this->transfer_model->get_sap_transfer_doc($code);
-            if(! empty($sap))
-            {
-              $sc = FALSE;
-              $this->error = 'กรุณายกเลิกใบโอนสินค้าใน SAP ก่อนย้อนสถานะ';
-            }
+            echo 'ใบเบิกมีการรับสินค้าแล้วไม่อนุญาติให้ย้อนสถานะ';
+						exit;
           }
         }
 
@@ -2131,34 +2150,10 @@ class Orders extends PS_Controller
           $is_received = $this->lend_model->is_received($code);
           if($is_received === TRUE)
           {
-            $sc = FALSE;
-            $this->error = 'ใบเบิกมีการรับคืนสินค้าแล้วไม่อนุญาติให้ย้อนสถานะ';
-          }
-
-          if($order->state == 8)
-          {
-            $this->load->model('inventory/transfer_model');
-            $sap = $this->transfer_model->get_sap_transfer_doc($code);
-            if(! empty($sap))
-            {
-              $sc = FALSE;
-              $this->error = 'กรุณายกเลิกใบโอนสินค้าใน SAP ก่อนย้อนสถานะ';
-            }
+            echo 'ใบเบิกมีการรับคืนสินค้าแล้วไม่อนุญาติให้ย้อนสถานะ';
+						exit;
           }
         }
-
-
-        if($order->role !== 'L' && $order->role !== 'T')
-        {
-          $this->load->model('inventory/delivery_order_model');
-          $sap = $this->delivery_order_model->get_sap_delivery_order($code);
-          if(! empty($sap))
-          {
-            $sc = FALSE;
-            $this->error = 'กรุณายกเลิกใบส่งสินค้าใน SAP ก่อนย้อนสถานะ';
-          }
-        }
-
 
 
         if($sc === TRUE)
@@ -2242,7 +2237,22 @@ class Orders extends PS_Controller
 						if(! $ex)
 						{
 							$sc = FALSE;
-							$this->error = "เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง";
+							$this->error = "เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง : ".$this->wms_order_api->error;
+							$arr = array(
+								'wms_export' => 3,
+								'wms_export_error' => $this->wms_order_api->error
+							);
+
+							$this->orders_model->update($code, $arr);
+						}
+						else
+						{
+							$arr = array(
+								'wms_export' => 1,
+								'wms_export_error' => NULL
+							);
+
+							$this->orders_model->update($code, $arr);
 						}
 					}
         }
@@ -2454,7 +2464,23 @@ class Orders extends PS_Controller
 
     $sc = TRUE;
 
-    if($state > 3)
+    if($sc === TRUE)
+		{
+			if($this->isAPI && $is_wms)
+			{
+				$this->wms = $this->load->database('wms', TRUE);
+				$this->load->library('wms_order_cancle_api');
+				$ex = $this->wms_order_cancle_api->send_data($code);
+
+				if(! $ex)
+				{
+					$sc = FALSE;
+					$this->error = $this->wms_order_cancle_api->error;
+				}
+			}
+		}
+
+    if($state > 3 && $sc === TRUE)
     {
       //--- put prepared product to cancle zone
       $prepared = $this->prepare_model->get_details($code);
@@ -2617,21 +2643,6 @@ class Orders extends PS_Controller
       }
     }
 
-		if($sc === TRUE)
-		{
-			if($this->isAPI && $is_wms)
-			{
-				$this->wms = $this->load->database('wms', TRUE);
-				$this->load->library('wms_order_cancle_api');
-				$ex = $this->wms_order_cancle_api->send_data($code);
-
-				if(! $ex)
-				{
-					$sc = FALSE;
-					$this->error = $this->wms_order_cancle_api->error;
-				}
-			}
-		}
 
     return $sc;
   }
@@ -3108,6 +3119,21 @@ class Orders extends PS_Controller
 			{
 				$sc = FALSE;
 				$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_api->error.")";
+				$arr = array(
+					'wms_export' => 3,
+					'wms_export_error' => $this->wms_order_api->error
+				);
+
+				$this->orders_model->update($code, $arr);
+			}
+			else
+			{
+				$arr = array(
+					'wms_export' => 1,
+					'wms_export_error' => NULL
+				);
+
+				$this->orders_model->update($code, $arr);
 			}
 		}
 		else

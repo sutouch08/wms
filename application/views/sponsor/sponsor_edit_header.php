@@ -20,6 +20,14 @@
 		  <input type="text" class="form-control input-sm text-center" value="<?php echo $order->user; ?>" disabled />
 		</div>
 
+		<div class="col-sm-1 col-xs-6 padding-5">
+			<label>งานแปรสภาพ</label>
+		  <select class="form-control input-sm edit" name="transformed" id="transformed" disabled>
+				<option value="0" <?php echo is_selected('0', $order->transformed); ?>>No</option>
+				<option value="1" <?php echo is_selected('1', $order->transformed); ?>>Yes</option>
+			</select>
+		</div>
+
 		<div class="col-sm-2 col-2-harf col-xs-12 padding-5">
 			<label>คลัง</label>
 	    <select class="form-control input-sm edit" name="warehouse" id="warehouse" disabled>
@@ -29,7 +37,7 @@
 	  </div>
 
 		<?php if(empty($approve_view) && ($this->pm->can_add OR $this->pm->can_edit)): ?>
-			<div class="col-sm-8 col-xs-12 padding-5">
+			<div class="col-sm-7 col-xs-12 padding-5">
 			 	<label>หมายเหตุ</label>
 			  <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 			</div>
@@ -39,7 +47,7 @@
 			<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="validUpdate()"><i class="fa fa-save"></i> บันทึก</i></button>
 		</div>
 	<?php else : ?>
-		<div class="col-sm-9 col-9-harf col-xs-12 padding-5">
+		<div class="col-sm-8 col-8-harf col-xs-12 padding-5">
 			<label>หมายเหตุ</label>
 			<input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 		</div>
