@@ -51,15 +51,6 @@
   </div>
 
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
-  </div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
-  </div>
-
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
 		<select class="form-control input-sm" name="channels" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -82,6 +73,16 @@
       <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
   </div>
+
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $wms_export); ?>>ยังไม่ส่ง</option>
+			<option value="1" <?php echo is_selected('1', $wms_export); ?>>ส่งแล้ว</option>
+			<option value="3" <?php echo is_selected('3', $wms_export); ?>>Error</option>
+		</select>
+	</div>
 
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label class="display-block">สถานะ</label>
@@ -116,6 +117,15 @@
 			<?php echo select_warehouse($warehouse); ?>
 		</select>
 	</div>
+
+	<div class="col-sm-1 col-xs-6 padding-5">
+    <label class="display-block not-show">buton</label>
+    <button type="submit" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
+  </div>
+	<div class="col-sm-1 col-xs-6 padding-5">
+    <label class="display-block not-show">buton</label>
+    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+  </div>
 </div>
 <div class="row margin-top-10">
 	<div class="col-sm-12 col-xs-12 padding-5">

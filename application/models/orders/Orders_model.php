@@ -531,6 +531,20 @@ class Orders_model extends CI_Model
       }
     }
 
+		if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
+		{
+			if($ds['wms_export'] == 0)
+			{
+				$this->db->group_start();
+				$this->db->where('orders.wms_export IS NULL', NULL, FALSE);
+				$this->db->or_where('orders.wms_export', 0);
+				$this->db->group_end();
+			}
+			else
+			{
+				$this->db->where('orders.wms_export', $ds['wms_export']);		}
+		}
+
     return $this->db->count_all_results();
   }
 
@@ -701,6 +715,21 @@ class Orders_model extends CI_Model
       }
     }
 
+
+		if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
+		{
+			if($ds['wms_export'] == 0)
+			{
+				$this->db->group_start();
+				$this->db->where('orders.wms_export IS NULL', NULL, FALSE);
+				$this->db->or_where('orders.wms_export', 0);
+				$this->db->group_end();
+			}
+			else
+			{
+				$this->db->where('orders.wms_export', $ds['wms_export']);		}
+		}
+		
 
     if(!empty($ds['order_by']))
     {

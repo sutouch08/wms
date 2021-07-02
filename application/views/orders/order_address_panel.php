@@ -12,6 +12,7 @@
 <div class="row">
   <div class="col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
+			<button type="button" class="btn btn-sm btn-primary pull-right" style="z-index:100;" onclick="update_wms_status()">Update WMS Status</button>
     	<ul class="nav nav-tabs" role="tablist">
         <li class="active">
         	<a href="#state" aria-expanded="true" aria-controls="state" role="tab" data-toggle="tab">สถานะ</a>
@@ -23,7 +24,8 @@
           <a href="#sender" aria-expanded="false" aria-controls="sender" role="tab" data-toggle="tab">ผู้จัดส่ง</a>
         </li>
       </ul>
-          <!-- Tab panes -->
+
+      <!-- Tab panes -->
       <div class="tab-content" style="margin:0px; padding:0px;">
 
 				<div role="tabpanel" class="tab-pane fade" id="address">

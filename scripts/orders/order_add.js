@@ -634,5 +634,38 @@ function validateOrder(){
     swal('เลขที่เอกสารไม่ถูกต้อง');
     return false;
   }
+}
 
+
+
+function update_wms_status() {
+	const order_code = $('#order_code').val();
+	if(order_code !== "" && order_code !== undefined) {
+		load_in();
+		$.ajax({
+			url:BASE_URL + 'rest/V1/wms_order_status/update_wms_status',
+			type:'GET',
+			cache:false,
+			data:{
+				"order_code" : order_code
+			},
+			success:function(rs) {
+				load_out();
+				if(rs === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal(rs);
+				}
+			}
+		})
+	}
 }

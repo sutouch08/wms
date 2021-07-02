@@ -87,6 +87,11 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
       </table>
 	</div>
 
+	<div class="col-sm-1 col-1-harf padding-0 font-size-14 margin-right-10" style="border:solid 1px red; <?php echo state_color($order->state); ?>">
+		<center>สถานปัจจุบัน</center>
+		<center><?php echo get_state_name($order->state); ?></center>
+	</div>
+
 <?php if( !empty($state) ) : ?>
   <?php foreach($state as $rs) : ?>
 	<div class="col-sm-1 col-1-harf padding-0 font-size-8" style="<?php echo state_color($rs->state); ?>">

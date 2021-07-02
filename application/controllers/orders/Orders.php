@@ -64,7 +64,8 @@ class Orders extends PS_Controller
       'sort_by' => get_filter('sort_by', 'order_sort_by', ''),
       'stated' => get_filter('stated', 'stated', ''),
       'startTime' => get_filter('startTime', 'startTime', ''),
-      'endTime' => get_filter('endTime', 'endTime', '')
+      'endTime' => get_filter('endTime', 'endTime', ''),
+			'wms_export' => get_filter('wms_export', 'wms_export', 'all')
     );
 
     $state = array(
@@ -3046,7 +3047,8 @@ class Orders extends PS_Controller
       'state_9',
       'stated',
       'startTime',
-      'endTime'
+      'endTime',
+			'wms_export'
     );
 
     clear_filter($filter);
@@ -3144,7 +3146,6 @@ class Orders extends PS_Controller
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
-
 
 }
 ?>

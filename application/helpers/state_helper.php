@@ -10,7 +10,12 @@ function get_state_name($state)
     '6' => 'กำลังตรวจสินค้า',
     '7' => 'รอการจัดส่ง',
     '8' => 'จัดส่งแล้ว',
-    '9' => 'ยกเลิก'
+    '9' => 'ยกเลิก',
+		'19' => 'In Progress',
+		'20' => 'Packing',
+		'21' => 'Packed',
+		'22' => 'Shipped',
+		'23' => 'Canceled'
   );
 
   return $name[$state];
@@ -39,7 +44,13 @@ function state_color($state, $is_saved = 1, $is_expired = 0)
       '7' => 'color:#000; background-color:#E7A9CD;',
       '8' => 'color:#333; background-color:#92CD88;',
       '9' => 'color:#000; background-color:#AAB2BD;',
+			'19' => 'color:#000; background-color:#FBB57F;',
+			'20' => 'color:#000; background-color:#088A68;',
+			'21' => 'color:#000; background-color:#E7A9CD;',
+			'22' => 'color:#333; background-color:#92CD88;',
+			'23' => 'color:#000; background-color:#AAB2BD;'
     );
+
     return $color[$state];
   }
 }

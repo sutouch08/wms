@@ -33,7 +33,6 @@ class PS_Controller extends CI_Controller
     $uid = get_cookie('uid');
 
 		$this->_user = $this->user_model->get_user_by_uid($uid);
-    //$this->isViewer = $this->user_model->is_viewer($uid);
 		$this->isViewer = $this->_user->is_viewer == 1 ? TRUE : FALSE;
 		$this->_SuperAdmin = $this->_user->id_profile == -987654321 ? TRUE : FALSE;
 
@@ -57,7 +56,7 @@ class PS_Controller extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
     $this->cn = $this->load->database('cn', TRUE); //--- consign Database
-    //$this->is = $this->load->database('is', TRUE); //---- Ecom database
+    
 
     if(empty($this->menu_code) && $this->isViewer === FALSE)
     {
