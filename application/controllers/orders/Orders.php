@@ -550,32 +550,37 @@ class Orders extends PS_Controller
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
       $rs->has_payment   = $this->order_payment_model->is_exists($code);
+
+			$state = $this->order_state_model->get_order_state($code);
+	    $ost = array();
+	    if(!empty($state))
+	    {
+	      foreach($state as $st)
+	      {
+	        $ost[] = $st;
+	      }
+	    }
+
+	    $details = $this->orders_model->get_order_details($code);
+	    $ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
+	    $banks = $this->bank_model->get_active_bank();
+
+
+	    $ds['state'] = $ost;
+	    $ds['order'] = $rs;
+	    $ds['details'] = $details;
+	    $ds['addr']  = $ship_to;
+	    $ds['banks'] = $banks;
+	    $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
+	    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
+	    $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
+	    $this->load->view('orders/order_edit', $ds);
     }
-
-    $state = $this->order_state_model->get_order_state($code);
-    $ost = array();
-    if(!empty($state))
-    {
-      foreach($state as $st)
-      {
-        $ost[] = $st;
-      }
-    }
-
-    $details = $this->orders_model->get_order_details($code);
-    $ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
-    $banks = $this->bank_model->get_active_bank();
-
-
-    $ds['state'] = $ost;
-    $ds['order'] = $rs;
-    $ds['details'] = $details;
-    $ds['addr']  = $ship_to;
-    $ds['banks'] = $banks;
-    $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
-    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
-    $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
-    $this->load->view('orders/order_edit', $ds);
+		else
+		{
+			$err = "ไม่พบเลขที่เอกสาร : {$code}";
+			$this->page_error($err);
+		}
   }
 
 
@@ -704,6 +709,28 @@ class Orders extends PS_Controller
   public function save($code)
   {
     $sc = TRUE;
+
+		$id_sender = $this->input->post('id_sender');
+		$tracking = trim($this->input->post('tracking'));
+
+		$arr = array();
+
+		if(!empty($id_sender))
+		{
+			$arr['id_sender'] = $id_sender;
+		}
+
+		if(!empty($tracking))
+		{
+			$arr['shipping_code'] = $tracking;
+		}
+
+		if(!empty($arr))
+		{
+			$this->orders_model->update($code, $arr);
+		}
+
+
     $order = $this->orders_model->get($code);
     //--- ถ้าออเดอร์เป็นแบบเครดิต
     if($order->is_term == 1 && $order->role === 'S')
@@ -723,7 +750,7 @@ class Orders extends PS_Controller
         {
           $diff = $credit_used - $credit_balance;
           $sc = FALSE;
-          $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+          $this->error = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
 					//$message = 'เครดิตคงเหลือไม่พอ ยอด :'.$credit_used.', คงเหลือ : '.$credit_balance.', (ขาด : '.$diff.')';
         }
       }
@@ -758,6 +785,7 @@ class Orders extends PS_Controller
 		}
 
 
+
 		if(empty($order->id_sender))
 		{
 			$this->load->model('masters/sender_model');
@@ -781,6 +809,7 @@ class Orders extends PS_Controller
 
 				$this->orders_model->update($order->code, $arr);
 			}
+
 		}
 
 
@@ -791,11 +820,11 @@ class Orders extends PS_Controller
       if($rs === FALSE)
       {
         $sc = FALSE;
-        $message = 'บันทึกออเดอร์ไม่สำเร็จ';
+        $this->error = 'บันทึกออเดอร์ไม่สำเร็จ';
       }
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -2076,7 +2105,7 @@ class Orders extends PS_Controller
 				}
 
         //---- ถ้าเป็น wms ก่อนยกเลิกให้เช็คก่อนว่ามีออเดอร์เข้ามาที่ SAP แล้วหรือยัง ถ้ายังไม่มียกเลิกได้
-        if($this->isAPI && $order->is_wms && $state == 9)
+        if($this->isAPI && $order->is_wms && $order->wms_export == 1 && $state == 9)
         {
           $this->wms = $this->load->database('wms', TRUE);
 					$this->load->model('rest/V1/wms_temp_order_model');
@@ -2174,7 +2203,7 @@ class Orders extends PS_Controller
             }
             else if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export) )
               {
                 $sc = FALSE;
               }
@@ -2185,7 +2214,7 @@ class Orders extends PS_Controller
           {
             if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export) )
               {
                 $sc = FALSE;
               }
@@ -2194,6 +2223,31 @@ class Orders extends PS_Controller
 
           if($sc === TRUE)
           {
+						if($this->isAPI && $state == 3 && $order->is_wms)
+						{
+							$arr = array();
+
+							if(!empty($this->input->post('id_sender')))
+							{
+								$arr['id_sender'] = $this->input->post('id_sender');
+							}
+							else
+							{
+								echo "กรุณาระบุผู้จัดส่ง";
+								exit;
+							}
+
+							if(!empty($this->input->post('tracking')))
+							{
+								$arr['shipping_code'] = trim($this->input->post('tracking'));
+							}
+
+							if(!empty($arr))
+							{
+								$this->orders_model->update($order->code, $arr);
+							}
+						}
+
             $rs = $this->orders_model->change_state($code, $state);
 
             if($rs)
@@ -2451,7 +2505,7 @@ class Orders extends PS_Controller
   }
 
 
-  public function cancle_order($code, $role, $state, $is_wms = 0)
+  public function cancle_order($code, $role, $state, $is_wms = 0, $wms_export = 0)
   {
     $this->load->model('inventory/prepare_model');
     $this->load->model('inventory/qc_model');
@@ -2467,7 +2521,7 @@ class Orders extends PS_Controller
 
     if($sc === TRUE)
 		{
-			if($this->isAPI && $is_wms)
+			if($this->isAPI && $is_wms && $wms_export == 1)
 			{
 				$this->wms = $this->load->database('wms', TRUE);
 				$this->load->library('wms_order_cancle_api');

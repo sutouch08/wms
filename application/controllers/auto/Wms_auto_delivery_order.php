@@ -39,7 +39,7 @@ class Wms_auto_delivery_order extends CI_Controller
   public function index()
   {
 		$sc = TRUE;
-		$limit = 10;
+		$limit = 100;
 
 		$list = $this->wms_temp_order_model->get_unprocess_list($limit);
 

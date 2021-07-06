@@ -1,5 +1,6 @@
 <?php $this->load->view('include/header'); ?>
 <?php $can_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
+<?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
 <div class="row">
 	<div class="col-sm-6 col-xs-6 padding-5">
     <h3 class="title">
@@ -176,7 +177,7 @@
 					<th class="width-10 middle">ช่องทางขาย</th>
 					<th class="width-10 middle">การชำระเงิน</th>
 					<th class="width-10 middle">สถานะ</th>
-					<?php if($this->_SuperAdmin) : ?>
+					<?php if($this->_SuperAdmin && $instant_export) : ?>
 						<th class="width-5 middle"></th>
 					<?php endif; ?>
 				</tr>
@@ -202,7 +203,7 @@
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->channels_name; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->payment_name; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
-              <?php if($this->_SuperAdmin) : ?>
+              <?php if($this->_SuperAdmin && $instant_export) : ?>
 							<td class="middle text-right"><button type="button" class="btn btn-minier btn-primary" onclick="sendToWms('<?php echo $rs->code; ?>')">Wms</button></td>
 							<?php endif; ?>
             </tr>

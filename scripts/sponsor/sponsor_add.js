@@ -431,13 +431,14 @@ function recalDiscount(){
 function changeState(){
     var order_code = $("#order_code").val();
     var state = $("#stateList").val();
+		var id_address = $('#address_id').val();
+		var id_sender = $('#id_sender').val();
+		var trackingNo = $('#trackingNo').val();
+		var tracking = $('#tracking').val();
 
 		var is_wms = $('#is_wms').val();
 
 		if(is_wms) {
-			var id_address = $('#address_id').val();
-			var id_sender = $('#id_sender').val();
-
 			if(state == 3 && id_address == "") {
 				swal("กรุณาระบุที่อยู่จัดส่ง");
 				return false;
@@ -449,8 +450,6 @@ function changeState(){
 			}
 
 			if($('#sender option:selected').data('tracking') == 1) {
-				let trackingNo = $('#trackingNo').val();
-				let tracking = $('#tracking').val();
 				if(trackingNo != tracking) {
 					swal("กรุณากดบันทึก Tracking No");
 					return false;
@@ -471,7 +470,10 @@ function changeState(){
             cache:"false",
             data:{
               "order_code" : order_code,
-              "state" : state
+              "state" : state,
+							"id_address" : id_address,
+							"id_sender" : id_sender,
+							"tracking" : tracking
             },
             success:function(rs){
 							load_out();

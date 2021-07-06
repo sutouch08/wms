@@ -360,6 +360,24 @@ function toggleLogXml(option) {
 }
 
 
+function toggleFastExport(option) {
+
+	$('#wms-instant-export').val(option);
+
+	if(option == 1) {
+		$('#btn-ex-off').removeClass('btn-danger');
+		$('#btn-ex-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-ex-on').removeClass('btn-success');
+		$('#btn-ex-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
 function checkCompanySetting(){
 	vat = parseFloat($('#VAT').val());
 	year = parseInt($('#startYear').val());

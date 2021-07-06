@@ -75,10 +75,16 @@ function get_quotation()
 //---- เปลี่ยนสถานะออเดอร์  เป็นบันทึกแล้ว
 function saveOrder(){
   var order_code = $('#order_code').val();
+	var id_sender = $('#id_sender').val();
+	var tracking = $('#tracking').val();
 	$.ajax({
 		url: BASE_URL + 'orders/orders/save/'+ order_code,
 		type:"POST",
     cache:false,
+		data:{
+			'id_sender' : id_sender,
+			'tracking' : tracking
+		},
 		success:function(rs){
 			var rs = $.trim(rs);
 			if( rs == 'success' ){
@@ -465,11 +471,12 @@ function changeState(){
     var order_code = $("#order_code").val();
     var state = $("#stateList").val();
 		var is_wms = $('#is_wms').val();
+		var trackingNo = $('#trackingNo').val();
+		var tracking = $('#tracking').val();
+		var id_address = $('#address_id').val();
+		var id_sender = $('#id_sender').val();
 
 		if(is_wms) {
-			var id_address = $('#address_id').val();
-			var id_sender = $('#id_sender').val();
-
 			if(state == 3 && id_address == "") {
 				swal("กรุณาระบุที่อยู่จัดส่ง");
 				return false;
@@ -481,8 +488,6 @@ function changeState(){
 			}
 
 			if($('#sender option:selected').data('tracking') == 1) {
-				let trackingNo = $('#trackingNo').val();
-				let tracking = $('#tracking').val();
 				if(trackingNo != tracking) {
 					swal("กรุณากดบันทึก Tracking No");
 					return false;
@@ -503,7 +508,10 @@ function changeState(){
             cache:"false",
             data:{
               "order_code" : order_code,
-              "state" : state
+              "state" : state,
+							"id_address" : id_address,
+							"id_sender" : id_sender,
+							"tracking" : tracking
             },
             success:function(rs){
               load_out();
@@ -634,38 +642,4 @@ function validateOrder(){
     swal('เลขที่เอกสารไม่ถูกต้อง');
     return false;
   }
-}
-
-
-
-function update_wms_status() {
-	const order_code = $('#order_code').val();
-	if(order_code !== "" && order_code !== undefined) {
-		load_in();
-		$.ajax({
-			url:BASE_URL + 'rest/V1/wms_order_status/update_wms_status',
-			type:'GET',
-			cache:false,
-			data:{
-				"order_code" : order_code
-			},
-			success:function(rs) {
-				load_out();
-				if(rs === 'success') {
-					swal({
-						title:'Success',
-						type:'success',
-						timer:1000
-					});
-
-					setTimeout(function(){
-						window.location.reload();
-					}, 1200);
-				}
-				else {
-					swal(rs);
-				}
-			}
-		})
-	}
 }

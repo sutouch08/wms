@@ -112,7 +112,7 @@
 									</select>
 								</td>
 								<td class="width-10 middle" style="border:none;">
-									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
+									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->id_sender == NULL) : ?>
 									<button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
 									<?php endif; ?>
 								</td>
@@ -122,7 +122,7 @@
 									<input type="hidden" id="trackingNo" value="<?php echo $order->shipping_code; ?>">
 								</td>
 								<td class="width-10 middle" style="border:none;">
-									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
+									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->shipping_code == NULL) : ?>
 									<button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
 									<?php endif; ?>
 								</td>
@@ -138,3 +138,36 @@
 	</div>
 </div>
 <hr class="padding-5"/>
+<script>
+function update_wms_status() {
+	const order_code = $('#order_code').val();
+	if(order_code !== "" && order_code !== undefined) {
+		load_in();
+		$.ajax({
+			url:BASE_URL + 'rest/V1/wms_order_status/update_wms_status',
+			type:'GET',
+			cache:false,
+			data:{
+				"order_code" : order_code
+			},
+			success:function(rs) {
+				load_out();
+				if(rs === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal(rs);
+				}
+			}
+		})
+	}
+}
+</script>

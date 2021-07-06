@@ -73,10 +73,8 @@ $hide = $order->status == 1 ? 'hide' : '';
   <div class="col-sm-1 col-xs-12 padding-5 margin-bottom-10">
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">เพิ่ม</button>
   </div>
-
-
-
 </div>
+
 <hr class="margin-top-15 margin-bottom-0" />
 <!--- Category Menu ---------------------------------->
 <div class="row">

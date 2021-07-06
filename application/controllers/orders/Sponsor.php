@@ -48,7 +48,8 @@ class Sponsor extends PS_Controller
       'onlyMe' => get_filter('onlyMe', 'sponsor_onlyMe', NULL),
       'isExpire' => get_filter('isExpire', 'sponsor_isExpire', NULL),
       'isApprove' => get_filter('isApprove', 'sponsor_isApprove', 'all'),
-			'warehouse' => get_filter('warehouse', 'sponsor_warehouse', '')
+			'warehouse' => get_filter('warehouse', 'sponsor_warehouse', ''),
+			'wms_export' => get_filter('wms_export', 'sponsor_wms_export', 'all')
     );
 
     $state = array(
@@ -463,6 +464,7 @@ class Sponsor extends PS_Controller
       'sponsor_toDate',
       'sponsor_isApprove',
 			'sponsor_warehouse',
+			'sponsor_wms_export',
       'sponsor_notSave',
       'sponsor_onlyMe',
       'sponsor_isExpire',

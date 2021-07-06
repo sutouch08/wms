@@ -41,7 +41,9 @@
     </div>
 </div><!-- End Row -->
 <hr/>
-
+<?php if($this->isAPI && $order->is_wms && $order->state >= 3 && $order->wms_export != 1) : ?>
+<?php 	$this->load->view('wms_error_watermark'); ?>
+<?php endif; ?>
 <?php $this->load->view('orders/order_edit_header'); ?>
 <?php $this->load->view('orders/order_panel'); ?>
 <?php $this->load->view('orders/order_discount_bar'); ?>

@@ -143,11 +143,13 @@ function unapprove()
 
 function change_state(){
   var order_code = $('#order_code').val();
+	var id_address = $('#address_id').val();
+	var id_sender = $('#id_sender').val();
+	var trackingNo = $('#trackingNo').val();
+	var tracking = $('#tracking').val();
 	var is_wms = $('#is_wms').val();
 
 	if(is_wms == 1) {
-		var id_address = $('#address_id').val();
-		var id_sender = $('#id_sender').val();
 
 		if(id_address == "") {
 			swal("กรุณาระบุที่อยู่จัดส่ง");
@@ -158,6 +160,18 @@ function change_state(){
 			swal("กรุณาระบุผู้จัดส่ง");
 			return false;
 		}
+
+		if($('#sender option:selected').data('tracking') == 1) {
+			if(trackingNo != tracking) {
+				swal("กรุณากดบันทึก Tracking No");
+				return false;
+			}
+
+			if(trackingNo.length === 0) {
+				swal("กรุณาระบุ Tracking No");
+				return false;
+			}
+		}
 	}
 
   $.ajax({
@@ -165,8 +179,11 @@ function change_state(){
     type:'POST',
     cache:false,
     data:{
-      'order_code' : order_code,
-      'state' : 3
+			"order_code" : order_code,
+			"state" : 3,
+			"id_address" : id_address,
+			"id_sender" : id_sender,
+			"tracking" : tracking
     },
     success:function(rs){
 			load_out();

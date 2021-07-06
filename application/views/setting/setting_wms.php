@@ -12,6 +12,9 @@
 
 		$api_on = $WMS_API == 1 ? 'btn-success' : '';
 		$api_off = $WMS_API == 0 ? 'btn-danger' : '';
+
+		$ex_on = $WMS_INSTANT_EXPORT == 1 ? 'btn-success' : '';
+		$ex_off = $WMS_INSTANT_EXPORT == 0 ? 'btn-danger' : '';
 	 ?>
 	<form id="wmsForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
@@ -128,17 +131,30 @@
       <div class="divider-hidden"></div>
 
 			<div class="col-sm-4">
-        <span class="form-control left-label">Logs XML</span>
+        <span class="form-control left-label">WMS Fast Export(For test only)</span>
       </div>
       <div class="col-sm-8">
+				<div class="btn-group">
+					<button type="button" class="btn btn-sm <?php echo $ex_on; ?>" style="width:50%;" id="btn-ex-on" onClick="toggleFastExport(1)">ON</button>
+					<button type="button" class="btn btn-sm <?php echo $ex_off; ?>" style="width:50%;" id="btn-ex-off" onClick="toggleFastExport(0)">OFF</button>
+				</div>
+				<input type="hidden" name="WMS_INSTANT_EXPORT" id="wms-instant-export" value="<?php echo $WMS_INSTANT_EXPORT; ?>" />
+				<span class="help-block">เปิดใช้ปุ่ม export to wms บนหน้า order list(สำหรับทดสอบระบบ)</span>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+				<span class="form-control left-label">Logs XML</span>
+			</div>
+			<div class="col-sm-8">
 				<div class="btn-group">
 					<button type="button" class="btn btn-sm <?php echo $xml_on; ?>" style="width:50%;" id="btn-xml-on" onClick="toggleLogXml(1)">ON</button>
 					<button type="button" class="btn btn-sm <?php echo $xml_off; ?>" style="width:50%;" id="btn-xml-off" onClick="toggleLogXml(0)">OFF</button>
 				</div>
 				<input type="hidden" name="LOG_XML" id="log-xml" value="<?php echo $LOG_XML; ?>" />
 				<span class="help-block">เก็บ XML logs ไว้ตรวจสอบการส่งข้อมูล</span>
-      </div>
-      <div class="divider-hidden"></div>
+			</div>
+			<div class="divider-hidden"></div>
 
       <div class="col-sm-8 col-sm-offset-4">
 				<?php if($this->_SuperAdmin) : ?>

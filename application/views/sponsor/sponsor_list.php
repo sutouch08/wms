@@ -29,7 +29,7 @@
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
-	<div class="col-sm-2 col-xs-6 padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label>คลังสินค้า</label>
 		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -37,12 +37,22 @@
 		</select>
 	</div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-sm-1 col-xs-6 padding-5">
 		<label>การอนุมัติ</label>
 		<select class="form-control input-sm" name="isApprove" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected($isApprove, "0"); ?>>รออนุมัติ</option>
 			<option value="1" <?php echo is_selected($isApprove, "1"); ?>>อนุมัติแล้ว</option>
+		</select>
+	</div>
+
+	<div class="col-sm-1 padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $wms_export); ?>>ยังไม่ส่ง</option>
+			<option value="1" <?php echo is_selected('1', $wms_export); ?>>ส่งแล้ว</option>
+			<option value="3" <?php echo is_selected('3', $wms_export); ?>>Error</option>
 		</select>
 	</div>
 
