@@ -24,8 +24,18 @@ class Delivery extends REST_Controller
 		$message = "";
 		$error_mesage = array();
     //--- Get raw post data
-    $data_set = json_decode(file_get_contents("php://input"));
+		$json = file_get_contents("php://input");
+		$data_set = json_decode($json);
+		$logs = TRUE;
 
+		if($logs)
+		{
+			$arr = array(
+				'order_code' => "test",
+				'xml_text' => $json
+			);
+			$this->wms_error_logs_model->log_xml($arr);
+		}
 
     if(empty($data_set))
     {

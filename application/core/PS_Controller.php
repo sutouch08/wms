@@ -40,12 +40,12 @@ class PS_Controller extends CI_Controller
 
     if($this->close_system == 1 && $this->_SuperAdmin === FALSE)
     {
-      redirect('setting/maintenance');
+      redirect(base_url().'setting/maintenance');
     }
 
 		if(!$this->isViewer && $this->is_expire_password($this->_user->last_pass_change))
 		{
-			redirect('change_password');
+			redirect(base_url().'change_password');
 		}
 
 
@@ -56,7 +56,7 @@ class PS_Controller extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
     $this->cn = $this->load->database('cn', TRUE); //--- consign Database
-    
+
 
     if(empty($this->menu_code) && $this->isViewer === FALSE)
     {

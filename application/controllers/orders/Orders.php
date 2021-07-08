@@ -3172,13 +3172,24 @@ class Orders extends PS_Controller
 			$rs = $this->wms_order_api->export_order($code);
 
 			if(! $rs)
-			{
-				$sc = FALSE;
+			{				
 				$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_api->error.")";
-				$arr = array(
-					'wms_export' => 3,
-					'wms_export_error' => $this->wms_order_api->error
-				);
+				$txt = "998 : This order no {$code} was already processed by PLC operation.";
+				if($this->wms_order_api->error == $txt)
+				{
+					$arr = array(
+						'wms_export' => 1,
+						'wms_export_error' => NULL
+					);
+				}
+				else
+				{
+					$sc = FALSE;
+					$arr = array(
+						'wms_export' => 3,
+						'wms_export_error' => $this->wms_order_api->error
+					);
+				}
 
 				$this->orders_model->update($code, $arr);
 			}

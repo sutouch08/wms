@@ -729,7 +729,7 @@ class Orders_model extends CI_Model
 			{
 				$this->db->where('orders.wms_export', $ds['wms_export']);		}
 		}
-		
+
 
     if(!empty($ds['order_by']))
     {

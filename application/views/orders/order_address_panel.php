@@ -12,7 +12,9 @@
 <div class="row">
   <div class="col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
+			<?php if($order->is_wms && $order->wms_export == 1) : ?>
 			<button type="button" class="btn btn-sm btn-primary pull-right" style="z-index:100;" onclick="update_wms_status()">Update WMS Status</button>
+			<?php endif; ?>
     	<ul class="nav nav-tabs" role="tablist">
         <li class="active">
         	<a href="#state" aria-expanded="true" aria-controls="state" role="tab" data-toggle="tab">สถานะ</a>

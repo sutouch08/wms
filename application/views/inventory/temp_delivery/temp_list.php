@@ -73,7 +73,7 @@
           <th class="width-10">รหัสลูกค้า</th>
           <th class="width-20">ชื่อลูกค้า</th>
           <th class="width-15">เข้าถังกลาง</th>
-          <th class="width-15">เข้า SAP</th>
+          <th class="width-15">SAP Update</th>
           <th class="width-5 text-center">สถานะ</th>
 					<th class="">หมายเหตุ</th>
 					<th class="width-5"></th>
@@ -133,11 +133,11 @@
             ?>
           </td>
 					<td class="middle text-right">
-						<?php if($rs->F_Sap === 'N') : ?>
+
 						<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-						<?php endif; ?>
+
 
 					</td>
         </tr>

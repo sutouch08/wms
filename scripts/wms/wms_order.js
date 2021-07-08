@@ -20,7 +20,9 @@ function sendToWMS()
 					timer:1000
 				})
 
-				//setWms(order_code);
+				setTimeout(function(){
+					window.location.reload();
+				}, 1200);
 			}
 			else {
 				swal({

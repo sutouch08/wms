@@ -150,7 +150,7 @@ class Order_payment extends PS_Controller
 							'wms_export_error' => $this->wms_order_api->error
 						);
 
-						$this->orders_model->update($code, $arr);
+						$this->orders_model->update($order->code, $arr);
 					}
 					else
 					{
@@ -159,7 +159,7 @@ class Order_payment extends PS_Controller
 							'wms_export_error' => NULL
 						);
 
-						$this->orders_model->update($code, $arr);
+						$this->orders_model->update($order->code, $arr);
 					}
 				}
 			}
