@@ -44,8 +44,46 @@ class Support extends PS_Controller
       'from_date' => get_filter('fromDate', 'support_fromDate', ''),
       'to_date'   => get_filter('toDate', 'support_toDate', ''),
       'isApprove' => get_filter('isApprove', 'support_isApprove', 'all'),
-			'warehouse' => get_filter('warehouse', 'support_warehouse', '')
+			'warehouse' => get_filter('warehouse', 'support_warehouse', ''),
+			'notSave' => get_filter('notSave', 'support_notSave', NULL),
+      'onlyMe' => get_filter('onlyMe', 'support_onlyMe', NULL),
+      'isExpire' => get_filter('isExpire', 'support_isExpire', NULL),
+			'wms_export' => get_filter('wms_export', 'support_wms_export', 'all')
     );
+
+		$state = array(
+      '1' => get_filter('state_1', 'support_state_1', 'N'),
+      '2' => get_filter('state_2', 'support_state_2', 'N'),
+      '3' => get_filter('state_3', 'support_state_3', 'N'),
+      '4' => get_filter('state_4', 'support_state_4', 'N'),
+      '5' => get_filter('state_5', 'support_state_5', 'N'),
+      '6' => get_filter('state_6', 'support_state_6', 'N'),
+      '7' => get_filter('state_7', 'support_state_7', 'N'),
+      '8' => get_filter('state_8', 'support_state_8', 'N'),
+      '9' => get_filter('state_9', 'support_state_9', 'N')
+    );
+
+    $state_list = array();
+
+    $button = array();
+
+    for($i =1; $i <= 9; $i++)
+    {
+    	if($state[$i] === 'Y')
+    	{
+    		$state_list[] = $i;
+    	}
+
+      $btn = 'state_'.$i;
+      $button[$btn] = $state[$i] === 'Y' ? 'btn-info' : '';
+    }
+
+    $button['not_save'] = empty($filter['notSave']) ? '' : 'btn-info';
+    $button['only_me'] = empty($filter['onlyMe']) ? '' : 'btn-info';
+    $button['is_expire'] = empty($filter['isExpire']) ? '' : 'btn-info';
+
+
+    $filter['state_list'] = empty($state_list) ? NULL : $state_list;
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_rows();
@@ -74,6 +112,8 @@ class Support extends PS_Controller
     }
 
     $filter['orders'] = $ds;
+		$filter['state'] = $state;
+    $filter['btn'] = $button;
 
 		$this->pagination->initialize($init);
     $this->load->view('support/support_list', $filter);
@@ -425,7 +465,20 @@ class Support extends PS_Controller
       'support_fromDate',
       'support_toDate',
       'support_isApprove',
-			'support_warehouse'
+			'support_warehouse',
+			'support_wms_export',
+      'support_notSave',
+      'support_onlyMe',
+      'support_isExpire',
+      'support_state_1',
+      'support_state_2',
+      'support_state_3',
+      'support_state_4',
+      'support_state_5',
+      'support_state_6',
+      'support_state_7',
+      'support_state_8',
+      'support_state_9'
     );
 
     clear_filter($filter);

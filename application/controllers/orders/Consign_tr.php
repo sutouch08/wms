@@ -52,7 +52,8 @@ class Consign_tr extends PS_Controller
       'isExpire' => get_filter('isExpire', 'consign_isExpire', NULL),
       'isApprove' => get_filter('isApprove', 'consign_isApprove', 'all'),
       'isValid' => get_filter('isValid', 'consign_isValid', 'all'),
-			'warehouse' => get_filter('warehouse', 'consign_warehouse', '')
+			'warehouse' => get_filter('warehouse', 'consign_warehouse', ''),
+			'wms_export' => get_filter('wms_export', 'consign_wms_export', 'all')
     );
 
     $state = array(
@@ -511,6 +512,7 @@ class Consign_tr extends PS_Controller
       'consign_isApprove',
       'consign_isValid',
 			'consign_warehouse',
+			'consign_wms_export',
       'consign_notSave',
       'consign_onlyMe',
       'consign_isExpire',

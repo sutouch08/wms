@@ -45,8 +45,47 @@ class Lend extends PS_Controller
       'from_date' => get_filter('fromDate', 'lend_fromDate', ''),
       'to_date'   => get_filter('toDate', 'lend_toDate', ''),
       'isApprove' => get_filter('isApprove', 'lend_isApprove', 'all'),
-			'warehouse' => get_filter('warehouse', 'lend_warehouse', '')
+			'warehouse' => get_filter('warehouse', 'lend_warehouse', ''),
+			'notSave' => get_filter('notSave', 'lend_notSave', NULL),
+      'onlyMe' => get_filter('onlyMe', 'lend_onlyMe', NULL),
+      'isExpire' => get_filter('isExpire', 'lend_isExpire', NULL),
+			'wms_export' => get_filter('wms_export', 'lend_wms_export', 'all')
     );
+
+		$state = array(
+      '1' => get_filter('state_1', 'lend_state_1', 'N'),
+      '2' => get_filter('state_2', 'lend_state_2', 'N'),
+      '3' => get_filter('state_3', 'lend_state_3', 'N'),
+      '4' => get_filter('state_4', 'lend_state_4', 'N'),
+      '5' => get_filter('state_5', 'lend_state_5', 'N'),
+      '6' => get_filter('state_6', 'lend_state_6', 'N'),
+      '7' => get_filter('state_7', 'lend_state_7', 'N'),
+      '8' => get_filter('state_8', 'lend_state_8', 'N'),
+      '9' => get_filter('state_9', 'lend_state_9', 'N')
+    );
+
+    $state_list = array();
+
+    $button = array();
+
+    for($i =1; $i <= 9; $i++)
+    {
+    	if($state[$i] === 'Y')
+    	{
+    		$state_list[] = $i;
+    	}
+
+      $btn = 'state_'.$i;
+      $button[$btn] = $state[$i] === 'Y' ? 'btn-info' : '';
+    }
+
+    $button['not_save'] = empty($filter['notSave']) ? '' : 'btn-info';
+    $button['only_me'] = empty($filter['onlyMe']) ? '' : 'btn-info';
+    $button['is_expire'] = empty($filter['isExpire']) ? '' : 'btn-info';
+
+
+    $filter['state_list'] = empty($state_list) ? NULL : $state_list;
+
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_rows();
@@ -74,6 +113,8 @@ class Lend extends PS_Controller
     }
 
     $filter['orders'] = $ds;
+		$filter['state'] = $state;
+    $filter['btn'] = $button;
 
 		$this->pagination->initialize($init);
     $this->load->view('lend/lend_list', $filter);
@@ -338,7 +379,20 @@ class Lend extends PS_Controller
       'lend_fromDate',
       'lend_toDate',
       'lend_isApprove',
-			'lend_warehouse'
+			'lend_warehouse',
+			'lend_wms_export',
+      'lend_notSave',
+      'lend_onlyMe',
+      'lend_isExpire',
+      'lend_state_1',
+      'lend_state_2',
+      'lend_state_3',
+      'lend_state_4',
+      'lend_state_5',
+      'lend_state_6',
+      'lend_state_7',
+      'lend_state_8',
+      'lend_state_9'
     );
 
     clear_filter($filter);

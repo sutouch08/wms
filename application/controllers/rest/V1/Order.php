@@ -2,7 +2,7 @@
 require(APPPATH.'/libraries/REST_Controller.php');
 use Restserver\Libraries\REST_Controller;
 
-class Orders extends REST_Controller
+class Order extends REST_Controller
 {
   public $error;
   public $user;

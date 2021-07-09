@@ -43,11 +43,49 @@ class Transform extends PS_Controller
       'customer'  => get_filter('customer', 'transform_customer', ''),
       'user'      => get_filter('user', 'transform_user', ''),
       'user_ref'  => get_filter('user_ref', 'transform_user_ref', ''),
+			'notSave' => get_filter('notSave', 'transform_notSave', NULL),
+      'onlyMe' => get_filter('onlyMe', 'transform_onlyMe', NULL),
+      'isExpire' => get_filter('isExpire', 'transform_isExpire', NULL),
       'from_date' => get_filter('fromDate', 'transform_fromDate', ''),
       'to_date'   => get_filter('toDate', 'transform_toDate', ''),
       'isApprove' => get_filter('isApprove', 'transform_isApprove', 'all'),
-			'warehouse' => get_filter('warehouse', 'transform_warehouse', '')
+			'warehouse' => get_filter('warehouse', 'transform_warehouse', ''),
+			'wms_export' => get_filter('wms_export', 'transform_wms_export', 'all')
     );
+
+		$state = array(
+      '1' => get_filter('state_1', 'transform_state_1', 'N'),
+      '2' => get_filter('state_2', 'transform_state_2', 'N'),
+      '3' => get_filter('state_3', 'transform_state_3', 'N'),
+      '4' => get_filter('state_4', 'transform_state_4', 'N'),
+      '5' => get_filter('state_5', 'transform_state_5', 'N'),
+      '6' => get_filter('state_6', 'transform_state_6', 'N'),
+      '7' => get_filter('state_7', 'transform_state_7', 'N'),
+      '8' => get_filter('state_8', 'transform_state_8', 'N'),
+      '9' => get_filter('state_9', 'transform_state_9', 'N')
+    );
+
+    $state_list = array();
+
+    $button = array();
+
+    for($i =1; $i <= 9; $i++)
+    {
+    	if($state[$i] === 'Y')
+    	{
+    		$state_list[] = $i;
+    	}
+
+      $btn = 'state_'.$i;
+      $button[$btn] = $state[$i] === 'Y' ? 'btn-info' : '';
+    }
+
+    $button['not_save'] = empty($filter['notSave']) ? '' : 'btn-info';
+    $button['only_me'] = empty($filter['onlyMe']) ? '' : 'btn-info';
+    $button['is_expire'] = empty($filter['isExpire']) ? '' : 'btn-info';
+
+
+    $filter['state_list'] = empty($state_list) ? NULL : $state_list;
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_rows();
@@ -76,6 +114,8 @@ class Transform extends PS_Controller
     }
 
     $filter['orders'] = $ds;
+		$filter['state'] = $state;
+    $filter['btn'] = $button;
 
 		$this->pagination->initialize($init);
     $this->load->view('transform/transform_list', $filter);
@@ -91,7 +131,7 @@ class Transform extends PS_Controller
 
   public function add()
   {
-		
+
     if($this->input->post('customerCode'))
     {
 			$this->load->model('masters/warehouse_model');
@@ -575,7 +615,20 @@ class Transform extends PS_Controller
       'transform_fromDate',
       'transform_toDate',
       'transform_isApprove',
-			'transform_warehouse'
+			'transform_warehouse',
+			'transform_wms_export',
+      'transform_notSave',
+      'transform_onlyMe',
+      'transform_isExpire',
+      'transform_state_1',
+      'transform_state_2',
+      'transform_state_3',
+      'transform_state_4',
+      'transform_state_5',
+      'transform_state_6',
+      'transform_state_7',
+      'transform_state_8',
+      'transform_state_9'
     );
 
     clear_filter($filter);

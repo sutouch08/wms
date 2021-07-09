@@ -38,7 +38,7 @@
   </div>
 	-->
 
-	<div class="col-sm-2 col-xs-6 padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label>คลังสินค้า</label>
 		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -46,12 +46,22 @@
 		</select>
 	</div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-sm-1 col-xs-6 padding-5">
 		<label>การอนุมัติ</label>
 		<select class="form-control input-sm" name="isApprove" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected($isApprove, "0"); ?>>รออนุมัติ</option>
 			<option value="1" <?php echo is_selected($isApprove, "1"); ?>>อนุมัติแล้ว</option>
+		</select>
+	</div>
+
+	<div class="col-sm-1 padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $wms_export); ?>>ยังไม่ส่ง</option>
+			<option value="1" <?php echo is_selected('1', $wms_export); ?>>ส่งแล้ว</option>
+			<option value="3" <?php echo is_selected('3', $wms_export); ?>>Error</option>
 		</select>
 	</div>
 
@@ -74,6 +84,54 @@
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
+<div class="row margin-top-10">
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-3" class="btn btn-xs btn-block <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-3" class="btn btn-xs btn-block <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-4" class="btn btn-xs btn-block <?php echo $btn['state_4']; ?>" onclick="toggleState(4)">กำลังจัด</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-5" class="btn btn-xs btn-block <?php echo $btn['state_5']; ?>" onclick="toggleState(5)">รอตรวจ</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-6" class="btn btn-xs btn-block <?php echo $btn['state_6']; ?>" onclick="toggleState(6)">กำลังตรวจ</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-7" class="btn btn-xs btn-block <?php echo $btn['state_7']; ?>" onclick="toggleState(7)">รอเปิดบิล</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-8" class="btn btn-xs btn-block <?php echo $btn['state_8']; ?>" onclick="toggleState(8)">เปิดบิลแล้ว</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-state-9" class="btn btn-xs btn-block <?php echo $btn['state_9']; ?>" onclick="toggleState(9)">ยกเลิก</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-not-save" class="btn btn-xs btn-block <?php echo $btn['not_save']; ?>" onclick="toggleNotSave()">ไม่บันทึก</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-expire" class="btn btn-xs btn-block <?php echo $btn['is_expire']; ?>" onclick="toggleIsExpire()">หมดอายุ</button>
+	</div>
+	<div class="col-sm-1 padding-5">
+		<button type="button" id="btn-only-me" class="btn btn-xs btn-block <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
+	</div>
+</div>
+
+<input type="hidden" name="state_1" id="state_1" value="<?php echo $state[1]; ?>" />
+<input type="hidden" name="state_2" id="state_2" value="<?php echo $state[2]; ?>" />
+<input type="hidden" name="state_3" id="state_3" value="<?php echo $state[3]; ?>" />
+<input type="hidden" name="state_4" id="state_4" value="<?php echo $state[4]; ?>" />
+<input type="hidden" name="state_5" id="state_5" value="<?php echo $state[5]; ?>" />
+<input type="hidden" name="state_6" id="state_6" value="<?php echo $state[6]; ?>" />
+<input type="hidden" name="state_7" id="state_7" value="<?php echo $state[7]; ?>" />
+<input type="hidden" name="state_8" id="state_8" value="<?php echo $state[8]; ?>" />
+<input type="hidden" name="state_9" id="state_9" value="<?php echo $state[9]; ?>" />
+<input type="hidden" name="notSave" id="notSave" value="<?php echo $notSave; ?>" />
+<input type="hidden" name="onlyMe" id="onlyMe" value="<?php echo $onlyMe; ?>" />
+<input type="hidden" name="isExpire" id="isExpire" value="<?php echo $isExpire; ?>" />
 <hr class="margin-top-15 padding-5">
 </form>
 <?php echo $this->pagination->create_links(); ?>
@@ -111,6 +169,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/support/support.js"></script>
+<script src="<?php echo base_url(); ?>scripts/support/support.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>
