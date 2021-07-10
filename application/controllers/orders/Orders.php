@@ -2515,6 +2515,7 @@ class Orders extends PS_Controller
     $this->load->model('inventory/invoice_model');
     $this->load->model('inventory/buffer_model');
     $this->load->model('inventory/cancle_model');
+		$this->load->model('inventory/movement_model');
     $this->load->model('masters/zone_model');
 
     $sc = TRUE;
@@ -2609,14 +2610,24 @@ class Orders extends PS_Controller
         }
       }
 
+			//--- remove movement
+	    if($sc === TRUE)
+	    {
+	      if(! $this->movement_model->drop_movement($code) )
+	      {
+	        $sc = FALSE;
+	        $this->error = "Drop movement failed";
+	      }
+	    }
 
-      //--- 4. ลบรายการสั่งซื้อ
+
+      //--- 4. set รายการสั่งซื้อ ให้เป็น ยกเลิก
       if($sc === TRUE)
       {
-        if(! $this->orders_model->clear_order_detail($code) )
+        if(! $this->orders_model->cancle_order_detail($code) )
         {
           $sc = FALSE;
-          $this->error = "Delete Order details failed";
+          $this->error = "Cancle Order details failed";
         }
       }
 
@@ -2814,6 +2825,174 @@ class Orders extends PS_Controller
     echo 'success';
   }
 
+
+	public function cancle_wms_shipped_order()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('order_code');
+		if(!empty($code))
+		{
+			$order = $this->orders_model->get($code);
+
+			if(!empty($order))
+			{
+				//---- ถ้าเปิดบิลแล้ว check Do
+				if($order->state == 8)
+				{
+					if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
+	        {
+	          $sap = $this->orders_model->get_sap_doc_num($order->code);
+						if(!empty($sap))
+						{
+							$sc = FALSE;
+							$this->error = "กรุณายกเลิก DO ใน SAP ก่อน";
+						}
+	        }
+
+					//---
+	        if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
+	        {
+						$this->load->model('inventory/transfer_model');
+						$sap = $this->transfer_model->get_sap_transfer_doc($code);
+						if(! empty($sap))
+						{
+							$sc = FALSE;
+							$this->error = "กรุณายกเลิกเอกสารใน SAP ก่อน";
+						}
+	        }
+				}
+
+
+				if($sc === TRUE)
+				{
+					//--- check status wms is shipped ?
+
+					//---- cancle
+					$is_wms = 0; //--- ทำเหมือนว่าไม่เป็นออเดอร์ที่ warrix
+					$wms_export = 0; //--- ทำเหมือนว่าไม่ได้ส่งไป wms
+
+					$rs = $this->cancle_order($code, $order->role, $order->state, $is_wms, $wms_export);
+
+					if($rs === TRUE)
+					{
+						$arr = array(
+							'state' => 9,
+							'date_upd' => get_cookie('uname')
+						);
+
+						if(!$this->orders_model->update($code, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Cancle order failed";
+						}
+
+						if($sc === TRUE)
+						{
+							$arr = array(
+								'order_code' => $code,
+								'state' => 9,
+								'update_user' => get_cookie('uname')
+							);
+
+							if(! $this->order_state_model->add_state($arr) )
+							{
+								$sc = FALSE;
+								$this->error = "Add state failed";
+							}
+						}
+
+					}
+
+
+					if($rs === TRUE)
+					{
+						//-- Send data to WMS
+						$this->wms = $this->load->database('wms', TRUE);
+						$this->load->library('wms_receive_api');
+
+						$details = $this->orders_model->get_order_details($code);
+
+						if(!empty($details))
+						{
+							$ex = $this->wms_receive_api->export_return_request($order, $details);
+
+							if(! $ex)
+							{
+								$sc = FALSE;
+								$this->error = $this->wms_receive_api->error;
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "ไม่พบรายการสินค้าที่ต้องรับคืน";
+						}
+
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ยกเลิกออเดอร์ไม่สำเร็จ";
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Order code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : order code";
+		}
+
+		echo $sc === TRUE ? "success" : $this->error;
+	}
+
+
+	public function send_return_request()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('order_code');
+
+		$order = $this->orders_model->get($code);
+		if(!empty($order))
+		{
+			if($order->state == 9)
+			{
+				//-- Send data to WMS
+				$this->wms = $this->load->database('wms', TRUE);
+				$this->load->library('wms_receive_api');
+
+				$details = $this->orders_model->get_order_details($code);
+
+				if(!empty($details))
+				{
+					$ex = $this->wms_receive_api->export_return_request($order, $details);
+
+					if(! $ex)
+					{
+						$sc = FALSE;
+						$this->error = $this->wms_receive_api->error;
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ไม่พบรายการสินค้าที่ต้องรับคืน";
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
   public function update_gp()
@@ -3164,7 +3343,8 @@ class Orders extends PS_Controller
 	{
 		$sc = TRUE;
 		$code = $this->input->post('code');
-		if(!empty($code))
+		$order = $this->orders_model->get($code);
+		if(!empty($order))
 		{
 			$this->wms = $this->load->database('wms', TRUE);
 			$this->load->library('wms_order_api');
@@ -3172,26 +3352,34 @@ class Orders extends PS_Controller
 			$rs = $this->wms_order_api->export_order($code);
 
 			if(! $rs)
-			{				
+			{
 				$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_api->error.")";
 				$txt = "998 : This order no {$code} was already processed by PLC operation.";
 				if($this->wms_order_api->error == $txt)
 				{
-					$arr = array(
-						'wms_export' => 1,
-						'wms_export_error' => NULL
-					);
+					if($order->wms_export != 1)
+					{
+						$arr = array(
+							'wms_export' => 1,
+							'wms_export_error' => NULL
+						);
+
+						$this->orders_model->update($code, $arr);
+					}					
 				}
 				else
 				{
-					$sc = FALSE;
-					$arr = array(
-						'wms_export' => 3,
-						'wms_export_error' => $this->wms_order_api->error
-					);
-				}
+					if($order->wms_export != 1)
+					{
+						$sc = FALSE;
+						$arr = array(
+							'wms_export' => 3,
+							'wms_export_error' => $this->wms_order_api->error
+						);
 
-				$this->orders_model->update($code, $arr);
+						$this->orders_model->update($code, $arr);
+					}
+				}
 			}
 			else
 			{
@@ -3212,5 +3400,24 @@ class Orders extends PS_Controller
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
+
+
+
+	public function get_wms_status($code)
+	{
+		$status = FALSE;
+		$this->load->library('wms_order_status_api');
+		$rs = $this->wms_order_status_api->get_wms_status($code);
+
+		if(!empty($rs))
+		{
+			if($rs->SERVICE_RESULT->RESULT_STAUS === 'SUCCESS')
+			{
+				$status = $rs->SERVICE_RESULT->RESULT_DETAIL->ORDERS->ORDER->ORDER_STATUS;
+			}
+		}
+
+		return $status;
+	}
 }
 ?>

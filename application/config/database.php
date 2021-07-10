@@ -98,9 +98,9 @@ $db['default'] = array(
 
 $db['ms'] = array(
 	'dsn'	=> '',
-	'hostname' => '172.21.12.30',
-	'username' => 'sa',
-	'password' => 'BXSwrx2019',
+	'hostname' => 'localhost', //'172.21.12.30',
+	'username' => 'wrx_admin', //'sa',
+	'password' => 'W@rr1X$p0rt', //'BXSwrx2019',
 	'database' => 'DB_WRX',
 	'dbdriver' => 'sqlsrv',
 	'dbprefix' => '',

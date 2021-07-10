@@ -183,7 +183,7 @@ class Orders_model extends CI_Model
   public function get_order_details($code)
   {
     $rs = $this->db
-    ->select('order_details.*')
+    ->select('order_details.*, products.unit_code')
     ->from('order_details')
     ->join('products', 'order_details.product_code = products.code', 'left')
     ->join('product_size', 'products.size_code = product_size.code', 'left')
@@ -981,6 +981,7 @@ class Orders_model extends CI_Model
     ->from('order_details')
     ->join('orders', 'order_details.order_code = orders.code', 'left')
     ->where('order_details.product_code', $item_code)
+		->where('order_details.is_cancle', 0)
     ->where('order_details.is_complete', 0)
     ->where('order_details.is_expired', 0)
     ->where('order_details.is_count', 1);
@@ -1079,6 +1080,13 @@ class Orders_model extends CI_Model
   {
     return $this->db->where('order_code', $code)->delete('order_details');
   }
+
+
+
+	public function cancle_order_detail($code)
+	{
+		return $this->db->set('is_cancle', 1)->where('order_code', $code)->update('order_details');
+	}
 
 
 

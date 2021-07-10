@@ -759,5 +759,132 @@ class Wms_receive_api
 		return $sc;
 	}
 
+
+
+	//--- export return order
+	public function export_return_request($doc, $details)
+	{
+		// Assign the CodeIgniter super-object
+
+		$sc = TRUE;
+		$order_type = "WRC";
+		$xml = "";
+
+		if(!empty($doc))
+		{
+
+			if(!empty($details))
+			{
+				$xml .= "<WIB>";
+
+				//--- Header_list section
+				$xml .= "<HEADER>";
+				$xml .=   "<WH_NO>".$this->WH_NO."</WH_NO>";
+				$xml .=   "<CUST_CODE>".$this->CUS_CODE."</CUST_CODE>";
+				$xml .= "</HEADER>";
+				//---- End header_list section
+
+				//--- Order Start
+				$xml .= "<ORDER>";
+				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
+				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
+				$xml .=   "<SUPPLIER_CODE><![CDATA[{$this->sup_code}]]></SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
+				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
+				$xml .=   "<REF_NO1></REF_NO1>";
+				$xml .=   "<REF_NO2></REF_NO2>";
+				$xml .=   "<REMARK></REMARK>";
+				$xml .= "</ORDER>";
+					//--- Item start
+				$xml .= "<ITEMS>";
+
+				foreach($details as $rs)
+				{
+					if($rs->qty > 0)
+					{
+						$xml .= "<ITEM>";
+						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
+						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
+						$xml .= "<VARIANT></VARIANT>";
+						$xml .= "<LOT_NO></LOT_NO>";
+						$xml .= "<EXP_DATE></EXP_DATE>";
+						$xml .= "<SERIAL_NO></SERIAL_NO>";
+						$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
+						$xml .= "<UOM>".$rs->unit_code."</UOM>";
+						$xml .= "</ITEM>";
+					}
+				}
+
+				$xml .= "</ITEMS>";
+				//--- End header section
+				$xml .= "</WIB>";
+
+
+				if($this->log_xml)
+				{
+					$arr = array(
+						'order_code' => $doc->code,
+						'xml_text' => $xml
+					);
+
+					$this->ci->wms_error_logs_model->log_xml($arr);
+				}
+
+				if($sc === TRUE && !empty($xml))
+		    {
+		      $ch = curl_init();
+
+		      curl_setopt($ch, CURLOPT_URL, $this->url);
+		      curl_setopt($ch, CURLOPT_POST, TRUE);
+		      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+		      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+
+		      $response = curl_exec($ch);
+
+		      curl_close($ch);
+
+
+		      $res = json_decode(json_encode(simplexml_load_string($response)));
+
+
+					if(!empty($res))
+					{
+
+						if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+						{
+							$sc = FALSE;
+							$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+						}
+					}
+		    }
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "No data";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document data";
+		}
+
+		if($sc === TRUE)
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+		}
+		else
+		{
+			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+		}
+
+		return $sc;
+	}
+
 }
 ?>

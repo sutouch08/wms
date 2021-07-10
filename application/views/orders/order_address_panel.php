@@ -1,3 +1,7 @@
+<?php
+$cn = get_permission('SOCNDO', get_cookie('uid'), get_cookie('id_profile')); //--- ยกเลิกออเดอร์ที่จัดส่งแล้ว บนระบบ WMS
+$canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE : FALSE;
+ ?>
 <?php if($order->role == 'S') : ?>
 	<?php 	$paymentLabel = paymentLabel($order->code, paymentExists($order->code), $order->is_paid);	?>
 	<?php if(!empty($paymentLabel)) : ?>
@@ -13,6 +17,12 @@
   <div class="col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
 			<?php if($order->is_wms && $order->wms_export == 1) : ?>
+				<?php if($canCancleShipped && ($order->state == 7 OR $order->state == 8)) : ?>
+					<button type="button" class="btn btn-sm btn-danger pull-right margin-left-5" style="z-index:100;" onclick="cancle_shipped_order()">ยกเลิก WMS ออเดอร์(Shipped)</button>
+				<?php endif; ?>
+				<?php if($canCancleShipped && $order->state == 9) : ?>
+					<button type="button" class="btn btn-sm btn-danger pull-right margin-left-5" style="z-index:100;" onclick="send_return_request()">Send return request to WMS</button>
+				<?php endif; ?>
 			<button type="button" class="btn btn-sm btn-primary pull-right" style="z-index:100;" onclick="update_wms_status()">Update WMS Status</button>
 			<?php endif; ?>
     	<ul class="nav nav-tabs" role="tablist">
@@ -171,5 +181,85 @@ function update_wms_status() {
 			}
 		})
 	}
+}
+
+
+
+function cancle_shipped_order() {
+	swal({
+		title: "ยกเลิกออเดอร์ ?",
+		text: "ออเดอร์นี้ถูกจัดส่งแล้ว หากคุณต้องการยกเลิกคุณต้องประสานงานกับคลัง Pioneer เพื่อรับสินค้ากลับเข้าคลังด้วย <br/> ต้องการยกเลิกหรือไม่ ?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: 'ยืนยัน',
+		cancelButtonText: 'ยกเลิก',
+		html:true,
+		closeOnConfirm: true,
+		}, function(){
+			const order_code = $('#order_code').val();
+			if(order_code !== "" && order_code !== undefined) {
+				load_in();
+				$.ajax({
+					url:BASE_URL + 'orders/orders/cancle_wms_shipped_order',
+					type:'POST',
+					cache:false,
+					data:{
+						"order_code" : order_code
+					},
+					success:function(rs) {
+						load_out();
+						if(rs === 'success') {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							setTimeout(function(){
+								window.location.reload();
+							}, 1200);
+						}
+						else {
+							swal(rs);
+						}
+					}
+				})
+			}
+	});
+}
+
+
+function send_return_request() {
+	const order_code = $('#order_code').val();
+	if(order_code !== "" && order_code !== undefined) {
+		load_in();
+		$.ajax({
+			url:BASE_URL + 'orders/orders/send_return_request',
+			type:'POST',
+			cache:false,
+			data:{
+				"order_code" : order_code
+			},
+			success:function(rs) {
+				load_out();
+				if(rs === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal(rs);
+				}
+			}
+		})
+	}
+
 }
 </script>

@@ -8,8 +8,8 @@ $canSetPrepare = ($pr->can_add + $pr->can_edit + $pr->can_delete) > 0 ? TRUE : F
 $canChange	= ($pm->can_add + $pm->can_edit + $pm->can_delete) > 0 ? TRUE : FALSE;
 $canUnbill	= ($px->can_add + $px->can_edit + $px->can_delete) > 0 ? TRUE : FALSE;
 $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
-?>
 
+ ?>
 <div class="row" style="padding:15px;">
 	<div class="col-sm-3 padding-5">
     	<table class="table" style="margin-bottom:0px;">
