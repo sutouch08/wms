@@ -26,7 +26,8 @@ class Wms_temp_delivery extends PS_Controller
       'status' => get_filter('status', 'do_status', 'all'),
 			'reference' => get_filter('reference', 'do_reference', ''),
 			'from_date' => get_filter('from_date', 'do_from_date', ''),
-			'to_date' => get_filter('to_date', 'do_to_date', '')
+			'to_date' => get_filter('to_date', 'do_to_date', ''),
+			'valid' => get_filter('valid', 'do_valid', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -63,6 +64,26 @@ class Wms_temp_delivery extends PS_Controller
 
 
 
+	public function valid_temp()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+
+		$arr = array(
+			'valid' => 1,
+			'valid_by' => $this->_user->name
+		);
+
+		if(! $this->wms_temp_order_model->update($id, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update failed";
+		}
+
+		echo $sc === TRUE ? json_encode($arr) : $this->error;
+	}
+
+
 	public function clear_filter()
 	{
 		$filter = array(
@@ -70,7 +91,8 @@ class Wms_temp_delivery extends PS_Controller
 			'do_status',
 			'do_reference',
 			'do_from_date',
-			'do_to_date'
+			'do_to_date',
+			'do_valid'
 		);
 
 		clear_filter($filter);

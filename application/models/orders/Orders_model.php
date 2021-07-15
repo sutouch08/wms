@@ -1015,6 +1015,7 @@ class Orders_model extends CI_Model
     ->from('order_details')
     ->join('orders', 'order_details.order_code = orders.code', 'left')
     ->where('order_details.style_code', $style_code)
+    ->where('order_details.is_cancle', 0)
     ->where('order_details.is_complete', 0)
     ->where('order_details.is_expired', 0)
     ->where('order_details.is_count', 1);

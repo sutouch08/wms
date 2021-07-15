@@ -60,6 +60,9 @@ class Wms_auto_receive extends CI_Controller
 					case 'WX' :
 						$this->consign_check($data);
 						break;
+					case 'RC' :
+						$this->check_return($data);
+						break;
 				}
 			} //-- end foreach $list as $data
 		}
@@ -103,6 +106,10 @@ class Wms_auto_receive extends CI_Controller
 
 					case 'WX' :
 						$sc = $this->consign_check($data);
+						break;
+
+					case 'RC' :
+						$this->check_return($data);
 						break;
 				}
 			} //-- end foreach $list as $data
@@ -1017,6 +1024,22 @@ class Wms_auto_receive extends CI_Controller
 		return $sc;
 	}
 
+
+	//---- mark RC as success
+	private function check_return($data)
+	{
+		$sc = TRUE;
+		$code = $data->code;
+		if(!empty($code))
+		{
+			if(! $this->wms_temp_receive_model->update_status($code, 1, NULL))
+			{
+				$sc = FALSE;
+			}
+		}
+
+		return $sc;
+	}
 
 	private function export_receive($code)
 	{

@@ -9,6 +9,7 @@ class Wms_order_api
   public $error;
 	public $log_xml;
 	public $type = 'OB';
+	public $test = TRUE;
 
   public function __construct()
   {
@@ -179,6 +180,10 @@ class Wms_order_api
 			$this->error = "เลขที่ออเดอร์ไม่ถูกต้อง";
 		}
 
+		if($this->test === TRUE)
+		{
+			return $sc;
+		}
 
     if($sc === TRUE && !empty($xml))
     {

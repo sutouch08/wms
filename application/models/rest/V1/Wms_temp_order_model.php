@@ -37,6 +37,17 @@ class Wms_temp_order_model extends CI_Model
 	}
 
 
+	public function update($id, array $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->wms->where('id', $id)->update($this->tb, $ds);
+		}
+
+		return FALSE;
+	}
+
+
 	public function is_exists($code)
 	{
 		$rs = $this->wms->where('code', $code)->count_all_results($this->tb);
@@ -110,7 +121,7 @@ class Wms_temp_order_model extends CI_Model
 	public function get_unprocess_list($limit = 100)
 	{
 		$date = $this->last_minute();
-		
+
 		$rs = $this->wms
 		->where('status', 0)
 		->where('temp_date <=', $date)
@@ -182,6 +193,11 @@ class Wms_temp_order_model extends CI_Model
 			$this->wms->where('temp_date <=', to_date($ds['to_date']));
 		}
 
+		if($ds['valid'] !== 'all')
+		{
+			$this->wms->where('valid', $ds['valid']);
+		}
+
 
 		return $this->wms->count_all_results($this->tb)		;
 	}
@@ -208,6 +224,11 @@ class Wms_temp_order_model extends CI_Model
 		{
 			$this->wms->where('temp_date >=', from_date($ds['from_date']));
 			$this->wms->where('temp_date <=', to_date($ds['to_date']));
+		}
+
+		if($ds['valid'] !== 'all')
+		{
+			$this->wms->where('valid', $ds['valid']);
 		}
 
 		$this->wms->order_by('id', 'DESC')->limit($perpage, $offset);

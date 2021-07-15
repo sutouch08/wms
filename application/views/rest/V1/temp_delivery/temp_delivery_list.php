@@ -24,13 +24,21 @@
     <input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
       <option value="1" <?php echo is_selected('1', $status); ?>>เข้าแล้ว</option>
       <option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่เข้า</option>
       <option value="3" <?php echo is_selected('3', $status); ?>>Error</option>
+    </select>
+  </div>
+	<div class="col-sm-2 padding-5">
+    <label>การแก้ไข</label>
+    <select class="form-control input-sm" name="valid" onchange="getSearch()">
+      <option value="all">ทั้งหมด</option>
+      <option value="1" <?php echo is_selected('1', $valid); ?>>แก้ไขแล้ว</option>
+      <option value="0" <?php echo is_selected('0', $valid); ?>>ยังไม่แก้ไข</option>
     </select>
   </div>
 
@@ -68,12 +76,14 @@
       <thead>
         <tr>
           <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-15">เลขที่เอกสาร </th>
-					<th class="width-15">เลขที่อ้างอิง </th>
-          <th class="width-15">เข้า Temp</th>
-          <th class="width-15">เข้า IX</th>
+          <th class="width-10">เลขที่เอกสาร </th>
+					<th class="width-10">เลขที่อ้างอิง </th>
+          <th class="width-12">เข้า Temp</th>
+          <th class="width-12">เข้า IX</th>
           <th class="width-5 text-center">สถานะ</th>
 					<th class="">หมายเหตุ</th>
+					<th class="width-5 text-center">แก้ไข</th>
+					<th class="width-10">แก้ไขโดย</th>
 					<th class="width-10"></th>
         </tr>
       </thead>
@@ -113,11 +123,22 @@
             }
             ?>
           </td>
+					<td class="middle text-center" id="valid-row-<?php echo $rs->id; ?>">
+						<?php if($rs->valid) : ?>
+							<i class="fa fa-check green"></i>
+						<?php endif; ?>
+					</td>
+					<td class="middle" id="valid-by-<?php echo $rs->id; ?>"><?php echo $rs->valid_by; ?></td>
 					<td class="middle text-right">
 						<button type="button" class="btn btn-minier btn-info" onclick="getDetails(<?php echo $rs->id; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-						<?php if($rs->status != 1) : ?>
+						<?php if($rs->status == 3 && !$rs->valid) : ?>
+							<button type="button" class="btn btn-minier btn-success" id="btn-valid-<?php echo $rs->id; ?>" onclick="validTemp(<?php echo $rs->id; ?>)">
+								<i class="fa fa-check"></i>
+							</button>
+						<?php endif; ?>
+						<?php if($this->_SuperAdmin && $rs->status != 1) : ?>
 							<button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
 								<i class="fa fa-trash"></i>
 							</button>
@@ -128,7 +149,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="10" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="12" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>
@@ -138,6 +159,33 @@
 
 <script src="<?php echo base_url(); ?>scripts/wms/wms_temp_delivery.js?v=<?php echo date('Ymd'); ?>"></script>
 <script>
+	function validTemp(id) {
+		$.ajax({
+			url:BASE_URL + "rest/V1/wms_temp_delivery/valid_temp",
+			type:"POST",
+			cache:false,
+			data:{
+				"id" : id
+			},
+			success:function(rs) {
+				if(isJson(rs)) {
+					var ds = $.parseJSON(rs);
+					$('#valid-row-'+id).html('<i class="fa fa-check green"></i>');
+					$('#valid-by-'+id).text(ds.valid_by);
+					$('#btn-valid-'+id).remove();
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error'
+					})
+				}
+			}
+		})
+	}
+
+
 	function process() {
 		load_in();
 		$.ajax({

@@ -7,32 +7,60 @@ class Order extends REST_Controller
   public $error;
   public $user;
   public $ms;
+	public $path;
+	public $isAPI;
+	public $wms;
+	public $logs;
+	public $test = TRUE;
 
   public function __construct()
   {
     parent::__construct();
-    $this->ms = $this->load->database('ms', TRUE); //--- SAP database
+    $this->logs = $this->load->database('logs', TRUE); //--- api logs database
+		$this->path = $this->config->item('image_file_path')."payments/";
+		$this->isAPI = is_true(getConfig('WMS_API'));
 
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
     $this->load->model('masters/products_model');
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
+		$this->load->model('masters/sender_model');
     $this->load->model('masters/payment_methods_model');
+		$this->load->model('masters/warehouse_model');
     $this->load->model('address/address_model');
-    $this->load->model('stock/stock_model');
-    $this->user = 'api@warrix';
+
+		$this->load->model('rest/V1/order_api_logs_model');
+
+    $this->user = 'api@chatbot';
   }
 
-  public function test_post()
+
+	public function upload_post()
   {
     //--- Get raw post data
     $data = json_decode(file_get_contents("php://input"));
-    $details  = $data->details;
-    foreach($details as $rs)
+
+    if(!empty($data))
     {
-      print_r($rs);
+      $img = explode(',', $data->image_data);
+			$count = count($img);
+			if($count == 1)
+			{
+				$imageData = base64_decode($img[0]);
+			}
+			else
+			{
+				$imageData = base64_decode($img[1]);
+			}
+
+			$source = imagecreatefromstring($imageData);
+			$name = "{$this->path}WO-21060001.jpg";
+			$save = imagejpeg($source, $name, 100);
+
+			$this->response($save, 200);
     }
+
     //$this->response($data, 200);
   }
 
@@ -50,6 +78,7 @@ class Order extends REST_Controller
     }
 
     $state = $this->orders_model->get_state($code);
+
     if(empty($state))
     {
       $arr = array(
@@ -63,15 +92,15 @@ class Order extends REST_Controller
     {
       //---- status name
       $state_name = array(
-        '1' => 'Pending',
-        '2' => 'Waiting for payment',
-        '3' => 'Processing',
-        '4' => 'Picking',
-        '5' => 'Picking',
-        '6' => 'Packing',
-        '7' => 'Shipping',
-        '8' => 'Complete',
-        '9' => 'Cancel'
+        '1' => 'pending',
+        '2' => 'payment verify',
+        '3' => 'in progress',
+        '4' => 'in progress',
+        '5' => 'in progress',
+        '6' => 'in progress',
+        '7' => 'packed',
+        '8' => 'shipped',
+        '9' => 'canceled'
       );
 
       $arr = array(
@@ -84,46 +113,19 @@ class Order extends REST_Controller
   }
 
 
-  public function status_put()
-  {
-    $data = json_decode(file_get_contents("php://input"));
-    if(empty($data))
-    {
-      $arr = array(
-        'status' => FALSE,
-        'error' => 'empty data'
-      );
-      $this->response($arr, 400);
-    }
-
-    if(! property_exists($data, 'order_num') OR $data->order_number == '')
-    {
-      $arr = array(
-        'status' => FALSE,
-        'error' => 'order_number is required'
-      );
-      $this->response($arr, 400);
-    }
-
-    if( ! property_exists($data, 'status') OR $data->status == '')
-    {
-      $arr = array(
-        'status' => FALSE,
-        'error' => 'Invalid status'
-      );
-      $this->response($arr, 400);
-    }
-
-  }
-
-
-
 
 
   public function create_post()
   {
     //--- Get raw post data
-    $data = json_decode(file_get_contents("php://input"));
+		$json = file_get_contents("php://input");
+
+		if($this->test)
+		{
+			$this->order_api_logs_model->log_json($json);
+		}
+
+    $data = json_decode($json);
 
     if(empty($data))
     {
@@ -134,78 +136,32 @@ class Order extends REST_Controller
       $this->response($arr, 400);
     }
 
-    $sc = TRUE;
-
-    $count = count((array)$data);
-
-    if(! property_exists($data, 'order_number') OR $data->order_number == '')
+		if(! property_exists($data, 'order_number') OR $data->order_number == '')
     {
-      $sc = FALSE;
-      $this->error = 'order_number is required';
+			$this->error = 'order_number is required';
+			$this->order_api_logs_model->logs("", "E", $this->error);
+
+			$arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      $this->response($arr, 400);
     }
 
-    if(! property_exists($data, 'customer_code') OR $data->customer_code == '')
+		$sc = $this->verify_data($data);
+
+		//---- if any error return
+    if($sc === FALSE)
     {
-      $sc = FALSE;
-      $this->error = 'customer_code is required';
+			$this->order_api_logs_model->logs($data->order_number, "E", $this->error);
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      $this->response($arr, 400);
     }
-
-    if(! property_exists($data, 'channels'))
-    {
-      $sc = FALSE;
-      $this->error = 'missing channels code';
-    }
-
-    if(! property_exists($data, 'payment'))
-    {
-      $sc = FALSE;
-      $this->error = 'missing payment code';
-    }
-
-    if(! property_exists($data, 'ship_to'))
-    {
-      $sc = FALSE;
-      $this->error = 'missing shipping address';
-    }
-
-    if(! property_exists($data->ship_to, 'name'))
-    {
-      $sc = FALSE;
-      $this->error = 'missing shipping address';
-    }
-
-    if(! property_exists($data->ship_to, 'address'))
-    {
-      $sc = FALSE;
-      $this->error = 'missing shipping address';
-    }
-
-    if(! property_exists($data->ship_to, 'district'))
-    {
-      $sc = FALSE;
-      $this->error = 'district is required';
-    }
-
-
-    if(! property_exists($data->ship_to, 'province'))
-    {
-      $sc = FALSE;
-      $this->error = 'province is required';
-    }
-
-    if(! property_exists($data->ship_to, 'phone'))
-    {
-      $sc = FALSE;
-      $this->error = 'phone is required';
-    }
-
-
-    if($this->orders_model->get_order_code_by_reference($data->order_number) !== FALSE)
-    {
-      $sc = FALSE;
-      $this->error = 'Order number already exists';
-    }
-
 
 
     //--- check each item code
@@ -213,8 +169,15 @@ class Order extends REST_Controller
 
     if(empty($details))
     {
-      $sc = FALSE;
-      $this->error = "Items not found";
+			$sc = FALSE;
+			$this->error = "Items not found";
+			$this->order_api_logs_model->logs($data->order_number, "E", $this->error);
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      $this->response($arr, 400);
     }
 
 
@@ -229,11 +192,16 @@ class Order extends REST_Controller
 
         //---- check valid items
         $item = $this->products_model->get($rs->item);
+
         if(empty($item))
         {
           $sc = FALSE;
           $this->error = "Invalid SKU : {$rs->item}";
         }
+				else
+				{
+					$rs->item = $item;
+				}
       }
     }
 
@@ -241,6 +209,8 @@ class Order extends REST_Controller
     //---- if any error return
     if($sc === FALSE)
     {
+			$this->Order_api_logs_model->logs($data->order_number, 'E', $this->error);
+
       $arr = array(
         'status' => FALSE,
         'message' => $this->error
@@ -260,122 +230,60 @@ class Order extends REST_Controller
 
       $date_add = date('Y-m-d H:i:s');
 
-      //---- กำหนดช่องทางขายสำหรับเว็บไซต์ เพราะมีลูกค้าแยกตามช่องทางการชำระเงินอีกที
-      //---- เลยต้องกำหนดลูกค้าแยกตามช่องทางการชำระเงินต่างๆ สำหรับเว็บไซต์เท่านั้น
-      //---- เพราะช่องทางอื่นๆในการนำเข้าจะใช้ช่องทางการชำระเงินแบบเดียวทั้งหมด
-      //---- เช่น K plus จะจ่ายด้วยบัตรเครดิตทั้งหมด  LAZADA จะไปเรียกเก็บเงินกับทาง ลาซาด้า
-      $web_channels = getConfig('WEB_SITE_CHANNELS_CODE');
+			$prefix = $data->channels == "DHL-P" ? "THEQV" : "THBEZ";
 
-      //--- รหัสลูกค้าสำหรับ COD เว็บไซต์
-      $web_customer_cod = getConfig('CUSTOMER_CODE_COD');
-
-      //--- รหัสลูกค้าสำหรับ 2c2p บนเว็บไซต์
-      $web_customer_2c2p = getConfig('CUSTOMER_CODE_2C2P');
-
-      //--- รหัสบูกค้าสำหรับ PayAtStore
-      $web_customer_PayAtStore = getConfig('CUSTOMER_CODE_PAYATSTORE');
-
-      //--- รหัสลูกค้าเริ่มต้น หากพอว่าไม่มีการระบุรหัสลูกค้าไว้ จะใช้รหัสนี้แทน
-      $default_customer = getConfig('DEFAULT_CUSTOMER');
-
-      $prefix = getConfig('PREFIX_SHIPPING_NUMBER');
-
-      //---- order code from web site
+      //---- order code from chatbot
       $ref_code = $data->order_number;
 
-      //--- shipping Number
-      $shipping_code = $prefix.$data->order_number;
+      $customer = $this->customers_model->get($data->customer_code);
 
-      //---- กำหนดช่องทางการขายเป็นรหัส
-      $channels = $this->channels_model->get($data->channels);
+			$sale_code = empty($customer) ? -1 : $customer->sale_code;
 
-      //--- หากไม่ระบุช่องทางขายมา หรือ ช่องทางขายไม่ถูกต้องใช้ default
-      if(empty($channels))
-      {
-        $channels = $this->channels_model->get_default();
-      }
+			$state = $data->payment_status == "paid" ? 3 :($data->payment_status == "transferred" ? 2 : 1);
 
-      //--- กำหนดช่องทางการชำระเงิน
-      $payment = $this->payment_methods_model->get($data->payment);
+			$warehouse_code = getConfig('WEB_SITE_WAREHOUSE_CODE');
 
-      if(empty($payment))
-      {
-        $payment = $this->payment_methods_model->get_default();
-      }
+			$warehouse = $this->warehouse_model->get($warehouse_code);
 
-      //-- state ของออเดอร์ จะมีการเปลี่ยนแปลงอีกที
-      $state = 3;
+			$is_wms = empty($warehouse) ? 0 : $warehouse->is_wms;
 
-      //---- รหัสลูกค้าจะมีการเปลี่ยนแปลงตามเงื่อนไขด้านล่างนี้
-      $customer_code = $data->customer_code;
+			//---- id_sender
+			$sender = $this->sender_model->get_id($data->shipping_method);
 
-      //---- ตรวจสอบว่าช่องทางขายที่กำหนดมา เป็นเว็บไซต์หรือไม่(เพราะจะมีช่องทางการชำระเงินหลายช่องทาง)
-      if($channels->code === $web_channels)
-      {
-        if($payment->code === '2C2P')
-        {
-          //---- กำหนดรหัสลูกค้าตามค่าที่ config สำหรับเว็บไซต์ที่ชำระโดยบัตรเครดติ(2c2p)
-          $customer_code = $web_customer_2c2p;
-        }
-        else if($payment->code === 'COD')
-        {
-          //---- กำหนดรหัสลูกค้าตามค่าที่ config สำหรับเว็บไซต์ที่ชำระแบบ COD
-          $customer_code = $web_customer_cod;
-        }
-
-      }
-      else
-      {
-        //--- หากไม่ใช่ช่องทางเว็บไซต์
-        //--- กำหนดรหัสลูกค้าตามช่องทางขายที่ได้ผูกไว้
-        //--- หากไม่มีการผูกไว้ให้
-        $customer_code = empty($channels->customer_code) ? $default_customer : $channels->customer_code;
-      }
-
-      $customer = $this->customers_model->get($customer_code);
-
-      //---	ถ้าเป็นออเดอร์ขาย จะมี id_sale
-      $sale_code = $customer->sale_code;
-
-      //---	หากเป็นออนไลน์ ลูกค้าออนไลน์ชื่ออะไร
-      $customer_ref = addslashes(trim($data->ship_to->name));
-
-      //---	ช่องทางการชำระเงิน
-      $payment_code = $payment->code;
-
-      //---	ช่องทางการขาย
-      $channels_code = $channels->code;
+			$id_sender = empty($sender) ? NULL : $sender;
 
       //--- order code gen จากระบบ
       $order_code = $this->get_new_code($date_add);
 
+			$total_amount = 0;
 
       //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
       $ds = array(
         'code' => $order_code,
         'role' => $role,
         'bookcode' => $bookcode,
-        'reference' => $ref_code,
-        'customer_code' => $customer_code,
-        'customer_ref' => $customer_ref,
-        'channels_code' => $channels_code,
-        'payment_code' => $payment_code,
+        'reference' => $data->order_number,
+        'customer_code' => $data->customer_code,
+        'customer_ref' => $data->customer_ref,
+        'channels_code' => $data->channels,
+        'payment_code' => $data->payment_method,
         'sale_code' => $sale_code,
-        'state' => $state,
-        'is_paid' => 1,
-        'is_term' => 0,
+        'state' => 1,
+        'is_paid' => $state === 3 ? 1 : 0,
+        'is_term' => $data->payment_method === "COD" ? 1 : 0,
         'status' => 1,
+				'shipping_code' => $prefix.$order_code,
         'user' => $this->user,
         'date_add' => $date_add,
-        'warehouse_code' => getConfig('WEB_SITE_WAREHOUSE_CODE'),
+        'warehouse_code' => $warehouse_code,
         'is_api' => 1,
-        'order_id' => $data->order_id
+				'id_sender' => $id_sender,
+				'is_wms' => $is_wms
       );
 
     $this->db->trans_begin();
 
     $rs = $this->orders_model->add($ds);
-
 
     if(!$rs)
     {
@@ -384,35 +292,33 @@ class Order extends REST_Controller
     }
     else
     {
-      //---- change state
-      $arr = array(
-        'order_code' => $order_code,
-        'state' => 3,
-        'update_user' => $this->user
-      );
+			$arr = array(
+				'order_code' => $order_code,
+				'state' => 1,
+				'update_user' => $this->user
+			);
 
       //--- add state event
       $this->order_state_model->add_state($arr);
 
-      $id_address = $this->address_model->get_id($customer_ref, $data->ship_to->address);
+      $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
 
       if($id_address === FALSE)
       {
         $arr = array(
-          'code' => $customer_ref,
-          'name' => $customer_ref,
+          'code' => $data->customer_ref,
+          'name' => $data->customer_ref,
           'address' => $data->ship_to->address,
           'sub_district' => $data->ship_to->sub_district,
           'district' => $data->ship_to->district,
           'province' => $data->ship_to->province,
           'postcode' => $data->ship_to->postcode,
           'phone' => $data->ship_to->phone,
-          'alias' => 'Home',
+          'alias' => empty($data->alias) ? 'Home' : $data->alias,
           'is_default' => 1
         );
 
         $id_address = $this->address_model->add_shipping_address($arr);
-
       }
 
       $this->orders_model->set_address_id($order_code, $id_address);
@@ -424,49 +330,177 @@ class Order extends REST_Controller
       {
         foreach($details as $rs)
         {
-          //--- check item code
-          $item = $this->products_model->get($rs->item);
+					if($sc === FALSE)
+					{
+						break;
+					}
 
-          if(empty($item))
-          {
-            $sc = FALSE;
-            $this->error = "Invalid SKU Code : {$rs->item}";
-            break;
-          }
-          else
-          {
-            //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
-            $arr = array(
-              "order_code"	=> $order_code,
-              "style_code"		=> $item->style_code,
-              "product_code"	=> $item->code,
-              "product_name"	=> $item->name,
-              "cost"  => $item->cost,
-              "price"	=> $rs->price,
-              "qty"		=> $rs->qty,
-              "discount1"	=> 0,
-              "discount2" => 0,
-              "discount3" => 0,
-              "discount_amount" => 0,
-              "total_amount"	=> round($rs->amount,2),
-              "id_rule"	=> NULL,
-              "is_count" => $item->count_stock,
-              "is_api" => 1
-            );
+					if(!empty($rs->item))
+					{
+						//--- check item code
+	          $item = $rs->item;
 
-            if( $this->orders_model->add_detail($arr) === FALSE )
-            {
-              $sc = FALSE;
-              $this->error = "Order item insert failed : {$item->code}";
-              break;
-            }
-            else
-            {
-              $this->update_api_stock($item->code, $item->old_code);
-            }
-          }
+						//--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
+						$arr = array(
+							"order_code"	=> $order_code,
+							"style_code"		=> $item->style_code,
+							"product_code"	=> $item->code,
+							"product_name"	=> $item->name,
+							"cost"  => $item->cost,
+							"price"	=> $rs->price,
+							"qty"		=> $rs->qty,
+							"discount1"	=> 0,
+							"discount2" => 0,
+							"discount3" => 0,
+							"discount_amount" => 0,
+							"total_amount"	=> round($rs->amount,2),
+							"id_rule"	=> NULL,
+							"is_count" => $item->count_stock,
+							"is_api" => 1
+						);
 
-        }
+						if(!$this->orders_model->add_detail($arr))
+						{
+							$sc = FALSE;
+							$this->error = "Order item insert failed : {$item->code}";
+							break;
+						}
+						else
+						{
+							$total_amount += round($rs->amount, 2);
+						}
+
+					} //--- end if item
+        }  //--- endforeach add details
+
+
+				//---- แนบสลิป
+				if($state == 2)
+				{
+					//--- if has pay slip
+					if(!empty($data->payslip))
+					{
+						$img = explode(',', $data->payslip);
+						if(count($img) == 1)
+						{
+							$imageData = base64_decode($img[0]);
+						}
+						else
+						{
+							$imageData = base64_decode($img[1]);
+						}
+
+						$source = imagecreatefromstring($imageData);
+						$name = "{$this->path}{$order_code}.jpg";
+						$save = imagejpeg($source, $name, 100);
+						imagedestroy($source);
+					}
+
+					//---- create payment
+					$this->load->model('masters/bank_model');
+		      $this->load->model('orders/order_payment_model');
+
+					$pay_date = now();
+
+					if(!empty($data->payment_date_time))
+					{
+						$pay_date = date('Y-m-d H:i:s', strtotime($data->payment_date_time));
+					}
+
+					if(!empty($data->account_no))
+					{
+						$id_account = $this->bank_model->get_id($data->account_no);
+						if(!empty($id_account))
+						{
+							$arr = array(
+				        'order_code' => $order_code,
+				        'order_amount' => $total_amount,
+				        'pay_amount' => $total_amount,
+				        'pay_date' => $pay_date,
+				        'id_account' => $id_account,
+				        'acc_no' => $data->account_no,
+				        'user' =>$this->user
+				      );
+
+							if(!$this->order_payment_model->add($arr))
+							{
+								$sc = FALSE;
+								$this->error = "Insert Payment data failed";
+							}
+							else
+							{
+								if(! $this->orders_model->change_state($order_code, 2)) //--- แจ้งชำระเงิน
+								{
+									$sc = FALSE;
+									$this->error = "Cannot change order state to payment_verify";
+								}
+								else
+								{
+									//--- add state
+									$arr = array(
+			              'order_code' => $order_code,
+			              'state' => 2,
+			              'update_user' => $this->user
+			            );
+
+									$this->order_state_model->add_state($arr);
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "Invalid account no";
+						}
+
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Account no is required";
+					}
+				} //--- end state == 2 case แนบสลิป
+
+				//--- if paid
+				if($state == 3)
+				{
+					if($this->orders_model->change_state($order_code, 3))
+					{
+						$arr = array(
+							'order_code' => $order_code,
+							'state' => 3,
+							'update_user' => $this->user
+						);
+
+						$this->order_state_model->add_state($arr);
+					}
+
+					if($this->isAPI && $is_wms)
+					{
+						$this->wms = $this->load->database('wms', TRUE);
+						$this->load->library('wms_order_api');
+						$ex = $this->wms_order_api->export_order($order_code);
+
+						if(! $ex)
+						{
+							$arr = array(
+								'wms_export' => 3,
+								'wms_export_error' => $this->wms_order_api->error
+							);
+
+							$this->orders_model->update($order_code, $arr);
+						}
+						else
+						{
+							$arr = array(
+								'wms_export' => 1,
+								'wms_export_error' => NULL
+							);
+
+							$this->orders_model->update($order_code, $arr);
+						}
+					}
+				}
       }
       else
       {
@@ -479,15 +513,21 @@ class Order extends REST_Controller
     {
       $this->db->trans_commit();
 
+			$this->order_api_logs_model->logs($data->order_number, "S", NULL);
+
       $arr = array(
-        'status' => 'SUCCESS',
-        'order_code' => $order_code
+        'status' => 'success',
+        'order_code' => $order_code,
+				'tracking_no' => $prefix.$order_code
       );
+
       $this->response($arr, 200);
     }
     else
     {
       $this->db->trans_rollback();
+			$this->order_api_logs_model->logs($data->order_number, "E", $this->error);
+
       $arr = array(
         'status' => FALSE,
         'message' => $this->error
@@ -525,18 +565,132 @@ class Order extends REST_Controller
 
 
 
-  public function update_api_stock($code, $old_code)
-  {
-    if(getConfig('SYNC_WEB_STOCK'))
+  public function verify_data($data)
+	{
+    if(! property_exists($data, 'customer_code') OR $data->customer_code == '')
     {
-      $this->load->library('api');
-      $sell_stock = $this->stock_model->get_sell_stock($code);
-      $reserv_stock = $this->orders_model->get_reserv_stock($code);
-      $qty = $sell_stock - $reserv_stock;
-      $item = empty($old_code) ? $code : $old_code;
-      $this->api->update_web_stock($item, $qty);
+      $this->error = 'customer_code is required';
+			return FALSE;
     }
-  }
+
+
+		if(! property_exists($data, 'customer_ref') OR $data->customer_ref == '')
+		{
+			$this->error = "customer_ref is required";
+			return FALSE;
+		}
+
+    if(! property_exists($data, 'channels') OR ($data->channels != 'Line@' && $data->channels != 'PAGE'))
+    {
+      $this->error = "Invalid channels code : {$data->channels}";
+			return FALSE;
+    }
+
+    if(! property_exists($data, 'payment_method') OR ($data->payment_method != "TRANSFER" && $data->payment_method != "COD"))
+    {
+      $this->error = 'Invalic payment_method code';
+			return FALSE;
+    }
+
+
+		if(! property_exists($data, 'payment_status') OR ($data->payment_status != "pending" && $data->payment_status != "transferred" && $data->payment_status != "paid"))
+    {
+      $this->error = 'Invalid payment status';
+			return FALSE;
+    }
+
+
+		if(!empty($data->customer_code))
+		{
+			$customer_code = "";
+
+			if($data->channels == "Line@" && $data->payment_method == "TRANSFER")
+			{
+				$customer_code = "CLON02-0001";
+			}
+
+			if($data->channels == "Line@" && $data->payment_method == "COD")
+			{
+				$customer_code = "CLON02-0002";
+			}
+
+			if($data->channels == "PAGE" && $data->payment_method == "TRANSFER")
+			{
+				$customer_code = "CLON05-0001";
+			}
+
+			if($data->channels == "PAGE" && $data->payment_method == "COD")
+			{
+				$customer_code = "CLON05-0002";
+			}
+
+			if($data->customer_code != $customer_code)
+			{
+				$this->error = "Invalid Customer Code";
+				return FALSE;
+			}
+		}
+
+
+		if(! property_exists($data, 'shipping_method') OR ($data->shipping_method != "DHL-N" && $data->shipping_method != "DHL-P"))
+		{
+			$this->error = "Invalid Shipping Code";
+			return FALSE;
+		}
+
+		if(! property_exists($data, 'user_code') OR empty($data->user_code))
+		{
+			$this->error = "Invalid User";
+			return FALSE;
+		}
+
+    if(! property_exists($data, 'ship_to'))
+    {
+      $this->error = 'missing shipping address';
+			return FALSE;
+    }
+
+    if(! property_exists($data->ship_to, 'name'))
+    {
+      $this->error = 'missing shipping address';
+			return FALSE;
+    }
+
+    if(! property_exists($data->ship_to, 'address'))
+    {
+      $this->error = 'missing shipping address';
+			return FALSE;
+    }
+
+    if(! property_exists($data->ship_to, 'district'))
+    {
+      $this->error = 'district is required';
+			return FALSE;
+    }
+
+
+    if(! property_exists($data->ship_to, 'province'))
+    {
+      $this->error = 'province is required';
+			return FALSE;
+    }
+
+    if(! property_exists($data->ship_to, 'phone'))
+    {
+      $this->error = 'phone is required';
+			return FALSE;
+    }
+
+
+    if($this->orders_model->get_order_code_by_reference($data->order_number) !== FALSE)
+    {
+      $this->error = 'Order number already exists';
+			return FALSE;
+    }
+
+
+		return TRUE;
+	}
 
 
 } //--- end class

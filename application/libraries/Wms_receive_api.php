@@ -32,7 +32,7 @@ class Wms_receive_api
 		// Assign the CodeIgniter super-object
 
 		$sc = TRUE;
-		$order_type = "SM";
+		$this->type = "SM";
 		$xml = "";
 
 		if(!empty($doc))
@@ -52,7 +52,7 @@ class Wms_receive_api
 				//--- Order Start
 				$xml .= "<ORDER>";
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
-				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
 				$xml .=   "<SUPPLIER_CODE><![CDATA[{$this->sup_code}]]></SUPPLIER_CODE>";
 				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
@@ -157,7 +157,7 @@ class Wms_receive_api
 	public function export_return_lend($doc, $details)
 	{
 		$sc = TRUE;
-		$order_type = "RN";
+		$this->type = "RN";
 		$xml = "";
 
 		if(!empty($doc))
@@ -177,7 +177,7 @@ class Wms_receive_api
 				//--- Order Start
 				$xml .= "<ORDER>";
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
-				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
 				$xml .=   "<SUPPLIER_CODE><![CDATA[{$this->sup_code}]]></SUPPLIER_CODE>";
 				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
@@ -280,7 +280,7 @@ class Wms_receive_api
 	public function export_receive_po($doc, $po_code, $invoice, $details)
 	{
 		$sc = TRUE;
-		$order_type = "WR";
+		$this->type = "WR";
 		$xml = "";
 
 
@@ -298,7 +298,7 @@ class Wms_receive_api
 			//--- Order Start
 			$xml .= "<ORDER>";
 			$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
-			$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+			$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 			$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
 			$xml .=   "<SUPPLIER_CODE><![CDATA[".$doc->vendor_code."]]></SUPPLIER_CODE>";
 			$xml .=   "<SUPPLIER_NAME><![CDATA[".$doc->vendor_name."]]></SUPPLIER_NAME>";
@@ -397,7 +397,7 @@ class Wms_receive_api
   public function export_receive_transform($doc, $order_code, $invoice, $details)
   {
 		$sc = TRUE;
-		$order_type = "RT";
+		$this->type = "RT";
 		$xml = "";
 
 
@@ -415,7 +415,7 @@ class Wms_receive_api
 			//--- Order Start
 			$xml .= "<ORDER>";
 			$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
-			$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+			$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 			$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
 			$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
 			$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
@@ -516,7 +516,7 @@ class Wms_receive_api
 		// Assign the CodeIgniter super-object
 
 		$sc = TRUE;
-		$order_type = "WW";
+		$this->type = "WW";
 		$xml = "";
 
 		if(!empty($doc))
@@ -536,7 +536,7 @@ class Wms_receive_api
 				//--- Order Start
 				$xml .= "<ORDER>";
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
-				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
 				$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
 				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
@@ -641,7 +641,7 @@ class Wms_receive_api
 	{
 
 		$sc = TRUE;
-		$order_type = "WX";
+		$this->type = "WX";
 		$xml = "";
 
 		if(!empty($doc))
@@ -661,7 +661,7 @@ class Wms_receive_api
 				//--- Order Start
 				$xml .= "<ORDER>";
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
-				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
 				$xml .=   "<SUPPLIER_CODE>{$this->sup_code}</SUPPLIER_CODE>";
 				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
@@ -767,7 +767,7 @@ class Wms_receive_api
 		// Assign the CodeIgniter super-object
 
 		$sc = TRUE;
-		$order_type = "WRC";
+		$this->type = "RC";
 		$xml = "";
 
 		if(!empty($doc))
@@ -786,14 +786,14 @@ class Wms_receive_api
 
 				//--- Order Start
 				$xml .= "<ORDER>";
-				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
-				$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
+				$xml .=   "<ORDER_NO>RC".$doc->code."</ORDER_NO>";
+				$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
 				$xml .=   "<SUPPLIER_CODE><![CDATA[{$this->sup_code}]]></SUPPLIER_CODE>";
 				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
 				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
-				$xml .=   "<REF_NO1></REF_NO1>";
+				$xml .=   "<REF_NO1>".$doc->code."</REF_NO1>";
 				$xml .=   "<REF_NO2></REF_NO2>";
 				$xml .=   "<REMARK></REMARK>";
 				$xml .= "</ORDER>";

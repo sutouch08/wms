@@ -50,6 +50,17 @@ class Bank_model extends CI_Model
 	}
 
 
+	public function get_id($acc_no)
+	{
+		$rs = $this->db->select('id')->where('acc_no', $acc_no)->get('bank_account');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->id;
+		}
+
+		return NULL;
+	}
+
 
   public function get_active_bank()
   {

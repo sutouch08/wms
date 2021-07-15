@@ -2839,15 +2839,15 @@ class Orders extends PS_Controller
 				//---- ถ้าเปิดบิลแล้ว check Do
 				if($order->state == 8)
 				{
-					if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
-	        {
-	          $sap = $this->orders_model->get_sap_doc_num($order->code);
-						if(!empty($sap))
-						{
-							$sc = FALSE;
-							$this->error = "กรุณายกเลิก DO ใน SAP ก่อน";
-						}
-	        }
+					// if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
+	        // {
+	        //   $sap = $this->orders_model->get_sap_doc_num($order->code);
+					// 	if(!empty($sap))
+					// 	{
+					// 		$sc = FALSE;
+					// 		$this->error = "กรุณายกเลิก DO ใน SAP ก่อน";
+					// 	}
+	        // }
 
 					//---
 	        if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
@@ -3365,7 +3365,7 @@ class Orders extends PS_Controller
 						);
 
 						$this->orders_model->update($code, $arr);
-					}					
+					}
 				}
 				else
 				{

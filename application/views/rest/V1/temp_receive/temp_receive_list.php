@@ -32,6 +32,7 @@
 			<option value="SM" <?php echo is_selected('SM', $type); ?>>รับคืน(SM)</option>
 			<option value="WR" <?php echo is_selected('WR', $type); ?>>รับเข้า(WR)</option>
 			<option value="WW" <?php echo is_selected('WW', $type); ?>>โอนคลัง(WW)</option>
+			<option value="RC" <?php echo is_selected('RC', $type); ?>>รับเข้า(RC)</option>
 		</select>
   </div>
 

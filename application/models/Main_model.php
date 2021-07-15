@@ -21,6 +21,7 @@ class Main_model extends CI_Model
     ->where('o.state <=', 8 , FALSE)
     ->where('od.is_complete', 0)
     ->where('od.is_expired', 0)
+		->where('od.is_cancle', 0)
     ->group_start()
     ->like('od.product_code', $txt)
     ->or_like('pd.name', $txt)

@@ -140,13 +140,6 @@ class Import_order extends CI_Controller
           $shipping_added = NULL;
 
 					$orderCode = NULL;
-					$ref_code = NULL;
-					$order_code = NULL;
-					$date_add = NULL;
-					$channels = NULL;
-					$payment = NULL;
-					$remark = NULL;
-					$is_exists = FALSE;
 					$hold = NULL;
           $isWMS = 0;
           foreach($ds as $rs)
@@ -204,56 +197,54 @@ class Import_order extends CI_Controller
             }
             else if(!empty($rs['A']))
             {
-							//--- check ref_code
-							if($ref_code != $rs['I'])
-							{
-								//--- check ref_code exists
-	              $date = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
-	              $date_add = db_date($date, TRUE);
+              $date = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
+              $date_add = db_date($date, TRUE);
 
-	              //---- order code from web site
-	              $ref_code = $rs['I'];
+              //--- order code ได้มาแล้วจากระบบ IS
+              //$order_code = $rs['B'];
 
-	              //--- shipping Number
-	              $shipping_code = $rs['T'];
+              //---- order code from web site
+              $ref_code = $rs['I'];
 
-	              //---- กำหนดช่องทางการขายเป็นรหัส
-	              $channels = $this->channels_model->get($rs['L']);
+              //--- shipping Number
+              $shipping_code = $rs['T'];
+
+              // if($rs['T'] == 'Y' OR $rs['T'] == 'y' OR $rs['T'] == '1')
+              // {
+              //   $shipping_code = $prefix.$ref_code;
+              // }
+
+              //---- กำหนดช่องทางการขายเป็นรหัส
+              $channels = $this->channels_model->get($rs['L']);
 
 
-	              //--- หากไม่ระบุช่องทางขายมา หรือ ช่องทางขายไม่ถูกต้องใช้ default
-	              if(empty($channels))
-	              {
-	                $channels = $this->channels_model->get_default();
-	              }
+              //--- หากไม่ระบุช่องทางขายมา หรือ ช่องทางขายไม่ถูกต้องใช้ default
+              if(empty($channels))
+              {
+                $channels = $this->channels_model->get_default();
+              }
 
-	              //--- กำหนดช่องทางการชำระเงิน
-	              $payment = $this->payment_methods_model->get($rs['K']);
+              //--- กำหนดช่องทางการชำระเงิน
+              $payment = $this->payment_methods_model->get($rs['K']);
 
-	              if(empty($payment))
-	              {
-	                $payment = $this->payment_methods_model->get_default();
-	              }
+              if(empty($payment))
+              {
+                $payment = $this->payment_methods_model->get_default();
+              }
 
-								//-- remark
-								$remark = $rs['V'];
+							//-- remark
+							$remark = $rs['V'];
 
-								$order_code  = $this->orders_model->get_order_code_by_reference($ref_code);
-
-	              $is_exists = empty($order_code) ? FALSE : TRUE;
-
-							}
-							else
-							{
-								$is_exists = TRUE;
-							}
-
+              $is_exists = FALSE;
 
               //------ เช็คว่ามีออเดอร์นี้อยู่ในฐานข้อมูลแล้วหรือยัง
               //------ ถ้ามีแล้วจะได้ order_code กลับมา ถ้ายังจะได้ FALSE;
+              $order_code  = $this->orders_model->get_order_code_by_reference($ref_code);
 
-              if(empty($order_code) OR ($order_code != $orderCode))
+              if(empty($order_code))
               {
+                $order_code = $this->get_new_code($date_add);
+
 								if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
 								{
 									if(!$this->wms_order_api->export_order($orderCode))
@@ -275,13 +266,11 @@ class Import_order extends CI_Controller
 										$this->orders_model->update($orderCode, $arr);
 									}
 								}
-
-								if(empty($order_code))
-								{
-									$order_code = $this->get_new_code($date_add);
-								}
               }
-
+              else
+              {
+                $is_exists = TRUE;
+              }
 
               //-- state ของออเดอร์ จะมีการเปลี่ยนแปลงอีกที
               $state = empty($rs['U']) ? 3 : 1;
@@ -612,8 +601,6 @@ class Import_order extends CI_Controller
                 } //--- end if shipping_added
 
               } //--- end shipping_fee = 0
-
-							$orderCode = $order_code;
 
             } //--- end header column
 

@@ -184,6 +184,24 @@ class Channels_model extends CI_Model
   }
 
 
+	public function get_channels_array()
+	{
+		$rs = $this->db->get('channels');
+
+		if($rs->num_rows() > 0)
+		{
+			$arr = array();
+			foreach($rs->result() as $ds)
+			{
+				$arr[$ds->code] = $ds->name;
+			}
+
+			return $arr;
+		}
+
+		return NULL;
+	}
+
 
 }
 ?>
