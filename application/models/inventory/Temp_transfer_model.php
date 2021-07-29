@@ -6,11 +6,11 @@ class Temp_transfer_model extends CI_Model
     parent::__construct();
   }
 
-	public function get($code)
+	public function get($docEntry)
 	{
 		$rs = $this->mc
-		->select('DocEntry, F_Sap')
-		->where('U_ECOMNO', $code)
+		->select('F_Sap')
+		->where('DocEntry', $docEntry)
 		->group_start()
 		->where('F_Sap =', 'N')
 		->or_where('F_Sap IS NULL', NULL, FALSE)
@@ -82,7 +82,7 @@ class Temp_transfer_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = NULL, $offset = 0)
   {
     $this->mc
-    ->select('U_ECOMNO, DocDate, CardCode, CardName')
+    ->select('DocEntry, U_ECOMNO, DocDate, CardCode, CardName')
     ->select('Filler, ToWhsCode')
     ->select('F_E_Commerce, F_E_CommerceDate')
     ->select('F_Sap, F_SapDate')
@@ -142,11 +142,11 @@ class Temp_transfer_model extends CI_Model
 
 
 
-  public function get_detail($code)
+  public function get_detail($DocEntry)
   {
     $rs = $this->mc
     ->select('ItemCode, Dscription, Quantity, F_FROM_BIN, F_TO_BIN')
-    ->where('U_ECOMNO', $code)
+    ->where('DocEntry', $DocEntry)
     ->get('WTR1');
 
     if($rs->num_rows() > 0)

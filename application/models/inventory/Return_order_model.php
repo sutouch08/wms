@@ -259,7 +259,7 @@ class Return_order_model extends CI_Model
 
   public function get_invoice_details($invoice)
   {
-    $qr = "SELECT DISTINCT ivd.DocEntry, iv.DocNum, iv.NumAtCard,
+    $qr = "SELECT DISTINCT ivd.DocEntry, ivd.U_ECOMNO AS order_code, iv.DocNum, iv.NumAtCard,
     ivd.ItemCode AS product_code, ivd.Dscription AS product_name,
     (SELECT SUM(Quantity) FROM INV1 WHERE DocEntry = ivd.DocEntry AND ItemCode = ivd.ItemCode) AS qty,
     ivd.PriceBefDi AS price, ivd.DiscPrcnt AS discount

@@ -9,12 +9,12 @@
     <input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($doc->date_add); ?>" readonly required disabled />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-4 padding-5">
     <label>คลังต้นทาง</label>
     <input type="text" class="form-control input-sm edit" name="from_warehouse" id="from_warehouse" value="<?php echo $doc->from_warehouse_name; ?>" required disabled/>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-4 padding-5">
     <label>คลังปลายทาง</label>
 		<input type="text" class="form-control input-sm edit" name="to_warehouse" id="to_warehouse" value="<?php echo $doc->to_warehouse_name; ?>" required disabled/>
   </div>
@@ -27,20 +27,26 @@
 		</select>
 	</div>
 
-  <?php if($doc->status == 0) : ?>
-  <div class="col-sm-3 padding-5">
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>เลขที่ WX</label>
+		<input type="text" class="form-control input-sm edit" name="wx_code" id="wx_code" value="<?php echo $doc->wx_code; ?>" disabled />
+	</div>
+
+	<div class="col-sm-9 col-9-harf padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>
+
+  <?php if($doc->status == 0) : ?>
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">Submit</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"><i class="fa fa-pencil"></i> แก้ไข</button>
 		<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="update()"><i class="fa fa-save"></i> บันทึก</button>
   </div>
   <?php else : ?>
-    <div class="col-sm-4 padding-5">
-      <label>หมายเหตุ</label>
-      <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
+    <div class="col-sm-1 padding-5">
+      <label>SAP</label>
+      <input type="text" class="form-control input-sm" value="<?php echo $doc->inv_code; ?>" disabled>
     </div>
   <?php endif; ?>
 </div>

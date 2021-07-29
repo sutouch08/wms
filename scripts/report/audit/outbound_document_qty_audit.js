@@ -1,4 +1,4 @@
-var HOME = BASE_URL + 'report/audit/outbound_document_audit/';
+var HOME = BASE_URL + 'report/audit/outbound_document_qty_audit/';
 
 function toggleAllDocument(option){
   $('#allDoc').val(option);

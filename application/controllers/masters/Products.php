@@ -1307,6 +1307,41 @@ class Products extends PS_Controller
   }
 
 
+
+	public function send_to_wms()
+	{
+		$sc = TRUE;
+		$code = trim($this->input->post('code')); //--- style code
+
+		if(!empty($code))
+		{
+			$items = $this->products_model->get_style_items($code);
+
+			if(!empty($items))
+			{
+				$export = $this->wms_product_api->export_style($code, $items);
+				if(!$export)
+				{
+					$sc = FALSE;
+					$this->error = "Error : ".$this->wms_product_api->error;
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Items not found";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
   public function export_barcode($code, $token)
   {
     $products = $this->products_model->get_style_items($code);

@@ -75,6 +75,7 @@ class Wms_auto_delivery_order extends CI_Controller
 							$channels = $this->channels_model->get($order->channels_code);
 							if($channels->is_online == 1)
 							{
+								$order->shipped_date = $data->shipped_date;
 								//--- บันทึกขาย เซ็ต state = 8  export delivery
 								$this->process_delivery($order, $details);
 							}
@@ -272,6 +273,7 @@ class Wms_auto_delivery_order extends CI_Controller
 
 		$this->db->trans_begin();
 
+		$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($order->shipped_date) ? now() : $order->shipped_date);
 		//--- change state
 	  $this->orders_model->change_state($order->code, 8);
 
@@ -327,7 +329,7 @@ class Wms_auto_delivery_order extends CI_Controller
 									'customer_ref' => $order->customer_ref,
 									'sale_code'   => $order->sale_code,
 									'user' => $order->user,
-									'date_add'  => $order->date_add,
+									'date_add'  => $date_add,
 									'zone_code' => $this->zone_code,
 									'warehouse_code'  => $this->warehouse_code,
 									'update_user' => $this->user,
@@ -357,7 +359,7 @@ class Wms_auto_delivery_order extends CI_Controller
 							'product_code' => $ds->product_code,
 							'move_in' => 0,
 							'move_out' => $rs->qty,
-							'date_add' => $order->date_add
+							'date_add' => $date_add
 						);
 
 						if(! $this->movement_model->add($arr))
@@ -484,7 +486,7 @@ class Wms_auto_delivery_order extends CI_Controller
 								'customer_ref' => $order->customer_ref,
 								'sale_code'   => $order->sale_code,
 								'user' => $order->user,
-								'date_add'  => $order->date_add,
+								'date_add'  => $date_add,
 								'zone_code' => NULL,
 								'warehouse_code'  => NULL,
 								'update_user' => $this->user,
@@ -506,6 +508,10 @@ class Wms_auto_delivery_order extends CI_Controller
 			} //--- end foreach non count
 		} //--- end if ! empty non count detail
 
+		if($sc === TRUE)
+		{
+			$this->orders_model->update($order->code, array('shipped_date' => $date_add)); //--- update shipped
+		}
 
 		if($sc === TRUE)
 		{

@@ -7,7 +7,9 @@
     </div>
 		<div class="col-sm-6 padding-5">
 			<p class="pull-right top-p">
+				<?php if($this->_SuperAdmin) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="process()">Process</button>
+				<?php endif; ?>
 			</p>
 		</div>
 </div><!-- End Row -->
@@ -33,13 +35,21 @@
       <option value="3" <?php echo is_selected('3', $status); ?>>Error</option>
     </select>
   </div>
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-1 col-1-harf padding-5">
     <label>การแก้ไข</label>
     <select class="form-control input-sm" name="valid" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
       <option value="1" <?php echo is_selected('1', $valid); ?>>แก้ไขแล้ว</option>
       <option value="0" <?php echo is_selected('0', $valid); ?>>ยังไม่แก้ไข</option>
     </select>
+  </div>
+
+	<div class="col-sm-2 padding-5">
+    <label>Shipped Date</label>
+    <div class="input-daterange input-group">
+      <input type="text" class="form-control input-sm width-50 text-center from-date" name="shipped_from_date" id="shipFromDate" value="<?php echo $shipped_from_date; ?>">
+      <input type="text" class="form-control input-sm width-50 text-center" name="shipped_to_date" id="shipToDate" value="<?php echo $shipped_to_date; ?>">
+    </div>
   </div>
 
 	<div class="col-sm-2 padding-5">
@@ -71,11 +81,12 @@
       <span class="blue">NC</span> = ยังไม่เข้า IX
     </p>
   </div>
-  <div class="col-sm-12">
+  <div class="col-sm-12 padding-5">
     <table class="table table-striped border-1 dataTable">
       <thead>
         <tr>
           <th class="width-5 text-center">ลำดับ</th>
+					<th class="width-12">Shipped Date</th>
           <th class="width-10">เลขที่เอกสาร </th>
 					<th class="width-10">เลขที่อ้างอิง </th>
           <th class="width-12">เข้า Temp</th>
@@ -94,6 +105,7 @@
 
         <tr class="font-size-12">
           <td class="middle text-center"><?php echo $no; ?></td>
+					<td class="middle"><?php echo (!empty($rs->shipped_date) ? thai_date($rs->shipped_date, TRUE) : ""); ?></td>
           <td class="middle"><?php echo $rs->code; ?></td>
 					<td class="middle"><?php echo $rs->reference; ?></td>
           <td class="middle" ><?php echo thai_date($rs->temp_date, TRUE); ?></td>
@@ -149,7 +161,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="12" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="13" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>
@@ -283,6 +295,21 @@
 		dateFormat:'dd-mm-yy',
 		onClose:function(sd){
 			$("#fromDate").datepicker('option', 'maxDate', sd);
+		}
+	});
+
+	$("#shipFromDate").datepicker({
+		dateFormat:'dd-mm-yy',
+		onClose:function(sd){
+			$("#shipToDate").datepicker('option', 'minDate', sd);
+		}
+	});
+
+
+	$("#shipToDate").datepicker({
+		dateFormat:'dd-mm-yy',
+		onClose:function(sd){
+			$("#shipFromDate").datepicker('option', 'maxDate', sd);
 		}
 	});
 </script>

@@ -194,7 +194,7 @@ class Items extends PS_Controller
               $rs['D'] = str_replace(array("\n", "\r"), '', $rs['D']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
 
               $style = preg_replace($code_pattern, '', get_null(trim($rs['D'])));
-              $old_style = get_null(trim($rs['T'])) === NULL ? $style : trim($rs['S']);
+              $old_style = get_null(trim($rs['T'])) === NULL ? $style : trim($rs['T']);
               $color_code = get_null(trim($rs['E']));
               $size_code = get_null(trim($rs['F']));
               $group_code = get_null(trim($rs['G']));
@@ -653,6 +653,42 @@ class Items extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $message;
   }
+
+
+
+
+	public function send_to_wms()
+	{
+		$sc = TRUE;
+		$code = trim($this->input->post('code'));
+		if(!empty($code))
+		{
+			$item = $this->products_model->get($code);
+			if(!empty($item))
+			{
+				$export = $this->wms_product_api->export_item($item->code, $item);
+
+				if(!$export)
+				{
+					$sc = FALSE;
+					$this->error = "Error: ".$this->wms_product_api->error;
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Item not found";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
 
 
 

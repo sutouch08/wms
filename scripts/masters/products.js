@@ -66,7 +66,7 @@ function export_filter(){
   $('#token').val(token);
 
   get_download(token);
-  
+
   $('#export_filter_form').submit();
 
 }
@@ -140,4 +140,34 @@ function doExport(code){
       }
     }
   })
+}
+
+
+function sendToWms(code) {
+	load_in();
+	$.ajax({
+		url:BASE_URL + 'masters/products/send_to_wms',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
 }

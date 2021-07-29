@@ -130,6 +130,8 @@ class Wms_auto_receive extends CI_Controller
 		{
 			$sc = TRUE;
 
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+
 			if($order->status == 1)
 			{
 				$sc = FALSE;
@@ -200,7 +202,7 @@ class Wms_auto_receive extends CI_Controller
 										'zone_code' => $zone_code,
 										'product_code' => $rs->product_code,
 										'move_in' => $rs->qty,
-										'date_add' => db_date($order->date_add, TRUE)
+										'date_add' => db_date($date_add, TRUE)
 									);
 
 									if($this->movement_model->add($ds) === FALSE)
@@ -232,7 +234,12 @@ class Wms_auto_receive extends CI_Controller
 					//--- change document status
 					if($sc === TRUE)
 					{
-						if(! $this->receive_po_model->set_status($order->code, 1))
+						$arr = array(
+							'shipped_date' => $date_add,
+							'status' => 1
+						);
+
+						if(! $this->receive_po_model->update($order->code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Change document status failed";
@@ -286,6 +293,8 @@ class Wms_auto_receive extends CI_Controller
 		if(!empty($order))
 		{
 			$sc = TRUE;
+
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
 			if($order->status == 1)
 			{
@@ -352,7 +361,7 @@ class Wms_auto_receive extends CI_Controller
 										'zone_code' => $order->zone_code,
 										'product_code' => $row->product_code,
 										'move_in' => $rs->qty,
-										'date_add' => db_date($order->date_add, TRUE)
+										'date_add' => db_date($date_add, TRUE)
 									);
 
 									if($this->movement_model->add($ds) === FALSE)
@@ -377,6 +386,7 @@ class Wms_auto_receive extends CI_Controller
 						{
 							//--- เปลี่ยนสถานะเอกสาร
 							$arr = array(
+								'shipped_date' => $date_add,
 								'status' => 1,
 								'is_complete' => 1
 							);
@@ -431,6 +441,8 @@ class Wms_auto_receive extends CI_Controller
 		if(!empty($order))
 		{
 			$sc = TRUE;
+
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
 			if($order->status == 1)
 			{
@@ -496,7 +508,7 @@ class Wms_auto_receive extends CI_Controller
 										'zone_code' => $order->from_zone,
 										'product_code' => $row->product_code,
 										'move_out' => $rs->qty,
-										'date_add' => db_date($order->date_add, TRUE)
+										'date_add' => db_date($date_add, TRUE)
 									);
 
 									$move_in = array(
@@ -505,7 +517,7 @@ class Wms_auto_receive extends CI_Controller
 										'zone_code' => $order->to_zone,
 										'product_code' => $row->product_code,
 										'move_in' => $rs->qty,
-										'date_add' => db_date($order->date_add, TRUE)
+										'date_add' => db_date($date_add, TRUE)
 									);
 
 									if($this->movement_model->add($move_out) === FALSE)
@@ -542,6 +554,7 @@ class Wms_auto_receive extends CI_Controller
 						{
 							//--- เปลี่ยนสถานะเอกสาร
 							$arr = array(
+								'shipped_date' => $date_add,
 								'status' => 1
 							);
 
@@ -595,6 +608,8 @@ class Wms_auto_receive extends CI_Controller
 		if(!empty($order))
 		{
 			$sc = TRUE;
+
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
 			if($order->status == 1)
 			{
@@ -665,7 +680,7 @@ class Wms_auto_receive extends CI_Controller
 										'zone_code' => $zone_code,
 										'product_code' => $pd->code,
 										'move_in' => $rs->qty,
-										'date_add' => db_date($order->date_add, TRUE)
+										'date_add' => db_date($date_add, TRUE)
 									);
 
 									if($this->movement_model->add($ds) === FALSE)
@@ -692,7 +707,12 @@ class Wms_auto_receive extends CI_Controller
 
 					if($sc === TRUE)
 					{
-						$this->receive_transform_model->set_status($order->code, 1);
+						$arr = array(
+							'shipped_date' => $date_add,
+							'status' => 1
+						);
+
+						$this->receive_transform_model->update($order->code, $arr);
 
 						if($this->transform_model->is_complete($order->order_code) === TRUE)
 						{
@@ -746,6 +766,8 @@ class Wms_auto_receive extends CI_Controller
 		if(!empty($order))
 		{
 			$sc = TRUE;
+
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
 			if($order->status == 1)
 			{
@@ -820,7 +842,7 @@ class Wms_auto_receive extends CI_Controller
 													'product_code' => $de->product_code,
 													'move_in' => 0,
 													'move_out' => $qty,
-													'date_add' => $order->date_add
+													'date_add' => $date_add
 												);
 
 												$move_in = array(
@@ -830,7 +852,7 @@ class Wms_auto_receive extends CI_Controller
 													'product_code' => $de->product_code,
 													'move_in' => $qty,
 													'move_out' => 0,
-													'date_add' => $order->date_add
+													'date_add' => $date_add
 												);
 
 												//--- move out
@@ -867,6 +889,7 @@ class Wms_auto_receive extends CI_Controller
 					if($sc === TRUE)
 					{
 						$arr = array(
+							'shipped_date' => $date_add,
 							'status' => 1,
 							'valid' => $valid
 						);
@@ -924,6 +947,8 @@ class Wms_auto_receive extends CI_Controller
 		if(!empty($order))
 		{
 			$sc = TRUE;
+
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
 			if($order->status == 1)
 			{
@@ -987,7 +1012,12 @@ class Wms_auto_receive extends CI_Controller
 
 					if($sc === TRUE)
 					{
-						if(!$this->consign_check_model->change_status($order->code, 1))
+						$arr = array(
+							'shipped_date' => $date_add,
+							'status' => 1
+						);
+
+						if(!$this->consign_check_model->update($order->code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Update failed : change document status failed";

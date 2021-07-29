@@ -7,7 +7,9 @@
     </div>
 		<div class="col-sm-6">
 			<p class="pull-right top-p">
+				<?php if($this->_SuperAdmin) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="process()">Process</button>
+				<?php endif; ?>
 			</p>
 		</div>
 </div><!-- End Row -->
@@ -36,7 +38,7 @@
 		</select>
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
@@ -44,6 +46,14 @@
       <option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่เข้า</option>
       <option value="3" <?php echo is_selected('3', $status); ?>>Error</option>
     </select>
+  </div>
+
+	<div class="col-sm-2 padding-5">
+    <label>Received Date</label>
+    <div class="input-daterange input-group">
+      <input type="text" class="form-control input-sm width-50 text-center from-date" name="received_from_date" id="receivedFromDate" value="<?php echo $received_from_date; ?>">
+      <input type="text" class="form-control input-sm width-50 text-center" name="received_to_date" id="receivedToDate" value="<?php echo $received_to_date; ?>">
+    </div>
   </div>
 
 	<div class="col-sm-2 padding-5">
@@ -80,10 +90,11 @@
       <thead>
         <tr>
           <th class="width-5 text-center">ลำดับ</th>
+					<th class="width-12">Received Date </th>
           <th class="width-15">เลขที่เอกสาร </th>
 					<th class="width-15">เลขที่อ้างอิง </th>
-          <th class="width-15">เข้า Temp</th>
-          <th class="width-15">เข้า IX</th>
+          <th class="width-12">เข้า Temp</th>
+          <th class="width-12">เข้า IX</th>
           <th class="width-5 text-center">สถานะ</th>
 					<th class="">หมายเหตุ</th>
 					<th class="width-5"></th>
@@ -96,6 +107,7 @@
 
         <tr class="font-size-12">
           <td class="middle text-center"><?php echo $no; ?></td>
+					<td class="middle"><?php echo (empty($rs->received_date) ? "" : thai_date($rs->received_date, TRUE)); ?></td>
           <td class="middle"><?php echo $rs->code; ?></td>
 					<td class="middle"><?php echo $rs->reference; ?></td>
           <td class="middle" ><?php echo thai_date($rs->temp_date, TRUE); ?></td>
@@ -140,7 +152,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="10" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="11" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>
@@ -245,6 +257,21 @@
 	  dateFormat:'dd-mm-yy',
 	  onClose:function(sd){
 	    $("#fromDate").datepicker('option', 'maxDate', sd);
+	  }
+	});
+
+	$("#receivedFromDate").datepicker({
+	  dateFormat:'dd-mm-yy',
+	  onClose:function(sd){
+	    $("#receivedToDate").datepicker('option', 'minDate', sd);
+	  }
+	});
+
+
+	$("#receivedToDate").datepicker({
+	  dateFormat:'dd-mm-yy',
+	  onClose:function(sd){
+	    $("#receivedFromDate").datepicker('option', 'maxDate', sd);
 	  }
 	});
 

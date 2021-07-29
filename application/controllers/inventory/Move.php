@@ -223,13 +223,15 @@ class Move extends PS_Controller
   public function save_move($code)
   {
     $sc = TRUE;
-    $this->db->trans_start();
+    $this->db->trans_begin();
     //--- change state to 1
     $this->move_model->set_status($code, 1);
     $this->move_model->valid_all_detail($code, 1);
 
     $details = $this->move_model->get_details($code);
     $doc = $this->move_model->get($code);
+		$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
     if(!empty($details))
     {
       $this->load->model('inventory/movement_model');
@@ -243,7 +245,7 @@ class Move extends PS_Controller
           'product_code' => $rs->product_code,
           'move_in' => 0,
           'move_out' => $rs->qty,
-          'date_add' => $doc->date_add
+          'date_add' => $date_add
         );
 
         $move_in = array(
@@ -253,14 +255,14 @@ class Move extends PS_Controller
           'product_code' => $rs->product_code,
           'move_in' => $rs->qty,
           'move_out' => 0,
-          'date_add' => $doc->date_add
+          'date_add' => $date_add
         );
 
         //--- move out
         if($this->movement_model->add($move_out) === FALSE)
         {
           $sc = FALSE;
-          $message = 'บันทึก movement ขาออกไม่สำเร็จ';
+          $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
           break;
         }
 
@@ -268,27 +270,33 @@ class Move extends PS_Controller
         if($this->movement_model->add($move_in) === FALSE)
         {
           $sc = FALSE;
-          $message = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+          $this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
           break;
         }
       }
     }
 
+		if($sc === TRUE)
+		{
+			//--- update transfered date
+			$this->move_model->update($code, array('shipped_date' => now()));
+		}
 
-    $this->db->trans_complete();
-
-    if($this->db->trans_status() === FALSE)
-    {
-      $sc = FALSE;
-      $message = $this->db->error();
-    }
+		if($sc === TRUE)
+		{
+			$this->db->trans_commit();
+		}
+		else
+		{
+			$this->trans_rollback();
+		}
 
     if($sc === TRUE)
     {
       $this->do_export($code);
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

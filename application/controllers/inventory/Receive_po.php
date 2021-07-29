@@ -150,6 +150,7 @@ class Receive_po extends PS_Controller
       $code = $this->input->post('receive_code');
 
 			$doc = $this->receive_po_model->get($code);
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
       $vendor_code = $this->input->post('vendor_code');
       $vendor_name = $this->input->post('vendorName');
@@ -251,7 +252,7 @@ class Receive_po extends PS_Controller
 	                    'product_code' => $item,
 	                    'move_in' => $qty,
 	                    'move_out' => 0,
-	                    'date_add' => $doc->date_add
+	                    'date_add' => $date_add
 	                  );
 
 	                  $this->movement_model->add($arr);
@@ -272,7 +273,13 @@ class Receive_po extends PS_Controller
 					}
 					else
 					{
-						$this->receive_po_model->set_status($code, 1);
+						$arr = array(
+							'shipped_date' => now(),
+							'status' => 1
+						);
+
+						$this->receive_po_model->update($code, $arr);
+						//$this->receive_po_model->set_status($code, 1);
 					}
 
         }
@@ -298,7 +305,7 @@ class Receive_po extends PS_Controller
 				$this->load->library('wms_receive_api');
 				$doc->vendor_code = $vendor_code;
 				$doc->vendor_name = $vendor_name;
-				
+
 				$rs = $this->wms_receive_api->export_receive_po($doc, $po_code, $invoice, $details);
 
 				if(!$rs)
@@ -472,22 +479,25 @@ class Receive_po extends PS_Controller
 
       foreach($details as $rs)
       {
-        $dif = $rs->Quantity - $rs->OpenQty;
-        $arr = array(
-          'no' => $no,
-          'barcode' => $this->products_model->get_barcode($rs->ItemCode),
-          'pdCode' => $rs->ItemCode,
-          'pdName' => $rs->Dscription,
-          'price' => $rs->price,
-          'qty' => number($rs->Quantity),
-          'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
-          'backlog' => number($rs->OpenQty),
-          'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE
-        );
-        array_push($ds, $arr);
-        $no++;
-        $totalQty += $rs->Quantity;
-        $totalBacklog += $rs->OpenQty;
+				if($rs->OpenQty > 0)
+				{
+					$dif = $rs->Quantity - $rs->OpenQty;
+	        $arr = array(
+	          'no' => $no,
+	          'barcode' => $this->products_model->get_barcode($rs->ItemCode),
+	          'pdCode' => $rs->ItemCode,
+	          'pdName' => $rs->Dscription,
+	          'price' => $rs->price,
+	          'qty' => number($rs->Quantity),
+	          'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
+	          'backlog' => number($rs->OpenQty),
+	          'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE
+	        );
+	        array_push($ds, $arr);
+	        $no++;
+	        $totalQty += $rs->Quantity;
+	        $totalBacklog += $rs->OpenQty;
+				}        
       }
 
       $arr = array(

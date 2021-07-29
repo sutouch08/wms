@@ -10,6 +10,34 @@ class Auto_complete extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE);
   }
 
+	public function get_wx_code()
+	{
+		$txt = trim($_REQUEST['term']);
+		$sc = array();
+
+		$this->db->select('code');
+		if($txt != '*')
+		{
+			$this->db->like('code', $txt);
+		}
+
+		$rs = $this->db->order_by('code', 'DESC')->limit(20)->get('consign_check');
+
+		if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $sc[] = $rd->code;
+      }
+    }
+		else
+		{
+			$sc[] = "not found";
+		}
+
+    echo json_encode($sc);
+	}
+
 
 	public function get_active_quotation()
 	{

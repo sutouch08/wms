@@ -84,6 +84,8 @@ class Return_consignment extends PS_Controller
         $sold = $this->input->post('sold_qty');
         $discount = $this->input->post('discount');
         $vat = getConfig('SALE_VAT_RATE'); //--- 0.07
+				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->received_date) ? now() : $doc->received_date);
+
         //--- drop old detail
         $this->return_consignment_model->drop_details($code);
 

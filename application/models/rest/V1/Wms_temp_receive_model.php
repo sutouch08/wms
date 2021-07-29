@@ -206,6 +206,12 @@ class Wms_temp_receive_model extends CI_Model
 			$this->wms->where('temp_date <=', to_date($ds['to_date']));
 		}
 
+		if(!empty($ds['received_from_date']) && !empty($ds['received_to_date']))
+		{
+			$this->wms->where('received_date >=', from_date($ds['received_from_date']));
+			$this->wms->where('received_date <=', to_date($ds['received_to_date']));
+		}
+
 		return $this->wms->count_all_results($this->tb)		;
 	}
 
@@ -236,6 +242,12 @@ class Wms_temp_receive_model extends CI_Model
 		{
 			$this->wms->where('temp_date >=', from_date($ds['from_date']));
 			$this->wms->where('temp_date <=', to_date($ds['to_date']));
+		}
+
+		if(!empty($ds['received_from_date']) && !empty($ds['received_to_date']))
+		{
+			$this->wms->where('received_date >=', from_date($ds['received_from_date']));
+			$this->wms->where('received_date <=', to_date($ds['received_to_date']));
 		}
 
 		$this->wms->order_by('id', 'DESC')->limit($perpage, $offset);

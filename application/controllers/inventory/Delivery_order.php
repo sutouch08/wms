@@ -73,6 +73,9 @@ class Delivery_order extends PS_Controller
     if($code)
     {
       $order = $this->orders_model->get($code);
+
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : now();
+
       if($order->role == 'T' OR $order->role == 'Q')
       {
         $this->load->model('inventory/transform_model');
@@ -89,6 +92,8 @@ class Delivery_order extends PS_Controller
 
         //--- change state
        $this->orders_model->change_state($code, 8);
+
+			 $this->orders_model->update($code, array('shipped_date' => now())); //--- update shipped date 
 
         //--- add state event
         $arr = array(
@@ -152,7 +157,7 @@ class Delivery_order extends PS_Controller
                     'product_code' => $rm->product_code,
                     'move_in' => 0,
                     'move_out' => $buffer_qty,
-                    'date_add' => $order->date_add
+                    'date_add' => $date_add
                   );
 
                   if($this->movement_model->add($arr) === FALSE)
@@ -187,7 +192,7 @@ class Delivery_order extends PS_Controller
                           'customer_ref' => $order->customer_ref,
                           'sale_code'   => $order->sale_code,
                           'user' => $order->user,
-                          'date_add'  => $order->date_add,
+                          'date_add'  => $date_add, //---- เปลี่ยนไปตาม config ORDER_SOLD_DATE
                           'zone_code' => $rm->zone_code,
                           'warehouse_code'  => $rm->warehouse_code,
                           'update_user' => get_cookie('uname'),
@@ -341,7 +346,7 @@ class Delivery_order extends PS_Controller
                     'customer_ref' => $order->customer_ref,
                     'sale_code'   => $order->sale_code,
                     'user' => $order->user,
-                    'date_add'  => $order->date_add,
+                    'date_add'  => $date_add, //--- เปลี่ยนตาม Config ORDER_SOLD_DATE
                     'zone_code' => NULL,
                     'warehouse_code'  => NULL,
                     'update_user' => get_cookie('uname'),
@@ -561,7 +566,7 @@ class Delivery_order extends PS_Controller
       'ic_order_by',
       'ic_warehouse'
     );
-    
+
     clear_filter($filter);
   }
 

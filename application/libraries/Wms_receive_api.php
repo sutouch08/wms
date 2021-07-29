@@ -78,6 +78,7 @@ class Wms_receive_api
 						$xml .= "<SERIAL_NO></SERIAL_NO>";
 						$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
 						$xml .= "<UOM>".$rs->unit_code."</UOM>";
+						//$xml .= "<REF_NO1>".$rs->order_code."</REF_NO1>";
 						$xml .= "</ITEM>";
 					}
 				}
@@ -765,7 +766,6 @@ class Wms_receive_api
 	public function export_return_request($doc, $details)
 	{
 		// Assign the CodeIgniter super-object
-
 		$sc = TRUE;
 		$this->type = "RC";
 		$xml = "";

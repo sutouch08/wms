@@ -88,8 +88,10 @@ class Return_order extends PS_Controller
         $sold_qtys = $this->input->post('sold_qty');
         $prices = $this->input->post('price');
         $discounts = $this->input->post('discount');
+				$orders = $this->input->post('order');
 
         $vat = getConfig('SALE_VAT_RATE'); //--- 0.07
+
         //--- drop old detail
         $this->return_order_model->drop_details($code);
 
@@ -106,6 +108,7 @@ class Return_order extends PS_Controller
               $arr = array(
                 'return_code' => $code,
                 'invoice_code' => $doc->invoice,
+								'order_code' => get_null($orders[$row]),
                 'product_code' => $item[$row],
                 'product_name' => $this->products_model->get_name($item[$row]),
                 'sold_qty' => $sold_qtys[$row],
@@ -121,26 +124,6 @@ class Return_order extends PS_Controller
                 $sc = FALSE;
                 $this->error = 'บันทึกรายการไม่สำเร็จ';
                 break;
-              }
-              else
-              {
-								if($doc->is_wms == 0)
-								{
-									$ds = array(
-	                  'reference' => $code,
-	                  'warehouse_code' => $doc->warehouse_code,
-	                  'zone_code' => $doc->zone_code,
-	                  'product_code' => $item[$row],
-	                  'move_in' => $qty,
-	                  'date_add' => $doc->date_add
-	                );
-
-	                if($this->movement_model->add($ds) === FALSE)
-	                {
-	                  $sc = FALSE;
-	                  $message = 'บันทึก movement ไม่สำเร็จ';
-	                }
-								}
               }
             } //--- end if qty > 0
           } //--- end foreach
@@ -230,23 +213,27 @@ class Return_order extends PS_Controller
 			$doc = $this->return_order_model->get($code);
 			if(!empty($doc))
 			{
+				$date_add = getConfig('ORDER_SOLD_DATE') === 'D' ? $doc->date_add : now();
+
 				if($doc->status == 1 ) //--- status บันทึกแล้วเท่านั้น
 				{
 					if($this->return_order_model->approve($code))
 					{
+						$this->return_order_model->update($code, array('shipped_date' => now()));
+
 						$this->approve_logs_model->add($code, 1, get_cookie('uname'));
+
+						$details = $this->return_order_model->get_details($doc->code);
 
 						if($this->isAPI === TRUE && $doc->is_wms == 1)
 						{
-							$details = $this->return_order_model->get_details($doc->code);
-
 							if(!empty($details))
 							{
 								$this->wms = $this->load->database('wms', TRUE);
 								$this->load->library('wms_receive_api');
-								$rs = $this->wms_receive_api->export_return_order($doc, $details);  //--- send data to WMS ;
+								$exported = $this->wms_receive_api->export_return_order($doc, $details);  //--- send data to WMS ;
 
-								if($rs)
+								if($exported)
 								{
 									$this->return_order_model->set_status($code, 3); //--- on wms process;
 								}
@@ -265,14 +252,42 @@ class Return_order extends PS_Controller
 						}
 						else
 						{
-							$export = $this->do_export($code);
-
-							if(! $export)
+							if(!empty($details))
 							{
-								$sc = FALSE;
-								$this->error = "อนุมัติสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ กรุณา refresh หน้าจอแล้วกดส่งข้อมูลอีกครั้ง";
+								foreach($details as $rs)
+								{
+									$ds = array(
+		                 'reference' => $doc->code,
+		                 'warehouse_code' => $doc->warehouse_code,
+		                 'zone_code' => $doc->zone_code,
+		                 'product_code' => $rs->product_code,
+		                 'move_in' => $rs->qty,
+		                 'date_add' => $date_add
+		              );
+
+		              if($this->movement_model->add($ds) === FALSE)
+		              {
+		                $sc = FALSE;
+		                $this->error = 'บันทึก movement ไม่สำเร็จ';
+		              }
+								}
+							}
+							else
+							{
+								$sc === FALSE;
+								$this->error = "ไม่พบรายการรับคืน";
 							}
 
+							if($sc === TRUE)
+							{
+								$export = $this->do_export($code);
+
+								if(! $export)
+								{
+									$sc = FALSE;
+									$this->error = "อนุมัติสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ กรุณา refresh หน้าจอแล้วกดส่งข้อมูลอีกครั้ง";
+								}
+							}
 						}
 
 					}
@@ -430,6 +445,7 @@ class Return_order extends PS_Controller
             $dt = new stdClass();
             $dt->id = 0;
             $dt->invoice_code = $doc->invoice;
+						$dt->order_code = $rs->order_code;
             $dt->barcode = $this->products_model->get_barcode($rs->product_code);
             $dt->product_code = $rs->product_code;
             $dt->product_name = $rs->product_name;
@@ -455,6 +471,7 @@ class Return_order extends PS_Controller
           $dt = new stdClass();
           $dt->id = $rs->id;
           $dt->invoice_code = $doc->invoice;
+					$dt->order_code = $rs->order_code;
           $dt->barcode = $this->products_model->get_barcode($rs->product_code);
           $dt->product_code = $rs->product_code;
           $dt->product_name = $rs->product_name;
@@ -546,6 +563,7 @@ class Return_order extends PS_Controller
         $dt = new stdClass();
         $dt->id = $rs->id;
         $dt->invoice_code = $rs->invoice_code;
+				$dt->order_code = $rs->order_code;
         $dt->barcode = $this->products_model->get_barcode($rs->product_code);
         $dt->product_code = $rs->product_code;
         $dt->product_name = $rs->product_name;
@@ -590,6 +608,7 @@ class Return_order extends PS_Controller
         {
           $row->barcode = $this->products_model->get_barcode($rs->product_code);
           $row->invoice = $invoice;
+					$row->order_code = $rs->order_code;
           $row->code = $rs->product_code;
           $row->name = $rs->product_name;
           $row->price = round($rs->price, 2);

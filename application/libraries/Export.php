@@ -78,12 +78,13 @@ class Export
         $currency = getConfig('CURRENCY');
         $vat_rate = getConfig('SALE_VAT_RATE');
         $vat_code = getConfig('SALE_VAT_CODE');
+				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($order->shipped_date) ? now() : $order->shipped_date);
         //--- header
         $ds = array(
           'DocType' => 'I', //--- I = item, S = Service
           'CANCELED' => 'N', //--- Y = Yes, N = No
-          'DocDate' => sap_date($order->date_add, TRUE), //--- วันที่เอกสาร
-          'DocDueDate' => sap_date($order->date_add,TRUE), //--- วันที่เอกสาร
+          'DocDate' => sap_date($date_add, TRUE), //--- วันที่เอกสาร
+          'DocDueDate' => sap_date($date_add,TRUE), //--- วันที่เอกสาร
           'CardCode' => $order->customer_code, //--- รหัสลูกค้า
           'CardName' => $cust->name, //--- ชื่อลูกค้า
           'DiscPrcnt' => $order->bDiscText,
@@ -233,12 +234,13 @@ class Export
         $currency = getConfig('CURRENCY');
         $vat_rate = getConfig('SALE_VAT_RATE');
         $vat_code = getConfig('SALE_VAT_CODE');
+				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($order->shipped_date) ? now() : $order->shipped_date);
         //--- header
         $ds = array(
           'DocType' => 'I', //--- I = item, S = Service
           'CANCELED' => 'N', //--- Y = Yes, N = No
-          'DocDate' => sap_date($order->date_add, TRUE), //--- วันที่เอกสาร
-          'DocDueDate' => sap_date($order->date_add,TRUE), //--- วันที่เอกสาร
+          'DocDate' => sap_date($date_add, TRUE), //--- วันที่เอกสาร
+          'DocDueDate' => sap_date($date_add,TRUE), //--- วันที่เอกสาร
           'CardCode' => $order->customer_code, //--- รหัสลูกค้า
           'CardName' => $cust->name, //--- ชื่อลูกค้า
           'DocCur' => $currency,
@@ -393,14 +395,15 @@ class Export
             $currency = getConfig('CURRENCY');
             $vat_rate = getConfig('SALE_VAT_RATE');
             $vat_code = getConfig('SALE_VAT_CODE');
+						$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
             $total_amount = $this->ci->orders_model->get_bill_total_amount($code);
 
             $ds = array(
               'U_ECOMNO' => $doc->code,
               'DocType' => 'I',
               'CANCELED' => 'N',
-              'DocDate' => sap_date($doc->date_add, TRUE),
-              'DocDueDate' => sap_date($doc->date_add, TRUE),
+              'DocDate' => sap_date($date_add, TRUE),
+              'DocDueDate' => sap_date($date_add, TRUE),
               'CardCode' => $cust->code,
               'CardName' => $cust->name,
               'VatPercent' => $vat_rate,
@@ -448,7 +451,7 @@ class Export
                     'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                     'PriceBefDi' => round($rs->price,2),
                     'LineTotal' => round($rs->total_amount,2),
-                    'ShipDate' => $doc->date_add,
+                    'ShipDate' => $date_add,
                     'Currency' => $currency,
                     'Rate' => 1,
                     //--- คำนวณส่วนลดจากยอดเงินกลับมาเป็น % (เพราะบางทีมีส่วนลดหลายชั้น)
@@ -580,13 +583,14 @@ public function export_transfer_draft($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
           $total_amount = $this->ci->orders_model->get_bill_total_amount($code);
           $ds = array(
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add, TRUE),
-            'DocDueDate' => sap_date($doc->date_add, TRUE),
+            'DocDate' => sap_date($date_add, TRUE),
+            'DocDueDate' => sap_date($date_add, TRUE),
             'CardCode' => $cust->code,
             'CardName' => $cust->name,
             'VatPercent' => $vat_rate,
@@ -633,7 +637,7 @@ public function export_transfer_draft($code)
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => round($rs->price,2),
                   'LineTotal' => round($rs->total_amount,2),
-                  'ShipDate' => $doc->date_add,
+                  'ShipDate' => $date_add,
                   'Currency' => $currency,
                   'Rate' => 1,
                   //--- คำนวณส่วนลดจากยอดเงินกลับมาเป็น % (เพราะบางทีมีส่วนลดหลายชั้น)
@@ -748,13 +752,14 @@ public function export_transfer($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
 
           $ds = array(
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add, TRUE),
-            'DocDueDate' => sap_date($doc->date_add, TRUE),
+            'DocDate' => sap_date($date_add, TRUE),
+            'DocDueDate' => sap_date($date_add, TRUE),
             'CardCode' => NULL,
             'CardName' => NULL,
             'VatPercent' => 0.000000,
@@ -800,7 +805,7 @@ public function export_transfer($code)
 	                  'unitMsr' => NULL,
 	                  'PriceBefDi' => 0.000000,
 	                  'LineTotal' => 0.000000,
-	                  'ShipDate' => sap_date($doc->date_add, TRUE),
+	                  'ShipDate' => sap_date($date_add, TRUE),
 	                  'Currency' => $currency,
 	                  'Rate' => 1,
 	                  'DiscPrcnt' => 0.000000,
@@ -842,7 +847,7 @@ public function export_transfer($code)
 	                  'unitMsr' => NULL,
 	                  'PriceBefDi' => 0.000000,
 	                  'LineTotal' => 0.000000,
-	                  'ShipDate' => sap_date($doc->date_add, TRUE),
+	                  'ShipDate' => sap_date($date_add, TRUE),
 	                  'Currency' => $currency,
 	                  'Rate' => 1,
 	                  'DiscPrcnt' => 0.000000,
@@ -871,7 +876,7 @@ public function export_transfer($code)
 	                }
 
 	                $line++;
-								}                
+								}
               }
             }
             else
@@ -954,13 +959,14 @@ public function export_move($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
 
           $ds = array(
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add),
-            'DocDueDate' => sap_date($doc->date_add),
+            'DocDate' => sap_date($date_add),
+            'DocDueDate' => sap_date($date_add),
             'CardCode' => NULL,
             'CardName' => NULL,
             'VatPercent' => 0.000000,
@@ -1004,7 +1010,7 @@ public function export_move($code)
                   'unitMsr' => NULL,
                   'PriceBefDi' => 0.000000,
                   'LineTotal' => 0.000000,
-                  'ShipDate' => $doc->date_add,
+                  'ShipDate' => $date_add,
                   'Currency' => $currency,
                   'Rate' => 1,
                   'DiscPrcnt' => 0.000000,
@@ -1124,13 +1130,15 @@ public function export_transform($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
           $total_amount = $this->ci->orders_model->get_bill_total_amount($code);
+
           $ds = array(
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add, TRUE),
-            'DocDueDate' => sap_date($doc->date_add,TRUE),
+            'DocDate' => sap_date($date_add, TRUE),
+            'DocDueDate' => sap_date($date_add,TRUE),
             'CardCode' => $cust->code,
             'CardName' => $cust->name,
             'VatPercent' => $vat_rate,
@@ -1175,7 +1183,7 @@ public function export_transform($code)
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => round($rs->price,2),
                   'LineTotal' => round($rs->total_amount,2),
-                  'ShipDate' => $doc->date_add,
+                  'ShipDate' => $date_add,
                   'Currency' => $currency,
                   'Rate' => 1,
                   //--- คำนวณส่วนลดจากยอดเงินกลับมาเป็น % (เพราะบางทีมีส่วนลดหลายชั้น)
@@ -1305,13 +1313,15 @@ public function export_receive($code)
             $currency = getConfig('CURRENCY');
           }
 
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
           $total_amount = $this->ci->receive_po_model->get_sum_amount($code);
+
           $ds = array(
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add, TRUE),
-            'DocDueDate' => sap_date($doc->date_add,TRUE),
+            'DocDate' => sap_date($date_add, TRUE),
+            'DocDueDate' => sap_date($date_add,TRUE),
             'CardCode' => $doc->vendor_code,
             'CardName' => $doc->vendor_name,
             'NumAtCard' => $doc->invoice_code,
@@ -1355,7 +1365,7 @@ public function export_receive($code)
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => remove_vat($rs->price, $vat_rate),
                   'LineTotal' => remove_vat($rs->amount, $vat_rate),
-                  'ShipDate' => sap_date($doc->date_add,TRUE),
+                  'ShipDate' => sap_date($date_add,TRUE),
                   'Currency' => $currency,
                   'Rate' => 1,
                   'Price' => remove_vat($rs->price, $vat_rate),
@@ -1462,13 +1472,15 @@ public function export_receive_transform($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('PURCHASE_VAT_RATE');
           $vat_code = getConfig('PURCHASE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
           $total_amount = $this->ci->receive_transform_model->get_sum_amount($code);
+
           $ds = array(
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
+            'DocDate' => $date_add,
+            'DocDueDate' => $date_add,
             'DocCur' => $currency,
             'DocRate' => 1,
             'DocTotal' => remove_vat($total_amount),
@@ -1502,7 +1514,7 @@ public function export_receive_transform($code)
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => round($rs->price,2),
                   'LineTotal' => round($rs->amount, 2),
-                  'ShipDate' => $doc->date_add,
+                  'ShipDate' => $date_add,
                   'Currency' => $currency,
                   'Rate' => 1,
                   'Price' => round(remove_vat($rs->price), 2),
@@ -1612,12 +1624,14 @@ public function export_return($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
           $total_amount = $this->ci->return_order_model->get_total_return($code);
+
           $ds = array(
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
+            'DocDate' => $date_add,
+            'DocDueDate' => $date_add,
             'CardCode' => $cust->code,
             'CardName' => $cust->name,
             'VatSum' => $this->ci->return_order_model->get_total_return_vat($code),
@@ -1660,7 +1674,7 @@ public function export_return($code)
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => remove_vat($rs->price),
                   'LineTotal' => remove_vat($rs->amount),
-                  'ShipDate' => $doc->date_add,
+                  'ShipDate' => $date_add,
                   'Currency' => $currency,
                   'Rate' => 1,
                   'DiscPrcnt' => $rs->discount_percent,
@@ -1774,13 +1788,15 @@ public function export_return_consignment($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
           $total_amount = $this->ci->return_consignment_model->get_total_return($code);
           $invoice = $this->ci->return_consignment_model->get_all_invoice($code);
+
           $ds = array(
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
+            'DocDate' => $date_add,
+            'DocDueDate' => $date_add,
             'CardCode' => $cust->code,
             'CardName' => $cust->name,
             'VatSum' => $this->ci->return_consignment_model->get_total_return_vat($code),
@@ -1823,7 +1839,7 @@ public function export_return_consignment($code)
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => remove_vat($rs->price),
                   'LineTotal' => remove_vat($rs->amount),
-                  'ShipDate' => $doc->date_add,
+                  'ShipDate' => $date_add,
                   'Currency' => $currency,
                   'Rate' => 1,
                   'DiscPrcnt' => $rs->discount_percent,
@@ -1937,13 +1953,15 @@ public function export_return_lend($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
           $total_amount = $this->ci->return_lend_model->get_sum_amount($code);
+
           $ds = array(
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
+            'DocDate' => $date_add,
+            'DocDueDate' => $date_add,
             'CardCode' => NULL,
             'CardName' => NULL,
             'VatPercent' => $vat_rate,
@@ -1990,7 +2008,7 @@ public function export_return_lend($code)
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => round(remove_vat($rs->price),6),
                   'LineTotal' => round(remove_vat($rs->amount),6),
-                  'ShipDate' => $doc->date_add,
+                  'ShipDate' => $date_add,
                   'Currency' => $currency,
                   'Rate' => 1,
                   //--- คำนวณส่วนลดจากยอดเงินกลับมาเป็น % (เพราะบางทีมีส่วนลดหลายชั้น)
@@ -2101,7 +2119,7 @@ public function export_consignment_order($code)
         $currency = getConfig('CURRENCY');
         $vat_rate = getConfig('SALE_VAT_RATE');
         $vat_code = getConfig('SALE_VAT_CODE');
-
+				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
         $doc_total = $this->ci->consignment_order_model->get_sum_amount($code);
 
         //--- header
@@ -2109,8 +2127,8 @@ public function export_consignment_order($code)
           'U_ECOMNO' => $doc->code,
           'DocType' => 'I', //--- I = item, S = Service
           'CANCELED' => 'N', //--- Y = Yes, N = No
-          'DocDate' => sap_date($doc->date_add, TRUE), //--- วันที่เอกสาร
-          'DocDueDate' => sap_date($doc->date_add,TRUE), //--- วันที่เอกสาร
+          'DocDate' => sap_date($date_add, TRUE), //--- วันที่เอกสาร
+          'DocDueDate' => sap_date($date_add,TRUE), //--- วันที่เอกสาร
           'CardCode' => $doc->customer_code, //--- รหัสลูกค้า
           'CardName' => $doc->customer_name, //--- ชื่อลูกค้า
           'DocCur' => $currency,
@@ -2213,6 +2231,7 @@ public function export_consignment_order($code)
 //---- Good issue
 //---- OIGE IGE1
 //---- Transform
+//---- WG
 public function export_transform_goods_issue($code)
 {
   $sc = TRUE;
@@ -2248,13 +2267,14 @@ public function export_transform_goods_issue($code)
             $doc_total += $row->qty * $row->cost;
           }
 
+					$date_add = $doc->date_add;
 
           $arr = array(
             'U_ECOMNO' => $code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add),
-            'DocDueDate' => sap_date($doc->date_add),
+            'DocDate' => sap_date($date_add),
+            'DocDueDate' => sap_date($date_add),
             'DocTotal' => $doc_total,
             'DocTotalFC' => $doc_total,
 						'U_PDNO' => $doc->reference,
@@ -2288,7 +2308,7 @@ public function export_transform_goods_issue($code)
                 'Quantity' => $rs->qty,
                 'WhsCode' => $doc->from_warehouse,
                 'FisrtBin' => $doc->from_zone,
-                'DocDate' => sap_date($doc->date_add),
+                'DocDate' => sap_date($date_add),
                 'F_E_Commerce' => 'A',
                 'F_E_CommerceDate' => sap_date(now(), TRUE)
               );
@@ -2376,13 +2396,14 @@ public function export_adjust_goods_issue($code)
             $doc_total += $row->qty * $row->cost;
           }
 
+					$date_add = $doc->date_add;
 
           $arr = array(
             'U_ECOMNO' => $code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add),
-            'DocDueDate' => sap_date($doc->date_add),
+            'DocDate' => sap_date($date_add),
+            'DocDueDate' => sap_date($date_add),
             'DocTotal' => $doc_total,
             'DocTotalFC' => $doc_total,
             'Comments' => limitText($doc->remark, 250),
@@ -2414,7 +2435,7 @@ public function export_adjust_goods_issue($code)
                 'Quantity' => $rs->qty,
                 'WhsCode' => $rs->warehouse_code,
                 'FisrtBin' => $rs->zone_code,
-                'DocDate' => sap_date($doc->date_add),
+                'DocDate' => sap_date($date_add),
                 'F_E_Commerce' => 'A',
                 'F_E_CommerceDate' => sap_date(now(), TRUE)
               );
@@ -2499,6 +2520,7 @@ public function export_adjust_goods_receive($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('PURCHASE_VAT_RATE');
           $vat_code = getConfig('PURCHASE_VAT_CODE');
+					$date_add = $doc->date_add;
           $doc_total = 0;
 
           foreach($details as $row)
@@ -2510,8 +2532,8 @@ public function export_adjust_goods_receive($code)
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
+            'DocDate' => $date_add,
+            'DocDueDate' => $date_add,
             'DocCur' => $currency,
             'DocRate' => 1,
             'DocTotal' => remove_vat($doc_total),
@@ -2546,7 +2568,7 @@ public function export_adjust_goods_receive($code)
                 'unitMsr' => $rs->unit_code,
                 'PriceBefDi' => round($rs->cost,2),
                 'LineTotal' => round($amount, 2),
-                'ShipDate' => $doc->date_add,
+                'ShipDate' => $date_add,
                 'Currency' => $currency,
                 'Rate' => 1,
                 'Price' => round(remove_vat($rs->cost), 2),
@@ -2651,13 +2673,14 @@ public function export_adjust_consignment_goods_issue($code)
             $doc_total += $row->qty * $row->cost;
           }
 
+					$date_add = $doc->date_add;
 
           $arr = array(
             'U_ECOMNO' => $code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => sap_date($doc->date_add),
-            'DocDueDate' => sap_date($doc->date_add),
+            'DocDate' => sap_date($date_add),
+            'DocDueDate' => sap_date($date_add),
             'DocTotal' => $doc_total,
             'DocTotalFC' => $doc_total,
             'Comments' => limitText($doc->remark, 250),
@@ -2689,7 +2712,7 @@ public function export_adjust_consignment_goods_issue($code)
                 'Quantity' => $rs->qty,
                 'WhsCode' => $rs->warehouse_code,
                 'FisrtBin' => $rs->zone_code,
-                'DocDate' => sap_date($doc->date_add),
+                'DocDate' => sap_date($date_add),
                 'F_E_Commerce' => 'A',
                 'F_E_CommerceDate' => sap_date(now(), TRUE)
               );
@@ -2775,6 +2798,7 @@ public function export_adjust_consignment_goods_receive($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('PURCHASE_VAT_RATE');
           $vat_code = getConfig('PURCHASE_VAT_CODE');
+					$date_add = $doc->date_add;
           $doc_total = 0;
 
           foreach($details as $row)
@@ -2786,8 +2810,8 @@ public function export_adjust_consignment_goods_receive($code)
             'U_ECOMNO' => $doc->code,
             'DocType' => 'I',
             'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
+            'DocDate' => $date_add,
+            'DocDueDate' => $date_add,
             'DocCur' => $currency,
             'DocRate' => 1,
             'DocTotal' => remove_vat($doc_total),
@@ -2822,7 +2846,7 @@ public function export_adjust_consignment_goods_receive($code)
                 'unitMsr' => $rs->unit_code,
                 'PriceBefDi' => round($rs->cost,2),
                 'LineTotal' => round($amount, 2),
-                'ShipDate' => $doc->date_add,
+                'ShipDate' => $date_add,
                 'Currency' => $currency,
                 'Rate' => 1,
                 'Price' => round(remove_vat($rs->cost), 2),

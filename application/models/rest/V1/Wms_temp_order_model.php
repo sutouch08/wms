@@ -187,6 +187,12 @@ class Wms_temp_order_model extends CI_Model
 			$this->wms->where('status', $ds['status']);
 		}
 
+		if(!empty($ds['shipped_from_date']) && !empty($ds['shipped_to_date']))
+		{
+			$this->wms->where('shipped_date >=', from_date($ds['shipped_from_date']));
+			$this->wms->where('shipped_date <=', to_date($ds['shipped_to_date']));
+		}
+
 		if(!empty($ds['from_date']) && !empty($ds['to_date']))
 		{
 			$this->wms->where('temp_date >=', from_date($ds['from_date']));
@@ -218,6 +224,12 @@ class Wms_temp_order_model extends CI_Model
 		if($ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);
+		}
+
+		if(!empty($ds['shipped_from_date']) && !empty($ds['shipped_to_date']))
+		{
+			$this->wms->where('shipped_date >=', from_date($ds['shipped_from_date']));
+			$this->wms->where('shipped_date <=', to_date($ds['shipped_to_date']));
 		}
 
 		if(!empty($ds['from_date']) && !empty($ds['to_date']))

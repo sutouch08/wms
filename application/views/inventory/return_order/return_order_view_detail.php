@@ -89,6 +89,11 @@ if($doc->status == 2)
 {
   $this->load->view('cancle_watermark');
 }
+
+if($doc->status == 3)
+{
+  $this->load->view('on_process_watermark');
+}
 ?>
 <div class="row">
 	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
@@ -96,12 +101,13 @@ if($doc->status == 2)
 			<thead>
 				<tr>
 					<th class="width-5 text-center">ลำดับ</th>
-					<th class="width-15">บาร์โค้ด</th>
+					<th class="width-10">บาร์โค้ด</th>
 					<th class="">สินค้า</th>
-					<th class="width-15 text-center">เลขที่บิล</th>
-					<th class="width-10 text-right">ราคา</th>
-					<th class="width-10 text-right">ส่วนลด</th>
-					<th class="width-10 text-right">จำนวน</th>
+					<th class="width-10 text-center">เลขที่บิล</th>
+					<th class="width-12 text-center">ออเดอร์</th>
+					<th class="width-8 text-right">ราคา</th>
+					<th class="width-8 text-right">ส่วนลด</th>
+					<th class="width-8 text-right">จำนวน</th>
 					<th class="width-10 text-right">มูลค่า</th>
 				</tr>
 			</thead>
@@ -116,6 +122,7 @@ if($doc->status == 2)
 					<td class="middle"><?php echo $rs->barcode; ?></td>
 					<td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
 					<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
+					<td class="middle text-center"><?php echo $rs->order_code; ?></td>
 					<td class="middle text-right"><?php echo number($rs->price, 2); ?></td>
 					<td class="middle text-right"><?php echo $rs->discount_percent; ?> %</td>
 					<td class="middle text-right"><?php echo round($rs->qty,2); ?></td>
@@ -128,7 +135,7 @@ if($doc->status == 2)
 ?>
 <?php  endforeach; ?>
 				<tr>
-					<td colspan="6" class="middle text-right">รวม</td>
+					<td colspan="7" class="middle text-right">รวม</td>
 					<td class="middle text-right" id="total-qty"><?php echo number($total_qty); ?></td>
 					<td class="middle text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
 				</tr>

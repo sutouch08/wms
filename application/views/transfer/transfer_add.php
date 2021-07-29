@@ -34,12 +34,12 @@
     <input type="text" class="form-control input-sm text-center" name="date" id="date" value="<?php echo date('d-m-Y'); ?>" readonly required />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-4 padding-5">
     <label>คลังต้นทาง</label>
     <input type="text" class="form-control input-sm" name="from_warehouse" id="from_warehouse" value="" required />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-4 padding-5">
     <label>คลังปลายทาง</label>
 		<input type="text" class="form-control input-sm" name="to_warehouse" id="to_warehouse" value="" required />
   </div>
@@ -51,7 +51,11 @@
 			<option value="0">ไม่ส่ง</option>
 		</select>
 	</div>
-  <div class="col-sm-3 padding-5">
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>เลขที่ WX</label>
+		<input type="text" class="form-control input-sm" name="wx_code" id="wx_code" />
+	</div>
+  <div class="col-sm-9 col-9-harf padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>

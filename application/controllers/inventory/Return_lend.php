@@ -196,6 +196,15 @@ class Return_lend extends PS_Controller
             }
           }
         }
+
+				if($sc === TRUE && $this->isAPI === FALSE && $is_wms == 0)
+				{
+					$arr = array(
+						'shipped_date' => now()
+					);
+
+					$this->return_lend_model->update($code, $arr);
+				}
       }
       else
       {

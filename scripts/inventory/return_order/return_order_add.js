@@ -8,14 +8,28 @@ function toggleCheckAll(el) {
 
 
 function deleteChecked(){
-	var count = $('.chk:checked').length;
-	if(count > 0){
+	load_in();
+	// var count = $('.chk:checked').length;
+	// if(count > 0){
+	// 	$('.chk:checked').each(function(){
+	// 		var id = $(this).data('id');
+	// 		var no = $(this).val();
+	// 		removeRow(no, id);
+	// 	})
+	// }
+
+	setTimeout(function(){
 		$('.chk:checked').each(function(){
 			var id = $(this).data('id');
 			var no = $(this).val();
 			removeRow(no, id);
 		})
-	}
+
+		reIndex();
+		recalTotal();
+		load_out();
+	}, 500)
+
 }
 
 
@@ -423,8 +437,8 @@ function removeRow(no, id){
 			success:function(rs){
 				if(rs == 'success'){
 					$('#row_' + no).remove();
-					reIndex();
-					recalTotal();
+					//reIndex();
+					//recalTotal();
 				}
 				else
 				{
@@ -437,7 +451,12 @@ function removeRow(no, id){
 	else
 	{
 		$('#row_'+no).remove();
-		reIndex();
-		recalTotal();
+		// reIndex();
+		// recalTotal();
 	}
 }
+
+
+$(document).ready(function(){
+	load_out();
+})

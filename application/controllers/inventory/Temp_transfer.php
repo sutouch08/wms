@@ -49,10 +49,10 @@ class Temp_transfer extends PS_Controller
 
 
 
-  public function get_detail($code)
+  public function get_detail($DocEntry)
   {
     $this->load->model('stock/stock_model');
-    $detail = $this->temp_transfer_model->get_detail($code);
+    $detail = $this->temp_transfer_model->get_detail($DocEntry);
     if(!empty($detail))
     {
       foreach($detail as $rs)
@@ -71,15 +71,15 @@ class Temp_transfer extends PS_Controller
 	public function delete()
 	{
 		$sc = TRUE;
-		$code = $this->input->post('code');
+		$docEntry = $this->input->post('code'); //--- docEntry
 
-		$doc = $this->temp_transfer_model->get($code);
+		$doc = $this->temp_transfer_model->get($docEntry);
 
 		if(!empty($doc))
 		{
 			if($doc->F_Sap != 'Y')
 			{
-				if(! $this->temp_transfer_model->delete($doc->DocEntry))
+				if(! $this->temp_transfer_model->delete($docEntry))
 				{
 					$sc = FALSE;
 					$this->error = "Delete failed";

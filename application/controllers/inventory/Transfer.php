@@ -111,6 +111,7 @@ class Transfer extends PS_Controller
       $date_add = db_date($this->input->post('date'), TRUE);
       $from_warehouse = $this->input->post('from_warehouse_code');
       $to_warehouse = $this->input->post('to_warehouse_code');
+			$wx_code = get_null(trim($this->input->post('wx_code')));
       $remark = $this->input->post('remark');
       $bookcode = getConfig('BOOK_CODE_TRANSFER');
       $isManual = getConfig('MANUAL_DOC_CODE');
@@ -145,7 +146,8 @@ class Transfer extends PS_Controller
         'date_add' => $date_add,
 				'is_wms' => $is_wms,
 				'direction' => $direction,
-				'api' => $api
+				'api' => $api,
+				'wx_code' => $wx_code
       );
 
       $rs = $this->transfer_model->add($ds);
@@ -207,6 +209,7 @@ class Transfer extends PS_Controller
 
 		$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
 		$api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
+		$wx_code = get_null(trim($this->input->post('wx_code')));
 
 		//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
 		$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
@@ -220,6 +223,7 @@ class Transfer extends PS_Controller
 			'is_wms' => $is_wms,
 			'direction' => $direction,
 			'api' => $api,
+			'wx_code' => $wx_code,
       'update_user' => get_cookie('uname')
     );
 
@@ -261,6 +265,7 @@ class Transfer extends PS_Controller
 
 		if(!empty($doc))
 		{
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 			if($doc->status == 0)
 			{
 				$details = $this->transfer_model->get_details($code);
@@ -311,6 +316,8 @@ class Transfer extends PS_Controller
 						$this->load->model('inventory/movement_model');
 						$this->db->trans_begin();
 
+						$this->transfer_model->update($code, array('shipped_date' => now())); //--- update transferd date
+
 						foreach($details as $rs)
 						{
 							//--- 2. update movement
@@ -321,7 +328,7 @@ class Transfer extends PS_Controller
 								'product_code' => $rs->product_code,
 								'move_in' => 0,
 								'move_out' => $rs->qty,
-								'date_add' => $doc->date_add
+								'date_add' => $date_add
 							);
 
 							$move_in = array(
@@ -331,7 +338,7 @@ class Transfer extends PS_Controller
 								'product_code' => $rs->product_code,
 								'move_in' => $rs->qty,
 								'move_out' => 0,
-								'date_add' => $doc->date_add
+								'date_add' => $date_add
 							);
 
 							//--- move out

@@ -26,7 +26,7 @@ class Delivery extends REST_Controller
     //--- Get raw post data
 		$json = file_get_contents("php://input");
 		$data_set = json_decode($json);
-		$logs = TRUE;
+		$logs = FALSE;
 
 		if($logs)
 		{
@@ -71,6 +71,7 @@ class Delivery extends REST_Controller
 				foreach($data_set->data as $ds)
 				{
 					$arr = array(
+						'shipped_date' => (empty($ds->shipped_date) ? now() : $ds->shipped_date),
 						'code' => $ds->order_number,
 						'reference' => get_null($ds->reference)
 					);

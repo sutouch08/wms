@@ -2877,6 +2877,7 @@ class Orders extends PS_Controller
 					{
 						$arr = array(
 							'state' => 9,
+							'is_cancled' => 1,
 							'date_upd' => get_cookie('uname')
 						);
 
@@ -2976,6 +2977,15 @@ class Orders extends PS_Controller
 					{
 						$sc = FALSE;
 						$this->error = $this->wms_receive_api->error;
+					}
+
+					if($ex && $order->is_cancled == 0)
+					{
+						$arr = array(
+							'is_cancled' => 1
+						);
+
+						$this->orders_model->update($order->code, $arr);
 					}
 				}
 				else

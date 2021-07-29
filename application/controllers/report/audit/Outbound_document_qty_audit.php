@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class Outbound_document_audit extends PS_Controller
+class Outbound_document_qty_audit extends PS_Controller
 {
-  public $menu_code = 'RAIXDO';
+  public $menu_code = 'RAIXDQ';
 	public $menu_group_code = 'RE';
   public $menu_sub_group_code = 'REAUDIT';
-	public $title = 'รายงาน กระทบเอกสารขาออก IX-WMS-SAP';
+	public $title = 'รายงาน กระทบยอดเอกสารขาออก IX-WMS-SAP';
   public $filter;
 	public $wms;
 	public $limit = 2000;
@@ -14,17 +14,15 @@ class Outbound_document_audit extends PS_Controller
   {
     parent::__construct();
 		$this->wms = $this->load->database('wms', TRUE);
-    $this->home = base_url().'report/audit/outbound_document_audit';
+    $this->home = base_url().'report/audit/outbound_document_qty_audit';
     $this->load->model('report/audit/document_audit_model');
 		$this->load->model('masters/channels_model');
-		$this->load->model('orders/orders_model');
-		$this->load->model('inventory/transfer_model');
   }
 
   public function index()
   {
 		$this->load->helper('channels');
-    $this->load->view('report/audit/outbound_document_audit');
+    $this->load->view('report/audit/outbound_document_qty_audit');
   }
 
 
@@ -116,28 +114,40 @@ class Outbound_document_audit extends PS_Controller
 			'channels' => $channels
     );
 
-    $result = $this->document_audit_model->get_outbound_data($arr);
+    $result = $this->document_audit_model->get_outbound_data_qty($arr);
 
     if(!empty($result))
     {
 			if(count($result) > $this->limit)
 			{
-				echo "จำนวนรายการมากกว่า {$this->limit} กรุณาส่งออกเป็นไฟล์แทนการแสดงผล";
+				echo "จำนวนรายการมากกว่า {$this->limit} รายการ กรุณาส่งออกเป็นไฟล์แทนการแสดงผลหน้าจอ";
 				exit;
 			}
 
       $no = 1;
       foreach($result as $rs)
       {
-				$docNum = "";
+				$sap = NULL;
+
 				if($rs->state == 8 && ($rs->role == 'S' OR $rs->role == 'C' OR $rs->role == 'P' OR $rs->role == 'U'))
 				{
-					$docNum = $this->orders_model->get_sap_doc_num($rs->order_code);
+					$sap = $this->document_audit_model->get_do_code_and_qty($rs->order_code);
 				}
 
 				if($rs->state == 8 && ($rs->role == 'N' OR $rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q'))
 				{
-					$docNum = $this->transfer_model->get_sap_doc_num($rs->order_code);
+					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->order_code);
+				}
+
+				$sap_qty = (empty($sap) ? 0 : number($sap->qty));
+				$hilight = "";
+
+				if($rs->state == 8)
+				{
+					if($rs->order_qty != $rs->temp_qty OR $rs->order_qty != $sap_qty)
+					{
+						$hilight = "red";
+					}
 				}
 
         $ds = array(
@@ -147,10 +157,14 @@ class Outbound_document_audit extends PS_Controller
 					'ix_type' => $roleName[$rs->role],
 					'wms_code' => $rs->temp_code,
 					'wms_type' => 'OB',
-					'sap_code' => $docNum,
+					'sap_code' => (empty($sap) ? "" : $sap->DocNum),
 					'sap_type' => $SapDoc[$rs->role],
 					'ix_state' => $stateName[$rs->state],
-					'channels' => (empty($rs->channels_code) ? "" : $channelsName[$rs->channels_code])
+					'channels' => (empty($rs->channels_code) ? "" : $channelsName[$rs->channels_code]),
+					'ix_qty' => number($rs->order_qty),
+					'wms_qty' => number($rs->temp_qty),
+					'sap_qty' => $sap_qty,
+					'hilight' => $hilight
         );
 
         array_push($sc, $ds);
@@ -273,7 +287,7 @@ class Outbound_document_audit extends PS_Controller
 			'channels' => $channels
     );
 
-    $title = "รายงาน กระทบเลขเอกสารขาออก IX-WMS-SAP ";
+    $title = "รายงาน กระทบยอดเอกสารขาออก IX-WMS-SAP ";
 		$dateTitle = "วันที่ (".thai_date($fromDate, FALSE, '/').") - (".thai_date($toDate, FALSE, '/').")";
     $docTitle = $allDoc == 1 ? 'ทั้งหมด' : "{$docFrom} - {$docTo}";
     $roleTitle = $allRole == 1 ? 'ทั้งหมด' : $role_in;
@@ -281,13 +295,13 @@ class Outbound_document_audit extends PS_Controller
 
 
 
-    $result = $this->document_audit_model->get_outbound_data($arr);
+    $result = $this->document_audit_model->get_outbound_data_qty($arr);
 
     //--- load excel library
     $this->load->library('excel');
 
     $this->excel->setActiveSheetIndex(0);
-    $this->excel->getActiveSheet()->setTitle('Receive PO BY Document');
+    $this->excel->getActiveSheet()->setTitle('Document Qty audit');
 
     //--- set report title header
     $this->excel->getActiveSheet()->setCellValue('A1', $title);
@@ -305,11 +319,11 @@ class Outbound_document_audit extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('A6', 'ลำดับ');
     $this->excel->getActiveSheet()->setCellValue('B6', 'วันที่');
     $this->excel->getActiveSheet()->setCellValue('C6', 'IX');
-    $this->excel->getActiveSheet()->setCellValue('D6', 'Type(IX)');
-    $this->excel->getActiveSheet()->setCellValue('E6', 'WMS');
-    $this->excel->getActiveSheet()->setCellValue('F6', 'Type(WMS)');
-    $this->excel->getActiveSheet()->setCellValue('G6', 'SAP');
-    $this->excel->getActiveSheet()->setCellValue('H6', 'Type(SAP)');
+    $this->excel->getActiveSheet()->setCellValue('D6', 'WMS');
+    $this->excel->getActiveSheet()->setCellValue('E6', 'SAP');
+    $this->excel->getActiveSheet()->setCellValue('F6', 'QTY(IX)');
+    $this->excel->getActiveSheet()->setCellValue('G6', 'QTY(WMS)');
+    $this->excel->getActiveSheet()->setCellValue('H6', 'QTY(SAP)');
     $this->excel->getActiveSheet()->setCellValue('I6', 'สถานะ (IX)');
 		$this->excel->getActiveSheet()->setCellValue('J6', 'ช่องทางขาย');
 
@@ -321,25 +335,26 @@ class Outbound_document_audit extends PS_Controller
 
       foreach($result as $rs)
       {
-				$docNum = "";
+				$sap = NULL;
+
 				if($rs->state == 8 && ($rs->role == 'S' OR $rs->role == 'C' OR $rs->role == 'P' OR $rs->role == 'U'))
 				{
-					$docNum = $this->orders_model->get_sap_doc_num($rs->order_code);
+					$sap = $this->document_audit_model->get_do_code_and_qty($rs->order_code);
 				}
 
 				if($rs->state == 8 && ($rs->role == 'N' OR $rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q'))
 				{
-					$docNum = $this->transfer_model->get_sap_doc_num($rs->order_code);
+					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->order_code);
 				}
 
         $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
         $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
         $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->order_code);
-        $this->excel->getActiveSheet()->setCellValue('D'.$row, $roleName[$rs->role]);
-        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->temp_code);
-        $this->excel->getActiveSheet()->setCellValue('F'.$row, "OB");
-        $this->excel->getActiveSheet()->setCellValue('G'.$row, $docNum);
-        $this->excel->getActiveSheet()->setCellValue('H'.$row, $SapDoc[$rs->role]);
+        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->temp_code);
+        $this->excel->getActiveSheet()->setCellValue('E'.$row, (empty($sap) ? "" : $sap->DocNum));
+        $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->order_qty);
+        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->temp_qty);
+        $this->excel->getActiveSheet()->setCellValue('H'.$row, (empty($sap) ? 0 : $sap->qty));
         $this->excel->getActiveSheet()->setCellValue('I'.$row, $stateName[$rs->state]);
 				$this->excel->getActiveSheet()->setCellValue('J'.$row, empty($rs->channels_code) ? "" : $channelsName[$rs->channels_code]);
 
@@ -349,7 +364,7 @@ class Outbound_document_audit extends PS_Controller
     }
 
     setToken($token);
-    $file_name = "รายงานกระทบเลขที่เอกสาร IX-WMS-SAP ".date('Ymd').".xlsx";
+    $file_name = "รายงานกระทบยอดที่เอกสาร IX-WMS-SAP ".date('Ymd').".xlsx";
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
     header('Content-Disposition: attachment;filename="'.$file_name.'"');
     $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');

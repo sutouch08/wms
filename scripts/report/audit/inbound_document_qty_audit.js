@@ -1,4 +1,4 @@
-var HOME = BASE_URL + 'report/audit/outbound_document_audit/';
+var HOME = BASE_URL + 'report/audit/inbound_document_qty_audit/';
 
 function toggleAllDocument(option){
   $('#allDoc').val(option);
@@ -122,8 +122,6 @@ function getReport(){
 		}
 	}
 
-	var channels = $('#channels').val();
-
   var data = [
     {'name' : 'allDoc', 'value' : allDoc},
     {'name' : 'docFrom', 'value' : docFrom},
@@ -131,8 +129,7 @@ function getReport(){
     {'name' : 'fromDate', 'value' : fromDate},
     {'name' : 'toDate', 'value' : toDate},
     {'name' : 'allRole', 'value' : allRole},
-		{'name' : 'allState', 'value' : allState},
-		{'name' : 'channels', 'value' : channels}
+		{'name' : 'allState', 'value' : allState}
   ];
 
 	if(allRole == 0){
@@ -229,8 +226,6 @@ function doExport(){
 		}
 	}
 
-	var channels = $('#channels').val();
-
   var data = [
     {'name' : 'allDoc', 'value' : allDoc},
     {'name' : 'docFrom', 'value' : docFrom},
@@ -238,8 +233,7 @@ function doExport(){
     {'name' : 'fromDate', 'value' : fromDate},
     {'name' : 'toDate', 'value' : toDate},
     {'name' : 'allRole', 'value' : allRole},
-		{'name' : 'allState', 'value' : allState},
-		{'name' : 'channels', 'value' : channels}
+		{'name' : 'allState', 'value' : allState}
   ];
 
 	if(allRole == 0){

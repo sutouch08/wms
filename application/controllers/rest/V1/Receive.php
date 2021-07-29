@@ -61,6 +61,7 @@ class Receive extends REST_Controller
 				foreach($data_set->data as $ds)
 				{
 					$arr = array(
+						'received_date' => (empty($ds->received_date) ? now() : $ds->received_date),
 						'code' => $ds->order_number,
 						'reference' => get_null($ds->reference),
 						'type' => $ds->type

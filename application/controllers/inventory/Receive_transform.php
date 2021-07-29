@@ -185,6 +185,8 @@ class Receive_transform extends PS_Controller
 				$zone = $this->zone_model->get($this->input->post('zone_code'));
 				$warehouse = $this->warehouse_model->get($zone->warehouse_code);
 
+				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
 				if($doc->is_wms == 1 && $warehouse->is_wms == 0)
 				{
 					$sc = FALSE;
@@ -283,7 +285,7 @@ class Receive_transform extends PS_Controller
 		                  'zone_code' => $zone_code,
 		                  'product_code' => $pd->code,
 		                  'move_in' => $qty,
-		                  'date_add' => db_date($doc->date_add, TRUE)
+		                  'date_add' => db_date($date_add, TRUE)
 		                );
 
 		                if($this->movement_model->add($ds) === FALSE)
@@ -325,7 +327,13 @@ class Receive_transform extends PS_Controller
 							}
 							else
 							{
-								$this->receive_transform_model->set_status($code, 1);
+								$arr = array(
+									'shipped_date' => now(),
+									'status' => 1
+								);
+
+								$this->receive_transform_model->update($code, $arr);
+								//$this->receive_transform_model->set_status($code, 1);
 
 		            if($this->transform_model->is_complete($order_code) === TRUE)
 		            {

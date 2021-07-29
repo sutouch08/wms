@@ -1,4 +1,10 @@
 <?php $this->load->view('include/header'); ?>
+<script>
+	var x = ($(document).innerWidth()/2)-50;
+	$("#loader").css("display","");
+	$("#loader").css("left",x);
+	$("#loader").animate({opacity:0.8, top:300},300);
+</script>
 <div class="row">
 	<div class="col-sm-6 col-xs-6 padding-5">
     	<h3 class="title" >
@@ -119,6 +125,7 @@
 					<th class="width-10">บาร์โค้ด</th>
 					<th class="">สินค้า</th>
 					<th class="width-8 text-center">อ้างอิง</th>
+					<th class="width-10 text-center">ออเดอร์</th>
 					<th class="width-8 text-right">จำนวน</th>
 					<th class="width-8 text-right">ราคา</th>
 					<th class="width-8 text-right">ส่วนลด</th>
@@ -142,6 +149,7 @@
 			<td class="middle <?php echo $no; ?>"><?php echo $rs->barcode; ?></td>
 			<td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
 			<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
+			<td class="middle text-center"><?php echo $rs->order_code; ?></td>
 			<td class="middle text-right inv_qty"><?php echo round($rs->sold_qty); ?></td>
 			<td class="middle text-right"><?php echo $rs->price; ?></td>
 			<td class="middle text-right"><?php echo $rs->discount_percent.' %'; ?></td>
@@ -166,6 +174,7 @@
 			<input type="hidden" name="sold_qty[<?php echo $no; ?>]" id="inv_qty_<?php echo $no; ?>" value="<?php echo round($rs->sold_qty); ?>"/>
 			<input type="hidden" class="input-price" name="price[<?php echo $no; ?>]" id="price_<?php echo $no; ?>" value="<?php echo $rs->price; ?>" />
 			<input type="hidden" name="discount[<?php echo $no; ?>]" id="discount_<?php echo $no; ?>" value="<?php echo $rs->discount_percent; ?>" />
+			<input type="hidden" name="order[<?php echo $no; ?>]" id="order_<?php echo $no; ?>" value="<?php echo $rs->order_code; ?>" />
 		</tr>
 <?php
 		$no++;

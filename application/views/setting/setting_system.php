@@ -7,8 +7,6 @@
     $manual_code_yes = $MANUAL_DOC_CODE == 1 ? 'btn-success' : '';
     $manual_code_no = $MANUAL_DOC_CODE == 0 ? 'btn-danger' : '';
 
-    $use_api_yes = $WEB_API == 1 ? 'btn-success' : '';
-    $use_api_no  = $WEB_API == 0 ? 'btn-danger' : '';
 ?>
 
   <form id="systemForm">
@@ -39,38 +37,19 @@
     </div>
     <div class="divider-hidden"></div>
 
-<!--
-    <div class="col-sm-3"><span class="form-control left-label">ใช้งาน Web API</span></div>
+
+		<div class="col-sm-3"><span class="form-control left-label">วันที่ในการบันทึกขายตัดสต็อก</span></div>
     <div class="col-sm-9">
       <div class="btn-group input-medium">
-        <button type="button" class="btn btn-sm <?php echo $use_api_yes; ?>" style="width:50%;" id="btn-api-yes" onClick="toggleWebApi(1)">เปิด</button>
-        <button type="button" class="btn btn-sm <?php echo $use_api_no; ?>" style="width:50%;" id="btn-api-no" onClick="toggleWebApi(0)">ปิด</button>
+        <select class="form-control input-sm input-medium" name="ORDER_SOLD_DATE">
+					<option value="B" <?php echo is_selected("B", $ORDER_SOLD_DATE); ?>>วันที่เปิดบิล</option>
+					<option value="D" <?php echo is_selected("D", $ORDER_SOLD_DATE); ?>>วันที่เอกสาร</option>
+				</select>
       </div>
-      <span class="help-block">เปิดใช้งาน WEB API หรือไม่</span>
-      <input type="hidden" name="WEB_API" id="web-api" value="<?php echo $WEB_API; ?>" />
+      <span class="help-block">กำหนดประเภทวันที่ที่ใช้ในการบันทึกขายและตัดสต็อกในระบบ SAP</span>
     </div>
     <div class="divider-hidden"></div>
 
-
-    <div class="col-sm-3">
-      <span class="form-control left-label">Web API Host</span>
-    </div>
-    <div class="col-sm-9">
-      <input type="text" class="form-control input-sm" name="WEB_API_HOST" id="web-api-host" placeholder="https://api.xxxx.com/rest/V1/" value="<?php echo $WEB_API_HOST; ?>" />
-      <span class="help-block">URL สำหรับ API gate way</span>
-    </div>
-    <div class="divider-hidden"></div>
-
-
-    <div class="col-sm-3">
-      <span class="form-control left-label">Web API Access Token</span>
-    </div>
-    <div class="col-sm-5">
-      <input type="text" class="form-control input-sm" name="WEB_API_ACCESS_TOKEN"  value="<?php echo $WEB_API_ACCESS_TOKEN; ?>" />
-      <span class="help-block">Api access token</span>
-    </div>
-    <div class="divider-hidden"></div>
--->
 
       <div class="col-sm-9 col-sm-offset-3">
         <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>

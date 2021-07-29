@@ -187,6 +187,7 @@ function update(){
 function do_update(code, date_add, from_warehouse, to_warehouse, remark)
 {
 	var api = $('#api').val();
+	var wx_code = $('#wx_code').val();
 
   load_in();
   //--- ถ้าไม่มีอะไรผิดพลาด ส่งข้อมูไป update
@@ -199,7 +200,8 @@ function do_update(code, date_add, from_warehouse, to_warehouse, remark)
       'from_warehouse' : from_warehouse,
       'to_warehouse' : to_warehouse,
       'remark' : remark,
-			'api' : api
+			'api' : api,
+			'wx_code' : wx_code
     },
     success:function(rs){
       load_out();
@@ -378,3 +380,15 @@ $('#to_warehouse').autocomplete({
     }
   }
 });
+
+
+$('#wx_code').autocomplete({
+	source:BASE_URL + 'auto_complete/get_wx_code',
+	autoFocus:true,
+	close:function() {
+		var rs = $(this).val();
+		if(rs == 'not found') {
+			$(this).val('');
+		}
+	}
+})

@@ -135,3 +135,33 @@ function getTemplate(){
 function getSearch(){
   $('#searchForm').submit();
 }
+
+
+function sendToWms(code) {
+	load_in();
+	$.ajax({
+		url:BASE_URL + 'masters/items/send_to_wms',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}

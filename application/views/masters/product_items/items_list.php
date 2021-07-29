@@ -116,20 +116,17 @@
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-10 middle">บาร์โค้ด</th>
-					<th class="width-15 middle">รหัส</th>
-					<th class="width-10 middle">รุ่น</th>
+					<th class="width-10 middle text-center">บาร์โค้ด</th>
+					<th class="width-15 middle text-center">รหัส</th>
+					<th class="width-10 middle text-center">รุ่น</th>
 					<th class="width-5 middle text-center">สี</th>
 					<th class="width-5 middle text-center">ไซส์</th>
-					<th class="width-5 middle">ราคา</th>
-					<th class="width-10 middle">กลุ่ม</th>
-					<th class="width-10 middle">หมวดหมู่</th>
-					<th class="width-10 middle">ประเภท</th>
-					<th class="width-10 middle">ชนิด</th>
+					<th class="width-5 middle text-center">ราคา</th>
+					<th class="width-10 middle text-center">กลุ่ม</th>
+					<th class="width-10 middle text-center">หมวดหมู่</th>
 					<th class="width-5 middle text-center">ปี</th>
 					<th class="width-5 middle text-center">ขาย</th>
 					<th class="width-5 middle text-center">ใช้งาน</th>
-					<th class="width-5 middle text-center">API</th>
 					<th class=""></th>
 				</tr>
 			</thead>
@@ -147,13 +144,11 @@
 						<td class="middle"><?php echo number($rs->price, 2); ?></td>
 						<td class="middle"><?php echo $rs->group; ?></td>
 						<td class="middle"><?php echo $rs->category; ?></td>
-						<td class="middle"><?php echo $rs->kind; ?></td>
-						<td class="middle"><?php echo $rs->type; ?></td>
 						<td class="middle text-center"><?php echo $rs->year; ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->can_sell); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
-						<td class="middle text-center"><?php echo is_active($rs->is_api); ?></td>
 						<td class="middle text-right">
+							<button type="button" class="btn btn-minier btn-info" onclick="sendToWms('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
 							<?php if($this->pm->can_add) : ?>
 								<button type="button" class="btn btn-minier btn-primary" onclick="duplicate('<?php echo $rs->code; ?>')">
 									<i class="fa fa-copy"></i>
@@ -180,6 +175,6 @@
 </div>
 <?php $this->load->view('masters/product_items/import_items'); ?>
 
-<script src="<?php echo base_url(); ?>scripts/masters/items.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/items.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

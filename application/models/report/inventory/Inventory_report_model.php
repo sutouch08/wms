@@ -49,6 +49,7 @@ class Inventory_report_model extends CI_Model
     ->where('order_details.product_code', $item_code)
     ->where('order_details.is_complete', 0)
     ->where('order_details.is_expired', 0)
+		->where('order_details.is_cancle', 0)
     ->where('order_details.is_count', 1);
 
     if($warehouse !== NULL)
