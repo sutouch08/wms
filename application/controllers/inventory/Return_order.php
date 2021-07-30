@@ -76,7 +76,6 @@ class Return_order extends PS_Controller
 
     if($this->input->post())
     {
-      $this->load->model('inventory/movement_model');
       //--- start transection
       $this->db->trans_begin();
 
@@ -113,6 +112,7 @@ class Return_order extends PS_Controller
                 'product_name' => $this->products_model->get_name($item[$row]),
                 'sold_qty' => $sold_qtys[$row],
                 'qty' => $qty,
+								'receive_qty' => ($doc->is_wms == 1 ? 0 : $qty),
                 'price' => $price,
                 'discount_percent' => $discount,
                 'amount' => $amount,
@@ -175,21 +175,13 @@ class Return_order extends PS_Controller
   public function unsave($code)
   {
     $sc = TRUE;
-    $this->load->model('inventory/movement_model');
+
     if($this->pm->can_edit)
     {
       if($this->return_order_model->set_status($code, 0) === FALSE)
       {
         $sc = FALSE;
         $message = 'ยกเลิกการบันทึกไม่สำเร็จ';
-      }
-      else
-      {
-        if($this->movement_model->drop_movement($code) === FALSE)
-        {
-          $sc = FALSE;
-          $message = 'ลบ movement ไม่สำเร็จ';
-        }
       }
     }
     else
@@ -225,9 +217,9 @@ class Return_order extends PS_Controller
 
 						$details = $this->return_order_model->get_details($doc->code);
 
-						if($this->isAPI === TRUE && $doc->is_wms == 1)
+						if(!empty($details))
 						{
-							if(!empty($details))
+							if($this->isAPI === TRUE && $doc->is_wms == 1)
 							{
 								$this->wms = $this->load->database('wms', TRUE);
 								$this->load->library('wms_receive_api');
@@ -245,41 +237,6 @@ class Return_order extends PS_Controller
 							}
 							else
 							{
-								$sc = FALSE;
-								$this->error = "No return item fonud";
-							}
-
-						}
-						else
-						{
-							if(!empty($details))
-							{
-								foreach($details as $rs)
-								{
-									$ds = array(
-		                 'reference' => $doc->code,
-		                 'warehouse_code' => $doc->warehouse_code,
-		                 'zone_code' => $doc->zone_code,
-		                 'product_code' => $rs->product_code,
-		                 'move_in' => $rs->qty,
-		                 'date_add' => $date_add
-		              );
-
-		              if($this->movement_model->add($ds) === FALSE)
-		              {
-		                $sc = FALSE;
-		                $this->error = 'บันทึก movement ไม่สำเร็จ';
-		              }
-								}
-							}
-							else
-							{
-								$sc === FALSE;
-								$this->error = "ไม่พบรายการรับคืน";
-							}
-
-							if($sc === TRUE)
-							{
 								$export = $this->do_export($code);
 
 								if(! $export)
@@ -289,7 +246,11 @@ class Return_order extends PS_Controller
 								}
 							}
 						}
-
+						else
+						{
+							$sc = FALSE;
+							$this->error = "ไม่พบรายการรับคืน";
+						}
 					}
 					else
 					{
@@ -326,6 +287,7 @@ class Return_order extends PS_Controller
     {
       //--- check document in SAP
       $sap = $this->return_order_model->get_sap_return_order($code);
+
       if(!empty($sap))
       {
         $this->load->model('approve_logs_model');
@@ -514,8 +476,18 @@ class Return_order extends PS_Controller
       $date_add = db_date($this->input->post('date_add'), TRUE);
       $invoice = trim($this->input->post('invoice'));
       $customer_code = $this->input->post('customer_code');
-      $zone = $this->zone_model->get($this->input->post('zone_code'));
+			$zone_code = $this->input->post('zone_code');
+			$is_wms = $this->input->post('is_wms');
+
+			if($is_wms == 1)
+			{
+				$zone_code = getConfig('WMS_ZONE');
+			}
+
+      $zone = $this->zone_model->get($zone_code);
+
       $remark = $this->input->post('remark');
+
 
       $arr = array(
         'date_add' => $date_add,
@@ -523,6 +495,7 @@ class Return_order extends PS_Controller
         'customer_code' => $customer_code,
         'warehouse_code' => $zone->warehouse_code,
         'zone_code' => $zone->code,
+				'is_wms' => $is_wms,
         'remark' => $remark,
         'update_user' => get_cookie('uname')
       );
@@ -571,6 +544,7 @@ class Return_order extends PS_Controller
         $dt->discount_percent = $rs->discount_percent;
         $dt->sold_qty = $rs->sold_qty;
         $dt->qty = $rs->qty;
+				$dt->receive_qty = $rs->receive_qty;
         $dt->amount = $rs->amount;
         $details[] = $dt;
       }
@@ -626,6 +600,7 @@ class Return_order extends PS_Controller
 
 
 
+	//--- print received
   public function print_detail($code)
   {
     $this->load->library('printer');

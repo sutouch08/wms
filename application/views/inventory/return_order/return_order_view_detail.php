@@ -107,17 +107,20 @@ if($doc->status == 3)
 					<th class="width-12 text-center">ออเดอร์</th>
 					<th class="width-8 text-right">ราคา</th>
 					<th class="width-8 text-right">ส่วนลด</th>
-					<th class="width-8 text-right">จำนวน</th>
-					<th class="width-10 text-right">มูลค่า</th>
+					<th class="width-8 text-right">จำนวนคืน</th>
+					<th class="width-8 text-right">จำนวนรับ</th>
+					<th class="width-10 text-right">มูลค่า(รับ)</th>
 				</tr>
 			</thead>
 			<tbody id="detail-table">
 <?php if(!empty($details)) : ?>
 <?php  $no = 1; ?>
 <?php  $total_qty = 0; ?>
+<?php  $total_reveice_qty = 0; ?>
 <?php  $total_amount = 0; ?>
 <?php  foreach($details as $rs) : ?>
-				<tr>
+	<?php $hilight = $rs->qty > $rs->receive_qty ? "color:red;" : ""; ?>
+				<tr style="<?php echo $hilight; ?>">
 					<td class="middle text-center no"><?php echo $no; ?></td>
 					<td class="middle"><?php echo $rs->barcode; ?></td>
 					<td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
@@ -126,17 +129,20 @@ if($doc->status == 3)
 					<td class="middle text-right"><?php echo number($rs->price, 2); ?></td>
 					<td class="middle text-right"><?php echo $rs->discount_percent; ?> %</td>
 					<td class="middle text-right"><?php echo round($rs->qty,2); ?></td>
+					<td class="middle text-right"><?php echo round($rs->receive_qty,2); ?></td>
 					<td class="middle text-right"><?php echo number($rs->amount,2); ?></td>
 				</tr>
 <?php
 				$no++;
 				$total_qty += $rs->qty;
-				$total_amount += ($rs->qty * $rs->price);
+				$total_reveice_qty += $rs->receive_qty;
+				$total_amount += ($rs->receive_qty * $rs->price);
 ?>
 <?php  endforeach; ?>
 				<tr>
 					<td colspan="7" class="middle text-right">รวม</td>
 					<td class="middle text-right" id="total-qty"><?php echo number($total_qty); ?></td>
+					<td class="middle text-right" id="total-qty"><?php echo number($total_reveice_qty); ?></td>
 					<td class="middle text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
 				</tr>
 <?php endif; ?>

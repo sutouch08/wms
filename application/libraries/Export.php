@@ -1664,43 +1664,47 @@ public function export_return($code)
               //--- insert detail to RDN1
               foreach($details as $rs)
               {
-                $arr = array(
-                  'DocEntry' => $docEntry,
-                  'U_ECOMNO' => $rs->return_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->qty,
-                  'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
-                  'PriceBefDi' => remove_vat($rs->price),
-                  'LineTotal' => remove_vat($rs->amount),
-                  'ShipDate' => $date_add,
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'DiscPrcnt' => $rs->discount_percent,
-                  'Price' => remove_vat($rs->price),
-                  'TotalFrgn' => remove_vat($rs->amount),
-                  'WhsCode' => $doc->warehouse_code,
-                  'BinCode' => $doc->zone_code,
-                  'FisrtBin' => $doc->zone_code,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => $vat_rate,
-                  'VatGroup' => $vat_code,
-                  'PriceAfVAT' => $rs->price,
-                  'VatSum' => $rs->vat_amount,
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => 'A',
-                  'F_E_CommerceDate' => now(),
-                  'U_OLDINV' => $rs->invoice_code
-                );
+								if($rs->receive_qty > 0)
+								{
+									$arr = array(
+	                  'DocEntry' => $docEntry,
+	                  'U_ECOMNO' => $rs->return_code,
+	                  'LineNum' => $line,
+	                  'ItemCode' => $rs->product_code,
+	                  'Dscription' => limitText($rs->product_name, 95),
+	                  'Quantity' => $rs->receive_qty,
+	                  'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
+	                  'PriceBefDi' => remove_vat($rs->price),
+	                  'LineTotal' => remove_vat($rs->amount),
+	                  'ShipDate' => $date_add,
+	                  'Currency' => $currency,
+	                  'Rate' => 1,
+	                  'DiscPrcnt' => $rs->discount_percent,
+	                  'Price' => remove_vat($rs->price),
+	                  'TotalFrgn' => remove_vat($rs->amount),
+	                  'WhsCode' => $doc->warehouse_code,
+	                  'BinCode' => $doc->zone_code,
+	                  'FisrtBin' => $doc->zone_code,
+	                  'TaxStatus' => 'Y',
+	                  'VatPrcnt' => $vat_rate,
+	                  'VatGroup' => $vat_code,
+	                  'PriceAfVAT' => $rs->price,
+	                  'VatSum' => $rs->vat_amount,
+	                  'TaxType' => 'Y',
+	                  'F_E_Commerce' => 'A',
+	                  'F_E_CommerceDate' => now(),
+	                  'U_OLDINV' => $rs->invoice_code
+	                );
 
-                if( ! $this->ci->return_order_model->add_sap_return_detail($arr))
-                {
-                  $sc = FALSE;
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
+	                if( ! $this->ci->return_order_model->add_sap_return_detail($arr))
+	                {
+	                  $sc = FALSE;
+	                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
+	                }
 
-                $line++;
+	                $line++;
+								}
+
               }
             }
             else

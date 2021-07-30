@@ -334,11 +334,12 @@ class Wms_auto_receive extends CI_Controller
 
 							if(!empty($row))
 							{
-	              $disc_amount = $row->discount_percent == 0 ? 0 : $rs->qty * ($row->price * ($row->discount_percent * 0.01));
-	              $amount = ($rs->qty * $row->price) - $disc_amount;
+								$qty = ($rs->qty > $row->qty) ? $row->qty : $rs->qty; //--- รับได้ไม่เกินจากที่เอกสารกำหนด
+	              $disc_amount = $row->discount_percent == 0 ? 0 : $qty * ($row->price * ($row->discount_percent * 0.01));
+	              $amount = ($qty * $row->price) - $disc_amount;
 
 	              $arr = array(
-	                'qty' => round($rs->qty, 2),
+	                'receive_qty' => round($qty, 2),
 	                'amount' => $amount,
 	                'vat_amount' => get_vat_amount($amount),
 									'valid' => 1
@@ -351,48 +352,20 @@ class Wms_auto_receive extends CI_Controller
 									$this->error = 'Update detail failed';
 									break;
 								}
-
-								//--- update movement
-								if($sc === TRUE)
-								{
-									$ds = array(
-										'reference' => $order->code,
-										'warehouse_code' => $order->warehouse_code,
-										'zone_code' => $order->zone_code,
-										'product_code' => $row->product_code,
-										'move_in' => $rs->qty,
-										'date_add' => db_date($date_add, TRUE)
-									);
-
-									if($this->movement_model->add($ds) === FALSE)
-									{
-										$sc = FALSE;
-										$this->error = 'บันทึก movement ไม่สำเร็จ';
-									}
-								}
 							} //---
 						}//--- end if qty > 0
 					} //--- end foreach
 
 					if($sc === TRUE)
 					{
-						//---- drop not valid detail
-						if(! $this->return_order_model->drop_not_valid_details($order->code))
-						{
-							$sc = FALSE;
-							$this->error = "ลบรายการที่ไม่มีจำนวนไม่สำเร็จ";
-						}
-						else
-						{
-							//--- เปลี่ยนสถานะเอกสาร
-							$arr = array(
-								'shipped_date' => $date_add,
-								'status' => 1,
-								'is_complete' => 1
-							);
+						//--- เปลี่ยนสถานะเอกสาร
+						$arr = array(
+							'shipped_date' => $date_add,
+							'status' => 1,
+							'is_complete' => 1
+						);
 
-							$this->return_order_model->update($order->code, $arr);
-						}
+						$this->return_order_model->update($order->code, $arr);
 					}
 
 					if($sc === TRUE)

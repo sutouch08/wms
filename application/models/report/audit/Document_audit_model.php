@@ -99,6 +99,59 @@ class Document_audit_model extends CI_Model
 	}
 
 
+	public function get_ix_return_cancle_data_qty($ds = array())
+	{
+		if(!empty($ds))
+		{
+			$qr  = "SELECT o.date_add, o.cancle_date, o.code AS order_code, o.role, o.channels_code, ";
+			$qr .= "tmp.code AS temp_code, ";
+			$qr .= "(SELECT SUM(od.qty) FROM warrix_sap.order_details AS od WHERE od.order_code = o.code AND od.is_count = 1) AS order_qty, ";
+			$qr .= "(SELECT SUM(tmd.qty) FROM warrix_wms_temp.wms_temp_receive_detail AS tmd WHERE tmd.id_receive = tmp.id) AS temp_qty ";
+			$qr .= "FROM warrix_sap.orders AS o ";
+			$qr .= "LEFT JOIN warrix_wms_temp.wms_temp_receive AS tmp ON o.code = tmp.order_code ";
+			$qr .= "WHERE o.is_wms = 1 ";
+			$qr .= "AND o.role IN(".$this->parse_in($ds['role']).") ";
+			$qr .= "AND o.state = 9 ";
+			$qr .= "AND o.is_cancled = 1 ";
+
+			if(!empty($ds['fromDate']) && !empty($ds['toDate']))
+			{
+				$qr .= "AND o.date_add >= '".$ds['fromDate']."' ";
+				$qr .= "AND o.date_add <= '".$ds['toDate']."' ";
+			}
+
+			if(!empty($ds['cancleFromDate']) && !empty($ds['cancleToDate']))
+			{
+				$qr .= "AND o.cancle_date >= '".$ds['cancleFromDate']."' ";
+				$qr .= "AND o.cancle_date <= '".$ds['cancleToDate']."' ";
+			}
+
+
+			if($ds['allDoc'] != 1 && !empty($ds['docForm']) && !empty($ds['docTo']))
+			{
+				$qr .= "AND o.code >= '".$ds['docFrom']."' AND o.code <= '".$ds['docTo']."' ";
+			}
+
+
+			if($ds['channels'] != "all")
+			{
+				$qr .= "AND o.channels_code = '".$ds['channels']."' ";
+			}
+
+			$qr .= "ORDER BY o.date_add ASC, o.code ASC";
+
+			$rs = $this->db->query($qr);
+
+			if($rs->num_rows() > 0)
+			{
+				return $rs->result();
+			}
+		}
+
+		return NULL;
+	}
+
+
 	public function get_ix_receive_data_qty($tb, $td, $df, array $ds = array())
 	{
 		if(!empty($ds))

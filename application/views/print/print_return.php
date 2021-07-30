@@ -32,15 +32,17 @@
 	$row 	= $this->printer->row;
 	$total_page = $this->printer->total_page;
 	$total_qty 	= 0;
+	$total_receive = 0;
   $total_amount = 0;
 	//**************  กำหนดหัวตาราง  ******************************//
 	$thead	= array(
-						array("ลำดับ", "width:5%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
-						array("รหัส", "width:20%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("สินค้า", "width:40%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
-            array("ราคา", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("จำนวน", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("มูลค่า", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
+						array("ลำดับ", "width:10mm; vertical-align:middle; text-align:center; border-top:0px; border-top-left-radius:10px;"),
+						array("รหัส", "width:40mm; vertical-align:middle; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
+						array("สินค้า", "width:60mm; vertical-align:middle; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
+            array("ราคา", "width:20mm; vertical-align:middle; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
+						array("จำนวนคืน", "width:20mm; vertical-align:middle; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
+						array("จำนวนรับ", "width:20mm; vertical-align:middle; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
+						array("มูลค่า", "width:20mm; vertical-align:middle; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
 						);
 
 	$this->printer->add_subheader($thead);
@@ -50,6 +52,7 @@
 							"text-align: center; border-top:0px;",
 							"border-left: solid 1px #ccc; border-top:0px;",
 							"border-left: solid 1px #ccc; border-top:0px;",
+							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
@@ -94,15 +97,17 @@
 							inputRow($rs->product_name),
               number($rs->price, 2),
 							number($rs->qty),
+							number($rs->receive_qty),
               number($rs->amount, 2)
 						);
             $total_qty += $rs->qty;
+						$total_receive += $rs->receive_qty;
             $total_amount += $rs->amount;
 
           }
           else
           {
-            $data = array("", "", "", "","", "");
+            $data = array("", "", "", "","", "", "");
           }
 					$page .= $this->printer->print_row($data);
 					$n++;
@@ -124,15 +129,17 @@
 				$sub_total = array(
           array(
           "<td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
-          border-bottom:0px; border-left:0px; text-align:right;
-          width:75.2%;'>
+          border-bottom:0px; border-left:0px; text-align:right; width:131mm;'>
           <strong>รวม</strong>
           </td>
           <td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
-          border-right:0px; border-bottom:0px; width:10%; text-align:right;'>
+          border-right:0px; border-bottom:0px; width:20mm; text-align:right;'>
           ".number($total_qty)."</td>
+					<td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
+          border-right:0px; border-bottom:0px; width:20mm; text-align:right;'>
+          ".number($total_receive)."</td>
           <td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
-          border-right:0px; border-bottom:0px; border-bottom-right-radius:10px;
+          border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; width:20mm;
           text-align:right;'>".number($total_amount)."</td>")
 
 			);
