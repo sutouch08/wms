@@ -114,7 +114,7 @@ class Return_cancle_qty_audit extends PS_Controller
 					$sap = $this->document_audit_model->get_do_code_and_qty($rs->order_code);
 				}
 
-				if($rs->role == 'N' OR $rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q')
+				if($rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q')
 				{
 					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->order_code);
 				}
@@ -287,7 +287,7 @@ class Return_cancle_qty_audit extends PS_Controller
 					$sap = $this->document_audit_model->get_do_code_and_qty($rs->order_code);
 				}
 
-				if($rs->role == 'N' OR $rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q')
+				if($rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q')
 				{
 					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->order_code);
 				}

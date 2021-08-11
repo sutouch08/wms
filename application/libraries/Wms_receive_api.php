@@ -802,7 +802,7 @@ class Wms_receive_api
 
 				foreach($details as $rs)
 				{
-					if($rs->qty > 0)
+					if($rs->qty > 0 && $rs->is_count == 1)
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";

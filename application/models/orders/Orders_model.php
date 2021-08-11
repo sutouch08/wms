@@ -932,9 +932,11 @@ class Orders_model extends CI_Model
     ->from('order_details')
     ->join('orders', 'orders.code = order_details.order_code', 'left')
     ->where_in('orders.role', array('S', 'C', 'N'))
+		->where('orders.state !=', 9)
     ->where('orders.customer_code', $customer_code)
     ->where('order_details.is_complete', 0)
     ->where('orders.is_expired', 0)
+		->where('order_details.is_cancle', 0)
     ->get();
 
     if($rs->num_rows() === 1)

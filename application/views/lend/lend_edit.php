@@ -50,6 +50,9 @@
 <?php if(empty($approve_view)) : ?>
 <?php $this->load->view('orders/order_panel'); ?>
 <?php $this->load->view('orders/order_online_modal'); ?>
+<?php else : ?>
+	<input type="hidden" id="id_sender" value="<?php echo $order->id_sender; ?>"/>
+	<input type="hidden" id="id_address" value="<?php echo $order->id_address; ?>"/>
 <?php endif; ?>
 <?php $this->load->view('lend/lend_detail'); ?>
 

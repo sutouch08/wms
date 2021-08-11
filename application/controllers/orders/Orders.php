@@ -2836,22 +2836,22 @@ class Orders extends PS_Controller
 
 			if(!empty($order))
 			{
-				//---- ถ้าเปิดบิลแล้ว check Do
-				if($order->state == 8)
-				{
-
-					//---
-	        if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
-	        {
-						$this->load->model('inventory/transfer_model');
-						$sap = $this->transfer_model->get_sap_transfer_doc($code);
-						if(! empty($sap))
-						{
-							$sc = FALSE;
-							$this->error = "กรุณายกเลิกเอกสารใน SAP ก่อน";
-						}
-	        }
-				}
+				// //---- ถ้าเปิดบิลแล้ว check Do
+				// if($order->state == 8)
+				// {
+				//
+				// 	//---
+	      //   if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
+	      //   {
+				// 		$this->load->model('inventory/transfer_model');
+				// 		$sap = $this->transfer_model->get_sap_transfer_doc($code);
+				// 		if(! empty($sap))
+				// 		{
+				// 			$sc = FALSE;
+				// 			$this->error = "กรุณายกเลิกเอกสารใน SAP ก่อน";
+				// 		}
+	      //   }
+				// }
 
 
 				if($sc === TRUE)

@@ -21,7 +21,7 @@ class Document_audit_model extends CI_Model
 			->where('a.date_add >=', $ds['fromDate'])
 			->where('a.date_add <=', $ds['toDate']);
 
-			if($ds['allDoc'] != 1 && !empty($ds['docForm']) && !empty($ds['docTo']))
+			if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
 			{
 				$this->db->where('a.code >=', $ds['docFrom'])->where('a.code <=', $ds['docTo']);
 			}
@@ -80,7 +80,7 @@ class Document_audit_model extends CI_Model
 			$qr .= "AND o.date_add >= '".$ds['fromDate']."' ";
 			$qr .= "AND o.date_add <= '".$ds['toDate']."' ";
 
-			if($ds['allDoc'] != 1 && !empty($ds['docForm']) && !empty($ds['docTo']))
+			if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
 			{
 				$qr .= "AND o.code >= '".$ds['docFrom']."' AND o.code <= '".$ds['docTo']."' ";
 			}
@@ -127,7 +127,7 @@ class Document_audit_model extends CI_Model
 			}
 
 
-			if($ds['allDoc'] != 1 && !empty($ds['docForm']) && !empty($ds['docTo']))
+			if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
 			{
 				$qr .= "AND o.code >= '".$ds['docFrom']."' AND o.code <= '".$ds['docTo']."' ";
 			}
@@ -169,7 +169,7 @@ class Document_audit_model extends CI_Model
 			$qr .= "AND o.date_add >= '".$ds['fromDate']."' ";
 			$qr .= "AND o.date_add <= '".$ds['toDate']."' ";
 
-			if($ds['allDoc'] != 1 && !empty($ds['docForm']) && !empty($ds['docTo']))
+			if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
 			{
 				$qr .= "AND o.code >= '".$ds['docFrom']."' AND o.code <= '".$ds['docTo']."' ";
 			}
@@ -205,7 +205,7 @@ class Document_audit_model extends CI_Model
 			->where('o.date_add >=', $ds['fromDate'])
 			->where('o.date_add <=', $ds['toDate']);
 
-			if($ds['allDoc'] != 1 && !empty($ds['docForm']) && !empty($ds['docTo']))
+			if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
 			{
 				$this->db->where('o.code >=', $ds['docFrom'])->where('o.code <=', $ds['docTo']);
 			}
@@ -247,7 +247,7 @@ class Document_audit_model extends CI_Model
 			$qr .= "AND o.date_add >= '".$ds['fromDate']."' ";
 			$qr .= "AND o.date_add <= '".$ds['toDate']."' ";
 
-			if($ds['allDoc'] != 1 && !empty($ds['docForm']) && !empty($ds['docTo']))
+			if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
 			{
 				$qr .= "AND o.code >= '".$ds['docFrom']."' AND o.code <= '".$ds['docTo']."' ";
 			}

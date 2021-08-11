@@ -234,7 +234,7 @@ class Export
         $currency = getConfig('CURRENCY');
         $vat_rate = getConfig('SALE_VAT_RATE');
         $vat_code = getConfig('SALE_VAT_CODE');
-				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($order->shipped_date) ? now() : $order->shipped_date);
+				$date_add = $order->date_add;
         //--- header
         $ds = array(
           'DocType' => 'I', //--- I = item, S = Service
@@ -2123,7 +2123,7 @@ public function export_consignment_order($code)
         $currency = getConfig('CURRENCY');
         $vat_rate = getConfig('SALE_VAT_RATE');
         $vat_code = getConfig('SALE_VAT_CODE');
-				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
+				$date_add = $doc->date_add;
         $doc_total = $this->ci->consignment_order_model->get_sum_amount($code);
 
         //--- header
