@@ -12,17 +12,17 @@ class Wms_auto_receive extends CI_Controller
   public function __construct()
   {
     parent::__construct();
-		$this->wms = $this->load->database('wms', TRUE);
+	$this->wms = $this->load->database('wms', TRUE);
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
     $this->home = base_url().'auto/wms_auto_receive';
 
-		$this->load->model('masters/products_model');
-		$this->load->model('inventory/movement_model');
-		$this->load->model('rest/V1/wms_temp_receive_model');
-		$this->load->model('rest/V1/wms_receive_import_logs_model');
+	$this->load->model('masters/products_model');
+	$this->load->model('inventory/movement_model');
+	$this->load->model('rest/V1/wms_temp_receive_model');
+	$this->load->model('rest/V1/wms_receive_import_logs_model');
 
-		$this->user = 'api@wms';
+	$this->user = 'api@wms';
   }
 
   public function index()
@@ -330,31 +330,58 @@ class Wms_auto_receive extends CI_Controller
 					{
 						if($rs->qty > 0 && $sc === TRUE)
 						{
-							$row = $this->return_order_model->get_detail_by_product($order->code, $rs->product_code);
+							$rows = $this->return_order_model->get_detail_by_product($order->code, $rs->product_code);
 
-							if(!empty($row))
+							if(!empty($rows))
 							{
-								$qty = ($rs->qty > $row->qty) ? $row->qty : $rs->qty; //--- รับได้ไม่เกินจากที่เอกสารกำหนด
-	              $disc_amount = $row->discount_percent == 0 ? 0 : $qty * ($row->price * ($row->discount_percent * 0.01));
-	              $amount = ($qty * $row->price) - $disc_amount;
+								$temp_qty = $rs->qty;
 
-	              $arr = array(
-	                'receive_qty' => round($qty, 2),
-	                'amount' => $amount,
-	                'vat_amount' => get_vat_amount($amount),
-									'valid' => 1
-	              );
-
-
-								if($this->return_order_model->update_detail($row->id, $arr) === FALSE)
+								foreach($rows as $row)
 								{
-									$sc = FALSE;
-									$this->error = 'Update detail failed';
-									break;
+									if($temp_qty > 0)
+									{
+										$qty = ($temp_qty > $row->qty) ? $row->qty : $temp_qty; //--- รับได้ไม่เกินจากที่เอกสารกำหนด
+										$disc_amount = $row->discount_percent == 0 ? 0 : $qty * ($row->price * ($row->discount_percent * 0.01));
+										$amount = ($qty * $row->price) - $disc_amount;
+
+										$arr = array(
+											'receive_qty' => round($qty, 2),
+											'amount' => $amount,
+											'vat_amount' => get_vat_amount($amount),
+											'valid' => 1
+										);
+
+
+										if($this->return_order_model->update_detail($row->id, $arr) === FALSE)
+										{
+											$sc = FALSE;
+											$this->error = 'Update detail failed';
+											break;
+										}
+
+										$temp_qty -= $qty;
+									}
 								}
+
 							} //---
 						}//--- end if qty > 0
 					} //--- end foreach
+
+					//--- update noncount items
+					$noncount = $this->return_order_model->get_non_count_details($order->code);
+
+					if(!empty($noncount))
+					{
+						foreach($noncount as $rs)
+						{
+							$arr = array(
+								'receive_qty' => round($rs->qty),
+								'valid' => 1
+							);
+
+							$this->return_order_model->update_detail($rs->id, $arr);
+						}
+					}
 
 					if($sc === TRUE)
 					{

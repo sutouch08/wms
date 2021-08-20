@@ -1503,6 +1503,36 @@ class Orders extends PS_Controller
     $this->load->view('print/print_order_sheet', $ds);
   }
 
+
+	public function print_wms_return_request($code)
+	{
+		$this->wms = $this->load->database('wms', TRUE);
+		$this->load->model('rest/V1/wms_temp_order_model');
+		$this->load->model('masters/warehouse_model');
+		$this->load->library('xprinter');
+
+		$order = $this->orders_model->get($code);
+		$order->customer_name = $this->customers_model->get_name($order->customer_code);
+		$order->warehouse_name = $this->warehouse_model->get_name($order->warehouse_code);
+		$details = $this->wms_temp_order_model->get_details_by_code($code);
+
+		if(!empty($details))
+		{
+			foreach($details as $rs)
+			{
+				$item = $this->products_model->get($rs->product_code);
+				$rs->product_name = $item->name;
+			}
+		}
+
+		$ds = array(
+			'order' => $order,
+			'details' => $details
+		);
+
+		$this->load->view('print/print_wms_return_request', $ds);
+	}
+
   public function get_sell_stock($item_code, $warehouse = NULL, $zone = NULL)
   {
     $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
@@ -2901,12 +2931,22 @@ class Orders extends PS_Controller
 					{
 						//-- Send data to WMS
 						$this->wms = $this->load->database('wms', TRUE);
+						$this->load->model('rest/V1/wms_temp_order_model');
 						$this->load->library('wms_receive_api');
 
-						$details = $this->orders_model->get_order_details($code);
+						//$details = $this->orders_model->get_order_details($code);
+						$details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
 
 						if(!empty($details))
 						{
+							foreach($details as $rs)
+							{
+								$item = $this->products_model->get($rs->product_code);
+								$rs->product_name = $item->name;
+								$rs->unit_code = $item->unit_code;
+								$rs->is_count = $item->count_stock;
+							}
+
 							$ex = $this->wms_receive_api->export_return_request($order, $details);
 
 							if(! $ex)
@@ -2957,12 +2997,22 @@ class Orders extends PS_Controller
 			{
 				//-- Send data to WMS
 				$this->wms = $this->load->database('wms', TRUE);
+				$this->load->model('rest/V1/wms_temp_order_model');
 				$this->load->library('wms_receive_api');
 
-				$details = $this->orders_model->get_order_details($code);
+				// $details = $this->orders_model->get_order_details($code);
+				$details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
 
 				if(!empty($details))
 				{
+					foreach($details as $rs)
+					{
+						$item = $this->products_model->get($rs->product_code);
+						$rs->product_name = $item->name;
+						$rs->unit_code = $item->unit_code;
+						$rs->is_count = $item->count_stock;
+					}
+
 					$ex = $this->wms_receive_api->export_return_request($order, $details);
 
 					if(! $ex)

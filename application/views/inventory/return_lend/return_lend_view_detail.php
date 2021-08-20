@@ -18,6 +18,7 @@
 					<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 				<?php endif; ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
+				<button type="button" class="btn btn-sm btn-info" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
       </p>
     </div>
 </div>
@@ -135,7 +136,7 @@ if($doc->status == 3)
 <input type="hidden" name="zone_code" id="zone_code" value="<?php echo $doc->to_zone; ?>">
 <input type="hidden" name="lend_code" id="return_code" value="<?php echo $doc->code; ?>">
 
-<script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend_control.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend.js?v=<?php echo date('Ymd');?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend_add.js?v=<?php echo date('Ymd');?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend_control.js?v=<?php echo date('Ymd');?>"></script>
 <?php $this->load->view('include/footer'); ?>

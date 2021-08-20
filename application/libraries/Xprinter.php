@@ -517,6 +517,8 @@ class Xprinter
 			$row2 = 8;
 			$row4 = 10;
 			$row3 = $height - ($row1+$row2+$row4) - 2;
+			$row5 = 8;
+		
 			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:10mm; left:5mm;'>";
 			foreach($data as $n=>$value)
 			{
@@ -527,6 +529,11 @@ class Xprinter
 				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height: ".$row3."mm; text-align:center; padding-left:5px; padding-right:5px; ".(is_null($value[1]) ? "" : "border-bottom:dotted 1px #333;")." float:left; padding:10px;'></span>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:20%; height: ".$row4."mm; text-align:right; vertical-align:bottom; float:left; padding-top: 25px;'>".$value[2]."</span>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:70%; height: ".$row4."mm; text-align:left; float:left; padding-top: 10px;".(is_null($value[2]) ? "" : " border-bottom:dotted 1px #333;")."'></span>";
+				if(!empty($value[3]))
+				{
+					$footer .="<span style='font-size:{$this->font_size}px; width:20%; height: ".$row5."mm; text-align:right; vertical-align:bottom; float:left; padding-top: 20px;'>".$value[3]."</span>";
+					$footer .="<span style='font-size:{$this->font_size}px; width:70%; height: ".$row5."mm; text-align:left; float:left; padding-top: 10px;".(is_null($value[3]) ? "" : " border-bottom:dotted 1px #333;")."'></span>";
+				}
 				$footer .="</div>";
 				$footer .="</div>";
 			}

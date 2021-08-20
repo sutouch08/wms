@@ -13,6 +13,9 @@
 			<?php if($this->isAPI && $doc->is_wms == 1 && ($doc->status == 3 OR $doc->status == 0)) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 			<?php endif; ?>
+      <?php if($this->pm->can_delete && $doc->status != 2) : ?>
+        <button type="button" class="btn btn-sm btn-danger" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-exclamation-triangle"></i> ยกเลิก</button>
+      <?php endif; ?>
     </p>
   </div>
 </div>

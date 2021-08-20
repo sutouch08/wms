@@ -626,6 +626,24 @@ class Return_order extends PS_Controller
   }
 
 
+  public function print_wms_return($code)
+  {
+    $this->load->library('xprinter');
+    $doc = $this->return_order_model->get($code);
+    $doc->customer_name = $this->customers_model->get_name($doc->customer_code);
+    $doc->warehouse_name = $this->warehouse_model->get_name($doc->warehouse_code);
+    $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
+    $details = $this->return_order_model->get_count_item_details($code); //--- get only count item
+
+    $ds = array(
+      'order' => $doc,
+      'details' => $details
+    );
+
+    $this->load->view('print/print_wms_return', $ds);
+  }
+
+
 
   public function cancle_return($code)
   {

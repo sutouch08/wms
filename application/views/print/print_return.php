@@ -33,7 +33,7 @@
 	$total_page = $this->printer->total_page;
 	$total_qty 	= 0;
 	$total_receive = 0;
-  $total_amount = 0;
+  	$total_amount = 0;
 	//**************  กำหนดหัวตาราง  ******************************//
 	$thead	= array(
 						array("ลำดับ", "width:10mm; vertical-align:middle; text-align:center; border-top:0px; border-top-left-radius:10px;"),
@@ -140,7 +140,7 @@
           ".number($total_receive)."</td>
           <td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
           border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; width:20mm;
-          text-align:right;'>".number($total_amount)."</td>")
+          text-align:right;'>".number($total_amount, 2)."</td>")
 
 			);
 

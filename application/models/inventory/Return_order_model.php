@@ -190,7 +190,7 @@ class Return_order_model extends CI_Model
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -198,7 +198,7 @@ class Return_order_model extends CI_Model
   public function get_details($code)
   {
     $rs = $this->db
-		->select('rd.*, pd.unit_code AS unit_code')
+		->select('rd.*, pd.unit_code AS unit_code, pd.count_stock')
 		->from('return_order_detail AS rd')
 		->join('products AS pd', 'rd.product_code = pd.code', 'left')
 		->where('rd.return_code', $code)
@@ -209,8 +209,46 @@ class Return_order_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
+
+
+  public function get_count_item_details($code)
+  {
+    $rs = $this->db
+		->select('rd.*, pd.unit_code AS unit_code')
+		->from('return_order_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+    ->where('pd.count_stock', 1)
+		->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+	public function get_non_count_details($code)
+	{
+		$rs = $this->db
+		->select('rd.*, pd.unit_code AS unit_code')
+		->from('return_order_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+    ->where('pd.count_stock', 0)
+		->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+	}
 
 
 	public function get_detail_by_product($code, $product_code)
@@ -223,9 +261,9 @@ class Return_order_model extends CI_Model
 		->where('rd.product_code', $product_code)
 		->get();
 
-		if($rs->num_rows() === 1)
+		if($rs->num_rows() > 0)
 		{
-			return $rs->row();
+			return $rs->result();
 		}
 
 		return NULL;

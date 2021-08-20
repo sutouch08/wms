@@ -67,7 +67,7 @@ class Wms_receive_api
 
 				foreach($details as $rs)
 				{
-					if($rs->qty > 0)
+					if($rs->qty > 0 && $rs->count_stock)
 					{
 						$xml .= "<ITEM>";
 						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
@@ -78,7 +78,7 @@ class Wms_receive_api
 						$xml .= "<SERIAL_NO></SERIAL_NO>";
 						$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
 						$xml .= "<UOM>".$rs->unit_code."</UOM>";
-						//$xml .= "<REF_NO1>".$rs->order_code."</REF_NO1>";
+						$xml .= "<OUTBOUND_ORDER_NO>".$rs->order_code."</OUTBOUND_ORDER_NO>";
 						$xml .= "</ITEM>";
 					}
 				}

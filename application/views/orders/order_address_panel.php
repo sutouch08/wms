@@ -17,6 +17,9 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
   <div class="col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
 			<?php if($order->is_wms && $order->wms_export == 1) : ?>
+				<?php if($order->state == 9 && $order->is_cancled == 1) : ?>
+					<button type="button" class="btn btn-sm btn-info pull-right margin-left-5" style="z-index:100;" onclick="print_wms_return_request()">พิมพ์ใบส่งคืนสินค้า(RC)</button>
+				<?php endif; ?>
 				<?php if($canCancleShipped && ($order->state == 7 OR $order->state == 8)) : ?>
 					<button type="button" class="btn btn-sm btn-danger pull-right margin-left-5" style="z-index:100;" onclick="cancle_shipped_order()">ยกเลิก WMS ออเดอร์(Shipped)</button>
 				<?php endif; ?>
@@ -262,4 +265,16 @@ function send_return_request() {
 	}
 
 }
+
+
+function print_wms_return_request() {
+	const order_code = $('#order_code').val();
+	if(order_code !== "" && order_code !== undefined) {
+		const center = ($(document).width() - 800) /2;
+	  const target = BASE_URL + 'orders/orders/print_wms_return_request/'+order_code;
+	  window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
+	}
+}
+
+
 </script>

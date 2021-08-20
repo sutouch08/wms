@@ -27,6 +27,8 @@
 				<button type="button" class="btn btn-sm btn-danger" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
 	<?php endif; ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
+				<button type="button" class="btn btn-sm btn-info" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+
       </p>
     </div>
 </div>

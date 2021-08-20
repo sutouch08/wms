@@ -885,6 +885,37 @@ class Return_lend extends PS_Controller
 
 
 
+  public function print_wms_return($code)
+  {
+    $this->load->model('inventory/lend_model');
+    $this->load->library('xprinter');
+    $doc = $this->return_lend_model->get($code);
+    $doc->from_warehouse_name = $this->warehouse_model->get_name($doc->from_warehouse);
+    $doc->to_warehouse_name = $this->warehouse_model->get_name($doc->to_warehouse);
+    $doc->from_zone_name = $this->zone_model->get_name($doc->from_zone);
+    $doc->to_zone_name = $this->zone_model->get_name($doc->to_zone);
+    $doc->empName = $this->employee_model->get_name($doc->empID);
+
+    $details = $this->lend_model->get_backlogs_list($doc->lend_code);
+
+    if(!empty($details))
+    {
+      foreach($details as $rs)
+      {
+        $rs->return_qty = $this->return_lend_model->get_return_qty($doc->code, $rs->product_code);
+      }
+    }
+
+    $ds = array(
+      'order' => $doc,
+      'details' => $details
+    );
+
+    $this->load->view('print/print_wms_return_lend', $ds);
+  }
+
+
+
   public function get_new_code($date = '')
   {
     $date = $date == '' ? date('Y-m-d') : $date;

@@ -13,7 +13,7 @@ $this->xprinter->config($config);
 $page  = '';
 $page .= $this->xprinter->doc_header();
 
-$this->xprinter->add_title('ใบส่งสินค้า(WW)');
+$this->xprinter->add_title('ใบส่งคืนสินค้า(SM)');
 
 
 $header		= array();
@@ -49,8 +49,8 @@ $header['right']['A'] = array(
 );
 
 $header['right']['B'] = array(
-	array('label' => 'ต้นทาง', 'value' => $order->from_warehouse_name),
-	array('label' => 'ปลายทาง', 'value' => $order->to_warehouse_name),
+	array('label' => 'คลังปลายทาง', 'value' => $order->warehouse_name),
+	array('label' => 'รหัสลูกค้า', 'value' => $order->customer_name),
 	array('label' => 'พนักงาน', 'value' => $this->user_model->get_name($order->user))
 );
 
@@ -62,11 +62,7 @@ $subtotal_row = 4;
 $row 		     = $this->xprinter->row;
 $total_page  = $this->xprinter->total_page;
 $total_qty 	 = 0; //--  จำนวนรวม
-$total_amount 		= 0;  //--- มูลค่ารวม(หลังหักส่วนลด)
-$total_discount 	= 0; //--- ส่วนลดรวม
-$total_order  = 0;    //--- มูลค่าราคารวม
 
-//$bill_discount		= $order->bDiscAmount;
 
 
 //**************  กำหนดหัวตาราง  ******************************//
@@ -94,9 +90,8 @@ $this->xprinter->set_pattern($pattern);
 //*******************************  กำหนดช่องเซ็นของ footer *******************************//
 $footer	= array(
           array("ผู้รับสินค้า", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่"),
-          array("ผู้ส่งสินค้า", "","วันที่"),
-					array("ผู้อนุมัติ", "","วันที่"),
-          array("ผู้ตรวจสอบ", "","วันที่")
+		  array("ผู้อนุมัติ", "","วันที่"),
+          array("ผู้จัดทำ", "","วันที่", "โทร.")
           );
 
 $this->xprinter->set_footer($footer);
@@ -179,10 +174,10 @@ while($total_page > 0 )
 
 	$page .= $this->xprinter->print_sub_total($subTotal);
   $page .= $this->xprinter->content_end();
+	/*$page .= "<div class='divider-hidden'></div>";
 	$page .= "<div class='divider-hidden'></div>";
 	$page .= "<div class='divider-hidden'></div>";
-	$page .= "<div class='divider-hidden'></div>";
-	$page .= "<div class='divider-hidden'></div>";
+	$page .= "<div class='divider-hidden'></div>";*/
 	$page .= "<div class='divider-hidden'></div>";
   $page .= $this->xprinter->footer;
   $page .= $this->xprinter->page_end();

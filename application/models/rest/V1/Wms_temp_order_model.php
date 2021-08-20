@@ -118,6 +118,18 @@ class Wms_temp_order_model extends CI_Model
 	}
 
 
+	public function get_details_by_code($order_code)
+	{
+		$rs = $this->wms->where('order_code', $order_code)->where('status', 1)->get($this->td);
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
 	public function get_unprocess_list($limit = 100)
 	{
 		$date = $this->last_minute();
