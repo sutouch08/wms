@@ -91,7 +91,7 @@ class Prepare_model extends CI_Model
 	{
 		return $this->db->where('order_code', $order_code)->delete('prepare');
 	}
-	
+
 
   public function update_prepare($order_code, $product_code, $zone_code, $qty)
   {
@@ -225,9 +225,13 @@ class Prepare_model extends CI_Model
 			$this->db->where('orders.is_wms', 0);
 		}
 
-    if(!empty($ds['code']))
+		if(!empty($ds['code']))
     {
-      $this->db->like('orders.code', $ds['code']);
+      $this->db
+			->group_start()
+			->like('orders.code', $ds['code'])
+			->or_like('orders.reference', $ds['code'])
+			->group_end();
     }
 
     if(!empty($ds['item_code']))
@@ -351,7 +355,11 @@ class Prepare_model extends CI_Model
 
     if(!empty($ds['code']))
     {
-      $this->db->like('orders.code', $ds['code']);
+      $this->db
+			->group_start()
+			->like('orders.code', $ds['code'])
+			->or_like('orders.reference', $ds['code'])
+			->group_end();
     }
 
     if(!empty($ds['item_code']))

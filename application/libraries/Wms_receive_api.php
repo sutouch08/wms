@@ -54,8 +54,8 @@ class Wms_receive_api
 				$xml .=   "<ORDER_NO>".$doc->code."</ORDER_NO>";
 				$xml .=   "<ORDER_TYPE>".$this->type."</ORDER_TYPE>";
 				$xml .=   "<ORDER_DATE>".date('Y/m/d')."</ORDER_DATE>";
-				$xml .=   "<SUPPLIER_CODE><![CDATA[{$this->sup_code}]]></SUPPLIER_CODE>";
-				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
+				$xml .=   "<SUPPLIER_CODE>CUSTOMER</SUPPLIER_CODE>";
+				$xml .=   "<SUPPLIER_NAME><![CDATA[{$doc->customer_name}]]></SUPPLIER_NAME>";
 				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
 				$xml .=   "<REF_NO1>".$doc->invoice."</REF_NO1>";

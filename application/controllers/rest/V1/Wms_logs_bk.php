@@ -1,19 +1,16 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Wms_logs extends PS_Controller
+class Wms_logs extends CI_Controller
 {
-	public $title = 'WMS Interface Logs';
-	public $menu_code = 'WMSLOG';
-	public $menu_group_code = 'WMS';
-  public $menu_sub_group_code = '';
+	public $title = 'WARRIX Interface Logs';
   public $filter;
 
   public function __construct()
   {
     parent::__construct();
     $this->home = base_url().'rest/V1/wms_logs';
-		$this->wms = $this->load->database('wms', TRUE); //--- Temp database
+	$this->wms = $this->load->database('wms', TRUE); //--- Temp database
   	$this->load->model('rest/V1/wms_error_logs_model');
   }
 

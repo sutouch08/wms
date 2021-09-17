@@ -43,8 +43,14 @@
 				<option value="0">Warrix</option>
 			</select>
 		</div>
-
-    <div class="col-sm-9 col-9-harf col-xs-8 padding-5">
+		<div class="col-sm-1 col-xs-6 padding-5">
+			<label>WMS Interface</label>
+			<select class="form-control input-sm" name="api" id="api">
+				<option value="1">ปกติ</option>
+				<option value="0">ไม่ส่ง</option>
+			</select>
+		</div>
+    <div class="col-sm-8 col-8-harf col-xs-8 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
     </div>

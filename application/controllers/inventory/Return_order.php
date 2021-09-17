@@ -28,6 +28,7 @@ class Return_order extends PS_Controller
 
   public function index()
   {
+		$this->load->helper('warehouse');
     $filter = array(
       'code'    => get_filter('code', 'sm_code', ''),
       'invoice' => get_filter('invoice', 'sm_invoice', ''),
@@ -35,7 +36,9 @@ class Return_order extends PS_Controller
       'from_date' => get_filter('from_date', 'sm_from_date', ''),
       'to_date' => get_filter('to_date', 'sm_to_date', ''),
       'status' => get_filter('status', 'sm_status', 'all'),
-      'approve' => get_filter('approve', 'sm_approve', 'all')
+      'approve' => get_filter('approve', 'sm_approve', 'all'),
+			'warehouse' => get_filter('warehouse', 'sm_warehouse', 'all'),
+			'api' => get_filter('api', 'sm_api', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -112,7 +115,7 @@ class Return_order extends PS_Controller
                 'product_name' => $this->products_model->get_name($item[$row]),
                 'sold_qty' => $sold_qtys[$row],
                 'qty' => $qty,
-								'receive_qty' => ($doc->is_wms == 1 ? 0 : $qty),
+								'receive_qty' => ($doc->is_wms == 1 ? ($doc->api == 1? 0 : $qty) : $qty),
                 'price' => $price,
                 'discount_percent' => $discount,
                 'amount' => $amount,
@@ -219,7 +222,7 @@ class Return_order extends PS_Controller
 
 						if(!empty($details))
 						{
-							if($this->isAPI === TRUE && $doc->is_wms == 1)
+							if($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api == 1)
 							{
 								$this->wms = $this->load->database('wms', TRUE);
 								$this->load->library('wms_receive_api');
@@ -237,6 +240,7 @@ class Return_order extends PS_Controller
 							}
 							else
 							{
+								$this->return_order_model->update($code, array('is_complete' => 1));
 								$export = $this->do_export($code);
 
 								if(! $export)
@@ -325,6 +329,7 @@ class Return_order extends PS_Controller
       $customer_code = trim($this->input->post('customer_code'));
 			$is_wms = trim($this->input->post('is_wms'));
 			$zone_code = trim($this->input->post('zone_code'));
+			$api = $this->input->post('api');
       $remark = trim($this->input->post('remark'));
 
 			if($is_wms == 1)
@@ -353,7 +358,8 @@ class Return_order extends PS_Controller
         'user' => get_cookie('uname'),
         'date_add' => $date_add,
         'remark' => $remark,
-				'is_wms' => $is_wms
+				'is_wms' => $is_wms,
+				'api' => $api
       );
 
       $rs = $this->return_order_model->add($arr);
@@ -478,6 +484,7 @@ class Return_order extends PS_Controller
       $customer_code = $this->input->post('customer_code');
 			$zone_code = $this->input->post('zone_code');
 			$is_wms = $this->input->post('is_wms');
+			$api = $this->input->post('api');
 
 			if($is_wms == 1)
 			{
@@ -496,6 +503,7 @@ class Return_order extends PS_Controller
         'warehouse_code' => $zone->warehouse_code,
         'zone_code' => $zone->code,
 				'is_wms' => $is_wms,
+				'api' => $api,
         'remark' => $remark,
         'update_user' => get_cookie('uname')
       );
@@ -505,7 +513,6 @@ class Return_order extends PS_Controller
         $sc = FALSE;
         $message = 'ปรับปรุงข้อมูลไม่สำเร็จ';
       }
-
     }
     else
     {
@@ -816,7 +823,9 @@ class Return_order extends PS_Controller
       'sm_from_date',
       'sm_to_date',
       'sm_status',
-      'sm_approve'
+      'sm_approve',
+			'sm_warehouse',
+			'sm_api'
     );
     clear_filter($filter);
   }

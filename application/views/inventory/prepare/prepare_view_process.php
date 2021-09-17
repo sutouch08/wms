@@ -133,8 +133,8 @@
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-10 middle text-center sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-					<th class="width-15 middle sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
+					<th class="width-8 middle text-center sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
+					<th class="width-20 middle sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
 					<th class="middle">ลูกค้า/ผู้เบิก</th>
 					<th class="width-10 middle text-center">จำนวน</th>
           <th class="width-10 middle">ช่องทาง</th>
@@ -150,7 +150,10 @@
             <tr id="row-<?php echo $rs->code; ?>">
               <td class="middle text-center no"><?php echo $no; ?></td>
 							<td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
-              <td class="middle"><?php echo $rs->code; ?></td>
+              <td class="middle">
+								<?php echo $rs->code; ?>
+								<?php echo (empty($rs->reference) ? "" : "[".$rs->reference."]"); ?>
+							</td>
               <td class="middle">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>

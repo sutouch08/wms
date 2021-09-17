@@ -184,7 +184,14 @@ class Return_order_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('return_order');
+    $rs = $this->db
+    ->select('return_order.*')
+    ->select('customers.name AS customer_name')
+    ->from('return_order')
+    ->join('customers', 'return_order.customer_code = customers.code', 'left')
+    ->where('return_order.code', $code)
+    ->get();
+    
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -440,6 +447,12 @@ class Return_order_model extends CI_Model
       $this->db->where_in('customer_code', $this->customer_in($ds['customer_code']));
     }
 
+
+		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
+		{
+			$this->db->where('warehouse_code', $ds['warehouse']);
+		}
+
     if(!empty($ds['status']) && $ds['status'] != 'all')
     {
       $this->db->where('status', $ds['status']);
@@ -449,6 +462,11 @@ class Return_order_model extends CI_Model
     {
       $this->db->where('is_approve', $ds['approve']);
     }
+
+		if(isset($ds['api']) && $ds['api'] !== 'all')
+		{
+			$this->db->where('api', $ds['api']);
+		}
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
@@ -483,6 +501,11 @@ class Return_order_model extends CI_Model
       $this->db->where_in('customer_code', $this->customer_in($ds['customer_code']));
     }
 
+		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
+		{
+			$this->db->where('warehouse_code', $ds['warehouse']);
+		}
+
     if($ds['status'] != 'all')
     {
       $this->db->where('status', $ds['status']);
@@ -492,6 +515,11 @@ class Return_order_model extends CI_Model
     {
       $this->db->where('is_approve', $ds['approve']);
     }
+
+		if(isset($ds['api']) && $ds['api'] !== 'all')
+		{
+			$this->db->where('api', $ds['api']);
+		}
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {

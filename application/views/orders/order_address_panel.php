@@ -23,7 +23,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 				<?php if($canCancleShipped && ($order->state == 7 OR $order->state == 8)) : ?>
 					<button type="button" class="btn btn-sm btn-danger pull-right margin-left-5" style="z-index:100;" onclick="cancle_shipped_order()">ยกเลิก WMS ออเดอร์(Shipped)</button>
 				<?php endif; ?>
-				<?php if($canCancleShipped && $order->state == 9) : ?>
+				<?php if($order->is_cancled == 1 && $canCancleShipped && $order->state == 9) : ?>
 					<button type="button" class="btn btn-sm btn-danger pull-right margin-left-5" style="z-index:100;" onclick="send_return_request()">Send return request to WMS</button>
 				<?php endif; ?>
 			<button type="button" class="btn btn-sm btn-primary pull-right" style="z-index:100;" onclick="update_wms_status()">Update WMS Status</button>

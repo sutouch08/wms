@@ -57,7 +57,15 @@
 			</select>
 		</div>
 
-    <div class="col-sm-9 col-9-harf col-xs-8 padding-5">
+		<div class="col-sm-1 col-xs-6 padding-5">
+			<label>WMS Interface</label>
+			<select class="form-control input-sm edit" name="api" id="api" disabled>
+				<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
+				<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
+			</select>
+		</div>
+
+    <div class="col-sm-8 col-8-harf col-xs-8 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
     </div>

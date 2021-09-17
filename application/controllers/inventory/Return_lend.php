@@ -28,13 +28,15 @@ class Return_lend extends PS_Controller
 
   public function index()
   {
+		$this->load->helper('warehouse');
     $filter = array(
       'code'    => get_filter('code', 'rl_code', ''),
       'lend_code' => get_filter('lend_code', 'lend_code', ''),
       'empName' => get_filter('empName', 'empName', ''),
       'from_date' => get_filter('from_date', 'rl_from_date', ''),
       'to_date' => get_filter('to_date', 'rl_to_date', ''),
-      'status' => get_filter('status', 'rl_status', 'all')
+      'status' => get_filter('status', 'rl_status', 'all'),
+			'warehouse' => get_filter('warehouse', 'rl_warehouse', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -957,7 +959,7 @@ class Return_lend extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('rl_code','lend_code','empName','rl_from_date','rl_to_date','rl_status');
+    $filter = array('rl_code','lend_code','empName','rl_from_date','rl_to_date','rl_status', 'rl_warehouse');
     clear_filter($filter);
   }
 

@@ -13,7 +13,7 @@
 				<button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 	<?php endif; ?>
 
-	<?php if($this->isAPI && $doc->is_wms == 1 && $doc->status != 0 && $doc->status !=2 && $doc->is_complete != 1 && $doc->is_approve == 1) : ?>
+	<?php if($this->isAPI && $doc->is_wms == 1 && $doc->api == 1 && $doc->status != 0 && $doc->status !=2 && $doc->is_complete != 1 && $doc->is_approve == 1) : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 	<?php endif; ?>
 
@@ -70,7 +70,14 @@
 				<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
   		</select>
 		</div>
-    <div class="col-sm-6 padding-5">
+		<div class="col-sm-1 padding-5" >
+			<label>WMS</label>
+			<select class="form-control input-sm" disabled>
+				<option value="1" <?php echo is_selected('1', $doc->api); ?>>Yes</option>
+				<option value="0" <?php echo is_selected('0', $doc->api); ?>>No</option>
+			</select>
+		</div>
+    <div class="col-sm-5 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
     </div>

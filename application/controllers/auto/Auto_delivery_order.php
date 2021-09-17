@@ -10,56 +10,55 @@ class Auto_delivery_order extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
     $this->home = base_url().'auto/auto_delivery_order';
-    $this->load->model('orders/orders_model');
+		$this->load->library('export');
   }
 
   public function index()
   {
-    $this->load->view('auto/auto_delivery_order');
+		$sc = "";
+    $rs  = $this->db->where('status', 0)->get('auto_send_to_sap_order');
+		if($rs->num_rows() > 0)
+		{
+			$i = 1;
+			foreach($rs->result() as $rd)
+			{
+				if(!$this->export->export_order($rd->code))
+				{
+					$arr = array(
+						'status' => 3,
+						'message' => $this->export->error
+					);
+
+					$this->update_status($rd->id, $arr);
+					$sc .= "<p>{$i}.  {$rd->code} : Error: ".$this->export->error."</p>";
+				}
+				else
+				{
+					$arr = array(
+						'status' => 1
+					);
+
+					$this->update_status($rd->id, $arr);
+
+					$sc .= "<p>{$i}. {$rd->code} : Success</p>";
+				}
+
+				$i++;
+			}
+		}
+		else
+		{
+			$sc .= "<p>Order Not found</p>";
+		}
+
+		echo $sc;
   }
 
 
-  public function get_delivery_list()
-  {
-    $from_date = from_date($this->input->get('from_date'));
-    $to_date = to_date($this->input->get('to_date'));
-    $limit = $this->input->get('limit');
-
-    $qs = $this->db
-    ->where('state', 7)
-    ->where_in('role', array('S', 'C', 'N', 'P', 'U', 'L'))
-    ->where('date_add >=', $from_date)
-    ->where('date_add <=', $to_date)
-    ->limit($limit)
-    ->get('orders');
-
-    if($qs->num_rows() > 0)
-    {
-      $list = $qs->result();
-    }
-
-    if(!empty($list))
-    {
-      $ds = array();
-      foreach($list as $rs)
-      {
-        $ds[] = $rs->code;
-      }
-
-      echo json_encode($ds);
-    }
-    else
-    {
-      echo 'not_found';
-    }
-  }
-
-
-  public function resend()
-  {
-    $this->load->view('auto/resend');
-  }
-
+	private function update_status($id, array $ds = array())
+	{
+		return $this->db->where('id', $id)->update('auto_send_to_sap_order', $ds);
+	}
 
 } //--- end class
  ?>

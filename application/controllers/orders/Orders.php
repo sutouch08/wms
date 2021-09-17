@@ -2117,7 +2117,8 @@ class Orders extends PS_Controller
 
 
 
-  public function order_state_change()
+  public function order_state_chan
+	ge()
   {
     $sc = TRUE;
     if($this->input->post('order_code'))

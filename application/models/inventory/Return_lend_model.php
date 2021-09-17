@@ -247,6 +247,11 @@ class Return_lend_model extends CI_Model
       $this->db->where_in('empID', $emp_in);
     }
 
+		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
+		{
+			$this->db->where('to_warehouse', $ds['warehouse']);
+		}
+
     if(!empty($ds['status']) && $ds['status'] != 'all')
     {
       $this->db->where('status', $ds['status']);
@@ -294,7 +299,11 @@ class Return_lend_model extends CI_Model
       $this->db->where('status', $ds['status']);
     }
 
-
+		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
+		{
+			$this->db->where('to_warehouse', $ds['warehouse']);
+		}
+		
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));

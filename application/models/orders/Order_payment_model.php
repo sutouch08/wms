@@ -42,11 +42,12 @@ class Order_payment_model extends CI_Model
       $this->db->where('id_account', $ds['account']);
     }
 
-    //---- user name / display name
-    if($ds['user'] != '')
+    
+		//---- user name / display name
+    if(!empty($ds['user']))
     {
       $users = user_in($ds['user']);
-      $this->db->where_in('user', $users);
+      $this->db->where_in('order_payment.user', $users);
     }
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')

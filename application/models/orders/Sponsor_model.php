@@ -16,6 +16,7 @@ class Sponsor_model extends CI_Model
     ->where('BpCode', $code)
 		->where('OOAT.StartDate <=', now())
 		->where('OOAT.EndDate >=', now())
+		->where('OOAT.Cancelled', 'N')
     ->get();
 
     if($rs->num_rows() === 1)

@@ -153,6 +153,23 @@ class Temp_return_order extends PS_Controller
     $writer->save('php://output');
   }
 
+
+
+	public function remove_temp($docEntry)
+	{
+		$sc = TRUE;
+
+		if(! $this->temp_return_order_model->removeTemp($docEntry))
+		{
+			$sc = FALSE;
+			$this->error = "Delete failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
   public function clear_filter()
   {
     $filter = array(

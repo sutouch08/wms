@@ -1,10 +1,10 @@
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-sm-1 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-sm-1 padding-5">
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($doc->date_add); ?>" disabled />
   </div>
@@ -30,6 +30,10 @@
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>
+	<div class="col-sm-1 padding-5">
+		<label>SAP</label>
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled >
+	</div>
 </div>
 <input type="hidden" id="transfer_code" value="<?php echo $doc->code; ?>" />
 <input type="hidden" id="from_warehouse_code" value="<?php echo $doc->from_warehouse; ?>" />

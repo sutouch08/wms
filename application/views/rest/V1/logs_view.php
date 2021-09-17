@@ -1,7 +1,13 @@
-<?php $this->load->view('include/pos_header'); ?>
+<?php $this->load->view('include/header'); ?>
+<div class="row">
+	<div class="col-sm-12 padding-5">
+    <h4 class="title"><?php echo $this->title; ?></h4>
+  </div>
+</div><!-- End Row -->
+<hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row" style="margin-top:30px;">
-	<div class="col-sm-2 col-xs-6 padding-5 first">
+	<div class="col-sm-2 col-xs-6 padding-5">
 		<label>เลขที่เอกสาร</label>
 		<input type="text" class="form-control input-sm search-box" name="code" value="<?php echo $code; ?>"/>
 	</div>
@@ -42,10 +48,10 @@
 
 </div>
 </form>
-<hr class="margin-top-15"/>
+<hr class="margin-top-15 padding-5"/>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-sm-12 col-xs-12">
+	<div class="col-sm-12 col-xs-12 padding-5">
 		<table class="table table-striped border-1">
 			<thead>
 				<tr>
@@ -120,4 +126,4 @@
 </script>
 
 
-<?php $this->load->view('include/pos_footer'); ?>
+<?php $this->load->view('include/footer'); ?>

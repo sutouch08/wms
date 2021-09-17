@@ -155,6 +155,27 @@ class Temp_return_order_model extends CI_Model
     return NULL;
   }
 
+
+	public function removeTemp($docEntry)
+	{
+		$this->mc->trans_begin();
+		$rd = $this->mc->where('DocEntry', $docEntry)->delete('RDN1');
+		$ro = $this->mc->where('DocEntry', $docEntry)->delete('ORDN');
+
+		if($rd && $ro)
+		{
+			$this->mc->trans_commit();
+			return TRUE;
+		}
+		else
+		{
+			$this->mc->trans_rollback();
+			return FALSE;
+		}
+
+		return FALSE;		
+	}
+
 } //--- end model
 
 ?>

@@ -626,6 +626,7 @@ public function get_prepare_item_code()
     $txt = convert($_REQUEST['term']);
     $qr = "SELECT BpCode, BpName FROM OOAT ";
     $qr .= "WHERE StartDate <= '".now()."' AND EndDate >= '".now()."' ";
+		$qr .= "AND Cancelled = 'N' ";
 
     if($txt != '*')
     {

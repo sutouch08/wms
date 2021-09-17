@@ -66,7 +66,7 @@
       <thead>
         <tr>
           <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-10 text-center">วันที่</th>
+          <th class="width-8 text-center">วันที่</th>
           <th class="width-10">เลขที่เอกสาร </th>
           <th class="10">รหัสลูกค้า</th>
           <th class="15">ชื่อลูกค้า</th>
@@ -74,6 +74,7 @@
           <th class="width-10">เข้า SAP</th>
           <th class="width-5 text-center">สถานะ</th>
 					<th class="width-20">หมายเหตุ</th>
+					<th class="widht-5"></th>
         </tr>
       </thead>
       <tbody>
@@ -81,8 +82,8 @@
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 
-        <tr class="font-size-12">
-          <td class="text-center"><?php echo $no; ?></td>
+        <tr class="font-size-12" id="row-<?php echo $rs->DocEntry; ?>">
+          <td class="text-center no"><?php echo $no; ?></td>
 
           <td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
 
@@ -123,6 +124,13 @@
             }
             ?>
           </td>
+					<td class="">
+						<?php if($rs->F_Sap !== 'Y') : ?>
+							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">
+								<i class="fa fa-trash"></i>
+							</button>
+						<?php endif; ?>
+					</td>
         </tr>
 <?php  $no++; ?>
 <?php endforeach; ?>

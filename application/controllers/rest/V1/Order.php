@@ -143,7 +143,7 @@ class Order extends REST_Controller
 
 			$arr = array(
         'status' => FALSE,
-        'message' => $this->error
+        'error' => $this->error
       );
 
       $this->response($arr, 400);
@@ -157,7 +157,7 @@ class Order extends REST_Controller
 			$this->order_api_logs_model->logs($data->order_number, "E", $this->error);
       $arr = array(
         'status' => FALSE,
-        'message' => $this->error
+        'error' => $this->error
       );
 
       $this->response($arr, 400);
@@ -174,7 +174,7 @@ class Order extends REST_Controller
 			$this->order_api_logs_model->logs($data->order_number, "E", $this->error);
       $arr = array(
         'status' => FALSE,
-        'message' => $this->error
+        'error' => $this->error
       );
 
       $this->response($arr, 400);
@@ -209,11 +209,11 @@ class Order extends REST_Controller
     //---- if any error return
     if($sc === FALSE)
     {
-			$this->Order_api_logs_model->logs($data->order_number, 'E', $this->error);
+			$this->order_api_logs_model->logs($data->order_number, 'E', $this->error);
 
       $arr = array(
         'status' => FALSE,
-        'message' => $this->error
+        'error' => $this->error
       );
 
       $this->response($arr, 400);
@@ -530,7 +530,7 @@ class Order extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'message' => $this->error
+        'error' => $this->error
       );
 
       $this->response($arr, 200);
