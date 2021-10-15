@@ -73,7 +73,9 @@
           <th class="width-5 text-center">ลำดับ</th>
           <th class="width-20">รหัสสินค้า</th>
           <th class="">สินค้า</th>
-					<th class="width-10 text-center">จำนวน</th>
+					<th class="width-10 text-center">เปิดบิล</th>
+					<th class="width-10 text-center">ตัดแล้ว</th>
+					<th class="width-10 text-center">คงเหลือ</th>
 					<th class="width-10 text-center">ในโซน</th>
           <th class="width-10 text-center">ยอดตัด</th>
 					<th class="width-5"></th>
@@ -96,9 +98,10 @@
 			<tr>
 				<td colspan="3" class="middle text-right">รวม</td>
 				<td class="middle text-center">{{total_bill_qty}}</td>
+				<td class="middle text-center">{{total_issue_qty}}</td>
+				<td class="middle text-center">{{total_qty}}</td>
 				<td class="middle text-center" id="total-in-zone">{{total_in_zone}}</td>
 				<td class="middle text-center" id="total-qty">{{total_qty}}</td>
-
 				<td></td>
 			</tr>
 		{{else}}
@@ -107,9 +110,12 @@
 		  <td class="middle">{{ pdCode }}</td>
 		  <td class="middle">{{ pdName }}</td>
 			<td class="middle text-center">{{ bill_qty }}</td>
+			<td class="middle text-center">{{ issued_qty }}</td>
+			<td class="middle text-center">{{qty}}</td>
 			<td class="middle text-center in-zone">{{ in_zone_qty }}</td>
 		  <td class="middle text-center">
-				<input type="number" class="form-control input-sm text-center input-qty" data-product="{{ pdCode }}" value="{{ qty }}">
+				<input type="hidden" id="limit-{{no}}" value="{{qty}}"/>
+				<input type="number" class="form-control input-sm text-center input-qty" data-no="{{no}}" data-product="{{ pdCode }}" value="{{ qty }}">
 			</td>
 			<td class="middle text-right">
 				<button type="button" class="btn btn-xs btn-danger" onclick="removeRow('row-{{no}}', '{{pdCode}}')">

@@ -32,6 +32,11 @@
   </div>
 
 	<div class="col-sm-1 col-1-harf padding-5">
+    <label>หมายเหตุ</label>
+    <input type="text" class="form-control input-sm search" name="remark" value="<?php echo $remark; ?>" />
+  </div>
+
+	<div class="col-sm-1 col-1-harf padding-5">
     <label>สถานะ</label>
 		<select class="form-control input-sm" name="status" onchange="getSearch()">
 			<option value="all" <?php echo is_selected($status, 'all'); ?>>ทั้งหมด</option>
@@ -77,7 +82,8 @@
           <th class="width-5 text-center">ลำดับ</th>
           <th class="width-10">วันที่</th>
           <th class="width-10">เลขที่เอกสาร</th>
-          <th class="width-15">อ้างถึง</th>
+          <th class="width-10">อ้างถึง</th>
+					<th class="width-10 text-center">จำนวน</th>
           <th class="width-15">พนักงาน</th>
           <th class="">หมายเหตุ</th>
           <th class="width-5 text-center">สถานะ</th>
@@ -98,6 +104,8 @@
           <td class="middle"><?php echo $rs->code; ?></td>
 
           <td class="middle"><?php echo $rs->reference; ?></td>
+
+					<td class="middle text-center"><?php echo number($this->adjust_transform_model->get_sum_qty($rs->code)); ?></td>
 
           <td class="middle hide-text"><?php echo $rs->user_name; ?></td>
 
@@ -134,7 +142,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="9" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>

@@ -26,6 +26,22 @@ class Transform_model extends CI_Model
   }
 
 
+	public function get_sum_qty($order_code)
+	{
+		$rs = $this->db
+		->select_sum('qty')
+		->where('order_code', $order_code)
+		->get('order_details');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->qty;
+		}
+
+		return 0;
+	}
+
+
   public function get_transform_product($id_order_detail)
   {
     $rs = $this->db->where('id_order_detail', $id_order_detail)->get('order_transform_detail');
@@ -254,11 +270,11 @@ class Transform_model extends CI_Model
     ->select('tf.order_code')
     ->from('order_transform AS tf')
     ->join('orders AS od', 'tf.order_code = od.code', 'left')
-    ->where('tf.is_closed', 1)
     ->where('od.state', 8)
     ->where('od.is_cancled', 0)
-    ->where('od.is_expired', 0)
-    ->where('tf.reference IS NULL', NULL, FALSE);
+    ->where('od.is_expired', 0);
+		// ->where('tf.is_closed', 1)
+    // ->where('tf.reference IS NULL', NULL, FALSE);
 
     if($code !== '*')
     {

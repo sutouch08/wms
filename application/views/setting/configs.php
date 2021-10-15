@@ -19,6 +19,7 @@
 	<li class="li-block"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
 <?php if($this->_SuperAdmin) : ?>
 	<li class="li-block"><a href="#WMS" data-toggle="tab">ข้อมูล WMS</a></li>
+	<li class="li-block"><a href="#chatbot" data-toggle="tab">ข้อมูล CHATBOT</a></li>
 <?php endif; ?>
 
 </ul>
@@ -52,6 +53,7 @@
 			if($this->_SuperAdmin)
 			{
 				$this->load->view('setting/setting_wms');
+				$this->load->view('setting/setting_chatbot');
 			}
 ?>
 
@@ -61,6 +63,6 @@
 </div><!--/ row  -->
 
 
-<script src="<?php echo base_url(); ?>scripts/setting/setting.js"></script>
-<script src="<?php echo base_url(); ?>scripts/setting/setting_document.js"></script>
+<script src="<?php echo base_url(); ?>scripts/setting/setting.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/setting/setting_document.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

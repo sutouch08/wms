@@ -5,6 +5,7 @@ class Import_order extends CI_Controller
   public $mc;
 	public $isAPI = FALSE;
 	public $wms;
+	public $sync_chatbot_stock = FALSE;
 
 
   public function __construct()
@@ -109,7 +110,9 @@ class Import_order extends CI_Controller
 
 					//--- คลังสินค้า
 					$warehouse_code = getConfig('WEB_SITE_WAREHOUSE_CODE');
-
+          $chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
+          $this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE; //--- sync stock chatbot
+					$sync_items = array(); //--- ไว้เก็บรหัสสินค้าที่จะต้อง sync ตอนแรกอาจจะมีรหัสซ้ำ แต่จะทำให้ไม่ซ้ำก่อนแล้วค่อยไปดึงสต็อกแล้วใส่ไว้ใน sync_stock อีกที
 					$wh = $this->warehouse_model->get($warehouse_code);
 
 					$is_wms = empty($wh) ? 0 : $wh->is_wms;
@@ -510,6 +513,16 @@ class Import_order extends CI_Controller
                   $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
                   break;
                 }
+								else
+								{
+									if($this->sync_chatbot_stock && ($warehouse_code == $chatbot_warehouse_code))
+									{
+										if($item->count_stock && $item->is_api)
+										{
+											$sync_items[] = $item->code;
+										}
+									}
+								}
 
               }
               else
@@ -542,6 +555,16 @@ class Import_order extends CI_Controller
                     $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
                     break;
                   }
+									else
+									{
+										if($this->sync_chatbot_stock && ($warehouse_code == $chatbot_warehouse_code))
+										{
+											if($item->count_stock && $item->is_api)
+											{
+												$sync_items[] = $item->code;
+											}
+										}
+									}
                 } //--- enf force update
               } //--- end if exists detail
 
@@ -640,6 +663,16 @@ class Import_order extends CI_Controller
 							$this->orders_model->update($orderCode, $arr);
 						}
 					}
+
+					//--- sync chatbot stock
+					if($this->sync_chatbot_stock && ($warehouse_code == $chatbot_warehouse_code))
+					{
+						if(!empty($sync_items))
+						{
+							$sync_stock = array_unique($sync_items);
+							$this->update_chatbot_stock($sync_stock);
+						}
+					}
         }
         else
         {
@@ -651,6 +684,24 @@ class Import_order extends CI_Controller
     echo $sc === TRUE ? 'success' : $message;
   }
 
+
+	public function get_sell_stock($item_code, $warehouse = NULL, $zone = NULL)
+  {
+    $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
+    $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
+    $availableStock = $sell_stock - $reserv_stock;
+		return $availableStock < 0 ? 0 : $availableStock;
+  }
+
+	public function update_chatbot_stock(array $ds = array())
+  {
+    if($this->sync_chatbot_stock && !empty($ds))
+    {
+			$this->logs = $this->load->database('logs', TRUE);
+      $this->load->library('chatbot_api');
+      $this->chatbot_api->sync_stock($ds);
+    }
+  }
 
 
   public function get_new_code($date)

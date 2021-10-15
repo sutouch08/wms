@@ -162,6 +162,19 @@ class Order_payment extends PS_Controller
 						$this->orders_model->update($order->code, $arr);
 					}
 				}
+				//---- send api to chatbot
+				if($order->is_api == 1 && !empty($order->reference))
+				{
+					$this->logs = $this->load->database('logs', TRUE);
+					$this->load->library('chatbot_api');
+					$arr = array(
+						"order_number" => $order->reference,
+						"amount" => round($detail->pay_amount, 2),
+						"action" => "approve"
+					);
+
+					$this->chatbot_api->approve_payment($arr);
+				}
 			}
 
       //--- complete transecrtion with commit or rollback if any error

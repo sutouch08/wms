@@ -37,44 +37,61 @@ function saveAdjust(){
   var reference = $('#transform_code').val();
   var items = [];
   var count = $('.input-qty').length;
-
+	var err = 0;
   if(count)
   {
     $('.input-qty').each(function(){
+			let no = $(this).data('no');
       let pdCode = $(this).data('product');
-      let qty = $(this).val();
+      let qty = parseDefault(parseInt($(this).val()), 0);
+			let limit = parseDefault(parseInt($('#limit-'+no).val()), 0);
+
+			if(qty > limit || qty == 0) {
+				$(this).addClass('has-error');
+				err++;
+			}
+			else {
+				$(this).removeClass('has-error');
+			}
+
       items.push({"product_code" : pdCode, "qty" : qty});
       count--;
-      console.log(count);
+
       if(count === 0)
       {
-        load_in();
-        $.ajax({
-          url:HOME + 'save',
-          type:'POST',
-          cache:false,
-          data:{
-            "code" : code,
-            "transform_code" : reference,
-            "items" : JSON.stringify(items)
-          },
-          success:function(rs){
-            load_out();
-            var rs = $.trim(rs);
-            if(rs === 'success'){
-              swal({
-                title:"Success",
-                type:"success",
-                timer:1000
-              });
+				if(err == 0) {
+					load_in();
+	        $.ajax({
+	          url:HOME + 'save',
+	          type:'POST',
+	          cache:false,
+	          data:{
+	            "code" : code,
+	            "transform_code" : reference,
+	            "items" : JSON.stringify(items)
+	          },
+	          success:function(rs){
+	            load_out();
+	            var rs = $.trim(rs);
+	            if(rs === 'success'){
+	              swal({
+	                title:"Success",
+	                type:"success",
+	                timer:1000
+	              });
 
-              setTimeout(function(){
-                goDetail(code);
-              }, 1500);
-            }
-          }
-        });
+	              setTimeout(function(){
+	                goDetail(code);
+	              }, 1500);
+	            }
+	          }
+	        });
+				}
+				else {
+					return false;
+				}
       }
+
     });
   }
 }

@@ -11,12 +11,14 @@ class Order extends REST_Controller
 	public $isAPI;
 	public $wms;
 	public $logs;
-	public $test = TRUE;
+	public $log_json = FALSE;
+	public $sync_chatbot_stock = FALSE;
 
   public function __construct()
   {
     parent::__construct();
     $this->logs = $this->load->database('logs', TRUE); //--- api logs database
+		$this->ms = $this->load->database('ms', TRUE);
 		$this->path = $this->config->item('image_file_path')."payments/";
 		$this->isAPI = is_true(getConfig('WMS_API'));
 
@@ -33,6 +35,8 @@ class Order extends REST_Controller
 		$this->load->model('rest/V1/order_api_logs_model');
 
     $this->user = 'api@chatbot';
+		$this->log_json = is_true(getConfig('CHATBOT_LOG_JSON'));
+		$this->sync_chatbot_stock = is_true(getConfig('SYNC_CHATBOT_STOCK'));
   }
 
 
@@ -120,12 +124,9 @@ class Order extends REST_Controller
     //--- Get raw post data
 		$json = file_get_contents("php://input");
 
-		if($this->test)
-		{
-			$this->order_api_logs_model->log_json($json);
-		}
-
     $data = json_decode($json);
+
+		$sync_stock = array();
 
     if(empty($data))
     {
@@ -171,7 +172,15 @@ class Order extends REST_Controller
     {
 			$sc = FALSE;
 			$this->error = "Items not found";
-			$this->order_api_logs_model->logs($data->order_number, "E", $this->error);
+			$log = array(
+				'code' => $data->order_number,
+				'status' => 'E',
+				'error_message' => $this->error,
+				'json_text' => ($this->log_json ? $json : NULL)
+			);
+
+			$this->order_api_logs_model->logs_order($log);
+
       $arr = array(
         'status' => FALSE,
         'error' => $this->error
@@ -209,7 +218,14 @@ class Order extends REST_Controller
     //---- if any error return
     if($sc === FALSE)
     {
-			$this->order_api_logs_model->logs($data->order_number, 'E', $this->error);
+			$log = array(
+				'code' => $data->order_number,
+				'status' => 'E',
+				'error_message' => $this->error,
+				'json_text' => ($this->log_json ? $json : NULL)
+			);
+
+			$this->order_api_logs_model->logs_order($log);
 
       $arr = array(
         'status' => FALSE,
@@ -241,7 +257,7 @@ class Order extends REST_Controller
 
 			$state = $data->payment_status == "paid" ? 3 :($data->payment_status == "transferred" ? 2 : 1);
 
-			$warehouse_code = getConfig('WEB_SITE_WAREHOUSE_CODE');
+			$warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
 
 			$warehouse = $this->warehouse_model->get($warehouse_code);
 
@@ -307,7 +323,7 @@ class Order extends REST_Controller
       {
         $arr = array(
           'code' => $data->customer_ref,
-          'name' => $data->customer_ref,
+          'name' => $data->ship_to->name,
           'address' => $data->ship_to->address,
           'sub_district' => $data->ship_to->sub_district,
           'district' => $data->ship_to->district,
@@ -368,6 +384,10 @@ class Order extends REST_Controller
 						else
 						{
 							$total_amount += round($rs->amount, 2);
+							if($this->sync_chatbot_stock && $item->count_stock && $item->is_api)
+							{
+								$sync_stock[] = $item->code;
+							}
 						}
 
 					} //--- end if item
@@ -501,6 +521,12 @@ class Order extends REST_Controller
 						}
 					}
 				}
+
+				if($this->sync_chatbot_stock && !empty($sync_stock))
+				{
+					$this->load->library('chatbot_api');
+					$this->chatbot_api->sync_stock($sync_stock);
+				}
       }
       else
       {
@@ -513,7 +539,14 @@ class Order extends REST_Controller
     {
       $this->db->trans_commit();
 
-			$this->order_api_logs_model->logs($data->order_number, "S", NULL);
+			$log = array(
+				'code' => $data->order_number,
+				'status' => 'S',
+				'error_message' => NULL,
+				'json_text' => ($this->log_json ? $json : NULL)
+			);
+
+			$this->order_api_logs_model->logs_order($log);
 
       $arr = array(
         'status' => 'success',
@@ -526,7 +559,15 @@ class Order extends REST_Controller
     else
     {
       $this->db->trans_rollback();
-			$this->order_api_logs_model->logs($data->order_number, "E", $this->error);
+
+			$log = array(
+				'code' => $data->order_number,
+				'status' => 'E',
+				'error_message' => $this->error,
+				'json_text' => ($this->log_json ? $json : NULL)
+			);
+
+			$this->order_api_logs_model->logs_order($log);
 
       $arr = array(
         'status' => FALSE,

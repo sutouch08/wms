@@ -22,6 +22,42 @@ class Adjust_transform_model extends CI_Model
   }
 
 
+	public function get_sum_qty($code)
+	{
+		if(!empty($code))
+		{
+			$rs = $this->db->select_sum('qty')->where('adjust_code', $code)->get('adjust_transform_detail');
+
+			if($rs->num_rows() === 1)
+			{
+				return $rs->row()->qty;
+			}
+		}
+
+		return 0;
+	}
+
+
+	public function get_sum_issued_qty($transform_code, $product_code)
+	{
+		$rs = $this->db
+		->select_sum('qty')
+		->from('adjust_transform_detail AS atd')
+		->join('adjust_transform AS at', 'atd.adjust_code = at.code', 'left')
+		->where('at.reference', $transform_code)
+		->where('atd.product_code', $product_code)
+		->where('atd.is_cancle', 0)
+		->get();
+
+		if($rs->num_rows() == 1)
+		{
+			return $rs->row()->qty;
+		}
+
+		return 0;
+	}
+
+
 
   public function get_details($code)
   {

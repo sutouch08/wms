@@ -191,7 +191,7 @@ class Return_order_model extends CI_Model
     ->join('customers', 'return_order.customer_code = customers.code', 'left')
     ->where('return_order.code', $code)
     ->get();
-    
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -377,6 +377,7 @@ class Return_order_model extends CI_Model
     ->select_sum('qty')
     ->where('invoice_code', $invoice)
     ->where('product_code', $product_code)
+		->where('is_cancle', 0)
     ->get('return_order_detail');
 
     return $rs->row()->qty === NULL ? 0 : $rs->row()->qty;

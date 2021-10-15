@@ -487,3 +487,55 @@ function set_wms_warehouse(wms_wh_code) {
 		}
 	})
 }
+
+
+function toggleSyncStock(option) {
+
+	$('#sync-chatbot-stock').val(option);
+
+	if(option == 1) {
+		$('#btn-stock-off').removeClass('btn-danger');
+		$('#btn-stock-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-stock-on').removeClass('btn-success');
+		$('#btn-stock-off').addClass('btn-danger');
+		return;
+	}
+}
+
+function toggleLogJson(option) {
+
+	$('#chatbot-log-json').val(option);
+
+	if(option == 1) {
+		$('#btn-log-off').removeClass('btn-danger');
+		$('#btn-log-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-log-on').removeClass('btn-success');
+		$('#btn-log-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
+
+$('#chatbot-warehouse').autocomplete({
+	source: BASE_URL + 'auto_complete/get_warehouse_by_role/1',
+	autoFocus:true,
+	close:function(){
+		let rs = $(this).val();
+		let arr = rs.split(' | ');
+
+		if(arr[0] === 'not found'){
+			$(this).val('');
+		}else{
+			$(this).val(arr[0]);
+		}
+	}
+})

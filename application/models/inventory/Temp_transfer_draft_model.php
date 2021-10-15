@@ -128,7 +128,7 @@ class Temp_transfer_draft_model extends CI_Model
       }
     }
 
-    $this->mc->order_by('U_ECOMNO', 'DESC');
+    $this->mc->order_by('DocDate', 'DESC')->order_by('U_ECOMNO', 'DESC');
 
     if(!empty($perpage))
     {

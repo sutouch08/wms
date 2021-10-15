@@ -10,7 +10,9 @@ class Orders extends PS_Controller
   public $filter;
   public $error;
   public $isAPI;
-	public $wms;
+	public $wms; //--- wms database;
+	public $logs; //--- logs database;
+  public $sync_chatbot_stock = FALSE;
   public $log_delete = TRUE;
 
   public function __construct()
@@ -293,6 +295,9 @@ class Orders extends PS_Controller
   public function add_detail($order_code)
   {
     $auz = getConfig('ALLOW_UNDER_ZERO');
+		$this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
+		$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
+		$sync_stock = array();
     $result = TRUE;
     $err = "";
     $err_qty = 0;
@@ -332,7 +337,7 @@ class Orders extends PS_Controller
 
               if($order->role == 'S')
               {
-                $discount = $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add);
+                $discount = $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add, $order->code);
               }
 
               if($order->role == 'C' OR $order->role == 'N')
@@ -392,9 +397,13 @@ class Orders extends PS_Controller
               }
               else
               {
-                if($item->count_stock == 1 && $item->is_api == 1)
+								//---- update chatbot stock
+                if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
                 {
-                  $this->update_api_stock($item->code, $item->old_code);
+									if($order->warehouse_code == $chatbot_warehouse_code)
+									{
+										$sync_stock[] = $item->code;
+									}
                 }
               }
 
@@ -415,7 +424,7 @@ class Orders extends PS_Controller
               //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
               if($order->role == 'S')
               {
-                $discount 	= $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add);
+                $discount 	= $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add, $order->code);
               }
 
 
@@ -438,9 +447,15 @@ class Orders extends PS_Controller
               }
               else
               {
-                if($item->count_stock == 1 && $item->is_api == 1)
+								//---- update chatbot stock
+                if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
                 {
-                  $this->update_api_stock($item->code, $item->old_code);
+									if($order->warehouse_code == $chatbot_warehouse_code)
+									{
+										$sync_stock[] = $item->code;
+										// $inventory = $this->get_sell_stock($item->code, $chatbot_warehouse_code);
+										// array_push($sync_stock, array('productCode' => $item->code, 'inventory' => $inventory));
+									}
                 }
               }
 
@@ -453,6 +468,11 @@ class Orders extends PS_Controller
           } 	//--- if getStock
         }	//--- if qty > 0
       }
+
+			if($this->sync_chatbot_stock && !empty($sync_stock))
+			{
+				$this->update_chatbot_stock($sync_stock);
+			}
 
       if($result === TRUE)
       {
@@ -504,6 +524,29 @@ class Orders extends PS_Controller
                 $this->orders_model->log_delete($arr);
               }
 
+							$this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
+
+							$sync_stock = array();
+
+							if($this->sync_chatbot_stock && $detail->is_count == 1)
+							{
+								$item = $this->products_model->get($detail->product_code);
+								if(!empty($item))
+								{
+									if($item->is_api == 1)
+									{
+										$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
+										$arr = array($item->code);
+											// array(
+											// 	'productCode' => $item->code,
+											// 	'inventory' => $this->get_sell_stock($item->code, $chatbot_warehouse_code)
+											// )
+										//);
+
+										$this->update_chatbot_stock($arr);
+									}
+								}
+							}
             }
 					}
 
@@ -2117,8 +2160,7 @@ class Orders extends PS_Controller
 
 
 
-  public function order_state_chan
-	ge()
+  public function order_state_change()
   {
     $sc = TRUE;
     if($this->input->post('order_code'))
@@ -2738,6 +2780,50 @@ class Orders extends PS_Controller
           }
         }
       }
+
+			if($sc === TRUE)
+			{
+				//--- update chatbot stock
+        $this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
+
+				if($this->sync_chatbot_stock)
+				{
+					$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
+					$order = $this->orders_model->get($code);
+					$warehouse_code = empty($order) ? "" : $order->warehouse_code;
+
+					if($chatbot_warehouse_code == $warehouse_code)
+					{
+						$details = $this->orders_model->get_order_details($code);
+
+						if(!empty($details))
+						{
+
+							$sync_stock = array();
+
+							foreach($details as $detail)
+							{
+								if($detail->is_count == 1)
+								{
+									$item = $this->products_model->get($detail->product_code);
+									if(!empty($item) && $item->is_api)
+									{
+										$sync_stock[] = $item->code;
+										// $qty = $this->get_sell_stock($item->code, $chatbot_warehouse_code);
+										// array_push($sync_stock, array("productCode" => $item->code, "inventory" => $qty));
+									}
+								}
+							}
+
+							if(!empty($sync_stock))
+							{
+								$this->update_chatbot_stock($sync_stock);
+							}
+						}
+					}
+
+				}
+			}
     }
 
 
@@ -2867,24 +2953,6 @@ class Orders extends PS_Controller
 
 			if(!empty($order))
 			{
-				// //---- ถ้าเปิดบิลแล้ว check Do
-				// if($order->state == 8)
-				// {
-				//
-				// 	//---
-	      //   if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
-	      //   {
-				// 		$this->load->model('inventory/transfer_model');
-				// 		$sap = $this->transfer_model->get_sap_transfer_doc($code);
-				// 		if(! empty($sap))
-				// 		{
-				// 			$sc = FALSE;
-				// 			$this->error = "กรุณายกเลิกเอกสารใน SAP ก่อน";
-				// 		}
-	      //   }
-				// }
-
-
 				if($sc === TRUE)
 				{
 					//--- check status wms is shipped ?
@@ -3292,7 +3360,7 @@ class Orders extends PS_Controller
   }
 
 
-  public function update_api_stock($code, $old_code)
+  public function update_web_stock($code, $old_code)
   {
     if(getConfig('SYNC_WEB_STOCK') == 1)
     {
@@ -3302,6 +3370,17 @@ class Orders extends PS_Controller
       $this->api->update_web_stock($item, $qty);
     }
   }
+
+	public function update_chatbot_stock(array $ds = array())
+  {
+    if($this->sync_chatbot_stock && !empty($ds))
+    {
+			$this->logs = $this->load->database('logs', TRUE);
+      $this->load->library('chatbot_api');
+      $this->chatbot_api->sync_stock($ds);
+    }
+  }
+
 
   public function clear_filter()
   {

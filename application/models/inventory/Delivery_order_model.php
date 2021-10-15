@@ -37,8 +37,9 @@ class Delivery_order_model extends CI_Model
 
     if(!empty($ds['customer']))
     {
-      $this->db->group_start();
-      $this->db->like('customers.name', $ds['customer']);
+			$this->db->group_start();
+			$this->db->like('orders.customer_code', $ds['customer']);
+      $this->db->or_like('customers.name', $ds['customer']);
       $this->db->or_like('orders.customer_ref', $ds['customer']);
       $this->db->group_end();
     }
@@ -102,7 +103,8 @@ class Delivery_order_model extends CI_Model
     if(!empty($ds['customer']))
     {
       $this->db->group_start();
-      $this->db->like('customers.name', $ds['customer']);
+			$this->db->like('orders.customer_code', $ds['customer']);
+      $this->db->or_like('customers.name', $ds['customer']);
       $this->db->or_like('orders.customer_ref', $ds['customer']);
       $this->db->group_end();
     }

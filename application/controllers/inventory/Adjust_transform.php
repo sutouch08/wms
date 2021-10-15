@@ -31,7 +31,7 @@ class Adjust_transform extends PS_Controller
       'reference'  => get_filter('reference', 'tf_reference', ''),
       'user'      => get_filter('user', 'tf_user', ''),
       'from_date' => get_filter('from_date', 'tf_from_date', ''),
-      'to_date'   => get_filter('from_date', 'tf_to_date', ''),
+      'to_date'   => get_filter('to_date', 'tf_to_date', ''),
       'remark' => get_filter('remark', 'tf_remark', ''),
       'status' => get_filter('status', 'tf_status', 'all')
     );
@@ -296,6 +296,8 @@ class Adjust_transform extends PS_Controller
                     {
                       //--- begin transection
                       $this->db->trans_commit();
+
+											$export = $this->do_export($code);
                     }
                     else
                     {
@@ -303,7 +305,6 @@ class Adjust_transform extends PS_Controller
                       $this->db->trans_rollback();
                     }
 
-                    $export = $this->do_export($code);
 
                   }
                   else
@@ -576,24 +577,31 @@ class Adjust_transform extends PS_Controller
         {
 
           $no = 1;
+					$total_issue = 0;
           $total_qty = 0;
           $total_in_zone = 0;
 					$total_bill_qty = 0;
           foreach($details as $rs)
           {
+						$issue_qty = $this->adjust_transform_model->get_sum_issued_qty($transform_code, $rs->product_code); //---จำนวนที่เคยตัดไปแล้วด้วย WQ นี้
             $in_zone = $this->stock_model->get_stock_zone($doc->from_zone, $rs->product_code);
-						$qty = $in_zone < $rs->qty ? $in_zone : $rs->qty;
+						$qty = $rs->qty - $issue_qty;
+						$qty = $qty > 0 ? $qty : 0;
+						$qty = $in_zone < $qty ? $in_zone : $qty;
+
             $arr = array(
               'no' => $no,
               'pdCode' => $rs->product_code,
               'pdName' => $rs->product_name,
               'bill_qty' => number(round($rs->qty,2)),
+							'issued_qty' => number(round($issue_qty, 2)),
 							'qty' => round($qty,2),
               'in_zone_qty' => number(round($in_zone,2)),
-              'hilight' => ($in_zone < $rs->qty) ? 'red' : ''
+              'hilight' => ($in_zone < $qty) ? 'red' : ''
             );
 
             $no++;
+						$total_issue += $issue_qty;
             $total_qty += $qty;
             $total_in_zone += $in_zone;
 						$total_bill_qty += $rs->qty;
@@ -603,6 +611,7 @@ class Adjust_transform extends PS_Controller
 
           $arr = array(
 						'total_bill_qty' => $total_bill_qty,
+						'total_issue_qty' => $total_issue,
             'total_qty' => $total_qty,
             'total_in_zone' => $total_in_zone
           );

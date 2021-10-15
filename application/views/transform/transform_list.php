@@ -138,7 +138,8 @@
 					<th class="width-10 middle text-center">วันที่</th>
 					<th class="width-20 middle">เลขที่เอกสาร</th>
 					<th class="middle">ลูกค้า</th>
-					<th class="width-10 middle">ยอดเงิน</th>
+					<th class="width-10 middle text-right">จำนวน</th>
+					<th class="width-10 middle text-right">ยอดเงิน</th>
 					<th class="width-10 middle">สถานะ</th>
 				</tr>
 			</thead>
@@ -151,7 +152,10 @@
               <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->customer_name; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
+							<td class="middle text-right pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php echo number($this->transform_model->get_sum_qty($rs->code)); ?>
+							</td>
+              <td class="middle text-right pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
               </td>
             </tr>

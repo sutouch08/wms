@@ -109,7 +109,7 @@
 						<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 							<?php echo $rs->empName; ?>
 						<?php else: ?>
-            	<?php echo $rs->customer_name; ?>
+            	<?php echo $rs->customer_code." | ".$rs->customer_name; ?>
 						<?php endif; ?>
           </td>
 

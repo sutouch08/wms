@@ -287,30 +287,39 @@ class Return_order extends PS_Controller
 
   public function unapprove($code)
   {
+		$sc = TRUE;
     if($this->pm->can_approve)
     {
       //--- check document in SAP
       $sap = $this->return_order_model->get_sap_return_order($code);
 
-      if(!empty($sap))
+      if(empty($sap))
       {
         $this->load->model('approve_logs_model');
 
         if($this->return_order_model->unapprove($code))
         {
           $this->approve_logs_model->add($code, 0, get_cookie('uname'));
-          echo 'success';
         }
         else
         {
-          echo 'ยกเลิกอนุมัติเอกสารไม่สำเร็จ';
+					$sc = FALSE;
+          $this->error = 'ยกเลิกอนุมัติเอกสารไม่สำเร็จ';
         }
       }
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เอกสารเข้า SAP แล้ว กรุณายกเลิกเอกสารใน SAP ก่อน";
+			}
     }
     else
     {
-      echo 'คุณไม่มีสิทธิ์อนุมัติ';
+			$sc = FALSE;
+      $this->error = 'คุณไม่มีสิทธิ์อนุมัติ';
     }
+
+		echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

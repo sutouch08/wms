@@ -9,7 +9,7 @@ class Discount_model extends CI_Model
   }
 
 
-  public function get_item_discount($item_code, $customer_code, $qty, $payment_code, $channels_code, $date = '')
+  public function get_item_discount($item_code, $customer_code, $qty, $payment_code, $channels_code, $date = '', $order_code)
 	{
     $this->load->model('masters/products_model');
     $this->load->model('masters/customers_model');

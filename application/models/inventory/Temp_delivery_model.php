@@ -103,7 +103,7 @@ class Temp_delivery_model extends CI_Model
       }
     }
 
-    $this->mc->order_by('U_ECOMNO', 'DESC');
+    $this->mc->order_by('DocDate', 'DESC')->order_by('U_ECOMNO', 'DESC');
 
     if(!empty($perpage))
     {
@@ -125,7 +125,7 @@ class Temp_delivery_model extends CI_Model
   public function get_detail($docEntry)
   {
     $rs = $this->mc
-    ->select('U_ECOMNO, ItemCode, Dscription, Quantity, BinCode')
+    ->select('LineNum, U_ECOMNO, ItemCode, Dscription, Quantity, BinCode')
     ->where('DocEntry', $docEntry)
     ->get('DLN1');
 
