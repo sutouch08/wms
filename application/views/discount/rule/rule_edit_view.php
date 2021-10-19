@@ -1,6 +1,8 @@
+
 <?php $this->load->view('include/header'); ?>
 <?php $ac = $rule->active == 1 ? 'btn-success' : ''; ?>
 <?php $dc = $rule->active == 0 ? 'btn-danger' : ''; ?>
+<script src="<?php echo base_url(); ?>assets/js/xlsx.full.min.js"></script>
 
 <div class="row top-row">
   <div class="col-sm-6 top-col">

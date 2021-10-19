@@ -81,15 +81,19 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
 						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-style-id-no" onclick="toggleStyleId('N')" disabled>NO</button>
 					</div>
         </div>
-				<div class="col-sm-4 padding-5">
+				<div class="col-sm-2 col-2-harf padding-5">
 					<input type="text" class="option form-control input-sm text-center" id="txt-style-id-box" placeholder="ค้นหารุ่นสินค้า" disabled />
 					<input type="hidden" id="id_style" />
 				</div>
 				<div class="col-sm-1 padding-5">
 					<button type="button" class="option btn btn-xs btn-info btn-block" id="btn-style-id-add" onclick="addStyleId()" disabled><i class="fa fa-plus"></i> เพิ่ม</button>
 				</div>
+				<div class="col-sm-1 col-1-harf padding-5">
+					<button type="button" class="option btn btn-xs btn-info btn-block" id="btn-style-import" onclick="getUploadFile()" disabled><i class="fa fa-upload"></i> import</button>
+				</div>
 				<div class="col-sm-2 padding-5">
 					<span class="form-control input-sm text-center"><span id="psCount"><?php echo $pdStyleNo; ?></span>  รายการ</span>
+					<input type="hidden" id="style-no" value="<?php echo $pdStyleNo; ?>" />
 				</div>
 				<div class="col-sm-1 padding-5">
 					<button type="button" class="option btn btn-xs btn-primary btn-block" id="btn-show-style-name" onclick="showStyleList()">
@@ -237,6 +241,35 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
 		<input type="hidden" id="product_category" value="<?php echo $product_category; ?>" />
 		<input type="hidden" id="product_brand" value="<?php echo $product_brand; ?>" />
     <input type="hidden" id="product_year" value="<?php echo $product_year; ?>" />
+
+		<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		 <div class="modal-dialog" style="width:500px;">
+		   <div class="modal-content">
+		       <div class="modal-header">
+		       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		       <h4 class="modal-title">Import Product Model</h4>
+		      </div>
+		      <div class="modal-body">
+		        <form id="upload-form" name="upload-form" method="post" enctype="multipart/form-data">
+		        <div class="row">
+		          <div class="col-sm-9">
+		            <button type="button" class="btn btn-sm btn-primary btn-block" id="show-file-name" onclick="getFile()">กรุณาเลือกไฟล์ Excel</button>
+		          </div>
+
+		          <div class="col-sm-3">
+		            <button type="button" class="btn btn-sm btn-info" onclick="readExcelFile()"><i class="fa fa-cloud-upload"></i> นำเข้า</button>
+		          </div>
+		        </div>
+		        <input type="file" class="hide" name="uploadFile" id="uploadFile" accept=".xlsx" />
+		        </form>
+		       </div>
+		      <div class="modal-footer">
+
+		      </div>
+		   </div>
+		 </div>
+		</div>
+
 
 </div><!--- Tab-pane --->
 <?php $this->load->view('discount/rule/product_rule_modal'); ?>

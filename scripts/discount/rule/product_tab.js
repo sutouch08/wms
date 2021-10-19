@@ -395,19 +395,8 @@ $('#txt-style-id-box').autocomplete({
 function addStyleId(){
   id = $('#id_style').val();
   psCode = $('#txt-style-id-box').val();
-  if(psCode.length > 0){
-    count = parseInt($('#psCount').text());
-    count++;
-    list  = '<li style="min-height:15px; padding:5px;" id="style-id-'+id+'">';
-    list += '<a href="#" class="paddint-5" onclick="removeStyleId(\''+id+'\')"><i class="fa fa-times red"></i></a>';
-    list += '<span style="margin-left:10px;">'+psCode+'</span>';
-    list += '</li>';
-
-    input = '<input type="hidden" name="styleId['+id+']" id="styleId-'+id+'" class="styleId" value="'+id+'" />';
-    $('#style-list').append(list);
-    $('#style-list').append(input);
-    $('#psCount').text(count);
-
+  if(psCode.length > 0 && id === psCode){
+		addStyle(psCode);
     $('#txt-style-id-box').val('');
     $('#id_style').val('');
     $('#txt-style-id-box').focus();
@@ -415,6 +404,22 @@ function addStyleId(){
 
 }
 
+
+function addStyle(code) {
+	no = parseDefault(parseInt($('#style-no').val()), 0) +1;
+	count = parseInt($('#psCount').text());
+	count++;
+	list  = '<li style="min-height:15px; padding:5px;" id="style-id-'+no+'">';
+	list += '<a href="#" class="paddint-5" onclick="removeStyleId('+no+')"><i class="fa fa-times red"></i></a>';
+	list += '<span style="margin-left:10px;">'+code+'</span>';
+	list += '</li>';
+
+	input = '<input type="hidden" name="styleId['+no+']" id="styleId-'+no+'" class="styleId" value="'+code+'" />';
+	$('#style-list').append(list);
+	$('#style-list').append(input);
+	$('#psCount').text(count);
+	$('#style-no').val(no);
+}
 
 
 function removeStyleId(id){
@@ -495,12 +500,14 @@ function toggleStyleId(option){
     $('#btn-style-id-no').removeClass('btn-primary');
     $('#txt-style-id-box').removeAttr('disabled');
     $('#btn-style-id-add').removeAttr('disabled');
+		$('#btn-style-import').removeAttr('disabled');
 
   }else if(option == 'N'){
     $('#btn-style-id-no').addClass('btn-primary');
     $('#btn-style-id-yes').removeClass('btn-primary');
     $('#txt-style-id-box').attr('disabled', 'disabled');
     $('#btn-style-id-add').attr('disabled', 'disabled');
+		$('#btn-style-import').attr('disabled', 'disabled');
   }
 
   activeProductControl();
@@ -770,3 +777,124 @@ $(document).ready(function() {
   toggleAllProduct(all);
   toggleStyleId(styleId);
 });
+
+
+
+function getUploadFile(){
+	$('#upload-modal').modal('show');
+}
+
+
+
+function getFile(){
+	$('#uploadFile').click();
+}
+
+
+
+
+
+
+
+
+$("#uploadFile").change(function(){
+	if($(this).val() != '')
+	{
+		var file 		= this.files[0];
+		var name		= file.name;
+		var type 		= file.type;
+		var size		= file.size;
+
+		if( size > 5000000 )
+		{
+			swal("ขนาดไฟล์ใหญ่เกินไป", "ไฟล์แนบต้องมีขนาดไม่เกิน 5 MB", "error");
+			$(this).val('');
+			return false;
+		}
+		//readURL(this);
+		$('#show-file-name').text(name);
+	}
+});
+
+
+function readExcelFile() {
+		$('#upload-modal').modal('hide');
+		var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xlsx|.xls)$/;
+	 /*Checks whether the file is a valid excel file*/
+	 if (regex.test($("#uploadFile").val().toLowerCase())) {
+			 var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/
+			 if ($("#uploadFile").val().toLowerCase().indexOf(".xlsx") > 0) {
+					 xlsxflag = true;
+			 }
+			 /*Checks whether the browser supports HTML5*/
+			 if (typeof (FileReader) != "undefined") {
+					 var reader = new FileReader();
+					 reader.onload = function (e) {
+							 var data = e.target.result;
+							 /*Converts the excel data in to object*/
+							 if (xlsxflag) {
+									 var workbook = XLSX.read(data, { type: 'binary' });
+							 }
+							 else {
+									 var workbook = XLS.read(data, { type: 'binary' });
+							 }
+							 /*Gets all the sheetnames of excel in to a variable*/
+							 var sheet_name_list = workbook.SheetNames;
+
+							 var cnt = 0; /*This is used for restricting the script to consider only first sheet of excel*/
+							 sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/
+									 /*Convert the cell value to Json*/
+									 if (xlsxflag) {
+											 var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);
+									 }
+									 else {
+											 var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);
+									 }
+
+									 if (exceljson.length > 0 && cnt == 0) {
+											 addToList(exceljson);
+											 cnt++;
+									 }
+							 });
+					 }
+
+					 if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/
+							 reader.readAsArrayBuffer($("#uploadFile")[0].files[0]);
+					 }
+					 else {
+							 reader.readAsBinaryString($("#uploadFile")[0].files[0]);
+					 }
+			 }
+			 else {
+					 swal({
+						 title:'Error!',
+						 text:"Sorry! Your browser does not support HTML5!",
+						 type:'error'
+					 });
+			 }
+	 }
+	 else {
+			 swal({
+				 title:'Error!',
+				 text:"Please upload a valid Excel file!",
+				 type:'error'
+			 });
+	 }
+}
+
+
+function addToList(jsondata) {
+	if(jsondata.length) {
+		//--- clear current li in style-list
+		$('#style-list li').remove();
+		//--- clear current hidden input list
+		$('.styleId').remove();
+		$('#psCount').text('0');
+
+		for (var i = 0; i < jsondata.length; i++) {
+			console.log(jsondata[i]);
+			var code = $.trim(jsondata[i].Model);
+			addStyle(code);
+		}
+	}
+}

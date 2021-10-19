@@ -15,14 +15,16 @@
 ?>
 <?php $qs = $this->db->query($qr); ?>
 <?php if($qs->num_rows() > 0) : ?>
+<?php  $style_no = 1; ?>
 <?php   foreach($qs->result() as $rs) : ?>
-          <li style="min-height:15px; padding:5px;" id="style-id-<?php echo $rs->code; ?>">
-            <a href="#" class="paddint-5" onclick="removeStyleId('<?php echo $rs->code; ?>')">
+          <li style="min-height:15px; padding:5px;" id="style-id-<?php echo $style_no; ?>">
+            <a href="#" class="paddint-5" onclick="removeStyleId('<?php echo $style_no; ?>')">
               <i class="fa fa-times red"></i>
             </a>
-            <span style="margin-left:10px;"><?php echo $rs->code ?></span>
+            <span style="margin-left:10px;"><?php echo $rs->code; ?></span>
           </li>
-          <input type="hidden" name="styleId[<?php echo $rs->code; ?>]" id="styleId-<?php echo $rs->code; ?>" class="styleId" value="<?php echo $rs->code; ?>" />
+          <input type="hidden" name="styleId[<?php echo $style_no; ?>]" id="styleId-<?php echo $style_no; ?>" class="styleId" value="<?php echo $rs->code; ?>" />
+					<?php $style_no++; ?>
 <?php endforeach; ?>
 <?php endif; ?>
         </ul>
