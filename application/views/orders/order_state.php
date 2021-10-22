@@ -87,18 +87,88 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
       </table>
 	</div>
 
-	<div class="col-sm-1 col-1-harf padding-0 font-size-14 margin-right-10" style="border:solid 1px red; <?php echo state_color($order->state); ?>">
+	<?php if($order->state == 9) : ?><a href="javascript:void(0)" onclick="showReason()"><?php endif; ?>
+	<div class="col-sm-1 col-1-harf padding-0 font-size-14 margin-right-10"	style="border:solid 1px red; <?php echo state_color($order->state); ?>"	>
 		<center>สถานปัจจุบัน</center>
 		<center><?php echo get_state_name($order->state); ?></center>
 	</div>
+	<?php if($order->state == 9) : ?>
+		</a>
+	<?php endif; ?>
 
 <?php if( !empty($state) ) : ?>
   <?php foreach($state as $rs) : ?>
-	<div class="col-sm-1 col-1-harf padding-0 font-size-8" style="<?php echo state_color($rs->state); ?>">
+	<div class="col-sm-1 col-1-harf padding-0 font-size-8" style="<?php echo state_color($rs->state); ?>" >
     <center><?php echo get_state_name($rs->state); ?></center>
     <center><?php echo $this->user_model->get_name($rs->update_user); ?></center>
     <center><?php echo thai_date($rs->date_upd,TRUE, '/'); ?></center>
   </div>
 <?php	endforeach; ?>
 <?php endif; ?>
+</div>
+
+<div class="modal fade" id="cancle-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog" style="width:500px;">
+   <div class="modal-content">
+       <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h4 class="modal-title">เหตุผลในการยกเลิก</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-9">
+            <input type="text" class="form-control input-sm" id="cancle-reason" value=""/>
+          </div>
+          <div class="col-sm-3">
+            <button type="button" class="btn btn-sm btn-info" onclick="doCancle()">ตกลง</button>
+          </div>
+        </div>
+
+       </div>
+      <div class="modal-footer">
+
+      </div>
+   </div>
+ </div>
+</div>
+
+<div class="modal fade" id="cancle-reason-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog" style="width:800px;">
+   <div class="modal-content">
+       <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h4 class="modal-title">เหตุผลในการยกเลิก</h4>
+      </div>
+      <div class="modal-body" style="border-top:solid 1px #CCC; padding:13px; padding-top:0px;">
+        <div class="row">
+          <div class="col-sm-12 no-padding">
+            <table class="table table-bordered">
+							<thead>
+	            	<tr>
+	            		<th class="width-60">เหตุผล</th>
+									<th class="width-20">User</th>
+									<th class="width-20">วันที่ยกเลิก</th>
+	            	</tr>
+							</thead>
+							<tbody>
+							<?php if(!empty($cancle_reason)) : ?>
+								<?php foreach($cancle_reason as $reason) : ?>
+									<tr>
+										<td><?php echo $reason->reason; ?></td>
+										<td><?php echo $this->user_model->get_name($reason->user); ?></td>
+										<td><?php echo thai_date($reason->cancle_date, TRUE); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							<?php else : ?>
+								<tr><td colspan="3" class="text-center">--ไม่ระบุเหตุผล--</td></tr>
+							<?php endif; ?>
+							</tbody>
+            </table>
+          </div>
+        </div>
+
+       </div>
+
+   </div>
+ </div>
 </div>

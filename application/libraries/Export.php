@@ -793,7 +793,7 @@ public function export_transfer($code)
               $line = 0;
               foreach($details as $rs)
               {
-								if($doc->is_wms == 1 && $rs->wms_qty > 0)
+								if($doc->is_wms == 1 && ($rs->wms_qty > 0 OR $doc->api == 0))
 								{
 									$arr = array(
 	                  'DocEntry' => $docEntry,
@@ -801,7 +801,7 @@ public function export_transfer($code)
 	                  'LineNum' => $line,
 	                  'ItemCode' => $rs->product_code,
 	                  'Dscription' => limitText($rs->product_name, 95),
-	                  'Quantity' => $rs->wms_qty,
+	                  'Quantity' => ($doc->api == 1 ? $rs->wms_qty : $rs->qty),
 	                  'unitMsr' => NULL,
 	                  'PriceBefDi' => 0.000000,
 	                  'LineTotal' => 0.000000,

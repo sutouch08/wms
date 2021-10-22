@@ -237,6 +237,7 @@ class Transform_stock extends PS_Controller
     $ds['order'] = $rs;
     $ds['details'] = $details;
 		$ds['addr'] = $this->address_model->get_ship_to_address($rs->customer_code);
+		$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $ds['approve_view'] = $approve_view;
     $this->load->view('transform/transform_edit', $ds);

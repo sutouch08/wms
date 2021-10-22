@@ -614,6 +614,7 @@ class Orders extends PS_Controller
 	    $ds['details'] = $details;
 	    $ds['addr']  = $ship_to;
 	    $ds['banks'] = $banks;
+			$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
 	    $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
 	    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
 	    $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -2168,6 +2169,7 @@ class Orders extends PS_Controller
       $code = $this->input->post('order_code');
       $state = $this->input->post('state');
       $order = $this->orders_model->get($code);
+			$reason = $this->input->post('cancle_reason');
 
       if(! empty($order))
       {
@@ -2276,7 +2278,7 @@ class Orders extends PS_Controller
             }
             else if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason) )
               {
                 $sc = FALSE;
               }
@@ -2287,7 +2289,7 @@ class Orders extends PS_Controller
           {
             if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason) )
               {
                 $sc = FALSE;
               }
@@ -2578,7 +2580,7 @@ class Orders extends PS_Controller
   }
 
 
-  public function cancle_order($code, $role, $state, $is_wms = 0, $wms_export = 0)
+  public function cancle_order($code, $role, $state, $is_wms = 0, $wms_export = 0, $cancle_reason = NULL)
   {
     $this->load->model('inventory/prepare_model');
     $this->load->model('inventory/qc_model');
@@ -2593,13 +2595,26 @@ class Orders extends PS_Controller
 
     $sc = TRUE;
 
+		if(!empty($cancle_reason))
+		{
+			//----- add reason to table order_cancle_reason
+			$reason = array(
+				'code' => $code,
+				'reason' => $cancle_reason,
+				'user' => $this->_user->uname
+			);
+
+			$this->orders_model->add_cancle_reason($reason);
+		}
+
+
     if($sc === TRUE)
 		{
 			if($this->isAPI && $is_wms && $wms_export == 1)
 			{
 				$this->wms = $this->load->database('wms', TRUE);
 				$this->load->library('wms_order_cancle_api');
-				$ex = $this->wms_order_cancle_api->send_data($code);
+				$ex = $this->wms_order_cancle_api->send_data($code, $reason);
 
 				if(! $ex)
 				{
@@ -2947,6 +2962,8 @@ class Orders extends PS_Controller
 	{
 		$sc = TRUE;
 		$code = $this->input->post('order_code');
+		$reason = trim($this->input->post('cancle_reason'));
+
 		if(!empty($code))
 		{
 			$order = $this->orders_model->get($code);
@@ -2961,7 +2978,7 @@ class Orders extends PS_Controller
 					$is_wms = 0; //--- ทำเหมือนว่าไม่เป็นออเดอร์ที่ warrix
 					$wms_export = 0; //--- ทำเหมือนว่าไม่ได้ส่งไป wms
 
-					$rs = $this->cancle_order($code, $order->role, $order->state, $is_wms, $wms_export);
+					$rs = $this->cancle_order($code, $order->role, $order->state, $is_wms, $wms_export, $reason);
 
 					if($rs === TRUE)
 					{

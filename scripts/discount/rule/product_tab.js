@@ -406,19 +406,22 @@ function addStyleId(){
 
 
 function addStyle(code) {
-	no = parseDefault(parseInt($('#style-no').val()), 0) +1;
-	count = parseInt($('#psCount').text());
-	count++;
-	list  = '<li style="min-height:15px; padding:5px;" id="style-id-'+no+'">';
-	list += '<a href="#" class="paddint-5" onclick="removeStyleId('+no+')"><i class="fa fa-times red"></i></a>';
-	list += '<span style="margin-left:10px;">'+code+'</span>';
-	list += '</li>';
+	if(code.length) {
+		no = parseDefault(parseInt($('#style-no').val()), 0) +1;
+		count = parseInt($('#psCount').text());
+		count++;
+		list  = '<li style="min-height:15px; padding:5px;" id="style-id-'+no+'">';
+		list += '<a href="#" class="paddint-5" onclick="removeStyleId('+no+')"><i class="fa fa-times red"></i></a>';
+		list += '<span style="margin-left:10px;">'+code+'</span>';
+		list += '</li>';
 
-	input = '<input type="hidden" name="styleId['+no+']" id="styleId-'+no+'" class="styleId" value="'+code+'" />';
-	$('#style-list').append(list);
-	$('#style-list').append(input);
-	$('#psCount').text(count);
-	$('#style-no').val(no);
+		input = '<input type="hidden" name="styleId['+no+']" id="styleId-'+no+'" class="styleId" value="'+code+'" />';
+		$('#style-list').append(list);
+		$('#style-list').append(input);
+		$('#psCount').text(count);
+		$('#style-no').val(no);
+	}
+
 }
 
 
@@ -892,7 +895,7 @@ function addToList(jsondata) {
 		$('#psCount').text('0');
 
 		for (var i = 0; i < jsondata.length; i++) {
-			console.log(jsondata[i]);
+			//console.log(jsondata[i]);
 			var code = $.trim(jsondata[i].Model);
 			addStyle(code);
 		}

@@ -435,6 +435,7 @@ function changeState(){
 		var trackingNo = $('#trackingNo').val();
 		var tracking = $('#tracking').val();
 		var is_wms = $('#is_wms').val();
+		var cancle_reason = $.trim($('#cancle-reason').val());
 
 		if(is_wms) {
 			if(state == 3 && id_address == "") {
@@ -460,6 +461,11 @@ function changeState(){
 			}
 		}
 
+		if(state == 9 && cancle_reason == "") {
+			$('#cancle-modal').modal('show');
+			return false;
+		}
+
     if( state != 0){
 			load_in();
         $.ajax({
@@ -471,7 +477,8 @@ function changeState(){
               "state" : state,
 							"id_address" : id_address,
 							"id_sender" : id_sender,
-							"tracking" : tracking
+							"tracking" : tracking,
+							"cancle_reason" : cancle_reason
             },
             success:function(rs){
 							load_out();
@@ -511,6 +518,26 @@ function changeState(){
     }
 }
 
+
+function doCancle() {
+	$('#cancle-modal').modal('hide');
+	if($.trim($('#cancle-reason').val()) == "") {
+		return false;
+	}
+
+	return changeState();
+}
+
+
+
+$('#cancle-modal').on('shown.bs.modal', function() {
+	$('#cancle-reason').focus();
+});
+
+
+function showReason() {
+	$('#cancle-reason-modal').modal('show');
+}
 
 
 function setNotExpire(option){

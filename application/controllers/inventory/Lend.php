@@ -225,6 +225,7 @@ class Lend extends PS_Controller
     $ds['order'] = $rs;
     $ds['details'] = $details;
 		$ds['addr'] = $this->address_model->get_ship_to_address($rs->empID);
+		$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $this->load->view('lend/lend_edit', $ds);

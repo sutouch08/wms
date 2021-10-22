@@ -53,10 +53,18 @@ class Temp_transfer extends PS_Controller
   {
     $this->load->model('stock/stock_model');
     $detail = $this->temp_transfer_model->get_detail($DocEntry);
+		$code = "";
+
     if(!empty($detail))
     {
+			$i = 0;
       foreach($detail as $rs)
       {
+				if($i === 0)
+				{
+					$code = $rs->U_ECOMNO;
+				}
+				
         $rs->onhand = $this->stock_model->get_stock_zone($rs->F_FROM_BIN, $rs->ItemCode);
       }
     }

@@ -20,6 +20,7 @@
       <tbody>
         <?php if(!empty($details)) : ?>
           <?php $no = 1; ?>
+					<?php $total_qty = 0; ?>
           <?php foreach($details as $rs) : ?>
 
             <tr>
@@ -30,7 +31,13 @@
 							<td></td>
             </tr>
             <?php $no++; ?>
+						<?php $total_qty += $rs->qty; ?>
           <?php endforeach; ?>
+					<tr>
+						<td colspan="3" class="middle text-right">Total</td>
+						<td class="middle text-right"><?php echo number($total_qty); ?></td>
+						<td></td>
+					</tr>
         <?php endif; ?>
       </tbody>
     </table>

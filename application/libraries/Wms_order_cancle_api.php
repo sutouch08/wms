@@ -21,7 +21,7 @@ class Wms_order_cancle_api
   }
 
 
-	public function send_data($code)
+	public function send_data($code, $reason = NULL)
 	{
 		$sc = TRUE;
 

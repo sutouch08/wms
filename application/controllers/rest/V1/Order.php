@@ -627,7 +627,7 @@ class Order extends REST_Controller
 			return FALSE;
     }
 
-    if(! property_exists($data, 'payment_method') OR ($data->payment_method != "TRANSFER" && $data->payment_method != "COD"))
+    if(! property_exists($data, 'payment_method') OR ($data->payment_method != "TRANSFER" && $data->payment_method != "COD" && $data->payment_method != '2C2P'))
     {
       $this->error = 'Invalic payment_method code';
 			return FALSE;
@@ -655,6 +655,11 @@ class Order extends REST_Controller
 				$customer_code = "CLON02-0002";
 			}
 
+			if($data->channels == "Line@" && $data->payment_method == "2C2P")
+			{
+				$customer_code = "CLON03-0002";
+			}
+
 			if($data->channels == "PAGE" && $data->payment_method == "TRANSFER")
 			{
 				$customer_code = "CLON05-0001";
@@ -663,6 +668,11 @@ class Order extends REST_Controller
 			if($data->channels == "PAGE" && $data->payment_method == "COD")
 			{
 				$customer_code = "CLON05-0002";
+			}
+
+			if($data->channels == "PAGE" && $data->payment_method == "2C2P")
+			{
+				$customer_code = "CLON03-0002";
 			}
 
 			if($data->customer_code != $customer_code)

@@ -145,7 +145,7 @@ class Temp_transfer_model extends CI_Model
   public function get_detail($DocEntry)
   {
     $rs = $this->mc
-    ->select('ItemCode, Dscription, Quantity, F_FROM_BIN, F_TO_BIN')
+    ->select('U_ECOMNO, ItemCode, Dscription, Quantity, F_FROM_BIN, F_TO_BIN')
     ->where('DocEntry', $DocEntry)
     ->get('WTR1');
 

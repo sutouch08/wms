@@ -45,6 +45,19 @@ class Orders_model extends CI_Model
   }
 
 
+	public function get_cancle_reason($code)
+	{
+		$rs = $this->db->where('code', $code)->get('order_cancle_reason');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
 
   public function add_detail(array $ds = array())
   {
@@ -56,6 +69,16 @@ class Orders_model extends CI_Model
     return FALSE;
   }
 
+
+	public function add_cancle_reason(array $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->insert('order_cancle_reason', $ds);
+		}
+
+		return FALSE;
+	}
 
 
 

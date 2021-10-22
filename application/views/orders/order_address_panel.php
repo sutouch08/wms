@@ -153,6 +153,32 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 	</div>
 </div>
 <hr class="padding-5"/>
+
+<div class="modal fade" id="cancle-shipped-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog" style="width:500px;">
+   <div class="modal-content">
+       <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h4 class="modal-title">เหตุผลในการยกเลิก</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-9">
+            <input type="text" class="form-control input-sm" id="cancle-shipped-reason" value=""/>
+          </div>
+          <div class="col-sm-3">
+            <button type="button" class="btn btn-sm btn-info" onclick="cancle_order_shipped()">ตกลง</button>
+          </div>
+        </div>
+
+       </div>
+      <div class="modal-footer">
+
+      </div>
+   </div>
+ </div>
+</div>
+
 <script>
 function update_wms_status() {
 	const order_code = $('#order_code').val();
@@ -200,37 +226,57 @@ function cancle_shipped_order() {
 		html:true,
 		closeOnConfirm: true,
 		}, function(){
-			const order_code = $('#order_code').val();
-			if(order_code !== "" && order_code !== undefined) {
-				load_in();
-				$.ajax({
-					url:BASE_URL + 'orders/orders/cancle_wms_shipped_order',
-					type:'POST',
-					cache:false,
-					data:{
-						"order_code" : order_code
-					},
-					success:function(rs) {
-						load_out();
-						if(rs === 'success') {
-							swal({
-								title:'Success',
-								type:'success',
-								timer:1000
-							});
-
-							setTimeout(function(){
-								window.location.reload();
-							}, 1200);
-						}
-						else {
-							swal(rs);
-						}
-					}
-				})
-			}
+			$('#cancle-shipped-modal').modal('show');
 	});
 }
+
+
+//--
+function cancle_order_shipped() {
+	$('#cancle-shipped-modal').modal('hide');
+	const order_code = $('#order_code').val();
+	const reason = $.trim($('#cancle-shipped-reason').val());
+
+	if(reason == "") {
+		$('#cancle-shipped-modal').modal('show');
+		return false;
+	}
+
+
+	if(order_code !== "" && order_code !== undefined) {
+		load_in();
+		$.ajax({
+			url:BASE_URL + 'orders/orders/cancle_wms_shipped_order',
+			type:'POST',
+			cache:false,
+			data:{
+				"order_code" : order_code,
+				"cancle_reason" : reason
+			},
+			success:function(rs) {
+				load_out();
+				if(rs === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal(rs);
+				}
+			}
+		})
+	}
+}
+
+$('#cancle-shipped-modal').on('shown.bs.modal', function() {
+	$('#cancle-shipped-reason').focus();
+});
 
 
 function send_return_request() {
