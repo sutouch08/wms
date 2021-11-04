@@ -6,7 +6,7 @@
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
-<div class="row" style="margin-top:30px;">
+<div class="row">
 	<div class="col-sm-2 col-xs-6 padding-5">
 		<label>เลขที่เอกสาร</label>
 		<input type="text" class="form-control input-sm search-box" name="code" value="<?php echo $code; ?>"/>

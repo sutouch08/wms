@@ -406,6 +406,7 @@ class Receive_po extends PS_Controller
     {
       $this->load->model('inventory/movement_model');
       $code = $this->input->post('receive_code');
+			$reason = $this->input->post('reason');
 
       //---- check doc status is open or close
       //---- if closed user cannot cancle document
@@ -415,6 +416,7 @@ class Receive_po extends PS_Controller
         $this->db->trans_start();
         $this->receive_po_model->cancle_details($code);
         $this->receive_po_model->set_status($code, 2); //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
+				$this->receive_po_model->set_cancle_reason($code, $reason);
         $this->movement_model->drop_movement($code);
         $this->db->trans_complete();
 
@@ -497,7 +499,7 @@ class Receive_po extends PS_Controller
 	        $no++;
 	        $totalQty += $rs->Quantity;
 	        $totalBacklog += $rs->OpenQty;
-				}        
+				}
       }
 
       $arr = array(

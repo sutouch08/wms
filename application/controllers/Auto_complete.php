@@ -505,6 +505,58 @@ public function get_prepare_item_code()
 
 
 
+	public function get_common_zone_code_and_name($warehouse = NULL)
+  {
+    $sc = array();
+    $txt = $_REQUEST['term'];
+    $this->db
+		->select('zone.code AS code, zone.name AS name')
+		->from('zone')
+		->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
+		->where_in('warehouse.role', array(1, 3, 4, 5))
+		->where('warehouse.active', 1);
+
+    if(!empty($warehouse))
+    {
+      $warehouse = urldecode($warehouse);
+      $arr = explode('|', $warehouse);
+      $this->db->where_in('zone.warehouse_code', $arr);
+    }
+
+    if($txt != '*')
+    {
+      $this->db
+      ->group_start()
+      ->like('zone.code', $txt)
+      ->or_like('zone.old_code', $txt)
+      ->or_like('zone.name', $txt)
+      ->group_end();
+    }
+
+    $this->db
+    ->order_by('zone.warehouse_code', 'ASC')
+    ->order_by('zone.code', 'ASC')
+    ->limit(20);
+
+    $rs = $this->db->get();
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $zone)
+      {
+        $sc[] = $zone->code.' | '.$zone->name;
+      }
+    }
+    else
+    {
+      $sc[] = 'ไม่พบรายการ';
+    }
+
+    echo json_encode($sc);
+  }
+
+
+
   public function get_zone_code()
   {
     $sc = array();
@@ -1055,6 +1107,41 @@ public function get_prepare_item_code()
 
     echo json_encode($sc);
   }
+
+
+	public function get_sap_invoice_code($customer_code)
+	{
+		$txt = trim($_REQUEST['term']);
+		$sc = array();
+
+		$this->ms
+		->select('DocNum, U_ECOMNO')
+		->where('CardCode', $customer_code)
+		->where('CANCELED', 'N')
+		->where('DocStatus', 'O');
+
+		if($txt != '*')
+		{
+			$this->ms->like('DocNum', $txt);
+		}
+
+		$this->ms->order_by('DocNum', 'DESC')->limit(20);
+		$rs = $this->ms->get('OINV');
+
+		if($rs->num_rows() > 0)
+		{
+			foreach($rs->result() as $row)
+			{
+				$sc[] = $row->DocNum .' | '.$row->U_ECOMNO;
+			}
+		}
+		else
+		{
+			$sc[] = "not found";
+		}
+
+		echo json_encode($sc);
+	}
 
 } //-- end class
 ?>

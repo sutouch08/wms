@@ -155,6 +155,17 @@ class Temp_delivery_model extends CI_Model
     return NULL;
   }
 
+
+	public function delete_temp_details($id)
+	{
+		return $this->mc->where('DocEntry', $id)->delete('DLN1');
+	}
+
+	public function delete_temp($id)
+	{
+		return $this->mc->where('DocEntry', $id)->delete('ODLN');
+	}
+
 } //--- end model
 
 ?>

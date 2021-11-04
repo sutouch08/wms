@@ -59,4 +59,42 @@ function select_sell_warehouse($se = NULL)
 }
 
 
+function select_consignment_warehouse($se = NULL)
+{
+	$sc = "";
+	$ci =& get_instance();
+	$ci->load->model('masters/warehouse_model');
+	$option = $ci->warehouse_model->get_consignment_list();
+
+	if(!empty($option))
+	{
+		foreach($option as $rs)
+		{
+			$sc .= '<option value="'.$rs->code.'" '.is_selected($se, $rs->code).'>'.$rs->name.'</option>';
+		}
+	}
+
+	return $sc;
+}
+
+
+function select_common_warehouse($se = NULL)
+{
+	$sc = "";
+	$ci =& get_instance();
+	$ci->load->model('masters/warehouse_model');
+	$option = $ci->warehouse_model->get_common_list();
+
+	if(!empty($option))
+	{
+		foreach($option as $rs)
+		{
+			$sc .= '<option value="'.$rs->code.'" '.is_selected($se, $rs->code).'>'.$rs->name.'</option>';
+		}
+	}
+
+	return $sc;
+}
+
+
  ?>

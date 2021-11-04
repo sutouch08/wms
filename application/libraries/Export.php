@@ -1794,7 +1794,7 @@ public function export_return_consignment($code)
           $vat_code = getConfig('SALE_VAT_CODE');
 					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
           $total_amount = $this->ci->return_consignment_model->get_total_return($code);
-          $invoice = $this->ci->return_consignment_model->get_all_invoice($code);
+          //$invoice = $this->ci->return_consignment_model->get_all_invoice($code);
 
           $ds = array(
             'DocType' => 'I',
@@ -1816,7 +1816,7 @@ public function export_return_consignment($code)
             'U_BOOKCODE' => $doc->bookcode,
             'F_E_Commerce' => 'A',
             'F_E_CommerceDate' => now(),
-            'U_OLDINV' => getAllInvoiceText($invoice)
+            'U_OLDINV' => $doc->invoice //getAllInvoiceText($invoice)
           );
 
           $this->ci->mc->trans_begin();
@@ -1840,7 +1840,7 @@ public function export_return_consignment($code)
                   'ItemCode' => $rs->product_code,
                   'Dscription' => limitText($rs->product_name, 95),
                   'Quantity' => $rs->qty,
-                  'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
+                  'unitMsr' => $rs->unit_code,
                   'PriceBefDi' => remove_vat($rs->price),
                   'LineTotal' => remove_vat($rs->amount),
                   'ShipDate' => $date_add,

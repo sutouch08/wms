@@ -50,17 +50,17 @@
 		</div>
 
 		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-			<label>ช่องทางการรับ</label>
+			<label>รับที่</label>
 			<select class="form-control input-sm edit" name="is_wms" id="is_wms" disabled>
-				<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</optoin>
+				<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</optoin>
 				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
 			</select>
 		</div>
 
 		<div class="col-sm-1 col-xs-6 padding-5">
-			<label>WMS Interface</label>
+			<label>Interface</label>
 			<select class="form-control input-sm edit" name="api" id="api" disabled>
-				<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
+				<option value="1" <?php echo is_selected('1', $doc->api); ?>>ส่ง</option>
 				<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
 			</select>
 		</div>
@@ -121,8 +121,8 @@
 <hr class=""/>
 <form id="detailsForm" method="post" action="<?php echo $this->home.'/add_details/'.$doc->code; ?>">
 <div class="row">
-	<div class="col-sm-12">
-		<table class="table table-striped border-1" style="margin-bottom:0px;">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
+		<table class="table table-striped border-1" style="margin-bottom:0px; min-width:1200px;">
 			<thead>
 				<tr>
 					<th class="width-5 text-center">ลำดับ</th>
@@ -191,18 +191,17 @@
 ?>
 <?php  endforeach; ?>
 <?php endif; ?>
+				<tr>
+					<td colspan="9" class="middle text-right">รวม</td>
+					<td class="middle text-right" id="total-qty"><?php echo number($total_qty); ?></td>
+					<td class="middle text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
+					<td class=""></td>
+				</tr>
 			</tbody>
 		</table>
 	</div>
 </div>
-<table class="table border-1">
-	<tr>
-		<td class="middle width-75 text-right">รวม</td>
-		<td class="middle widht-10 text-right" id="total-qty"><?php echo number($total_qty); ?></td>
-		<td class="middle width-10 text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
-		<td class="width-5"></td>
-	</tr>
-</table>
+
 </form>
 
 

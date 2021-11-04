@@ -83,9 +83,8 @@
 <?php if(!empty($orders))  : ?>
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
-
-        <tr class="font-size-12">
-          <td class="middle text-center"><?php echo $no; ?></td>
+        <tr class="font-size-12" id="row-<?php echo $no; ?>">
+          <td class="middle text-center no"><?php echo $no; ?></td>
 
           <td class="middle text-center"><?php echo thai_date($rs->DocDate); ?></td>
 
@@ -137,8 +136,11 @@
 						<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-
-
+						<?php if(($rs->F_Sap === 'N' OR $rs->F_Sap == NULL)) : ?>
+							<button type="button" class="btn btn-minier btn-danger" onclick="deleteTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>', <?php echo $no; ?>)">
+								<i class="fa fa-trash"></i>
+							</button>
+						<?php endif; ?>
 					</td>
         </tr>
 <?php  $no++; ?>

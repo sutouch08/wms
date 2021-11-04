@@ -282,6 +282,12 @@ class Receive_po_model extends CI_Model
   }
 
 
+	public function set_cancle_reason($code, $reason)
+	{
+		return $this->db->set('cancle_reason', $reason)->where('code', $code)->update('receive_product');
+	}
+
+
 
   public function count_rows(array $ds = array())
   {

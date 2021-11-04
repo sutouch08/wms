@@ -36,6 +36,17 @@ class Wms_temp_receive_model extends CI_Model
 	}
 
 
+	public function update($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->wms->where('id', $id)->update($this->tb, $ds);
+		}
+
+		return FALSE;
+	}
+
+
 	public function is_exists($code)
 	{
 		$rs = $this->wms->where('status', 0)->where('code', $code)->count_all_results($this->tb);

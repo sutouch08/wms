@@ -49,6 +49,10 @@ class Wms_auto_receive extends CI_Controller
 						$this->return_order($data);
 						break;
 
+					case 'CN' :
+						$this->return_consignment($data);
+						break;
+
 					case 'WR' :
 						$this->receive_po($data);
 						break;
@@ -60,6 +64,7 @@ class Wms_auto_receive extends CI_Controller
 					case 'WX' :
 						$this->consign_check($data);
 						break;
+
 					case 'RC' :
 						$this->check_return($data);
 						break;
@@ -94,6 +99,10 @@ class Wms_auto_receive extends CI_Controller
 
 					case 'SM' :
 						$sc = $this->return_order($data);
+						break;
+
+					case 'CN' :
+						$this->return_consignment($data);
 						break;
 
 					case 'WR' :
@@ -411,6 +420,154 @@ class Wms_auto_receive extends CI_Controller
 					if($sc === TRUE)
 					{
 						$this->export_return($order->code);
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->wms_temp_receive_model->update_status($order->code, 3, "No Items In Order List");
+					$this->wms_receive_import_logs_model->add($order->code, 'E', "No Items In Order List");
+				}
+			}
+		}
+		else
+		{
+			$this->wms_temp_receive_model->update_status($code, 3, "Order not found");
+			$this->wms_receive_import_logs_model->add($code, 'E', "Order not found");
+		}//--- end if !empty($order)
+
+		return $sc;
+	}
+
+
+
+	private function return_consignment($data)
+	{
+		$this->load->model('inventory/return_consignment_model');
+		$code = $data->code;
+		$order = $this->return_consignment_model->get($code);
+
+		if(!empty($order))
+		{
+			$sc = TRUE;
+
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+
+			if($order->status == 1)
+			{
+				$sc = FALSE;
+				$this->error = "Document already received";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else if($order->status == 2)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid status : Document already canceled";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else if($order->status == 0)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid status : Document not saved";
+				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+			}
+			else
+			{
+				$details = $this->wms_temp_receive_model->get_details($data->id);
+
+				if(!empty($details))
+				{
+
+					$this->db->trans_begin();
+
+					foreach($details as $rs)
+					{
+						if($rs->qty > 0 && $sc === TRUE)
+						{
+							$rows = $this->return_consignment_model->get_detail_by_product($order->code, $rs->product_code);
+
+							if(!empty($rows))
+							{
+								$temp_qty = $rs->qty;
+
+								foreach($rows as $row)
+								{
+									if($temp_qty > 0)
+									{
+										$qty = ($temp_qty > $row->qty) ? $row->qty : $temp_qty; //--- รับได้ไม่เกินจากที่เอกสารกำหนด
+										$disc_amount = $row->discount_percent == 0 ? 0 : $qty * ($row->price * ($row->discount_percent * 0.01));
+										$amount = ($qty * $row->price) - $disc_amount;
+
+										$arr = array(
+											'receive_qty' => round($qty, 2),
+											'amount' => $amount,
+											'vat_amount' => get_vat_amount($amount),
+											'valid' => 1
+										);
+
+
+										if($this->return_consignment_model->update_detail($row->id, $arr) === FALSE)
+										{
+											$sc = FALSE;
+											$this->error = 'Update detail failed';
+											break;
+										}
+
+										$temp_qty -= $qty;
+									}
+								}
+
+							} //---
+						}//--- end if qty > 0
+					} //--- end foreach
+
+					//--- update noncount items
+					$noncount = $this->return_consignment_model->get_non_count_details($order->code);
+
+					if(!empty($noncount))
+					{
+						foreach($noncount as $rs)
+						{
+							$arr = array(
+								'receive_qty' => round($rs->qty),
+								'valid' => 1
+							);
+
+							$this->return_consignment_model->update_detail($rs->id, $arr);
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						//--- เปลี่ยนสถานะเอกสาร
+						$arr = array(
+							'shipped_date' => $date_add,
+							'status' => 1,
+							'is_complete' => 1
+						);
+
+						$this->return_consignment_model->update($order->code, $arr);
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+						$this->wms_receive_import_logs_model->add($order->code, 'S', 'success');
+						$this->wms_temp_receive_model->update_status($order->code, 1, 'success');
+					}
+					else
+					{
+						$this->db->trans_rollback();
+						$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
+						$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
+					}
+
+					if($sc === TRUE)
+					{
+						$this->export_return_consignment($order->code);
 					}
 				}
 				else
@@ -983,7 +1140,7 @@ class Wms_auto_receive extends CI_Controller
 					{
 						if($rs->qty > 0 && $sc === TRUE)
 						{
-							$id = $this->consign_check_model->get_detail_by_product($order->code, $rs->product_code);
+							$id = $this->consign_check_model->get_detail_id_by_product($order->code, $rs->product_code);
 							if(!empty($id))
 							{
 								$arr = array('qty' => $rs->qty);
@@ -1104,6 +1261,20 @@ class Wms_auto_receive extends CI_Controller
 		$sc = TRUE;
 		$this->load->library('export');
 		if(! $this->export->export_return($code))
+		{
+			$sc = FALSE;
+			$this->error = trim($this->export->error);
+		}
+
+		return $sc;
+	}
+
+
+	private function export_return_consignment($code)
+	{
+		$sc = TRUE;
+		$this->load->library('export');
+		if(! $this->export->export_return_consignment($code))
 		{
 			$sc = FALSE;
 			$this->error = trim($this->export->error);

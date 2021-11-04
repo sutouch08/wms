@@ -12,7 +12,7 @@ class Return_consignment_model extends CI_Model
   {
     if(!empty($ds))
     {
-      $rs = $this->mc->insert('CNORDN', $ds);
+      $rs = $this->mc->insert('ORDN', $ds);
       if($rs)
       {
         return $this->mc->insert_id();
@@ -32,7 +32,7 @@ class Return_consignment_model extends CI_Model
     ->where('F_Sap', 'N')
     ->or_where('F_Sap IS NULL', NULL, FALSE)
     ->group_end()
-    ->get('CNORDN');
+    ->get('ORDN');
 
     if($rs->num_rows() > 0)
     {
@@ -48,7 +48,7 @@ class Return_consignment_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->mc->insert('CNRDN1', $ds);
+      return $this->mc->insert('RDN1', $ds);
     }
 
     return FALSE;
@@ -60,7 +60,7 @@ class Return_consignment_model extends CI_Model
   {
     if(! empty($code) && ! empty($ds))
     {
-      return $this->mc->where('U_ECOMNO', $code)->update('CNORDN', $ds);
+      return $this->mc->where('U_ECOMNO', $code)->update('ORDN', $ds);
     }
 
     return FALSE;
@@ -68,7 +68,7 @@ class Return_consignment_model extends CI_Model
 
 
 
-  //---- เช็คเอกสารในก้อน consignment ว่ามีอยู่หรือยัง
+  //---- เช็คเอกสารในว่ามีอยู่หรือยัง
   public function get_sap_return_consignment($code)
   {
     $rs = $this->ms
@@ -76,7 +76,7 @@ class Return_consignment_model extends CI_Model
     ->where('U_ECOMNO', $code)
     ->where('CANCELED', 'N')
     ->get('ORDN');
-    if($rs->num_rows() === 1)
+    if($rs->num_rows() > 0)
     {
       return $rs->row();
     }
@@ -92,6 +92,7 @@ class Return_consignment_model extends CI_Model
     ->where('DocNum', $code)
     ->where('CardCode', $card_code)
     ->where('CANCELED', 'N')
+		->where('DocStatus', 'O')
     ->get('OINV');
 
     if($rs->num_rows() === 1)
@@ -231,43 +232,129 @@ class Return_consignment_model extends CI_Model
   }
 
 
+	public function update_detail($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('return_consignment_detail', $ds);
+		}
+
+		return FALSE;
+	}
+
+
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('return_consignment');
+		$rs = $this->db
+    ->select('return_consignment.*')
+    ->select('customers.name AS customer_name')
+    ->from('return_consignment')
+    ->join('customers', 'return_consignment.customer_code = customers.code', 'left')
+    ->where('return_consignment.code', $code)
+    ->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
+
   }
 
 
 
   public function get_details($code)
   {
-    $rs = $this->db->where('return_code', $code)->get('return_consignment_detail');
+		$rs = $this->db
+		->select('rd.*, pd.unit_code AS unit_code, pd.count_stock')
+		->from('return_consignment_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->get();
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
+
   }
+
+
+	public function get_detail_by_product($code, $product_code)
+	{
+		$rs = $this->db
+		->select('rd.*, pd.unit_code')
+		->from('return_consignment_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->where('rd.product_code', $product_code)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function get_count_item_details($code)
+	{
+		$rs = $this->db
+		->select('rd.*, pd.unit_code AS unit_code')
+		->from('return_consignment_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->where('pd.count_stock', 1)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function get_non_count_details($code)
+	{
+		$rs = $this->db
+		->select('rd.*, pd.unit_code AS unit_code')
+		->from('return_consignment_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->where('pd.count_stock', 0)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return FALSE;
+	}
+
 
 
   public function drop_sap_exists_details($code)
   {
-    return $this->mc->where('U_ECOMNO', $code)->delete('CNRDN1');
+    return $this->mc->where('U_ECOMNO', $code)->delete('RDN1');
   }
 
 
   public function drop_middle_exits_data($docEntry)
   {
     $this->mc->trans_start();
-    $this->mc->where('DocEntry', $docEntry)->delete('CNRDN1');
-    $this->mc->where('DocEntry', $docEntry)->delete('CNORDN');
+    $this->mc->where('DocEntry', $docEntry)->delete('RDN1');
+    $this->mc->where('DocEntry', $docEntry)->delete('ORDN');
     $this->mc->trans_complete();
 
     return $this->mc->trans_status();
@@ -411,14 +498,12 @@ class Return_consignment_model extends CI_Model
   public function approve($code)
   {
     $arr = array('is_approve' => 1, 'approver' => get_cookie('uname'));
-    return $this->db->update('return_consignment', $arr);
+    return $this->db->where('code', $code)->update('return_consignment', $arr);
   }
 
 
   public function count_rows(array $ds = array())
   {
-    $this->db->select('status');
-
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))
     {
@@ -436,16 +521,35 @@ class Return_consignment_model extends CI_Model
     {
       $this->db->where_in('customer_code', $this->customer_in($ds['customer_code']));
     }
+
+		if($ds['from_warehouse'] != 'all')
+		{
+			$this->db->where('from_warehouse_code', $ds['from_warehouse']);
+		}
+
+
+		if($ds['to_warehouse'] != 'all')
+		{
+			$this->db->where('warehouse_code', $ds['to_warehouse']);
+		}
+
 
     if(!empty($ds['status']) && $ds['status'] != 'all')
     {
       $this->db->where('status', $ds['status']);
     }
 
+
     if(!empty($ds['approve']) && $ds['approve'] != 'all')
     {
       $this->db->where('is_approve', $ds['approve']);
     }
+
+		if($ds['api'] != 'all')
+		{
+			$this->db->where('is_api', $ds['api']);
+		}
+
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
@@ -453,17 +557,14 @@ class Return_consignment_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
-    $rs = $this->db->get('return_consignment');
-
-
-    return $rs->num_rows();
+    return $this->db->count_all_results('return_consignment');
   }
 
 
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '')
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))
@@ -483,15 +584,34 @@ class Return_consignment_model extends CI_Model
       $this->db->where_in('customer_code', $this->customer_in($ds['customer_code']));
     }
 
+		if($ds['from_warehouse'] != 'all')
+		{
+			$this->db->where('from_warehouse_code', $ds['from_warehouse']);
+		}
+
+
+		if($ds['to_warehouse'] != 'all')
+		{
+			$this->db->where('warehouse_code', $ds['to_warehouse']);
+		}
+
+
     if($ds['status'] != 'all')
     {
       $this->db->where('status', $ds['status']);
     }
 
+
     if($ds['approve'] != 'all')
     {
       $this->db->where('is_approve', $ds['approve']);
     }
+
+		if($ds['api'] != 'all')
+		{
+			$this->db->where('is_api', $ds['api']);
+		}
+
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
@@ -499,11 +619,7 @@ class Return_consignment_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
-    if(!empty($perpage))
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
+		$this->db->limit($perpage, $offset);
 
     $rs = $this->db->get('return_consignment');
 

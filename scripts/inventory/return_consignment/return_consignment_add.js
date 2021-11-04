@@ -7,13 +7,26 @@ function toggleCheckAll(el) {
 }
 
 
+function toggleInterface() {
+	var wms = $('#is_wms').val();
+	if(wms == "1") {
+		$('#is_api').val(1);
+	}
+	else {
+		$('#is_api').val(0);
+	}
+}
+
+
 function deleteChecked(){
 	var count = $('.chk:checked').length;
 	if(count > 0){
+		load_in();
 		$('.chk:checked').each(function(){
 			var id = $(this).data('id');
 			var no = $(this).val();
-			removeRow(no, id);
+			count--;
+			removeRow(no, id, count);
 		})
 	}
 }
@@ -46,31 +59,79 @@ function unsave(){
 function save()
 {
 	var error = 0;
-	$('.input-price').each(function(){
-		let price = parseFloat($(this).val());
-		if(isNaN(price)){
-			error++;
-			swal('กรุณาใสราคาให้ครบถ้วน');
-			$(this).addClass('has-error');
-			return false;
-		}else{
-			$(this).removeClass('has-error');
-		}
-	});
-
+	var count = 0;
+	var items = [];
 	$('.input-qty').each(function(){
-		let qty = parseFloat($(this).val());
-		if(isNaN(qty) || qty == 0){
-			error++;
-			swal('กรุณาใส่จำนวนให้ครบถ้วน');
-			$(this).addClass('has-error');
-			return false;
-		}
-	});
+		let no = $(this).data("no");
+		let qty = parseDefault(parseFloat($(this).val()), 0);
 
-	if(error == 0){
-		$('#detailsForm').submit();
+		if(qty > 0) {
+			let item_code = $('#item_'+no).val();
+			let item_name = $('#item_name_'+no).val();
+			let price = parseDefault(parseFloat($('#price_'+no).val()), 0);
+			let discount = parseDefault(parseFloat($('#discount_'+no).val()), 0);
+
+			var ds = {
+				"item_code" : item_code,
+				"item_name" : item_name,
+				"price" : price.toFixed(2),
+				"discount" : discount.toFixed(2),
+				"qty" : qty
+			}
+
+			items.push(ds);
+
+			count++;
+		}
+	})
+
+	if(count == 0) {
+		swal("ไม่พบรายการคืนสินค้า", "", "error");
+		return false;
 	}
+
+	var code = $('#return_code').val();
+	var data = {"code" : code, "items" : items}
+	load_in();
+	$.ajax({
+		url:HOME + 'add_details',
+		type:'POST',
+		cache:false,
+		data:JSON.stringify(data),
+		contentType: 'application/json',
+		complete:function(rs) {
+			load_out();
+			if(rs.responseText === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function() {
+					viewDetail(code);
+				}, 1200);
+
+			}
+			else {
+				if(rs.status == 200) {
+					swal({
+						title:"Error!",
+						text:rs.responseText,
+						type:'error'
+					});
+				}
+				else {
+					swal({
+						title:"Error!",
+						text:"Error-" + rs.status + " : Internal server error",
+						type:'error',
+						html:true
+					});
+				}
+			}
+		}
+	})
 }
 
 
@@ -85,7 +146,10 @@ function approve(){
 				timer: 1000
 			});
 
-			$('#btn-approve').remove();
+			setTimeout(function(){
+				window.location.reload();
+			}, 1000);
+
 		}else{
 			swal({
 				title:'Error',
@@ -116,6 +180,49 @@ function doExport(){
 }
 
 
+function sendToWms() {
+	var code = $('#return_code').val();
+
+	load_in();
+	$.ajax({
+		url:HOME + 'send_to_wms',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+}
+
+
 
 function editHeader(){
 	$('.edit').removeAttr('disabled');
@@ -129,6 +236,8 @@ function updateHeader(){
 	var date_add = $('#dateAdd').val();
 	var invoice = $('#invoice').val();
 	var customer_code = $('#customer_code').val();
+	var is_wms = $('#is_wms').val();
+	var is_api = $('#is_api').val();
 	var warehouse_code = $('#warehouse_code').val();
 	var zone_code = $('#zone_code').val();
 	var from_warehouse_code = $('#from_warehouse_code').val();
@@ -171,9 +280,11 @@ function updateHeader(){
 			'date_add' : date_add,
 			'invoice' : invoice,
 			'customer_code' : customer_code,
+			'is_wms' : is_wms,
+			'is_api' : is_api,
 			'warehouse_code' : warehouse_code,
 			'zone_code' : zone_code,
-			'from_zone_code' : from_zone_code,
+			'from_zone' : from_zone_code,
 			'remark' : remark,
 			'gp' : gp
 		},
@@ -186,14 +297,8 @@ function updateHeader(){
 
 				swal({
 					title:'Success',
-					text:'ต้องการโหลดข้อมูลรายการสินค้าใหม่หรือไม่ ?',
 					type: 'success',
-					showCancelButton: true,
-					cancelButtonText: 'No',
-					confirmButtonText: 'Yes',
-					closeOnConfirm: false
-				}, function(){
-					window.location.reload();
+					timer:1000
 				});
 			}
 			else
@@ -227,7 +332,6 @@ function invoice_init()
 			if(arr.length == 2)
 			{
 				$(this).val(arr[0]);
-				$('#bill_amount').val(removeCommas(arr[1]));
 			}
 		}
 	})
@@ -240,6 +344,8 @@ function addNew()
 {
   var date_add = $('#dateAdd').val();
 	var invoice = $('#invoice').val();
+	var is_wms = $('#is_wms').val();
+	var is_api = $('#is_api').val();
 	var gp = $('#gp').val();
 	var customer_code = $('#customer_code').val();
 	var from_zone = $('#from_zone_code').val();
@@ -257,7 +363,7 @@ function addNew()
 	}
 
 	if(customer_code.length == 0){
-		swal('กรุณาอ้างอิงลูกค้า');
+		swal('กรุณาระบุลูกค้า');
 		return false;
 	}
 
@@ -279,6 +385,8 @@ function addNew()
 		data:{
 			'date_add' : date_add,
 			'invoice' : invoice,
+			'is_wms' : is_wms,
+			'is_api' : is_api,
 			'gp' : gp,
 			'customer_code' : customer_code,
 			'from_zone' : from_zone,
@@ -318,6 +426,8 @@ $('#customer').autocomplete({
 		}
 
 		fromZoneInit();
+		invoice_box_init();
+		invoiceInit();
 	}
 });
 
@@ -338,6 +448,8 @@ $('#customerCode').autocomplete({
 		}
 
 		fromZoneInit();
+		invoice_box_init();
+		invoiceInit();
 	}
 });
 
@@ -364,7 +476,7 @@ function fromZoneInit(){
 
 
 $('#zone').autocomplete({
-	source : BASE_URL + 'auto_complete/get_zone_code_and_name',
+	source : BASE_URL + 'auto_complete/get_common_zone_code_and_name',
 	autoFocus:true,
 	close:function(){
 		var arr = $(this).val().split(' | ');
@@ -380,9 +492,9 @@ $('#zone').autocomplete({
 
 
 
-function recalRow(el, no) {
+function recalRow(no) {
 	var price = parseFloat($('#price_' + no).val());
-	var qty = parseFloat(el.val());
+	var qty = parseFloat($('#qty_'+no).val());
 	var discount = parseFloat($('#discount_' + no).val()) * 0.01;
 	price = isNaN(price) ? 0 : price;
 	qty = isNaN(qty) ? 0 : qty;
@@ -415,25 +527,14 @@ function recalTotal(){
 
 
 
-function removeRow(no, id){
+function removeRow(no, id, count){
 	if(id != '' && id != '0' && id != 0){
-		$.ajax({
-			url:HOME + 'delete_detail/'+id,
-			type:'GET',
-			cache:false,
-			success:function(rs){
-				if(rs == 'success'){
-					$('#row_' + no).remove();
-					reIndex();
-					recalTotal();
-				}
-				else
-				{
-					swal(rs);
-					return false;
-				}
-			}
-		});
+		$('#row_' + no).remove();
+		if(count == 1) {
+			reIndex();
+			recalTotal();
+			load_out();
+		}
 	}
 	else
 	{
@@ -444,25 +545,25 @@ function removeRow(no, id){
 }
 
 
-function loadCheckList(check_code){
-  $('#check-list-modal').modal('hide');
-  swal({
-    title: "นำเข้ายอดต่าง",
-		text: "ต้องการนำเข้ายอดต่างจากเอกสารกระทบยอด "+check_code+" หรือไม่ ?",
+function load_stock_in_zone(){
+	swal({
+    title: "นำเข้าสินค้าในโซน",
+		text: "รายการที่มีอยู่ในเอกสารจะถูกลบแล้วแทนที่ด้วยสินค้าในโซน <br/> ต้องการดำเนินการหรือไม่ ?",
 		type: "warning",
 		showCancelButton: true,
-		confirmButtonText: 'ใช่, ฉันต้องการ',
+		confirmButtonText: 'ดำเนินการ',
 		cancelButtonText: 'ยกเลิก',
+		html:true,
 		closeOnConfirm: false
   },function(){
-    var code = $('#code').val();
+    var code = $('#return_code').val();
     load_in();
     $.ajax({
-      url: HOME + 'load_check_list/'+code,
+      url: HOME + 'load_stock_in_zone',
       type:'POST',
       cache:'false',
       data:{
-        'check_code' : check_code
+        'code' : code
       },
       success:function(rs){
         load_out();
@@ -487,88 +588,68 @@ function loadCheckList(check_code){
 }
 
 
-function getSample(){
-  var token	= new Date().getTime();
-	get_download(token);
-	window.location.href = HOME + 'get_sample_file/'+token;
-}
 
-
-
-function getUploadFile(){
-  $('#upload-modal').modal('show');
-}
-
-
-
-function getFile(){
-  $('#uploadFile').click();
-}
-
-
-$("#uploadFile").change(function(){
-	if($(this).val() != '')
-	{
-		var file 		= this.files[0];
-		var name		= file.name;
-		var type 		= file.type;
-		var size		= file.size;
-
-		if( size > 5000000 )
-		{
-			swal("ขนาดไฟล์ใหญ่เกินไป", "ไฟล์แนบต้องมีขนาดไม่เกิน 5 MB", "error");
-			$(this).val('');
-			return false;
+function invoice_box_init() {
+	var customer_code = $('#customer_code').val();
+	$('#invoice-box').autocomplete({
+		source: BASE_URL + 'auto_complete/get_sap_invoice_code/'+customer_code,
+		autoFocus:true,
+		close:function() {
+			var arr = $(this).val().split(' | ');
+			if(arr.length === 2) {
+				$(this).val(arr[0]);
+			}
+			else {
+				$(this).val('');
+			}
 		}
-		//readURL(this);
-    $('#show-file-name').text(name);
-	}
-});
+	})
+}
 
 
-
-function uploadfile(){
-  var code = $('#return_code').val();
-  var excel = $('#uploadFile')[0].files[0];
-
-	$("#upload-modal").modal('hide');
-
-	var fd = new FormData();
-
-	fd.append('excel', $('input[type=file]')[0].files[0]);
-	load_in();
-
+function get_invoice_gp(invoice) {
 	$.ajax({
-		url:HOME + 'import_excel_file/'+code,
-		type:"POST",
-    cache: "false",
-    data: fd,
-    processData:false,
-    contentType: false,
-		success: function(rs){
-			load_out();
-			var rs = $.trim(rs);
-			if( rs == 'success')
-			{
-        swal({
-          title:'Success',
-          type:'success',
-          timer: 1000
-        });
-
-				setTimeout(function(){
-          window.location.reload();
-        }, 1200);
+		url:HOME + 'get_invoice_gp',
+		type:'GET',
+		cache:false,
+		data:{
+			'invoice' : invoice
+		},
+		success:function(rs) {
+			var arr = rs.split(' | ');
+			if(arr.length == 2) {
+				$('#gp').val(arr[1]);
 			}
-			else
-			{
-				swal("Error!", rs, "error");
+			else {
+				$('#gp').val("");
 			}
 		}
-	});
+	})
+}
+
+
+
+function invoiceInit() {
+	var customer_code = $('#customer_code').val();
+	$('#invoice').autocomplete({
+		source: BASE_URL + 'auto_complete/get_sap_invoice_code/'+customer_code,
+		autoFocus:true,
+		close:function() {
+			var arr = $(this).val().split(' | ');
+			if(arr.length === 2) {
+				$(this).val(arr[0]);
+				get_invoice_gp(arr[0]);
+			}
+			else {
+				$(this).val('');
+			}
+		}
+	})
 }
 
 
 $(document).ready(function(){
 	fromZoneInit();
+	invoice_box_init();
+	invoiceInit();
 })

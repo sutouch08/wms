@@ -45,6 +45,7 @@
       <option value="1" <?php echo is_selected('1', $status); ?>>เข้าแล้ว</option>
       <option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่เข้า</option>
       <option value="3" <?php echo is_selected('3', $status); ?>>Error</option>
+			<option value="2" <?php echo is_selected('2', $status); ?>>Closed</option>
     </select>
   </div>
 
@@ -91,13 +92,14 @@
         <tr>
           <th class="width-5 text-center">ลำดับ</th>
 					<th class="width-12">Received Date </th>
-          <th class="width-15">เลขที่เอกสาร </th>
-					<th class="width-15">เลขที่อ้างอิง </th>
+          <th class="width-10">เลขที่เอกสาร </th>
+					<th class="width-10">เลขที่อ้างอิง </th>
           <th class="width-12">เข้า Temp</th>
           <th class="width-12">เข้า IX</th>
           <th class="width-5 text-center">สถานะ</th>
 					<th class="">หมายเหตุ</th>
-					<th class="width-5"></th>
+					<th class="width-10">Closed by</th>
+					<th class="width-10"></th>
         </tr>
       </thead>
       <tbody>
@@ -105,7 +107,7 @@
 <?php $no = $this->uri->segment(5) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 
-        <tr class="font-size-12">
+        <tr class="font-size-12" id="row-<?php echo $rs->id; ?>">
           <td class="middle text-center"><?php echo $no; ?></td>
 					<td class="middle"><?php echo (empty($rs->received_date) ? "" : thai_date($rs->received_date, TRUE)); ?></td>
           <td class="middle"><?php echo $rs->code; ?></td>
@@ -120,9 +122,11 @@
 							}
 					 	?>
 				 	</td>
-					<td class="middle text-center">
+					<td class="middle text-center" id="status-label-<?php echo $rs->id; ?>">
             <?php if($rs->status == 0) : ?>
               <span class="blue">NC</span>
+						<?php elseif($rs->status == 2) : ?>
+							<span class="blue">Closed</span>
             <?php elseif($rs->status == 3) : ?>
               <span class="red">ERROR</span>
 						<?php elseif($rs->status == 1) : ?>
@@ -131,20 +135,27 @@
           </td>
           <td class="middle">
             <?php
-            if($rs->status == 3)
+            if($rs->status == 3 OR $rs->status == 2)
             {
               echo $rs->message;
             }
             ?>
           </td>
+					<td class="middle" id="closed-by-<?php echo $rs->id; ?>"><?php echo $rs->closed_by; ?></td>
 					<td class="middle text-right">
-						<button type="button" class="btn btn-minier btn-info" onclick="getDetails(<?php echo $rs->id; ?>)">
+						<button type="button" class="btn btn-minier btn-info" title="Details" onclick="getDetails(<?php echo $rs->id; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-					<?php if($rs->status != 1) : ?>
-						<button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
+					<?php if($this->_SuperAdmin && $rs->status != 1) : ?>
+						<?php if($rs->status != 2) : ?>
+						<button type="button" class="btn btn-minier btn-warning" id="close-btn-<?php echo $rs->id; ?>" title="Close" onclick="closeOrder(<?php echo $rs->id;?>, '<?php echo $rs->code; ?>')">
+							<i class="fa fa-times"></i>
+						</button>
+						<?php endif; ?>
+						<button type="button" class="btn btn-minier btn-danger" title="Delete" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
 							<i class="fa fa-trash"></i>
 						</button>
+
 					<?php endif; ?>
 					</td>
         </tr>
@@ -152,7 +163,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="11" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="10" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>
@@ -244,6 +255,56 @@
 			}
 		})
 	}
+
+
+	function closeOrder(id, code) {
+		swal({
+			title:"Are you sure ?",
+			text:'ต้องการปิดรารการ '+code+' หรือไม่ ?',
+			type:'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#DD6855',
+			confirmButtonText: 'ดำเนินการ',
+			cancelButtonText: 'ยกเลิก',
+			closeOnConfirm: false
+		}, function() {
+			close_temp(id);
+		});
+	}
+
+
+	function close_temp(id){
+		$.ajax({
+			url:HOME + "close_temp/"+id,
+			type:'POST',
+			cache:false,
+			success:function(rs) {
+				if(isJson(rs)) {
+					swal({
+						title:'Closed',
+						type:'success',
+						timer:1000
+					});
+
+					var arr = $.parseJSON(rs);
+
+					$('#status-label-'+id).html('<span class="blue">Closed</span>');
+					$('#closed-by-'+id).text(arr.closed_by);
+					$('#close-btn-'+id).remove();
+				}
+				else {
+					swal({
+						title:'Error',
+						text:rs,
+						type:'error'
+					})
+				}
+			}
+		})
+	}
+
+
+
 
 	$("#fromDate").datepicker({
 	  dateFormat:'dd-mm-yy',

@@ -97,5 +97,23 @@ class Wms_temp_receive extends PS_Controller
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
+
+	public function close_temp($id)
+	{
+		$sc = TRUE;
+		$arr = array(
+			'status' => 2,
+			'closed_by' => $this->_user->name
+		);
+
+		if(! $this->wms_temp_receive_model->update($id, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Closed failed";
+		}
+
+		echo $sc === TRUE ? json_encode($arr) : $this->error;
+	}
+
 } //--- end classs
 ?>

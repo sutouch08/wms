@@ -33,14 +33,7 @@
       <option value="1" <?php echo is_selected('1', $status); ?>>เข้าแล้ว</option>
       <option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่เข้า</option>
       <option value="3" <?php echo is_selected('3', $status); ?>>Error</option>
-    </select>
-  </div>
-	<div class="col-sm-1 col-1-harf padding-5">
-    <label>การแก้ไข</label>
-    <select class="form-control input-sm" name="valid" onchange="getSearch()">
-      <option value="all">ทั้งหมด</option>
-      <option value="1" <?php echo is_selected('1', $valid); ?>>แก้ไขแล้ว</option>
-      <option value="0" <?php echo is_selected('0', $valid); ?>>ยังไม่แก้ไข</option>
+			<option value="2" <?php echo is_selected('2', $status); ?>>Closed</option>
     </select>
   </div>
 
@@ -93,8 +86,7 @@
           <th class="width-12">เข้า IX</th>
           <th class="width-5 text-center">สถานะ</th>
 					<th class="">หมายเหตุ</th>
-					<th class="width-5 text-center">แก้ไข</th>
-					<th class="width-10">แก้ไขโดย</th>
+					<th class="width-10">Closed by</th>
 					<th class="width-10"></th>
         </tr>
       </thead>
@@ -118,9 +110,11 @@
 							}
 					 	?>
 				 	</td>
-					<td class="middle text-center">
+					<td class="middle text-center" id="status-label-<?php echo $rs->id; ?>">
             <?php if($rs->status == 0) : ?>
               <span class="blue">NC</span>
+						<?php elseif($rs->status == 2) : ?>
+							<span class="blue">Closed</span>
             <?php elseif($rs->status == 3) : ?>
               <span class="red">ERROR</span>
 						<?php elseif($rs->status == 1) : ?>
@@ -129,28 +123,23 @@
           </td>
           <td class="middle">
             <?php
-            if($rs->status == 3)
+            if($rs->status == 3 OR $rs->status == 2)
             {
               echo $rs->message;
             }
             ?>
           </td>
-					<td class="middle text-center" id="valid-row-<?php echo $rs->id; ?>">
-						<?php if($rs->valid) : ?>
-							<i class="fa fa-check green"></i>
-						<?php endif; ?>
-					</td>
-					<td class="middle" id="valid-by-<?php echo $rs->id; ?>"><?php echo $rs->valid_by; ?></td>
+					<td class="middle" id="closed-by-<?php echo $rs->id; ?>"><?php echo $rs->closed_by; ?></td>
 					<td class="middle text-right">
 						<button type="button" class="btn btn-minier btn-info" onclick="getDetails(<?php echo $rs->id; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-						<?php if($rs->status == 3 && !$rs->valid) : ?>
-							<button type="button" class="btn btn-minier btn-success" id="btn-valid-<?php echo $rs->id; ?>" onclick="validTemp(<?php echo $rs->id; ?>)">
-								<i class="fa fa-check"></i>
-							</button>
-						<?php endif; ?>
 						<?php if($this->_SuperAdmin && $rs->status != 1) : ?>
+							<?php if($rs->status != 2) : ?>
+							<button type="button" class="btn btn-minier btn-warning" id="btn-close-<?php echo $rs->id; ?>" onclick="closeOrder(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
+								<i class="fa fa-times"></i>
+							</button>
+							<?php endif; ?>
 							<button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
 								<i class="fa fa-trash"></i>
 							</button>
@@ -171,9 +160,25 @@
 
 <script src="<?php echo base_url(); ?>scripts/wms/wms_temp_delivery.js?v=<?php echo date('Ymd'); ?>"></script>
 <script>
-	function validTemp(id) {
+	function closeOrder(id, code) {
+		swal({
+			title:"Are you sure ?",
+			text:'ต้องการปิดรายการ '+code+' หรือไม่ ?',
+			type:'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#DD6855',
+			confirmButtonText: 'ดำเนินการ',
+			cancelButtonText: 'ยกเลิก',
+			closeOnConfirm: false
+		}, function() {
+			close_temp(id);
+		});
+	}
+
+
+	function close_temp(id) {
 		$.ajax({
-			url:BASE_URL + "rest/V1/wms_temp_delivery/valid_temp",
+			url:BASE_URL + "rest/V1/wms_temp_delivery/close_temp",
 			type:"POST",
 			cache:false,
 			data:{
@@ -181,10 +186,16 @@
 			},
 			success:function(rs) {
 				if(isJson(rs)) {
+					swal({
+						title:"Closed",
+						type:'success',
+						timer:1000
+					});
+					
 					var ds = $.parseJSON(rs);
-					$('#valid-row-'+id).html('<i class="fa fa-check green"></i>');
-					$('#valid-by-'+id).text(ds.valid_by);
-					$('#btn-valid-'+id).remove();
+					$('#status-label-'+id).html('<span class="blue">Closed</span>');
+					$('#closed-by-'+id).text(ds.closed_by);
+					$('#btn-close-'+id).remove();
 				}
 				else {
 					swal({

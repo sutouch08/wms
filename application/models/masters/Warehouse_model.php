@@ -202,6 +202,23 @@ class Warehouse_model extends CI_Model
     return NULL;
   }
 
+
+	public function get_common_list()
+	{
+		$rs = $this->db
+		->where_in('role', array(1, 3, 4, 5))
+		->where('active', 1)
+		->get('warehouse');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+	
+
   public function count_zone($code)
   {
     return $this->db->where('warehouse_code', $code)->count_all_results('zone');
@@ -311,5 +328,17 @@ class Warehouse_model extends CI_Model
 
     return FALSE;
   }
+
+
+	public function is_consignment($code)
+	{
+		$rs = $this->db->select('code')->where('code', $code)->where('is_consignment', 1)->get('warehouse');
+		if($rs->num_rows() === 1)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 }
  ?>

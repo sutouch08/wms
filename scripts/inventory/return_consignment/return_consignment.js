@@ -45,12 +45,12 @@ function goAdd(){
 
 
 function goEdit(code){
-	window.location.href = HOME + 'edit/'+ code; //"index.php?content=receive_product&edit=Y&id_receive_product="+id;
+	window.location.href = HOME + 'edit/'+ code;
 }
 
 
 function viewDetail(code){
-	window.location.href = HOME + 'view_detail/'+ code; //"index.php?content=receive_product&view_detail=Y&id_receive_product="+id;
+	window.location.href = HOME + 'view_detail/'+ code;
 }
 
 
@@ -95,6 +95,14 @@ function printReturn(){
 	var center = ($(document).width() - 800) /2;
   var target = HOME + 'print_detail/'+code;
   window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
+}
+
+
+function printWmsReturn(){
+	var code = $("#return_code").val();
+	var center = ($(document).width() - 800) /2;
+  	var target = HOME + 'print_wms_return/'+code;
+  	window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
 }
 
 

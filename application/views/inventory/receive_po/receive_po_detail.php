@@ -69,10 +69,21 @@
   	<label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled/>
   </div>
+	<?php if($doc->status == 2) : ?>
+		<div class="col-sm-5 padding-5">
+			<label>หมายเหตุ</label>
+			<input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
+		</div>
+		<div class="col-sm-5 padding-5">
+			<label>เหตุผลการยกเลิก</label>
+			<input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled />
+		</div>
+	<?php else : ?>
   <div class="col-sm-10 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
 	</div>
+	<?php endif; ?>
 	<div class="col-sm-2 padding-5">
 		<label>Document No. [SAP]</label>
 		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled />
@@ -148,6 +159,32 @@ if($doc->status == 3)
 	<?php endforeach; ?>
 	</div>
 <?php endif; ?>
+
+
+<div class="modal fade" id="cancle-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog" style="width:500px;">
+   <div class="modal-content">
+       <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h4 class="modal-title">เหตุผลในการยกเลิก</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-9 padding-5">
+            <input type="text" class="form-control input-sm" id="cancle-reason" value=""/>
+          </div>
+          <div class="col-sm-3 padding-5">
+            <button type="button" class="btn btn-xs btn-info btn-block" onclick="doCancle('<?php echo $doc->code; ?>')">ตกลง</button>
+          </div>
+        </div>
+
+       </div>
+      <div class="modal-footer">
+
+      </div>
+   </div>
+ </div>
+</div>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
