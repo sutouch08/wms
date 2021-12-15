@@ -27,6 +27,16 @@
 <input type="hidden" id="transfer_code" name="transfer_code" value="<?php echo $doc->code; ?>" />
 <hr/>
 <?php
+	if($doc->status == 2)
+	{
+		$this->load->view('cancle_watermark');
+	}
+
+	if($doc->status == 3)
+	{
+		$this->load->view('on_process_watermark');
+	}
+	
 	$this->load->view('transfer/transfer_view_header');
 	$this->load->view('transfer/transfer_view_detail');
 ?>

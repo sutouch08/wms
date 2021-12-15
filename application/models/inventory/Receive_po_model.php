@@ -121,12 +121,12 @@ class Receive_po_model extends CI_Model
   public function get_po_details($po_code)
   {
     $rs = $this->ms
-    ->select('POR1.LineNum, POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus, POR1.OpenQty, POR1.PriceAfVAT AS price')
+    ->select('POR1.DocEntry, POR1.LineNum, POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus, POR1.OpenQty, POR1.PriceAfVAT AS price')
+		->select('POR1.Currency, POR1.Rate, POR1.VatGroup, POR1.VatPrcnt')
     ->from('POR1')
     ->join('OPOR', 'POR1.DocEntry = OPOR.DocEntry', 'left')
     ->where('OPOR.DocNum', $po_code)
     ->where('OPOR.DocStatus', 'O')
-    //->where('POR1.LineStatus', 'O')
     ->get();
 
     if(!empty($rs))

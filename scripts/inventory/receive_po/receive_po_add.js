@@ -120,6 +120,12 @@ function save(){
 	//--- ราคาสินค้าแต่ละตัว
 	price = $('#prices').val()
 
+	//--- Currency
+	docCur = $('#DocCur').val();
+
+	//--- Doc rate
+	docRate = parseDefault(parseFloat($('#DocRate').val()), 0);
+
 	//--- ตรวจสอบความถูกต้องของข้อมูล
 	if(code == '' || code == undefined){
 		swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครับ ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
@@ -160,48 +166,62 @@ function save(){
 	}
 
 
+	if(docRate <= 0) {
+		swal('กรุณาระบุอัตราแลกเปลี่ยน');
+		$('#DocRate').addClass('has-error');
+		return false;
+	}
+	else {
+		$('#DocRate').removeClass('has-error');
+	}
+
+	header = {
+		'receive_code' : code,
+		'vendor_code' : vendor_code,
+		'vendorName' : vendor_name,
+		'poCode' : po,
+		'invoice' : invoice,
+		'zone_code' : zone_code,
+		'approver' : approver,
+		'requestCode' : request_code,
+		'DocCur' : docCur,
+		'DocRate' : docRate
+	}
 
 
-	ds = [
-		{'name' : 'receive_code', 'value' : code},
-		{'name' : 'vendor_code', 'value' : vendor_code},
-		{'name' : 'vendorName', 'value' : vendor_name},
-		{'name' : 'poCode', 'value' : po},
-		{'name' : 'invoice', 'value' : invoice},
-		{'name' : 'zone_code', 'value' : zone_code},
-		{'name' : 'approver', 'value' : approver},
-		{'name' : 'requestCode', 'value' : request_code}
-	];
+	var rows = [];
+
 
 
 	$('.receive-box').each(function(index, el) {
-		qty = parseInt($(this).val());
-		arr = $(this).attr('id').split('_');
-		pdCode = arr[1];
-		name = "receive["+pdCode+"]";
-		backlogs = $('#limit_'+pdCode).val();
-		bname = "backlogs["+pdCode+"]";
-		pname = "prices["+pdCode+"]";
-		price = $('#price_'+pdCode).val();
-		if($(this).val() > 0 && !isNaN(qty)){
-			ds.push({
-				'name' : name, 'value' : qty
-			});
+		qty = parseDefault(parseFloat($(this).val()), 0);
 
-			ds.push({
-				'name' : bname, 'value' : backlogs
-			});
+		if(qty > 0) {
+			uid = $(this).data('uid');
+			let row = {
+				'product_code' : $('#item_'+uid).val(),
+				'qty' : qty,
+				'price' : $('#price_'+uid).val(),
+				'backlogs' : $('#limit_'+uid).val(),
+				'currency' : $('#currency_'+uid).val(),
+				'rate' : $('#rate_'+uid).val(),
+				'vatGroup' : $('#vatGroup_'+uid).val(),
+				'vatRate' : $('#vatRate_'+uid).val()
+			}
 
-			ds.push({
-				'name' : pname, 'value' : price
-			});
+			rows.push(row);
 		}
 	});
 
-	if(ds.length < 11){
+
+	if(rows.length < 1){
 		swal('ไม่พบรายการรับเข้า');
 		return false;
 	}
+
+	var ds = [{
+
+	}];
 
 
 	load_in();
@@ -210,7 +230,11 @@ function save(){
 		url: HOME + 'save',
 		type:"POST",
 		cache:"false",
-		data: ds,
+		data: {
+			"receive_code" : code,
+			"header" : JSON.stringify(header),
+			"items" : JSON.stringify(rows)
+		},
 		success: function(rs){
 			load_out();
 
@@ -385,6 +409,17 @@ function leave(){
 }
 
 
+function changeRate() {
+	if($('#DocCur').val() == 'THB') {
+		$('#DocRate').val('1.00');
+	}
+	else {
+		$('#DocRate').val("");
+	}
+
+}
+
+
 function changePo(){
 	swal({
 		title: 'ยกเลิกข้อมูลนี้ ?',
@@ -399,6 +434,8 @@ function changePo(){
 		$('#btn-get-po').removeClass('hide');
 		$('#poCode').val('');
 		$('#poCode').removeAttr('disabled');
+		$('#DocCur').val('THB');
+		$('#DocRate').val('1.00');
 		swal({
 			title:'Success',
 			text:'ยกเลิกข้อมูลเรียบร้อยแล้ว',
@@ -412,8 +449,38 @@ function changePo(){
 }
 
 
+
+function getPoCurrency(poCode)
+{
+	$.ajax({
+		url:HOME + 'get_po_currency',
+		type:'GET',
+		cache:false,
+		data:{
+			'po_code' : poCode
+		},
+		success:function(rs) {
+			if(isJson(rs)) {
+				var ds = $.parseJSON(rs);
+				$('#DocCur').val(ds.DocCur);
+				$('#DocRate').val(ds.DocRate);
+				if(ds.DocCur == 'THB') {
+					$('#DocRate').val(1.00);
+				}
+				else {
+					$('#DocRate').val("");
+				}
+			}
+		}
+	})
+}
+
+
+
 function getData(){
 	var po = $("#poCode").val();
+	getPoCurrency(po);
+
 	load_in();
 	$.ajax({
 		url: HOME + 'get_po_detail',
@@ -549,6 +616,9 @@ function poInit(){
 				if(arr.length == 2){
 					$(this).val(arr[1]);
 				}
+				else {
+					$(this).val('');
+				}
 			}
 		});
 	}else{
@@ -560,6 +630,9 @@ function poInit(){
 				var arr = code.split(' | ');
 				if(arr.length == 2){
 					$(this).val(arr[1]);
+				}
+				else {
+					$(this).val('');
 				}
 			}
 		});
@@ -687,13 +760,14 @@ $("#dateAdd").datepicker({ dateFormat: 'dd-mm-yy'});
 
 
 
-function checkBarcode(){
-	barcode = $.trim($('#barcode').val());
+function checkBarcode() {
+	var barcode = $.trim($('#barcode').val());
 
 	if($('#'+barcode).length == 1){
-		pdCode = $('#'+barcode).val();
-		receiveProduct(pdCode);
-	}else{
+		uid = $('#'+barcode).val();
+		receiveProduct(uid);
+	}
+	else {
 		$('#barcode').val('');
 		swal({
 			title: "ข้อผิดพลาด !",
@@ -701,7 +775,9 @@ function checkBarcode(){
 			type: "error"
 		},
 			function(){
-				setTimeout( function(){ $("#barcode")	.focus(); }, 1000 );
+				setTimeout( function() {
+					$("#barcode")	.focus();
+				}, 1000 );
 			});
 	}
 }

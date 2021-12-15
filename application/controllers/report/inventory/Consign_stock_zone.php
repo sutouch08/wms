@@ -238,13 +238,13 @@ class Consign_stock_zone extends PS_Controller
     {
       foreach($result as $rs)
       {
-        $this->excel->getActiveSheet()->setCellValue('A'.$row, $this->products_model->get_barcode($rs->product_code));
+        $this->excel->getActiveSheet()->setCellValueExplicit('A'.$row, $this->products_model->get_barcode($rs->product_code), PHPExcel_Cell_DataType::TYPE_STRING);
         $this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->product_code);
         $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->qty);
         $row++;
       }
 
-      $this->excel->getActiveSheet()->getStyle('A2:A'.($row -1))->getNumberFormat()->setFormatCode('0');
+      $this->excel->getActiveSheet()->getStyle('C2:C'.($row -1))->getNumberFormat()->setFormatCode('0');
     }
 
     setToken($token);

@@ -158,13 +158,9 @@ function get_vat_amount($amount, $vat = NULL)
 		$vat = getConfig('SALE_VAT_RATE');
 	}
 
-	if($vat != 0)
-	{
-		$re_vat = ($amount * $vat) / (100+$vat);
-		return round($re_vat,2);
-	}
+	$re_vat = ($amount * $vat) / (100+$vat);
 
-	return round($amount, 2);
+	return round($re_vat,2);
 }
 
 

@@ -61,7 +61,7 @@
   </div>
 
 	<div class="form-group">
-		<label class="col-sm-3 col-xs-12 control-label no-padding-right">นับสต็อก</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">เปิดใช้งาน</label>
 		<div class="col-xs-12 col-sm-3">
 			<label style="padding-top:5px;">
 				<input name="active" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($data->active,1); ?> />

@@ -152,167 +152,191 @@ class Receive_po extends PS_Controller
 			$doc = $this->receive_po_model->get($code);
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
-      $vendor_code = $this->input->post('vendor_code');
-      $vendor_name = $this->input->post('vendorName');
-      $po_code = $this->input->post('poCode');
-      $invoice = $this->input->post('invoice');
-      $zone_code = ($this->isAPI && $doc->is_wms == 1) ? getConfig('WMS_ZONE') : $this->input->post('zone_code');
-      $warehouse_code = ($this->isAPI && $doc->is_wms == 1) ? getConfig('WMS_WAREHOUSE') : $this->zone_model->get_warehouse_code($zone_code);
-      $receive = $this->input->post('receive');
-      $backlogs = $this->input->post('backlogs');
-      $prices = $this->input->post('prices');
-      $approver = $this->input->post('approver') == '' ? NULL : $this->input->post('approver');
-      $request_code = get_null($this->input->post('requestCode'));
+			$header = json_decode($this->input->post('header'));
+
+			if(!empty($header))
+			{
+				$items = json_decode($this->input->post('items'));
+
+				if(!empty($items))
+				{
+
+					$vendor_code = $header->vendor_code;
+		      $vendor_name = $header->vendorName;
+		      $po_code = $header->poCode;
+		      $invoice = $header->invoice;
+		      $zone_code = ($this->isAPI && $doc->is_wms == 1) ? getConfig('WMS_ZONE') : $header->zone_code;
+		      $warehouse_code = ($this->isAPI && $doc->is_wms == 1) ? getConfig('WMS_WAREHOUSE') : $this->zone_model->get_warehouse_code($zone_code);
+		      $approver = get_null($header->approver);
+		      $request_code = get_null($header->requestCode);
+					$DocCur = $header->DocCur;
+					$DocRate = $header->DocRate;
+
+					$arr = array(
+		        'vendor_code' => $vendor_code,
+		        'vendor_name' => $vendor_name,
+		        'po_code' => $po_code,
+		        'invoice_code' => $invoice,
+		        'zone_code' => $zone_code,
+		        'warehouse_code' => $warehouse_code,
+		        'update_user' => get_cookie('uname'),
+		        'approver' => $approver,
+		        'request_code' => $request_code,
+						'currency' => empty($DocCur) ? "THB" : $DocCur,
+						'rate' => empty($DocRate) ? 1 : $DocRate
+		      );
+
+					$this->db->trans_begin();
+
+		      if($this->receive_po_model->update($code, $arr) === FALSE)
+		      {
+		        $sc = FALSE;
+		        $this->error = 'Update Document Fail';
+		      }
+		      else
+		      {
+		        if(!empty($items))
+		        {
+		          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
+		          $this->receive_po_model->drop_details($code);
+
+							$details = array();
+
+		          foreach($items as $rs)
+		          {
+		            if($rs->qty != 0)
+		            {
+		              $pd = $this->products_model->get($rs->product_code);
+
+		              if(!empty($pd))
+		              {
+		                $bf = $rs->backlogs; ///--- ยอดค้ารับ ก่อนรับ
+		                $af = ($bf - $rs->qty) > 0 ? ($bf - $rs->qty) : 0;  //--- ยอดค้างรับหลังรับแล้ว
+
+		                $ds = array(
+		                  'receive_code' => $code,
+		                  'style_code' => $pd->style_code,
+		                  'product_code' => $pd->code,
+		                  'product_name' => $pd->name,
+		                  'price' => $rs->price,
+		                  'qty' => $rs->qty,
+		                  'amount' => $rs->qty * $rs->price,
+		                  'before_backlogs' => $bf,
+		                  'after_backlogs' => $af,
+											'currency' => empty($DocCur) ? "THB" : $DocCur,
+											'rate' => empty($DocRate) ? 1 : $DocRate,
+											'vatGroup' => $rs->vatGroup,
+											'vatRate' => $rs->vatRate
+		                );
+
+										if($this->isAPI && $doc->is_wms)
+										{
+											$de = new stdClass;
+											$de->receive_code = $code;
+											$de->style_code = $pd->style_code;
+											$de->product_code = $pd->code;
+											$de->product_name = $pd->name;
+											$de->unit_code = $pd->unit_code;
+											$de->price = $rs->price;
+											$de->qty = $rs->qty;
+											$de->amount = $rs->qty * $rs->price;
+											$de->before_backlogs = $bf;
+											$de->after_backlogs = $af;
+
+											$details[] = $de;
+										}
+
+		                if($this->receive_po_model->add_detail($ds) === FALSE)
+		                {
+		                  $sc = FALSE;
+		                  $this->error = 'Add Receive Row Fail';
+		                  break;
+		                }
+		                else
+		                {
+											if($this->isAPI === FALSE OR $doc->is_wms == 0)
+											{
+												//--- insert Movement in
+			                  $arr = array(
+			                    'reference' => $code,
+			                    'warehouse_code' => $warehouse_code,
+			                    'zone_code' => $zone_code,
+			                    'product_code' => $rs->product_code,
+			                    'move_in' => $rs->qty,
+			                    'move_out' => 0,
+			                    'date_add' => $date_add
+			                  );
+
+			                  $this->movement_model->add($arr);
+											}
+		                }
+		              }
+		              else
+		              {
+		                $sc = FALSE;
+		                $this->error = 'ไม่พบรหัสสินค้า : '.$item.' ในระบบ';
+		              }
+		            }
+		          }
+
+							if($this->isAPI && $doc->is_wms)
+							{
+								$this->receive_po_model->set_status($code, 3);
+							}
+							else
+							{
+								$arr = array(
+									'shipped_date' => now(),
+									'status' => 1
+								);
+
+								$this->receive_po_model->update($code, $arr);
+							}
+
+		        }
+
+		        if($sc === TRUE)
+		        {
+		          $this->receive_po_request_model->update_receive_code($request_code, $code);
+		        }
+		      }
 
 
-
-      $arr = array(
-        'vendor_code' => $vendor_code,
-        'vendor_name' => $vendor_name,
-        'po_code' => $po_code,
-        'invoice_code' => $invoice,
-        'zone_code' => $zone_code,
-        'warehouse_code' => $warehouse_code,
-        'update_user' => get_cookie('uname'),
-        'approver' => $approver,
-        'request_code' => $request_code
-      );
-
-      $this->db->trans_begin();
-
-      if($this->receive_po_model->update($code, $arr) === FALSE)
-      {
-        $sc = FALSE;
-        $message = 'Update Document Fail';
-      }
-      else
-      {
-        if(!empty($receive))
-        {
-          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
-          $this->receive_po_model->drop_details($code);
-
-					$details = array();
-
-          foreach($receive as $item => $qty)
-          {
-            if($qty != 0)
-            {
-              $pd = $this->products_model->get($item);
-
-              if(!empty($pd))
-              {
-                $bf = $backlogs[$item]; ///--- ยอดค้ารับ ก่อนรับ
-                $af = ($bf - $qty) > 0 ? ($bf - $qty) : 0;  //--- ยอดค้างรับหลังรับแล้ว
-
-                $ds = array(
-                  'receive_code' => $code,
-                  'style_code' => $pd->style_code,
-                  'product_code' => $item,
-                  'product_name' => $pd->name,
-                  'price' => $prices[$item],
-                  'qty' => $qty,
-                  'amount' => $qty * $prices[$item],
-                  'before_backlogs' => $bf,
-                  'after_backlogs' => $af
-                );
-
-								if($this->isAPI && $doc->is_wms)
-								{
-									$de = new stdClass;
-									$de->receive_code = $code;
-									$de->style_code = $pd->style_code;
-									$de->product_code = $pd->code;
-									$de->product_name = $pd->name;
-									$de->unit_code = $pd->unit_code;
-									$de->price = $prices[$item];
-									$de->qty = $qty;
-									$de->amount = $qty * $prices[$item];
-									$de->before_backlogs = $bf;
-									$de->after_backlogs = $af;
-
-									$details[] = $de;
-								}
-
-                if($this->receive_po_model->add_detail($ds) === FALSE)
-                {
-                  $sc = FALSE;
-                  $this->error = 'Add Receive Row Fail';
-                  break;
-                }
-                else
-                {
-									if($this->isAPI === FALSE OR $doc->is_wms == 0)
-									{
-										//--- insert Movement in
-	                  $arr = array(
-	                    'reference' => $code,
-	                    'warehouse_code' => $warehouse_code,
-	                    'zone_code' => $zone_code,
-	                    'product_code' => $item,
-	                    'move_in' => $qty,
-	                    'move_out' => 0,
-	                    'date_add' => $date_add
-	                  );
-
-	                  $this->movement_model->add($arr);
-									}
-                }
-              }
-              else
-              {
-                $sc = FALSE;
-                $this->error = 'ไม่พบรหัสสินค้า : '.$item.' ในระบบ';
-              }
-            }
-          }
-
-					if($this->isAPI && $doc->is_wms)
+					if($sc === TRUE)
 					{
-						$this->receive_po_model->set_status($code, 3);
+						$this->db->trans_commit();
 					}
 					else
 					{
-						$arr = array(
-							'shipped_date' => now(),
-							'status' => 1
-						);
-
-						$this->receive_po_model->update($code, $arr);
-						//$this->receive_po_model->set_status($code, 1);
+						$this->db->trans_rollback();
 					}
 
-        }
+					if($this->isAPI === TRUE && $doc->is_wms == 1 && $sc === TRUE)
+					{
+						$this->wms = $this->load->database('wms', TRUE);
+						$this->load->library('wms_receive_api');
+						$doc->vendor_code = $vendor_code;
+						$doc->vendor_name = $vendor_name;
 
-        if($sc === TRUE)
-        {
-          $this->receive_po_request_model->update_receive_code($request_code, $code);
-        }
-      }
+						$rs = $this->wms_receive_api->export_receive_po($doc, $po_code, $invoice, $details);
 
-      if($sc === TRUE)
-			{
-				$this->db->trans_commit();
+						if(!$rs)
+						{
+							$sc = FALSE;
+							$this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> ".$this->wms_receive_api->error;
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Items rows not found!";
+				}
 			}
 			else
 			{
-				$this->db->trans_rollback();
-			}
-
-			if($this->isAPI === TRUE && $doc->is_wms == 1 && $sc === TRUE)
-			{
-				$this->wms = $this->load->database('wms', TRUE);
-				$this->load->library('wms_receive_api');
-				$doc->vendor_code = $vendor_code;
-				$doc->vendor_name = $vendor_name;
-
-				$rs = $this->wms_receive_api->export_receive_po($doc, $po_code, $invoice, $details);
-
-				if(!$rs)
-				{
-					$sc = FALSE;
-					$this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> ".$this->wms_receive_api->error;
-				}
+				$sc = FALSE;
+				$this->error = "Header data not found!";
 			}
     }
     else
@@ -484,12 +508,18 @@ class Receive_po extends PS_Controller
 				if($rs->OpenQty > 0)
 				{
 					$dif = $rs->Quantity - $rs->OpenQty;
+					$barcode = $this->products_model->get_barcode($rs->ItemCode);
 	        $arr = array(
 	          'no' => $no,
-	          'barcode' => $this->products_model->get_barcode($rs->ItemCode),
+						'uid' => $rs->DocEntry.$rs->LineNum,
+	          'barcode' => empty($barcode) ? $rs->ItemCode : $barcode,
 	          'pdCode' => $rs->ItemCode,
 	          'pdName' => $rs->Dscription,
 	          'price' => $rs->price,
+						'currency' => $rs->Currency,
+						'Rate' => $rs->Rate,
+						'vatGroup' => $rs->VatGroup,
+						'vatRate' => $rs->VatPrcnt,
 	          'qty' => number($rs->Quantity),
 	          'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
 	          'backlog' => number($rs->OpenQty),
@@ -595,6 +625,7 @@ class Receive_po extends PS_Controller
 
   public function edit($code)
   {
+		$this->load->helper('currency');
     $document = $this->receive_po_model->get($code);
     $ds['document'] = $document;
     $ds['is_strict'] = getConfig('STRICT_RECEIVE_PO');
@@ -602,6 +633,23 @@ class Receive_po extends PS_Controller
     $this->load->view('inventory/receive_po/receive_po_edit', $ds);
   }
 
+
+
+	public function get_po_currency()
+	{
+		$po_code = $this->input->get('po_code');
+
+		$rs = $this->ms->select('DocCur, DocRate')->where('DocNum', $po_code)->get('OPOR');
+
+		if($rs->num_rows() === 1)
+		{
+			echo json_encode($rs->row());
+		}
+		else
+		{
+			echo "not found";
+		}
+	}
 
 
 

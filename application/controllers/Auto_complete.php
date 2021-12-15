@@ -376,13 +376,17 @@ public function get_prepare_item_code()
     //echo $this->ms->get_compiled_select('OPOR');
     $po = $this->ms->get('OPOR');
 
-    if(!empty($po))
+    if($po->num_rows() > 0)
     {
       foreach($po->result() as $rs)
       {
         $sc[] = 'PO | '.$rs->DocNum;
       }
     }
+		else
+		{
+			$sc[] = "not found";
+		}
 
     echo json_encode($sc);
   }

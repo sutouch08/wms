@@ -75,7 +75,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                     <td><?php echo $rs->email; ?></td>
                     <td><?php echo $rs->phone; ?></td>
                     <td align="right">
-									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
+									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR ($order->is_wms == 1 && $order->wms_export != 1)) : ?>
 										<?php $func = "onClick='setAddress({$rs->id})'"; ?>
 									<?php else : ?>
 										<?php $func = ""; ?>

@@ -138,8 +138,10 @@ function save()
 
 function approve(){
 	var code = $('#return_code').val();
+	load_in();
 	$.get(HOME+'approve/'+code, function(rs){
 		if(rs === 'success'){
+			load_out();
 			swal({
 				title:'Success',
 				type:'success',
@@ -164,8 +166,10 @@ function approve(){
 
 function doExport(){
 	var code = $('#return_code').val();
+	load_in();
 	$.get(HOME + 'export_return/'+code, function(rs){
 		if(rs === 'success'){
+			load_out();
 			swal({
 				title:'Success',
 				text:'ส่งข้อมูลไป SAP สำเร็จ',

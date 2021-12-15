@@ -2173,7 +2173,7 @@ class Orders extends PS_Controller
 
       if(! empty($order))
       {
-				if($this->isAPI && $order->state >= 3 && $order->is_wms && $state != 9)
+				if($this->isAPI && $order->state >= 3 && $order->is_wms && $state != 9 && !$this->_SuperAdmin)
 				{
 					echo "ออเดอร์ถูกส่งไประบบ WMS แล้วไม่อนุญาติให้ย้อนสถานะ";
 					exit;
@@ -2357,7 +2357,7 @@ class Orders extends PS_Controller
           }
 
 					//---- export
-					if($this->isAPI && $sc === TRUE && $state == 3 && $order->is_wms)
+					if($this->isAPI && $sc === TRUE && $state == 3 && $order->state < 3 && $order->is_wms)
 					{
 						$this->wms = $this->load->database('wms', TRUE);
 						$this->load->library('wms_order_api');

@@ -1297,7 +1297,8 @@ public function export_receive($code)
         //--- หลังจากเคลียร์รายการค้างออกหมดแล้ว
         if($sc === TRUE)
         {
-          $currency = getConfig('CURRENCY');
+          $currency = $doc->currency;
+					$rate = $doc->rate;
           //--- get Currency, VatGroup And VatPrcnt From SAP => POR1
           $po_data = $this->ci->receive_po_model->get_po_data($doc->po_code);
           if(!empty($po_data))
@@ -1314,6 +1315,7 @@ public function export_receive($code)
           }
 
 					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
+
           $total_amount = $this->ci->receive_po_model->get_sum_amount($code);
 
           $ds = array(
@@ -1332,9 +1334,9 @@ public function export_receive($code)
             'DiscSum' => 0.000000,
             'DiscSumFC' => 0.000000,
             'DocCur' => $currency,
-            'DocRate' => 1,
-            'DocTotal' => remove_vat($total_amount),
-            'DocTotalFC' => remove_vat($total_amount),
+            'DocRate' => $rate,
+            'DocTotal' => remove_vat($total_amount * $rate, $vat_rate),
+            'DocTotalFC' => remove_vat($total_amount, $vat_rate),
             'ToWhsCode' => $doc->warehouse_code,
             'Comments' => limitText($doc->remark, 250),
             'F_E_Commerce' => 'A',
@@ -1363,21 +1365,21 @@ public function export_receive($code)
                   'Dscription' => limitText($rs->product_name, 95),
                   'Quantity' => $rs->qty,
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
-                  'PriceBefDi' => remove_vat($rs->price, $vat_rate),
-                  'LineTotal' => remove_vat($rs->amount, $vat_rate),
+                  'PriceBefDi' => remove_vat($rs->price, $rs->vatRate),
+                  'LineTotal' => remove_vat(($rs->amount * $rate), $rs->vatRate),
                   'ShipDate' => sap_date($date_add,TRUE),
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'Price' => remove_vat($rs->price, $vat_rate),
-                  'TotalFrgn' => remove_vat($rs->amount, $vat_rate),
+                  'Currency' => $rs->currency,
+                  'Rate' => $rs->rate,
+                  'Price' => remove_vat($rs->price, $rs->vatRate),
+                  'TotalFrgn' => remove_vat($rs->amount, $rs->vatRate),
                   'WhsCode' => $doc->warehouse_code,
                   'FisrtBin' => $doc->zone_code,
                   'BaseRef' => $doc->po_code,
                   'TaxStatus' => 'Y',
-                  'VatPrcnt' => $vat_rate,
-                  'VatGroup' => $vat_code,
+                  'VatPrcnt' => $rs->vatRate,
+                  'VatGroup' => $rs->vatGroup,
                   'PriceAfVAT' => $rs->price,
-                  'VatSum' => get_vat_amount($rs->amount, $vat_rate),
+                  'VatSum' => get_vat_amount($rs->amount, $rs->vatRate),
                   'TaxType' => 'Y',
                   'F_E_Commerce' => 'A',
                   'F_E_CommerceDate' => sap_date(now(), TRUE)

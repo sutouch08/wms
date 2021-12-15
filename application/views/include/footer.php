@@ -9,7 +9,7 @@
 					<!-- #section:basics/footer -->
 					<div class="footer-content">
 						<span class="bigger-120 orange">
-							WebApp @ Warrix sport
+							&copy; <?php echo getConfig('COMPANY_FULL_NAME');?>
 						</span>
 
 						&nbsp; &nbsp;
