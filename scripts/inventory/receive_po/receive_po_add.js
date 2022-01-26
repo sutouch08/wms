@@ -464,11 +464,9 @@ function getPoCurrency(poCode)
 				var ds = $.parseJSON(rs);
 				$('#DocCur').val(ds.DocCur);
 				$('#DocRate').val(ds.DocRate);
+				
 				if(ds.DocCur == 'THB') {
 					$('#DocRate').val(1.00);
-				}
-				else {
-					$('#DocRate').val("");
 				}
 			}
 		}

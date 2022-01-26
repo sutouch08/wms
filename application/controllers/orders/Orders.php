@@ -1117,10 +1117,14 @@ class Orders extends PS_Controller
   }
 
 
-  public function get_order_grid()
+
+	public function get_order_grid()
   {
+		$sc = TRUE;
+		$ds = array();
     //----- Attribute Grid By Clicking image
     $style = $this->product_style_model->get_with_old_code($this->input->get('style_code'));
+
     if(!empty($style))
     {
       //--- ถ้าได้ style เดียว จะเป็น object ไม่ใช่ array
@@ -1130,40 +1134,106 @@ class Orders extends PS_Controller
         {
           $warehouse = get_null($this->input->get('warehouse_code'));
           $zone = get_null($this->input->get('zone_code'));
-        	$sc = 'not exists';
           $view = $this->input->get('isView') == '0' ? FALSE : TRUE;
-        	$sc = $this->getOrderGrid($style->code, $view, $warehouse, $zone);
+        	$table = $this->getOrderGrid($style->code, $view, $warehouse, $zone);
         	$tableWidth	= $this->products_model->countAttribute($style->code) == 1 ? 600 : $this->getOrderTableWidth($style->code);
-        	$sc .= ' | ' . $tableWidth;
-        	$sc .= ' | ' . $style->code;
-        	$sc .= ' | ' . $style->old_code;
-        	echo $sc;
+
+					if($table == 'notfound') {
+						$sc = FALSE;
+						$this->error = "not found";
+					}
+					else
+					{
+						$ds = array(
+							'status' => 'success',
+							'message' => NULL,
+							'table' => $table,
+							'tableWidth' => $tableWidth,
+							'styleCode' => $style->code,
+							'styleOldCode' => $style->old_code,
+							'styleName' => $style->name
+						);
+					}
         }
         else
         {
+					$sc = FALSE;
           $this->error = "สินค้า Inactive";
-          echo $this->error;
         }
 
       }
       else
       {
+				$sc = FALSE;
         $this->error = "รหัสซ้ำ ";
+
         foreach($style as $rs)
         {
           $this->error .= " : {$rs->code} : {$rs->old_code}";
         }
-
-        echo $this->error;
       }
 
     }
     else
     {
-      echo 'notfound';
+      $sc = FALSE;
+			$this->error = "not found";
     }
 
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
   }
+
+
+
+  // public function get_order_grid()
+  // {
+  //   //----- Attribute Grid By Clicking image
+  //   $style = $this->product_style_model->get_with_old_code($this->input->get('style_code'));
+  //   if(!empty($style))
+  //   {
+  //     //--- ถ้าได้ style เดียว จะเป็น object ไม่ใช่ array
+  //     if(! is_array($style))
+  //     {
+  //       if($style->active)
+  //       {
+  //         $warehouse = get_null($this->input->get('warehouse_code'));
+  //         $zone = get_null($this->input->get('zone_code'));
+  //       	$sc = 'not exists';
+  //         $view = $this->input->get('isView') == '0' ? FALSE : TRUE;
+  //       	$sc = $this->getOrderGrid($style->code, $view, $warehouse, $zone);
+  //       	$tableWidth	= $this->products_model->countAttribute($style->code) == 1 ? 600 : $this->getOrderTableWidth($style->code);
+  //       	$sc .= ' | ' . $tableWidth;
+  //       	$sc .= ' | ' . $style->code;
+  //       	$sc .= ' | ' . $style->old_code;
+  //         $sc .= ' | ' . $style->name;
+  //       	echo $sc;
+  //       }
+  //       else
+  //       {
+  //         $this->error = "สินค้า Inactive";
+  //         echo $this->error;
+  //       }
+	//
+  //     }
+  //     else
+  //     {
+  //       $this->error = "รหัสซ้ำ ";
+  //       foreach($style as $rs)
+  //       {
+  //         $this->error .= " : {$rs->code} : {$rs->old_code}";
+  //       }
+	//
+  //       echo $this->error;
+  //     }
+	//
+  //   }
+  //   else
+  //   {
+  //     echo 'notfound';
+  //   }
+	//
+  // }
 
 
   public function get_item_grid()
@@ -2618,8 +2688,13 @@ class Orders extends PS_Controller
 
 				if(! $ex)
 				{
-					$sc = FALSE;
-					$this->error = $this->wms_order_cancle_api->error;
+					$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_cancle_api->error.")";
+					$txt = "ORDER_NO {$code} already canceled.";
+					if($this->wms_order_cancle_api->error != $txt)
+					{
+						$sc = FALSE;
+						$this->error = $this->wms_order_cancle_api->error;
+					}
 				}
 			}
 		}

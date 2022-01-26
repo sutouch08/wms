@@ -71,9 +71,9 @@ $hide = $order->status == 1 ? 'hide' : '';
 </div>
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/lend/lend.js"></script>
-<script src="<?php echo base_url(); ?>scripts/lend/lend_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/product_tab_menu.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/order_grid.js"></script>
+<script src="<?php echo base_url(); ?>scripts/lend/lend.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/lend/lend_add.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/product_tab_menu.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_grid.js?v=<?php echo date('YmdH'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

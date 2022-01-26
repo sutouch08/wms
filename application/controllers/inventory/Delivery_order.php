@@ -93,7 +93,11 @@ class Delivery_order extends PS_Controller
         //--- change state
        $this->orders_model->change_state($code, 8);
 
-			 $this->orders_model->update($code, array('shipped_date' => now())); //--- update shipped date 
+			 if(empty($order->shipped_date))
+			 {
+				 $this->orders_model->update($code, array('shipped_date' => now())); //--- update shipped date
+			 }
+
 
         //--- add state event
         $arr = array(

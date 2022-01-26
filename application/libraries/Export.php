@@ -1841,7 +1841,7 @@ public function export_return_consignment($code)
                   'LineNum' => $line,
                   'ItemCode' => $rs->product_code,
                   'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->qty,
+                  'Quantity' => $rs->receive_qty,
                   'unitMsr' => $rs->unit_code,
                   'PriceBefDi' => remove_vat($rs->price),
                   'LineTotal' => remove_vat($rs->amount),

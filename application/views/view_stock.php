@@ -66,8 +66,8 @@
 
 <input type="hidden" name="view" id="view" value="1">
 
-<script src="<?php echo base_url(); ?>scripts/orders/orders.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/order_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/product_tab_menu.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/order_grid.js"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/product_tab_menu.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_grid.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

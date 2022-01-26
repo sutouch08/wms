@@ -614,7 +614,7 @@ class Return_lend extends PS_Controller
     if(!empty($doc))
     {
       //--- if document saved
-      if($doc->status == 1)
+      if($doc->status == 1 OR $doc->status == 3)
       {
         $this->load->model('inventory/movement_model');
         $this->load->model('inventory/lend_model');
@@ -630,8 +630,9 @@ class Return_lend extends PS_Controller
         }
 
         //--- 2 update order_lend_detail
-        if($sc === TRUE)
+        if($sc === TRUE && $doc->status === 1)
         {
+
           $details = $this->return_lend_model->get_lend_details($code);
           if(!empty($details))
           {

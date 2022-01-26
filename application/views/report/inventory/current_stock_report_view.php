@@ -165,20 +165,19 @@ function getData(code)
 		},
 		success:function(rs){
 			load_out();
-			var rs = rs.split(' | ');
-			if( rs.length == 4 ){
-				var grid = rs[0];
-				var width = rs[1];
-				var pdCode = rs[2];
 
-				$("#modal").css("width", width +"px");
-				$("#modalTitle").html(pdCode);
+			if(isJson(rs)) {
+				let ds = $.parseJSON(rs);
 
-				$("#modalBody").html(grid);
+				$("#modal").css("width", ds.width +"px");
+				$("#modalTitle").html(ds.code);
+
+				$("#modalBody").html(ds.table);
 				$("#stockGrid").modal('show');
-			}else{
-				swal("สินค้าไม่ถูกต้อง");
 			}
+			else {
+				swal(rs);
+			}		
 		}
 	});
 }

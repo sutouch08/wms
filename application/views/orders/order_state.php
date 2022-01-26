@@ -24,6 +24,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 											<option value="2">รอชำระเงิน</option>
 											<option value="3">รอจัดสินค้า</option>
 											<option value="7">รอเปิดบิล</option>
+											<option value="9">ยกเลิก</option>
 							<?php elseif( $order->state != 9 && $order->is_expired == 0 && $order->status == 1) : ?>
 
                  <?php if( $order->state <=3) : ?>

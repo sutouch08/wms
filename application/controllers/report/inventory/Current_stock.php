@@ -220,10 +220,20 @@ class Current_stock extends PS_Controller
 
       $rs = $this->product_grid->getOrderGrid($code);
       $tableWidth	= $this->products_model->countAttribute($code) == 1 ? 600 : $this->product_grid->getOrderTableWidth($code);
-      $rs .= ' | ' . $tableWidth;
-      $rs .= ' | ' . $code;
-      $rs .= ' | ' ;
-      echo $rs;
+
+			if($rs != 'notfound')
+			{
+				$ds = array(
+					'table' => $rs,
+					'width' => $tableWidth,
+					'code' => $code
+				);
+
+				echo json_encode($ds);
+			}
+			else {
+				echo "ไม่พบรหัสสินค้า";
+			}
     }
     else
     {

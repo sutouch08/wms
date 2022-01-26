@@ -226,7 +226,7 @@ function updateHeader(){
 	var warehouse_code = $('#warehouse_code').val();
 	var zone_code = $('#zone_code').val();
 	var is_wms = $('#is_wms').val();
-	var api = $('#api');
+	var api = $('#api').val();
   var remark = $('#remark').val();
 
 	if(!isDate(date_add)){
