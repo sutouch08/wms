@@ -65,10 +65,14 @@
     <label>รหัสโซน</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->zone_code; ?>" disabled />
   </div>
-  <div class="col-sm-7 padding-5">
+  <div class="col-sm-5 col-5-harf padding-5">
   	<label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled/>
   </div>
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>User</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $doc->user; ?>" disabled/>
+	</div>
 	<?php if($doc->status == 2) : ?>
 		<div class="col-sm-5 padding-5">
 			<label>หมายเหตุ</label>

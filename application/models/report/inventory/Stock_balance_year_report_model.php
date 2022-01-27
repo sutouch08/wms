@@ -17,7 +17,6 @@ class Stock_balance_year_report_model extends CI_Model
     ->from('OIBQ')
     ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
     ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry','left')
-    ->where('OBIN.sysBin', 'N')
     ->where('OIBQ.OnHandQty !=', 0, FALSE);
 
     if(empty($ds['allWarehouse']) && !empty($ds['warehouse']))
@@ -32,16 +31,16 @@ class Stock_balance_year_report_model extends CI_Model
 
     $this->ms->order_by('OITM.ItemCode', 'ASC');
 
-    echo $this->ms->get_compiled_select();
+    //echo $this->ms->get_compiled_select();
 
-    // $rs = $this->ms->get();
-    //
-    // if($rs->num_rows() > 0)
-    // {
-    //   return $rs->result();
-    // }
-    //
-    // return FALSE;
+    $rs = $this->ms->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

@@ -6,6 +6,9 @@
 <?php $over_po_no = $ALLOW_RECEIVE_OVER_PO == 0 ? 'btn-success' : ''; ?>
 <?php $strict_receive_yes = $STRICT_RECEIVE_PO == 1 ? 'btn-success' : ''; ?>
 <?php $strict_receive_no = $STRICT_RECEIVE_PO == 0 ? 'btn-success' : ''; ?>
+<?php $system_bin_yes = $SYSTEM_BIN_LOCATION == 1 ? 'btn-success' : ''; ?>
+<?php $system_bin_no = $SYSTEM_BIN_LOCATION == 0 ? 'btn-success' : ''; ?>
+
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
@@ -103,6 +106,20 @@
       </div>
       <div class="col-sm-9">
         <input type="text" class="form-control input-sm input-large" id="lend-warehouse" name="LEND_WAREHOUSE" value="<?php echo $LEND_WAREHOUSE; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+
+			<div class="col-sm-3">
+        <span class="form-control left-label">SYSTEM BIN LOCATION</span>
+      </div>
+      <div class="col-sm-9">
+				<div class="btn-group input-medium">
+        	<button type="button" class="btn btn-sm <?php echo $system_bin_yes; ?>" style="width:50%;" id="btn-sys-bin-yes" onClick="toggleSysBin(1)">ใช้</button>
+          <button type="button" class="btn btn-sm <?php echo $system_bin_no; ?>" style="width:50%;" id="btn-sys-bin-no" onClick="toggleSysBin(0)">ไม่ใช้</button>
+        </div>
+        <span class="help-block">ใช้งาน SYSTEM_BIN_LOCATION หรือไม่</span>
+        <input type="hidden" name="SYSTEM_BIN_LOCATION" id="system-bin-location" value="<?php echo $SYSTEM_BIN_LOCATION; ?>" />
       </div>
       <div class="divider-hidden"></div>
 

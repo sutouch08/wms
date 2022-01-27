@@ -14,7 +14,6 @@ class Inventory_report_model extends CI_Model
     ->from('OIBQ')
     ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
     ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry','left')
-    ->where('OBIN.sysBin', 'N')
     ->where('OIBQ.OnHandQty !=', 0, FALSE);
 
     if($allProduct == 0 && !empty($pdFrom) && !empty($pdTo))

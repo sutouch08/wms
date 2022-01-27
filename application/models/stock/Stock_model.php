@@ -16,14 +16,21 @@ class stock_model extends CI_Model
     ->join('OIBQ', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
     ->join('OWHS', 'OWHS.WhsCode = OBIN.WhsCode', 'left')
-    ->where('OWHS.U_MAIN', 'Y')
-    ->where('OBIN.SysBin', 'N');
+    ->where('OWHS.U_MAIN', 'Y');
+
+		if(getConfig('SYSTEM_BIN_LOCATION') == 0)
+		{
+			$this->ms->where('OBIN.SysBin', 'N');
+		}
+
 
     if($warehouse !== NULL)
     {
       $this->ms->where('OWHS.WhsCode', $warehouse);
     }
+
     $this->ms->where('OITM.U_MODEL', $style_code);
+
     $rs = $this->ms->get();
     if($rs->num_rows() == 1)
     {
@@ -42,7 +49,9 @@ class stock_model extends CI_Model
     ->join('OIBQ', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->where('OIBQ.ItemCode', $pd_code)
     ->where('OBIN.BinCode', $zone_code);
+
     $rs = $this->ms->get();
+
     if($rs->num_rows() == 1)
     {
       return intval($rs->row()->qty);
@@ -54,12 +63,15 @@ class stock_model extends CI_Model
 
   public function get_consign_stock_zone($zone_code, $pd_code)
   {
-    $this->cn->select_sum('OIBQ.OnHandQty', 'qty')
+    $this->cn
+		->select_sum('OIBQ.OnHandQty', 'qty')
     ->from('OBIN')
     ->join('OIBQ', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->where('OIBQ.ItemCode', $pd_code)
     ->where('OBIN.BinCode', $zone_code);
+
     $rs = $this->cn->get();
+
     if($rs->num_rows() == 1)
     {
       return intval($rs->row()->qty);
@@ -78,8 +90,12 @@ class stock_model extends CI_Model
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->join('OWHS', 'OWHS.WhsCode = OBIN.WhsCode', 'left')
     ->where('OIBQ.ItemCode', $item)
-    ->where('OBIN.SysBin', 'N')
     ->where('OWHS.U_MAIN', 'Y');
+
+		if(getConfig('SYSTEM_BIN_LOCATION') == 0)
+		{
+			$this->ms->where('OBIN.SysBin', 'N');
+		}
 
     if(! empty($warehouse))
     {
@@ -100,13 +116,19 @@ class stock_model extends CI_Model
   //--- ยอดรวมสินค้าทั้งหมดทุกคลัง (รวมฝากขาย)
   public function get_stock($item)
   {
-    $rs = $this->ms
+    $this->ms
     ->select_sum('OIBQ.OnHandQty', 'qty')
     ->from('OIBQ')
     ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry', 'left')
-    ->where('OBIN.SysBin', 'N')
-    ->where('ItemCode', $item)
-    ->get();
+		->where('ItemCode', $item);
+
+		if(getConfig('SYSTEM_BIN_LOCATION') == 0)
+		{
+			$this->ms->where('OBIN.SysBin', 'N');
+		}
+
+    $rs = $this->ms->get();
+
     return intval($rs->row()->qty);
   }
 
@@ -120,6 +142,7 @@ class stock_model extends CI_Model
     ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry', 'left')
     ->where('ItemCode', $item)
     ->get();
+
     return intval($rs->row()->qty);
   }
 
@@ -136,8 +159,13 @@ class stock_model extends CI_Model
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->join('OWHS', 'OWHS.WhsCode = OBIN.WhsCode', 'left')
     ->where('OWHS.U_MAIN', 'Y')
-    ->where('OBIN.SysBin', 'N')
     ->where('ItemCode', $item);
+
+		if(getConfig('SYSTEM_BIN_LOCATION') == 0)
+		{
+			$this->ms->where('OBIN.SysBin', 'N');
+		}
+
     if($warehouse !== NULL)
     {
       $this->ms->where('OWHS.WhsCode', $warehouse);
@@ -147,14 +175,11 @@ class stock_model extends CI_Model
 
     if($rs->num_rows() > 0)
     {
-
       return $rs->result();
     }
 
     return array();
   }
-
-
 
 
 

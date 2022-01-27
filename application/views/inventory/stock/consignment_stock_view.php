@@ -25,6 +25,14 @@
     <input type="text" class="form-control input-sm search" id="zone_code" name="zone_code" value="<?php echo $zone_code; ?>" />
   </div>
 
+	<div class="col-sm-2 padding-5">
+    <label>โซน System</label>
+    <select class="form-control input-sm" id="show_system" name="show_system">
+			<option value="no" <?php echo is_selected('no', $show_system); ?>>ไม่แสดง</option>
+			<option value="yes" <?php echo is_selected('yes', $show_system); ?>>แสดง</option>
+		</select>
+  </div>
+	
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> ค้นหา</button>

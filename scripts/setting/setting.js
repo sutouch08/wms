@@ -525,6 +525,24 @@ function toggleLogJson(option) {
 
 
 
+function toggleSysBin(option) {
+	$('#system-bin-location').val(option);
+
+	if(option == 1) {
+		$('#btn-sys-bin-yes').addClass('btn-success');
+		$('#btn-sys-bin-no').removeClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-sys-bin-no').addClass('btn-success');
+		$('#btn-sys-bin-yes').removeClass('btn-success');
+		return;
+	}
+}
+
+
+
 $('#chatbot-warehouse').autocomplete({
 	source: BASE_URL + 'auto_complete/get_warehouse_by_role/1',
 	autoFocus:true,

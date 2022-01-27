@@ -143,14 +143,31 @@ class Order_payment extends PS_Controller
 
 					if(! $ex)
 					{
-						$sc = FALSE;
-						$this->error = "เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง : ".$this->wms_order_api->error;
-						$arr = array(
-							'wms_export' => 3,
-							'wms_export_error' => $this->wms_order_api->error
-						);
+						$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_api->error.")";
+						$txt = "998 : This order no {$order->code} was already processed by PLC operation.";
+						if($this->wms_order_api->error == $txt)
+						{
+							if($order->wms_export != 1)
+							{
+								$arr = array(
+									'wms_export' => 1,
+									'wms_export_error' => NULL
+								);
 
-						$this->orders_model->update($order->code, $arr);
+								$this->orders_model->update($order->code, $arr);
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง : ".$this->wms_order_api->error;
+							$arr = array(
+								'wms_export' => 3,
+								'wms_export_error' => $this->wms_order_api->error
+							);
+
+							$this->orders_model->update($order->code, $arr);
+						}
 					}
 					else
 					{
@@ -162,6 +179,7 @@ class Order_payment extends PS_Controller
 						$this->orders_model->update($order->code, $arr);
 					}
 				}
+				
 				//---- send api to chatbot
 				if($order->is_api == 1 && !empty($order->reference))
 				{
