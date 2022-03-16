@@ -7,7 +7,7 @@ class Sync_data_new extends CI_Controller
 	public $menu_code = '';
 	public $menu_group_code = '';
 	public $pm;
-  public $limit = 100;
+  public $limit = 200;
   public $date;
 
   public function __construct()

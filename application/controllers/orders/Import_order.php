@@ -187,7 +187,8 @@ class Import_order extends CI_Controller
 								'U' => 'Hold',
 								'V' => 'Remark',
 								'W' => 'Carrier',
-								'X' => 'Warehouse code'
+								'X' => 'Warehouse code',
+								'Y' => 'Country'
               );
 
               foreach($headCol as $col => $field)
@@ -405,6 +406,7 @@ class Import_order extends CI_Controller
                         'province' => trim($rs['C']),
                         'postcode' => trim($rs['F']),
                         'phone' => trim($rs['H']),
+												'country' => empty(trim($rs['Y'])) ? "Thailand" : trim($rs['Y']),
                         'alias' => 'Home',
                         'is_default' => 1
                       );

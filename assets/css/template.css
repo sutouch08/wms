@@ -919,6 +919,304 @@ hr.padding-5{
 
 }
 
+
+
+.col-xs-1-harf, col-xs-2-harf, col-xs-3-harf, col-xs-4-harf, col-xs-5-harf, col-xs-6-harf, col-xs-7-harf, col-xs-8-harf, col-xs-9-harf, col-xs-10-harf, col-xs-11-harf {
+	float:left;
+}
+
+
+@media (min-width: 200px) and (max-width: 767px){
+
+  .col-xs-1-harf {
+  	width: 12.5%;
+  }
+
+
+
+  .col-xs-2-harf{
+  	width: 20.8333333334%;
+  }
+
+
+
+  .col-xs-3-harf {
+  	width: 29.166666666667%;
+  }
+
+
+
+  .col-xs-4-harf{
+  	width: 37.5%;
+  }
+
+
+
+  .col-xs-5-harf{
+  	width: 45.8333333333%;
+  }
+
+
+  .col-xs-6-harf{
+  	width: 54.1666666667%;
+  }
+
+
+
+  .col-xs-7-harf{
+  	width: 62.5%;
+  }
+
+
+
+  .col-xs-8-harf{
+  	width: 70.833333333%;
+  }
+
+
+
+  .col-xs-9-harf{
+  	width: 79.1666666667%;
+  }
+
+
+
+  .col-xs-10-harf{
+  	width: 87.5%;
+  }
+
+
+
+  .col-xs-11-harf{
+  	width: 95.833333333%;
+  }
+
+}
+
+
+.col-sm-1-harf, col-sm-2-harf, col-sm-3-harf, col-sm-4-harf, col-sm-5-harf, col-sm-6-harf, col-sm-7-harf, col-sm-8-harf, col-sm-9-harf, col-sm-10-harf, col-sm-11-harf {
+	float:left;
+}
+
+
+@media (min-width: 768px) and (max-width: 991px){
+
+  .col-sm-1-harf {
+  	width: 12.5%;
+  }
+
+
+
+  .col-sm-2-harf{
+  	width: 20.8333333334%;
+  }
+
+
+
+  .col-sm-3-harf {
+  	width: 29.166666666667%;
+  }
+
+
+
+  .col-sm-4-harf{
+  	width: 37.5%;
+  }
+
+
+
+  .col-sm-5-harf{
+  	width: 45.8333333333%;
+  }
+
+
+  .col-sm-6-harf{
+  	width: 54.1666666667%;
+  }
+
+
+
+  .col-sm-7-harf{
+  	width: 62.5%;
+  }
+
+
+
+  .col-sm-8-harf{
+  	width: 70.833333333%;
+  }
+
+
+
+  .col-sm-9-harf{
+  	width: 79.1666666667%;
+  }
+
+
+
+  .col-sm-10-harf{
+  	width: 87.5%;
+  }
+
+
+
+  .col-sm-11-harf{
+  	width: 95.833333333%;
+  }
+
+}
+
+
+
+.col-md-1-harf, col-md-2-harf, col-md-3-harf, col-md-4-harf, col-md-5-harf, col-md-6-harf, col-md-7-harf, col-md-8-harf, col-md-9-harf, col-md-10-harf, col-md-11-harf {
+	float:left;
+}
+
+
+@media (min-width: 992px) and (max-width: 1199px){
+
+  .col-md-1-harf {
+  	width: 12.5%;
+  }
+
+
+
+  .col-md-2-harf{
+  	width: 20.8333333334%;
+  }
+
+
+
+  .col-md-3-harf {
+  	width: 29.166666666667%;
+  }
+
+
+
+  .col-md-4-harf{
+  	width: 37.5%;
+  }
+
+
+
+  .col-md-5-harf{
+  	width: 45.8333333333%;
+  }
+
+
+
+  .col-md-6-harf{
+  	width: 54.1666666667%;
+  }
+
+
+
+  .col-md-7-harf{
+  	width: 62.5%;
+  }
+
+
+
+  .col-md-8-harf{
+  	width: 70.833333333%;
+  }
+
+
+
+  .col-md-9-harf{
+  	width: 79.1666666667%;
+  }
+
+
+
+  .col-md-10-harf{
+  	width: 87.5%;
+  }
+
+
+
+  .col-md-11-harf{
+  	width: 95.833333333%;
+  }
+
+}
+
+
+
+.col-lg-1-harf, col-lg-2-harf, col-lg-3-harf, col-lg-4-harf, col-lg-5-harf, col-lg-6-harf, col-lg-7-harf, col-lg-8-harf, col-lg-9-harf, col-lg-10-harf, col-lg-11-harf {
+	float:left;
+}
+
+
+@media (min-width: 1200px){
+
+  .col-lg-1-harf {
+  	width: 12.5%;
+  }
+
+
+
+  .col-lg-2-harf{
+  	width: 20.8333333334%;
+  }
+
+
+
+  .col-lg-3-harf {
+  	width: 29.166666666667%;
+  }
+
+
+
+  .col-lg-4-harf{
+  	width: 37.5%;
+  }
+
+
+
+  .col-lg-5-harf{
+  	width: 45.8333333333%;
+  }
+
+
+
+  .col-lg-6-harf{
+  	width: 54.1666666667%;
+  }
+
+
+
+  .col-lg-7-harf{
+  	width: 62.5%;
+  }
+
+
+
+  .col-lg-8-harf{
+  	width: 70.833333333%;
+  }
+
+
+
+  .col-lg-9-harf{
+  	width: 79.1666666667%;
+  }
+
+
+
+  .col-lg-10-harf{
+  	width: 87.5%;
+  }
+
+
+
+  .col-lg-11-harf{
+  	width: 95.833333333%;
+  }
+
+}
+
+
 .pointer{
 	cursor:pointer;
 }

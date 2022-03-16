@@ -11,7 +11,7 @@
 </div><!-- End Row -->
 <hr class="margin-bottom-15"/>
 <div class="row">
-	<form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update/{$code}"; ?>">
+	<form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update"; ?>">
 	<div class="row">
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">รหัส</label>
@@ -82,7 +82,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ราคาทุน</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $cost; ?>" required />
+				<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $cost; ?>"  />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="cost-error"></div>
 		</div>
@@ -90,7 +90,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ราคาขาย</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $price; ?>" required />
+				<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $price; ?>"  />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="price-error"></div>
 		</div>
@@ -199,7 +199,7 @@
 			<label class="col-sm-3 control-label no-padding-right">นับสต็อก</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="count_stock" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($count_stock,1); ?> />
+					<input name="count_stock" class="ace ace-switch ace-switch-7" type="checkbox" id="count_stock" value="1" <?php echo is_checked($count_stock,1); ?> />
 					<span class="lbl"></span>
 				</label>
 			</div>
@@ -210,7 +210,7 @@
 			<label class="col-sm-3 control-label no-padding-right">อนุญาติให้ขาย</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="can_sell" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($can_sell,1); ?> />
+					<input name="can_sell" class="ace ace-switch ace-switch-7" type="checkbox" id="can_sell" value="1" <?php echo is_checked($can_sell,1); ?> />
 					<span class="lbl"></span>
 				</label>
 			</div>
@@ -222,7 +222,7 @@
 			<label class="col-sm-3 control-label no-padding-right">API</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="is_api" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($is_api,1); ?>/>
+					<input name="is_api" class="ace ace-switch ace-switch-7" type="checkbox" id="is_api" value="1" <?php echo is_checked($is_api,1); ?>/>
 					<span class="lbl"></span>
 				</label>
 			</div>
@@ -233,7 +233,7 @@
 			<label class="col-sm-3 control-label no-padding-right">ใช้งาน</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="active" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($active,1); ?> />
+					<input name="active" class="ace ace-switch ace-switch-7" type="checkbox" id="active" value="1" <?php echo is_checked($active,1); ?> />
 					<span class="lbl"></span>
 				</label>
 			</div>
@@ -243,7 +243,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label not-show">บันทึก</label>
 			<div class="col-xs-12 col-sm-3">
-				<button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> บันทึก</button>
+				<button type="button" class="btn btn-sm btn-success" onclick="update()"><i class="fa fa-save"></i> บันทึก</button>
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red"></div>
 		</div>
@@ -253,5 +253,5 @@
 	</form>
 </div><!--/ row  -->
 
-<script src="<?php echo base_url(); ?>scripts/masters/items.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/items.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

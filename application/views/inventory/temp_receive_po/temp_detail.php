@@ -14,7 +14,7 @@
           <th class="width-20">รหัสสินค้า</th>
           <th class="">ชื่อสินค้า</th>
           <th class="width-20">Bin location</th>
-          <th class="width-10 text-right">Return Qty</th>
+          <th class="width-10 text-right">Received Qty</th>
         </tr>
       </thead>
       <tbody>

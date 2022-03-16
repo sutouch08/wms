@@ -6,15 +6,29 @@ class Stock extends REST_Controller
 {
   public $ms;
   public $error;
+	public $api = FALSE;
 
   public function __construct()
   {
     parent::__construct();
     $this->ms = $this->load->database('ms', TRUE);
+		$this->api = is_true(getConfig('CHATBOT_API'));
+		if($this->api)
+		{
+			$this->load->model('stock/stock_model');
+	    $this->load->model('orders/orders_model');
+	    //$this->load->model('masters/products_model');
+		}
+		else
+		{
+			$arr = array(
+				'status' => FALSE,
+				'error' => "Access denied"
+			);
 
-    $this->load->model('stock/stock_model');
-    $this->load->model('orders/orders_model');
-    //$this->load->model('masters/products_model');
+			$this->response($arr, 400);
+		}
+
   }
 
 

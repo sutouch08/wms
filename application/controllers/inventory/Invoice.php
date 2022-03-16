@@ -35,7 +35,8 @@ class Invoice extends PS_Controller
       'order_by'      => get_filter('order_by', 'ic_order_by', ''),
       'sort_by'       => get_filter('sort_by', 'ic_sort_by', ''),
       'is_valid'      => get_filter('is_valid', 'ic_valid', 'all'),
-      'warehouse'     => get_filter('warehouse', 'ic_warehouse', 'all')
+      'warehouse'     => get_filter('warehouse', 'ic_warehouse', 'all'),
+			'is_exported'   => get_filter('is_exported', 'ic_is_exported', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -129,7 +130,8 @@ class Invoice extends PS_Controller
       'ic_order_by',
       'ic_sort_by',
       'ic_valid',
-      'ic_warehouse'
+      'ic_warehouse',
+			'ic_is_exported'
     );
     clear_filter($filter);
   }

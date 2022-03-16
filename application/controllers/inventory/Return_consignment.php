@@ -272,6 +272,8 @@ class Return_consignment extends PS_Controller
 							{
 								$date_add = getConfig('ORDER_SOLD_DATE') === 'D' ? $doc->date_add : now();
 								$this->return_consignment_model->update($code, array('shipped_date' => now()));
+								$qr = "UPDATE return_consignment_detail SET receive_qty = qty, valid = 1 WHERE return_code = '{$code}'";
+								$this->db->qurey($qr);
 							}
 						}
 					}

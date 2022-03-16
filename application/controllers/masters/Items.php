@@ -482,8 +482,10 @@ class Items extends PS_Controller
 
 
 
-  public function edit($code)
+  public function edit()
   {
+		$code = $this->input->post('itemCode');
+
     $item = $this->products_model->get($code);
     if(!empty($item))
     {
@@ -513,52 +515,109 @@ class Items extends PS_Controller
   }
 
 
-  public function update($code)
+	public function update()
   {
-    $count = $this->input->post('count_stock');
-    $sell = $this->input->post('can_sell');
-    $api = $this->input->post('is_api');
-    $active = $this->input->post('active');
-    $user = get_cookie('uname');
+		$sc = TRUE;
+		$ds = json_decode($this->input->post('data'));
+
+		if(!empty($ds))
+		{
+			$code = $ds->code;
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing form data";
+		}
 
     $arr = array(
-      'name' => trim($this->input->post('name')),
-      'barcode' => get_null(trim($this->input->post('barcode'))),
-      'style_code' => trim($this->input->post('style')),
-      'color_code' => get_null($this->input->post('color')),
-      'size_code' => get_null($this->input->post('size')),
-      'group_code' => get_null($this->input->post('group_code')),
-			'main_group_code' => get_null($this->input->post('main_group_code')),
-      'sub_group_code' => get_null($this->input->post('sub_group_code')),
-      'category_code' => get_null($this->input->post('category_code')),
-      'kind_code' => get_null($this->input->post('kind_code')),
-      'type_code' => get_null($this->input->post('type_code')),
-      'brand_code' => get_null($this->input->post('brand_code')),
-      'year' => $this->input->post('year'),
-      'cost' => round($this->input->post('cost'), 2),
-      'price' => round($this->input->post('price'), 2),
-      'unit_code' => $this->input->post('unit_code'),
-      'count_stock' => is_null($count) ? 0 : 1,
-      'can_sell' => is_null($sell) ? 0 : 1,
-      'active' => is_null($active) ? 0 : 1,
-      'is_api' => is_null($api) ? 0 : 1,
-      'update_user' => $user,
-      'old_style' => get_null($this->input->post('old_style')),
-      'old_code' => get_null($this->input->post('old_code'))
+      'name' => $ds->name,
+      'barcode' => get_null(trim($ds->barcode)),
+      'style_code' => trim($ds->style),
+      'color_code' => get_null($ds->color),
+      'size_code' => get_null($ds->size),
+      'group_code' => get_null($ds->group_code),
+			'main_group_code' => get_null($ds->main_group_code),
+      'sub_group_code' => get_null($ds->sub_group_code),
+      'category_code' => get_null($ds->category_code),
+      'kind_code' => get_null($ds->kind_code),
+      'type_code' => get_null($ds->type_code),
+      'brand_code' => get_null($ds->brand_code),
+      'year' => $ds->year,
+      'cost' => round($ds->cost, 2),
+      'price' => round($ds->price, 2),
+      'unit_code' => $ds->unit_code,
+      'count_stock' => is_null($ds->count_stock) ? 0 : 1,
+      'can_sell' => is_null($ds->can_sell) ? 0 : 1,
+      'active' => is_null($ds->active) ? 0 : 1,
+      'is_api' => is_null($ds->is_api) ? 0 : 1,
+      'update_user' => $this->_user->uname,
+      'old_style' => get_null($ds->old_style),
+      'old_code' => get_null($ds->old_code)
     );
 
-    if($this->products_model->update($code, $arr))
+    if(! $this->products_model->update($code, $arr))
     {
-      set_message('Update success');
-      $this->do_export($code);
-      redirect($this->home.'/edit/'.$code);
+			$sc = FALSE;
+			$this->error = "Update failed";
     }
-    else
-    {
-      set_error('Update failed');
-      redirect($this->home.'/edit/'.$code);
-    }
+
+		if($sc === TRUE)
+		{
+			$this->do_export($code);
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
   }
+
+
+  // public function update()
+  // {
+	// 	$code = $this->input->post('code');
+  //   $count = $this->input->post('count_stock');
+  //   $sell = $this->input->post('can_sell');
+  //   $api = $this->input->post('is_api');
+  //   $active = $this->input->post('active');
+  //   $user = get_cookie('uname');
+	//
+  //   $arr = array(
+  //     'name' => trim($this->input->post('name')),
+  //     'barcode' => get_null(trim($this->input->post('barcode'))),
+  //     'style_code' => trim($this->input->post('style')),
+  //     'color_code' => get_null($this->input->post('color')),
+  //     'size_code' => get_null($this->input->post('size')),
+  //     'group_code' => get_null($this->input->post('group_code')),
+	// 		'main_group_code' => get_null($this->input->post('main_group_code')),
+  //     'sub_group_code' => get_null($this->input->post('sub_group_code')),
+  //     'category_code' => get_null($this->input->post('category_code')),
+  //     'kind_code' => get_null($this->input->post('kind_code')),
+  //     'type_code' => get_null($this->input->post('type_code')),
+  //     'brand_code' => get_null($this->input->post('brand_code')),
+  //     'year' => $this->input->post('year'),
+  //     'cost' => round($this->input->post('cost'), 2),
+  //     'price' => round($this->input->post('price'), 2),
+  //     'unit_code' => $this->input->post('unit_code'),
+  //     'count_stock' => is_null($count) ? 0 : 1,
+  //     'can_sell' => is_null($sell) ? 0 : 1,
+  //     'active' => is_null($active) ? 0 : 1,
+  //     'is_api' => is_null($api) ? 0 : 1,
+  //     'update_user' => $user,
+  //     'old_style' => get_null($this->input->post('old_style')),
+  //     'old_code' => get_null($this->input->post('old_code'))
+  //   );
+	//
+  //   if($this->products_model->update($code, $arr))
+  //   {
+  //     set_message('Update success');
+  //     $this->do_export($code);
+  //     redirect($this->home.'/edit/'.$code);
+  //   }
+  //   else
+  //   {
+  //     set_error('Update failed');
+  //     redirect($this->home.'/edit/'.$code);
+  //   }
+  // }
 
 
 

@@ -7,6 +7,19 @@ class Temp_receive_po_model extends CI_Model
   }
 
 
+	public function get($docEntry)
+	{
+		$rs = $this->mc->where('DocEntry', $docEntry)->get('OPDN');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+
   public function count_rows(array $ds = array())
   {
     if(!empty($ds['code']))
@@ -52,7 +65,7 @@ class Temp_receive_po_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = NULL, $offset = 0)
   {
     $this->mc
-    ->select('U_ECOMNO, DocDate, CardCode, CardName')
+    ->select('DocEntry, U_ECOMNO, DocDate, CardCode, CardName')
     ->select('F_E_Commerce, F_E_CommerceDate')
     ->select('F_Sap, F_SapDate')
     ->select('Message');
@@ -109,6 +122,45 @@ class Temp_receive_po_model extends CI_Model
     return NULL;
   }
 
+
+
+	public function get_detail($docEntry)
+  {
+    $rs = $this->mc
+    ->select('U_ECOMNO, ItemCode, Dscription, Quantity, FisrtBin AS BinCode')
+    ->where('DocEntry', $docEntry)
+    ->get('PDN1');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+
+	public function removeTemp($docEntry)
+	{
+		$this->mc->trans_begin();
+		$rd = $this->mc->where('DocEntry', $docEntry)->delete('PDN1');
+		$ro = $this->mc->where('DocEntry', $docEntry)->delete('OPDN');
+
+		if($rd && $ro)
+		{
+			$this->mc->trans_commit();
+			return TRUE;
+		}
+		else
+		{
+			$this->mc->trans_rollback();
+			return FALSE;
+		}
+
+		return FALSE;
+	}
 } //--- end model
 
 ?>

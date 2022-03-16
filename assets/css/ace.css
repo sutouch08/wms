@@ -1528,8 +1528,8 @@ pre.prettyprint {
 }
 @media only screen and (max-width: 479px) {
   .navbar:not(.navbar-collapse) .navbar-header {
-    float: none !important;
-    display: block;
+    /*float: none !important;
+    display: block;*/
   }
   .navbar:not(.navbar-collapse) .ace-nav {
     display: block;

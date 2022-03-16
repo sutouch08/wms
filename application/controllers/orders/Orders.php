@@ -1951,6 +1951,7 @@ class Orders extends PS_Controller
           'district' => trim($this->input->post('district')),
           'province' => trim($this->input->post('province')),
           'postcode' => trim($this->input->post('postcode')),
+					'country' => trim($this->input->post('country')),
           'phone' => trim($this->input->post('phone')),
           'email' => trim($this->input->post('email')),
           'alias' => trim($this->input->post('alias'))
@@ -1975,6 +1976,7 @@ class Orders extends PS_Controller
           'district' => trim($this->input->post('district')),
           'province' => trim($this->input->post('province')),
           'postcode' => trim($this->input->post('postcode')),
+					'country' => trim($this->input->post('country')),
           'phone' => trim($this->input->post('phone')),
           'email' => trim($this->input->post('email')),
           'alias' => trim($this->input->post('alias'))
@@ -2020,7 +2022,7 @@ class Orders extends PS_Controller
 					$arr = array(
 						'id' => $rs->id,
 						'name' => $rs->name,
-						'address' => $rs->address.' '.$rs->sub_district.' '.$rs->district.' '.$rs->province.' '.$rs->postcode,
+						'address' => $rs->address.' '.$rs->sub_district.' '.$rs->district.' '.$rs->province.' '.$rs->postcode.' '.$rs->country,
 						'phone' => $rs->phone,
 						'email' => $rs->email,
 						'alias' => $rs->alias,
@@ -2111,6 +2113,7 @@ class Orders extends PS_Controller
         'district' => $rs->district,
         'province' => $rs->province,
         'postcode' => $rs->postcode,
+				'country' => $rs->country,
         'phone' => $rs->phone,
         'email' => $rs->email,
         'alias' => $rs->alias,
@@ -2690,7 +2693,8 @@ class Orders extends PS_Controller
 				{
 					$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_cancle_api->error.")";
 					$txt = "ORDER_NO {$code} already canceled.";
-					if($this->wms_order_cancle_api->error != $txt)
+					$err = "ORDER_NO {$code} doesn't exists in system.";
+					if($this->wms_order_cancle_api->error != $txt && $this->wms_order_cancle_api->error != $err)
 					{
 						$sc = FALSE;
 						$this->error = $this->wms_order_cancle_api->error;

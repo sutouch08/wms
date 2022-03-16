@@ -24,7 +24,7 @@
 <?php 	$total_receive = 0; ?>
 <?php		foreach($details as $rs) : 	?>
 	<?php $color = $rs->valid == 0 ? 'color:red;' : ''; ?>
-
+	<?php $receive_qty = ($this->isAPI && $doc->is_wms && $doc->api ? $rs->wms_qty : $rs->qty); ?>
 				<tr class="font-size-12" id="row-<?php echo $rs->id; ?>" style="<?php echo $color; ?>">
 	      	<td class="middle text-center">
 						<?php echo $no; ?>
@@ -50,12 +50,12 @@
 						<?php echo number($rs->qty); ?>
 					</td>
 					<td class="middle text-right" >
-						<?php echo ($doc->is_wms && $doc->api ? number($rs->wms_qty) : number($rs->qty)); ?>
+						<?php echo number($receive_qty); ?>
 					</td>
 	      </tr>
 <?php			$no++;			?>
 <?php     $total_qty += $rs->qty; ?>
-<?php 		$total_receive += ($doc->is_wms && $doc->api ? $rs->wms_qty : $rs->qty); ?>
+<?php 		$total_receive += $receive_qty; ?>
 <?php		endforeach;			?>
 				<tr>
 					<td colspan="5" class="middle text-right"><strong>รวม</strong></td>

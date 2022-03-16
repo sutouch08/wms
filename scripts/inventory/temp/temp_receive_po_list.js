@@ -40,11 +40,47 @@ $("#toDate").datepicker({
 });
 
 
-function get_detail(code)
+function get_detail(id)
 {
   //--- properties for print
   var prop 			= "width=1100, height=900. left="+center+", scrollbars=yes";
   var center 	= ($(document).width() - 1100)/2;
-	var target 	= HOME + 'get_detail/'+code+'?nomenu';
+	var target 	= HOME + 'get_detail/'+id+'?nomenu';
 	window.open(target, "_blank", prop );
+}
+
+
+
+function removeTemp(docEntry, code) {
+	swal({
+		title: 'คุณแน่ใจ ?',
+		text: 'ต้องการลบ '+code+' หรือไม่?',
+		type: 'warning',
+		showCancelButton: true,
+		comfirmButtonColor: '#DD6855',
+		confirmButtonText: 'ใช่ ฉันต้องการ',
+		cancelButtonText: 'ไม่ใช่',
+		closeOnConfirm: false
+	}, function(){
+		$.ajax({
+			url:HOME + 'remove_temp/'+docEntry,
+			type:"POST",
+      cache:"false",
+			success: function(rs){
+				var rs = $.trim(rs);
+				if( rs == 'success' ){
+					swal({
+						title:'Success',
+						type: 'success',
+						timer: 1000
+					});
+
+					$('#row-'+docEntry).remove();
+					reIndex();
+				}else{
+					swal("ข้อผิดพลาด", rs, "error");
+				}
+			}
+		});
+	});
 }

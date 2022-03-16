@@ -835,7 +835,7 @@ public function export_transfer($code)
 
 	                $line++;
 								}
-								else if($doc->is_wms == 0)
+								else if( $doc->is_wms == 0)
 								{
 									$arr = array(
 	                  'DocEntry' => $docEntry,
@@ -1794,7 +1794,7 @@ public function export_return_consignment($code)
           $currency = getConfig('CURRENCY');
           $vat_rate = getConfig('SALE_VAT_RATE');
           $vat_code = getConfig('SALE_VAT_CODE');
-					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
           $total_amount = $this->ci->return_consignment_model->get_total_return($code);
           //$invoice = $this->ci->return_consignment_model->get_all_invoice($code);
 
@@ -1835,43 +1835,46 @@ public function export_return_consignment($code)
               //--- insert detail to RDN1
               foreach($details as $rs)
               {
-                $arr = array(
-                  'DocEntry' => $docEntry,
-                  'U_ECOMNO' => $rs->return_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->receive_qty,
-                  'unitMsr' => $rs->unit_code,
-                  'PriceBefDi' => remove_vat($rs->price),
-                  'LineTotal' => remove_vat($rs->amount),
-                  'ShipDate' => $date_add,
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'DiscPrcnt' => $rs->discount_percent,
-                  'Price' => remove_vat($rs->price),
-                  'TotalFrgn' => remove_vat($rs->amount),
-                  'WhsCode' => $doc->warehouse_code,
-                  'BinCode' => $doc->zone_code,
-                  'FisrtBin' => $doc->zone_code,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => $vat_rate,
-                  'VatGroup' => $vat_code,
-                  'PriceAfVAT' => $rs->price,
-                  'VatSum' => $rs->vat_amount,
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => 'A',
-                  'F_E_CommerceDate' => now(),
-                  'U_OLDINV' => $rs->invoice_code
-                );
+								if($rs->receive_qty > 0)
+								{
+									$arr = array(
+	                  'DocEntry' => $docEntry,
+	                  'U_ECOMNO' => $rs->return_code,
+	                  'LineNum' => $line,
+	                  'ItemCode' => $rs->product_code,
+	                  'Dscription' => limitText($rs->product_name, 95),
+	                  'Quantity' => $rs->receive_qty,
+	                  'unitMsr' => $rs->unit_code,
+	                  'PriceBefDi' => remove_vat($rs->price),
+	                  'LineTotal' => remove_vat($rs->amount),
+	                  'ShipDate' => $date_add,
+	                  'Currency' => $currency,
+	                  'Rate' => 1,
+	                  'DiscPrcnt' => $rs->discount_percent,
+	                  'Price' => remove_vat($rs->price),
+	                  'TotalFrgn' => remove_vat($rs->amount),
+	                  'WhsCode' => $doc->warehouse_code,
+	                  'BinCode' => $doc->zone_code,
+	                  'FisrtBin' => $doc->zone_code,
+	                  'TaxStatus' => 'Y',
+	                  'VatPrcnt' => $vat_rate,
+	                  'VatGroup' => $vat_code,
+	                  'PriceAfVAT' => $rs->price,
+	                  'VatSum' => $rs->vat_amount,
+	                  'TaxType' => 'Y',
+	                  'F_E_Commerce' => 'A',
+	                  'F_E_CommerceDate' => now(),
+	                  'U_OLDINV' => $rs->invoice_code
+	                );
 
-                if( ! $this->ci->return_consignment_model->add_sap_return_detail($arr))
-                {
-                  $sc = FALSE;
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
+	                if( ! $this->ci->return_consignment_model->add_sap_return_detail($arr))
+	                {
+	                  $sc = FALSE;
+	                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
+	                }
 
-                $line++;
+	                $line++;
+								}
               }
             }
             else
@@ -2139,7 +2142,7 @@ public function export_consignment_order($code)
           'CardName' => $doc->customer_name, //--- ชื่อลูกค้า
           'DocCur' => $currency,
           'DocRate' => 1.000000,
-          'DocTotal' => $doc_total,
+          'DocTotal' => round($doc_total, 2),
           'DocTotalFC' => $doc_total,
           'Comments' => limitText($doc->remark, 250),
           'U_BOOKCODE' => $doc->bookcode,
@@ -2182,7 +2185,7 @@ public function export_consignment_order($code)
                 'VatPrcnt' => $vat_rate,
                 'VatGroup' => $vat_code,
                 'PriceAfVat' => $rs->price,
-                'GTotal' => round($rs->amount, 2),
+                'GTotal' => $rs->amount,
                 'VatSum' => get_vat_amount($rs->amount), //---- tool_helper
                 'TaxType' => 'Y', //--- คิดภาษีหรือไม่
                 'F_E_Commerce' => 'A', //--- A = Add , U = Update

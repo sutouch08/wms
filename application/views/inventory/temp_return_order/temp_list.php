@@ -73,8 +73,8 @@
           <th class="width-10">เข้าถังกลาง</th>
           <th class="width-10">เข้า SAP</th>
           <th class="width-5 text-center">สถานะ</th>
-					<th class="width-20">หมายเหตุ</th>
-					<th class="widht-5"></th>
+					<th class="">หมายเหตุ</th>
+					<th class="widht-10"></th>
         </tr>
       </thead>
       <tbody>
@@ -88,9 +88,9 @@
           <td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
 
           <td class="">
-						<a href="javascript:void(0)" onclick="getReturn('<?php echo $rs->U_ECOMNO; ?>')">
+
 						<?php echo $rs->U_ECOMNO; ?>
-						</a>
+					
 					</td>
 
           <td class=""><?php echo $rs->CardCode; ?></td>
@@ -124,7 +124,10 @@
             }
             ?>
           </td>
-					<td class="">
+					<td class="text-right">
+						<button type="button" class="btn btn-minier btn-primary" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
+							<i class="fa fa-eye"></i>
+						</button>
 						<?php if($rs->F_Sap !== 'Y') : ?>
 							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">
 								<i class="fa fa-trash"></i>

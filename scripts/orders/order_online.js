@@ -352,7 +352,7 @@ function payOrder()
 						return false;
 					}
 				}
-			
+
 				$("#orderAmount").val(ds.pay_amount);
 				$("#payAmountLabel").text("ยอดชำระ "+ addCommas(ds.pay_amount) +" บาท");
 				$("#selectBankModal").modal('show');
@@ -427,6 +427,7 @@ function editAddress(id)
 				$('#district').val(ds.district);
 				$("#province").val(ds.province);
 				$("#postcode").val(ds.postcode);
+				$('#country').val(ds.country);
 				$("#phone").val(ds.phone);
 				$("#email").val(ds.email);
 				$("#alias").val(ds.alias);
@@ -583,6 +584,7 @@ function saveAddress()
 	var subdistrict = $('#sub_district').val();
 	var district  = $('#district').val();
 	var province  = $('#province').val();
+	var country = $('#country').val() == "" ? "Thailand" : $('#country').val();
 	var email			= $("#email").val();
 	var alias 		= $("#alias").val();
 
@@ -635,6 +637,7 @@ function saveAddress()
 	ds.push( {"name" : "district", "value" : $("#district").val() } );
 	ds.push( {"name" : "province", "value" : $("#province").val() } );
 	ds.push( {"name" : "postcode", "value" : $("#postcode").val() } );
+	ds.push( {"name" : "country", "value" : country});
 	ds.push( {"name" : "phone", "value" : $("#phone").val() } );
 	ds.push( {"name" : "email", "value" : $("#email").val() } );
 	ds.push( {"name" : "alias", "value" : $("#alias").val() } );

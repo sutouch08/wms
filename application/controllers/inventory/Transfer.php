@@ -527,55 +527,130 @@ class Transfer extends PS_Controller
 
 
 
-  public function add_to_transfer()
+	public function add_to_transfer()
   {
     $sc = TRUE;
-    $code = $this->input->post('transfer_code');
-    if($code)
-    {
-      $this->load->model('masters/products_model');
 
-      $from_zone = $this->input->post('from_zone');
-      $to_zone = $this->input->post('to_zone');
-      $trans_products = $this->input->post('trans_products');
-      if(!empty($trans_products))
-      {
-        $this->db->trans_start();
-        foreach($trans_products as $item => $qty)
-        {
-          $id = $this->transfer_model->get_id($code, $item, $from_zone, $to_zone);
-          if(!empty($id))
-          {
-            $this->transfer_model->update_qty($id, $qty);
-          }
-          else
-          {
-            $arr = array(
-              'transfer_code' => $code,
-              'product_code' => $item,
-              'product_name' => $this->products_model->get_name($item),
-              'from_zone' => $from_zone,
-              'to_zone' => $to_zone,
-              'qty' => $qty
-            );
+		$data = json_decode($this->input->post('data'));
 
-            $this->transfer_model->add_detail($arr);
-          }
-        }
+		if(!empty($data))
+		{
+			if(! empty($data->transfer_code))
+	    {
+	      $this->load->model('masters/products_model');
 
-        $this->db->trans_complete();
+				$code = $data->transfer_code;
+	      $from_zone = $data->from_zone;
+	      $to_zone = $data->to_zone;
+	      $items = $data->items;
 
-        if($this->db->trans_status() === FALSE)
-        {
-          $sc = FALSE;
-          $message = 'เพิ่มข้อมูลไม่สำเร็จ';
-        }
-      }
-    }
+	      if(!empty($items))
+	      {
+	        $this->db->trans_start();
 
-    echo $sc === TRUE ? 'success' : $message;
+	        foreach($items as $item)
+	        {
+	          $id = $this->transfer_model->get_id($code, $item->item_code, $from_zone, $to_zone);
+
+	          if(!empty($id))
+	          {
+	            $this->transfer_model->update_qty($id, $item->qty);
+	          }
+	          else
+	          {
+	            $arr = array(
+	              'transfer_code' => $code,
+	              'product_code' => $item->item_code,
+	              'product_name' => $this->products_model->get_name($item->item_code),
+	              'from_zone' => $from_zone,
+	              'to_zone' => $to_zone,
+	              'qty' => $item->qty
+	            );
+
+	            $this->transfer_model->add_detail($arr);
+	          }
+	        }
+
+	        $this->db->trans_complete();
+
+	        if($this->db->trans_status() === FALSE)
+	        {
+	          $sc = FALSE;
+	          $this->error = 'เพิ่มข้อมูลไม่สำเร็จ';
+	        }
+	      }
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ไม่พบรายการสินค้า";
+				}
+	    }
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Missing document code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing form data";
+		}
+
+    echo $sc === TRUE ? 'success' : $this->error;
 
   }
+
+
+  // public function add_to_transfer()
+  // {
+  //   $sc = TRUE;
+  //   $code = $this->input->post('transfer_code');
+  //   if($code)
+  //   {
+  //     $this->load->model('masters/products_model');
+	//
+  //     $from_zone = $this->input->post('from_zone');
+  //     $to_zone = $this->input->post('to_zone');
+  //     $trans_products = $this->input->post('trans_products');
+  //     if(!empty($trans_products))
+  //     {
+  //       $this->db->trans_start();
+  //       foreach($trans_products as $item => $qty)
+  //       {
+  //         $id = $this->transfer_model->get_id($code, $item, $from_zone, $to_zone);
+  //         if(!empty($id))
+  //         {
+  //           $this->transfer_model->update_qty($id, $qty);
+  //         }
+  //         else
+  //         {
+  //           $arr = array(
+  //             'transfer_code' => $code,
+  //             'product_code' => $item,
+  //             'product_name' => $this->products_model->get_name($item),
+  //             'from_zone' => $from_zone,
+  //             'to_zone' => $to_zone,
+  //             'qty' => $qty
+  //           );
+	//
+  //           $this->transfer_model->add_detail($arr);
+  //         }
+  //       }
+	//
+  //       $this->db->trans_complete();
+	//
+  //       if($this->db->trans_status() === FALSE)
+  //       {
+  //         $sc = FALSE;
+  //         $message = 'เพิ่มข้อมูลไม่สำเร็จ';
+  //       }
+  //     }
+  //   }
+	//
+  //   echo $sc === TRUE ? 'success' : $message;
+	//
+  // }
 
 
 

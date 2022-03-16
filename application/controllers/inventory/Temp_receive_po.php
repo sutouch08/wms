@@ -48,23 +48,28 @@ class Temp_receive_po extends PS_Controller
 
 
 
-  public function get_detail($code)
+	public function get_detail($id)
   {
-    $this->load->model('stock/stock_model');
-    $detail = $this->temp_receive_po_model->get_detail($code);
-    if(!empty($detail))
-    {
-      foreach($detail as $rs)
-      {
-        $rs->onhand = $this->stock_model->get_stock_zone($rs->BinCode, $rs->ItemCode);
-      }
-    }
-
+    $doc = $this->temp_receive_po_model->get($id);
+    $detail = $this->temp_receive_po_model->get_detail($id);
     $ds['details'] = $detail;
-    $ds['code'] = $code;
+    $ds['code'] = $doc->U_ECOMNO;
     $this->load->view('inventory/temp_receive_po/temp_detail', $ds);
   }
 
+
+	public function remove_temp($docEntry)
+	{
+		$sc = TRUE;
+
+		if(! $this->temp_receive_po_model->removeTemp($docEntry))
+		{
+			$sc = FALSE;
+			$this->error = "Delete failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
   public function clear_filter()

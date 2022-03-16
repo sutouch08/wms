@@ -286,6 +286,15 @@ class Wms_auto_delivery_order extends CI_Controller
 
 		$this->order_state_model->add_state($arr);
 
+		//--- drop current prepare
+		$this->prepare_model->drop_prepare($order->code);
+
+		//--- drop current buffer
+		$this->buffer_model->drop_buffer($order->code);
+
+		//--- drop current qc
+		$this->qc_model->drop_qc($order->code);
+
 		foreach($details as $rs)
 		{
 
@@ -302,6 +311,46 @@ class Wms_auto_delivery_order extends CI_Controller
 
 				if(!empty($item))
 				{
+					//--- add prepare
+					if($sc === TRUE)
+					{
+						$prepare = array(
+							'order_code' => $order->code,
+							'product_code' => $item->code,
+							'zone_code' => $this->zone_code,
+							'qty' => $rs->qty,
+							'user' => $this->user
+						);
+
+						if(! $this->prepare_model->add($prepare))
+						{
+							$sc = FALSE;
+							$this->error = "Insert Prepare failed {$order->code} : {$item->code}";
+							$this->wms_order_import_logs_model->add($order->code, 'E', $this->error);
+						}
+					}
+				
+
+					//---- insert Qc
+					if($sc === TRUE)
+					{
+						$qc = array(
+							'order_code' => $order->code,
+							'product_code' => $item->code,
+							'qty' => $rs->qty,
+							'box_id' => NULL,
+							'user' => $this->user
+						);
+
+						if(!$this->qc_model->add($qc))
+						{
+							$sc = FALSE;
+							$this->error = "Insert Qc data failed : {$order->code} : {$rs->product_code}";
+							$this->wms_order_import_logs_model->add($order->code, 'E', $this->error);
+						}
+					}
+
+
 					$sell_price = ($ds->qty > 0) ? round($ds->total_amount/$ds->qty, 2) : $ds->price;
 					$discount_amount = ($ds->qty > 0) ? round($ds->discount_amount/$ds->qty, 2) : 0;
 					$id_policy = empty($ds->id_rule) ? NULL : $this->discount_rule_model->get_policy_id($ds->id_rule);

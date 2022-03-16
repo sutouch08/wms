@@ -167,20 +167,32 @@ function approve(){
 function doExport(){
 	var code = $('#return_code').val();
 	load_in();
-	$.get(HOME + 'export_return/'+code, function(rs){
-		if(rs === 'success'){
+	$.ajax({
+		url:HOME + 'export_return/'+code,
+		type:'GET',
+		cache:false,
+		success:function(rs) {
 			load_out();
-			swal({
-				title:'Success',
-				text:'ส่งข้อมูลไป SAP สำเร็จ',
-				type:'success',
-				timer:1000
-			});
-			setTimeout(function(){
-				viewDetail(code);
-			}, 1500);
+			if(rs == 'success') {
+				swal({
+					title:'Success',
+					text:'ส่งข้อมูลไป SAP สำเร็จ',
+					type:'success',
+					timer:1000
+				});
+				setTimeout(function(){
+					viewDetail(code);
+				}, 1500);
+			}
+			else {
+				swal({
+					title:"Error!",
+					text:rs,
+					type:'error'
+				})
+			}
 		}
-	});
+	})
 }
 
 

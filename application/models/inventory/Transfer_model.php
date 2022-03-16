@@ -758,6 +758,7 @@ class Transfer_model extends CI_Model
     $rs = $this->db
     ->select('code')
     ->where('status', 1)
+		->where('is_export', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
     ->limit($limit)
     ->get('transfer');

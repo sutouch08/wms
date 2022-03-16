@@ -171,6 +171,7 @@ class Return_order_model extends CI_Model
     $rs = $this->db
     ->select('code')
     ->where('status', 1)
+		->where('is_approve', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
     ->get('return_order');
 

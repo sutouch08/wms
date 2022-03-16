@@ -73,6 +73,13 @@ class Delivery_order_model extends CI_Model
       $this->db->where('orders.is_valid', $ds['is_valid']);
     }
 
+
+		if(isset($ds['is_exported']) & $ds['is_exported'] != 'all')
+		{
+			$this->db->where('orders.is_exported', $ds['is_exported']);
+		}
+
+
     if($ds['from_date'] != '' && $ds['to_date'] != '')
     {
       $this->db->where('orders.date_add >=', from_date($ds['from_date']));
@@ -138,6 +145,12 @@ class Delivery_order_model extends CI_Model
     {
       $this->db->where('orders.is_valid', $ds['is_valid']);
     }
+
+		if(isset($ds['is_exported']) & $ds['is_exported'] != 'all')
+		{
+			$this->db->where('orders.is_exported', $ds['is_exported']);
+		}
+		
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')
     {

@@ -173,6 +173,10 @@
 		</table>
 	</div>
 </div>
+
+<form id="edit-form" method="post" action="<?php echo $this->home; ?>/edit">
+	<input type="hidden" id="item-code" name="itemCode" />
+</form>
 <?php $this->load->view('masters/product_items/import_items'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/masters/items.js?v=<?php echo date('Ymd'); ?>"></script>

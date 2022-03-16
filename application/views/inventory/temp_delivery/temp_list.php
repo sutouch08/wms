@@ -1,30 +1,30 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
+    <h4 class="title">
       <?php echo $this->title; ?>
-    </h3>
+    </h4>
     </div>
-		<div class="col-sm-6">
+		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-5">
 			<p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-success" onclick="export_diff()">Export ยอดต่าง</button>
+				<button type="button" class="btn btn-xs btn-success" onclick="export_diff()">Export ยอดต่าง</button>
 			</p>
 		</div>
 </div><!-- End Row -->
-<hr class=""/>
+<hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า/ผู้เบิก</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
@@ -34,7 +34,7 @@
     </select>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
@@ -42,11 +42,11 @@
     </div>
   </div>
 
-  <div class="col-sm-1 padding-5">
+  <div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -56,27 +56,27 @@
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <p class="pull-right">
       สถานะ : ว่างๆ = ปกติ, &nbsp;
       <span class="red">ERROR</span> = เกิดข้อผิดพลาด, &nbsp;
       <span class="blue">NC</span> = ยังไม่เข้า SAP
     </p>
   </div>
-  <div class="col-sm-12">
-    <table class="table table-striped border-1 dataTable">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1 dataTable" style="min-width:1340px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-8 text-center">วันที่</th>
-          <th class="width-10">เลขที่เอกสาร </th>
-          <th class="width-10">รหัสลูกค้า</th>
-          <th class="width-20">ชื่อลูกค้า</th>
-          <th class="width-15">เข้าถังกลาง</th>
-          <th class="width-15">SAP Update</th>
-          <th class="width-5 text-center">สถานะ</th>
-					<th class="">หมายเหตุ</th>
-					<th class="width-5"></th>
+          <th class="text-center" style="width:40px;">#</th>
+          <th class="text-center" style="width:100px;">วันที่</th>
+          <th class="" style="width:120px;">เลขที่เอกสาร </th>
+          <th class="" style="width:100px;">รหัสลูกค้า</th>
+          <th class="" style="width:350px;">ชื่อลูกค้า</th>
+          <th class="" style="width:140px;">เข้าถังกลาง</th>
+          <th class="" style="width:140px;">SAP Update</th>
+          <th class="text-center" style="width:70px;">สถานะ</th>
+					<th class="" style="width:200px;">หมายเหตุ</th>
+					<th class="" style="width:100px;"></th>
         </tr>
       </thead>
       <tbody>

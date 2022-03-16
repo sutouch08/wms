@@ -35,6 +35,10 @@
                 	<label class="input-label">รหัสไปรษณีย์</label>
                     <input type="text" class="form-control input-sm" name="postcode" id="postcode" placeholder="รหัสไปรษณีย์" />
                 </div>
+								<div class="col-sm-6 col-xs-12">
+                	<label class="input-label">ปรเทศ</label>
+                    <input type="text" class="form-control input-sm" name="country" id="country" placeholder="Thailand" value="Thailand"/>
+                </div>
                 <div class="col-sm-6 col-xs-12">
                 	<label class="input-label">เบอร์โทรศัพท์</label>
                     <input type="text" class="form-control input-sm" name="phone" id="phone" placeholder="000 000 0000" />
@@ -339,3 +343,5 @@
 </tr>
 {{/each}}
 </script>
+
+<script src="<?php echo base_url(); ?>scripts/orders/country_list.js?v=<?php echo date('Ymd'); ?>"></script>

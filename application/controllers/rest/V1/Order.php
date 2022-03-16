@@ -13,30 +13,45 @@ class Order extends REST_Controller
 	public $logs;
 	public $log_json = FALSE;
 	public $sync_chatbot_stock = FALSE;
+	public $api = FALSE;
 
   public function __construct()
   {
     parent::__construct();
-    $this->logs = $this->load->database('logs', TRUE); //--- api logs database
-		$this->ms = $this->load->database('ms', TRUE);
-		$this->path = $this->config->item('image_file_path')."payments/";
-		$this->isAPI = is_true(getConfig('WMS_API'));
+		$this->api = is_true(getConfig('CHATBOT_API'));
 
-    $this->load->model('orders/orders_model');
-    $this->load->model('orders/order_state_model');
-    $this->load->model('masters/products_model');
-    $this->load->model('masters/customers_model');
-    $this->load->model('masters/channels_model');
-		$this->load->model('masters/sender_model');
-    $this->load->model('masters/payment_methods_model');
-		$this->load->model('masters/warehouse_model');
-    $this->load->model('address/address_model');
+		if($this->api)
+		{
+			$this->logs = $this->load->database('logs', TRUE); //--- api logs database
+			$this->ms = $this->load->database('ms', TRUE);
+			$this->path = $this->config->item('image_file_path')."payments/";
+			$this->isAPI = is_true(getConfig('WMS_API'));
 
-		$this->load->model('rest/V1/order_api_logs_model');
+	    $this->load->model('orders/orders_model');
+	    $this->load->model('orders/order_state_model');
+	    $this->load->model('masters/products_model');
+	    $this->load->model('masters/customers_model');
+	    $this->load->model('masters/channels_model');
+			$this->load->model('masters/sender_model');
+	    $this->load->model('masters/payment_methods_model');
+			$this->load->model('masters/warehouse_model');
+	    $this->load->model('address/address_model');
 
-    $this->user = 'api@chatbot';
-		$this->log_json = is_true(getConfig('CHATBOT_LOG_JSON'));
-		$this->sync_chatbot_stock = is_true(getConfig('SYNC_CHATBOT_STOCK'));
+			$this->load->model('rest/V1/order_api_logs_model');
+
+	    $this->user = 'api@chatbot';
+			$this->log_json = is_true(getConfig('CHATBOT_LOG_JSON'));
+			$this->sync_chatbot_stock = is_true(getConfig('SYNC_CHATBOT_STOCK'));
+		}
+		else
+		{
+			$arr = array(
+				'status' => FALSE,
+				'error' => "Access denied"
+			);
+
+			$this->response($arr, 400);
+		}
   }
 
 
