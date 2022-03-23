@@ -1,33 +1,44 @@
 <?php
-$cn = get_permission('SOCNDO', get_cookie('uid'), get_cookie('id_profile')); //--- ยกเลิกออเดอร์ที่จัดส่งแล้ว บนระบบ WMS
+$cn = get_permission("SOCNDO", get_cookie("uid"), get_cookie("id_profile")); //--- ยกเลิกออเดอร์ที่จัดส่งแล้ว บนระบบ WMS
 $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE : FALSE;
  ?>
-<?php if($order->role == 'S') : ?>
+<?php if($order->role == "S") : ?>
 	<?php 	$paymentLabel = paymentLabel($order->code, paymentExists($order->code), $order->is_paid);	?>
 	<?php if(!empty($paymentLabel)) : ?>
 		<div class="row">
-		  <div class="col-sm-12 col-xs-12 padding-5">
+		  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 		  	<?php echo $paymentLabel; ?>
 		  </div>
 		</div>
 		<hr class="padding-5"/>
 	<?php endif; ?>
 <?php endif; ?>
+
+<style>
+	@media(min-width:768px) {
+		#rc-div {
+			margin-bottom:-30px;
+		}
+	}
+</style>
+
 <div class="row">
-  <div class="col-sm-12 col-xs-12 padding-5">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
-			<?php if($order->is_wms && $order->wms_export == 1) : ?>
-				<?php if($order->state == 9 && $order->is_cancled == 1) : ?>
-					<button type="button" class="btn btn-sm btn-info pull-right margin-left-5" style="z-index:100;" onclick="print_wms_return_request()">พิมพ์ใบส่งคืนสินค้า(RC)</button>
+			<div class="col-lg-6 col-lg-offset-6 col-md-6 col-md-offset-6 col-sm-6 col-sm-offset-6 col-xs-12 padding-5 bottom-btn" id="rc-div" style="z-index:100;">
+				<?php if($order->is_wms && $order->wms_export == 1) : ?>
+					<?php if($order->state == 9 && $order->is_cancled == 1) : ?>
+						<button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="print_wms_return_request()">พิมพ์ RC-WO</button>
+					<?php endif; ?>
+					<?php if($canCancleShipped && ($order->state == 7 OR $order->state == 8)) : ?>
+						<button type="button" class="btn btn-xs btn-danger pull-right margin-left-5" onclick="cancle_shipped_order()">RC-WO</button>
+					<?php endif; ?>
+					<?php if($order->is_cancled == 1 && $canCancleShipped && $order->state == 9) : ?>
+						<button type="button" class="btn btn-xs btn-danger pull-right margin-left-5" onclick="send_return_request()">Send RC-WO</button>
+					<?php endif; ?>
+				<button type="button" class="btn btn-xs btn-primary pull-right margin-left-5" onclick="update_wms_status()">WMS Status</button>
 				<?php endif; ?>
-				<?php if($canCancleShipped && ($order->state == 7 OR $order->state == 8)) : ?>
-					<button type="button" class="btn btn-sm btn-danger pull-right margin-left-5" style="z-index:100;" onclick="cancle_shipped_order()">ยกเลิก WMS ออเดอร์(Shipped)</button>
-				<?php endif; ?>
-				<?php if($order->is_cancled == 1 && $canCancleShipped && $order->state == 9) : ?>
-					<button type="button" class="btn btn-sm btn-danger pull-right margin-left-5" style="z-index:100;" onclick="send_return_request()">Send return request to WMS</button>
-				<?php endif; ?>
-			<button type="button" class="btn btn-sm btn-primary pull-right" style="z-index:100;" onclick="update_wms_status()">Update WMS Status</button>
-			<?php endif; ?>
+			</div>
     	<ul class="nav nav-tabs" role="tablist">
         <li class="active">
         	<a href="#state" aria-expanded="true" aria-controls="state" role="tab" data-toggle="tab">สถานะ</a>
@@ -44,10 +55,10 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
       <div class="tab-content" style="margin:0px; padding:0px;">
 
 				<div role="tabpanel" class="tab-pane fade" id="address">
-          <div class='row'>
+          <div class="row">
             <div class="col-sm-12">
             <div class="table-responsive">
-              <table class='table table-bordered' style="margin-bottom:0px; border-collapse:collapse; border:0;">
+              <table class="table table-bordered" style="margin-bottom:0px; border-collapse:collapse; border:0;">
                 <thead>
                   <tr style="background-color:white;">
                     <th colspan="6" align="center">ที่อยู่สำหรับจัดส่ง
@@ -71,7 +82,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                   <tr style="font-size:12px;" id="<?php echo $rs->id; ?>">
                     <td align="center"><?php echo $rs->alias; ?></td>
                     <td><?php echo $rs->name; ?></td>
-                    <td><?php echo $rs->address.' '. $rs->sub_district.' '.$rs->district.' '.$rs->province.' '. $rs->postcode; ?></td>
+                    <td><?php echo $rs->address." ". $rs->sub_district." ".$rs->district." ".$rs->province." ". $rs->postcode; ?></td>
                     <td><?php echo $rs->email; ?></td>
                     <td><?php echo $rs->phone; ?></td>
                     <td align="right">
@@ -112,31 +123,31 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
       </div>
 
       <div role="tabpanel" class="tab-pane active" id="state">
-				<?php $this->load->view('orders/order_state'); ?>
+				<?php $this->load->view("orders/order_state"); ?>
       </div>
 			<div role="tabpanel" class="tab-pane fade" id="sender">
 				<div class="row" style="padding:15px;">
-					<div class="col-sm-12 col-xs-12 padding-5">
-						<table class="table" style="margin-bottom:0px;">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+						<table class="table" style="min-width:700px; margin-bottom:0px;">
 							<tr>
-								<td class="width-10 middle text-right" style="border:none;">เลือกผู้จัดส่ง : </td>
-								<td class="width-20"style="border:none;">
+								<td class="width-10 middle text-right" style="min-width:100px; border:none;">เลือกผู้จัดส่ง : </td>
+								<td class="width-20"style="min-width:150px; border:none;">
 									<select class="form-control input-sm" id="id_sender">
 										<option value="">เลือก</option>
 										<?php echo select_common_sender($order->customer_code, $order->id_sender); //--- sender helper?>
 									</select>
 								</td>
-								<td class="width-10 middle" style="border:none;">
+								<td class="width-10 middle" style="min-width:100px; border:none;">
 									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->id_sender == NULL) : ?>
 									<button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
 									<?php endif; ?>
 								</td>
-								<td class="width-15 middle text-right" style="border:none;">Tracking No: </td>
-								<td class="width-20 middle" style="border:none;">
+								<td class="width-15 middle text-right" style="min-width:100px; border:none;">Tracking No: </td>
+								<td class="width-20 middle" style="min-width:150px; border:none;">
 									<input type="text" class="form-control input-sm" id="tracking" value="<?php echo $order->shipping_code; ?>">
 									<input type="hidden" id="trackingNo" value="<?php echo $order->shipping_code; ?>">
 								</td>
-								<td class="width-10 middle" style="border:none;">
+								<td class="width-10 middle" style="min-width:100px; border:none;">
 									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->shipping_code == NULL) : ?>
 									<button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
 									<?php endif; ?>
@@ -181,22 +192,22 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 
 <script>
 function update_wms_status() {
-	const order_code = $('#order_code').val();
+	const order_code = $("#order_code").val();
 	if(order_code !== "" && order_code !== undefined) {
 		load_in();
 		$.ajax({
-			url:BASE_URL + 'rest/V1/wms_order_status/update_wms_status',
-			type:'GET',
+			url:BASE_URL + "rest/V1/wms_order_status/update_wms_status",
+			type:"GET",
 			cache:false,
 			data:{
 				"order_code" : order_code
 			},
 			success:function(rs) {
 				load_out();
-				if(rs === 'success') {
+				if(rs === "success") {
 					swal({
-						title:'Success',
-						type:'success',
+						title:"Success",
+						type:"success",
 						timer:1000
 					});
 
@@ -221,24 +232,24 @@ function cancle_shipped_order() {
 		type: "warning",
 		showCancelButton: true,
 		confirmButtonColor: "#DD6B55",
-		confirmButtonText: 'ยืนยัน',
-		cancelButtonText: 'ยกเลิก',
+		confirmButtonText: "ยืนยัน",
+		cancelButtonText: "ยกเลิก",
 		html:true,
 		closeOnConfirm: true,
 		}, function(){
-			$('#cancle-shipped-modal').modal('show');
+			$("#cancle-shipped-modal").modal("show");
 	});
 }
 
 
 //--
 function cancle_order_shipped() {
-	$('#cancle-shipped-modal').modal('hide');
-	const order_code = $('#order_code').val();
-	const reason = $.trim($('#cancle-shipped-reason').val());
+	$("#cancle-shipped-modal").modal("hide");
+	const order_code = $("#order_code").val();
+	const reason = $.trim($("#cancle-shipped-reason").val());
 
 	if(reason == "") {
-		$('#cancle-shipped-modal').modal('show');
+		$("#cancle-shipped-modal").modal("show");
 		return false;
 	}
 
@@ -246,8 +257,8 @@ function cancle_order_shipped() {
 	if(order_code !== "" && order_code !== undefined) {
 		load_in();
 		$.ajax({
-			url:BASE_URL + 'orders/orders/cancle_wms_shipped_order',
-			type:'POST',
+			url:BASE_URL + "orders/orders/cancle_wms_shipped_order",
+			type:"POST",
 			cache:false,
 			data:{
 				"order_code" : order_code,
@@ -255,10 +266,10 @@ function cancle_order_shipped() {
 			},
 			success:function(rs) {
 				load_out();
-				if(rs === 'success') {
+				if(rs === "success") {
 					swal({
-						title:'Success',
-						type:'success',
+						title:"Success",
+						type:"success",
 						timer:1000
 					});
 
@@ -274,28 +285,28 @@ function cancle_order_shipped() {
 	}
 }
 
-$('#cancle-shipped-modal').on('shown.bs.modal', function() {
-	$('#cancle-shipped-reason').focus();
+$("#cancle-shipped-modal").on("shown.bs.modal", function() {
+	$("#cancle-shipped-reason").focus();
 });
 
 
 function send_return_request() {
-	const order_code = $('#order_code').val();
+	const order_code = $("#order_code").val();
 	if(order_code !== "" && order_code !== undefined) {
 		load_in();
 		$.ajax({
-			url:BASE_URL + 'orders/orders/send_return_request',
-			type:'POST',
+			url:BASE_URL + "orders/orders/send_return_request",
+			type:"POST",
 			cache:false,
 			data:{
 				"order_code" : order_code
 			},
 			success:function(rs) {
 				load_out();
-				if(rs === 'success') {
+				if(rs === "success") {
 					swal({
-						title:'Success',
-						type:'success',
+						title:"Success",
+						type:"success",
 						timer:1000
 					});
 
@@ -314,10 +325,10 @@ function send_return_request() {
 
 
 function print_wms_return_request() {
-	const order_code = $('#order_code').val();
+	const order_code = $("#order_code").val();
 	if(order_code !== "" && order_code !== undefined) {
 		const center = ($(document).width() - 800) /2;
-	  const target = BASE_URL + 'orders/orders/print_wms_return_request/'+order_code;
+	  const target = BASE_URL + "orders/orders/print_wms_return_request/"+order_code;
 	  window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
 	}
 }

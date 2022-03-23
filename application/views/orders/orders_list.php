@@ -2,12 +2,12 @@
 <?php $can_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
-    <h3 class="title">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+    <h4 class="title">
       <?php echo $this->title; ?>
-    </h3>
+    </h4>
     </div>
-    <div class="col-sm-6 col-xs-6 padding-5">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
 				<?php if($can_upload == 1) : ?>
@@ -15,43 +15,42 @@
 				<?php endif;?>
         <button type="button" class="btn btn-xs btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
       <?php endif; ?>
-
       </p>
     </div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>ใบเสนอราคา</label>
     <input type="text" class="form-control input-sm search" name="qt_no"  value="<?php echo $qt_no; ?>" />
 	</div>
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่อ้างอิง</label>
 		<input type="text" class="form-control input-sm search" name="reference" value="<?php echo $reference; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่จัดส่ง</label>
 		<input type="text" class="form-control input-sm search" name="shipCode" value="<?php echo $ship_code; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
 		<select class="form-control input-sm" name="channels" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -59,7 +58,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>การชำระเงิน</label>
 		<select class="form-control input-sm" name="payment" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -67,7 +66,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
@@ -75,7 +74,7 @@
     </div>
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>WMS</label>
 		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -85,6 +84,7 @@
 		</select>
 	</div>
 
+	<!--
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label class="display-block">สถานะ</label>
 		<select class="form-control input-sm" name="stated">
@@ -110,8 +110,8 @@
 			<?php echo selectTime($endTime); ?>
 		</select>
 	</div>
-
-	<div class="col-sm-2 col-xs-12 padding-5">
+-->
+	<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
 		<label>คลัง</label>
 		<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -119,17 +119,47 @@
 		</select>
 	</div>
 
-	<div class="col-sm-1 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>SAP Status</label>
+		<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $sap_status); ?>>ยังไม่ส่งออก</option>
+			<option value="1" <?php echo is_selected('1', $sap_status); ?>>ยังไม่เข้า SAP</option>
+			<option value="2" <?php echo is_selected('2', $sap_status); ?>>เข้า SAP แล้ว</option>
+			<option value="3" <?php echo is_selected('3', $sap_status); ?>>ส่งออกไม่สำเร็จ</option>
+		</select>
+	</div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>DO No.</label>
+    <input type="text" class="form-control input-sm search" name="DoNo" value="<?php echo $DoNo; ?>" />
+  </div>
+
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Create By</label>
+		<select class="form-control input-sm" name="method" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $method); ?>>Manual</option>
+			<option value="1" <?php echo is_selected('1', $method); ?>>Upload</option>
+			<option value="2" <?php echo is_selected('2', $method); ?>>API</option>
+		</select>
+	</div>
+
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
+
+
 <div class="row margin-top-10">
-	<div class="col-sm-12 col-xs-12 padding-5">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 		<button type="button" id="btn-state-1" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
 		<button type="button" id="btn-state-2" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_2']; ?>" onclick="toggleState(2)">รอชำระเงิน</button>
 		<button type="button" id="btn-state-3" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
@@ -165,8 +195,8 @@
 <?php $sort_date = $order_by == '' ? "" : ($order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover dataTable" style="border-collapse:inherit;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="double-scroll">
+		<table class="table table-striped table-hover dataTable" style="min-width:1000px; border-collapse:inherit;">
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
@@ -220,6 +250,8 @@ if($can_upload == 1) :
 	 $this->load->view('orders/import_order');
 endif;
 ?>
+
+
 <script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/order_list.js?v=<?php echo date('Ymd'); ?>"></script>
 

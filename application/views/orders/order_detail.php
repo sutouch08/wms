@@ -5,17 +5,17 @@
 	?>
 <form id="discount-form">
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-			<table class="table table-striped border-1" style="border-collapse:inherit;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+			<table class="table table-striped border-1" style="border-collapse:inherit; margin-bottom:0px;">
         <thead>
         	<tr class="font-size-12">
             	<th class="width-5 text-center">No.</th>
                 <th class="width-5 text-center"></th>
                 <th class="width-15">รหัสสินค้า</th>
                 <th class="width-25">ชื่อสินค้า</th>
-                <th class="width-10 text-center">ราคา</th>
+                <th class="width-10 text-center" style="min-width:100px;">ราคา</th>
                 <th class="width-10 text-center">จำนวน</th>
-                <th class="width-15 text-center">
+                <th class="width-15 text-center" style="min-width:100px;">
 									<?php if( $order->role == 'C' ) : ?>
 										GP
 									<?php else : ?>
@@ -59,7 +59,7 @@
 														class="form-control input-sm text-center price-box hide"
 														id="price_<?php echo $rs->id; ?>"
 														name="price[<?php echo $rs->id; ?>]"
-														value="<?php echo $rs->price; ?>" />
+														value="<?php echo round($rs->price, 2); ?>" />
 				        <?php endif; ?>
                 <span class="price-label" id="price-label-<?php echo $rs->id; ?>">	<?php echo number($rs->price, 2); ?></span>
               </td>

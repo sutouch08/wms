@@ -6,17 +6,15 @@ $delete = $this->pm->can_delete;
 $hide = $order->status == 1 ? 'hide' : '';
  ?>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
-    	<h3 class="title"><?php echo $this->title; ?></h3>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-3 padding-5">
+    	<h4 class="title"><?php echo $this->title; ?></h4>
     </div>
-    <div class="col-sm-6 col-xs-6 padding-5">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-9 padding-5">
     	<p class="pull-right top-p">
-        	<button type="button" class="btn btn-sm btn-warning" onClick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
-					<button type="button" class="btn btn-sm btn-info" onclick="recalDiscount()">
-			        <i class="fa fa-calculator"></i> คำนวณส่วนลดใหม่</button>
-			      </button>
+        	<button type="button" class="btn btn-xs btn-warning" onClick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
+					<button type="button" class="btn btn-xs btn-info" onclick="recalDiscount()">คำนวณส่วนลดใหม่</button></button>
       <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-          <button type="button" class="btn btn-sm btn-success <?php echo $hide; ?>" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
+          <button type="button" class="btn btn-xs btn-success <?php echo $hide; ?>" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
       <?php endif; ?>
         </p>
     </div>
@@ -34,59 +32,46 @@ $hide = $order->status == 1 ? 'hide' : '';
 ?>
 <!--  Search Product -->
 <div class="row">
-	<div class="col-sm-1 col-1-harf col-xs-4 padding-5">
-		<input type="text"
-		class="form-control input-sm text-center"
-		id="qt_no"
-		name="qty_no"
-		placeholder="ใบเสนอราคา"
-		value="<?php echo $order->quotation_no; ?>"
-		<?php echo $qt; ?>>
+	<div class="col-sm-1 col-1-harf col-xs-8 padding-5 margin-bottom-10">
+		<input type="text" class="form-control input-sm text-center" id="qt_no"	name="qty_no" placeholder="Quotation" value="<?php echo $order->quotation_no; ?>"	<?php echo $qt; ?>>
 	</div>
-	<div class="col-sm-1 col-xs-4 padding-5">
-
-		<button type="button"
-		class="btn btn-xs btn-primary btn-block"
-		id="btn-qt-no"
-		<?php if($asq) : ?>
-		onclick="get_quotation()"
-	<?php endif; ?>
-		<?php echo $qt; ?>
-		>ดึงรายการ</button>
-
+	<div class="col-sm-1 col-xs-4 padding-5 margin-bottom-10">
+		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-qt-no"	<?php if($asq) : ?>	onclick="get_quotation()" <?php endif; ?>	<?php echo $qt; ?>	>Add</button>
 	</div>
-	<div class="col-sm-2 col-2-harf col-xs-12 padding-5 margin-bottom-10">
-    <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="ค้นรหัสสินค้า" />
+	<div class="col-sm-2 col-2-harf col-xs-8 padding-5 margin-bottom-10">
+    <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="Model Code" autofocus />
   </div>
-  <div class="col-sm-1 col-1-harf col-xs-12 padding-5 margin-bottom-10">
-  	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()"><i class="fa fa-tags"></i> แสดงสินค้า</button>
+  <div class="col-sm-1 col-1-harf col-xs-4 padding-5 margin-bottom-10">
+  	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()">OK</button>
   </div>
-  <div class="col-sm-2 col-2-harf col-xs-12 padding-5 margin-bottom-10">
-    <input type="text" class="form-control input-sm text-center" id="item-code" placeholder="ค้นหารหัสสินค้า">
+
+	<div class="divider visible-xs">			</div>
+  <div class="col-sm-2 col-2-harf col-xs-6 padding-5 margin-bottom-10">
+    <input type="text" class="form-control input-sm text-center" id="item-code" placeholder="SKU Code">
   </div>
-  <div class="col-sm-1 col-xs-6 padding-5 margin-bottom-10">
-    <input type="number" class="form-control input-sm text-center" id="stock-qty" disabled>
+  <div class="col-sm-1 col-xs-2 padding-5 margin-bottom-10">
+    <input type="number" class="form-control input-sm text-center" id="stock-qty" placeholder="Stock" disabled>
   </div>
-  <div class="col-sm-1 col-xs-6 padding-5 margin-bottom-10">
-    <input type="number" class="form-control input-sm text-center" id="input-qty">
+  <div class="col-sm-1 col-xs-2 padding-5 margin-bottom-10">
+    <input type="number" class="form-control input-sm text-center" id="input-qty" placeholder="Qty">
   </div>
-  <div class="col-sm-1 col-xs-12 padding-5 margin-bottom-10">
-    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">เพิ่ม</button>
+  <div class="col-sm-1 col-xs-2 padding-5 margin-bottom-10">
+    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">Add</button>
   </div>
 </div>
 
-<hr class="margin-top-15 margin-bottom-0" />
+<hr class="margin-top-15 margin-bottom-0 visible-lg" />
 <!--- Category Menu ---------------------------------->
-<div class="row">
-	<div class="col-sm-12 padding-5">
+<div class="row visible-lg">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 		<ul class='nav navbar-nav' role='tablist' style='background-color:#EEE'>
 		<?php echo productTabMenu('order'); ?>
 		</ul>
 	</div><!---/ col-sm-12 ---->
 </div><!---/ row -->
-<hr />
-<div class='row'>
-	<div class='col-sm-12 padding-5'>
+<hr class="visible-lg"/>
+<div class='row visible-lg'>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 		<div class='tab-content' style="min-height:1px; padding:0px; border:0px;">
 		<?php echo getProductTabs(); ?>
 		</div>

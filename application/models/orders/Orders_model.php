@@ -383,7 +383,7 @@ class Orders_model extends CI_Model
 
   public function clear_inv_code($code)
   {
-    return $this->db->set('inv_code', NULL)->where('code', $code)->update('orders');
+    return $this->db->set('inv_code', NULL)->set('is_exported', 0)->where('code', $code)->update('orders');
   }
 
 
@@ -566,6 +566,69 @@ class Orders_model extends CI_Model
 			else
 			{
 				$this->db->where('orders.wms_export', $ds['wms_export']);		}
+		}
+
+		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
+		{
+			if($ds['sap_status'] == 0)
+			{
+				$this->db->where('orders.is_exported',0);
+			}
+			else if($ds['sap_status'] == 1)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_exported', 1)
+				->where('orders.inv_code IS NULL', NULL, FALSE)
+				->group_end();
+			}
+			else if($ds['sap_status'] == 2)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_exported', 1)
+				->where('orders.inv_code IS NOT NULL', NULL, FALSE)
+				->group_end();
+			}
+			else if($ds['sap_status'] == 3)
+			{
+				$this->db->where('orders.is_exported', 3);
+			}
+		}
+
+
+		if(isset($ds['DoNo']) && $ds['DoNo'] != "")
+		{
+			$this->db->like('orders.inv_code', $ds['DoNo']);
+		}
+
+
+		if(isset($ds['method']) && $ds['method'] != "all")
+		{
+			if($ds['method'] == 0)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_import', 0)
+				->where('orders.is_api', 0)
+				->group_end();
+			}
+			else if($ds['method'] == 1)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_import', 1)
+				->where('orders.is_api', 0)
+				->group_end();
+			}
+			else if($ds['method'] == 2)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_import', 0)
+				->where('orders.is_api', 1)
+				->group_end();
+			}
 		}
 
     return $this->db->count_all_results();
@@ -751,6 +814,70 @@ class Orders_model extends CI_Model
 			else
 			{
 				$this->db->where('orders.wms_export', $ds['wms_export']);		}
+		}
+
+
+		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
+		{
+			if($ds['sap_status'] == 0)
+			{
+				$this->db->where('orders.is_exported',0);
+			}
+			else if($ds['sap_status'] == 1)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_exported', 1)
+				->where('orders.inv_code IS NULL', NULL, FALSE)
+				->group_end();
+			}
+			else if($ds['sap_status'] == 2)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_exported', 1)
+				->where('orders.inv_code IS NOT NULL', NULL, FALSE)
+				->group_end();
+			}
+			else if($ds['sap_status'] == 3)
+			{
+				$this->db->where('orders.is_exported', 3);
+			}
+		}
+
+
+		if(isset($ds['DoNo']) && $ds['DoNo'] != "")
+		{
+			$this->db->like('orders.inv_code', $ds['DoNo']);
+		}
+
+
+		if(isset($ds['method']) && $ds['method'] != "all")
+		{
+			if($ds['method'] == 0)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_import', 0)
+				->where('orders.is_api', 0)
+				->group_end();
+			}
+			else if($ds['method'] == 1)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_import', 1)
+				->where('orders.is_api', 0)
+				->group_end();
+			}
+			else if($ds['method'] == 2)
+			{
+				$this->db
+				->group_start()
+				->where('orders.is_import', 0)
+				->where('orders.is_api', 1)
+				->group_end();
+			}
 		}
 
 

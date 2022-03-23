@@ -114,9 +114,11 @@ $("#customer").autocomplete({
 			var code = arr[0];
 			var name = arr[1];
 			$("#customerCode").val(code);
+			$('#customer_code').val(code);
 			$("#customer").val(name);
 		}else{
 			$("#customerCode").val('');
+			$('#customer_code').val('');
 			$(this).val('');
 		}
 	}
