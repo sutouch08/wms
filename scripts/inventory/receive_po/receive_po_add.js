@@ -202,7 +202,7 @@ function save(){
 				'product_code' : $('#item_'+uid).val(),
 				'qty' : qty,
 				'price' : $('#price_'+uid).val(),
-				'backlogs' : $('#limit_'+uid).val(),
+				'backlogs' : $('#backlog_'+uid).val(),
 				'currency' : $('#currency_'+uid).val(),
 				'rate' : $('#rate_'+uid).val(),
 				'vatGroup' : $('#vatGroup_'+uid).val(),
@@ -464,7 +464,7 @@ function getPoCurrency(poCode)
 				var ds = $.parseJSON(rs);
 				$('#DocCur').val(ds.DocCur);
 				$('#DocRate').val(ds.DocRate);
-				
+
 				if(ds.DocCur == 'THB') {
 					$('#DocRate').val(1.00);
 				}
@@ -852,3 +852,115 @@ $('#code').keyup(function(e){
 		validateOrder();
 	}
 });
+
+
+function receiveAll() {
+	$('.receive-box').each(function() {
+		let id = $(this).data('uid');
+
+		let qty = $('#backlog_'+id).val();
+		$(this).val(qty);
+	});
+
+	sumReceive();
+}
+
+
+function clearAll() {
+	$('.receive-box').each(function() {
+		$(this).val("");
+	});
+
+	sumReceive();
+}
+
+
+
+function getUploadFile(){
+  $('#upload-modal').modal('show');
+}
+
+
+
+function getFile(){
+  $('#uploadFile').click();
+}
+
+
+
+
+
+
+
+
+$("#uploadFile").change(function(){
+	if($(this).val() != '')
+	{
+		var file 		= this.files[0];
+		var name		= file.name;
+		var type 		= file.type;
+		var size		= file.size;
+
+		if( size > 5000000 )
+		{
+			swal("ขนาดไฟล์ใหญ่เกินไป", "ไฟล์แนบต้องมีขนาดไม่เกิน 5 MB", "error");
+			$(this).val('');
+			return false;
+		}
+		//readURL(this);
+    $('#show-file-name').text(name);
+	}
+});
+
+
+
+	function uploadfile()
+	{
+    $('#upload-modal').modal('hide');
+
+		var file	= $("#uploadFile")[0].files[0];
+		var fd = new FormData();
+		fd.append('uploadFile', $('input[type=file]')[0].files[0]);
+		if( file !== '')
+		{
+			load_in();
+			$.ajax({
+				url:HOME + 'import_data',
+				type:"POST",
+        cache:"false",
+        data: fd,
+        processData:false,
+        contentType: false,
+				success: function(rs){
+					load_out();
+					if( isJson(rs) ){
+						data = $.parseJSON(rs);
+
+						$('#vendor_code').val(data.vendor_code);
+						$('#vendorName').val(data.vendor_name);
+						$('#poCode').val(data.po_code);
+						$('#invoice').val(data.invoice_code);
+						$('#poCode').attr('disabled', 'disabled');
+						$('#DocCur').val(data.DocCur);
+						$('#DocRate').val(data.DocRate);
+
+						var ds = data.details;
+						var source = $("#template").html();
+						var output = $("#receiveTable");
+						render(source, ds, output);
+
+						$(".receive-box").keyup(function(e){
+		    				sumReceive();
+						});
+
+						$('#btn-get-po').addClass('hide');
+						$('#btn-change-po').removeClass('hide');
+
+					}else{
+						swal("ข้อผิดพลาด !", rs, "error");
+						$("#receiveTable").html('');
+					}
+				}
+			});
+		}
+	}

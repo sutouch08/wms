@@ -69,6 +69,136 @@ class Receive_po extends PS_Controller
 
 
 
+	public function import_data()
+	{
+		$this->load->library('excel');
+		ini_set('max_execution_time', 1200);
+
+    $sc = TRUE;
+    $import = 0;
+    $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
+  	$path = $this->config->item('upload_path').'receive_po/';
+    $file	= 'uploadFile';
+		$config = array(   // initial config for upload class
+			"allowed_types" => "xlsx",
+			"upload_path" => $path,
+			"file_name"	=> "import_receive",
+			"max_size" => 5120,
+			"overwrite" => TRUE
+		);
+
+		$this->load->library("upload", $config);
+
+		if(! $this->upload->do_upload($file))
+    {
+			echo $this->upload->display_errors();
+		}
+    else
+    {
+      $info = $this->upload->data();
+      /// read file
+			$excel = PHPExcel_IOFactory::load($info['full_path']);
+			//get only the Cell Collection
+      $cs	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
+
+      $i = 1;
+      $count = count($cs);
+      $limit = intval(getConfig('IMPORT_ROWS_LIMIT'))+1;
+			$ro = getConfig('RECEIVE_OVER_PO');
+	    $rate = ($ro * 0.01);
+
+      if( $count <= $limit )
+      {
+				$po_code = $cs[1]['C'];
+				if(! empty($po_code))
+				{
+					$vendor = $this->receive_po_model->get_vender_by_po($po_code);
+					$cur = $this->receive_po_model->get_po_currency($po_code);
+
+					if(! empty($vendor))
+					{
+						$ds = array(
+							"po_code" => $po_code,
+							"invoice_code" => $cs[2]['C'],
+							"vendor_code" => $vendor->CardCode,
+							"vendor_name" => $vendor->CardName,
+							"DocCur" => empty($cur) ? "THB" : $cur->DocCur,
+							"DocRate" => empty($cur) ? 1.00 : $cur->DocRate
+						);
+
+						$line = array();
+						$no = 1;
+						$totalBacklog = 0;
+						$totalQty = 0;
+						$totalReceive = 0;
+
+						foreach($cs as $rs)
+						{
+							if($i > 7 && !empty($rs['C']))
+							{
+								$detail = $this->receive_po_model->get_po_detail($po_code, $rs['C']);
+								if(!empty($detail))
+								{
+									$dif = $detail->Quantity - $detail->OpenQty;
+									$barcode = $this->products_model->get_barcode($detail->ItemCode);
+									$arr = array(
+					          'no' => $no,
+										'uid' => $detail->DocEntry.$detail->LineNum,
+					          'barcode' => empty($barcode) ? $detail->ItemCode : $barcode,
+					          'pdCode' => $detail->ItemCode,
+					          'pdName' => $detail->Dscription,
+					          'price' => $detail->price,
+										'currency' => $detail->Currency,
+										'Rate' => $detail->Rate,
+										'vatGroup' => $detail->VatGroup,
+										'vatRate' => $detail->VatPrcnt,
+					          'qty' => number($detail->Quantity),
+					          'limit' => ($detail->Quantity + ($detail->Quantity * $rate)) - $dif,
+										'receive_qty' => $rs['E'],
+					          'backlog' => number($detail->OpenQty),
+					          'isOpen' => $detail->LineStatus === 'O' ? TRUE : FALSE
+					        );
+
+									array_push($line, $arr);
+									$no++;
+									$totalQty += $detail->Quantity;
+					        $totalBacklog += $detail->OpenQty;
+									$totalReceive += $rs['E'];
+								}
+							}
+
+							$i++;
+						} //--- endforeach
+
+						$arr = array(
+			        'qty' => number($totalQty),
+			        'backlog' => number($totalBacklog),
+							'receive' => number($totalReceive)
+			      );
+
+			      array_push($line, $arr);
+
+						$ds['details'] = $line;
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Invalid PO No";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid PO No.";
+				}
+			}
+		}
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
+
+
+
   public function view_detail($code)
   {
     $this->load->model('masters/zone_model');
@@ -639,11 +769,11 @@ class Receive_po extends PS_Controller
 	{
 		$po_code = $this->input->get('po_code');
 
-		$rs = $this->ms->select('DocCur, DocRate')->where('DocNum', $po_code)->get('OPOR');
+		$rs = $this->receive_po_model->get_po_currency($po_code);
 
-		if($rs->num_rows() === 1)
+		if(!empty($rs))
 		{
-			echo json_encode($rs->row());
+			echo json_encode($rs);
 		}
 		else
 		{

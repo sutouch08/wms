@@ -2154,9 +2154,63 @@ class Orders extends PS_Controller
 
   public function un_expired()
   {
+		$sc = TRUE;
     $code = $this->input->get('order_code');
-    $rs = $this->orders_model->un_expired($code);
-    echo $rs === TRUE ? 'success' : 'ทำรายการไม่สำเร็จ';
+		$order = $this->orders_model->get($code);
+
+		if(!empty($order))
+		{
+			if($order->role == 'U' OR $order->role == 'P')
+			{
+				if($order->role == 'U')
+				{
+					$this->load->model('orders/support_model');
+					$total_amount = $this->orders_model->get_order_total_amount($code);
+					$current = $this->support_model->get_budget($order->customer_code);
+					$used = $this->support_model->get_budget_used($order->customer_code);
+
+					$balance = $current - $used;
+
+					if($total_amount > $balance)
+					{
+						$sc = FALSE;
+						$this->error = "งบประมาณไม่เพียงพอ";
+					}
+				}
+
+				if($order->role == 'P')
+				{
+					$this->load->model('orders/sponsor_model');
+					$total_amount = $this->orders_model->get_order_total_amount($code);
+					$current = $this->sponsor_model->get_budget($order->customer_code);
+					$used = $this->sponsor_model->get_budget_used($order->customer_code);
+
+					$balance = $current - $used;
+
+					if($total_amount > $balance)
+					{
+						$sc = FALSE;
+						$this->error = "งบประมาณไม่เพียงพอ";
+					}
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid order number";
+		}
+
+		if($sc === TRUE)
+		{
+			if( ! $this->orders_model->un_expired($code))
+			{
+				$sc = FALSE;
+				$this->error = "ทำรายการไม่สำเร็จ";
+			}
+		}
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -2442,14 +2496,34 @@ class Orders extends PS_Controller
 
 						if(! $ex)
 						{
-							$sc = FALSE;
-							$this->error = "เปลี่ยนสถานะสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณาโหลดหน้าเว็บใหม่แล้วกดส่งข้อมูลอีกครั้ง : ".$this->wms_order_api->error;
-							$arr = array(
-								'wms_export' => 3,
-								'wms_export_error' => $this->wms_order_api->error
-							);
+              $this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_api->error.")";
+              $txt = "998 : This order no {$code} was already processed by PLC operation.";
 
-							$this->orders_model->update($code, $arr);
+              if($this->wms_order_api->error == $txt)
+      				{
+      					if($order->wms_export != 1)
+      					{
+      						$arr = array(
+      							'wms_export' => 1,
+      							'wms_export_error' => NULL
+      						);
+
+      						$this->orders_model->update($code, $arr);
+      					}
+      				}
+      				else
+      				{
+      					if($order->wms_export != 1)
+      					{
+      						$sc = FALSE;
+      						$arr = array(
+      							'wms_export' => 3,
+      							'wms_export_error' => $this->wms_order_api->error
+      						);
+
+      						$this->orders_model->update($code, $arr);
+      					}
+      				}
 						}
 						else
 						{
@@ -2504,7 +2578,14 @@ class Orders extends PS_Controller
     //--- set inv_code to NULL
     if($sc === TRUE)
     {
-      if(! $this->orders_model->clear_inv_code($code))
+      $arr = array(
+        'is_valid' => 0,
+        'is_exported' => 0,
+        'is_report' => NULL,
+        'inv_code' => NULL
+      );
+
+      if(! $this->orders_model->update($code, $arr))
       {
         $sc = FALSE;
         $this->error = "Clear Inv code failed";
@@ -2805,17 +2886,20 @@ class Orders extends PS_Controller
       //--- 5. ยกเลิกออเดอร์
       if($sc === TRUE)
       {
-        if(! $this->orders_model->set_status($code, 2) )
+        $arr = array(
+          'status' => 2,
+          'inv_code' => NULL,
+          'is_exported' => 0,
+          'is_report' => NULL
+        );
+
+        if(! $this->orders_model->update($code, $arr) )
         {
           $sc = FALSE;
           $this->error = "Change order status failed";
         }
       }
 
-      if($sc === TRUE)
-      {
-        $this->orders_model->set_report_status($code, NULL);
-      }
 
       if($sc === TRUE)
       {
@@ -3357,45 +3441,42 @@ class Orders extends PS_Controller
   			//--- ถ้ารายการนี้มีอยู่
   			if( $detail !== FALSE )
   			{
-          if($detail->price != $value)
-          {
-            //------ คำนวณส่วนลดใหม่
-    				$price 	= $value;
-            $discAmount = 0;
-            $step = array($detail->discount1, $detail->discount2, $detail->discount3);
-            foreach($step as $discount_text)
-            {
-              $disc 	= explode('%', $discount_text);
-              $disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
-              $discount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
-              $discAmount += $discount;
-              $price -= $discount;
-            }
+					//------ คำนวณส่วนลดใหม่
+					$price 	= $value;
+					$discAmount = 0;
+					$step = array($detail->discount1, $detail->discount2, $detail->discount3);
+					foreach($step as $discount_text)
+					{
+						$disc 	= explode('%', $discount_text);
+						$disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
+						$discount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
+						$discAmount += $discount;
+						$price -= $discount;
+					}
 
-            $total_discount = $detail->qty * $discAmount; //---- ส่วนลดรวม
-  					$total_amount = ( $detail->qty * $value ) - $total_discount; //--- ยอดรวมสุดท้าย
+					$total_discount = $detail->qty * $discAmount; //---- ส่วนลดรวม
+					$total_amount = ( $detail->qty * $value ) - $total_discount; //--- ยอดรวมสุดท้าย
 
-            $arr = array(
-              'price' => $value,
-              'discount_amount' => $total_discount,
-              'total_amount' => $total_amount,
-              'update_user' => $user
-            );
+					$arr = array(
+						'price' => $value,
+						'discount_amount' => $total_discount,
+						'total_amount' => $total_amount,
+						'update_user' => $user
+					);
 
-            $cs = $this->orders_model->update_detail($id, $arr);
-            if($cs)
-            {
-              $log_data = array(
-                "order_code"		=> $code,
-                "product_code"	=> $detail->product_code,
-                "old_price"	=> $detail->price,
-                "new_price"	=> $value,
-                "user"	=> $user,
-                "approver"		=> $approver
-              );
-              $this->discount_logs_model->logs_price($log_data);
-            }
-          }
+					$cs = $this->orders_model->update_detail($id, $arr);
+					if($cs)
+					{
+						$log_data = array(
+							"order_code"		=> $code,
+							"product_code"	=> $detail->product_code,
+							"old_price"	=> $detail->price,
+							"new_price"	=> $value,
+							"user"	=> $user,
+							"approver"		=> $approver
+						);
+						$this->discount_logs_model->logs_price($log_data);
+					}
 
   			}	//--- end if detail
   		} //--- End if value

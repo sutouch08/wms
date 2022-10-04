@@ -16,8 +16,6 @@ function clearFilter(){
 }
 
 
-
-
 function groupViewCheck(el, id)
 {
 	if(el.is(":checked")){

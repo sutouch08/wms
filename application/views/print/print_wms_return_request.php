@@ -22,11 +22,11 @@ $header		= array();
 $header['left'] = array();
 
 $header['left']['A'] = array(
-	'company_name' => "<span style='font-size:".($this->xprinter->font_size + 5)."px; font-weight:bolder;'>บริษัท วอริกซ์ สปอร์ต จำกัด</span>",
+	'company_name' => "<span style='font-size:".($this->xprinter->font_size + 5)."px; font-weight:bolder;'>บริษัท วอริกซ์ สปอร์ต จำกัด (มหาชน)</span>",
 	'address1' => "849/6-8 ถนนพระราม 6 แขวงวังใหม่",
 	'address2' => "เขตปทุมวัน กรุงเทพมหานคร 10330",
 	'phone' => "โทร. 0-2117-1300 แฟ็กซ์. 0-2117-1308",
-	'taxid' => "เลขประจำตัวผู้เสียภาษีอากร 0745556004394"
+	'taxid' => "เลขประจำตัวผู้เสียภาษีอากร 0107565000255"
 );
 
 

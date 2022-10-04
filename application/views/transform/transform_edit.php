@@ -12,7 +12,14 @@
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 				<button type="button" class="btn btn-sm btn-default" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
 				<?php endif; ?>
-
+				<?php if(empty($approve_view)) : ?>
+					<?php if($isAdmin && $this->isClosed) : ?>
+						<button type="button" class="btn btn-sm btn-warning" onclick="unCloseTransform('<?php echo $order->code; ?>')">UnClose</button>
+					<?php endif; ?>
+					<?php if($isAdmin && ! $this->isClosed) : ?>
+						<button type="button" class="btn btn-sm btn-primary" onclick="closeTransform('<?php echo $order->code; ?>')">Close</button>
+					<?php endif; ?>
+				<?php endif; ?>
 			<?php if(empty($approve_view)) : ?>
 				<?php if($order->state < 4 && $isAdmin && $order->never_expire == 0) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="setNotExpire(1)">ยกเว้นการหมดอายุ</button>
@@ -23,7 +30,7 @@
 				<?php if($isAdmin && $order->is_expired == 1) : ?>
 					<button type="button" class="btn btn-sm btn-warning" onclick="unExpired()">ทำให้ไม่หมดอายุ</button>
 				<?php endif; ?>
-				<?php if($order->state < 4 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
+				<?php if($order->state < 4 && ($order->is_wms == 0 OR $order->state == 1) && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 				<button type="button" class="btn btn-sm btn-yellow" onclick="editDetail()"><i class="fa fa-pencil"></i> แก้ไขรายการ</button>
 				<?php endif; ?>
 				<?php if($order->status == 0) : ?>
@@ -86,6 +93,78 @@
 <script src="<?php echo base_url(); ?>scripts/orders/order_online.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php if($order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
 	<script src="<?php echo base_url(); ?>scripts/wms/wms_order.js?v=<?php echo date('Ymd'); ?>"></script>
+<?php endif; ?>
+
+<?php if($isAdmin) : ?>
+	<script>
+
+		function closeTransform(code) {
+			swal({
+				title: "คุณแน่ใจ ?",
+				text: "ต้องการ Close '" + code + "' หรือไม่ ?",
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: 'Yes',
+				cancelButtonText: 'No',
+				closeOnConfirm: false
+				}, function(){
+					$.ajax({
+						url: HOME + 'closeTransform',
+						type:"POST",
+						cache:"false",
+						data:{
+							'code' : code
+						},
+						success: function(rs){
+							var rs = $.trim(rs);
+							if( rs == 'success' ){
+								swal({ title: 'Success', type: 'success', timer: 1000 });
+								setTimeout(function() {
+									window.location.reload();
+								}, 1200);
+							}else{
+								swal("Error !", rs , "error");
+							}
+						}
+					});
+			});
+		}
+
+		function unCloseTransform(code) {
+			swal({
+				title: "คุณแน่ใจ ?",
+				text: "ต้องการ Unclose '" + code + "' หรือไม่ ?",
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: 'Yes',
+				cancelButtonText: 'No',
+				closeOnConfirm: false
+				}, function(){
+					$.ajax({
+						url: HOME + 'unCloseTransform',
+						type:"POST",
+		        cache:"false",
+						data:{
+							'code' : code
+						},
+						success: function(rs){
+							var rs = $.trim(rs);
+							if( rs == 'success' ){
+								swal({ title: 'Success', type: 'success', timer: 1000 });
+								setTimeout(function() {
+									window.location.reload();
+								}, 1200);
+							}else{
+								swal("Error !", rs , "error");
+							}
+						}
+					});
+			});
+		}
+	</script>
+
 <?php endif; ?>
 
 <?php $this->load->view('include/footer'); ?>

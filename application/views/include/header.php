@@ -9,7 +9,8 @@
 		<meta name="description" content="" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 		<link rel="shortcut icon" href="<?php echo base_url(); ?>assets/img/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/chosen.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/chosen.css">
+		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/select2.css">
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.css" />
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/font-awesome.css" />
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/ace-fonts.css" />
@@ -26,6 +27,7 @@
     <script src="<?php echo base_url(); ?>assets/js/ace/elements.fileinput.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/sweet-alert.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/handlebars-v3.js"></script>
+		<script src="<?php echo base_url(); ?>assets/js/select2.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
 	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
     <style>

@@ -458,7 +458,7 @@ class Return_order extends PS_Controller
 				$dt->amount = round($rs->amount,2);
 
 				$detail[] = $dt;
-				
+
         // if($qty > 0)
         // {
         //   $dt = new stdClass();
@@ -682,24 +682,95 @@ class Return_order extends PS_Controller
     $sc = TRUE;
     if($this->pm->can_delete)
     {
-      $this->db->trans_start();
-      $this->return_order_model->set_status($code, 2);
-      $this->return_order_model->cancle_details($code);
-      $this->db->trans_complete();
+			$doc = $this->return_order_model->get($code);
 
-      if($this->db->trans_status() === FALSE)
-      {
-        $sc = FALSE;
-        $message = $this->db->error();
-      }
+			if(!empty($doc))
+			{
+				if($doc->status == 1 OR $this->_SuperAdmin)
+				{
+					//--- check sap
+					$sap = $this->return_order_model->get_sap_doc_num($code);
+
+					if(empty($sap))
+					{
+						//--- cancle middle
+						if($sc === TRUE)
+						{
+							if($this->drop_middle_exits_data($code))
+							{
+								$this->db->trans_start();
+					      $this->return_order_model->set_status($code, 2);
+					      $this->return_order_model->cancle_details($code);
+					      $this->db->trans_complete();
+
+					      if($this->db->trans_status() === FALSE)
+					      {
+					        $sc = FALSE;
+					        $this->error = $this->db->error();
+					      }
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "Cannot Delete Middle Temp data";
+							}
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "กรุณายกเลิกเอกสารใน SAP ก่อนดำเนินการ";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+
+					if($doc->status == 3)
+					{
+						$this->error = "เอกสารอยู่ระหว่างการรับเข้าไม่อนุญาติให้ยกเลิก";
+					}
+
+					if($doc->status == 2)
+					{
+						$this->error = "เอกสารถูกยกเลิกไปแล้ว";
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document Number";
+			}
     }
     else
     {
       $sc = FALSE;
-      $message = 'คุณไม่มีสิทธิ์ในการยกเลิกเอกสาร';
+      $this->error = 'คุณไม่มีสิทธิ์ในการยกเลิกเอกสาร';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+
+	public function drop_middle_exits_data($code)
+  {
+    $sc = TRUE;
+    $middle = $this->return_order_model->get_middle_return_doc($code);
+
+    if(!empty($middle))
+    {
+      foreach($middle as $rs)
+      {
+        if( ! $this->return_order_model->drop_middle_exits_data($rs->DocEntry))
+				{
+					$sc = FALSE;
+				}
+      }
+    }
+
+    return $sc;
   }
 
 

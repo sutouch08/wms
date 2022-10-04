@@ -168,6 +168,11 @@ class Zone_model extends CI_Model
       $this->db->where('warehouse_code', $ds['warehouse']);
     }
 
+    if(isset($ds['active']) && $ds['active'] != 'all')
+    {
+      $this->db->where('active', $ds['active']);
+    }
+
     return $this->db->count_all_results('zone');
   }
 
@@ -198,6 +203,11 @@ class Zone_model extends CI_Model
       $this->db->where('zone.warehouse_code', $ds['warehouse']);
     }
 
+    if(isset($ds['active']) && $ds['active'] != 'all')
+    {
+      $this->db->where('zone.active', $ds['active']);
+    }
+
     return $this->db->count_all_results();
   }
 
@@ -214,7 +224,7 @@ class Zone_model extends CI_Model
     }
 
     $this->db
-    ->select('zone.code AS code, zone.name AS name, zone.warehouse_code, warehouse.name AS warehouse_name, zone.old_code')
+    ->select('zone.code AS code, zone.name AS name, zone.warehouse_code, warehouse.name AS warehouse_name, zone.old_code, zone.active')
     ->from('zone')
     ->join('warehouse', 'warehouse.code = zone.warehouse_code', 'left');
 
@@ -231,6 +241,11 @@ class Zone_model extends CI_Model
     if(!empty($ds['warehouse']))
     {
       $this->db->where('zone.warehouse_code', $ds['warehouse']);
+    }
+
+    if(isset($ds['active']) && $ds['active'] != 'all')
+    {
+      $this->db->where('zone.active', $ds['active']);
     }
 
     $this->db->order_by('zone.date_upd', 'DESC');
@@ -459,10 +474,10 @@ class Zone_model extends CI_Model
 
   public function get_new_data($last_sync)
   {
-    $this->ms->select('AbsEntry AS id, BinCode AS code, Descr AS name, WhsCode AS warehouse_code, SL1Code AS old_code');
+    $this->ms->select('AbsEntry AS id, BinCode AS code, Descr AS name, WhsCode AS warehouse_code, SL1Code AS old_code, Disabled');
     //$this->ms->where('SysBin', 'N');
     //$this->ms->group_start();
-    $this->ms->where('createDate >=', sap_date($last_sync));
+    $this->ms->where('createDate <=', sap_date($last_sync));
     $this->ms->or_where('updateDate >=', sap_date($last_sync));
     //$this->ms->group_end();
     $rs = $this->ms->get('OBIN');
@@ -477,7 +492,7 @@ class Zone_model extends CI_Model
 
   public function get_all_zone()
   {
-    $this->ms->select('AbsEntry AS id, BinCode AS code, Descr AS name, SL1Code AS old_code, WhsCode AS warehouse_code');
+    $this->ms->select('AbsEntry AS id, BinCode AS code, Descr AS name, SL1Code AS old_code, WhsCode AS warehouse_code, Disabled');
     $this->ms->select('createDate, updateDate');
     //$this->ms->where('SysBin', 'N');
     $rs = $this->ms->get('OBIN');

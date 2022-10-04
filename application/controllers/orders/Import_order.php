@@ -467,16 +467,16 @@ class Import_order extends CI_Controller
               }
 
 
-              $qty = $rs['N'];
+              $qty = $rs['N'] == '' ? 1 : str_replace(',', '', $rs['N']);
 
               //--- ราคา (เอาราคาที่ใส่มา / จำนวน + ส่วนลดต่อชิ้น)
-              $price = $rs['O']; //--- ราคารวมไม่หักส่วนลด
+              $price = empty($rs['O']) ? 0.00 : str_replace(",", "", $rs['O']); //--- ราคารวมไม่หักส่วนลด
               $price = $price > 0 ? ($price/$qty) : 0; //--- ราคาต่อชิ้น
 
 
 
               //--- ส่วนลด (รวม)
-              $discount_amount = $rs['P'] == '' ? 0.00 : $rs['P'];
+              $discount_amount = empty($rs['P']) ? 0.00 : str_replace(',', '', $rs['P']);
 
               //--- ส่วนลด (ต่อชิ้น)
               $discount = $discount_amount > 0 ? ($discount_amount / $qty) : 0;

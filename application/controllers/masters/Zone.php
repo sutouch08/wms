@@ -23,7 +23,8 @@ class Zone extends PS_Controller
       'code' => get_filter('code', 'code', ''),
       'name' => get_filter('name', 'name', ''),
       'warehouse' => get_filter('warehouse', 'warehouse', ''),
-      'customer' => get_filter('customer', 'customer', '')
+      'customer' => get_filter('customer', 'customer', ''),
+      'active' => get_filter('active', 'active', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -304,7 +305,9 @@ class Zone extends PS_Controller
           $ds = array(
             'code' => $rs->code,
             'name' => is_null($rs->name) ? '' : $rs->name,
+						'warehouse_code' => $rs->warehouse_code,
             'old_code' => $rs->old_code,
+            'active' => $rs->Disabled == 'N' ? 1 : 0,
             'last_sync' => date('Y-m-d H:i:s'),
           );
 
@@ -317,6 +320,7 @@ class Zone extends PS_Controller
             'code' => $rs->code,
             'name' => is_null($rs->name) ? '' : $rs->name,
             'warehouse_code' => $rs->warehouse_code,
+            'active' => $rs->Disabled == 'N' ? 1 : 0,
             'last_sync' => date('Y-m-d H:i:s'),
             'old_code' => $rs->old_code
           );
@@ -458,7 +462,7 @@ class Zone extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('code', 'name', 'customer', 'warehouse');
+    $filter = array('code', 'name', 'customer', 'warehouse', 'active');
     clear_filter($filter);
   }
 

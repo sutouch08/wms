@@ -1,11 +1,11 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     	<h3 class="title" >
         <?php echo $this->title; ?>
       </h3>
 	</div>
-    <div class="col-sm-6 col-xs-6 padding-5">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
       <p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 
@@ -36,31 +36,31 @@
 
 
 <div class="row">
-    <div class="col-sm-1 col-1-harf padding-5">
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     	<label>เลขที่เอกสาร</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
     </div>
-		<div class="col-sm-1 col-1-harf padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     	<label>วันที่</label>
       <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
     </div>
-		<div class="col-sm-2 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>เลขที่บิล[SAP]</label>
 			<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
 		</div>
-		<div class="col-sm-4 padding-5">
+		<div class="col-lg-4-harf col-md-4-harf col-sm-4-harf col-xs-6 padding-5">
 			<label>ลูกค้า</label>
 			<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
 		</div>
-		<div class="col-sm-3 padding-5">
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>คลัง[รับคืน]</label>
 			<input type="text" class="form-control input-sm edit" name="warehouse" id="warehouse" value="<?php echo $doc->warehouse_name; ?>" disabled />
 		</div>
-		<div class="col-sm-3 padding-5">
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>โซน[รับคืน]</label>
 			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
 		</div>
-		<div class="col-sm-1 col-1-harf padding-5">
+		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
 			<label>สถานะ</label>
 			<select class="form-control input-sm" name="status" disabled>
   			<option value="all">ทั้งหมด</option>
@@ -70,18 +70,25 @@
 				<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
   		</select>
 		</div>
-		<div class="col-sm-1 padding-5" >
-			<label>WMS</label>
+		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
+			<label>รับที่</label>
 			<select class="form-control input-sm" disabled>
-				<option value="1" <?php echo is_selected('1', $doc->api); ?>>Yes</option>
-				<option value="0" <?php echo is_selected('0', $doc->api); ?>>No</option>
+				<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</option>
+				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>warrix</option>
 			</select>
 		</div>
-    <div class="col-sm-5 padding-5">
+		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
+			<label>Interface</label>
+			<select class="form-control input-sm" disabled>
+				<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
+				<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
+			</select>
+		</div>
+    <div class="col-lg-4-harf col-md-4-harf col-sm-4-harf col-xs-12 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
     </div>
-		<div class="col-sm-1 col-1-harf padding-5">
+		<div class="col-lg-1-harf col-md=1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>SAP No.</label>
 			<input type="text" class="form-control input-sm" value="<?php echo $doc->inv_code; ?>" disabled/>
 		</div>

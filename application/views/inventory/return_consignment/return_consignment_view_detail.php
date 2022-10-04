@@ -16,6 +16,7 @@
 			<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 		<?php endif; ?>
 	<?php endif; ?>
+
 	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_edit) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="unsave()">ยกเลิกการบันทึก</button>
 	<?php endif; ?>
@@ -25,6 +26,11 @@
 	<?php if($this->pm->can_delete && $doc->status != 2) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
 	<?php endif; ?>
+
+	<?php if($doc->status == 2 && $this->_SuperAdmin) : ?>
+			<button type="button" class="btn btn-sm btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ดึงสถานะกลับมาแก้ไข</button>
+	<?php endif; ?>
+
 	<?php if($doc->status != 0) : ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
 				<?php if($doc->status != 2) : ?>
@@ -119,6 +125,7 @@ if($doc->status == 3)
 			<thead>
 				<tr>
 					<th class="width-5 text-center">ลำดับ</th>
+					<th class="15">รหัส</th>
 					<th class="">สินค้า</th>
 					<th class="width-10 text-center">เลขที่บิล</th>
 					<th class="width-10 text-right">ราคา</th>
@@ -138,7 +145,8 @@ if($doc->status == 3)
 	<?php $color = $rs->qty == $rs->receive_qty ? "" : "color:red !important"; ?>
 				<tr style="<?php echo $color; ?>">
 					<td class="middle text-center no"><?php echo $no; ?></td>
-					<td class="middle"><?php echo inputRow($rs->product_code .' &nbsp;&nbsp;&nbsp; '.$rs->product_name, $color); ?></td>
+					<td class="middle"><?php echo $rs->product_code; ?></td>
+					<td class="middle"><?php echo $rs->product_name; ?></td>
 					<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
 					<td class="middle text-right"><?php echo number($rs->price, 2); ?></td>
 					<td class="middle text-right"><?php echo $rs->discount_percent; ?> %</td>
@@ -154,7 +162,7 @@ if($doc->status == 3)
 ?>
 <?php  endforeach; ?>
 				<tr>
-					<td colspan="5" class="middle text-right">รวม</td>
+					<td colspan="6" class="middle text-right">รวม</td>
 					<td class="middle text-right" id="total-qty"><?php echo number($total_qty); ?></td>
 					<td class="middle text-right" id="total-qty"><?php echo number($total_receive); ?></td>
 					<td class="middle text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
@@ -166,6 +174,6 @@ if($doc->status == 3)
 </div>
 
 
-<script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

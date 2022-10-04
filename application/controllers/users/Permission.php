@@ -19,13 +19,19 @@ class Permission extends PS_Controller{
     $this->home = base_url().'users/permission';
     $this->load->model('users/profile_model');
     $this->load->model('users/permission_model');
+		$this->load->model('menu');
   }
 
 
 
   public function index()
   {
-		$profileName = get_filter('profileName', 'profileName', '');
+		$filter = array(
+			'name' => get_filter('name', 'profileNam', ''),
+			'menu' => get_filter('menu', 'menux', 'all'),
+			'permission' => get_filter('permission', 'permission', 'all')
+		);
+
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -36,34 +42,28 @@ class Permission extends PS_Controller{
 		}
 
 		$segment = 4; //-- url segment
-		$rows = $this->profile_model->count_rows($profileName);
+		$rows = $this->profile_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
-		$result = $this->profile_model->get_profiles($profileName, $perpage, $this->uri->segment($segment));
+		$result = $this->profile_model->get_list($filter, $perpage, $this->uri->segment($segment));
+
     $data = array();
 
     if(!empty($result))
     {
       foreach($result as $rs)
       {
-        $row = new stdClass();
-        $row->id = $rs->id;
-        $row->name = $rs->name;
-        $row->member = $this->profile_model->count_members($rs->id);
-        $data[] = $row;
+				$rs->member = $this->profile_model->count_members($rs->id);
       }
     }
 
-    $ds = array(
-      'profileName' => $profileName,
-			'data' => $data
-    );
+		$filter['data'] = $result;
 
 		$this->pagination->initialize($init);
 
-    $this->load->view('users/permission_view', $ds);
+    $this->load->view('users/permission_view', $filter);
   }
 
 
@@ -80,35 +80,38 @@ class Permission extends PS_Controller{
     {
       foreach($groups as $group)
       {
-        $ds = array(
-          'group_code' => $group->code,
-          'group_name' => $group->name,
-          'menu' => ''
-        );
+				if($group->pm)
+				{
+					$ds = array(
+						'group_code' => $group->code,
+						'group_name' => $group->name,
+						'menu' => ''
+					);
 
-        $menus = $this->menu->get_menus_by_group($group->code);
+					$menus = $this->menu->get_menus_by_group($group->code);
 
-        if(!empty($menus))
-        {
-          $item = array();
-          foreach($menus as $menu)
-          {
-						if($menu->valid)
+					if(!empty($menus))
+					{
+						$item = array();
+						foreach($menus as $menu)
 						{
-							$arr = array(
-	              'menu_code' => $menu->code,
-	              'menu_name' => $menu->name,
-	              'permission' => $this->permission_model->get_permission($menu->code, $id)
-	            );
-	            array_push($item, $arr);
+							if($menu->valid)
+							{
+								$arr = array(
+									'menu_code' => $menu->code,
+									'menu_name' => $menu->name,
+									'permission' => $this->permission_model->get_permission($menu->code, $id)
+								);
+								array_push($item, $arr);
+							}
+
 						}
 
-          }
+						$ds['menu'] = $item;
+					}
 
-          $ds['menu'] = $item;
-        }
-
-        array_push($data['menus'], $ds);
+					array_push($data['menus'], $ds);
+				}
       }
     }
 
@@ -165,7 +168,8 @@ class Permission extends PS_Controller{
 
   public function clear_filter()
   {
-    clear_filter('profileName');
+		$filter = array('profileName', 'menux', 'permission');
+    clear_filter($filter);
     echo 'done';
   }
 

@@ -81,7 +81,7 @@ class Authentication extends CI_Controller
   {
     if(!empty($ds))
     {
-      $times = intval(60*60*8);
+      $times = intval(60*60*8*100);
 
       foreach($ds as $key => $val)
       {

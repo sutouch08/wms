@@ -39,6 +39,43 @@ function goDelete(code){
 
 
 
+function pullBack(code) {
+	load_in();
+
+	$.ajax({
+		url:HOME + 'pull_back',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code
+		},
+		success:function(rs) {
+			load_out();
+
+			if(rs == 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function() {
+					window.location.reload();
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	});
+}
+
+
+
 function goAdd(){
   window.location.href = HOME + 'add_new';
 }

@@ -262,6 +262,18 @@ class Transform_model extends CI_Model
   }
 
 
+  public function is_closed($code)
+  {
+    $rs = $this->db->where('order_code', $code)->get('order_transform');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->is_closed == 1 ? TRUE : FALSE;
+    }
+  }
+
+  
+
   public function get_closed_transform_order($code, $limit = 50)
   {
     $sc = array();

@@ -71,53 +71,58 @@ $("#toDate").datepicker({
 
 function approve()
 {
-  var order_code = $('#order_code').val();
+  if(validateTransformProducts()) {
+    var order_code = $('#order_code').val();
 
-	var is_wms = $('#is_wms').val();
+  	var is_wms = $('#is_wms').val();
 
-	if(is_wms) {
-		var id_address = $('#address_id').val();
-		var id_sender = $('#id_sender').val();
+  	if(is_wms) {
+  		var id_address = $('#address_id').val();
+  		var id_sender = $('#id_sender').val();
 
-		if(id_address == "") {
-			swal("กรุณาระบุที่อยู่จัดส่ง");
-			return false;
-		}
+  		if(id_address == "") {
+  			swal("กรุณาระบุที่อยู่จัดส่ง");
+  			return false;
+  		}
 
-		if(id_sender == "") {
-			swal("กรุณาระบุผู้จัดส่ง");
-			return false;
-		}
+  		if(id_sender == "") {
+  			swal("กรุณาระบุผู้จัดส่ง");
+  			return false;
+  		}
+  	}
+
+  	load_in();
+    $.ajax({
+      url:BASE_URL + 'orders/orders/do_approve/'+order_code,
+      type:'POST',
+      cache:false,
+      success:function(rs){
+        if(rs === 'success'){
+          change_state();
+        }else{
+  				load_out();
+          swal({
+            title:'Error!',
+            text:rs,
+            type:'error',
+  					html:true
+          });
+        }
+      },
+  		error:function(xhr, status, error) {
+  			load_out();
+  			swal({
+  				title:'Error!',
+  				text:xhr.responseText,
+  				type:'error',
+  				html:true
+  			})
+  		}
+    });
+  }
+  else{
+		swal('Error !', 'พบรายการที่ไม่ได้เชื่อมโยงสินค้าอย่างถูกต้อง กรุณาตรวจสอบ', 'error');
 	}
-
-	load_in();
-  $.ajax({
-    url:BASE_URL + 'orders/orders/do_approve/'+order_code,
-    type:'POST',
-    cache:false,
-    success:function(rs){
-      if(rs === 'success'){
-        change_state();
-      }else{
-				load_out();
-        swal({
-          title:'Error!',
-          text:rs,
-          type:'error',
-					html:true
-        });
-      }
-    },
-		error:function(xhr, status, error) {
-			load_out();
-			swal({
-				title:'Error!',
-				text:xhr.responseText,
-				type:'error',
-				html:true
-			})
-		}
-  });
 }
 
 

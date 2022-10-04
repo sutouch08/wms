@@ -12,7 +12,7 @@ function productTabMenu($mode = 'order')
 	{
 		if( hasChild($rs->id) === TRUE)
 		{
-			$sc .= '<li class="dropdown" onmouseover="expandTab((this))" onmouseout="collapseTab((this))" style="min-width:100px;">';
+			$sc .= '<li class="dropdown" onmouseover="expandTab((this))" onmouseout="collapseTab((this))" style="min-width:100px; float:left">';
 			//$sc .= '<li class="dropdown pointer">';
 			$sc .= '<a id="ul-'.$rs->id.'" class="dropdown-toggle" role="tab" data-toggle="tab" href="#cat-'.$rs->id.'" onClick="'.$ajax.'(\''.$rs->id.'\')" >';
 			//$sc .= '<a id="ul-'.$rs->id.'" class="dropdown-toggle" role="tab" data-toggle="dropdown" aria-expanded="false">';
@@ -25,7 +25,7 @@ function productTabMenu($mode = 'order')
 		}
 		else
 		{
-			$sc .= '<li class="menu" style="min-width:100px;"><a href="#cat-'.$rs->id.'" role="tab" data-toggle="tab" onClick="'.$ajax.'(\''.$rs->id.'\')">'.$rs->name.'</a></li>';
+			$sc .= '<li class="menu" style="min-width:100px; float:left;"><a href="#cat-'.$rs->id.'" role="tab" data-toggle="tab" onClick="'.$ajax.'(\''.$rs->id.'\')">'.$rs->name.'</a></li>';
 		}
 	}
 	return $sc;

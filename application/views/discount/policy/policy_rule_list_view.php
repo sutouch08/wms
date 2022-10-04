@@ -1,6 +1,6 @@
 
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped table-bordered">
       <thead>
         <tr style="background-image:none;">
@@ -16,7 +16,7 @@
           <th class="width-8 text-center">ช่องทาง</th>
           <th class="width-8 text-center">การชำระเงิน</th>
           <th class="width-8 text-center">ขั้นต่ำ</th>
-          <th class="width-10 text-center"></th>
+          <th class="width-10 text-center">action</th>
         </tr>
       </thead>
       <tbody>

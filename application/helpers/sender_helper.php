@@ -78,4 +78,27 @@ function select_common_sender($customer_code = NULL, $id = NULL)
 }
 
 
+
+function get_tracking($id_sender, $orderCode)
+{
+	$ci =& get_instance();
+	$ci->load->model('masters/sender_model');
+
+	$tracking = "";
+
+	$sender = $ci->sender_model->get($id_sender);
+
+	if( ! empty($sender))
+	{
+		if($sender->auto_gen == 1)
+		{
+			$code = str_replace('-', '', $orderCode);
+			$tracking = $sender->prefix.$code;
+		}
+	}
+
+	return $tracking;
+}
+
+
  ?>

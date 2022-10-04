@@ -166,7 +166,14 @@
 					<td class="middle <?php echo $no; ?>"><?php echo $rs->barcode; ?></td>
 					<td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
 					<td class="middle text-center"><?php echo $rs->invoice_code; ?>	</td>
-					<td class="middle text-right"><?php echo $rs->price; ?></td>
+					<td class="middle text-right">
+						<input type="number"
+							class="form-control input-sm text-right"
+							name="price[<?php echo $no; ?>]"
+							id="price_<?php echo $no; ?>"
+							value="<?php echo $rs->price; ?>"
+							onkeyup="recalRow(<?php echo $no; ?>)" />
+					</td>
 					<td class="middle text-right">
 						<input type="number"
 							class="form-control input-sm text-right"
@@ -197,7 +204,9 @@
 					<input type="hidden" id="barcode_<?php echo (empty($rs->barcode) ? $rs->product_code : $rs->barcode); ?>" value="<?php echo $no; ?>"/>
 					<input type="hidden" name="item[<?php echo $no; ?>]" id="item_<?php echo $no; ?>" value="<?php echo $rs->product_code; ?>"/>
 					<input type="hidden" name="item_name[<?php echo $no; ?>]" id="item_name_<?php echo $no; ?>" value="<?php echo $rs->product_name; ?>" />
+					<!--
 					<input type="hidden" class="input-price" name="price[<?php echo $no; ?>]" id="price_<?php echo $no; ?>" value="<?php echo $rs->price; ?>" />
+				-->
 
 				</tr>
 <?php
@@ -232,15 +241,22 @@
 		<td class="middle {{no}}">{{barcode}}</td>
 		<td class="middle">{{code}} : {{name}}</td>
 		<td class="middle text-center invoice">{{invoice}}</td>
-		<td class="middle text-right">{{price}}</td>
 		<td class="middle text-right">
-		<input type="number"
-		class="form-control input-sm text-right"
-		name="discount[{{no}}]"
-		id="discount_{{no}}"
-		value="{{discount}}"
-		onkeyup="recalRow({{no}})"
-		/>
+			<input type="number"
+				class="form-control input-sm text-right"
+				name="price[{{no}}]"
+				id="price_{{no}}"
+				value="{{price}}"
+				onkeyup="recalRow({{no}})" />
+		</td>
+		<td class="middle text-right">
+			<input type="number"
+			class="form-control input-sm text-right"
+			name="discount[{{no}}]"
+			id="discount_{{no}}"
+			value="{{discount}}"
+			onkeyup="recalRow({{no}})"
+			/>
 		</td>
 		<td class="middle">
 			<input type="number"
@@ -260,8 +276,7 @@
 		</td>
 		<input type="hidden" id="barcode_{{barcode}}" value="{{no}}"/>
 		<input type="hidden" name="item[{{no}}]" id="item_{{no}}" value="{{code}}"/>
-		<input type="hidden" name="item_name[{{no}}]" id="item_name_{{no}}" value="{{name}}"/>
-		<input type="hidden" class="input-price" name="price[{{no}}]" id="price_{{no}}" value="{{price}}" />
+		<input type="hidden" name="item_name[{{no}}]" id="item_name_{{no}}" value="{{name}}"/>		
 	</tr>
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment.js?v=<?php echo date('Ymd'); ?>"></script>

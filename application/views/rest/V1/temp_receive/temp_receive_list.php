@@ -1,11 +1,11 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-		<div class="col-sm-6">
+		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-5">
 			<p class="pull-right top-p">
 				<?php if($this->_SuperAdmin) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="process()">Process</button>
@@ -16,29 +16,29 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>เลขที่อ้างอิง</label>
     <input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label>ประเภทเอกสาร</label>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+    <label>ประเภท</label>
     <select class="form-control input-sm" name="type" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
-			<option value="RT" <?php echo is_selected('RT', $type); ?>>รับเข้า(RT)</option>
-			<option value="RN" <?php echo is_selected('RN', $type); ?>>รับคืน(RN)</option>
-			<option value="SM" <?php echo is_selected('SM', $type); ?>>รับคืน(SM)</option>
-			<option value="WR" <?php echo is_selected('WR', $type); ?>>รับเข้า(WR)</option>
-			<option value="WW" <?php echo is_selected('WW', $type); ?>>โอนคลัง(WW)</option>
-			<option value="RC" <?php echo is_selected('RC', $type); ?>>รับเข้า(RC)</option>
+			<option value="RT" <?php echo is_selected('RT', $type); ?>>RT</option>
+			<option value="RN" <?php echo is_selected('RN', $type); ?>>RN</option>
+			<option value="SM" <?php echo is_selected('SM', $type); ?>>SM</option>
+			<option value="WR" <?php echo is_selected('WR', $type); ?>>WR</option>
+			<option value="WW" <?php echo is_selected('WW', $type); ?>>WW</option>
+			<option value="RC" <?php echo is_selected('RC', $type); ?>>RC</option>
 		</select>
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
@@ -49,7 +49,7 @@
     </select>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>Received Date</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="received_from_date" id="receivedFromDate" value="<?php echo $received_from_date; ?>">
@@ -57,7 +57,7 @@
     </div>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>วันที่เข้า temp</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>">
@@ -65,28 +65,28 @@
     </div>
   </div>
 
-  <div class="col-sm-1 padding-5">
+  <div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
-<hr class="margin-top-15">
+<hr class="margin-top-15 padding-5">
 </form>
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <p class="pull-right">
       สถานะ : ว่างๆ = ปกติ, &nbsp;
       <span class="red">ERROR</span> = เกิดข้อผิดพลาด, &nbsp;
       <span class="blue">NC</span> = ยังไม่เข้า IX
     </p>
   </div>
-  <div class="col-sm-12">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped border-1 dataTable">
       <thead>
         <tr>

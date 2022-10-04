@@ -489,6 +489,23 @@ function set_wms_warehouse(wms_wh_code) {
 }
 
 
+//--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
+function toggleChatbotApi(option){
+	$('#chatbot-api').val(option);
+
+	if(option == 1){
+		$('#btn-chatbot-api-on').addClass('btn-success');
+		$('#btn-chatbot-api-off').removeClass('btn-danger');
+		return;
+
+	}else if(option == 0){
+		$('#btn-chatbot-api-on').removeClass('btn-success');
+		$('#btn-chatbot-api-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
 function toggleSyncStock(option) {
 
 	$('#sync-chatbot-stock').val(option);
@@ -505,6 +522,8 @@ function toggleSyncStock(option) {
 		return;
 	}
 }
+
+
 
 function toggleLogJson(option) {
 

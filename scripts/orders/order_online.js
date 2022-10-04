@@ -444,6 +444,7 @@ function setSender()
 {
 	var order_code = $('#order_code').val();
 	var id_sender = $('#id_sender').val();
+
 	if(id_sender == "" ) {
 		swal("กรุณาเลือกผู้จัดส่ง");
 		return false;
@@ -453,7 +454,7 @@ function setSender()
 		//--- gen tracking no
 		//--- get prfix
 		let prefix = $('#sender option:selected').data('prefix');
-		prefix = prefix+order_code;
+		prefix = prefix + order_code.replace('-', '');
 		$('#tracking').val(prefix);
 	}
 	else {

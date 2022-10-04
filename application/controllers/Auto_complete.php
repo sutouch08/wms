@@ -466,7 +466,7 @@ public function get_prepare_item_code()
   {
     $sc = array();
     $txt = $_REQUEST['term'];
-    $this->db->select('code, name');
+    $this->db->select('code, name')->where('active', 1);
 
     if(!empty($warehouse))
     {
@@ -518,6 +518,7 @@ public function get_prepare_item_code()
 		->from('zone')
 		->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
 		->where_in('warehouse.role', array(1, 3, 4, 5))
+    ->where('zone.active', 1)
 		->where('warehouse.active', 1);
 
     if(!empty($warehouse))
@@ -565,7 +566,7 @@ public function get_prepare_item_code()
   {
     $sc = array();
     $txt = $_REQUEST['term'];
-    $this->db->select('code, name');
+    $this->db->select('code, name')->where('active', 1);
     if($txt != '*')
     {
       $this->db->group_start();
@@ -596,6 +597,7 @@ public function get_prepare_item_code()
     ->select('zone.code AS code, zone.name AS name')
     ->from('zone')
     ->join('warehouse', 'warehouse.code = zone.warehouse_code', 'left')
+    ->where('zone.active', 1)
     ->where('warehouse.role', 7); //--- 7 =  คลังระหว่างทำ ดู table warehouse_role
 
     if($txt != '*')
@@ -639,6 +641,7 @@ public function get_prepare_item_code()
       ->from('zone')
       ->join('warehouse', 'warehouse.code = zone.warehouse_code', 'left')
       ->join('zone_employee', 'zone_employee.zone_code = zone.code')
+      ->where('zone.active', 1)
       ->where('warehouse.role', 8) //--- 8 =  คลังยืมสินค้า ดู table warehouse_role
       ->where('zone_employee.empID', $empID);
 
@@ -817,7 +820,8 @@ public function get_prepare_item_code()
       ->join('zone', 'zone.code = zone_customer.zone_code', 'left')
       ->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
       ->where('warehouse.role', 2) //--- 2 = คลังฝากขาย
-      ->where('zone_customer.customer_code', $customer_code);
+      ->where('zone_customer.customer_code', $customer_code)
+      ->where('zone.active', 1);
 
       if($_REQUEST['term'] != '*')
       {
@@ -856,6 +860,7 @@ public function get_prepare_item_code()
     ->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
     ->where('warehouse.role', 2)
     ->where('warehouse.is_consignment', 1)
+    ->where('zone.active', 1)
     ->limit(20);
 
     if($_REQUEST['term'] != '*')
@@ -906,6 +911,7 @@ public function get_prepare_item_code()
       ->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
       ->where('warehouse.role', 2) //--- 2 = คลังฝากขาย
       ->where('is_consignment', 1)
+      ->where('zone.active', 1)
       ->where('zone_customer.customer_code', $customer_code);
 
       if($_REQUEST['term'] != '*')

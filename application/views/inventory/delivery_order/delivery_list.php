@@ -1,36 +1,30 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+    <h4 class="title">
       <?php echo $this->title; ?>
-    </h3>
+    </h4>
     </div>
-		<div class="col-sm-6">
-			<p class="pull-right top-p">
-				<button type="submit" class="btn btn-sm btn-primary" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
-				<button type="button" class="btn btn-sm btn-warning" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
-			</p>
-		</div>
 </div><!-- End Row -->
-<hr class=""/>
+<hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า/ผู้เบิก</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>พนักงาน/ผู้สั่งงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>รูปแบบ</label>
 		<select class="form-control input-sm" name="role" onchange="getSearch()">
       <option value="">ทั้งหมด</option>
@@ -38,7 +32,7 @@
     </select>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
 		<select class="form-control input-sm" name="channels" onchange="getSearch()">
       <option value="">ทั้งหมด</option>
@@ -46,7 +40,7 @@
     </select>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>คลังสินค้า</label>
 		<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
@@ -54,35 +48,47 @@
     </select>
   </div>
 
-	<div class="col-sm-2 padding-5 last">
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
       <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
-
   </div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">X</label>
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
+	</div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">X</label>
+		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+	</div>
 </div>
 <input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
 <input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
+
 <hr class="margin-top-15">
 </form>
+
+
 <?php echo $this->pagination->create_links(); ?>
 <?php $sort_date = $order_by == '' ? "" : ($order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
-  <div class="col-sm-12">
-    <table class="table table-striped border-1 dataTable">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1 dataTable" style="min-width:1000px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-8 sorting <?php echo $sort_date; ?> text-center" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-          <th class="width-15 sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร </th>
-          <th class="">ลูกค้า/ผู้รับ/ผู้เบิก</th>
-          <th class="width-10 text-center">ยอดเงิน</th>
-          <th class="width-10 text-center">รูปแบบ</th>
-          <th class="width-10 text-center">พนักงาน</th>
-					<th class="width-10 text-right"></th>
+          <th style="min-width:60px;"  class="width-5 text-center">ลำดับ</th>
+          <th style="min-width:90px;"  class="width-8 sorting <?php echo $sort_date; ?> text-center" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
+          <th style="min-width:110px;" class="width-15 sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร </th>
+          <th style="min-width:200px;" class="">ลูกค้า/ผู้รับ/ผู้เบิก</th>
+          <th style="min-width:100px;" class="width-10 text-center">ยอดเงิน</th>
+          <th style="min-width:100px;" class="width-10 text-center">รูปแบบ</th>
+          <th style="min-width:100px;" class="width-10 text-center">พนักงาน</th>
+					<th style="min-width:100px;" class="width-10 text-right"></th>
         </tr>
       </thead>
       <tbody>

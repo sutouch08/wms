@@ -55,7 +55,7 @@ $hide = $order->status == 1 ? 'hide' : '';
 <form id="orderForm">
 <div class="modal fade" id="orderGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog" id="modal">
-		<div class="modal-content">
+		<div class="modal-content" style="position:relative; min-height: 100px; min-width:250px; max-height:900px; max-width:1200px; overflow-x:scroll; overflow-y:scroll;">
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="modalTitle">title</h4>

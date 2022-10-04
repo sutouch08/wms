@@ -5,7 +5,7 @@ class Discount_policy extends PS_Controller
 {
   public $menu_code = 'SCPOLI';
 	public $menu_group_code = 'SC';
-	public $title = 'เพิ่ม/แก้ไข นโยบายส่วนลด';
+	public $title = 'นโยบายส่วนลด';
 
   public function __construct()
   {

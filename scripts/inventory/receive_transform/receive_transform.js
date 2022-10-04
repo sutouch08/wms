@@ -66,6 +66,7 @@ function sendToWms() {
 	});
 }
 
+
 function goDelete(code){
 	swal({
 		title: "คุณแน่ใจ ?",
@@ -75,33 +76,73 @@ function goDelete(code){
 		confirmButtonColor: "#DD6B55",
 		confirmButtonText: 'ใช่, ฉันต้องการ',
 		cancelButtonText: 'ไม่ใช่',
-		closeOnConfirm: false
+		closeOnConfirm: true
 		}, function(){
-			$.ajax({
-				url: HOME + 'cancle_received',
-				type:"POST",
-				cache:"false",
-				data:{
-					"receive_code" : code
-				},
-				success: function(rs){
-					var rs = $.trim(rs);
-					if( rs == 'success' ){
-						swal({
-							title: 'Cancled',
-							type: 'success',
-							timer: 1000
-						});
-
-						setTimeout(function(){
-							window.location.reload();
-						}, 1200);
-
-					}else{
-						swal("Error !", rs, "error");
-					}
-				}
+			$('#cancle-reason').val('');
+			$('#cancle-code').val(code);
+			$('#cancle-modal').on('shown.bs.modal', function() {
+				$('#cancle-reason').focus();
 			});
+
+			setTimeout(function() {
+				$('#cancle-modal').modal('show');
+			}, 200);
+	});
+}
+
+
+function doCancle() {
+	$('#cancle-modal').modal('hide');
+
+	let code = $('#cancle-code').val();
+	let reason = $('#cancle-reason').val();
+
+	if(code.length == 0) {
+		swal({
+			title:'Error!',
+			text:'Invalid Document Code',
+			type:'error'
+		});
+
+		return false;
+	}
+
+	if(reason.length == 0) {
+		swal({
+			title:'Error!',
+			text:'กรุณาระบุเหตุผลในการยกเลิก',
+			type:'error'
+		});
+
+		return false;
+	}
+
+
+	$.ajax({
+		url: HOME + 'cancle_received',
+		type:"POST",
+		cache:"false",
+		data:{
+			"receive_code" : code,
+			"reason" : reason
+		},
+		success: function(rs){
+			var rs = $.trim(rs);
+			if( rs == 'success' ){
+				swal({
+					title: 'Cancled',
+					type: 'success',
+					timer: 1000
+				});
+
+				setTimeout(function(){
+					window.location.reload();
+				}, 1200);
+
+			}else{
+				swal("Error !", rs, "error");
+			}
+		}
 	});
 }
 

@@ -23,7 +23,7 @@
 <?php 	$total_qty = 0;		?>
 <?php	foreach($details as $rs) : ?>
 
-<?php 	$checked = $rs->hasTransformProduct === FALSE ? 'checked' : ''; ?>
+<?php 	$checked = $rs->not_return == 1 ? 'checked' : ''; ?>
 			<tr class="font-size-10" id="row_<?php echo $rs->id; ?>">
       	<td class="middle text-center">
 					<?php echo $no; ?>
@@ -48,7 +48,7 @@
 
 				<td class="middle text-center">
 				<?php if( $order->is_expired == 0) : ?>
-				<?php  $active = ($this->pm->can_approve OR ($order->state == 1 && empty($approve_view) && $order->is_approved == 0 ))  ? '' : 'disabled'; ?>
+				<?php  $active = ($this->isClosed == FALSE && $this->pm->can_approve OR ($order->state == 1 && empty($approve_view) && $order->is_approved == 0 ))  ? '' : 'disabled'; ?>
 					<input type="checkbox"
 					class="ace not-return"
 					id="chk-<?php echo $rs->id; ?>"
@@ -74,7 +74,7 @@
 
         <td class="text-center" id="connect-box-<?php echo $rs->id; ?>">
 			<?php if(empty($approve_view)) : ?>
-				<?php if( $order->is_expired == 0 && $order->is_approved == 0 && $rs->hasTransformProduct === TRUE && $order->state < 3 ) : ?>
+				<?php if( $order->is_expired == 0 && $order->is_approved == 0 && $order->state < 3 && $rs->not_return == 0 ) : ?>
 					<button type="button" class="btn btn-xs btn-success btn-block connect" id="btn-connect-<?php echo $rs->id; ?>" onclick="addTransformProduct(<?php echo $rs->id; ?>,'<?php echo $rs->product_code; ?>')"><i class="fa fa-plus"></i> เชื่อมโยง</button>
 				<?php endif; ?>
 			<?php endif; ?>

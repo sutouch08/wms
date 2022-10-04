@@ -38,6 +38,7 @@ class Order extends REST_Controller
 	    $this->load->model('address/address_model');
 
 			$this->load->model('rest/V1/order_api_logs_model');
+			$this->load->helper('sender');
 
 	    $this->user = 'api@chatbot';
 			$this->log_json = is_true(getConfig('CHATBOT_LOG_JSON'));
@@ -261,8 +262,6 @@ class Order extends REST_Controller
 
       $date_add = date('Y-m-d H:i:s');
 
-			$prefix = $data->channels == "DHL-P" ? "THEQV" : "THBEZ";
-
       //---- order code from chatbot
       $ref_code = $data->order_number;
 
@@ -286,6 +285,8 @@ class Order extends REST_Controller
       //--- order code gen จากระบบ
       $order_code = $this->get_new_code($date_add);
 
+			$tracking = get_tracking($id_sender, $order_code);
+
 			$total_amount = 0;
 
       //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
@@ -303,7 +304,7 @@ class Order extends REST_Controller
         'is_paid' => $state === 3 ? 1 : 0,
         'is_term' => $data->payment_method === "COD" ? 1 : 0,
         'status' => 1,
-				'shipping_code' => $prefix.$order_code,
+				'shipping_code' => $tracking,
         'user' => $this->user,
         'date_add' => $date_add,
         'warehouse_code' => $warehouse_code,
@@ -345,6 +346,7 @@ class Order extends REST_Controller
           'province' => $data->ship_to->province,
           'postcode' => $data->ship_to->postcode,
           'phone' => $data->ship_to->phone,
+					'email' => $data->ship_to->email,
           'alias' => empty($data->alias) ? 'Home' : $data->alias,
           'is_default' => 1
         );
@@ -445,6 +447,7 @@ class Order extends REST_Controller
 					if(!empty($data->account_no))
 					{
 						$id_account = $this->bank_model->get_id($data->account_no);
+
 						if(!empty($id_account))
 						{
 							$arr = array(
@@ -566,7 +569,7 @@ class Order extends REST_Controller
       $arr = array(
         'status' => 'success',
         'order_code' => $order_code,
-				'tracking_no' => $prefix.$order_code
+				'tracking_no' => $tracking
       );
 
       $this->response($arr, 200);
@@ -698,7 +701,7 @@ class Order extends REST_Controller
 		}
 
 
-		if(! property_exists($data, 'shipping_method') OR ($data->shipping_method != "DHL-N" && $data->shipping_method != "DHL-P"))
+		if(! property_exists($data, 'shipping_method'))
 		{
 			$this->error = "Invalid Shipping Code";
 			return FALSE;
@@ -748,7 +751,7 @@ class Order extends REST_Controller
     }
 
 
-    if($this->orders_model->get_order_code_by_reference($data->order_number) !== FALSE)
+    if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
     {
       $this->error = 'Order number already exists';
 			return FALSE;

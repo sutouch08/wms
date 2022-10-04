@@ -129,12 +129,34 @@ class Receive_po_model extends CI_Model
     ->where('OPOR.DocStatus', 'O')
     ->get();
 
-    if(!empty($rs))
+    if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
+  }
+
+
+
+	public function get_po_detail($po_code, $item_code)
+  {
+    $rs = $this->ms
+    ->select('POR1.DocEntry, POR1.LineNum, POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus, POR1.OpenQty, POR1.PriceAfVAT AS price')
+		->select('POR1.Currency, POR1.Rate, POR1.VatGroup, POR1.VatPrcnt')
+    ->from('POR1')
+    ->join('OPOR', 'POR1.DocEntry = OPOR.DocEntry', 'left')
+    ->where('OPOR.DocNum', $po_code)
+		->where('POR1.ItemCode', $item_code)
+    ->where('OPOR.DocStatus', 'O')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
   }
 
 
@@ -274,7 +296,20 @@ class Receive_po_model extends CI_Model
   }
 
 
+	public function get_po_currency($code)
+	{
+		$rs = $this->ms
+		->select('DocCur, DocRate')
+		->where('DocNum', $code)
+		->get('OPOR');
 
+		if($rs->num_rows() == 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
 
   public function set_status($code, $status)
   {

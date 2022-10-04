@@ -60,7 +60,7 @@ function get_filter($postName, $cookieName, $defaultValue = "")
 
   if($CI->input->post($postName) !== NULL)
   {
-    $sc = $CI->input->post($postName);
+    $sc = trim($CI->input->post($postName));
     $CI->input->set_cookie(array('name' => $cookieName, 'value' => $sc, 'expire' => 3600 , 'path' => '/'));
   }
   else if($CI->input->cookie($cookieName) !== NULL)

@@ -140,10 +140,7 @@
                 <button type="button" class="btn btn-mini btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
                 <?php if(($this->pm->can_edit OR $this->pm->can_add) && $rs->status == 0) : ?>
                   <button type="button" class="btn btn-mini btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
-                <?php endif; ?>
-                <?php if($this->pm->can_delete && $rs->status != 2) : ?>
-                  <button type="button" class="btn btn-mini btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
-                <?php endif; ?>
+                <?php endif; ?>                
               </td>
             </tr>
             <?php $no++; ?>
@@ -154,6 +151,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

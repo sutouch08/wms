@@ -1005,11 +1005,13 @@ class Return_consignment extends PS_Controller
 						$this->cancle_sap_doc($code);
 
 						$this->db->trans_begin();
+
 			      if(! $this->return_consignment_model->set_status($code, 2))
 						{
 							$sc = FALSE;
 							$this->error = "Change document status failed";
 						}
+
 
 						if($sc === TRUE)
 						{
@@ -1022,6 +1024,12 @@ class Return_consignment extends PS_Controller
 
 			      if($sc === TRUE)
 						{
+							$arr = array(
+								'inv_code' => NULL
+							);
+
+							$this->return_consignment_model->update($code, $arr);
+
 							$this->db->trans_commit();
 						}
 						else
@@ -1045,6 +1053,63 @@ class Return_consignment extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
+
+
+
+
+	public function pull_back()
+	{
+		$sc = TRUE;
+		$code = trim($this->input->post('code'));
+
+		if($this->_SuperAdmin)
+		{
+			$doc = $this->return_consignment_model->get($code);
+
+			if(!empty($doc))
+			{
+				if($doc->status == 2)
+				{
+					$arr = array(
+						'status' => 0,
+						'inv_code' => NULL
+					);
+
+					$this->db->trans_begin();
+					$ds = $this->db->set('is_cancle', 0)->where('return_code', $code)->update('return_consignment_detail');
+					$os = $this->db->where('code', $code)->update('return_consignment', $arr);
+
+					if($ds && $os)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Update Status Failed";
+						$this->db->trans_rollback();
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid Document Status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document number";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Permission Required";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 

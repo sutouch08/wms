@@ -1,6 +1,8 @@
 
 <div class="tab-pane fade" id="chatbot">
 	<?php
+		$chatbot_api_on = $CHATBOT_API == 1 ? 'btn-success' : '';
+		$chatbot_api_off = $CHATBOT_API == 0 ? 'btn-danger' : '';
 		$stock_on = $SYNC_CHATBOT_STOCK == 1 ? 'btn-success' : '';
 		$stock_off = $SYNC_CHATBOT_STOCK == 0 ? 'btn-danger' : '';
 		$log_on = $CHATBOT_LOG_JSON == 1 ? 'btn-success' : '';
@@ -8,6 +10,19 @@
 	 ?>
 	<form id="chatbotForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
+			<div class="col-sm-4">
+        <span class="form-control left-label">Chatbot API</span>
+      </div>
+      <div class="col-sm-8">
+				<div class="btn-group">
+					<button type="button" class="btn btn-sm <?php echo $chatbot_api_on; ?>" style="width:50%;" id="btn-chatbot-api-on" onClick="toggleChatbotApi(1)">ON</button>
+					<button type="button" class="btn btn-sm <?php echo $chatbot_api_off; ?>" style="width:50%;" id="btn-chatbot-api-off" onClick="toggleChatbotApi(0)">OFF</button>
+				</div>
+				<input type="hidden" name="CHATBOT_API" id="chatbot-api" value="<?php echo $CHATBOT_API; ?>" />
+				<span class="help-block">Turn API On/Off</span>
+      </div>
+      <div class="divider-hidden"></div>
+
     	<div class="col-sm-4">
         <span class="form-control left-label">Chatbot api endpoint</span>
       </div>
@@ -76,7 +91,7 @@
       <div class="divider-hidden"></div>
 
 			<div class="col-sm-8 col-sm-offset-4">
-				<?php if($this->_SuperAdmin) : ?>
+				<?php if($this->pm->can_add OR $this->pm->can_edit) : ?> <?php //if($this->_SuperAdmin) : ?>
         <button type="button" class="btn btn-sm btn-success input-small" onClick="updateConfig('chatbotForm')">
           <i class="fa fa-save"></i> บันทึก
         </button>

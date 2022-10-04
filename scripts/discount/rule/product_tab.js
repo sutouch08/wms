@@ -887,6 +887,7 @@ function readExcelFile() {
 
 
 function addToList(jsondata) {
+	console.log(jsondata);
 	if(jsondata.length) {
 		//--- clear current li in style-list
 		$('#style-list li').remove();
@@ -895,7 +896,7 @@ function addToList(jsondata) {
 		$('#psCount').text('0');
 
 		for (var i = 0; i < jsondata.length; i++) {
-			//console.log(jsondata[i]);
+			console.log(jsondata[i]);
 			var code = $.trim(jsondata[i].Model);
 			addStyle(code);
 		}

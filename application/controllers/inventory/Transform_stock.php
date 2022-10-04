@@ -9,6 +9,7 @@ class Transform_stock extends PS_Controller
 	public $title = 'เบิกแปรสภาพ(สต็อก)';
   public $filter;
   public $role = 'Q';
+  public $isClosed = FALSE;
 	public $isAPI;
 
   public function __construct()
@@ -240,6 +241,7 @@ class Transform_stock extends PS_Controller
 		$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $ds['approve_view'] = $approve_view;
+    $this->isClosed = $this->transform_model->is_closed($code);
     $this->load->view('transform/transform_edit', $ds);
   }
 
@@ -325,6 +327,7 @@ class Transform_stock extends PS_Controller
 
     $ds['order'] = $rs;
     $ds['details'] = $details;
+    $this->isClosed = $this->transform_model->is_closed($code);
     $this->load->view('transform/transform_edit_detail', $ds);
 
   }
@@ -488,12 +491,27 @@ class Transform_stock extends PS_Controller
     $id_order_detail = $this->input->post('id_order_detail');
     if($this->transform_model->remove_transform_detail($id_order_detail) === TRUE)
     {
+      $this->db->set('not_return', 1)->where('id', $id_order_detail)->update('order_details');
       echo 'success';
     }
     else
     {
       echo 'ลบการเชื่อมโยงสินค้าไม่สำเร็จ';
     }
+  }
+
+
+  public function set_not_return($id_order_detail, $val)
+  {
+    $sc = TRUE;
+
+    if( ! $this->db->set('not_return', $val)->where('id', $id_order_detail)->update('order_details'))
+    {
+      $sc = FALSE;
+      $this->error = "Update failed";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -535,7 +553,7 @@ class Transform_stock extends PS_Controller
       {
         $hasTransformProduct = $this->transform_model->hasTransformProduct($rs->id);
         $transform_product = $this->transform_model->get_transform_product($rs->id);
-        $checked = $hasTransformProduct === FALSE ? 'checked' : '';
+        //$checked = $hasTransformProduct === FALSE ? 'checked' : '';
         $arr = array(
           'id' => $rs->id,
           'no' => $no,
@@ -545,8 +563,8 @@ class Transform_stock extends PS_Controller
           'qty' => number($rs->qty),
           'transProduct' => $transform_product === FALSE ? '' : getTransformProducts($transform_product, $order->state, $order->is_expired),
           'trans_qty' => $this->transform_model->get_sum_transform_product_qty($rs->id),
-          'checkbox' => $checked,
-          'button' => $hasTransformProduct === FALSE ? '' : 'show'
+          'checkbox' => "", //$checked,
+          'button' => 'show' //$hasTransformProduct === FALSE ? '' : 'show'
         );
 
         array_push($ds, $arr);

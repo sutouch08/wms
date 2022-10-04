@@ -116,7 +116,7 @@
             <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
             <td class="middle"><?php echo $rs->code; ?></td>
             <td class="middle"><?php echo $rs->invoice; ?></td>
-            <td class="middle"><?php echo inputRow($rs->customer_name); ?></td>
+            <td class="middle"><?php echo $rs->customer_name; ?></td>
 						<td class="middle"><?php echo $rs->zone_code; ?></td>
             <td class="middle text-right"><?php echo number($rs->qty); ?></td>
             <td class="middle text-right"><?php echo number($rs->amount, 2); ?></td>

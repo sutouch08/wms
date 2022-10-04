@@ -201,7 +201,7 @@ $('#trans-product').autocomplete({
 function isConnected(id){
 	//---	ตรวจสอบว่ามีการเชื่อมโยงบ้างหรือไม่
 	$.ajax({
-		url:HOME + 'is_exists_connected',//'controller/transformController.php?isExistsConnected',
+		url:HOME + 'is_exists_connected',
 		type:'GET',
 		cache:'false',
 		data:{
@@ -225,7 +225,7 @@ function isConnected(id){
           if(isConfirm){
             //---	ลบรายการเชื่อมโยง
   					$.ajax({
-  						url: HOME + 'remove_transform_detail', //'controller/transformController.php?removeTransformDetail',
+  						url: HOME + 'remove_transform_detail',
   						type:'POST',
   						cache:'false',
   						data:{
@@ -256,13 +256,39 @@ function isConnected(id){
 
 			}else{
 				//---	หากไม่มีการเชื่อมโยงไว้
-				//---	เอาปุ่มเชื่อมโยงออกได้เลย
-				removeButton(id);
+				set_not_return(id, 1, "");
+
+				//removeButton(id);
 			}
 		}
 	})
 }
 
+
+function set_not_return(id, val, product_code) {
+	$.ajax({
+		url:HOME + 'set_not_return/'+id+'/'+val,
+		type:'POST',
+		cache:false,
+		success:function(rs) {
+			if(rs === 'success') {
+				if(val == 1) {
+					removeButton(id);
+				}
+				else {
+					addButton(id, product_code);
+				}
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}
 
 //---	เมื่อติ๊กถูกหรือติ๊กออก ช่องไม่คืนสินค้า
 function toggleReturn(id, productCode){
@@ -272,11 +298,10 @@ function toggleReturn(id, productCode){
 	//---	ถ้าติ๊กถูก
 	if( chk.is(':checked')){
 		isConnected(id);
-
 	}else{
 	//---	ถ้าติ๊กออก
-	addButton(id, productCode);
-
+	set_not_return(id, 0, productCode);
+	//addButton(id, productCode);
 	}
 }
 

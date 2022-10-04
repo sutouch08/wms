@@ -37,6 +37,7 @@
 			</a>
 		</div><!-- /.footer -->
 		</div><!-- /.main-container -->
+	</div>
 
 		<!-- page specific plugin scripts -->
 

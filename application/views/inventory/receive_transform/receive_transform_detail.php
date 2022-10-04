@@ -1,9 +1,9 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     	<h3 class="title" ><?php echo $this->title; ?></h3>
 	</div>
-    <div class="col-sm-6">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
       <button type="button" class="btn btn-sm btn-info" onclick="printReceived()"><i class="fa fa-print"></i> พิมพ์</button>
@@ -16,36 +16,36 @@
     </p>
   </div>
 </div>
-<hr />
+<hr class="padding-5" />
 
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
   	<label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
   </div>
-	<div class="col-sm-1 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add); ?>" disabled />
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
-    <label>ใบเบิกแปรสภาพ</label>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+    <label>ใบเบิก</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->order_code; ?>" disabled />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
   	<label>ใบส่งสินค้า</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->invoice_code; ?>" disabled/>
   </div>
-  <div class="col-sm-2 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-3 col-xs-6 padding-5">
     <label>รหัสโซน</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->zone_code; ?>" disabled />
   </div>
-  <div class="col-sm-4 col-4-harf padding-5 last">
+  <div class="col-lg-5 col-md-4-harf col-sm-8 col-xs-6 padding-5">
   	<label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled/>
   </div>
-	<div class="col-sm-1 col-1-harf padding-5 first">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>ช่องทางการรับ</label>
 		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
 			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
@@ -53,7 +53,7 @@
 		</select>
 	</div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>สถานะ</label>
 		<select class="form-control input-sm header-box" name="status" id="status" disabled>
 			<option value="0" <?php echo is_selected('0', $doc->status); ?>>ยังไม่บันทึก</option>
@@ -63,9 +63,13 @@
 		</select>
 	</div>
 
-  <div class="col-sm-9 padding-5 last">
+  <div class="col-lg-5 col-md-5 col-sm-8 col-xs-6 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
+	</div>
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 padding-5">
+		<label>หมายเหตุในการยกเลิก</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled />
 	</div>
   <input type="hidden" name="receive_code" id="receive_code" value="<?php echo $doc->code; ?>" />
 </div>
@@ -83,7 +87,7 @@ if($doc->status == 3)
 ?>
 <hr class="margin-top-15 margin-bottom-15"/>
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
     <table class="table table-striped table-bordered">
       <thead>
       	<tr class="font-size-12">

@@ -461,64 +461,76 @@ class Receive_transform extends PS_Controller
 
     if($this->input->post('receive_code'))
     {
-      $this->load->model('inventory/movement_model');
-      $code = $this->input->post('receive_code');
-      $doc = $this->receive_transform_model->get($code);
-      if(!empty($doc))
+      if($this->input->post('reason'))
       {
-        $this->db->trans_begin();
-        if( ! $this->receive_transform_model->cancle_details($code) )
-        {
-          $sc = FALSE;
-          $this->error = "ยกเลิกรายการไม่สำเร็จ";
-        }
+        $this->load->model('inventory/movement_model');
+        $code = $this->input->post('receive_code');
+        $reason = trim($this->input->post('reason'));
 
-        if(! $this->receive_transform_model->set_status($code, 2)) //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
+        $doc = $this->receive_transform_model->get($code);
+        if(!empty($doc))
         {
-          $sc = FALSE;
-          $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
-        }
+          $this->db->trans_begin();
 
-        if(! $this->movement_model->drop_movement($code))
-        {
-          $sc = FALSE;
-          $this->error = "ลบ movement ไม่สำเร็จ";
-        }
-
-        if($sc === TRUE)
-        {
-          $details = $this->receive_transform_model->get_details($code);
-          if(!empty($details))
+          if( ! $this->receive_transform_model->cancle_details($code) )
           {
-            foreach($details as $rs)
-            {
-              if(!$this->unreceive_product($doc->order_code, $rs->product_code, $rs->qty))
-              {
-                $sc = FALSE;
-                $this->error = "Update ยอดค้างรับไม่สำเร็จ";
-                break;
-              }
-            }
+            $sc = FALSE;
+            $this->error = "ยกเลิกรายการไม่สำเร็จ";
           }
 
-          //--- unclose WQ
-          $this->transform_model->unclose_transform($doc->order_code);
-        }
+          $arr = array(
+            'status' => 2,
+            'cancle_reason' => $reason
+          );
 
-        if($sc === TRUE)
-        {
-          $this->db->trans_commit();
+          if(! $this->receive_transform_model->update($code, $arr)) //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
+          {
+            $sc = FALSE;
+            $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+          }
+
+          if(! $this->movement_model->drop_movement($code))
+          {
+            $sc = FALSE;
+            $this->error = "ลบ movement ไม่สำเร็จ";
+          }
+
+          if($sc === TRUE)
+          {
+            $details = $this->receive_transform_model->get_details($code);
+            if(!empty($details))
+            {
+              foreach($details as $rs)
+              {
+                if(!$this->unreceive_product($doc->order_code, $rs->product_code, $rs->qty))
+                {
+                  $sc = FALSE;
+                  $this->error = "Update ยอดค้างรับไม่สำเร็จ";
+                  break;
+                }
+              }
+            }
+
+            //--- unclose WQ
+            $this->transform_model->unclose_transform($doc->order_code);
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+
         }
         else
         {
-          $this->db->trans_rollback();
+          $sc = FALSE;
+          $this->error = "ไม่พบเลขที่เอกสาร";
         }
 
-      }
-      else
-      {
-        $sc = FALSE;
-        $this->error = "ไม่พบเลขที่เอกสาร";
       }
 
     }

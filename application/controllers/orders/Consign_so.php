@@ -188,6 +188,9 @@ class Consign_so extends PS_Controller
       $role = 'C'; //--- C = ฝากขายเปิดใบกำกับ
       $zone = $this->input->post('zone_code');
       $wh = $this->warehouse_model->get($this->input->post('warehouse'));
+			$gp = $this->input->post('gp');
+			$unit = $this->input->post('unit');
+			$gp = $unit == '%' ? $gp.'%' : $gp;
       if(!empty($zone))
       {
         $ds = array(
@@ -196,7 +199,7 @@ class Consign_so extends PS_Controller
           'role' => $role,
           'bookcode' => $book_code,
           'customer_code' => $this->input->post('customerCode'),
-          'gp' => $this->input->post('gp'),
+          'gp' => $gp,
           'user' => get_cookie('uname'),
           'remark' => $this->input->post('remark'),
           'zone_code' => $zone,

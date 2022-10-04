@@ -165,7 +165,20 @@ class User_model extends CI_Model
       {
         if($rs->row()->valid == 1)
         {
-          return $this->get_profile_permission($menu, $id_profile);
+					if($id_profile == -987654321)
+					{
+						$ds = new stdClass();
+	          $ds->can_view = 1;
+	          $ds->can_add = 1;
+	          $ds->can_edit = 1;
+	          $ds->can_delete = 1;
+	          $ds->can_approve = 1;
+	          return $ds;
+					}
+					else
+					{
+						return $this->get_profile_permission($menu, $id_profile);
+					}
         }
         else
         {

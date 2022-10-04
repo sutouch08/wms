@@ -14,22 +14,22 @@
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>รหัสโซน</label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ชื่อลูกค้า</label>
     <input type="text" class="form-control input-sm" name="customer" id="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>คลังสินค้า</label>
     <select class="form-control input-sm filter" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -37,16 +37,25 @@
 		</select>
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
+    <label>สถานะ</label>
+    <select class="form-control input-sm filter" name="active" id="active" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $active); ?>>Active</option>
+			<option value="0" <?php echo is_selected('0', $active); ?>>Inactive</option>
+		</select>
+  </div>
+
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="submit" class="btn btn-xs btn-primary btn-block">Search</button>
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="button" class="btn btn-xs btn-purple btn-block" onclick="exportFilter()">
 			<i class="fa fa-file-excel-o"></i> Export
@@ -72,8 +81,9 @@
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-15 middle">รหัสโซน</th>
-					<th class="width-35 middle">ชื่อโซน</th>
+					<th class="width-30 middle">ชื่อโซน</th>
 					<th class="width-20 middle">คลังสินค้า</th>
+					<th class="width-5 middle text-center">สถานะ</th>
 					<th class="width-5 middle text-center">ลูกค้า</th>
 					<th class="width-10 middle text-center">รหัสเก่า</th>
 					<th class=""></th>
@@ -88,6 +98,7 @@
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->warehouse_name; ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
 						<td class="middle text-center"><?php echo number($rs->customer_count); ?></td>
 						<td class="middle text-center"><?php echo $rs->old_code; ?></td>
 						<td class="text-right">

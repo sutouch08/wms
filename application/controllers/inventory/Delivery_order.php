@@ -408,15 +408,24 @@ class Delivery_order extends PS_Controller
   {
     $this->load->model('masters/customers_model');
     $this->load->model('inventory/qc_model');
+		$this->load->model('masters/warehouse_model');
+		$this->load->model('masters/channels_model');
+		$this->load->model('masters/payment_methods_model');
     $this->load->helper('order');
     $this->load->helper('discount');
+
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
-    if($order->role == 'C' OR $order->role == 'N')
+		$order->warehouse_name = $this->warehouse_model->get_name($order->warehouse_code);
+		$order->channels_name = $this->channels_model->get_name($order->channels_code);
+		$order->payment_name = $this->payment_methods_model->get_name($order->payment_code);
+
+    if($order->role == 'C' OR $order->role == 'N' OR $order->role == 'L')
     {
       $this->load->model('masters/zone_model');
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
     }
+
     $details = $this->delivery_order_model->get_billed_detail($code);
     $box_list = $this->qc_model->get_box_list($code);
     $ds['order'] = $order;
@@ -425,6 +434,27 @@ class Delivery_order extends PS_Controller
     $this->load->view('inventory/delivery_order/bill_detail', $ds);
   }
 
+
+
+	public function update_shipped_date()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('order_code');
+		$date = db_date($this->input->post('shipped_date'), FALSE);
+
+		$arr = array(
+			'shipped_date' => $date,
+			'update_user' => get_cookie('uname')
+		);
+
+		if( ! $this->orders_model->update($code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update Shipped data failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
   public function get_state()
