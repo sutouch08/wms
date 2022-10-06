@@ -1147,11 +1147,13 @@ class Orders extends PS_Controller
 					}
 					else
 					{
+            $tbs = '<table class="table table-bordered border-1" style="min-width:'.$tableWidth.'px;">';
+            $tbe = '</table>';
 						$ds = array(
 							'status' => 'success',
 							'message' => NULL,
-							'table' => $table,
-							'tableWidth' => $tableWidth,
+							'table' => $tbs.$table.$tbe,
+							'tableWidth' => $tableWidth + 20,
 							'styleCode' => $style->code,
 							'styleOldCode' => $style->old_code,
 							'styleName' => $style->name
@@ -1187,56 +1189,6 @@ class Orders extends PS_Controller
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
   }
 
-
-
-  // public function get_order_grid()
-  // {
-  //   //----- Attribute Grid By Clicking image
-  //   $style = $this->product_style_model->get_with_old_code($this->input->get('style_code'));
-  //   if(!empty($style))
-  //   {
-  //     //--- ถ้าได้ style เดียว จะเป็น object ไม่ใช่ array
-  //     if(! is_array($style))
-  //     {
-  //       if($style->active)
-  //       {
-  //         $warehouse = get_null($this->input->get('warehouse_code'));
-  //         $zone = get_null($this->input->get('zone_code'));
-  //       	$sc = 'not exists';
-  //         $view = $this->input->get('isView') == '0' ? FALSE : TRUE;
-  //       	$sc = $this->getOrderGrid($style->code, $view, $warehouse, $zone);
-  //       	$tableWidth	= $this->products_model->countAttribute($style->code) == 1 ? 600 : $this->getOrderTableWidth($style->code);
-  //       	$sc .= ' | ' . $tableWidth;
-  //       	$sc .= ' | ' . $style->code;
-  //       	$sc .= ' | ' . $style->old_code;
-  //         $sc .= ' | ' . $style->name;
-  //       	echo $sc;
-  //       }
-  //       else
-  //       {
-  //         $this->error = "สินค้า Inactive";
-  //         echo $this->error;
-  //       }
-	//
-  //     }
-  //     else
-  //     {
-  //       $this->error = "รหัสซ้ำ ";
-  //       foreach($style as $rs)
-  //       {
-  //         $this->error .= " : {$rs->code} : {$rs->old_code}";
-  //       }
-	//
-  //       echo $this->error;
-  //     }
-	//
-  //   }
-  //   else
-  //   {
-  //     echo 'notfound';
-  //   }
-	//
-  // }
 
 
   public function get_item_grid()
@@ -1330,7 +1282,7 @@ class Orders extends PS_Controller
 		$sc 		= '';
 		$data 	= $attr == 'color' ? $this->getAllColors($style->code) : $this->getAllSizes($style->code);
 		$items	= $this->products_model->get_style_items($style->code);
-		$sc 	 .= "<table class='table table-bordered'>";
+		//$sc 	 .= "<table class='table table-bordered'>";
 		$i 		  = 0;
 
     foreach($items as $item )
@@ -1383,7 +1335,7 @@ class Orders extends PS_Controller
     }
 
 
-		$sc	.= "</table>";
+		//$sc	.= "</table>";
 
 		return $sc;
 	}
@@ -1403,15 +1355,14 @@ class Orders extends PS_Controller
 		$colors	= $this->getAllColors($style->code);
 		$sizes 	= $this->getAllSizes($style->code);
 		$sc 		= '';
-		$sc 		.= '<table class="table table-bordered">';
+		//$sc 		.= '<table class="table table-bordered">';
 		$sc 		.= $this->gridHeader($colors);
 
 		foreach( $sizes as $size_code => $size )
 		{
-      //$bg_color = $this->getSizeColor($size_code);
-      $bg_color = ''; //empty($bg_color) ? '' : 'background-color:'.$bg_color.';';
+      $bg_color = '';
 			$sc 	.= '<tr style="font-size:12px; '.$bg_color.'">';
-			$sc 	.= '<td class="text-center middle" style="width:80px;"><strong>'.$size_code.'</strong></td>';
+			$sc 	.= '<td class="text-center middle"><strong>'.$size_code.'</strong></td>';
 
 			foreach( $colors as $color_code => $color )
 			{
@@ -1442,20 +1393,25 @@ class Orders extends PS_Controller
 					$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.$stock.')</span></center>' : '';
 					if( $view === FALSE )
 					{
-						$sc 	.= '<input type="number" min="1" max="'.$limit.'" class="form-control order-grid" name="qty['.$item->color_code.']['.$item->code.']" id="qty_'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
+						$sc .= '<input type="number" min="1" max="'.$limit.'" ';
+            $sc .= 'class="form-control text-center order-grid" ';
+            $sc .= 'name="qty['.$item->color_code.']['.$item->code.']" ';
+            $sc .= 'id="qty_'.$item->code.'" ';
+            $sc .= 'placeholder="'.$color_code.'-'.$size_code.'" ';
+            $sc .= 'onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
 					}
 					$sc 	.= $isVisual === FALSE ? '<center>'.$available.'</center>' : '';
 					$sc 	.= '</td>';
 				}
 				else
 				{
-					$sc .= '<td class="order-grid">N/A</td>';
+					$sc .= '<td class="order-grid middle">N/A</td>';
 				}
 			} //--- End foreach $colors
 
 			$sc .= '</tr>';
 		} //--- end foreach $sizes
-	$sc .= '</table>';
+	//$sc .= '</table>';
 	return $sc;
 	}
 
@@ -1488,10 +1444,10 @@ class Orders extends PS_Controller
 
   public function gridHeader(array $colors)
   {
-    $sc = '<tr class="font-size-12"><td style="width:70px;">&nbsp;</td>';
+    $sc = '<tr class="font-size-12"><td style="width:80px;">&nbsp;</td>';
     foreach( $colors as $code => $name )
     {
-      $sc .= '<td class="text-center middle" style="width:70px; white-space:normal;">'.$code . '<br/>'. $name.'</td>';
+      $sc .= '<td class="text-center middle" style="width:80px; white-space:normal;">'.$code . '<br/>'. $name.'</td>';
     }
     $sc .= '</tr>';
     return $sc;
@@ -1560,9 +1516,9 @@ class Orders extends PS_Controller
 
   public function getOrderTableWidth($style_code)
   {
-    $sc = 800; //--- ชั้นต่ำ
-    $tdWidth = 70;  //----- แต่ละช่อง
-    $padding = 70; //----- สำหรับช่องแสดงไซส์
+    $sc = 600; //--- ชั้นต่ำ
+    $tdWidth = 80;  //----- แต่ละช่อง
+    $padding = 80; //----- สำหรับช่องแสดงไซส์
     $color = $this->products_model->count_color($style_code);
     if($color > 0)
     {

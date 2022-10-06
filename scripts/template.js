@@ -34,20 +34,23 @@ function toggle_layout(){
 }
 
 
-
 function load_in(){
-	var x = ($(document).innerWidth()/2)-50;
-	$("#loader").css("display","");
-	$("#loader").css("left",x);
-	$("#loader").animate({opacity:0.8, top:300},300);
+	$("#loader").css("display","block");
+	$('#loader-backdrop').css('display', 'block');
+	$("#loader").animate({opacity:0.8},300);
 }
 
 
 
 function load_out(){
-	$("#loader").animate({opacity:0, top:-20},300, function(){ $("#loader").css("display","none");});
+	$("#loader").animate({
+		opacity:0
+	},300,
+	function() {
+		$("#loader").css("display","none");
+		$('#loader-backdrop').css('display', 'none');
+	});
 }
-
 
 
 

@@ -5,19 +5,19 @@
 	?>
 <form id="discount-form">
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-    	<table class="table table-striped border-1">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    	<table class="table table-striped border-1" style="min-width:920px;">
         <thead>
         	<tr class="font-size-12">
-            	<th class="width-5 text-center">No.</th>
-                <th class="width-5 text-center"></th>
-                <th class="width-15">รหัสสินค้า</th>
-                <th class="width-25">ชื่อสินค้า</th>
-                <th class="width-10 text-center">ราคา</th>
-                <th class="width-10 text-center">จำนวน</th>
-                <th class="width-15 text-center">ส่วนลด</th>
-                <th class="width-10 text-right">มูลค่า</th>
-                <th class="width-5 text-center"></th>
+            	<th class="fix-width-40 text-center">No.</th>
+                <th class="fix-width-60 text-center"></th>
+                <th class="fix-width-150">รหัสสินค้า</th>
+                <th class="fix-width-250">ชื่อสินค้า</th>
+                <th class="fix-width-80 text-center">ราคา</th>
+                <th class="fix-width-80 text-center">จำนวน</th>
+                <th class="fix-width-120 text-center">ส่วนลด</th>
+                <th class="fix-width-100 text-right">มูลค่า</th>
+                <th class="fix-width-40 text-center"></th>
             </tr>
         </thead>
         <tbody id="detail-table">

@@ -16,7 +16,7 @@
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/ace-fonts.css" />
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery-ui-1.10.4.custom.min.css " />
-		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/template.css?v=2"/>
+		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/template.css?v=<?php echo date('Ymd'); ?>"/>
 		<!-- ace settings handler -->
 		<script src="<?php echo base_url(); ?>assets/js/ace-extra.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/jquery.min.js"></script>
@@ -48,9 +48,17 @@
 	</style>
 	</head>
 	<body class="no-skin" onload="checkError()">
+		<!--
 		<div id="loader" style="position:absolute; padding: 15px 25px 15px 25px; background-color:#fff; opacity:0.0; box-shadow: 0px 0px 25px #CCC; top:-20px; display:none; z-index:10;">
         <center><i class="fa fa-spinner fa-5x fa-spin blue"></i></center><center>กำลังทำงาน....</center>
 		</div>
+	-->
+		<div id="loader">
+        <div class="loader"></div>
+		</div>
+		<div id="loader-backdrop" style="position: fixed; width:100vw; height:100vh; background-color:white; opacity:0.3; display:none; z-index:9;">
+		</div>
+
 		<?php if($this->session->flashdata('error')) : ?>
 							<input type="hidden" id="error" value="<?php echo $this->session->flashdata('error'); ?>" />
 		<?php endif; ?>

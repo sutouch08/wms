@@ -132,6 +132,15 @@ ul.tree ul li label {
 	margin-bottom:0px;
 }
 
+.title-xs {
+  margin-top:0px;
+  margin-bottom:10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: center;
+  background-color: #eee;
+}
+
 h4.title {
   margin-top:14px;
 }
@@ -710,6 +719,14 @@ hr.padding-5 {
 
 .bg-green {
   background-color: #ebf1e2;
+}
+
+.bg-grey {
+  background-color: grey;
+}
+
+.bg-light-grey {
+  background-color: #eee;
 }
 
 

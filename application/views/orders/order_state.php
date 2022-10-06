@@ -11,7 +11,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 
  ?>
 <div class="row" style="padding:15px;">
-	<div class="col-lg-3 col-md-4 col-sm-5 col-xs-12 padding-5">
+	<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 padding-5">
     	<table class="table" style="margin-bottom:0px;">
         <?php if( $this->pm->can_add OR $this->pm->can_edit OR $this->pm->can_delete ) : ?>
         	<tr>
@@ -93,18 +93,19 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
       </table>
 	</div>
 
-	<?php if($order->state == 9) : ?><a href="javascript:void(0)" onclick="showReason()"><?php endif; ?>
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-4 padding-5 font-size-14 margin-right-10"	style="border:solid 1px red; <?php echo state_color($order->state); ?>"	>
+  <?php $link = $order->state == 9 ? 'onclick="showReason()"' : ''; ?>
+  <?php $pointer = $order->state == 9 ? 'pointer' : ''; ?>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5 font-size-14 <?php echo $pointer; ?>"
+    <?php echo $link; ?>	style="height: 49px; border:solid 2px white; <?php echo state_color($order->state); ?>"	>
 		<center>สถานปัจจุบัน</center>
 		<center><?php echo get_state_name($order->state); ?></center>
 	</div>
-	<?php if($order->state == 9) : ?>
-		</a>
-	<?php endif; ?>
+
 
 <?php if( !empty($state) ) : ?>
   <?php foreach($state as $rs) : ?>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 padding-5 font-size-10 margin-bottom-5" style="margin-right:2px; <?php echo state_color($rs->state); ?>" >
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5 font-size-10" style="height: 49px; border:solid 2px white; <?php echo state_color($rs->state); ?>" >
     <center><?php echo get_state_name($rs->state); ?></center>
     <center><?php echo $this->user_model->get_name($rs->update_user); ?></center>
     <center><?php echo thai_date($rs->date_upd,TRUE, '/'); ?></center>
@@ -114,7 +115,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 </div>
 
 <div class="modal fade" id="cancle-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="width:500px;">
+ <div class="modal-dialog" style="max-width:800px;">
    <div class="modal-content">
        <div class="modal-header">
        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -139,7 +140,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 </div>
 
 <div class="modal fade" id="cancle-reason-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="width:800px;">
+ <div class="modal-dialog" style="max-width:800px;">
    <div class="modal-content">
        <div class="modal-header">
        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
