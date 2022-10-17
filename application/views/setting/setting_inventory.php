@@ -8,6 +8,10 @@
 <?php $strict_receive_no = $STRICT_RECEIVE_PO == 0 ? 'btn-success' : ''; ?>
 <?php $system_bin_yes = $SYSTEM_BIN_LOCATION == 1 ? 'btn-success' : ''; ?>
 <?php $system_bin_no = $SYSTEM_BIN_LOCATION == 0 ? 'btn-success' : ''; ?>
+<?php $wt_btn_yes = is_true($LIMIT_CONSIGN) ? 'btn-success' : ''; ?>
+<?php $wt_btn_no = is_true($LIMIT_CONSIGN) ? '' : 'btn-danger'; ?>
+<?php $wc_btn_yes = is_true($LIMIT_CONSIGNMENT) ? 'btn-success' : ''; ?>
+<?php $wc_btn_no = is_true($LIMIT_CONSIGNMENT) ? '' : 'btn-danger'; ?>
 
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
@@ -106,6 +110,33 @@
       </div>
       <div class="col-sm-9">
         <input type="text" class="form-control input-sm input-large" id="lend-warehouse" name="LEND_WAREHOUSE" value="<?php echo $LEND_WAREHOUSE; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+
+			<div class="col-sm-3">
+        <span class="form-control left-label">คุมสต็อกฝากขายแท้</span>
+      </div>
+      <div class="col-sm-9">
+				<div class="btn-group input-medium">
+        	<button type="button" class="btn btn-sm <?php echo $wt_btn_no; ?>" style="width:50%;" id="btn-wt-no" onClick="toggleLimitWT(0)">ไม่คุม</button>
+          <button type="button" class="btn btn-sm <?php echo $wt_btn_yes; ?>" style="width:50%;" id="btn-wt-yes" onClick="toggleLimitWT(1)">คุม</button>
+        </div>
+        <span class="help-block">ควมคุมมูลค่า(ทุน)สินค้าคงเหลือในคลังฝากขายแท้ไม่ให้เกินกว่าที่กำหนด</span>
+        <input type="hidden" name="LIMIT_CONSIGN" id="limit-consign" value="<?php echo $LIMIT_CONSIGN; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-3">
+        <span class="form-control left-label">คุมสต็อกฝากขายแท้เทียม</span>
+      </div>
+      <div class="col-sm-9">
+				<div class="btn-group input-medium">
+        	<button type="button" class="btn btn-sm <?php echo $wc_btn_no; ?>" style="width:50%;" id="btn-wc-no" onClick="toggleLimitWC(0)">ไม่คุม</button>
+          <button type="button" class="btn btn-sm <?php echo $wc_btn_yes; ?>" style="width:50%;" id="btn-wc-yes" onClick="toggleLimitWC(1)">คุม</button>
+        </div>
+        <span class="help-block">ควมคุมมูลค่า(ทุน)สินค้าคงเหลือในคลังฝากขายแท้ไม่ให้เกินกว่าที่กำหนด</span>
+        <input type="hidden" name="LIMIT_CONSIGNMENT" id="limit-consignment" value="<?php echo $LIMIT_CONSIGNMENT; ?>" />
       </div>
       <div class="divider-hidden"></div>
 

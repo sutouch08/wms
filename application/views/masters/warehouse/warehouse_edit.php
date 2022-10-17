@@ -6,8 +6,7 @@
 	$prepare_no = $ds->prepare == 0 ? 'btn-danger' : '';
 	$auz_yes = $ds->auz == 1 ? 'btn-success' : '';
 	$auz_no = $ds->auz == 0 ? 'btn-danger' : '';
-	$active_yes = $ds->active == 1 ? 'btn-success' : '';
-	$active_no = $ds->active == 0 ? 'btn-danger' : '';
+	$btn_active = $ds->active == 1 ? 'btn-success' : 'btn-danger';
 	$cm_yes = $ds->is_consignment == 1 ? 'btn-success' : '';
 	$cm_no = empty($ds->is_consignment) ? 'btn-danger' : '';
  ?>
@@ -52,6 +51,16 @@
   </div>
 
 	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">มูลค่าสูงสุด</label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="text" class="form-control input-sm" value="<?php echo number($ds->limit_amount, 2); ?>" disabled />
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline" >
+			มูลค่ารวม(ทุน)ของสินค้าที่อนุญาติให้มีได้ในคลังนี้ หากไม่ต้องการจำกัดมูลค่า ให้กำหนดเป็น 0.00 
+		</div>
+  </div>
+
+	<div class="form-group">
  	 <label class="col-sm-3 control-label no-padding-right">ฝากขายเทียม</label>
  	 <div class="col-xs-12 col-sm-2">
  		<div class="btn-group width-100">
@@ -93,12 +102,11 @@
   </div>
 
 	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>
+ 	 <label class="col-sm-3 control-label no-padding-right">สถานะ</label>
  	 <div class="col-xs-12 col-sm-2">
- 		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $active_yes; ?>" id="btn-active-yes" onclick="toggleActive(1)">ใช่</button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $active_no; ?>" id="btn-active-no" onclick="toggleActive(0)">ไม่ใช่</button>
- 		</div>
+		 <button type="button" class="btn btn-sm <?php echo $btn_active; ?>" style="width:100px;" disabled>
+			 <?php echo $ds->active == 1 ? 'Active' : 'Inactive'; ?>
+		 </button>
  	 </div>
   </div>
 
@@ -122,7 +130,9 @@
 	<input type="hidden" name="sell" id="sell" value="<?php echo $ds->sell; ?>">
 	<input type="hidden" name="prepare" id="prepare" value="<?php echo $ds->prepare; ?>">
 	<input type="hidden" name="auz" id="auz" value="<?php echo $ds->auz; ?>">
+	<!--
 	<input type="hidden" name="active" id="active" value="<?php echo $ds->active; ?>">
+-->
 	<input type="hidden" name="is_consignment" id="is_consignment" value="<?php echo $ds->is_consignment; ?>">
 </form>
 

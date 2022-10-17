@@ -1,92 +1,92 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row hidden-print">
-	<div class="col-sm-6">
-    <h3 class="title">
-      <i class="fa fa-bar-chart"></i>
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-		<div class="col-sm-6">
-			<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
-				<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
-			</p>
-		</div>
+	<div class="col-lg-8 col-md-8 col-sm-8 padding-5 hidden-xs">
+    <h3 class="title"><i class="fa fa-bar-chart"></i>  <?php echo $this->title; ?></h3>
+  </div>
+	<div class="col-xs-12 padding-5 visible-xs">
+    <h4 class="title-xs"><i class="fa fa-bar-chart"></i>  <?php echo $this->title; ?></h4>
+  </div>
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+      <button type="button" class="btn btn-xs btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
+			<button type="button" class="btn btn-xs btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
+		</p>
+	</div>
 </div><!-- End Row -->
-<hr class="hidden-print"/>
+<hr class="padding-5 hidden-print"/>
 <form class="hidden-print" id="reportForm" method="post" action="<?php echo $this->home; ?>/do_export">
 <div class="row">
-	<div class="col-sm-2 col-2-harf padding-5 first">
+
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label class="display-block">เอกสาร</label>
+    <div class="btn-group btn-group-30 width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-doc-all" onclick="toggleAllDocument(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-doc-range" onclick="toggleAllDocument(0)">เลือก</button>
+    </div>
+  </div>
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label class="display-block not-show">เริ่มต้น</label>
+    <input type="text" class="form-control input-sm text-center" id="docFrom" name="docFrom" placeholder="เริ่มต้น" disabled>
+  </div>
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label class="display-block not-show">สิ้นสุด</label>
+    <input type="text" class="form-control input-sm text-center" id="docTo" name="docTo" placeholder="สิ้นสุด" disabled>
+  </div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label class="display-block">ผู้ขาย</label>
+    <div class="btn-group btn-group-30 width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-vendor-all" onclick="toggleAllVendor(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-vendor-range" onclick="toggleAllVendor(0)">เลือก</button>
+    </div>
+  </div>
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label class="display-block not-show">เริ่มต้น</label>
+    <input type="text" class="form-control input-sm text-center" id="vendorFrom" name="vendorFrom" placeholder="เริ่มต้น" disabled>
+  </div>
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label class="display-block not-show">สิ้นสุด</label>
+    <input type="text" class="form-control input-sm text-center" id="vendorTo" name="vendorTo" placeholder="สิ้นสุด" disabled>
+  </div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4  padding-5">
+    <label class="display-block">ใบสั่งซื้อ</label>
+    <div class="btn-group btn-group-30 width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-po-all" onclick="toggleAllPO(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-po-range" onclick="toggleAllPO(0)">เลือก</button>
+    </div>
+  </div>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label class="display-block not-show">เริ่มต้น</label>
+    <input type="text" class="form-control input-sm text-center" id="poFrom" name="poFrom" placeholder="เริ่มต้น" disabled>
+  </div>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label class="display-block not-show">สิ้นสุด</label>
+    <input type="text" class="form-control input-sm text-center" id="poTo" name="poTo" placeholder="สิ้นสุด" disabled>
+  </div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label class="display-block">ใบส่งสินค้า</label>
+    <div class="btn-group btn-group-30 width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-invoice-all" onclick="toggleAllInvoice(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-invoice-range" onclick="toggleAllInvoice(0)">เลือก</button>
+    </div>
+  </div>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label class="display-block not-show">เริ่มต้น</label>
+    <input type="text" class="form-control input-sm text-center" id="invoiceFrom" name="invoiceFrom" placeholder="เริ่มต้น" disabled>
+  </div>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label class="display-block not-show">สิ้นสุด</label>
+    <input type="text" class="form-control input-sm text-center" id="invoiceTo" name="invoiceTo" placeholder="สิ้นสุด" disabled>
+  </div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group width-100">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" placeholder="เริ่มต้น" required />
       <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" placeholder="สิ้นสุด" required/>
     </div>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block">เอกสาร</label>
-    <div class="btn-group width-100">
-      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-doc-all" onclick="toggleAllDocument(1)">ทั้งหมด</button>
-      <button type="button" class="btn btn-sm width-50" id="btn-doc-range" onclick="toggleAllDocument(0)">เลือก</button>
-    </div>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">เริ่มต้น</label>
-    <input type="text" class="form-control input-sm text-center" id="docFrom" name="docFrom" placeholder="เริ่มต้น" disabled>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">สิ้นสุด</label>
-    <input type="text" class="form-control input-sm text-center" id="docTo" name="docTo" placeholder="สิ้นสุด" disabled>
-  </div>
-
-	<div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block">ผู้ขาย</label>
-    <div class="btn-group width-100">
-      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-vendor-all" onclick="toggleAllVendor(1)">ทั้งหมด</button>
-      <button type="button" class="btn btn-sm width-50" id="btn-vendor-range" onclick="toggleAllVendor(0)">เลือก</button>
-    </div>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">เริ่มต้น</label>
-    <input type="text" class="form-control input-sm text-center" id="vendorFrom" name="vendorFrom" placeholder="เริ่มต้น" disabled>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">สิ้นสุด</label>
-    <input type="text" class="form-control input-sm text-center" id="vendorTo" name="vendorTo" placeholder="สิ้นสุด" disabled>
-  </div>
-
-
-
-	<div class="col-sm-1 col-1-harf padding-5 first">
-    <label class="display-block">ใบสั่งซื้อ</label>
-    <div class="btn-group width-100">
-      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-po-all" onclick="toggleAllPO(1)">ทั้งหมด</button>
-      <button type="button" class="btn btn-sm width-50" id="btn-po-range" onclick="toggleAllPO(0)">เลือก</button>
-    </div>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">เริ่มต้น</label>
-    <input type="text" class="form-control input-sm text-center" id="poFrom" name="poFrom" placeholder="เริ่มต้น" disabled>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">สิ้นสุด</label>
-    <input type="text" class="form-control input-sm text-center" id="poTo" name="poTo" placeholder="สิ้นสุด" disabled>
-  </div>
-
-	<div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block">ใบส่งสินค้า</label>
-    <div class="btn-group width-100">
-      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-invoice-all" onclick="toggleAllInvoice(1)">ทั้งหมด</button>
-      <button type="button" class="btn btn-sm width-50" id="btn-invoice-range" onclick="toggleAllInvoice(0)">เลือก</button>
-    </div>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">เริ่มต้น</label>
-    <input type="text" class="form-control input-sm text-center" id="invoiceFrom" name="invoiceFrom" placeholder="เริ่มต้น" disabled>
-  </div>
-  <div class="col-sm-1 col-1-harf padding-5">
-    <label class="display-block not-show">สิ้นสุด</label>
-    <input type="text" class="form-control input-sm text-center" id="invoiceTo" name="invoiceTo" placeholder="สิ้นสุด" disabled>
   </div>
 
   <input type="hidden" id="allDoc" name="allDoc" value="1">

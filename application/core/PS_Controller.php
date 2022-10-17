@@ -21,6 +21,7 @@ class PS_Controller extends CI_Controller
   public $isViewer;
 	public $_user;
 	public $_SuperAdmin = FALSE;
+  public $_dataDate = '2021-01-01';
 
   public function __construct()
   {
@@ -56,6 +57,12 @@ class PS_Controller extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
     //$this->cn = $this->load->database('cn', TRUE); //--- consign Database
+
+    $dataDate = getConfig('DATA_DATE');
+    if( ! empty($dataDate))
+    {
+      $this->_dataDate = $dataDate;
+    }
 
 
     if(empty($this->menu_code) && $this->isViewer === FALSE)

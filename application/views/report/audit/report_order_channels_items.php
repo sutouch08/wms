@@ -1,98 +1,104 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row hidden-print">
-	<div class="col-sm-8">
+	<div class="col-lg-8 col-md-8 col-sm-8 padding-5 hidden-xs">
     <h3 class="title">
       <i class="fa fa-bar-chart"></i>
       <?php echo $this->title; ?>
     </h3>
-    </div>
-		<div class="col-sm-4">
-			<p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
-			</p>
-		</div>
+  </div>
+	<div class="col-xs-12 padding-5 visible-xs">
+		<h4 class="title-xs"><i class="fa fa-bar-chart"></i> <?php echo $this->title; ?></h4>
+	</div>
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
+		</p>
+	</div>
 </div><!-- End Row -->
-<hr class="hidden-print"/>
+<hr class="padding-5 hidden-print"/>
 <form class="hidden-print" id="reportForm" method="post" action="<?php echo $this->home; ?>/do_export">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block">ช่องทางการขาย</label>
-    <div class="btn-group width-100">
+    <div class="btn-group width-100" style="height:30px;">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-channels-all" onclick="toggleAllChannels(1)">ทั้งหมด</button>
       <button type="button" class="btn btn-sm width-50" id="btn-channels-range" onclick="toggleAllChannels(0)">เลือก</button>
     </div>
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block">การชำระเงิน</label>
-    <div class="btn-group width-100">
+    <div class="btn-group width-100" style="height:30px;">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-pay-all" onclick="toggleAllPayment(1)">ทั้งหมด</button>
       <button type="button" class="btn btn-sm width-50" id="btn-pay-range" onclick="toggleAllPayment(0)">เลือก</button>
     </div>
   </div>
 
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block">คลังสินค้า</label>
-    <div class="btn-group width-100">
+    <div class="btn-group width-100" style="height:30px;">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-wh-all" onclick="toggleAllWarehouse(1)">ทั้งหมด</button>
       <button type="button" class="btn btn-sm width-50" id="btn-wh-range" onclick="toggleAllWarehouse(0)">เลือก</button>
     </div>
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block">สินค้า</label>
-    <div class="btn-group width-100">
+    <div class="btn-group width-100" style="height:30px;">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-pd-all" onclick="toggleAllProduct(1)">ทั้งหมด</button>
       <button type="button" class="btn btn-sm width-50" id="btn-pd-range" onclick="toggleAllProduct(0)">ระบุ</button>
     </div>
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block not-show">Start</label>
     <input type="text" class="form-control input-sm text-center" id="pdFrom" name="pdFrom" placeholder="เริ่มต้น" disabled>
   </div>
-  <div class="col-sm-2 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block not-show">End</label>
     <input type="text" class="form-control input-sm text-center" id="pdTo" name="pdTo" placeholder="สิ้นสุด" disabled>
   </div>
 
-  <div class="col-sm-2 padding-5 last">
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group width-100">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" placeholder="เริ่มต้น" required />
       <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" placeholder="สิ้นสุด" required/>
     </div>
   </div>
-</div>
 
-<div class="row margin-top-10">
-  <div class="col-sm-12 padding-5 first last">
-    <label>สถานะ</label>
-  </div>
-	<div class="col-sm-1 col-1-harf padding-5 first">
-		<button type="button" id="btn-state-1" class="btn btn-sm btn-block" onclick="toggleState(1)">รอดำเนินการ</button>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-1" class="btn btn-xs btn-block " onclick="toggleState(1)">รอดำเนินการ</button>
 	</div>
-	<div class="col-sm-1 col-1-harf padding-5">
-		<button type="button" id="btn-state-2" class="btn btn-sm btn-block" onclick="toggleState(2)">รอชำระเงิน</button>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1 col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-2" class="btn btn-xs btn-block" onclick="toggleState(2)">รอชำระเงิน</button>
 	</div>
-	<div class="col-sm-1 col-1-harf padding-5">
-		<button type="button" id="btn-state-3" class="btn btn-sm btn-block" onclick="toggleState(3)">รอจัด</button>
+	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-3" class="btn btn-xs btn-block" onclick="toggleState(3)">รอจัด</button>
 	</div>
-	<div class="col-sm-1 col-1-harf padding-5">
-		<button type="button" id="btn-state-4" class="btn btn-sm btn-block" onclick="toggleState(4)">กำลังจัด</button>
+	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-4" class="btn btn-xs btn-block" onclick="toggleState(4)">กำลังจัด</button>
 	</div>
-	<div class="col-sm-1 col-1-harf padding-5">
-		<button type="button" id="btn-state-5" class="btn btn-sm btn-block" onclick="toggleState(5)">รอตรวจ</button>
+	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-5" class="btn btn-xs btn-block" onclick="toggleState(5)">รอตรวจ</button>
 	</div>
-	<div class="col-sm-1 col-1-harf padding-5">
-		<button type="button" id="btn-state-6" class="btn btn-sm btn-block" onclick="toggleState(6)">กำลังตรวจ</button>
+	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-6" class="btn btn-xs btn-block" onclick="toggleState(6)">กำลังตรวจ</button>
 	</div>
-	<div class="col-sm-1 col-1-harf padding-5">
-		<button type="button" id="btn-state-7" class="btn btn-sm btn-block" onclick="toggleState(7)">รอเปิดบิล</button>
+	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-7" class="btn btn-xs btn-block" onclick="toggleState(7)">รอเปิดบิล</button>
 	</div>
-	<div class="col-sm-1 col-1-harf padding-5 last">
-		<button type="button" id="btn-state-8" class="btn btn-sm btn-block" onclick="toggleState(8)">เปิดบิลแล้ว</button>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" id="btn-state-8" class="btn btn-xs btn-block" onclick="toggleState(8)">เปิดบิลแล้ว</button>
 	</div>
 </div>
 

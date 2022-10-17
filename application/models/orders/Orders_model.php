@@ -514,6 +514,11 @@ class Orders_model extends CI_Model
         $this->db->where('orders.date_add <=', to_date($ds['to_date']));
       }
     }
+    else
+    {
+      $this->db->where('orders.date_add >=', from_date($this->_dataDate));
+    }
+
 
     if(!empty($ds['warehouse']))
     {
@@ -761,6 +766,11 @@ class Orders_model extends CI_Model
         $this->db->where('orders.date_add <=', to_date($ds['to_date']));
       }
     }
+    else
+    {
+      $this->db->where('orders.date_add >=', from_date($this->_dataDate));
+    }
+
 
     if(!empty($ds['warehouse']))
     {
@@ -1109,6 +1119,34 @@ class Orders_model extends CI_Model
     }
 
     return 0.00;
+  }
+
+
+  //---- คำนวนยอดมูลค่าคงเหลือที่่ยังไม่เข้า complete
+  public function get_consign_not_complete_amount($role, $whsCode)
+  {
+    $qr  = "SELECT SUM(od.cost * od.qty) AS amount ";
+    $qr .= "FROM order_details AS od ";
+    $qr .= "LEFT JOIN orders AS o ON od.order_code = o.code ";
+    $qr .= "LEFT JOIN zone AS zn ON o.zone_code = zn.code ";
+    $qr .= "WHERE o.role = '{$role}' ";
+    $qr .= "AND o.state != 9 ";
+    $qr .= "AND o.status != 2 ";
+    $qr .= "AND o.is_expired = 0 ";
+    $qr .= "AND zn.warehouse_code = '{$whsCode}' ";
+    $qr .= "AND od.is_complete = 0 ";
+    $qr .= "AND od.is_count = 1 ";
+    $qr .= "AND od.is_cancle = 0 ";
+    $qr .= "AND od.is_expired = 0 ";
+
+    $rs = $this->db->query($qr);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->amount;
+    }
+
+    return 0.00;    
   }
 
 

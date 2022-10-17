@@ -525,6 +525,41 @@ function toggleSyncStock(option) {
 
 
 
+function toggleLimitWC(option) {
+	$('#limit-consignment').val(option);
+
+	if(option == 1) {
+		$('#btn-wc-no').removeClass('btn-danger');
+		$('#btn-wc-yes').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-wc-yes').removeClass('btn-success');
+		$('#btn-wc-no').addClass('btn-danger');
+		return;
+	}
+}
+
+
+function toggleLimitWT(option) {
+	$('#limit-consign').val(option);
+
+	if(option == 1) {
+		$('#btn-wt-no').removeClass('btn-danger');
+		$('#btn-wt-yes').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-wt-yes').removeClass('btn-success');
+		$('#btn-wt-no').addClass('btn-danger');
+		return;
+	}
+}
+
+
+
 function toggleLogJson(option) {
 
 	$('#chatbot-log-json').val(option);

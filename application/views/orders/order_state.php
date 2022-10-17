@@ -105,7 +105,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 
 <?php if( !empty($state) ) : ?>
   <?php foreach($state as $rs) : ?>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5 font-size-10" style="height: 49px; border:solid 2px white; <?php echo state_color($rs->state); ?>" >
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5 font-size-10" style="height: 49px; border:solid 2px white; white-space: nowrap; overflow: hidden; <?php echo state_color($rs->state); ?>" >
     <center><?php echo get_state_name($rs->state); ?></center>
     <center><?php echo $this->user_model->get_name($rs->update_user); ?></center>
     <center><?php echo thai_date($rs->date_upd,TRUE, '/'); ?></center>

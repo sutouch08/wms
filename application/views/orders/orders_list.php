@@ -1,6 +1,7 @@
 <?php $this->load->view('include/header'); ?>
 <?php $can_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
+
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     <h4 class="title">

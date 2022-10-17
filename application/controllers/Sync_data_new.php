@@ -95,9 +95,11 @@ class Sync_data_new extends CI_Controller
         {
           $ds = array(
             'name' => $rs->name,
+            'active' => $rs->Inactive == 'Y' ? 0 : 1,
             'last_sync' => date('Y-m-d H:i:s'),
             'update_user' => 'SAP',
-            'old_code' => $rs->old_code
+            'old_code' => $rs->old_code,
+            'limit_amount' => $rs->limit_amount
           );
 
           $this->warehouse_model->update($rs->code, $ds);
@@ -108,9 +110,11 @@ class Sync_data_new extends CI_Controller
           $ds = array(
             'code' => $rs->code,
             'name' => $rs->name,
+            'active' => $rs->Inactive == 'Y' ? 0 : 1,
             'last_sync' => date('Y-m-d H:i:s'),
             'update_user' => 'SAP',
-            'old_code' => $rs->old_code
+            'old_code' => $rs->old_code,
+            'limit_amount' => $rs->limit_amount
           );
 
           $this->warehouse_model->add($ds);

@@ -782,8 +782,6 @@ class Orders extends PS_Controller
     //--- ถ้าออเดอร์เป็นแบบเครดิต
     if($order->is_term == 1 && $order->role === 'S')
     {
-      //---- check credit balance
-      //$amount = $this->orders_model->get_order_total_amount($code);
       //--- creadit used
       $credit_used = round($this->orders_model->get_sum_not_complete_amount($order->customer_code), 2);
       //--- credit balance from sap
@@ -803,9 +801,48 @@ class Orders extends PS_Controller
       }
     }
 
+    if($order->role === 'C' OR $order->role === 'N')
+    {
+      $isLimit = $order->role == 'C' ? is_true(getConfig('LIMIT_CONSIGNMENT')) : is_true(getConfig('LIMIT_CONSIGN'));
+
+      if($isLimit)
+      {
+        $this->load->model('masters/zone_model');
+        $this->load->model('masters/warehouse_model');
+        $whsCode = $this->zone_model->get_warehouse_code($order->zone_code);
+
+        if(! empty($whsCode))
+        {
+          $limitAmount = $this->warehouse_model->get_limit_amount($whsCode);
+
+          if($limitAmount > 0)
+          {
+            if($this->warehouse_model->is_stock_exists($order->role, $whsCode))
+            {
+              $balanceAmount = $this->warehouse_model->get_balance_amount($order->role, $whsCode);
+
+              $diff = $limitAmount - $balanceAmount;
+
+              $amount = round($this->orders_model->get_consign_not_complete_amount($order->role, $whsCode), 2);
+
+              if($diff < $amount)
+              {
+                $dif_over = $amount - $diff;
+                $sc = FALSE;
+                $this->error = "มูลค่าสินค้าที่เบิก เกินกว่ามูลค่าคงเหลือสูงสุดที่ของคลัง {$whsCode} (เกิน : ".number($dif_over, 2).")";
+              }
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "ไม่พบคลังสินค้า";
+        }
+      }
+    }
+
 		//--- ถ้าไม่ได้ระบุ ที่อยู่กับผู้จัดส่ง พยายามเติมให้ก่อน
-
-
 
 		if(empty($order->id_address))
 		{
@@ -1385,13 +1422,15 @@ class Orders extends PS_Controller
 						$txt = $active === TRUE ? '' : '<span class="font-size-12 blue">'.$active.'</span>';
 					}
 
-					$available = $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
+					$available = $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : number($qty));
 					$limit		= $qty === FALSE ? 1000000 : $qty;
 
 
 					$sc 	.= '<td class="order-grid">';
-					$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.$stock.')</span></center>' : '';
-					if( $view === FALSE )
+          $sc .= $view === TRUE ? '<center><span <span class="font-size-10" style="color:#ccc;">'.$color_code.'-'.$size_code.'</span></center>' : '';
+					$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.number($stock).')</span></center>' : '';
+
+          if( $view === FALSE )
 					{
 						$sc .= '<input type="number" min="1" max="'.$limit.'" ';
             $sc .= 'class="form-control text-center order-grid" ';
@@ -1400,6 +1439,7 @@ class Orders extends PS_Controller
             $sc .= 'placeholder="'.$color_code.'-'.$size_code.'" ';
             $sc .= 'onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
 					}
+
 					$sc 	.= $isVisual === FALSE ? '<center>'.$available.'</center>' : '';
 					$sc 	.= '</td>';
 				}

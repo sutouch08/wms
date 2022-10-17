@@ -27,8 +27,17 @@
 	<div class="col-sm-1 col-1-harf padding-5">
     <label>ประเภทคลัง</label>
     <select class="form-control input-sm filter" name="role" id="role" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
+			<option value="all">ทั้งหมด</option>
 			<?php echo select_warehouse_role($role); ?>
+		</select>
+  </div>
+
+	<div class="col-sm-1 col-1-harf padding-5">
+    <label>ฝากขายเทียม</label>
+    <select class="form-control input-sm filter" name="is_consignment" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_consignment); ?>>YES</option>
+			<option value="0" <?php echo is_selected('0', $is_consignment); ?>>NO</option>
 		</select>
   </div>
 

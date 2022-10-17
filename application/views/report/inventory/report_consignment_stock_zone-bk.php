@@ -1,4 +1,5 @@
 <?php $this->load->view('include/header'); ?>
+
 <div class="row hidden-print">
 	<div class="col-lg-6 col-md-6 col-sm-6 padding-5 hidden-xs">
     <h3 class="title">
@@ -22,42 +23,42 @@
 </div><!-- End Row -->
 <hr class="hidden-print"/>
 <form class="hidden-print" id="reportForm" method="post" action="<?php echo $this->home; ?>/do_export">
-	<div class="row">
-	  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5 ">
-	    <label class="display-block">สินค้า</label>
-	    <div class="btn-group width-100" style="height:30px;">
-	      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-pd-all" onclick="toggleAllProduct(1)">ทั้งหมด</button>
-	      <button type="button" class="btn btn-sm width-50" id="btn-pd-range" onclick="toggleAllProduct(0)">เลือก</button>
-	    </div>
-	  </div>
-	  <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6 padding-5">
-	    <label class="">เริ่มต้น</label>
-	    <input type="text" class="form-control input-sm text-center" id="pdFrom" name="pdFrom" disabled>
-	  </div>
-	  <div class="col-lg-2 col-md-2 col-sm-4 col-xs-6 padding-5">
-	    <label class="">สิ้นสุด</label>
-	    <input type="text" class="form-control input-sm text-center" id="pdTo" name="pdTo" disabled>
-	  </div>
-	  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5 ">
-	    <label class="display-block">คลัง</label>
-	    <div class="btn-group width-100" style="height:30px;">
-	      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-wh-all" onclick="toggleAllWarehouse(1)">ทั้งหมด</button>
-	      <button type="button" class="btn btn-sm width-50" id="btn-wh-range" onclick="toggleAllWarehouse(0)">เลือก</button>
-	    </div>
-	  </div>
+<div class="row">
+  <div class="col-sm-1 col-1-harf padding-5 first">
+    <label class="display-block">สินค้า</label>
+    <div class="btn-group width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-pd-all" onclick="toggleAllProduct(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-pd-range" onclick="toggleAllProduct(0)">เลือก</button>
+    </div>
+  </div>
+  <div class="col-sm-2 padding-5">
+    <label class="display-block not-show">start</label>
+    <input type="text" class="form-control input-sm text-center" id="pdFrom" name="pdFrom" disabled>
+  </div>
+  <div class="col-sm-2 padding-5">
+    <label class="display-block not-show">End</label>
+    <input type="text" class="form-control input-sm text-center" id="pdTo" name="pdTo" disabled>
+  </div>
+  <div class="col-sm-1 col-1-harf padding-5">
+    <label class="display-block">คลัง</label>
+    <div class="btn-group width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-wh-all" onclick="toggleAllWarehouse(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-wh-range" onclick="toggleAllWarehouse(0)">เลือก</button>
+    </div>
+  </div>
 
-	  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5 ">
-			<label class="display-block">โซน</label>
-	    <div class="btn-group width-100" style="height:30px;">
-	      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-zone-all" onclick="toggleAllZone(1)">ทั้งหมด</button>
-	      <button type="button" class="btn btn-sm width-50" id="btn-zone-range" onclick="toggleAllZone(0)">เลือก</button>
-	    </div>
-	  </div>
+  <div class="cols-sm-1 col-1-harf padding-5">
+		<label class="display-block">โซน</label>
+    <div class="btn-group width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-zone-all" onclick="toggleAllZone(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-zone-range" onclick="toggleAllZone(0)">เลือก</button>
+    </div>
+  </div>
 
-		<div class="col-lg-2 col-md-2 col-sm-7 col-xs-6 padding-5 ">
-			<label class="display-block not-show">zone</label>
-			<input type="text" class="form-control input-sm" name="zoneName" id="zoneName" disabled>
-		</div>
+	<div class="col-sm-3 col-3-harf padding-5 last">
+		<label class="display-block not-show">zone</label>
+		<input type="text" class="form-control input-sm" name="zoneName" id="zoneName" disabled>
+	</div>
   <input type="hidden" id="allProduct" name="allProduct" value="1">
   <input type="hidden" id="allWarehouse" name="allWhouse" value="1">
 	<input type="hidden" id="allZone" name="allZone" value="1">
@@ -157,5 +158,5 @@
   </table>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/report/inventory/consign_stock_zone.js"></script>
+<script src="<?php echo base_url(); ?>scripts/report/inventory/consignment_stock_zone.js"></script>
 <?php $this->load->view('include/footer'); ?>

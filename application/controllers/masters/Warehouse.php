@@ -20,7 +20,8 @@ class Warehouse extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'code', ''),
       'name' => get_filter('name', 'name', ''),
-      'role' => get_filter('role', 'role', '')
+      'role' => get_filter('role', 'role', 'all'),
+      'is_consignment' => get_filter('is_consignment', 'is_consignment', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -191,7 +192,7 @@ class Warehouse extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('code', 'name', 'role');
+    $filter = array('code', 'name', 'role', 'is_consignment');
     clear_filter($filter);
   }
 

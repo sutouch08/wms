@@ -8,19 +8,28 @@ $('#date').datepicker({
 //---- เปลี่ยนสถานะออเดอร์  เป็นบันทึกแล้ว
 function saveOrder(){
   var order_code = $('#order_code').val();
+  load_in();
+
 	$.ajax({
 		url: BASE_URL + 'orders/orders/save/'+ order_code,
 		type:"POST",
     cache:false,
 		success:function(rs){
+      load_out();
 			var rs = $.trim(rs);
 			if( rs == 'success' ){
-				swal({
-          title: 'Saved',
-          type: 'success',
-          timer: 1000
-        });
-				setTimeout(function(){ editOrder(order_code) }, 1200);
+        setTimeout(function() {
+          swal({
+            title: 'Saved',
+            type: 'success',
+            timer: 1000
+          });
+
+          setTimeout(function() {
+            editOrder(order_code)
+          }, 1200);
+        }, 200);
+
 			}else{
 				swal("Error ! ", rs , "error");
 			}
@@ -287,6 +296,78 @@ $('#pd-box').keyup(function(event) {
 
 });
 
+
+
+$('#item-code').autocomplete({
+	source:BASE_URL + 'auto_complete/get_product_code',
+	minLength: 4,
+	autoFocus:true
+});
+
+$('#item-code').keyup(function(e){
+	if(e.keyCode == 13){
+		var code = $(this).val();
+		if(code.length > 4){
+			setTimeout(function(){
+				getItemGrid();
+			}, 200);
+		}
+	}
+});
+
+
+$('#input-qty').keyup(function(e){
+	if(e.keyCode == 13){
+		addItemToOrder();
+	}
+});
+
+
+//---- เพิ่มรายการสินค้าเช้าออเดอร์
+function addItemToOrder(){
+	var orderCode = $('#order_code').val();
+	var qty = parseDefault(parseInt($('#input-qty').val()), 0);
+	var limit = parseDefault(parseInt($('#stock-qty').val()), 0);
+	var itemCode = $('#item-code').val();
+  var data = [{'code':itemCode, 'qty' : qty}];
+
+	if(qty > 0 && qty <= limit){
+		load_in();
+		$.ajax({
+			url:BASE_URL + 'orders/orders/add_detail/'+orderCode,
+			type:"POST",
+			cache:"false",
+			data:{
+				'data' : data
+			},
+			success: function(rs){
+				load_out();
+				var rs = $.trim(rs);
+				if( rs == 'success' ){
+					swal({
+						title: 'success',
+						type: 'success',
+						timer: 1000
+					});
+
+					$("#btn-save-order").removeClass('hide');
+					updateDetailTable(); //--- update list of order detail
+
+					setTimeout(function(){
+						$('#item-code').val('');
+						$('#stock-qty').val('');
+						$('#input-qty').val('');
+						$('#item-code').focus();
+					},1200);
+
+
+				}else{
+					swal("Error", rs, "error");
+				}
+			}
+		});
+	}
+}
 
 
 

@@ -56,8 +56,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 
 				<div role="tabpanel" class="tab-pane fade" id="address">
           <div class="row">
-            <div class="col-sm-12">
-            <div class="table-responsive">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
               <table class="table table-bordered" style="margin-bottom:0px; border-collapse:collapse; border:0;">
                 <thead>
                   <tr style="background-color:white;">
@@ -117,7 +116,6 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
           <?php endif; ?>
                 </tbody>
               </table>
-            </div>
             </div>
           </div><!-- /row-->
       </div>
