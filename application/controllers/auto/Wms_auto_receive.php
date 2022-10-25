@@ -75,15 +75,23 @@ class Wms_auto_receive extends CI_Controller
   }
 
 
-	public function do_receive()
+	public function do_receive($id = NULL)
 	{
 		$sc = TRUE;
+    $list = NULL;
 
-		$limit = 10;
+    if($id !== NULL)
+    {
+      $list = $this->wms_temp_receive_model->get_temp_data($id);
+    }
+    else
+    {
+      $limit = 10;
 
-		$list = $this->wms_temp_receive_model->get_unprocess_list($limit);
+      $list = $this->wms_temp_receive_model->get_unprocess_list($limit);
+    }
 
-		if(!empty($list))
+		if(! empty($list))
 		{
 			foreach($list as $data)
 			{
@@ -102,7 +110,7 @@ class Wms_auto_receive extends CI_Controller
 						break;
 
 					case 'CN' :
-						$this->return_consignment($data);
+						$sc = $this->return_consignment($data);
 						break;
 
 					case 'WR' :
@@ -118,7 +126,7 @@ class Wms_auto_receive extends CI_Controller
 						break;
 
 					case 'RC' :
-						$this->check_return($data);
+						$sc = $this->check_return($data);
 						break;
 				}
 			} //-- end foreach $list as $data
@@ -182,45 +190,56 @@ class Wms_auto_receive extends CI_Controller
 
 						if($rs->qty > 0 && $sc === TRUE)
 						{
-							$row = $this->receive_po_model->get_detail_by_product($order->code, $rs->product_code);
+							$rows = $this->receive_po_model->get_detail_by_product($order->code, $rs->product_code);
 
-							if(!empty($row))
+							if(!empty($rows))
 							{
-								$amount = $row->price * $rs->qty;
-								$after_backlogs = $row->before_backlogs - $rs->qty;
-								$arr = array(
-									'qty' => $rs->qty,
-									'amount' => round($amount, 2),
-									'after_backlogs' => $after_backlogs,
-									'valid' => 1
-								);
+                $temp_qty = $rs->qty;
+
+                foreach($rows as $row)
+                {
+                  if($temp_qty > 0)
+                  {
+                    $receive_qty = $temp_qty > $row->qty ? $row->qty : $temp_qty;
+                    $amount = $row->price * $receive_qty;
+                    $after_backlogs = $row->before_backlogs - $receive_qty;
+
+                    $arr = array(
+                      'receive_qty' => $receive_qty,
+                      'amount' => round($amount, 2),
+                      'after_backlogs' => $after_backlogs,
+                      'valid' => 1
+                    );
 
 
-								if(! $this->receive_po_model->update_detail($row->id, $arr))
-								{
-									$sc = FALSE;
-									$this->error = "Error : Update detail failed : {$rs->product_code}";
-								}
+                    if(! $this->receive_po_model->update_detail($row->id, $arr))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Error : Update detail failed : {$rs->product_code}";
+                    }
 
-								//--- add movement
-								if($sc === TRUE)
-								{
-									$ds = array(
-										'reference' => $order->code,
-										'warehouse_code' => $warehouse_code,
-										'zone_code' => $zone_code,
-										'product_code' => $rs->product_code,
-										'move_in' => $rs->qty,
-										'date_add' => db_date($date_add, TRUE)
-									);
+                    //--- add movement
+                    if($sc === TRUE)
+                    {
+                      $ds = array(
+                        'reference' => $order->code,
+                        'warehouse_code' => $warehouse_code,
+                        'zone_code' => $zone_code,
+                        'product_code' => $rs->product_code,
+                        'move_in' => $receive_qty,
+                        'date_add' => db_date($date_add, TRUE)
+                      );
 
-									if($this->movement_model->add($ds) === FALSE)
-									{
-										$sc = FALSE;
-										$this->error = 'บันทึก movement ไม่สำเร็จ';
-									}
-								}
+                      if($this->movement_model->add($ds) === FALSE)
+                      {
+                        $sc = FALSE;
+                        $this->error = 'บันทึก movement ไม่สำเร็จ';
+                      }
+                    }
 
+                    $temp_qty -= $receive_qty;
+                  }
+                }
 							}
 							else
 							{
@@ -228,17 +247,7 @@ class Wms_auto_receive extends CI_Controller
 								$this->error = "Invalid Product code : {$rs->product_code} OR product code not in document";
 							}
 						}//--- end if qty > 0
-					} //--- end foreach
-
-					//--- drop not valid detail
-					if($sc === TRUE)
-					{
-						if(! $this->receive_po_model->drop_not_valid_details($order->code))
-						{
-							$sc = FALSE;
-							$this->error = "Drop not valid detail failed";
-						}
-					}
+					} //--- end foreach				
 
 					//--- change document status
 					if($sc === TRUE)

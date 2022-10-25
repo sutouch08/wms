@@ -87,19 +87,19 @@
     </p>
   </div>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable">
+    <table class="table table-striped border-1 dataTable" style="min-width:1300px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">ลำดับ</th>
-					<th class="width-12">Received Date </th>
-          <th class="width-10">เลขที่เอกสาร </th>
-					<th class="width-10">เลขที่อ้างอิง </th>
-          <th class="width-12">เข้า Temp</th>
-          <th class="width-12">เข้า IX</th>
-          <th class="width-5 text-center">สถานะ</th>
-					<th class="">หมายเหตุ</th>
-					<th class="width-10">Closed by</th>
-					<th class="width-10"></th>
+          <th class="fix-width-40 text-center">ลำดับ</th>
+					<th class="fix-width-150">Received Date </th>
+          <th class="fix-width-120">เลขที่เอกสาร </th>
+					<th class="fix-width-120">เลขที่อ้างอิง </th>
+          <th class="fix-width-150">เข้า Temp</th>
+          <th class="fix-width-150">เข้า IX</th>
+          <th class="fix-width-60 text-center">สถานะ</th>
+					<th class="fix-width-200">หมายเหตุ</th>
+					<th class="fix-width-100">Closed by</th>
+					<th class="fix-width-150"></th>
         </tr>
       </thead>
       <tbody>
@@ -152,6 +152,9 @@
 							<i class="fa fa-times"></i>
 						</button>
 						<?php endif; ?>
+						<button type="button" class="btn btn-minier btn-primary" onclick="doReceive(<?php echo $rs->id; ?>)">
+							เอาเข้าทันที
+						</button>
 						<button type="button" class="btn btn-minier btn-danger" title="Delete" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
 							<i class="fa fa-trash"></i>
 						</button>
@@ -177,6 +180,47 @@
 		load_in();
 		$.ajax({
 			url:BASE_URL + "auto/wms_auto_receive/do_receive",
+			type:'GET',
+			success:function(rs) {
+				load_out();
+				if(rs == 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal({
+						title:'Error',
+						type:'error',
+						text:rs,
+						html:true
+					});
+				}
+			},
+			error:function(xhr, status, error) {
+				load_out();
+				swal({
+					title:'Error',
+					type:'error',
+					text:xhr.responseText,
+					html:true
+				})
+			}
+		})
+	}
+
+
+	function doReceive(id)
+	{
+		load_in();
+		$.ajax({
+			url:BASE_URL + "auto/wms_auto_receive/do_receive/"+id,
 			type:'GET',
 			success:function(rs) {
 				load_out();

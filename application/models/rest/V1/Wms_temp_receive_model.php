@@ -158,6 +158,19 @@ class Wms_temp_receive_model extends CI_Model
 	}
 
 
+	public function get_temp_data($id)
+	{
+		$rs = $this->wms->where('id', $id)->get($this->tb);
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
 	public function last_minute()
 	{
 		$i = date('i');

@@ -12,7 +12,9 @@ function goDelete(code){
 		cancelButtonText: 'ไม่ใช่',
 		closeOnConfirm: true
 		}, function(){
+			$('#cancle-code').val(code);
 			$('#cancle-reason').val('');
+
 			cancle_received(code);
 	});
 }
@@ -22,11 +24,14 @@ function goDelete(code){
 function cancle_received(code)
 {
 	var reason = $.trim($('#cancle-reason').val());
+
 	if(reason == "")
 	{
 		$('#cancle-modal').modal('show');
 		return false;
 	}
+
+	load_in();
 
 	$.ajax({
 		url: HOME + 'cancle_received',
@@ -37,6 +42,8 @@ function cancle_received(code)
 			"reason" : reason
 		},
 		success: function(rs){
+			load_out();
+			
 			var rs = $.trim(rs);
 			if( rs == 'success' ){
 				swal({
@@ -57,11 +64,15 @@ function cancle_received(code)
 }
 
 
-function doCancle(code) {
-	$('#cancle-modal').modal('hide');
-	if($.trim($('#cancle-reason').val()) == "") {
+function doCancle() {
+	let code = $('#cancle-code').val();
+	let reason = $.trim($('#cancle-reason').val());
+
+	if( reason.length == 0 || code.length == 0) {
 		return false;
 	}
+
+	$('#cancle-modal').modal('hide');
 
 	return cancle_received(code);
 }

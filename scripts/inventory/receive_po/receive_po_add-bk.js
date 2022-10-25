@@ -5,9 +5,6 @@ var poError = 0;
 var invError = 0;
 var zoneError = 0;
 
-function getSample(){
-	window.location.href = HOME + 'get_sample_file';
-}
 
 function editHeader(){
 	$('.header-box').removeAttr('disabled');
@@ -16,7 +13,7 @@ function editHeader(){
 }
 
 
-function updateHeader() {
+function updateHeader(){
 	var code = $('#receive_code').val();
 	var date_add = $('#dateAdd').val();
 	var remark = $('#remark').val();
@@ -38,7 +35,7 @@ function updateHeader() {
 			'remark' : remark,
 			'is_wms' : is_wms
 		},
-		success:function(rs) {
+		success:function(rs){
 			load_out();
 			if(rs === 'success'){
 				swal({
@@ -64,17 +61,44 @@ function updateHeader() {
 
 
 
-function save() {
+
+function receiveProduct(pdCode){
+	var qty = isNaN( parseInt( $("#qty").val() ) ) ? 1 : parseInt( $("#qty").val() );
+	var bc = $("#barcode");
+	var input = $("#receive_"+ pdCode);
+	if(input.length == 1 ){
+		bc.val('');
+		bc.attr('disabled', 'disabled');
+		var cqty = input.val() == "" ? 0 : parseInt(input.val());
+		qty += cqty;
+		input.val(qty);
+		$("#qty").val(1);
+		sumReceive();
+		bc.removeAttr('disabled');
+		bc.focus();
+	}else{
+		swal({
+			title: "ข้อผิดพลาด !",
+			text: "บาร์โค้ดไม่ถูกต้องหรือสินค้าไม่ตรงกับใบสั่งซื้อ",
+			type: "error"},
+			function(){
+				setTimeout( function(){ $("#barcode")	.focus(); }, 1000 );
+		});
+	}
+}
+
+
+
+
+function save(){
 	is_wms = $('#is_wms').val();
 
 	code = $('#receive_code').val();
 
-	over_po = $('#allow_over_po').val()
-
+	over_po = $('#over_po').val()
 	request_code = $('#requestCode').val();
 	//--- Vendor code
 	vendor_code = $('#vendor_code').val();
-
 	vendor_name = $('#vendorName').val();
 
 	//--- อ้างอิง PO Code
@@ -85,7 +109,6 @@ function save() {
 
 	//--- zone id
 	zone_code = $('#zone_code').val();
-
 	zoneName = $('#zoneName').val();
 
 	//--- approve key
@@ -93,6 +116,9 @@ function save() {
 
 	//--- นับจำนวนรายการในใบสั่งซื้อ
 	count = $(".receive-box").length;
+
+	//--- ราคาสินค้าแต่ละตัว
+	price = $('#prices').val()
 
 	//--- Currency
 	docCur = $('#DocCur').val();
@@ -126,16 +152,19 @@ function save() {
 	}
 
 	//--- ตรวจสอบใบส่งของ (ต้องระบุ)
-	if(invoice.length == 0) {
+	if(invoice.length == 0){
 		swal('กรุณาระบุใบส่งสินค้า');
 		return false;
 	}
 
-	//--- ตรวจสอบโซนรับเข้า
-	if(zone_code == '' || zoneName == ''){
-		swal('กรุณาระบุโซนเพื่อรับเข้า');
-		return false;
+	if(is_wms == 0) {
+		//--- ตรวจสอบโซนรับเข้า
+		if(zone_code == '' || zoneName == ''){
+			swal('กรุณาระบุโซนเพื่อรับเข้า');
+			return false;
+		}
 	}
+
 
 	if(docRate <= 0) {
 		swal('กรุณาระบุอัตราแลกเปลี่ยน');
@@ -170,8 +199,6 @@ function save() {
 		if(qty > 0) {
 			uid = $(this).data('uid');
 			let row = {
-				'baseEntry' : $('#docEntry_'+uid).val(),
-				'baseLine' : $('#lineNum_'+uid).val(),
 				'product_code' : $('#item_'+uid).val(),
 				'qty' : qty,
 				'price' : $('#price_'+uid).val(),
@@ -191,6 +218,11 @@ function save() {
 		swal('ไม่พบรายการรับเข้า');
 		return false;
 	}
+
+	var ds = [{
+
+	}];
+
 
 	load_in();
 
@@ -231,53 +263,39 @@ function save() {
 
 
 
-function checkLimit() {
+function checkLimit(){
 	//--- Allow receive over po
-	var allow = $('#allow_over_po').val() == '1' ? true : false;
+	var allow_over_po = $('#over_po').val();
+	var limit = $("#overLimit").val();
 	var over = 0;
-
-	$(".receive-box").each(function() {
-    let uid = $(this).data('uid');
-		var limit = parseDefault(parseFloat($("#limit_"+uid).val()), 0);
-		var qty = parseDefault(parseFloat($(this).val()), 0);
-
-		if(limit > 0 && qty > 0) {
-			if(qty > limit) {
+	$(".barcode").each(function(index, element) {
+    var arr = $(this).attr("id").split('_');
+		var barcode = arr[1];
+		var limit = parseInt($("#limit_"+barcode).val() );
+		var qty = parseInt($("#receive_"+barcode).val() );
+		if( ! isNaN(limit) && ! isNaN( qty ) ){
+			if( qty > limit ){
 				over++;
-
-				if( ! allow) {
-					$(this).addClass('has-error');
 				}
 			}
-			else {
-				$(this).removeClass('has-error');
-			}
-		}
-		else {
-			$(this).removeClass('has-error');
-		}
-	});
+    });
 
-	if( over > 0)
+	if( over > 0 && allow_over_po == 1)
 	{
-		if( ! allow) {
-			swal({
-				title:'สินค้าเกิน',
-				text: 'กรุณาระบุจำนวนรับไม่เกินยอดค้างร้บ',
-				type:'error'
-			});
-
-			return false;
-		}
-		else {
-			getApprove();
-		}
+		getApprove();
 	}
-	else {
+	else if(over > 0 && allow_over_po == 0)
+	{
+		swal({
+			title:'สินค้าเกิน',
+			text:'สินค้าเกินใบสั่งซื้อหรือสินค้าเกินใบขออนัมัติ',
+			type:'warning'
+		});
+		return false;
+	} else{
 		save();
 	}
 }
-
 
 
 
@@ -412,58 +430,12 @@ function changePo(){
 		closeOnConfirm: false
 	}, function(){
 		$("#receiveTable").html('');
-		$('#btn-change-po').attr('disabled', 'disabled').addClass('hide');
-		$('#btn-get-po').removeAttr('disabled', 'disabled').removeClass('hide');
+		$('#btn-change-po').addClass('hide');
+		$('#btn-get-po').removeClass('hide');
 		$('#poCode').val('');
 		$('#poCode').removeAttr('disabled');
-		$('#requestCode').val('');
-		$('#requestCode').removeAttr('disabled');
-		$('#btn-change-request').addClass('hide');
-		$('#btn-get-request').removeClass('hide');
 		$('#DocCur').val('THB');
 		$('#DocRate').val('1.00');
-
-		swal({
-			title:'Success',
-			text:'ยกเลิกข้อมูลเรียบร้อยแล้ว',
-			type:'success',
-			timer:1000
-		});
-		setTimeout(function(){
-			$('#poCode').focus();
-		}, 1200);
-	});
-}
-
-
-function changeRequestPo(){
-	const is_strict = $('#is_strict_request').val();
-
-	swal({
-		title: 'ยกเลิกข้อมูลนี้ ?',
-		type: 'warning',
-		showCancelButton: true,
-		cancelButtonText: 'No',
-		confirmButtonText: 'Yes',
-		closeOnConfirm: false
-	}, function(){
-		$("#receiveTable").html('');
-		$('#btn-change-request').addClass('hide');
-		$('#btn-get-request').removeClass('hide');
-		$('#requestCode').val('');
-		$('#requestCode').removeAttr('disabled');
-		$('#vendor_code').val('');
-		$('#vendorName').val('');
-		$('#poCode').val('');
-		$('#invoice').val('');
-		$('#DocCur').val('THB');
-		$('#DocRate').val('1.00');
-
-		if(is_strict == '0') {
-			$('#poCode').removeAttr('disabled');
-			$('#btn-get-po').removeAttr('disabled');
-		}
-
 		swal({
 			title:'Success',
 			text:'ยกเลิกข้อมูลเรียบร้อยแล้ว',
@@ -505,11 +477,6 @@ function getPoCurrency(poCode)
 
 function getData(){
 	var po = $("#poCode").val();
-
-	if(po.length == 0) {
-		return false;
-	}
-
 	getPoCurrency(po);
 
 	load_in();
@@ -535,9 +502,8 @@ function getData(){
 
 				update_vender(po);
 
-				$('#btn-get-po').attr('disabled', 'disabled').addClass('hide');
-				$('#btn-change-po').removeAttr('disabled').removeClass('hide');
-
+				$('#btn-get-po').addClass('hide');
+				$('#btn-change-po').removeClass('hide');
 				setTimeout(function(){
 					$('#invoice').focus();
 				},1000);
@@ -553,10 +519,6 @@ function getData(){
 
 function getRequestData(){
 	var code = $("#requestCode").val();
-	if(code.length == 0) {
-		return false;
-	}
-	
 	load_in();
 	$.ajax({
 		url: HOME + 'get_receive_request_po_detail',
@@ -565,17 +527,15 @@ function getRequestData(){
 		data:{
 			"request_code" : code
 		},
-		success: function(rs) {
+		success: function(rs){
 			load_out();
 			var rs = $.trim(rs);
 			if( isJson(rs) ){
 				data = $.parseJSON(rs);
-				var source = $("#request-template").html();
+				var source = $("#template").html();
 				var output = $("#receiveTable");
 				render(source, data.data, output);
-
 				$("#requestCode").attr('disabled', 'disabled');
-
 				$(".receive-box").keyup(function(e){
     				sumReceive();
 				});
@@ -584,19 +544,14 @@ function getRequestData(){
 				$('#vendorName').val(data.vendor_name);
 				$('#poCode').val(data.po_code);
 				$('#invoice').val(data.invoice_code);
-				$('#DocCur').val(data.currency);
-				$('#DocRate').val(data.rate);
 
-				$('#btn-change-po').attr('disabled', 'disabled').addClass('hide');
-				$('#btn-get-po').attr('disabled', 'disabled').removeClass('hide');
+				$('#btn-get-po').attr('disabled', 'disabled');
 				$('#poCode').attr('disabled', 'disabled');
 				$('#requestCode').attr('disabled', 'disabled');
 				$('#btn-get-request').addClass('hide');
 				$('#btn-change-request').removeClass('hide');
 
-				sumReceive();
-
-				$('#barcode').focus();
+				$('#zone').focus();
 
 			}else{
 				swal("ข้อผิดพลาด !", rs, "error");
@@ -605,6 +560,10 @@ function getRequestData(){
 		}
 	});
 }
+
+
+
+
 
 
 $("#vendorName").autocomplete({
@@ -625,37 +584,10 @@ $("#vendorName").autocomplete({
 });
 
 
-$("#vendor_code").autocomplete({
-	source: BASE_URL + 'auto_complete/get_vendor_code_and_name',
-	autoFocus: true,
-	close: function(){
-		var rs = $(this).val();
-		var arr = rs.split(' | ');
-		if( arr.length == 2 ) {
-			$('#vendor_code').val(arr[0]);
-			$("#vendorName").val(arr[1]);
-			$('#poCode').focus();
-		}else{
-			$('#vendorName').val('');
-			$("#vendor_code").val('');
-		}
-	}
-});
-
-
 
 $('#vendorName').focusout(function(event) {
 	if($(this).val() == ''){
 		$('#vendor_code').val('');
-	}
-	poInit();
-	requestInit();
-});
-
-
-$('#vendor_code').focusout(function(event) {
-	if($(this).val() == ''){
-		$('#vendorName').val('');
 	}
 	poInit();
 	requestInit();
@@ -800,28 +732,11 @@ $('#requestCode').keyup(function(e) {
 
 
 $("#zoneName").autocomplete({
-	source: BASE_URL + 'auto_complete/get_zone_code',
+	source: BASE_URL + 'auto_complete/get_zone_code', //"controller/receiveProductController.php?search_zone",
 	autoFocus: true,
 	close: function(){
 		var rs = $(this).val();
 		if(rs.length == ''){
-			$('#zone_code').val('');
-			$('#zoneName').val('');
-		}else{
-			arr = rs.split(' | ');
-			$('#zone_code').val(arr[0]);
-			$('#zoneName').val(arr[1]);
-		}
-	}
-});
-
-
-$("#zone_code").autocomplete({
-	source: BASE_URL + 'auto_complete/get_zone_code',
-	autoFocus: true,
-	close: function(){
-		var rs = $(this).val();
-		if(rs.length == '') {
 			$('#zone_code').val('');
 			$('#zoneName').val('');
 		}else{
@@ -845,73 +760,30 @@ $("#dateAdd").datepicker({ dateFormat: 'dd-mm-yy'});
 
 function checkBarcode() {
 	var barcode = $.trim($('#barcode').val());
-	if(barcode.length) {
-		var qty = parseDefault(parseFloat($('#qty').val()), 1);
-		var valid = 0;
 
-		if($('.'+barcode).length) {
-
-			$('#barcode').attr('disabled', 'disabled');
-
-			$('.'+barcode).each(function() {
-				if(valid == 0 && qty > 0) {
-					let uid = $(this).val();
-					let limit = parseDefault(parseFloat($(this).data('limit')), 0);
-					let inputQty = parseDefault(parseFloat($('#receive_'+uid).val()), 0);
-					let diff = limit - inputQty;
-
-					if(diff > 0) {
-						let receiveQty = qty >= diff ? diff : qty;
-						let newQty = inputQty + receiveQty;
-						$('#receive_'+uid).val(newQty);
-						qty -= receiveQty;
-					}
-
-					if(qty == 0) {
-						valid = 1;
-					}
-				}
-			});
-
-			if(qty > 0) {
-				beep();
-				swal({
-					title: "ข้อผิดพลาด !",
-					text: "สินค้าเกินใบสั่งซื้อ "+qty+" Pcs.",
-					type: "error"
-				},
-				function(){
-					setTimeout( function() {
-						$("#barcode")	.focus();
-					}, 1000 );
-				});
-			}
-
-			sumReceive();
-			$('#qty').val(1);
-			$('#barcode').removeAttr('disabled').val('').focus();
-		}
-		else {
-			$('#barcode').val('');
-			$('#barcode').removeAttr('disabled');
-			beep();
-			swal({
-				title: "ข้อผิดพลาด !",
-				text: "บาร์โค้ดไม่ถูกต้องหรือสินค้าไม่ตรงกับใบสั่งซื้อ",
-				type: "error"
-			},
+	if($('#'+barcode).length == 1){
+		uid = $('#'+barcode).val();
+		receiveProduct(uid);
+	}
+	else {
+		$('#barcode').val('');
+		swal({
+			title: "ข้อผิดพลาด !",
+			text: "บาร์โค้ดไม่ถูกต้องหรือสินค้าไม่ตรงกับใบสั่งซื้อ",
+			type: "error"
+		},
 			function(){
 				setTimeout( function() {
 					$("#barcode")	.focus();
 				}, 1000 );
 			});
-		}
 	}
 }
 
 
+
 $("#barcode").keyup(function(e) {
-  if( e.keyCode == 13 ) {
+  if( e.keyCode == 13 ){
 		checkBarcode();
 	}
 });
@@ -920,6 +792,7 @@ $("#barcode").keyup(function(e) {
 
 
 function sumReceive(){
+
 	var qty = 0;
 	$(".receive-box").each(function(index, element) {
     	var cqty = isNaN( parseInt( $(this).val() ) ) ? 0 : parseInt( $(this).val() );

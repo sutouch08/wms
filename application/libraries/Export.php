@@ -1357,41 +1357,46 @@ public function export_receive($code)
               $line = 0;
               foreach($details as $rs)
               {
-                $arr = array(
-                  'DocEntry' => $docEntry,
-                  'U_ECOMNO' => $rs->receive_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->qty,
-                  'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
-                  'PriceBefDi' => remove_vat($rs->price, $rs->vatRate),
-                  'LineTotal' => remove_vat(($rs->amount * $rate), $rs->vatRate),
-                  'ShipDate' => sap_date($date_add,TRUE),
-                  'Currency' => $rs->currency,
-                  'Rate' => $rs->rate,
-                  'Price' => remove_vat($rs->price, $rs->vatRate),
-                  'TotalFrgn' => remove_vat($rs->amount, $rs->vatRate),
-                  'WhsCode' => $doc->warehouse_code,
-                  'FisrtBin' => $doc->zone_code,
-                  'BaseRef' => $doc->po_code,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => $rs->vatRate,
-                  'VatGroup' => $rs->vatGroup,
-                  'PriceAfVAT' => $rs->price,
-                  'VatSum' => get_vat_amount($rs->amount, $rs->vatRate),
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => 'A',
-                  'F_E_CommerceDate' => sap_date(now(), TRUE)
-                );
-
-                if( ! $this->ci->receive_po_model->add_sap_receive_po_detail($arr))
+                if($rs->receive_qty > 0)
                 {
-                  $sc = FALSE;
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
+                  $arr = array(
+                    'DocEntry' => $docEntry,
+                    'U_ECOMNO' => $rs->receive_code,
+                    'LineNum' => $line,
+                    'BaseEntry' => $rs->baseEntry,
+                    'BaseLine' => $rs->baseLine,
+                    'ItemCode' => $rs->product_code,
+                    'Dscription' => limitText($rs->product_name, 95),
+                    'Quantity' => $rs->receive_qty,
+                    'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
+                    'PriceBefDi' => remove_vat($rs->price, $rs->vatRate),
+                    'LineTotal' => remove_vat(($rs->amount * $rate), $rs->vatRate),
+                    'ShipDate' => sap_date($date_add,TRUE),
+                    'Currency' => $rs->currency,
+                    'Rate' => $rs->rate,
+                    'Price' => remove_vat($rs->price, $rs->vatRate),
+                    'TotalFrgn' => remove_vat($rs->amount, $rs->vatRate),
+                    'WhsCode' => $doc->warehouse_code,
+                    'FisrtBin' => $doc->zone_code,
+                    'BaseRef' => $doc->po_code,
+                    'TaxStatus' => 'Y',
+                    'VatPrcnt' => $rs->vatRate,
+                    'VatGroup' => $rs->vatGroup,
+                    'PriceAfVAT' => $rs->price,
+                    'VatSum' => get_vat_amount($rs->amount, $rs->vatRate),
+                    'TaxType' => 'Y',
+                    'F_E_Commerce' => 'A',
+                    'F_E_CommerceDate' => sap_date(now(), TRUE)
+                  );
 
-                $line++;
+                  if( ! $this->ci->receive_po_model->add_sap_receive_po_detail($arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = 'เพิ่มรายการไม่สำเร็จ';
+                  }
+
+                  $line++;                  
+                }
               }
             }
             else

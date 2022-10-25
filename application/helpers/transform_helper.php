@@ -8,7 +8,7 @@ function getTransformProducts($transform_product, $state = 1, $is_expired = 0, $
 		foreach($transform_product as $rs)
 		{
 			$sc .= '<div class="display-block">';
-			$sc .= $rs->product_code.' : '.$rs->order_qty.'/'.$rs->receive_qty;
+			$sc .= $rs->product_code.' : '.$rs->order_qty.'/'.$rs->sold_qty.'/'.$rs->receive_qty;
 
 			if($is_expired == 0 && (($is_approved == 0 && $state == 1) OR $can_approve))
 			{

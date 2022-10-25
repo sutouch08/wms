@@ -79,9 +79,9 @@ class Receive_po_model extends CI_Model
 	{
 		$rs = $this->db->where('receive_code', $code)->where('product_code', $product_code)->get('receive_product_detail');
 
-		if($rs->num_rows() === 1)
+		if($rs->num_rows() > 0)
 		{
-			return $rs->row();
+			return $rs->result();
 		}
 
 		return NULL;
@@ -127,6 +127,7 @@ class Receive_po_model extends CI_Model
     ->join('OPOR', 'POR1.DocEntry = OPOR.DocEntry', 'left')
     ->where('OPOR.DocNum', $po_code)
     ->where('OPOR.DocStatus', 'O')
+    ->where('POR1.LineStatus', 'O')
     ->get();
 
     if($rs->num_rows() > 0)
@@ -149,6 +150,27 @@ class Receive_po_model extends CI_Model
     ->where('OPOR.DocNum', $po_code)
 		->where('POR1.ItemCode', $item_code)
     ->where('OPOR.DocStatus', 'O')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_po_row($docEntry, $lineNum)
+  {
+    $rs = $this->ms
+    ->select('POR1.DocEntry, POR1.LineNum, POR1.CodeBars AS barcode')
+    ->select('POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus')
+    ->select('POR1.OpenQty, POR1.PriceAfVAT AS price')
+		->select('POR1.Currency, POR1.Rate, POR1.VatGroup, POR1.VatPrcnt')
+    ->from('POR1')
+    ->where('DocEntry', $docEntry)
+    ->where('LineNum', $lineNum)
     ->get();
 
     if($rs->num_rows() > 0)
@@ -186,8 +208,10 @@ class Receive_po_model extends CI_Model
     ->select('DocEntry, DocStatus')
     ->where('U_ECOMNO', $code)
     ->where('CANCELED', 'N')
+    ->order_by('DocEntry', 'DESC')
     ->get('OPDN');
-    if($rs->num_rows() === 1)
+
+    if($rs->num_rows() > 0)
     {
       return $rs->row();
     }

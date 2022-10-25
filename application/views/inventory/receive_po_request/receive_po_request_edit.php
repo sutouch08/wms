@@ -65,11 +65,23 @@
         <span class="help-block red" id="invoice-error"></span>
     </div>
 
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<label>Currency</label>
+			<select class="form-control input-sm width-100" id="DocCur" onchange="changeRate()" disabled>
+				<?php echo select_currency("THB"); ?>
+			</select>
+		</div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<label>Rate</label>
+			<input type="number" class="form-control input-sm text-center" id="DocRate" value="1.00" disabled/>
+		</div>
+
 </div>
 <hr class="margin-top-15 margin-bottom-15"/>
 <input type="hidden" name="vendor_code" id="vendor_code" />
 <input type="hidden" name="receive_code" id="receive_code" value="<?php echo $document->code; ?>" />
 <input type="hidden" name="approver" id="approver" value="" />
+<input type="hidden" name="allow_over_po" id="allow_over_po" value="<?php echo $allow_over_po; ?>" />
 
 <div class="row">
 	<div class="col-sm-12">
@@ -114,6 +126,7 @@
       </div>
     </div>
 </div>
+
 <script src="<?php echo base_url(); ?>scripts/validate_credentials.js"></script>
 <script id="template" type="text/x-handlebarsTemplate">
 {{#each this}}
@@ -127,24 +140,28 @@
     {{else}}
         <tr class="font-size-12">
             <td class="middle text-center">{{ no }}</td>
-            <td class="middle barcode" id="barcode_{{pdCode}}">{{barcode}}</td>
+            <td class="middle barcode" id="barcode_{{uid}}">{{barcode}}</td>
             <td class="middle">{{pdCode}}</td>
             <td class="middle">{{pdName}}</td>
-            <td class="middle text-center" id="qty_{{pdCode}}">
-      				{{qty}}
-      				<input type="hidden" id="limit_{{pdCode}}" value="{{limit}}"/>
-      				{{#if barcode}}
-      				<input type="hidden" id="{{barcode}}" value="{{pdCode}}" />
-      				{{/if}}
-			      </td>
-            <td class="middle text-center">
-						{{backlog}}
-						<input type="hidden" id="backlog_{{pdCode}}" value="{{backlog}}" />
-						</td>
+            <td class="middle text-center" id="qty_{{uid}}">{{qty}} </td>
+            <td class="middle text-center">{{backlog}}</td>
             <td class="middle text-center">
 							{{#if isOpen}}
-                <input type="text" class="form-control input-sm text-center receive-box pdCode" name="receive[{{pdCode}}]" id="receive_{{pdCode}}" />
-								<input type="hidden" name="prices[{{pdCode}}]" id="price_{{pdCode}}" value="{{price}}" />
+                <input type="text" class="form-control input-sm text-center receive-box pdCode" name="receive[{{pdCode}}]" id="receive_{{uid}}" data-uid="{{uid}}" />
+								<input type="hidden" name="docEntry_{{uid}}" id="docEntry_{{uid}}" value="{{docEntry}}" />
+								<input type="hidden" name="lineNum_{{uid}}" id="lineNum_{{uid}}" value="{{lineNum}}" />
+								<input type="hidden" name="pdCode_{{uid}}" id="pdCode_{{uid}}" value="{{pdCode}}" />
+								<input type="hidden" name="pdName_{{uid}}" id="pdName_{{uid}}" value="{{pdName}}" />
+								<input type="hidden" name="currency[{{uid}}]" id="currency_{{uid}}" value="{{currency}}" />
+								<input type="hidden" name="rate[{{uid}}]" id="rate_{{uid}}" value="{{Rate}}" />
+								<input type="hidden" name="vatGroup[{{uid}}]" id="vatGroup_{{uid}}" value="{{vatGroup}}">
+								<input type="hidden" name="vatRate[{{uid}}]" id="vatRate_{{uid}}" value="{{vatRate}}">
+								<input type="hidden" id="price_{{uid}}" value="{{price}}" />
+								<input type="hidden" id="limit_{{uid}}" value="{{limit}}"/>
+								<input type="hidden" id="backlog_{{uid}}" value="{{backlog}}" />
+	      				{{#if barcode}}
+	      				<input type="hidden" class="{{barcode}}" value="{{uid}}" />
+	      				{{/if}}
 							{{/if}}
             </td>
         </tr>

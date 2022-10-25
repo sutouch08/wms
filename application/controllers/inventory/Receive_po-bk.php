@@ -104,14 +104,12 @@ class Receive_po extends PS_Controller
       $i = 1;
       $count = count($cs);
       $limit = intval(getConfig('IMPORT_ROWS_LIMIT'))+1;
-      $allow = is_true(getConfig('ALLOW_RECEIVE_OVER_PO'));
 			$ro = getConfig('RECEIVE_OVER_PO');
 	    $rate = ($ro * 0.01);
 
       if( $count <= $limit )
       {
 				$po_code = $cs[1]['C'];
-
 				if(! empty($po_code))
 				{
 					$vendor = $this->receive_po_model->get_vender_by_po($po_code);
@@ -139,7 +137,6 @@ class Receive_po extends PS_Controller
 							if($i > 7 && !empty($rs['C']))
 							{
 								$detail = $this->receive_po_model->get_po_detail($po_code, $rs['C']);
-
 								if(!empty($detail))
 								{
 									$dif = $detail->Quantity - $detail->OpenQty;
@@ -147,8 +144,6 @@ class Receive_po extends PS_Controller
 									$arr = array(
 					          'no' => $no,
 										'uid' => $detail->DocEntry.$detail->LineNum,
-                    'docEntry' => $detail->DocEntry,
-                    'lineNum' => $detail->LineNum,
 					          'barcode' => empty($barcode) ? $detail->ItemCode : $barcode,
 					          'pdCode' => $detail->ItemCode,
 					          'pdName' => $detail->Dscription,
@@ -202,32 +197,6 @@ class Receive_po extends PS_Controller
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
 
-
-
-  public function get_sample_file()
-  {
-    $path = $this->config->item('upload_path').'receive_po/';
-    $file_name = $path."import_receive_template.xlsx";
-
-    if(file_exists($file_name))
-    {
-      header('Content-Description: File Transfer');
-      header('Content-Type:Application/octet-stream');
-      header('Cache-Control: no-cache, must-revalidate');
-      header('Expires: 0');
-      header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
-      header('Content-Length: '.filesize($file_name));
-      header('Pragma: public');
-
-      flush();
-      readfile($file_name);
-      die();
-    }
-    else
-    {
-      echo "File Not Found";
-    }
-  }
 
 
   public function view_detail($code)
@@ -321,6 +290,7 @@ class Receive_po extends PS_Controller
 
 				if(!empty($items))
 				{
+
 					$vendor_code = $header->vendor_code;
 		      $vendor_name = $header->vendorName;
 		      $po_code = $header->poCode;
@@ -375,14 +345,11 @@ class Receive_po extends PS_Controller
 
 		                $ds = array(
 		                  'receive_code' => $code,
-                      'baseEntry' => $rs->baseEntry,
-                      'baseLine' => $rs->baseLine,
 		                  'style_code' => $pd->style_code,
 		                  'product_code' => $pd->code,
 		                  'product_name' => $pd->name,
 		                  'price' => $rs->price,
 		                  'qty' => $rs->qty,
-                      'receive_qty' => ($this->isAPI && $doc->is_wms) ? 0 : $rs->qty,
 		                  'amount' => $rs->qty * $rs->price,
 		                  'before_backlogs' => $bf,
 		                  'after_backlogs' => $af,
@@ -458,7 +425,7 @@ class Receive_po extends PS_Controller
 
 		        }
 
-		        if($sc === TRUE && ! empty($request_code))
+		        if($sc === TRUE)
 		        {
 		          $this->receive_po_request_model->update_receive_code($request_code, $code);
 		        }
@@ -597,20 +564,9 @@ class Receive_po extends PS_Controller
 
       //---- check doc status is open or close
       //---- if closed user cannot cancle document
-      $sap = $this->receive_po_model->get_sap_receive_doc($code);
-
-      if(empty($sap))
+      $status = $this->receive_po_model->get_doc_status($code);
+      if($status === 'O')
       {
-        $middle = $this->receive_po_model->get_middle_receive_po($code);
-
-        if(! empty($middle))
-        {
-          foreach($middle as $rs)
-          {
-            $this->receive_po_model->drop_sap_received($rs->DocEntry);
-          }
-        }
-
         $this->db->trans_start();
         $this->receive_po_model->cancle_details($code);
         $this->receive_po_model->set_status($code, 2); //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
@@ -623,11 +579,15 @@ class Receive_po extends PS_Controller
           $sc = FALSE;
           $this->error = 'ยกเลิกรายการไม่สำเร็จ';
         }
+        else
+        {
+          $this->cancle_sap_doc($code);
+        }
       }
       else
       {
         $sc = FALSE;
-        $this->error = 'กรุณายกเลิกใบรับสินค้าบน SAP ก่อนทำการยกเลิก';
+        $this->error = 'เอกสารถูกปิดไปแล้วไม่สามารถดำเนินการใดๆได้';
       }
     }
     else
@@ -730,7 +690,6 @@ class Receive_po extends PS_Controller
     $sc = '';
     $code = $this->input->get('request_code');
     $doc  = $this->receive_po_request_model->get($code);
-
     if(!empty($doc))
     {
       $details = $this->receive_po_request_model->get_details($code);
@@ -740,9 +699,7 @@ class Receive_po extends PS_Controller
         'vendor_code' => $doc->vendor_code,
         'vendor_name' => $doc->vendor_name,
         'invoice_code' => $doc->invoice_code,
-        'po_code' => $doc->po_code,
-        'currency' => $doc->currency,
-        'rate' => $doc->rate
+        'po_code' => $doc->po_code
       );
 
       $ds = array();
@@ -750,49 +707,31 @@ class Receive_po extends PS_Controller
       {
         $no = 1;
         $totalQty = 0;
-        $totalRequest = 0;
         $totalBacklog = 0;
 
         foreach($details as $rs)
         {
-          //$backlogs = $this->receive_po_request_model->get_backlogs($doc->po_code, $rs->product_code);
-          $row = $this->receive_po_model->get_po_row($rs->baseEntry, $rs->baseLine);
-
-          if( ! empty($row))
-          {
-            $arr = array(
-              'no' => $no,
-              'uid' => $rs->baseEntry.$rs->baseLine,
-              'docEntry' => $rs->baseEntry,
-              'lineNum' => $rs->baseLine,
-              'barcode' => $row->barcode,
-              'pdCode' => $rs->product_code,
-              'pdName' => $rs->product_name,
-              'price' => $rs->price,
-              'currency' => $rs->currency,
-              'rate' => $rs->rate,
-              'vatGroup' => $rs->vatGroup,
-              'vatRate' => $rs->vatRate,
-              'qty' => number($row->Quantity),
-              'request_qty' => number($rs->qty),
-              'receive_qty' => $row->OpenQty < $rs->qty ? $row->OpenQty : $rs->qty,
-              'limit' => $row->OpenQty < $rs->qty ? $row->OpenQty : $rs->qty,
-              'backlog' => number($row->OpenQty),
-              'isOpen' => $row->LineStatus == 'O' ? TRUE : FALSE
-            );
-
-            array_push($ds, $arr);
-            $no++;
-            $totalQty += $row->Quantity;
-            $totalRequest += $rs->qty;
-            $totalBacklog += $row->OpenQty;
-          }
+          $backlogs = $this->receive_po_request_model->get_backlogs($doc->po_code, $rs->product_code);
+          $arr = array(
+            'no' => $no,
+            'barcode' => $this->products_model->get_barcode($rs->product_code),
+            'pdCode' => $rs->product_code,
+            'pdName' => $rs->product_name,
+            'price' => $rs->price,
+            'qty' => number($rs->qty),
+            'limit' => $rs->qty,
+            'backlog' => number($backlogs),
+            'isOpen' => TRUE
+          );
+          array_push($ds, $arr);
+          $no++;
+          $totalQty += $rs->qty;
+          $totalBacklog += $backlogs;
         }
 
         $arr = array(
-          'totalQty' => number($totalQty),
-          'totalRequest' => number($totalRequest),
-          'totalBacklog' => number($totalBacklog)
+          'qty' => number($totalQty),
+          'backlog' => number($totalBacklog)
         );
         array_push($ds, $arr);
 
@@ -823,18 +762,6 @@ class Receive_po extends PS_Controller
     $ds['document'] = $document;
     $ds['is_strict'] = getConfig('STRICT_RECEIVE_PO');
     $ds['allow_over_po'] = getConfig('ALLOW_RECEIVE_OVER_PO');
-    $zone_code = getConfig('WMS_ZONE');
-    $zone = NULL;
-
-    if($zone_code != "" && $zone_code != NULL)
-    {
-      $this->load->model('masters/zone_model');
-      $zone = $this->zone_model->get($zone_code);
-    }
-
-    $ds['zone_code'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->code) : "";
-    $ds['zone_name'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->name) : "";
-
     $this->load->view('inventory/receive_po/receive_po_edit', $ds);
   }
 

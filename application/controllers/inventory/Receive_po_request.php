@@ -143,86 +143,116 @@ class Receive_po_request extends PS_Controller
       $this->load->model('inventory/movement_model');
 
       $code = $this->input->post('receive_code');
-      $vendor_code = $this->input->post('vendor_code');
-      $vendor_name = $this->input->post('vendorName');
-      $po_code = $this->input->post('poCode');
-      $invoice = $this->input->post('invoice');
-      $receive = $this->input->post('receive');
-      $prices = $this->input->post('prices');
-      $approver = $this->input->post('approver') == '' ? NULL : $this->input->post('approver');
 
-      $doc = $this->receive_po_request_model->get($code);
+			$doc = $this->receive_po_request_model->get($code);
 
-      $arr = array(
-        'vendor_code' => $vendor_code,
-        'vendor_name' => $vendor_name,
-        'po_code' => $po_code,
-        'invoice_code' => $invoice,
-        'update_user' => get_cookie('uname'),
-        'approver' => $approver
-      );
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
-      $this->db->trans_start();
+			$header = json_decode($this->input->post('header'));
 
-      if($this->receive_po_request_model->update($code, $arr) === FALSE)
+      if( ! empty($header))
       {
-        $sc = FALSE;
-        $this->error = 'Update Document Fail';
-      }
-      else
-      {
-        if(!empty($receive))
+        $items = json_decode($this->input->post('items'));
+
+        if( ! empty($items))
         {
-          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
-          $this->receive_po_request_model->drop_details($code);
+          $vendor_code = $header->vendor_code;
+		      $vendor_name = $header->vendorName;
+		      $po_code = $header->poCode;
+		      $invoice = $header->invoice;
+		      $approver = get_null($header->approver);
+					$DocCur = $header->DocCur;
+					$DocRate = $header->DocRate;
 
-          foreach($receive as $item => $qty)
-          {
-            if($qty != 0)
+					$arr = array(
+		        'vendor_code' => $vendor_code,
+		        'vendor_name' => $vendor_name,
+		        'po_code' => $po_code,
+		        'invoice_code' => $invoice,
+		        'update_user' => get_cookie('uname'),
+						'currency' => empty($DocCur) ? "THB" : $DocCur,
+						'rate' => empty($DocRate) ? 1 : $DocRate
+		      );
+
+					$this->db->trans_begin();
+
+          if($this->receive_po_request_model->update($code, $arr) === FALSE)
+		      {
+		        $sc = FALSE;
+		        $this->error = 'Update Document Fail';
+		      }
+          else
+		      {
+            //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
+            $this->receive_po_request_model->drop_details($code);
+
+            foreach($items as $rs)
             {
-              $pd = $this->products_model->get($item);
-              if(!empty($pd))
+              if($rs->qty > 0)
               {
-                $ds = array(
-                  'receive_code' => $code,
-                  'style_code' => $pd->style_code,
-                  'product_code' => $item,
-                  'product_name' => $pd->name,
-                  'price' => $prices[$item],
-                  'qty' => $qty,
-                  'amount' => $qty * $prices[$item]
-                );
+                $pd = $this->products_model->get($rs->product_code);
 
-                if($this->receive_po_request_model->add_detail($ds) === FALSE)
+                if(!empty($pd))
+                {
+                  $ds = array(
+                    'receive_code' => $code,
+                    'baseEntry' => $rs->baseEntry,
+                    'baseLine' => $rs->baseLine,
+                    'style_code' => $pd->style_code,
+                    'product_code' => $rs->product_code,
+                    'product_name' => $rs->product_name,
+                    'price' => $rs->price,
+                    'qty' => $rs->qty,
+                    'amount' => $rs->qty * $rs->price,
+                    'currency' => empty($DocCur) ? "THB" : $DocCur,
+                    'rate' => empty($DocRate) ? 1 : $DocRate,
+                    'vatGroup' => $rs->vatGroup,
+                    'vatRate' => $rs->vatRate
+                  );
+
+                  if($this->receive_po_request_model->add_detail($ds) === FALSE)
+                  {
+                    $sc = FALSE;
+                    $this->error = 'Add Receive Row Fail';
+                    break;
+                  }
+                }
+                else
                 {
                   $sc = FALSE;
-                  $this->error = 'Add Receive Row Fail';
-                  break;
+                  $this->error = 'ไม่พบรหัสสินค้า : '.$item.' ในระบบ';
                 }
-              }
-              else
-              {
-                $sc = FALSE;
-                $this->error = 'ไม่พบรหัสสินค้า : '.$item.' ในระบบ';
-              }
-            }
-          }
+              } //--- if qty > 0
+            } //-- end foreach
 
-          $this->receive_po_request_model->set_status($code, 1);
+            $this->receive_po_request_model->set_status($code, 1);
+		      }
+
+          if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
         }
+        else
+				{
+					$sc = FALSE;
+					$this->error = "Items rows not found!";
+				}
       }
-
-      $this->db->trans_complete();
-
-      if($this->db->trans_status() === FALSE)
-      {
-        $sc = FALSE;
-      }
+      else
+			{
+				$sc = FALSE;
+				$this->error = "Header data not found!";
+			}
     }
     else
     {
       $sc = FALSE;
-      $this->error = 'ไม่พบข้อมูล';
+      $this->error = "Missing form data";
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
@@ -289,6 +319,7 @@ class Receive_po_request extends PS_Controller
     $this->load->model('masters/products_model');
     $po_code = $this->input->get('po_code');
     $details = $this->receive_po_request_model->get_po_details($po_code);
+    $allow_over_po = getConfig('ALLOW_RECEIVE_OVER_PO') == 1 ? TRUE : FALSE;
     $ro = getConfig('RECEIVE_OVER_PO');
     $rate = ($ro * 0.01);
     $ds = array();
@@ -303,12 +334,19 @@ class Receive_po_request extends PS_Controller
         $dif = $rs->Quantity - $rs->OpenQty;
         $arr = array(
           'no' => $no,
+          'uid' => $rs->DocEntry.$rs->LineNum,
+          'docEntry' => $rs->DocEntry,
+          'lineNum' => $rs->LineNum,
           'barcode' => $this->products_model->get_barcode($rs->ItemCode),
           'pdCode' => $rs->ItemCode,
           'pdName' => $rs->Dscription,
           'price' => $rs->price,
+          'currency' => $rs->Currency,
+          'Rate' => $rs->Rate,
+          'vatGroup' => $rs->VatGroup,
+          'vatRate' => $rs->VatPrcnt,
           'qty' => number($rs->Quantity),
-          'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
+          'limit' => $allow_over_po ? ($rs->Quantity + ($rs->Quantity * $rate)) - $dif : $rs->OpenQty,
           'backlog' => number($rs->OpenQty),
           'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE
         );
@@ -339,12 +377,30 @@ class Receive_po_request extends PS_Controller
 
   public function edit($code)
   {
+    $this->load->helper('currency');
     $document = $this->receive_po_request_model->get($code);
     $ds['document'] = $document;
+    $ds['allow_over_po'] = getConfig('ALLOW_RECEIVE_OVER_PO');
     $this->load->view('inventory/receive_po_request/receive_po_request_edit', $ds);
   }
 
 
+  public function get_po_currency()
+  {
+    $this->load->model('inventory/receive_po_model');
+    $po_code = $this->input->get('po_code');
+
+    $rs = $this->receive_po_model->get_po_currency($po_code);
+
+    if(!empty($rs))
+    {
+      echo json_encode($rs);
+    }
+    else
+    {
+      echo "not found";
+    }
+  }
 
 
   public function add_new()

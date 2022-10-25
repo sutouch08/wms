@@ -6,14 +6,14 @@ var invError = 0;
 var zoneError = 0;
 
 
-function editHeader(){
+function editHeader() {
 	$('.header-box').removeAttr('disabled');
 	$('#btn-edit').addClass('hide');
 	$('#btn-update').removeClass('hide');
 }
 
 
-function updateHeader(){
+function updateHeader() {
 	var code = $('#receive_code').val();
 	var date_add = $('#dateAdd').val();
 	var remark = $('#remark').val();
@@ -59,7 +59,7 @@ function updateHeader(){
 
 
 
-function save(){
+function save() {
 	code = $('#receive_code').val();
 
 	//--- Vendor code
@@ -77,74 +77,71 @@ function save(){
 	//--- นับจำนวนรายการในใบสั่งซื้อ
 	count = $(".receive-box").length;
 
-	//--- ราคาสินค้าแต่ละตัว
-	price = $('#prices').val()
+	//--- Currency
+	docCur = $('#DocCur').val();
+
+	//--- Doc rate
+	docRate = parseDefault(parseFloat($('#DocRate').val()), 0);
 
 	//--- ตรวจสอบความถูกต้องของข้อมูล
-	if(code == '' || code == undefined){
+	if(code == '' || code == undefined) {
 		swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครับ ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
 		return false;
 	}
 
-	if(vendor_code == '' || vendor_name == ''){
+	if(vendor_code == '' || vendor_name == '') {
 		swal('กรุณาระบุผู้จำหน่าย');
 		return false;
 	}
 
 
 	//--- ใบสั่งซื้อถูกต้องหรือไม่
-	if(po == ''){
+	if(po == '') {
 		swal('กรุณาระบุใบสั่งซื้อ');
 		return false;
 	}
 
 	//--- มีรายการในใบสั่งซื้อหรือไม่
-	if(count = 0){
+	if(count = 0) {
 		swal('Error!', 'ไม่พบรายการรับเข้า','error');
 		return false;
 	}
 
-	//--- ตรวจสอบใบส่งของ (ต้องระบุ)
-	// if(invoice.length == 0){
-	// 	swal('กรุณาระบุใบส่งสินค้า');
-	// 	return false;
-	// }
+	var header = {
+		"receive_code" : code,
+		"vendor_code" : vendor_code,
+		"vendorName" : vendor_name,
+		"poCode" : po,
+		"invoice" : invoice,
+		"approver" : approver,
+		"DocCur" : docCur,
+		"DocRate" : docRate
+	};
 
-	ds = [
-		{'name' : 'receive_code', 'value' : code},
-		{'name' : 'vendor_code', 'value' : vendor_code},
-		{'name' : 'vendorName', 'value' : vendor_name},
-		{'name' : 'poCode', 'value' : po},
-		{'name' : 'invoice', 'value' : invoice},
-		{'name' : 'approver', 'value' : approver}
-	];
-
+	var rows = [];
 
 	$('.receive-box').each(function(index, el) {
-		qty = parseInt($(this).val());
-		arr = $(this).attr('id').split('_');
-		pdCode = arr[1];
-		name = "receive["+pdCode+"]";
-		backlogs = $('#limit_'+pdCode).val();
-		bname = "backlogs["+pdCode+"]";
-		pname = "prices["+pdCode+"]";
-		price = $('#price_'+pdCode).val();
-		if($(this).val() > 0 && !isNaN(qty)){
-			ds.push({
-				'name' : name, 'value' : qty
-			});
+		let qty = parseDefault(parseFloat($(this).val()), 0);
+		if(qty > 0) {
+			let uid = $(this).data('uid');
+			let row = {
+				'baseEntry' : $('#docEntry_'+uid).val(),
+				'baseLine' : $('#lineNum_'+uid).val(),
+				'product_code' : $('#pdCode_'+uid).val(),
+				'product_name' : $('#pdName_'+uid).val(),
+				'price' : $('#price_'+uid).val(),
+				'qty' : qty,
+				'currency' : $('#currency_'+uid).val(),
+				'rate' : $('#rate_'+uid).val(),
+				'vatGroup' : $('#vatGroup_'+uid).val(),
+				'vatRate' : $('#vatRate_'+uid).val()
+			}
 
-			ds.push({
-				'name' : bname, 'value' : backlogs
-			});
-
-			ds.push({
-				'name' : pname, 'value' : price
-			});
+			rows.push(row);
 		}
 	});
 
-	if(ds.length < 9){
+	if(rows.length < 1) {
 		swal('ไม่พบรายการรับเข้า');
 		return false;
 	}
@@ -155,12 +152,16 @@ function save(){
 		url: HOME + 'save',
 		type:"POST",
 		cache:"false",
-		data: ds,
-		success: function(rs){
+		data: {
+			"receive_code" : code,
+			"header" : JSON.stringify(header),
+			"items" : JSON.stringify(rows)
+		},
+		success: function(rs) {
 			load_out();
 
 			rs = $.trim(rs);
-			if(rs == 'success'){
+			if(rs == 'success') {
 				swal({
 					title:'Success',
 					text:'บันทึกรายการเรียบร้อยแล้ว',
@@ -180,28 +181,44 @@ function save(){
 		}
 	});
 
-
 }	//--- end save
 
 
-function checkLimit(){
-	var limit = $("#overLimit").val();
+function checkLimit() {
+	var allow = $('#allow_over_po').val() == '1' ? true : false;
 	var over = 0;
-	$(".barcode").each(function(index, element) {
-    var arr = $(this).attr("id").split('_');
-		var barcode = arr[1];
-		var limit = parseInt($("#limit_"+barcode).val() );
-		var qty = parseInt($("#receive_"+barcode).val() );
-		if( ! isNaN(limit) && ! isNaN( qty ) ){
-			if( qty > limit ){
+
+	$(".receive-box").each(function() {
+    let uid = $(this).data('uid');
+		var limit = parseDefault(parseFloat($("#limit_"+uid).val()), 0);
+		var qty = parseDefault(parseFloat($(this).val()), 0);
+
+		if(limit > 0 && qty > 0) {
+			if(qty > limit) {
 				over++;
+				if(! allow) {
+					$(this).addClass('has-error');
 				}
 			}
-    });
+			else {
+				$(this).removeClass('has-error');
+			}
+		}
+	});
 
-	if( over > 0 ){
-		getApprove();
-	}else{
+	if( over > 0 ) {
+		if( ! allow) {
+			swal({
+				title:'Error!',
+				text:'กรุณาระบุจำนวนไม่เกินยอดค้างรับ',
+				type:'error'
+			});
+		}
+		else {
+			getApprove();			
+		}
+	}
+	else {
 		save();
 	}
 }
@@ -221,7 +238,7 @@ $("#sKey").keyup(function(e) {
 
 
 
-function getApprove(){
+function getApprove() {
 	$("#approveModal").modal("show");
 }
 
@@ -345,8 +362,34 @@ function changePo(){
 }
 
 
+
+function getPoCurrency(poCode) {
+	$.ajax({
+		url:HOME + 'get_po_currency',
+		type:'GET',
+		cache:false,
+		data:{
+			'po_code' : poCode
+		},
+		success:function(rs) {
+			if(isJson(rs)) {
+				var ds = $.parseJSON(rs);
+				$('#DocCur').val(ds.DocCur);
+				$('#DocRate').val(ds.DocRate);
+
+				if(ds.DocCur == 'THB') {
+					$('#DocRate').val(1.00);
+				}
+			}
+		}
+	});
+}
+
+
+
 function getData(){
 	var po = $("#poCode").val();
+	getPoCurrency(po);
 	load_in();
 	$.ajax({
 		url: HOME + 'get_po_detail',
@@ -383,9 +426,6 @@ function getData(){
 		}
 	});
 }
-
-
-
 
 
 
