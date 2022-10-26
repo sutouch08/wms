@@ -1,5 +1,5 @@
 <div class="modal fade" id="cancle-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="width:500px;">
+ <div class="modal-dialog" style="max-width:95%; margin-left:auto; margin-right:auto;">
    <div class="modal-content">
        <div class="modal-header">
        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -14,7 +14,7 @@
         </div>
        </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-info" onclick="doCancle()">ตกลง</button>
+        <button type="button" class="btn btn-sm btn-info" onclick="doCancle()">Submit</button>
       </div>
    </div>
  </div>

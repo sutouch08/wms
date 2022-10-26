@@ -1395,7 +1395,7 @@ public function export_receive($code)
                     $this->error = 'เพิ่มรายการไม่สำเร็จ';
                   }
 
-                  $line++;                  
+                  $line++;
                 }
               }
             }
@@ -1517,7 +1517,7 @@ public function export_receive_transform($code)
                   'LineNum' => $line,
                   'ItemCode' => $rs->product_code,
                   'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->qty,
+                  'Quantity' => $rs->receive_qty,
                   'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
                   'PriceBefDi' => round($rs->price,2),
                   'LineTotal' => round($rs->amount, 2),

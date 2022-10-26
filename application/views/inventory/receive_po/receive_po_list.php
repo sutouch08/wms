@@ -152,7 +152,7 @@
 	</div>
 </div>
 
-<?php $this->load->view('inventory/receive_po/cancle_modal'); ?>
+<?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 

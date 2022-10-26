@@ -270,11 +270,12 @@ class Receive_po extends PS_Controller
     $this->load->model('masters/products_model');
 
     $doc = $this->receive_po_model->get($code);
+
     if(!empty($doc))
     {
       $zone = $this->zone_model->get($doc->zone_code);
-      $doc->zone_name = $zone->name;
-      $doc->warehouse_name = $zone->warehouse_name;
+      $doc->zone_name = empty($zone) ? "" : $zone->name;
+      $doc->warehouse_name = empty($zone) ? "" : $zone->warehouse_name;
     }
 
     $details = $this->receive_po_model->get_details($code);

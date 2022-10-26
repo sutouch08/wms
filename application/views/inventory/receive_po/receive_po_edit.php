@@ -213,7 +213,7 @@
 </div>
 
 
-<?php $this->load->view('inventory/receive_po/cancle_modal'); ?>
+<?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/validate_credentials.js"></script>
 <script id="template" type="text/x-handlebarsTemplate">

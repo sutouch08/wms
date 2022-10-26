@@ -19,7 +19,7 @@
 
 	$this->printer->add_header($header);
 
-	$total_row 	= empty($details) ? 0 : count($details);
+	$total_row 	= empty($details) ? 1 : count($details);
 	$config = array(
     'total_row' => $total_row,
     'font_size' => 10,
@@ -89,9 +89,9 @@
               $n,
 							inputRow($rs->product_code),
 							inputRow($rs->product_name),
-							number($rs->qty)
+							number($rs->receive_qty)
 						);
-            $total_qty += $rs->qty;
+            $total_qty += $rs->receive_qty;
           }
           else
           {

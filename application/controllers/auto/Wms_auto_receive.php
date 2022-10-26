@@ -247,7 +247,7 @@ class Wms_auto_receive extends CI_Controller
 								$this->error = "Invalid Product code : {$rs->product_code} OR product code not in document";
 							}
 						}//--- end if qty > 0
-					} //--- end foreach				
+					} //--- end foreach
 
 					//--- change document status
 					if($sc === TRUE)
@@ -806,37 +806,54 @@ class Wms_auto_receive extends CI_Controller
 				{
 					$this->db->trans_begin();
 
-					$warehouse_code = getConfig('WMS_WAREHOUSE'); //--- คลัง wms
-					$zone_code = getConfig('WMS_ZONE'); //--- โซน wms
+					$warehouse_code = ! empty($order->warehouse_code) ? $order->warehouse_code : getConfig('WMS_WAREHOUSE'); //--- คลัง wms
+					$zone_code = ! empty($order->zone_code) ? $order->zone_code : getConfig('WMS_ZONE'); //--- โซน wms
 
 					//--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
-					$this->receive_transform_model->drop_details($order->code);
+					//$this->receive_transform_model->drop_details($order->code);
 
 					foreach($details as $rs)
 					{
 						if($rs->qty > 0 && $sc === TRUE)
 						{
-							$pd = $this->products_model->get($rs->product_code);
-							if(!empty($pd))
-							{
-								$price = $this->get_avg_cost($pd->code);
-								$cost = $price == 0 ? $pd->cost : $price;
-								$ds = array(
-									'receive_code' => $order->code,
-									'style_code' => $pd->style_code,
-									'product_code' => $pd->code,
-									'product_name' => $pd->name,
-									'price' => $cost,
-									'qty' => $rs->qty,
-									'amount' => $rs->qty * $cost
-								);
+							$rows = $this->receive_transform_model->get_detail_row($code, $rs->product_code);
 
-								if($this->receive_transform_model->add_detail($ds) === FALSE)
-								{
-									$sc = FALSE;
-									$this->error = 'Add Receive Row Fail';
-									break;
-								}
+							if(!empty($rows))
+							{
+                $temp_qty = $rs->qty;
+
+                foreach($rows as $row)
+                {
+                  if($sc === FALSE)
+                  {
+                    break;
+                  }
+
+                  if($temp_qty > 0)
+                  {
+                    $receive_qty = $temp_qty > $row->qty ? $row->qty : $temp_qty;
+
+                    $arr = array(
+                      'receive_qty' => $receive_qty,
+                      'amount' => $receive_qty * $row->price
+                    );
+
+                    if( ! $this->receive_transform_model->update_detail($row->id, $arr))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Update Receive Qty Failed @{$rs->product_code}";
+                    }
+                    else
+                    {
+                      $temp_qty -= $receive_qty;
+                    }
+                  }
+                }
+
+                if($temp_qty > 0)
+                {
+                  $rs->qty = $rs->qty - $temp_qty;
+                }
 
 								if($sc === TRUE)
 								{
@@ -844,7 +861,7 @@ class Wms_auto_receive extends CI_Controller
 										'reference' => $order->code,
 										'warehouse_code' => $warehouse_code,
 										'zone_code' => $zone_code,
-										'product_code' => $pd->code,
+										'product_code' => $rs->product_code,
 										'move_in' => $rs->qty,
 										'date_add' => db_date($date_add, TRUE)
 									);
@@ -860,7 +877,7 @@ class Wms_auto_receive extends CI_Controller
 								//--- update receive_qty in order_transform_detail
 								if($sc === TRUE)
 								{
-									$this->update_transform_receive_qty($order->order_code, $pd->code, $rs->qty);
+									$this->update_transform_receive_qty($order->order_code, $rs->product_code, $rs->qty);
 								}
 							}
 							else

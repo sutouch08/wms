@@ -124,13 +124,12 @@ if($doc->status == 3)
       <thead>
       	<tr class="font-size-12">
         	<th class="fix-width-40 text-center">ลำดับ</th>
-          <th class="fix-width-150 text-center">บาร์โค้ด</th>
-          <th class="fix-width-150 text-center">รหัสสินค้า</th>
+          <th class="fix-width-200 text-center">รหัสสินค้า</th>
           <th class="min-width-250">ชื่อสินค้า</th>
 					<th class="fix-width-100 text-right">ราคา</th>
           <th class="fix-width-100 text-right">จำนวน</th>
 					<th class="fix-width-100 text-right">จำนวนรับ</th>
-					<th class="fix-width-100 text-right">มูลค่า</th>
+					<th class="fix-width-150 text-right">มูลค่า</th>
         </tr>
       </thead>
       <tbody>
@@ -140,9 +139,9 @@ if($doc->status == 3)
 					<?php $total_receive = 0; ?>
 					<?php $total_amount = 0; ?>
           <?php foreach($details as $rs) : ?>
-            <tr class="font-size-12">
+						<?php $red = ($rs->qty == $rs->receive_qty) ? '' : 'red'; ?>
+            <tr class="font-size-12 <?php echo $red; ?>">
               <td class="middle text-center"><?php echo $no; ?></td>
-              <td class="middle"><?php echo $rs->barcode; ?></td>
               <td class="middle"><?php echo $rs->product_code; ?></td>
               <td class="middle"><?php echo $rs->product_name; ?></td>
 							<td class="middle text-right"><?php echo number($rs->price, 2); ?></td>
@@ -156,7 +155,7 @@ if($doc->status == 3)
 						<?php $total_amount += $rs->amount; ?>
           <?php endforeach; ?>
           <tr>
-            <td colspan="5" class="text-right"><strong>รวม</strong></td>
+            <td colspan="4" class="text-right"><strong>รวม</strong></td>
             <td class="text-right"><strong><?php echo number($total_qty); ?></strong></td>
 						<td class="text-right"><strong><?php echo number($total_receive); ?></strong></td>
 						<td class="text-right"><strong><?php echo number($total_amount, 2); ?></strong></td>
@@ -189,7 +188,7 @@ if($doc->status == 3)
 <?php endif; ?>
 
 
-<?php $this->load->view('inventory/receive_po/cancle_modal'); ?>
+<?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>

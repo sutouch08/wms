@@ -92,10 +92,19 @@ function goDelete(code){
 
 
 function doCancle() {
-	$('#cancle-modal').modal('hide');
 
 	let code = $('#cancle-code').val();
 	let reason = $('#cancle-reason').val();
+
+	if(reason.length == 0) {
+		$('#cancle-reason').addClass('has-error').focus();
+		return false;
+	}
+	else {
+		$('#cancle-reason').removeClass('has-error');
+	}
+
+	$('#cancle-modal').modal('hide');
 
 	if(code.length == 0) {
 		swal({
@@ -107,16 +116,7 @@ function doCancle() {
 		return false;
 	}
 
-	if(reason.length == 0) {
-		swal({
-			title:'Error!',
-			text:'กรุณาระบุเหตุผลในการยกเลิก',
-			type:'error'
-		});
-
-		return false;
-	}
-
+	load_in();
 
 	$.ajax({
 		url: HOME + 'cancle_received',
@@ -127,8 +127,10 @@ function doCancle() {
 			"reason" : reason
 		},
 		success: function(rs){
+			load_out();
+
 			var rs = $.trim(rs);
-			if( rs == 'success' ){
+			if( rs == 'success' ) {
 				swal({
 					title: 'Cancled',
 					type: 'success',
@@ -139,9 +141,19 @@ function doCancle() {
 					window.location.reload();
 				}, 1200);
 
-			}else{
+			}
+			else {
 				swal("Error !", rs, "error");
 			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			});
 		}
 	});
 }

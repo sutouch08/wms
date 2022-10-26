@@ -14,6 +14,7 @@
     'คลัง' => $doc->warehouse_name,
     'พนักงาน' => $this->user_model->get_name($doc->user)
 	);
+
   if($doc->remark != '')
   {
     $header['หมายเหตุ'] = $doc->remark;
@@ -21,7 +22,7 @@
 
 	$this->printer->add_header($header);
 
-	$total_row 	= empty($details) ? 0 : count($details);
+	$total_row 	= empty($details) ? 1 : count($details);
 	$config = array(
     'total_row' => $total_row,
     'font_size' => 10,
@@ -100,10 +101,10 @@
 							inputRow($rs->product_code),
 							inputRow($rs->product_name),
               number($rs->before_backlogs),
-							number($rs->qty),
+							number($rs->receive_qty),
               number($rs->after_backlogs)
 						);
-            $total_qty += $rs->qty;
+            $total_qty += $rs->receive_qty;
             $total_bf += $rs->before_backlogs;
             $total_af += $rs->after_backlogs;
           }

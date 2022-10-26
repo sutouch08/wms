@@ -1,41 +1,43 @@
 <?php $this->load->view('include/header'); ?>
 <?php if($document->status == 0) : ?>
 <div class="row">
-	<div class="col-sm-6">
-    	<h3 class="title" ><?php echo $this->title; ?></h3>
+	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
+  </div>
+	<div class="col-xs-12 padding-5 visible-xs">
+		<h3 class="title-xs"><?php echo $this->title; ?> </h3>
 	</div>
-    <div class="col-sm-6">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="leave()"><i class="fa fa-arrow-left"></i> กลับ</button>
     <?php if($this->pm->can_add) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="checkLimit()"><i class="fa fa-save"></i> บันทึก</button>
     <?php	endif; ?>
     </p>
-    </div>
+  </div>
 </div>
 <hr />
-
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
   	<label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $document->code; ?>" disabled />
   </div>
-	<div class="col-sm-1 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center header-box" name="date_add" id="dateAdd" value="<?php echo thai_date($document->date_add); ?>" disabled />
   </div>
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 		<label>ช่องทางการรับ</label>
 		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
 			<option value="0" <?php echo is_selected('0', $document->is_wms); ?>>Warrix</option>
 			<option value="1" <?php echo is_selected('1', $document->is_wms); ?>>WMS</option>
 		</select>
 	</div>
-	<div class="col-sm-7 padding-5">
+	<div class="col-lg-6-harf col-md-6 col-sm-4-harf col-xs-9 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm header-box" name="remark" id="remark" value="<?php echo $document->remark; ?>" disabled />
 	</div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 <?php if($this->pm->can_edit && $document->status == 0) : ?>
 		<label class="display-block not-show">edit</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">
@@ -51,69 +53,67 @@
 <hr class="margin-top-10 margin-bottom-10"/>
 <form id="receiveForm" method="post" action="<?php echo $this->home; ?>/save">
 <div class="row">
-	<div class="col-sm-2 padding-5 first">
-    	<label>ใบเบิกสินค้า</label>
-        <input type="text" class="form-control input-sm text-center" name="order_code" id="order_code" placeholder="ค้นหาใบสั่งซื้อ" />
-        <span class="help-block red" id="po-error"></span>
-    </div>
-		<div class="col-sm-1 padding-5">
-			<label class="display-block not-show">clear</label>
-			<button type="button" class="btn btn-xs btn-info btn-block hide" id="btn-change-po" onclick="changePo()">เปลี่ยน</button>
-			<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-get-po" onclick="getData()">ยืนยัน</button>
-		</div>
-    <div class="col-sm-2 padding-5">
-    	<label>ใบส่งสินค้า</label>
-        <input type="text" class="form-control input-sm text-center" name="invoice" id="invoice" placeholder="อ้างอิงใบส่งสินค้า" />
-        <span class="help-block red" id="invoice-error"></span>
-    </div>
-    <div class="col-sm-3 padding-5">
-    	<label>ชื่อโซน</label>
-        <input type="text" class="form-control input-sm text-center zone" name="zoneName" id="zoneName" placeholder="ค้นหาชื่อโซน"  />
-        <span class="help-block red" id="zone-error"></span>
-    </div>
-
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+  	<label>ใบเบิกสินค้า</label>
+    <input type="text" class="form-control input-sm text-center" name="order_code" id="order_code" placeholder="ค้นหาใบสั่งซื้อ" />
+  </div>
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-2 padding-5">
+		<label class="display-block not-show">clear</label>
+		<button type="button" class="btn btn-xs btn-info btn-block hide" id="btn-change-po" onclick="changePo()">เปลี่ยน</button>
+		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-get-po" onclick="getData()">ยืนยัน</button>
+	</div>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  	<label>ใบส่งสินค้า</label>
+    <input type="text" class="form-control input-sm text-center" name="invoice" id="invoice" placeholder="อ้างอิงใบส่งสินค้า" />
+  </div>
+	<div class="col-lg-2 col-md-2-harf col-sm-2 col-xs-6 padding-5">
+  	<label>โซนรับสินค้า</label>
+    <input type="text" class="form-control input-sm" name="zone_code" id="zone_code" placeholder="รหัสโซน" value="<?php echo $zone_code; ?>"/>
+  </div>
+  <div class="col-lg-6 col-md-5-harf col-sm-4-harf col-xs-6 padding-5">
+  	<label class="not-show">ชื่อโซน</label>
+    <input type="text" class="form-control input-sm zone" name="zoneName" id="zoneName" placeholder="ชื่อโซน"  value="<?php echo $zone_name; ?>"/>
+  </div>
 </div>
 <hr class="margin-top-15"/>
 <div class="row">
-	<div class="col-sm-1">
-    	<label>จำนวน</label>
-        <input type="text" class="form-control input-sm text-center" id="qty" value="1.00" />
-    </div>
-    <div class="col-sm-3 ">
-    	<label>บาร์โค้ดสินค้า</label>
-        <input type="text" class="form-control input-sm text-center" id="barcode" placeholder="ยิงบาร์โค้ดเพื่อรับสินค้า" autocomplete="off"  />
-    </div>
-    <div class="col-sm-1">
-    	<label class="display-block not-show">ok</label>
-        <button type="button" class="btn btn-xs btn-primary" onclick="checkBarcode()"><i class="fa fa-check"></i> ตกลง</button>
-    </div>
-    <input type="hidden" name="zone_code" id="zone_code" />
-    <input type="hidden" name="receive_code" id="receive_code" value="<?php echo $document->code; ?>" />
-    <input type="hidden" name="approver" id="approver" value="" />
-
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label>จำนวน</label>
+    <input type="text" class="form-control input-sm text-center" id="qty" value="1.00" />
+  </div>
+  <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+  	<label>บาร์โค้ดสินค้า</label>
+    <input type="text" class="form-control input-sm text-center" id="barcode" placeholder="ยิงบาร์โค้ดเพื่อรับสินค้า" autocomplete="off"  />
+  </div>
+  <div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+  	<label class="display-block not-show">ok</label>
+    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="checkBarcode()"><i class="fa fa-check"></i> ตกลง</button>
+  </div>
+  <input type="hidden" name="receive_code" id="receive_code" value="<?php echo $document->code; ?>" />
+  <input type="hidden" name="approver" id="approver" value="" />
 </div>
 <hr class="margin-top-15 margin-bottom-15"/>
 
 
 <div class="row">
-	<div class="col-sm-12">
-    	<table class="table table-striped table-bordered">
-        	<thead>
-            	<tr class="font-size-12">
-                	<th class="width-5 text-center">ลำดับ	</th>
-                    <th class="width-15 text-center">บาร์โค้ด</th>
-                    <th class="width-15 text-center">รหัสสินค้า</th>
-                    <th class="width-35">ชื่อสินค้า</th>
-                    <th class="width-10 text-center">สั่งซื้อ</th>
-                    <th class="width-10 text-center">ค้างรับ</th>
-                    <th class="width-10 text-center">จำนวน</th>
-                </tr>
-            </thead>
-            <tbody id="receiveTable">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+  	<table class="table table-striped table-bordered" style="min-width:900px;">
+    	<thead>
+      	<tr class="font-size-12">
+        	<th class="fix-width-40 text-center">ลำดับ	</th>
+          <th class="fix-width-150 text-center">บาร์โค้ด</th>
+          <th class="fix-width-150 text-center">รหัสสินค้า</th>
+          <th class="min-width-250">ชื่อสินค้า</th>
+          <th class="fix-width-100 text-center">สั่งซื้อ</th>
+          <th class="fix-width-100 text-center">ค้างรับ</th>
+          <th class="fix-width-100 text-center">จำนวน</th>
+        </tr>
+      </thead>
+      <tbody id="receiveTable">
 
-			      </tbody>
-        </table>
-    </div>
+      </tbody>
+    </table>
+  </div>
 </div>
 </form>
 

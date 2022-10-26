@@ -121,6 +121,17 @@ class Receive_transform_model extends CI_Model
   }
 
 
+  public function update_detail($id, array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('id', $id)->update('receive_transform_detail', $ds);
+    }
+
+    return FALSE;
+  }
+
+
   public function add_detail(array $ds = array())
   {
     if(!empty($ds))
@@ -129,6 +140,19 @@ class Receive_transform_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_detail_row($receive_code, $product_code)
+  {
+    $rs = $this->db->where('receive_code', $receive_code)->where('product_code', $product_code)->get('receive_transform_detail');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

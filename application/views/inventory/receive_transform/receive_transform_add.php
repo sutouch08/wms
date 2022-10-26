@@ -6,54 +6,55 @@
 	<input type="hidden" id="runNo" value="<?php echo getConfig('RUN_DIGIT_RECEIVE_TRANSFORM'); ?>">
 <?php endif; ?>
 <div class="row">
-	<div class="col-sm-6">
-    	<h3 class="title" >
-        <?php echo $this->title; ?>
-      </h3>
+	<div class="col-lg-8 col-md-8 col-sm-8 hidden-xs padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
+  </div>
+	<div class="col-xs-12 padding-5 visible-xs">
+		<h3 class="title-xs"><?php echo $this->title; ?> </h3>
 	</div>
-    <div class="col-sm-6">
-      	<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-        </p>
-    </div>
+  <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
+  	<p class="pull-right top-p">
+			<button type="button" class="btn btn-xs btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+    </p>
+  </div>
 </div>
 <hr />
 
 <form id="addForm" action="<?php echo $this->home.'/add'; ?>" method="post">
 <div class="row">
-    <div class="col-sm-1 col-1-harf padding-5 first">
-    	<label>เลขที่เอกสาร</label>
-			<?php if($manual_code == 1) : ?>
-				<input type="text" class="form-control input-sm" name="code" id="code" value="" required />
-			<?php else : ?>
-				<input type="text" class="form-control input-sm" value="" disabled />
-			<?php endif; ?>
-    </div>
-		<div class="col-sm-1 col-1-harf padding-5">
-    	<label>วันที่</label>
-      <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" readonly />
-    </div>
-		<div class="col-sm-1 col-1-harf padding-5">
-			<label>ช่องทางการรับ</label>
-			<select class="form-control input-sm header-box" name="is_wms" id="is_wms">
-				<option value="1" selected>WMS</option>
-				<option value="0">Warrix</option>
-			</select>
-		</div>
-    <div class="col-sm-6 padding-5">
-    	<label>หมายเหตุ</label>
-        <input type="text" class="form-control input-sm" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
-    </div>
-		<div class="col-sm-1 col-1-harf padding-5 last">
-			<label class="display-block not-show">save</label>
-			<?php 	if($this->pm->can_add) : ?>
-				<?php if($manual_code == 1) : ?>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+  	<label>เลขที่เอกสาร</label>
+		<?php if($manual_code == 1) : ?>
+			<input type="text" class="form-control input-sm" name="code" id="code" value="" required />
+		<?php else : ?>
+			<input type="text" class="form-control input-sm" value="" disabled />
+		<?php endif; ?>
+  </div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+  	<label>วันที่</label>
+    <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" readonly />
+  </div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+		<label>ช่องทางการรับ</label>
+		<select class="form-control input-sm header-box" name="is_wms" id="is_wms">
+			<option value="1" selected>WMS</option>
+			<option value="0">Warrix</option>
+		</select>
+	</div>
+  <div class="col-lg-6-harf col-md-6 col-sm-4-harf col-xs-9 padding-5">
+  	<label>หมายเหตุ</label>
+    <input type="text" class="form-control input-sm" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
+  </div>
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">save</label>
+		<?php if($this->pm->can_add) : ?>
+		<?php 	if($manual_code == 1) : ?>
 							<button type="button" class="btn btn-xs btn-success btn-block" onclick="validateOrder()"><i class="fa fa-plus"></i> เพิ่ม</button>
-						<?php else : ?>
-							<button type="button" class="btn btn-xs btn-success btn-block" onclick="addNew()"><i class="fa fa-fa-plus"></i> เพิ่ม</button>
-						<?php endif; ?>
-			<?php	endif; ?>
-		</div>
+			<?php else : ?>
+						<button type="button" class="btn btn-xs btn-success btn-block" onclick="addNew()"><i class="fa fa-fa-plus"></i> เพิ่ม</button>
+			<?php endif; ?>
+		<?php	endif; ?>
+	</div>
 </div>
 </form>
 <hr class="margin-top-15"/>
