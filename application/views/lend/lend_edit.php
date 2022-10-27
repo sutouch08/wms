@@ -1,46 +1,47 @@
 <?php $this->load->view('include/header'); ?>
 <?php $isAdmin = (get_cookie('id_profile') == -987654321 ? TRUE : FALSE); ?>
 <div class="row">
-	<div class="col-sm-3 col-xs-12 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-    <div class="col-sm-9 col-xs-12 padding-5">
+	<div class="col-lg-3 col-md-3 col-sm-3 hidden-xs padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
+  </div>
+	<div class="col-xs-12 padding-5 visible-xs">
+		<h3 class="title-xs"><?php echo $this->title; ?> </h3>
+	</div>
+  <div class="col-sm-9 col-xs-12 padding-5">
     	<p class="pull-right top-p">
 
 				<?php if(empty($approve_view)) : ?>
-				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-				<button type="button" class="btn btn-sm btn-default" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
+				<button type="button" class="btn btn-sm btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+				<button type="button" class="btn btn-sm btn-default top-btn" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
 				<?php endif; ?>
 
 			<?php if(empty($approve_view)) : ?>
 				<?php if($order->state < 4 && $isAdmin && $order->never_expire == 0) : ?>
-				<button type="button" class="btn btn-sm btn-primary" onclick="setNotExpire(1)">ยกเว้นการหมดอายุ</button>
+				<button type="button" class="btn btn-sm btn-primary top-btn" onclick="setNotExpire(1)">ยกเว้นการหมดอายุ</button>
 				<?php endif; ?>
 				<?php if($order->state < 4 && $isAdmin && $order->never_expire == 1) : ?>
-					<button type="button" class="btn btn-sm btn-info" onclick="setNotExpire(0)">ไม่ยกเว้นการหมดอายุ</button>
+					<button type="button" class="btn btn-sm btn-info top-btn" onclick="setNotExpire(0)">ไม่ยกเว้นการหมดอายุ</button>
 				<?php endif; ?>
 				<?php if($isAdmin && $order->is_expired == 1) : ?>
-					<button type="button" class="btn btn-sm btn-warning" onclick="unExpired()">ทำให้ไม่หมดอายุ</button>
+					<button type="button" class="btn btn-sm btn-warning top-btn" onclick="unExpired()">ทำให้ไม่หมดอายุ</button>
 				<?php endif; ?>
 				<?php if($order->state < 4 && ($this->pm->can_add OR $this->pm->can_edit) && $order->is_approved == 0) : ?>
-				<button type="button" class="btn btn-sm btn-yellow" onclick="editDetail()"><i class="fa fa-pencil"></i> แก้ไขรายการ</button>
+				<button type="button" class="btn btn-sm btn-yellow top-btn" onclick="editDetail()"><i class="fa fa-pencil"></i> แก้ไขรายการ</button>
 				<?php endif; ?>
 			<?php endif; ?>
 
 			<?php if($order->status == 0) : ?>
-				<button type="button" class="btn btn-sm btn-success" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
+				<button type="button" class="btn btn-sm btn-success top-btn" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
 			<?php endif; ?>
 
 				<?php if($order->state == 1 && $order->is_approved == 0 && $order->status == 1 && $order->is_expired == 0 && $this->pm->can_approve) : ?>
-						<button type="button" class="btn btn-sm btn-success" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
+						<button type="button" class="btn btn-sm btn-success top-btn" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
 				<?php endif; ?>
 				<?php if($order->state == 1 && $order->is_approved == 1 && $order->status == 1 && $order->is_expired == 0 && $this->pm->can_approve) : ?>
-						<button type="button" class="btn btn-sm btn-danger" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
+						<button type="button" class="btn btn-sm btn-danger top-btn" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
 				<?php endif; ?>
 				<?php if($this->isAPI && $order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
-					<button type="button" class="btn btn-sm btn-success" onclick="sendToWMS()">Send to WMS</button>
+					<button type="button" class="btn btn-sm btn-success top-btn" onclick="sendToWMS()">Send to WMS</button>
 				<?php endif; ?>
       </p>
     </div>

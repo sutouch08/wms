@@ -6,14 +6,14 @@ $delete = $this->pm->can_delete;
 $hide = $order->status == 1 ? 'hide' : '';
  ?>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     	<h4 class="title"><?php echo $this->title; ?></h4>
     </div>
-    <div class="col-sm-6 col-xs-6 padding-5">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
-        	<button type="button" class="btn btn-sm btn-warning" onClick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
+        	<button type="button" class="btn btn-xs btn-warning top-btn" onClick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
       <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-          <button type="button" class="btn btn-sm btn-success <?php echo $hide; ?>" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
+          <button type="button" class="btn btn-xs btn-success top-btn <?php echo $hide; ?>" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
       <?php endif; ?>
         </p>
     </div>
@@ -23,25 +23,50 @@ $hide = $order->status == 1 ? 'hide' : '';
 
 <!--  Search Product -->
 <div class="row">
-	<div class="col-sm-3 col-xs-8 padding-5">
-    	<input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="ค้นรหัสสินค้า" />
+  <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-8 padding-5 margin-bottom-10">
+    <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="Model Code" autofocus />
   </div>
-  <div class="col-sm-2 col-xs-4 padding-5">
-  	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()"><i class="fa fa-tags"></i> แสดงสินค้า</button>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5 margin-bottom-10">
+  	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()">OK</button>
+  </div>
+
+	<div class="divider visible-xs"></div>
+  <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs"> &nbsp; </div>
+  <div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-6 padding-5 margin-bottom-10">
+    <input type="text" class="form-control input-sm text-center" id="item-code" placeholder="SKU Code">
+  </div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 padding-5 margin-bottom-10">
+    <input type="number" class="form-control input-sm text-center" id="stock-qty" placeholder="Stock" disabled>
+  </div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 padding-5 margin-bottom-10">
+    <input type="number" class="form-control input-sm text-center" id="input-qty" placeholder="Qty">
+  </div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 padding-5 margin-bottom-10">
+    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">Add</button>
   </div>
 </div>
-<hr class="margin-top-15 margin-bottom-0 padding-5" />
+<hr class="margin-top-10 margin-bottom-0 visible-lg" />
 <!--- Category Menu ---------------------------------->
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<div class="widget-box widget-color-blue2 collapsed" onclick="toggleCate()" id="cate-widget">
+			<div class="widget-header widget-header-small">
+				<h6 class="widget-title">Categories</h6>
+			</div>
+			<div class="widget-body">
+				<div class="widget-main">
+					<ul class='nav navbar-nav' role='tablist' style="float:none;">
+					<?php echo productTabMenu('order'); ?>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<hr class=""/>
 <div class='row'>
-	<div class='col-sm-12 col-xs-12 padding-5'>
-		<ul class='nav navbar-nav' role='tablist' style='background-color:#EEE'>
-		<?php echo productTabMenu('order'); ?>
-		</ul>
-	</div><!---/ col-sm-12 ---->
-</div><!---/ row -->
-<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:0px;' />
-<div class='row'>
-	<div class='col-sm-12 col-xs-12'>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 		<div class='tab-content' style="min-height:1px; padding:0px; border:0px;">
 		<?php echo getProductTabs(); ?>
 		</div>
@@ -70,6 +95,17 @@ $hide = $order->status == 1 ? 'hide' : '';
 	</div>
 </div>
 </form>
+
+<script>
+	function toggleCate() {
+		if($('#cate-widget').hasClass('collapsed')) {
+			$('#cate-widget').removeClass('collapsed');
+		}
+		else {
+			$('#cate-widget').addClass('collapsed');
+		}
+	}
+</script>
 
 <script src="<?php echo base_url(); ?>scripts/transform/transform.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/transform/transform_add.js?v=<?php echo date('YmdH'); ?>"></script>

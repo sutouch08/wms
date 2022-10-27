@@ -52,7 +52,7 @@
 														class="form-control input-sm text-center price-box hide"
 														id="price_<?php echo $rs->id; ?>"
 														name="price[<?php echo $rs->id; ?>]"
-														value="<?php echo $rs->price; ?>" />
+														value="<?php echo round($rs->price, 2); ?>" />
 				        <?php endif; ?>
 							<?php endif; ?>
                 <span class="price-label" id="price-label-<?php echo $rs->id; ?>">	<?php echo number($rs->price, 2); ?></span>

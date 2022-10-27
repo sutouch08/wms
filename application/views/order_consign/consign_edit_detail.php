@@ -23,15 +23,6 @@ $hide = $order->status == 1 ? 'hide' : '';
 
 <!--  Search Product -->
 <div class="row">
-  <!--
-	<div class="col-sm-3 padding-5">
-    <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="ค้นรหัสสินค้า" />
-  </div>
-  <div class="col-sm-2 padding-5">
-  	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()"><i class="fa fa-tags"></i> แสดงสินค้า</button>
-  </div>
--->
-
   <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-8 padding-5 margin-bottom-10">
     <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="Model Code" autofocus />
   </div>

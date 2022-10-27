@@ -33,7 +33,26 @@ function saveOrder(){
 }
 
 
-
+$("#customerCode").autocomplete({
+	source: BASE_URL + 'auto_complete/get_sponsor',
+	autoFocus: true,
+	close: function(){
+		var rs = $.trim($(this).val());
+		var arr = rs.split(' | ');
+		if( arr.length == 2 ){
+			var code = arr[0];
+			var name = arr[1];
+			$("#customerCode").val(code);
+			$("#customer").val(name);
+      getBudget(code);
+		}else{
+			$("#customerCode").val('');
+			$('#customer').val('');
+      $('#budgetLabel').val('');
+      $('#budgetAmount').val(0);
+		}
+	}
+});
 
 $("#customer").autocomplete({
 	source: BASE_URL + 'auto_complete/get_sponsor',
@@ -49,8 +68,9 @@ $("#customer").autocomplete({
       getBudget(code);
 		}else{
 			$("#customerCode").val('');
-			$(this).val('');
-      $('#budgetAmount').val('');
+			$("#customer").val('');
+      $('#budgetLabel').val('');
+      $('#budgetAmount').val(0);
 		}
 	}
 });
@@ -61,8 +81,9 @@ function getBudget(code){
     url:BASE_URL + 'orders/sponsor/get_sponsor_budget/'+code,
     type:'GET',
     cache:false,
-    success:function(rs){
+    success:function(rs) {
       $('#budgetAmount').val(rs);
+      $('#budgetLabel').val(addCommas(rs));
     }
   });
 }
@@ -74,7 +95,18 @@ $('#customer').focusout(function(){
   if(code.length == 0)
   {
     $('#customerCode').val('');
-    $('#budgetAmount').val('');
+    $('#budgetLabel').val('');
+    $('#budgetAmount').val(0);
+  }
+});
+
+$('#customerCode').focusout(function(){
+  var code = $(this).val();
+  if(code.length == 0)
+  {
+    $('#customer').val('');
+    $('#budgetLabel').val('');
+    $('#budgetAmount').val(0);
   }
 });
 
@@ -315,6 +347,78 @@ $('#pd-box').keyup(function(event) {
 		}
 	}
 });
+
+
+$('#item-code').autocomplete({
+	source:BASE_URL + 'auto_complete/get_product_code',
+	minLength: 4,
+	autoFocus:true
+});
+
+$('#item-code').keyup(function(e){
+	if(e.keyCode == 13){
+		var code = $(this).val();
+		if(code.length > 4){
+			setTimeout(function(){
+				getItemGrid();
+			}, 200);
+		}
+	}
+});
+
+
+$('#input-qty').keyup(function(e){
+	if(e.keyCode == 13){
+		addItemToOrder();
+	}
+});
+
+
+//---- เพิ่มรายการสินค้าเช้าออเดอร์
+function addItemToOrder(){
+	var orderCode = $('#order_code').val();
+	var qty = parseDefault(parseInt($('#input-qty').val()), 0);
+	var limit = parseDefault(parseInt($('#stock-qty').val()), 0);
+	var itemCode = $('#item-code').val();
+  var data = [{'code':itemCode, 'qty' : qty}];
+
+	if(qty > 0 && qty <= limit){
+		load_in();
+		$.ajax({
+			url:BASE_URL + 'orders/orders/add_detail/'+orderCode,
+			type:"POST",
+			cache:"false",
+			data:{
+				'data' : data
+			},
+			success: function(rs){
+				load_out();
+				var rs = $.trim(rs);
+				if( rs == 'success' ){
+					swal({
+						title: 'success',
+						type: 'success',
+						timer: 1000
+					});
+
+					$("#btn-save-order").removeClass('hide');
+					updateDetailTable(); //--- update list of order detail
+
+					setTimeout(function(){
+						$('#item-code').val('');
+						$('#stock-qty').val('');
+						$('#input-qty').val('');
+						$('#item-code').focus();
+					},1200);
+
+
+				}else{
+					swal("Error", rs, "error");
+				}
+			}
+		});
+	}
+}
 
 
 

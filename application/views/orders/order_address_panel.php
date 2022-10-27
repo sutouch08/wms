@@ -56,8 +56,9 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 
 				<div role="tabpanel" class="tab-pane fade" id="address">
           <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
-              <table class="table table-bordered" style="margin-bottom:0px; border-collapse:collapse; border:0;">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="table-responsive" style="max-height:250px; overflow:auto;">
+              <table class="table table-bordered" style="min-width:900px; margin-bottom:0px; border-collapse:collapse; border:0;">
                 <thead>
                   <tr style="background-color:white;">
                     <th colspan="6" align="center">ที่อยู่สำหรับจัดส่ง
@@ -67,12 +68,11 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                     </th>
                   </tr>
                   <tr style="font-size:12px; background-color:white;">
-                    <th align="center" width="10%">ชื่อเรียก</th>
-                    <th width="12%">ผู้รับ</th>
-                    <th width="35%">ที่อยู่</th>
-                    <th width="15%">อีเมล์</th>
-                    <th width="15%">โทรศัพท์</th>
-                    <th ></td>
+                    <th class="fix-width-120">ชื่อเรียก</th>
+                    <th class="fix-width-150">ผู้รับ</th>
+                    <th class="min-width-250">ที่อยู่</th>
+                    <th class="fix-width-150">โทรศัพท์</th>
+                    <th class="fix-width-120"></td>
                   </tr>
                 </thead>
                 <tbody id="adrs">
@@ -82,7 +82,6 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                     <td align="center"><?php echo $rs->alias; ?></td>
                     <td><?php echo $rs->name; ?></td>
                     <td><?php echo $rs->address." ". $rs->sub_district." ".$rs->district." ".$rs->province." ". $rs->postcode; ?></td>
-                    <td><?php echo $rs->email; ?></td>
                     <td><?php echo $rs->phone; ?></td>
                     <td align="right">
 									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR ($order->is_wms == 1 && $order->wms_export != 1)) : ?>
@@ -117,48 +116,53 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                 </tbody>
               </table>
             </div>
-          </div><!-- /row-->
+          </div>
+        </div><!-- /row-->
       </div>
 
       <div role="tabpanel" class="tab-pane active" id="state">
 				<?php $this->load->view("orders/order_state"); ?>
       </div>
 			<div role="tabpanel" class="tab-pane fade" id="sender">
-				<div class="row" style="padding:15px;">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-						<table class="table" style="min-width:700px; margin-bottom:0px;">
-							<tr>
-								<td class="width-10 middle text-right" style="min-width:100px; border:none;">เลือกผู้จัดส่ง : </td>
-								<td class="width-20"style="min-width:150px; border:none;">
-									<select class="form-control input-sm" id="id_sender">
-										<option value="">เลือก</option>
-										<?php echo select_common_sender($order->customer_code, $order->id_sender); //--- sender helper?>
-									</select>
-								</td>
-								<td class="width-10 middle" style="min-width:100px; border:none;">
-									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->id_sender == NULL) : ?>
-									<button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
-									<?php endif; ?>
-								</td>
-								<td class="width-15 middle text-right" style="min-width:100px; border:none;">Tracking No: </td>
-								<td class="width-20 middle" style="min-width:150px; border:none;">
-									<input type="text" class="form-control input-sm" id="tracking" value="<?php echo $order->shipping_code; ?>">
-									<input type="hidden" id="trackingNo" value="<?php echo $order->shipping_code; ?>">
-								</td>
-								<td class="width-10 middle" style="min-width:100px; border:none;">
-									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->shipping_code == NULL) : ?>
-									<button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
-									<?php endif; ?>
-								</td>
-								<td style="border:none;"></td>
-							</tr>
-						</table>
+        <div class="row" style="padding:15px;">
+					<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-3-harf padding-5 text-right">เลือกผู้จัดส่ง :</div>
+              <div class="col-lg-4 col-md-5 col-sm-5 col-xs-5 padding-5">
+                <select class="form-control input-sm" id="id_sender">
+                  <option value="">เลือก</option>
+                  <?php echo select_common_sender($order->customer_code, $order->id_sender); //--- sender helper?>
+                </select>
+              </div>
+              <div class="col-lg-2 col-md-3 col-sm-3 col-xs-3 padding-5">
+                <?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->id_sender == NULL) : ?>
+                <button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+          <div class="divider-hidden visible-xs"></div>
+          <div class="divider-hidden visible-xs"></div>
 
-					</div>
+          <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12 padding-5">
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-3-harf padding-5 text-right">Tracking No :</div>
+              <div class="col-lg-4 col-md-5 col-sm-5 col-xs-5 padding-5">
+                <input type="text" class="form-control input-sm" id="tracking" value="<?php echo $order->shipping_code; ?>">
+                <input type="hidden" id="trackingNo" value="<?php echo $order->shipping_code; ?>">
+              </div>
+              <div class="col-lg-2 col-md-3 col-sm-3 col-xs-3 padding-5">
+                <?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->shipping_code == NULL) : ?>
+                <button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
 				</div>
 			</div>
+
     </div>
-      </div>
+  </div>
 	</div>
 </div>
 <hr class="padding-5"/>
