@@ -32,6 +32,28 @@ function saveOrder(){
 
 
 
+$("#customerCode").autocomplete({
+	source: BASE_URL + 'auto_complete/get_support',
+	autoFocus: true,
+	close: function(){
+		var rs = $.trim($(this).val());
+		var arr = rs.split(' | ');
+		if( arr.length == 2 ){
+			var code = arr[0];
+			var name = arr[1];
+			$("#customerCode").val(code);
+			$("#customer").val(name);
+      getBudget(code);
+		}
+    else {
+			$("#customerCode").val('');
+			$("#customer").val('');
+      $('#budgetLabel').val('');
+      $('#budgetAmount').val(0);
+		}
+	}
+});
+
 
 $("#customer").autocomplete({
 	source: BASE_URL + 'auto_complete/get_support',
@@ -47,8 +69,9 @@ $("#customer").autocomplete({
       getBudget(code);
 		}else{
 			$("#customerCode").val('');
-			$(this).val('');
-      $('#budgetAmount').val('');
+			$("#customer").val('');
+      $('#budgetAmount').val(0);
+      $('#budgetLabel').val('');
 		}
 	}
 });
@@ -61,6 +84,7 @@ function getBudget(code){
     cache:false,
     success:function(rs){
       $('#budgetAmount').val(rs);
+      $('#budgetLabel').val(addCommas(rs));
     }
   });
 }
@@ -72,7 +96,18 @@ $('#customer').focusout(function(){
   if(code.length == 0)
   {
     $('#customerCode').val('');
-    $('#budgetAmount').val('');
+    $('#budgetLabel').val('');
+    $('#budgetAmount').val(0);
+  }
+});
+
+$('#customerCode').focusout(function(){
+  var code = $(this).val();
+  if(code.length == 0)
+  {
+    $('#customer').val('');
+    $('#budgetLabel').val('');
+    $('#budgetAmount').val(0);
   }
 });
 

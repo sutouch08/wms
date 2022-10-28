@@ -1,48 +1,6 @@
-function unsave()
-{
-	var code = $('#return_code').val();
-	swal({
-		title:'คุณแน่ใจ ?',
-		text:'โปรดทราบ คุณต้องลบเอกสารใน SAP ด้วย ต้องการดำเนินการต่อหรือไม่ ?',
-		type:'warning',
-		showCancelButton:true,
-		confirmButtonText:'ดำเนินการต่อ',
-		confirmButtonColor:'#DD6B55',
-		cancelButtonText:'ยกเลิก',
-		closeOnConfirm:false
-	}, function(){
-		$.ajax({
-			url:HOME + 'unsave/'+code,
-			type:'POST',
-			cache:false,
-			success:function(rs){
-				if(rs == 'success'){
-					swal({
-						title:'Success',
-						text:'ยกเลิกการบันทึกเรียบร้อยแล้ว',
-						type:'success',
-						timer:1000
-					});
-
-					setTimeout(function(){
-						goEdit(code);
-					}, 1500);
-				}else{
-					swal({
-						title:'Error',
-						text:rs,
-						type:'error'
-					});
-				}
-			}
-		})
-	});
-}
-
-
-function getValidate(){
+function getValidate() {
 	var isManual = $('#manualCode').length;
-	if(isManual === 1){
+	if(isManual === 1) {
 		var prefix = $('#prefix').val();
 	  var runNo = parseInt($('#runNo').val());
 	}
@@ -74,7 +32,7 @@ function getValidate(){
 }
 
 
-function addOrder(){
+function addOrder() {
 	var code = $('#code').val();
 	$.ajax({
 		url: HOME + 'is_exists/'+code,
@@ -97,21 +55,22 @@ function addOrder(){
 
 function save()
 {
-	var count = 0;
 	var error = 0;
-	let zone = $('#zone_code').val();
+	let code = $('#code').val();
+	let zone_code = $('#zone_code').val();
 	let zoneName = $('#zone').val();
 	let empName = $('#empName').val();
 	let empID = $('#empID').val();
-	let code = $('#lendCode').val();
-	let date = $('#dateAdd').val();
+	let lendCode = $('#lend_code').val();
+	let date_add = $('#dateAdd').val();
+	let remark = $.trim($('#remark').val());
 
-	if(!isDate(date)){
+	if(!isDate(date_add)){
 		swal("วันที่ไม่ถูกต้อง");
 		return false;
 	}
 
-	if(zone.length == 0 || zoneName.length == 0){
+	if(zone_code.length == 0 || zoneName.length == 0){
 		swal("กรุณาระบุโซนรับเข้า");
 		return false;
 	}
@@ -121,20 +80,37 @@ function save()
 		return false;
 	}
 
-	if(code.length == 0){
+	if(lendCode.length == 0){
 		swal("กรุณาระบุใบยืมสินค้า");
 		return false;
 	}
 
+	let header = {
+		"code" : code,
+		"date_add" : date_add,
+		"empID" : empID,
+		"lendCode" : lendCode,
+		"zone_code" : zone_code,
+		"remark" : remark
+	}
 
-	$('.qty').each(function(){
-		let arr = $(this).attr('id').split('qty_');
-		let itemCode = arr[1];
-		let limit = parseDefault(parseInt($('#backlogs_'+itemCode).val()), 0);
-		let qty = parseDefault(parseInt($(this).val()), 0);
+	let rows = [];
 
-		if(qty > 0){
-			count++;
+	$('.qty').each(function() {
+		let no = $(this).data('no');
+		let qty = parseDefault(parseFloat($(this).val()), 0);
+		let limit = parseDefault(parseFloat($('#backlogs-'+no).val()), 0);
+		let itemCode = $(this).data('product');
+
+		if(qty > 0 && qty <= limit) {
+
+			let row = {
+				"product_code" : itemCode,
+				"qty" : qty
+			}
+
+			rows.push(row);
+
 			$(this).removeClass('has-error');
 		}
 
@@ -142,28 +118,93 @@ function save()
 			error++;
 			$(this).addClass('has-error');
 		}
-
 	});
 
-	if(error > 0){
-		swal("จำนวนที่คืนต้องไม่มากกว่ายอดค้างรับ และ ต้องไม่น้อยกว่า 0");
+	if(error > 0) {
+
+		swal({
+			title:'Error!',
+			text:"จำนวนที่คืนต้องไม่มากกว่ายอดค้างรับ และ ต้องไม่น้อยกว่า 0",
+			type:'error'
+		});
+
 		return false;
 	}
 
-	if(count == 0){
-		swal("ต้องคืนอย่างน้อย 1 ตัว");
+	if(rows.length < 1) {
+		swal({
+			title:'Error!',
+			text:"ต้องคืนอย่างน้อย 1 ตัว",
+			type:'error'
+		});
+
 		return false
 	}
 
-	$('#addForm').submit();
+	load_in();
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data:{
+			"header" : JSON.stringify(header),
+			"details" : JSON.stringify(rows)
+		},
+		success:function(rs) {
+			load_out();
+
+			if(isJson(rs)) {
+				ds = $.parseJSON(rs);
+
+				if(ds.result === 'success') {
+					setTimeout(function() {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(function() {
+							viewDetail(ds.code);
+						}, 1200);
+					}, 200);
+				}
+				else {
+					setTimeout(function() {
+						swal({
+							title:'Error!',
+							text:ds.error,
+							type:'error',
+							html:true
+						});
+					}, 200);
+				}
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			console.log(status);
+			console.log(error);
+
+			setTimeout(function() {
+				swal({
+					title:'Error!',
+					text:xhr.responseText,
+					type:'error',
+					html:true
+				});
+			}, 200);
+		}
+	});
 }
 
 
 
 
 
-function doExport(){
-	var code = $('#return_code').val();
+function doExport() {
+	var code = $('#code').val();
 	$.get(HOME + '/do_export/'+code, function(rs){
 		if(rs === 'success'){
 			swal({
@@ -198,9 +239,12 @@ $("#empName").autocomplete({
 			var empID = arr[1];
 			$("#empName").val(empName);
 			$("#empID").val(empID);
-		}else{
+			lend_code_init();
+		}
+		else {
 			$("#empID").val('');
 			$(this).val('');
+			lend_code_init();
 		}
 	}
 });
@@ -214,14 +258,30 @@ $('#zone').autocomplete({
 	close:function(){
 		var arr = $(this).val().split(' | ');
 		if(arr.length == 2){
-			$(this).val(arr[1]);
+			$("#zone").val(arr[1]);
 			$('#zone_code').val(arr[0]);
 		}else{
-			$(this).val('');
+			$("#zone").val('');
 			$('#zone_code').val('');
 		}
 	}
-})
+});
+
+$('#zone_code').autocomplete({
+	source : BASE_URL + 'auto_complete/get_zone_code_and_name',
+	autoFocus:true,
+	close:function(){
+		var arr = $(this).val().split(' | ');
+		if(arr.length == 2){
+			$("#zone").val(arr[1]);
+			$('#zone_code').val(arr[0]);
+		}else{
+			$(this).val('');
+			$('#zone').val('');
+			$('#zone_code').val('');
+		}
+	}
+});
 
 
 
@@ -238,7 +298,7 @@ function recalTotal(){
 
 
 function sendToWms() {
-	var code = $('#return_code').val();
+	var code = $('#code').val();
 
 	load_in();
 	$.ajax({

@@ -39,6 +39,26 @@ function saveOrder(){
 
 
 
+$("#customerCode").autocomplete({
+	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
+	autoFocus: true,
+	close: function(){
+		var rs = $.trim($(this).val());
+		var arr = rs.split(' | ');
+		if( arr.length == 2 ){
+			var code = arr[0];
+			var name = arr[1];
+			$("#customerCode").val(code);
+			$("#customer").val(name);
+      zoneInit(code, true);
+		}else{
+			$("#customerCode").val('');
+			$("#customer").val('');
+      zoneInit('');
+		}
+	}
+});
+
 
 $("#customer").autocomplete({
 	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
@@ -54,7 +74,7 @@ $("#customer").autocomplete({
       zoneInit(code, true);
 		}else{
 			$("#customerCode").val('');
-			$(this).val('');
+			$("#customer").val('');
       zoneInit('');
 		}
 	}
@@ -71,7 +91,7 @@ $(document).ready(function(){
 
 function zoneInit(customer_code, edit)
 {
-  if(edit){
+  if(edit) {
     $('#zone_code').val('');
     $('#zone').val('');
   }
@@ -93,7 +113,28 @@ function zoneInit(customer_code, edit)
         $('#zone').val('');
       }
     }
-  })
+  });
+
+  $('#zone_code').autocomplete({
+    source:BASE_URL + 'auto_complete/get_consign_zone/' + customer_code,
+    autoFocus: true,
+    close:function(){
+      var rs = $.trim($(this).val());
+      var arr = rs.split(' | ');
+      if(arr.length == 2)
+      {
+        var code = arr[0];
+        var name = arr[1];
+        $('#zone_code').val(code);
+        $('#zone').val(name);
+      }else{
+        $('#zone_code').val('');
+        $('#zone').val('');
+      }
+    }
+  });
+
+
 }
 
 
@@ -117,6 +158,7 @@ function addOrder(){
   var zone_code = $('#zone_code').val();
   var zone_name = $('#zone').val();
   var warehouse = $('#warehouse').val();
+  var gp = $('#gp').val();
 
   if(customer_code.length == 0 || customer_name.length == 0){
     swal('ชื่อลูกค้าไม่ถูกต้อง');
@@ -137,6 +179,16 @@ function addOrder(){
 
   if(warehouse.length == 0){
     swal('กรุณาเลือกคลัง');
+    return false;
+  }
+
+  if(gp === "") {
+    swal({
+      title:'Oops!',
+      text:"กรุณากำหนด GP หากไม่มี GP ให้ระบุเป็น 0",
+      type:'warning'
+    });
+    
     return false;
   }
 

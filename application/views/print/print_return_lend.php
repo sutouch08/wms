@@ -101,10 +101,10 @@
               $n,
 							inputRow($rs->product_code),
 							inputRow($rs->product_name),
-              ac_format($rs->qty),
-							ac_format($rs->receive),
-              ac_format($rs->return_qty),
-              ac_format($backlogs < 0 ? 0 : $backlogs)
+              ac_format($rs->qty, 2),
+							ac_format($rs->receive,2),
+              ac_format($rs->return_qty,2),
+              ac_format(($backlogs < 0 ? 0 : $backlogs), 2)
 						);
 
             $total_qty += $rs->return_qty;
@@ -132,10 +132,10 @@
           $is_last = TRUE;
         }
 
-				$sum_lend = $is_last === TRUE ? number($total_lend) : '';
-        $sum_receive = $is_last === TRUE ? number($total_receive) : '';
-        $sum_qty = $is_last === TRUE ? number($total_qty) : '';
-        $sum_backlogs = $is_last === TRUE ? number($total_backlogs) : '';
+				$sum_lend = $is_last === TRUE ? number($total_lend, 2) : '';
+        $sum_receive = $is_last === TRUE ? number($total_receive, 2) : '';
+        $sum_qty = $is_last === TRUE ? number($total_qty, 2) : '';
+        $sum_backlogs = $is_last === TRUE ? number($total_backlogs, 2) : '';
 
 				$sub_total = array(
           array(

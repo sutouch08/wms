@@ -126,10 +126,10 @@ while($total_page > 0 )
                     $n,
                     $rs->product_code,
                     inputRow($rs->product_name),
-                    number($qty)
+                    number($qty, 2)
                 );
 
-      $total_qty      += $qty;
+      $total_qty  += $qty;
     }
     else
     {
@@ -147,7 +147,7 @@ while($total_page > 0 )
 
   if($this->xprinter->current_page == $this->xprinter->total_page)
   {
-    $qty  = number($total_qty);
+    $qty  = number($total_qty, 2);
     $remark = $order->remark;
   }
   else

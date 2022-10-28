@@ -1,7 +1,7 @@
 $('#barcode').keyup(function(e){
   if(e.keyCode == 13){
     var barcode = $.trim($(this).val());
-    var qty = $('#qty').val();
+
     if(barcode.length > 0){
       doReceive();
     }
@@ -19,21 +19,23 @@ function lend_code_init()
 }
 
 
-function qtyInit(){
-  $('.qty').keyup(function(){
-    let arr = $(this).attr('id').split('qty_');
-    let itemCode = arr[1];
-    let qty = parseDefault(parseInt($(this).val()), 0);
-    let limit = parseDefault(parseInt($('#backlogs_'+itemCode).val()), 0);
-    if(qty > limit){
-      swal("จำนวนเกินยอดค้างรับ");
+function qtyInit() {
+  $('.qty').keyup(function() {
+    let no = $(this).data('no');
+    let qty = parseDefault(parseFloat($(this).val()), 0);
+    let limit = parseDefault(parseFloat($('#backlogs-'+no).val()), 0);
+
+    if(qty > limit || qty < 0) {
       $(this).addClass('has-error');
-    }else{
+    }
+    else {
       $(this).removeClass('has-error');
     }
+
     recalTotal();
-  })
+  });
 }
+
 
 $(document).ready(function(){
   lend_code_init();
@@ -42,12 +44,14 @@ $(document).ready(function(){
 
 function load_lend_details(){
   let code = $('#lend_code').val();
+
   if(code.length > 0)
   {
     load_in();
     $('#btn-set-code').addClass('hide');
+
     $.ajax({
-      url: HOME + '/get_lend_details/'+code,
+      url: HOME + 'get_lend_details/'+code,
       type:'GET',
       cache:false,
       success:function(rs){
@@ -63,7 +67,9 @@ function load_lend_details(){
           $('#lend_code').attr('disabled', 'disabled');
           $('#lendCode').val(code);
           qtyInit();
-        }else{
+          lend_code_init();
+        }
+        else {
           $('#btn-set-code').removeClass('hide');
           $('#lendCode').val('');
           swal({
@@ -151,28 +157,39 @@ function addToBarcode(barcode){
 
 
 
-function doReceive(){
+function doReceive() {
   let barcode = $('#barcode').val();
-  let qty = parseDefault( parseInt($('#qty').val()), 1); //--- //--- ถ้า NaN ให้ค่าเป็น 1
-
-  $('#barcode').val('');
-  $('#qty').val(1);
+  let qty = parseDefault( parseFloat($('#qty').val()), 1); //--- //--- ถ้า NaN ให้ค่าเป็น 1
   $('#barcode').focusout();
 
-  if($('#barcode_'+barcode).length){
-    let itemCode = $('#barcode_' + barcode).val();
-    let cqty = parseDefault( parseInt($('#qty_'+itemCode).val()), 0); //--- ถ้า NaN ให้ค่าเป็น 0
-    let limit = parseDefault( parseInt($('#backlogs_'+itemCode).val()), 0); //--- ถ้า NaN ให้ค่าเป็น 0
+  if( $('.' + barcode).length ) {
+    let bc = $('.' + barcode);
+    let no = bc.val();
+    let cqty = parseDefault(parseFloat($('#receiveQty-'+no).val()), 0); //--- ถ้า NaN ให้ค่าเป็น 0
+    let limit = parseDefault(parseFloat($('#backlogs-'+no).val()), 0); //--- ถ้า NaN ให้ค่าเป็น 0
     let sum_qty = cqty + qty;
-    if(sum_qty > limit){
-      swal("จำนวนเกินยอดค้างรับ");
+    if(sum_qty > limit) {
+      swal({
+        title:'Oops !',
+        text:"จำนวนเกินยอดค้างรับ",
+        type:'warning'
+      });
+
+      beep();
       return false;
     }
 
-    $('#qty_' + itemCode).val(cqty + qty);
+    $('#receiveQty-'+no).val(sum_qty);
+    $('#barcode').val('');
+    $('#qty').val(1);
     $('#barcode').focus();
     recalTotal();
-  }else{
-    swal("ไม่พบสินค้า");
+  }
+  else {
+    swal({
+      title:'Oops!',
+      text:'ไม่พบสินค้า',
+      type:'warning'
+    });
   }
 }

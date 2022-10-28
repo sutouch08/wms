@@ -1511,42 +1511,45 @@ public function export_receive_transform($code)
               $line = 0;
               foreach($details as $rs)
               {
-                $arr = array(
-                  'DocEntry' => $docEntry,
-                  'U_ECOMNO' => $rs->receive_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->receive_qty,
-                  'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
-                  'PriceBefDi' => round($rs->price,2),
-                  'LineTotal' => round($rs->amount, 2),
-                  'ShipDate' => $date_add,
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'Price' => round(remove_vat($rs->price), 2),
-                  'TotalFrgn' => round($rs->amount, 2),
-                  'WhsCode' => $doc->warehouse_code,
-                  'FisrtBin' => $doc->zone_code,
-                  'BaseRef' => $doc->order_code,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => $vat_rate,
-                  'VatGroup' => $vat_code,
-                  'PriceAfVAT' => $rs->price,
-                  'VatSum' => round(get_vat_amount($rs->amount), 2),
-                  'GTotal' => round($rs->amount, 2),
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => 'A',
-                  'F_E_CommerceDate' => now()
-                );
-
-                if( ! $this->ci->receive_transform_model->add_sap_receive_transform_detail($arr))
+                if($rs->receive_qty > 0)
                 {
-                  $sc = FALSE;
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
+                  $arr = array(
+                    'DocEntry' => $docEntry,
+                    'U_ECOMNO' => $rs->receive_code,
+                    'LineNum' => $line,
+                    'ItemCode' => $rs->product_code,
+                    'Dscription' => limitText($rs->product_name, 95),
+                    'Quantity' => $rs->receive_qty,
+                    'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
+                    'PriceBefDi' => round($rs->price,2),
+                    'LineTotal' => round($rs->amount, 2),
+                    'ShipDate' => $date_add,
+                    'Currency' => $currency,
+                    'Rate' => 1,
+                    'Price' => round(remove_vat($rs->price), 2),
+                    'TotalFrgn' => round($rs->amount, 2),
+                    'WhsCode' => $doc->warehouse_code,
+                    'FisrtBin' => $doc->zone_code,
+                    'BaseRef' => $doc->order_code,
+                    'TaxStatus' => 'Y',
+                    'VatPrcnt' => $vat_rate,
+                    'VatGroup' => $vat_code,
+                    'PriceAfVAT' => $rs->price,
+                    'VatSum' => round(get_vat_amount($rs->amount), 2),
+                    'GTotal' => round($rs->amount, 2),
+                    'TaxType' => 'Y',
+                    'F_E_Commerce' => 'A',
+                    'F_E_CommerceDate' => now()
+                  );
 
-                $line++;
+                  if( ! $this->ci->receive_transform_model->add_sap_receive_transform_detail($arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = 'เพิ่มรายการไม่สำเร็จ';
+                  }
+
+                  $line++;                  
+                }
               }
             }
             else
@@ -1950,6 +1953,7 @@ public function export_return_lend($code)
       if($doc->status == 1)
       {
         $middle = $this->ci->transfer_model->get_middle_transfer_doc($code);
+
         if(!empty($middle))
         {
           foreach($middle as $rows)
@@ -2012,44 +2016,47 @@ public function export_return_lend($code)
               $line = 0;
               foreach($details as $rs)
               {
-                $arr = array(
-                  'DocEntry' => $docEntry,
-                  'U_ECOMNO' => $rs->return_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => limitText($rs->product_name, 95),
-                  'Quantity' => $rs->qty,
-                  'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
-                  'PriceBefDi' => round(remove_vat($rs->price),6),
-                  'LineTotal' => round(remove_vat($rs->amount),6),
-                  'ShipDate' => $date_add,
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  //--- คำนวณส่วนลดจากยอดเงินกลับมาเป็น % (เพราะบางทีมีส่วนลดหลายชั้น)
-                  'DiscPrcnt' => 0.000000, ///--- discount_helper
-                  'Price' => round(remove_vat($rs->price),6),
-                  'TotalFrgn' => round(remove_vat($rs->amount),6),
-                  'FromWhsCod' => $doc->from_warehouse,
-                  'WhsCode' => $doc->to_warehouse,
-                  'F_FROM_BIN' => $doc->from_zone, //-- โซนต้นทาง
-                  'F_TO_BIN' => $doc->to_zone, //--- โซนปลายทาง
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => $vat_rate,
-                  'VatGroup' => $vat_code,
-                  'PriceAfVAT' => $rs->price,
-                  'VatSum' => round($rs->vat_amount,6),
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => 'A',
-                  'F_E_CommerceDate' => now()
-                );
-
-                if( ! $this->ci->transfer_model->add_sap_transfer_detail($arr))
+                if($rs->receive_qty > 0)
                 {
-                  $sc = FALSE;
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
+                  $arr = array(
+                    'DocEntry' => $docEntry,
+                    'U_ECOMNO' => $rs->return_code,
+                    'LineNum' => $line,
+                    'ItemCode' => $rs->product_code,
+                    'Dscription' => limitText($rs->product_name, 95),
+                    'Quantity' => $rs->receive_qty,
+                    'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
+                    'PriceBefDi' => round(remove_vat($rs->price),6),
+                    'LineTotal' => round(remove_vat($rs->amount),6),
+                    'ShipDate' => $date_add,
+                    'Currency' => $currency,
+                    'Rate' => 1,
+                    //--- คำนวณส่วนลดจากยอดเงินกลับมาเป็น % (เพราะบางทีมีส่วนลดหลายชั้น)
+                    'DiscPrcnt' => 0.000000, ///--- discount_helper
+                    'Price' => round(remove_vat($rs->price),6),
+                    'TotalFrgn' => round(remove_vat($rs->amount),6),
+                    'FromWhsCod' => $doc->from_warehouse,
+                    'WhsCode' => $doc->to_warehouse,
+                    'F_FROM_BIN' => $doc->from_zone, //-- โซนต้นทาง
+                    'F_TO_BIN' => $doc->to_zone, //--- โซนปลายทาง
+                    'TaxStatus' => 'Y',
+                    'VatPrcnt' => $vat_rate,
+                    'VatGroup' => $vat_code,
+                    'PriceAfVAT' => $rs->price,
+                    'VatSum' => round($rs->vat_amount,6),
+                    'TaxType' => 'Y',
+                    'F_E_Commerce' => 'A',
+                    'F_E_CommerceDate' => now()
+                  );
 
-                $line++;
+                  if( ! $this->ci->transfer_model->add_sap_transfer_detail($arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = 'เพิ่มรายการไม่สำเร็จ';
+                  }
+
+                  $line++;
+                }
               }
             }
             else

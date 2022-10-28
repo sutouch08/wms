@@ -111,6 +111,25 @@ class Return_lend_model extends CI_Model
 	}
 
 
+  public function get_detail_rows($code, $product_code)
+	{
+		$rs = $this->db
+		->select('rd.*, pd.unit_code')
+		->from('return_lend_detail AS rd')
+		->join('products AS pd', 'rd.product_code = pd.code', 'left')
+		->where('rd.return_code', $code)
+		->where('rd.product_code', $product_code)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
   //--- delete received details
   public function drop_details($code)
   {
@@ -144,16 +163,16 @@ class Return_lend_model extends CI_Model
   public function get_return_qty($return_code, $product_code)
   {
     $rs = $this->db
-    ->select('qty')
+    ->select('qty, receive_qty')
     ->where('return_code', $return_code)
     ->where('product_code', $product_code)
     ->get('return_lend_detail');
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->qty;
+      return $rs->row();
     }
 
-    return 0;
+    return NULL;
   }
 
 
@@ -161,7 +180,8 @@ class Return_lend_model extends CI_Model
   public function update_receive($code, $product_code, $qty)
   {
     $rs = $this->get_detail($code, $product_code);
-    if(!empty($rs))
+
+    if(! empty($rs))
     {
       $new_qty = $rs->receive + $qty;
 
@@ -303,7 +323,7 @@ class Return_lend_model extends CI_Model
 		{
 			$this->db->where('to_warehouse', $ds['warehouse']);
 		}
-		
+
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
@@ -376,6 +396,71 @@ class Return_lend_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_sap_doc_num($code)
+  {
+    $rs = $this->ms
+    ->select('DocNum')
+    ->where('U_ECOMNO', $code)
+    ->where('CANCELED', 'N')
+    ->get('OWTR');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->DocNum;
+    }
+
+    return NULL;
+  }
+
+
+  public function is_middle_exists($code)
+  {
+    $rs = $this->mc->select('DocStatus')->where('U_ECOMNO', $code)->get('OWTR');
+    if($rs->num_rows() === 1)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function get_middle_transfer_doc($code)
+  {
+    $rs = $this->mc
+    ->select('DocEntry')
+    ->where('U_ECOMNO', $code)
+    ->group_start()
+    ->where('F_Sap', 'N')
+    ->or_where('F_Sap IS NULL',NULL, FALSE)
+    ->group_end()
+    ->get('OWTR');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function drop_sap_exists_details($code)
+  {
+    return $this->mc->where('U_ECOMNO', $code)->delete('WTR1');
+  }
+
+
+  public function drop_middle_exits_data($docEntry)
+  {
+    $ds = $this->mc->where('DocEntry', $docEntry)->delete('WTR1');
+    $do = $this->mc->where('DocEntry', $docEntry)->delete('OWTR');
+
+    $sc = ($ds === TRUE && $do === TRUE) ? TRUE : FALSE;
+    return $sc;
   }
 
 

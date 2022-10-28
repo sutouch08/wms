@@ -1,7 +1,7 @@
 // JavaScript Document
 var HOME = BASE_URL + 'inventory/return_lend/';
 
-function goDelete(code){
+function goDelete(code) {
 	swal({
 		title: "คุณแน่ใจ ?",
 		text: "ต้องการยกเลิก '"+code+"' หรือไม่ ?",
@@ -10,33 +10,79 @@ function goDelete(code){
 		confirmButtonColor: "#DD6B55",
 		confirmButtonText: 'ใช่, ฉันต้องการ',
 		cancelButtonText: 'ไม่ใช่',
-		closeOnConfirm: false
+		closeOnConfirm: true
 		}, function(){
-			$.ajax({
-				url: HOME + 'cancle_return/'+code,
-				type:"POST",
-				cache:"false",
-				success: function(rs){
-					var rs = $.trim(rs);
-					if( rs == 'success' ){
-						swal({
-							title: 'Cancled',
-							type: 'success',
-							timer: 1000
-						});
-
-						setTimeout(function(){
-							window.location.reload();
-						}, 1200);
-
-					}else{
-						swal("Error !", rs, "error");
-					}
-				}
-			});
+			$('#cancle-code').val(code);
+			$('#cancle-reason').val('');
+			cancle_return(code);
 	});
 }
 
+
+function cancle_return(code)
+{
+	var reason = $.trim($('#cancle-reason').val());
+
+	if(reason == "")
+	{
+		$('#cancle-modal').modal('show');
+		return false;
+	}
+
+	load_in();
+
+	$.ajax({
+		url: HOME + 'cancle_return',
+		type:"POST",
+		cache:"false",
+		data: {
+			"return_code" : code,
+			"reason" : reason
+		},
+		success: function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if( rs == 'success' ) {
+				setTimeout(function() {
+					swal({
+						title: 'Cancled',
+						type: 'success',
+						timer: 1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}, 200);
+			}
+			else {
+				setTimeout(function() {
+					swal("Error !", rs, "error");
+				}, 200);
+			}
+		}
+	});
+}
+
+
+function doCancle() {
+	let code = $('#cancle-code').val();
+	let reason = $.trim($('#cancle-reason').val());
+
+	if( reason.length == 0 || code.length == 0) {
+		return false;
+	}
+
+	$('#cancle-modal').modal('hide');
+
+	return cancle_return(code);
+}
+
+
+
+$('#cancle-modal').on('shown.bs.modal', function() {
+	$('#cancle-reason').focus();
+});
 
 
 function goAdd(){
@@ -107,7 +153,7 @@ $("#toDate").datepicker({
 
 // JavaScript Document
 function printReturn(){
-	var code = $("#return_code").val();
+	var code = $("#code").val();
 	var center = ($(document).width() - 800) /2;
   var target = HOME + 'print_return/'+code;
   window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
@@ -115,7 +161,7 @@ function printReturn(){
 
 
 function printWmsReturn(){
-	var code = $("#return_code").val();
+	var code = $("#code").val();
 	var center = ($(document).width() - 800) /2;
   var target = HOME + 'print_wms_return/'+code;
   window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");

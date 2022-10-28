@@ -642,90 +642,103 @@ class Wms_auto_receive extends CI_Controller
 
 					foreach($details as $rs)
 					{
-						if($rs->qty > 0 && $sc === TRUE)
+            if($sc === FALSE)
+            {
+              break;
+            }
+
+            $temp_qty = $rs->qty;
+
+						if($temp_qty > 0 && $sc === TRUE)
 						{
-							$row = $this->return_lend_model->get_detail_by_product($order->code, $rs->product_code);
+							$rows = $this->return_lend_model->get_detail_rows($order->code, $rs->product_code);
 
-							if(!empty($row))
+							if( ! empty($rows))
 							{
-	              $amount = ($rs->qty * $row->price);
+                foreach($rows as $row)
+                {
+                  if($sc === FALSE)
+                  {
+                    break;
+                  }
 
-	              $arr = array(
-	                'qty' => round($rs->qty, 2),
-	                'amount' => $amount,
-	                'vat_amount' => get_vat_amount($amount),
-									'valid' => 1
-	              );
+                  $receive_qty = $temp_qty > $row->qty ? $row->qty : $temp_qty;
+                  $amount = $receive_qty * $row->price;
 
+                  $arr = array(
+                    'receive_qty' => round($receive_qty, 2),
+                    'amount' => $amount,
+                    'vat_amount' => get_vat_amount($amount),
+                    'valid' => 1
+                  );
 
-								if($this->return_lend_model->update_detail($row->id, $arr) === FALSE)
-								{
-									$sc = FALSE;
-									$this->error = 'Update detail failed';
-									break;
-								}
+                  if($this->return_lend_model->update_detail($row->id, $arr) === FALSE)
+                  {
+                    $sc = FALSE;
+                    $this->error = 'Update detail failed';
+                    break;
+                  }
 
-								//--- update movement in / out
-								if($sc === TRUE)
-								{
-									$move_out = array(
-										'reference' => $order->code,
-										'warehouse_code' => $order->from_warehouse,
-										'zone_code' => $order->from_zone,
-										'product_code' => $row->product_code,
-										'move_out' => $rs->qty,
-										'date_add' => db_date($date_add, TRUE)
-									);
+                  //--- update movement in / out
+                  if($sc === TRUE)
+                  {
+                    $move_out = array(
+                      'reference' => $order->code,
+                      'warehouse_code' => $order->from_warehouse,
+                      'zone_code' => $order->from_zone,
+                      'product_code' => $row->product_code,
+                      'move_out' => $receive_qty,
+                      'date_add' => db_date($date_add, TRUE)
+                    );
 
-									$move_in = array(
-										'reference' => $order->code,
-										'warehouse_code' => $order->to_warehouse,
-										'zone_code' => $order->to_zone,
-										'product_code' => $row->product_code,
-										'move_in' => $rs->qty,
-										'date_add' => db_date($date_add, TRUE)
-									);
+                    $move_in = array(
+                      'reference' => $order->code,
+                      'warehouse_code' => $order->to_warehouse,
+                      'zone_code' => $order->to_zone,
+                      'product_code' => $row->product_code,
+                      'move_in' => $receive_qty,
+                      'date_add' => db_date($date_add, TRUE)
+                    );
 
-									if($this->movement_model->add($move_out) === FALSE)
-									{
-										$sc = FALSE;
-										$this->error = 'บันทึก movement ออกไม่สำเร็จ';
-									}
+                    if($this->movement_model->add($move_out) === FALSE)
+                    {
+                      $sc = FALSE;
+                      $this->error = 'บันทึก movement ออกไม่สำเร็จ';
+                    }
 
-									if($this->movement_model->add($move_in) === FALSE)
-									{
-										$sc = FALSE;
-										$this->error = 'บันทึก movement เข้าไม่สำเร็จ';
-									}
+                    if($this->movement_model->add($move_in) === FALSE)
+                    {
+                      $sc = FALSE;
+                      $this->error = 'บันทึก movement เข้าไม่สำเร็จ';
+                    }
 
-									if(!$this->return_lend_model->update_receive($order->lend_code, $row->product_code, $rs->qty))
-		              {
-		                $sc = FALSE;
-		                $this->error = "Update ยอดรับไม่สำเร็จ {$rs->product_code}";
-		              }
-								}
-							} //---
+                    if(!$this->return_lend_model->update_receive($order->lend_code, $row->product_code, $receive_qty))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Update ยอดรับไม่สำเร็จ {$rs->product_code}";
+                    }
+                  }
+
+                  $temp_qty -= $receive_qty;
+                } //--- end foreach $rows
+							}
+              else
+              {
+                $sc = FALSE;
+                $this->error = "Invalid Product Code : {$rs->product_code}";
+              } //--- empty $rows
 						}//--- end if qty > 0
 					} //--- end foreach
 
 					if($sc === TRUE)
 					{
-						//---- drop not valid detail
-						if(! $this->return_lend_model->drop_not_valid_details($order->code))
-						{
-							$sc = FALSE;
-							$this->error = "ลบรายการที่ไม่มีจำนวนไม่สำเร็จ";
-						}
-						else
-						{
-							//--- เปลี่ยนสถานะเอกสาร
-							$arr = array(
-								'shipped_date' => $date_add,
-								'status' => 1
-							);
+            //--- เปลี่ยนสถานะเอกสาร
+            $arr = array(
+              'shipped_date' => $date_add,
+              'status' => 1
+            );
 
-							$this->return_lend_model->update($order->code, $arr);
-						}
+            $this->return_lend_model->update($order->code, $arr);            
 					}
 
 					if($sc === TRUE)
