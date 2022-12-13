@@ -9,14 +9,6 @@ function toggleCheckAll(el) {
 
 function deleteChecked(){
 	load_in();
-	// var count = $('.chk:checked').length;
-	// if(count > 0){
-	// 	$('.chk:checked').each(function(){
-	// 		var id = $(this).data('id');
-	// 		var no = $(this).val();
-	// 		removeRow(no, id);
-	// 	})
-	// }
 
 	setTimeout(function(){
 		$('.chk:checked').each(function(){
@@ -255,6 +247,7 @@ function updateHeader(){
 	}
 
   load_in();
+
 	$.ajax({
 		url:HOME + 'update',
 		type:'POST',
@@ -272,7 +265,8 @@ function updateHeader(){
 		},
 		success:function(rs){
 			load_out();
-			if(rs == 'success'){
+
+			if(rs == 'success') {
 				$('.edit').attr('disabled', 'disabled');
 				$('#btn-update').addClass('hide');
 				$('#btn-edit').removeClass('hide');
@@ -284,8 +278,9 @@ function updateHeader(){
 					showCancelButton: true,
 					cancelButtonText: 'No',
 					confirmButtonText: 'Yes',
-					closeOnConfirm: false
-				}, function(){
+					closeOnConfirm: true
+				}, function() {
+					load_in();
 					window.location.reload();
 				});
 			}
@@ -361,6 +356,21 @@ $('#warehouse').autocomplete({
 });
 
 
+$('#customer_code').autocomplete({
+	source:BASE_URL + 'auto_complete/get_customer_code_and_name',
+	autoFocus:true,
+	close:function(){
+		var arr = $(this).val().split(' | ');
+		if(arr.length == 2){
+			$('#customer_code').val(arr[0]);
+			$('#customer').val(arr[1]);
+		}else{
+			$('#customer_code').val('');
+			$('#customer').val('');
+		}
+	}
+});
+
 $('#customer').autocomplete({
 	source:BASE_URL + 'auto_complete/get_customer_code_and_name',
 	autoFocus:true,
@@ -377,20 +387,36 @@ $('#customer').autocomplete({
 });
 
 
+$('#zone_code').autocomplete({
+	source : BASE_URL + 'auto_complete/get_zone_code_and_name',
+	autoFocus:true,
+	close:function(){
+		var arr = $(this).val().split(' | ');
+		if(arr.length == 2){
+			$('#zone').val(arr[1]);
+			$('#zone_code').val(arr[0]);
+		}else{
+			$('#zone').val('');
+			$('#zone_code').val('');
+		}
+	}
+});
+
+
 $('#zone').autocomplete({
 	source : BASE_URL + 'auto_complete/get_zone_code_and_name',
 	autoFocus:true,
 	close:function(){
 		var arr = $(this).val().split(' | ');
 		if(arr.length == 2){
-			$(this).val(arr[1]);
+			$('#zone').val(arr[1]);
 			$('#zone_code').val(arr[0]);
 		}else{
-			$(this).val('');
+			$('#zone').val('');
 			$('#zone_code').val('');
 		}
 	}
-})
+});
 
 
 function recalRow(el, no) {
@@ -463,4 +489,4 @@ function removeRow(no, id){
 
 $(document).ready(function(){
 	load_out();
-})
+});

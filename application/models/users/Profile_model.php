@@ -7,6 +7,18 @@ class Profile_model extends CI_Model
   }
 
 
+  public function get_name($id)
+  {
+    $rs = $this->db->where('id', $id)->get('profile');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->name;
+    }
+
+    return NULL;
+  }
+
 
   public function add($name)
   {

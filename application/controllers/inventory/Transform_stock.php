@@ -411,12 +411,12 @@ class Transform_stock extends PS_Controller
 
       $order_code = $this->input->post('order_code');
       $id_order_detail  = $this->input->post('id_order_detail');
-      $original_product = $this->input->post('original_product');
-      $transform_product = $this->input->post('transform_product');
+      $original_product = trim($this->input->post('original_product'));
+      $transform_product = trim($this->input->post('transform_product'));
       $qty = intval($this->input->post('qty'));
 
       $order = $this->orders_model->get($order_code);
-      $sold = $this->invoice_model->get_total_sold_qty($order_code);
+      $sold = $this->invoice_model->get_item_sold_qty($order_code, $original_product);
       $sold_qty = $sold > $qty ? $qty : $sold;
       $valid = $order->state == 8 ? 1 : 0;
 

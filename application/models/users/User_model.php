@@ -8,6 +8,28 @@ class User_model extends CI_Model
 
 
 
+  public function get_all($all = TRUE)
+  {
+    $this->db
+    ->select('u.*')
+    ->select('p.name AS profile_name')
+    ->from('user AS u')
+    ->join('profile AS p', 'u.id_profile = p.id', 'left');
+
+    if( ! $all)
+    {
+      $this->db->where('active', 1);
+    }
+
+    $rs = $this->db->order_by('u.uname', 'ASC')->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+  }
+
+
   public function new_user(array $data = array())
   {
     if(!empty($data))
@@ -125,6 +147,46 @@ class User_model extends CI_Model
 
 
 
+  public function get_list(array $ds = array(), $perpage = 50, $offset = 0)
+  {
+
+		$this->db
+		->select('user.*, user.name AS dname, profile.name AS pname')
+		->from('user')
+		->join('profile', 'user.id_profile = profile.id', 'left');
+
+		if( ! empty($ds['uname']))
+		{
+			$this->db->like('user.uname', $ds['uname']);
+		}
+
+		if( ! empty($ds['dname']))
+		{
+			$this->db->like('user.name', $ds['dname']);
+		}
+
+		if( ! empty($ds['profile']))
+		{
+			$this->db->like('profile.name', $ds['profile']);
+		}
+
+    if(isset($ds['status']) && $ds['status'] != "" && $ds['status'] != 'all')
+    {
+      $this->db->where('user.active', $ds['status']);
+    }
+
+		$rs = $this->db->order_by('user.name', 'ASC')->limit($perpage, $offset)->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+    return NULL;
+  }
+
+
+
 
 
   public function count_rows(array $ds = array())
@@ -147,6 +209,11 @@ class User_model extends CI_Model
 		{
 			$this->db->like('profile.name', $ds['profile']);
 		}
+
+    if(isset($ds['status']) && $ds['status'] != "" && $ds['status'] != 'all')
+    {
+      $this->db->where('user.active', $ds['status']);
+    }
 
     return $this->db->count_all_results();
   }
@@ -210,7 +277,6 @@ class User_model extends CI_Model
     $rs = $this->db->where('menu', $menu)->where('id_profile', $id_profile)->get('permission');
     return $rs->num_rows() == 1 ? $rs->row() : FALSE;
   }
-
 
 
   //--- activate suspended user by id

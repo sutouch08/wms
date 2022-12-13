@@ -1,57 +1,68 @@
 <div class="row">
-  <div class="col-sm-1 col-1-harf col-xs-12 padding-5 first">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
     <label>บาร์โค้ดสินค้า</label>
     <input type="text" class="form-control input-sm" id="barcode-item" />
   </div>
-  <div class="col-sm-2 col-xs-12 padding-5">
+  <div class="col-lg-2-harf col-md-2 col-sm-4 col-xs-8 padding-5">
     <label>สินค้า</label>
     <input type="text" class="form-control input-sm" id="item-code" />
   </div>
 
-  <div class="col-sm-1 col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-4 padding-5">
     <label>ราคา</label>
     <input type="number" class="form-control input-sm text-center" id="txt-price" />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
     <label>ส่วนลด</label>
     <input type="text" class="form-control input-sm text-center" id="txt-disc" />
   </div>
 
-  <div class="col-sm-1 col-xs-4 padding-5">
+  <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4 padding-5">
     <label>ในโซน</label>
     <label class="form-control input-sm text-center blue" style="margin-bottom:0px;" id="stock-qty">0</label>
   </div>
-  <div class="col-sm-1 col-xs-4 padding-5">
+  <div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-4 padding-5">
     <label>จำนวน</label>
     <input type="number" class="form-control input-sm text-center" id="txt-qty" />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-4 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-4 padding-5">
     <label>มูลค่า</label>
     <span class="form-control input-sm text-center" id="txt-amount">0</span>
   </div>
 
-  <div class="col-sm-1 col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-2 padding-5">
     <label class="display-block not-show">submit</label>
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addToDetail()">เพิ่ม</button>
   </div>
-  <div class="col-sm-1 col-xs-6 padding-5 last">
+  <div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-2 padding-5">
     <label class="display-block not-show">Reset</label>
     <button type="button" class="btn btn-xs btn-default btn-block" onclick="clearFields()">เคลียร์</button>
   </div>
 </div>
 <hr class="margin-top-15 margin-bottom-15">
 <div class="row">
-  <div class="col-sm-3 padding-5 first">
+  <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-8 padding-5">
     <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="ค้นรหัสสินค้า" />
   </div>
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()"><i class="fa fa-tags"></i> แสดงสินค้า</button>
   </div>
 
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12">&nbsp;</div>
+
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+    <input type="text" class="form-control input-sm text-center" name="ref_code" id="ref_code" value="<?php echo $doc->ref_code; ?>" disabled>
+  </div>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <button type="button" class="btn btn-xs btn-danger btn-block" onclick="clearImportDetail('<?php echo $doc->ref_code; ?>')">
+      ลบการนำเข้า
+    </button>
+  </div>
+
   <?php if($this->pm->can_add OR $this->pm->can_edit OR $this->pm->can_delete) : ?>
-  <div class="col-sm-1 col-1-harf col-sm-offset-6 padding-5 last">
+  <div class="col-lg-4-harf col-md-3-harf col-sm-3 col-xs-4 padding-5 text-right">
     <button type="button" class="btn btn-xs btn-danger btn-clock" onclick="clearAll()"><i class="fa fa-trash"></i> ลบทั้งหมด</button>
   </div>
   <?php endif; ?>

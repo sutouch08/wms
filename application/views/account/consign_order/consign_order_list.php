@@ -1,44 +1,43 @@
 <?php $this->load->view('include/header'); ?>
-<div class="row top-row">
-  <div class="col-sm-6 col-xs-6">
-    <h4 class="title"><?php echo $this->title; ?></h4>
+<div class="row">
+  <div class="col-lg-6 col-md-6 col-sm-8 col-xs-8 padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-sm-6 col-xs-6">
+  <div class="col-lg-6 col-md-6 col-sm-4 col-xs-4 padding-5">
     <p class="pull-right top-p">
 <?php if( $this->pm->can_add ) : ?>
-      <button type="button" class="btn btn-xs btn-success" onclick="goAdd()">
+      <button type="button" class="btn btn-xs btn-success top-btn" onclick="goAdd()">
         <i class="fa fa-plus"></i> สร้างใหม่
       </button>
 <?php endif; ?>
     </p>
   </div>
 </div>
-
 <hr/>
 
 <form id="searchForm" method="post">
 <div class="row">
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
-    <label>เลขที่เอกสาร</label>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label>เลขที่</label>
     <input type="text" class="form-control input-sm search text-center" name="code" id="code" value="<?php echo $code; ?>" autofocus />
   </div>
 
-  <div class="col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search text-center" name="customer" id="customer" value="<?php echo $customer; ?>" />
   </div>
 
-  <div class="col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>โซน</label>
     <input type="text" class="form-control input-sm search text-center" name="zone" id="zone" value="<?php echo $zone; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>อ้างอิง</label>
     <input type="text" class="form-control input-sm search text-center" name="ref_code" id="ref_code" value="<?php echo $ref_code; ?>" />
   </div>
 
-  <div class="col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label class="display-block">วันที่</label>
     <div class="input-daterange input-group">
         <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>">
@@ -46,7 +45,7 @@
       </div>
   </div>
 
-  <div class="col-sm-1 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" id="status" onchange="getSearch()">
       <option value="all" <?php echo is_selected($status, 'all'); ?>>ทั้งหมด</option>
@@ -56,14 +55,14 @@
     </select>
   </div>
 
-  <div class="col-sm-1 col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5">
     <label class="display-block not-show">search</label>
-    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> ค้นหา</button>
+    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()">ค้นหา</button>
   </div>
 
-  <div class="col-sm-1 col-xs-6 padding-5 last">
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5">
     <label class="display-block not-show">Reset</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>
 </div>
 </form>
@@ -71,7 +70,7 @@
 
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-  <div class="col-sm-12 col-xs-12 last">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <p class="pull-right top-p">
       <span>ว่าง</span><span class="margin-right-15"> = ปกติ</span>
       <span class="blue">NC</span><span class="margin-right-15"> = ยังไม่บันทึก</span>
@@ -81,19 +80,19 @@
 </div>
 
 <div class="row">
-   <div class="col-sm-12 col-xs-12 first last table-responsive">
-     <table class="table table-striped border-1">
+   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
+     <table class="table table-striped border-1" style="min-width:1200px;">
        <thead>
          <tr class="font-size-12">
-           <th class="width-5 text-center">ลำดับ</th>
-           <th class="width-10">วันที่</th>
-           <th class="width-10">เลขที่เอกสาร</th>
-           <th class="width-25">ลูกค้า</th>
-           <th class="">โซน</th>
-           <th class="width-10 text-right">มูลค่า</th>
-           <th class="width-10 text-center">อ้างอิง</th>
-           <th class="width-5 text-center">สถานะ</th>
-           <th class="width-8"></th>
+           <th class="fix-width-40 text-center">#</th>
+           <th class="fix-width-100">วันที่</th>
+           <th class="fix-width-120">เลขที่เอกสาร</th>
+           <th class="fix-width-350">ลูกค้า</th>
+           <th class="fix-width-250">โซน</th>
+           <th class="fix-width-100 text-right">มูลค่า</th>
+           <th class="fix-width-100 text-center">อ้างอิง</th>
+           <th class="fix-width-40 text-center">สถานะ</th>
+           <th class="fix-width-100"></th>
          </tr>
        </thead>
        <tbody>
@@ -154,5 +153,6 @@
      </table>
    </div>
  </div>
+ <?php $this->load->view('cancle_modal'); ?>
 <script src="<?php echo base_url(); ?>scripts/account/consign_order/consign_order.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

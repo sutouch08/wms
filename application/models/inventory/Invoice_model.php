@@ -70,6 +70,20 @@ class Invoice_model extends CI_Model
 
 
 
+  public function get_item_sold_qty($code, $product_code)
+  {
+    $rs = $this->db->select_sum('qty')->where('reference', $code)->where('product_code', $product_code)->get('order_sold');
+
+    if($rs->num_rows() === 1)
+    {
+      return intval($rs->row()->qty);
+    }
+
+    return 0;
+  }
+
+
+
   public function drop_sold($id)
   {
     return $this->db->where('id', $id)->delete('order_sold');
@@ -94,7 +108,7 @@ class Invoice_model extends CI_Model
     {
       $control_day = getConfig('OVER_DUE_DATE');
 			$control_day++;
-			
+
       $rs = $this->ms
       ->select('DocEntry', FALSE)
       ->where('CardCode', $customer_code)

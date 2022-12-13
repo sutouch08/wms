@@ -120,7 +120,7 @@ class Document_model extends CI_Model
 		->select('date_add, code, order_code AS reference, inv_code, status, cancle_reason AS reason')
 		->where('date_add >=', from_date($fromDate))
 		->where('date_add <=', to_date($toDate))
-		->get('receive_transfrom');
+		->get('receive_transform');
 
 		if($rs->num_rows() > 0)
 		{

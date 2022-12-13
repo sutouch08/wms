@@ -1,7 +1,7 @@
 var validUname = true;
 var validDname = true;
 var validPwd = true;
-
+var HOME = BASE_URL + 'users/users/';
 
 
 function newUser(){
@@ -315,4 +315,72 @@ function disActive(id){
 
 function getSearch(){
   $('#searchForm').submit();
+}
+
+
+
+function getPermission(id) {
+  load_in();
+  $('#user_id').val(id);
+  $.ajax({
+    url:HOME + 'get_user_permissions/'+id,
+    type:'GET',
+    cache:false,
+    success:function(rs) {
+      load_out();
+
+      if( isJson(rs)) {
+        let ds = $.parseJSON(rs);
+
+        console.log(ds);
+        let source = $('#permission-template').html();
+        let output = $('#permission-result');
+
+        $('#permission-text').text(ds.header);
+
+        render(source, ds, output);
+
+        $('#permission-modal').modal('show');
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  });
+}
+
+
+function CloseModal() {
+  $('#permission-modal').modal('hide');
+}
+
+function CloseModalAll() {
+  $('#all-permission-modal').modal('hide');
+}
+
+
+function doExport() {
+  let token = Date.now();
+  $('#token').val(token);
+  $('#permission-modal').modal('hide');
+  get_download(token);
+  $('#permission-form').submit();
+}
+
+
+function getAllPermission() {
+  $('#all-permission-modal').modal('show');
+}
+
+function exportAll(option) {
+  let token = Date.now();
+  $('#all').val(option);
+  $('#all-token').val(token);
+  $('#all-permission-modal').modal('hide');
+  get_download(token);
+  $('#all-permission-form').submit();
 }

@@ -126,6 +126,25 @@ $('#date').datepicker({
 
 
 
+$("#customerCode").autocomplete({
+	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
+	autoFocus: true,
+	close: function(){
+		var rs = $.trim($(this).val());
+		var arr = rs.split(' | ');
+		if( arr.length == 2 ){
+			var code = arr[0];
+			var name = arr[1];
+			$("#customerCode").val(code);
+			$("#customer").val(name);
+      zoneInit(code, true);
+		}else{
+			$("#customerCode").val('');
+			$("#customer").val('');
+      zoneInit('');
+		}
+	}
+});
 
 
 $("#customer").autocomplete({
@@ -137,14 +156,12 @@ $("#customer").autocomplete({
 		if( arr.length == 2 ){
 			var code = arr[0];
 			var name = arr[1];
-			$("#customerCode").val(code);
-      $("#customer-code").val(code);
+      $("#customerCode").val(code);
 			$("#customer").val(name);
       zoneInit(code, true);
 		}else{
-			$("#customerCode").val('');
-      $('#customer-code').val('');
-			$(this).val('');
+      $("#customerCode").val('');
+			$("#customer").val('');
       zoneInit('');
 		}
 	}
@@ -165,9 +182,8 @@ $(document).ready(function(){
 
 
 
-function zoneInit(customer_code, edit)
-{
-  if(edit){
+function zoneInit(customer_code, edit) {
+  if(edit) {
     $('#zone_code').val('');
     $('#zone').val('');
   }
@@ -189,7 +205,26 @@ function zoneInit(customer_code, edit)
         $('#zone').val('');
       }
     }
-  })
+  });
+
+  $('#zone_code').autocomplete({
+    source:BASE_URL + 'auto_complete/get_consign_zone/' + customer_code,
+    autoFocus: true,
+    close:function(){
+      var rs = $.trim($(this).val());
+      var arr = rs.split(' | ');
+      if(arr.length == 2)
+      {
+        var code = arr[0];
+        var name = arr[1];
+        $('#zone_code').val(code);
+        $('#zone').val(name);
+      }else{
+        $('#zone_code').val('');
+        $('#zone').val('');
+      }
+    }
+  });
 }
 
 
@@ -244,7 +279,7 @@ function update(){
   let customer_name = $('#customer').val();
   let zone_code = $('#zone_code').val();
   let zone_name = $('#zone').val();
-
+  
   if(!isDate(date)){
     swal('วันที่ไม่ถูกต้อง');
     return false;
@@ -260,6 +295,7 @@ function update(){
     swal('โซนไม่ถูกต้อง');
     return false;
   }
+
 
   load_in();
   $.ajax({

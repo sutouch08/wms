@@ -680,6 +680,7 @@ class Return_order extends PS_Controller
   public function cancle_return($code)
   {
     $sc = TRUE;
+
     if($this->pm->can_delete)
     {
 			$doc = $this->return_order_model->get($code);
@@ -698,9 +699,15 @@ class Return_order extends PS_Controller
 						{
 							if($this->drop_middle_exits_data($code))
 							{
+                $arr = array(
+                  'status' => 2,
+                  'cancle_reason' => trim($this->input->post('reason')),
+                  'cancle_user' => $this->_user->uname
+                );
+
 								$this->db->trans_start();
+                $this->return_order_model->update($code, $arr);
 					      $this->return_order_model->set_status($code, 2);
-					      $this->return_order_model->cancle_details($code);
 					      $this->db->trans_complete();
 
 					      if($this->db->trans_status() === FALSE)

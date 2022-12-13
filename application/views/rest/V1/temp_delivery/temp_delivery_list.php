@@ -144,6 +144,11 @@
 								<i class="fa fa-trash"></i>
 							</button>
 						<?php endif; ?>
+						<?php if($this->_SuperAdmin && $rs->status != 0) : ?>
+							<button type="button" class="btn btn-minier btn-warning" onclick="rollBackStatus(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
+								<i class="fa fa-refresh"></i>
+							</button>
+						<?php endif; ?>
 					</td>
         </tr>
 <?php  $no++; ?>
@@ -160,6 +165,57 @@
 
 <script src="<?php echo base_url(); ?>scripts/wms/wms_temp_delivery.js?v=<?php echo date('Ymd'); ?>"></script>
 <script>
+	function rollBackStatus(id, code) {
+		swal({
+			title:"Are you sure ?",
+			text:'ต้องการ rollback '+code+' หรือไม่ ?',
+			type:'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#DD6855',
+			confirmButtonText: 'ดำเนินการ',
+			cancelButtonText: 'ยกเลิก',
+			closeOnConfirm: true
+		}, function() {
+			load_in();
+			$.ajax({
+				url:BASE_URL + "rest/V1/wms_temp_delivery/rollback_status",
+				type:"POST",
+				cache:false,
+				data:{
+					"id" : id
+				},
+				success:function(rs) {
+					load_out();
+
+					if(rs === 'success') {
+						setTimeout(function() {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							setTimeout(function() {
+								window.location.reload();
+							}, 1200);
+
+						}, 200);
+					}
+					else {
+						setTimeout(function() {
+							swal({
+								title:'Error!',
+								text:rs,
+								type:'error'
+							});
+						}, 200);
+					}
+				}
+			});
+		});
+	}
+
+
 	function closeOrder(id, code) {
 		swal({
 			title:"Are you sure ?",

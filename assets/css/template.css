@@ -1787,6 +1787,10 @@ input[type=number]::-webkit-outer-spin-button {
 	width:40px !important;
 }
 
+.fix-width-50 {
+  width:50px !important;
+}
+
 .fix-width-60 {
 	width:60px !important;
 }
@@ -1805,6 +1809,10 @@ input[type=number]::-webkit-outer-spin-button {
 
 .fix-width-150 {
 	width:150px !important;
+}
+
+.fix-width-175 {
+  width:175px !important;
 }
 
 .fix-width-200 {

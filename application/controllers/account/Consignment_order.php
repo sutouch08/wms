@@ -5,7 +5,7 @@ class Consignment_order extends PS_Controller
   public $menu_code = 'ACCMOD';
 	public $menu_group_code = 'AC';
   public $menu_sub_group_code = '';
-	public $title = 'ตัดยอดขาย(เปิดใบกำกับภาษีเมื่อส่งของ)';
+	public $title = 'ตัดยอดฝากขาย(เทียม)';
   public $filter;
   public $error;
   public function __construct()
@@ -148,6 +148,7 @@ class Consignment_order extends PS_Controller
     $this->load->helper('print');
     $doc = $this->consignment_order_model->get($code);
     $details = $this->consignment_order_model->get_details($code);
+
     if(!empty($details))
     {
       foreach($details as $rs)
@@ -155,6 +156,7 @@ class Consignment_order extends PS_Controller
         $rs->barcode = $this->products_model->get_barcode($rs->product_code);
       }
     }
+
     $gb_auz = getConfig('ALLOW_UNDER_ZERO');
     $wh_auz = $this->warehouse_model->is_auz($doc->warehouse_code);
     $auz = $gb_auz == 1 ? 1 : ($wh_auz === TRUE ? 1 : 0);
@@ -225,7 +227,13 @@ class Consignment_order extends PS_Controller
         }
         else
         {
-          if(! $this->consignment_order_model->change_status($code, 2))
+          $arr = array(
+            'status' => 2,
+            'cancle_reason' => $this->input->post('reason'),
+            'cancle_user' => $this->_user->uname
+          );
+
+          if(! $this->consignment_order_model->update($code, $arr))
           {
             $sc = FALSE;
             $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";

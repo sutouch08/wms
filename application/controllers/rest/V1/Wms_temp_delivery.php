@@ -85,6 +85,26 @@ class Wms_temp_delivery extends PS_Controller
 	}
 
 
+
+	public function rollback_status()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+
+		$arr = array(
+			'status' => 0
+		);
+
+		if( ! $this->wms_temp_order_model->update($id, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
 	public function clear_filter()
 	{
 		$filter = array(

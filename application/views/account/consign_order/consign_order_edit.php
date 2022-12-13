@@ -1,99 +1,81 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-4 col-xs-5">
-    <h4 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-    <div class="col-sm-8 col-xs-7">
-    	<p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-				<button type="button" class="btn btn-sm btn-default hidden-xs" onclick="getSample()">
-	        <i class="fa fa-download"></i> ไฟล์ตัวอย่าง
+	<div class="col-lg-4 col-md-4 col-sm-4 padding-5 hidden-xs">
+    <h3 class="title"><?php echo $this->title; ?></h3>
+  </div>
+	<div class="col-xs-12 padding-5 visible-xs">
+		<h3 class="title-xs"><?php echo $this->title; ?></h3>
+	</div>
+  <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5">
+  	<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+			<button type="button" class="btn btn-sm btn-default top-btn" onclick="getSample()">
+	       <i class="fa fa-download"></i> ไฟล์ตัวอย่าง
+	     </button>
+			<?php if(($this->pm->can_add OR $this->pm->can_edit) && $doc->status == 0) : ?>
+				<button type="button" class="btn btn-sm btn-primary top-btn" onclick="getUploadFile()">
+	        นำเข้าจากไฟล์ Excel
 	      </button>
-				<?php if(($this->pm->can_add OR $this->pm->can_edit) && $doc->status == 0) : ?>
-					<button type="button" class="btn btn-sm btn-primary hidden-xs" onclick="getUploadFile()">
-		        นำเข้าจากไฟล์ Excel
+				<?php if(empty($doc->ref_code)) : ?>
+					<button type="button" class="btn btn-sm btn-info top-btn" onclick="getActiveCheckList()">
+		        โหลดเอกสารกระทบยอด
 		      </button>
-					<?php if(empty($doc->ref_code)) : ?>
-						<button type="button" class="btn btn-sm btn-info hidden-xs" onclick="getActiveCheckList()">
-			        โหลดเอกสารกระทบยอด
-			      </button>
-					<?php endif; ?>
-					<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-					<button type="button" class="btn btn-sm btn-success" onclick="saveConsign()">
-		        <i class="fa fa-save"></i> บันทึก
-		      </button>
-					<?php endif; ?>
 				<?php endif; ?>
-      </p>
-    </div>
+				<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+				<button type="button" class="btn btn-sm btn-success top-btn" onclick="saveConsign()">
+	        <i class="fa fa-save"></i> บันทึก
+	      </button>
+				<?php endif; ?>
+			<?php endif; ?>
+    </p>
+  </div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="addForm" method="post" action="<?php echo $this->home; ?>/update">
 <div class="row">
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center edit" name="date_add" id="date" value="<?php echo thai_date($doc->date_add); ?>" readonly disabled />
   </div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>รหัสลูกค้า</label>
-		<input type="text" class="form-control input-sm text-center" id="customer-code" value="<?php echo $doc->customer_code; ?>" disabled>
+		<input type="text" class="form-control input-sm text-center edit" name="customerCode" id="customerCode" value="<?php echo $doc->customer_code; ?>" disabled>
 	</div>
-  <div class="col-sm-3 col-xs-12 padding-5">
+  <div class="col-lg-7 col-md-6-harf col-sm-6-harf col-xs-12 padding-5">
     <label>ลูกค้า[ในระบบ]</label>
     <input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled />
   </div>
 
-	<div class="col-sm-4 col-4-harf col-xs-12 padding-5 last">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>รหัสโซน</label>
+		<input type="text" class="form-control input-sm text-center edit" id="zone_code" name="zone_code" value="<?php echo $doc->zone_code; ?>" disabled />
+	</div>
+
+	<div class="col-lg-5 col-md-4-harf col-sm-4-harf col-xs-8 padding-5">
     <label>โซน[ฝากขาย]</label>
 		<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
   </div>
 
-
-<?php if(!empty($doc->ref_code) && $this->pm->can_edit) : ?>
-	<div class="col-sm-2 col-xs-8 padding-5 first">
-    <label>อ้างอิง</label>
-    <input type="text" class="form-control input-sm text-center" name="ref_code" id="ref_code" value="<?php echo $doc->ref_code; ?>" disabled>
-  </div>
-	<div class="col-sm-1 col-xs-4 padding-5">
-		<label class="display-block not-show">remove</label>
-		<button type="button" class="btn btn-xs btn-danger btn-block" onclick="clearImportDetail('<?php echo $doc->ref_code; ?>')">
-			ลบการนำเข้า
-		</button>
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-9 padding-5">
+		<label>หมายเหตุ</label>
+		<input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled />
 	</div>
-	<div class="col-sm-8 col-xs-12 padding-5">
-    <label>หมายเหตุ</label>
-    <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
-  </div>
-<?php else : ?>
-	<div class="col-sm-2 col-xs-12 padding-5 hidden-xs first">
-    <label>อ้างอิง</label>
-    <input type="text" class="form-control input-sm text-center" name="ref_code" id="ref_code" value="<?php echo $doc->ref_code; ?>" disabled>
-  </div>
-	<div class="col-sm-9 col-xs-12 padding-5">
-    <label>หมายเหตุ</label>
-    <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
-  </div>
-<?php endif; ?>
 
-  <div class="col-sm-1 col-xs-12 padding-5 last">
+<?php if($this->pm->can_edit) : ?>
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">Submit</label>
-  <?php if($this->pm->can_edit) : ?>
     <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"></i class="fa fa-pencil"></i> แก้ไข</button>
     <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="update()"><i class="fa fa-save"></i> บันทึก</button>
-  <?php endif; ?>
   </div>
+<?php endif; ?>
 </div>
 <hr class="margin-top-15">
 <input type="hidden" name="consign_code" id="consign_code" value="<?php echo $doc->code; ?>">
-<input type="hidden" name="customer_code" id="customerCode" value="<?php echo $doc->customer_code; ?>">
-<input type="hidden" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" >
 <input type="hidden" name="auz" id="auz" value="<?php echo $auz; ?>">
 </form>
 

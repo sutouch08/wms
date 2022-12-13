@@ -126,6 +126,25 @@ $('#date').datepicker({
 
 
 
+$("#customerCode").autocomplete({
+	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
+	autoFocus: true,
+	close: function(){
+		var rs = $.trim($(this).val());
+		var arr = rs.split(' | ');
+		if( arr.length == 2 ){
+			var code = arr[0];
+			var name = arr[1];
+			$("#customerCode").val(code);
+			$("#customer").val(name);
+      zoneInit(code, true);
+		}else{
+			$("#customerCode").val('');
+			$("#customer").val('');
+      zoneInit('');
+		}
+	}
+});
 
 
 $("#customer").autocomplete({
@@ -164,7 +183,7 @@ $(document).ready(function(){
 
 function zoneInit(customer_code, edit)
 {
-  if(edit){
+  if(edit) {
     $('#zone_code').val('');
     $('#zone').val('');
   }
@@ -186,7 +205,26 @@ function zoneInit(customer_code, edit)
         $('#zone').val('');
       }
     }
-  })
+  });
+
+  $('#zone_code').autocomplete({
+    source:BASE_URL + 'auto_complete/get_consign_zone/' + customer_code,
+    autoFocus: true,
+    close:function(){
+      var rs = $.trim($(this).val());
+      var arr = rs.split(' | ');
+      if(arr.length == 2)
+      {
+        var code = arr[0];
+        var name = arr[1];
+        $('#zone_code').val(code);
+        $('#zone').val(name);
+      }else{
+        $('#zone_code').val('');
+        $('#zone').val('');
+      }
+    }
+  });
 }
 
 
@@ -233,17 +271,33 @@ function getEdit(){
 }
 
 
-function update(){
+function update() {
   let code = $('#consign_code').val();
   let date = $('#date').val();
   let remark = $('#remark').val();
+  var customer_code = $('#customerCode').val();
+  var customer_name = $('#customer').val();
+  var zone_code = $('#zone_code').val();
+  var zone_name = $('#zone').val();
 
   if(!isDate(date)){
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
+  if(customer_code.length == 0 || customer_name.length == 0){
+    swal('ชื่อลูกค้าไม่ถูกต้อง');
+    return false;
+  }
+
+  if(zone_code.length == 0 || zone_name.length == 0)
+  {
+    swal('โซนไม่ถูกต้อง');
+    return false;
+  }
+
   load_in();
+
   $.ajax({
     url: HOME + 'update',
     type:'POST',
@@ -403,7 +457,13 @@ function unSave(id){
 
 
 //--- ลบรายการนำเข้ายอดต่าง
-function clearImportDetail(check_code){
+function clearImportDetail() {
+  let check_code = $('#ref_code').val();
+
+  if(check_code.length == 0) {
+    return false;
+  }
+
   swal({
 		title: "คุณแน่ใจ ?",
 		text: "ต้องการลบรายการนำเข้าจาก '"+ check_code +"' หรือไม่ ?",

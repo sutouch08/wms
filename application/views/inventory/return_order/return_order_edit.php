@@ -1,145 +1,118 @@
 <?php $this->load->view('include/header'); ?>
-<script>
-	var x = ($(document).innerWidth()/2)-50;
-	$("#loader").css("display","");
-	$("#loader").css("left",x);
-	$("#loader").animate({opacity:0.8, top:300},300);
-</script>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
-    	<h3 class="title" >
-        <?php echo $this->title; ?>
-      </h3>
-	</div>
-    <div class="col-sm-6 col-xs-6 padding-5">
-      <p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-	<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
+	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
+  </div>
+	<div class="col-xs-12 visible-xs padding-5">
+    <h3 class="title-xs"><?php echo $this->title; ?></h3>
+  </div>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+    <p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
-	<?php endif; ?>
-	<?php if($doc->status == 1 && $this->pm->can_approve) : ?>
+<?php endif; ?>
+<?php if($doc->status == 1 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-sm btn-primary" id="btn-approve" onclick="approve()"><i class="fa fa-save"></i> อนุมัติ</button>
-	<?php endif; ?>
-      </p>
-    </div>
+<?php endif; ?>
+    </p>
+  </div>
 </div>
 <hr />
 
-
 <div class="row">
-    <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    	<label>เลขที่เอกสาร</label>
-        <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
-    </div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    	<label>วันที่</label>
-      <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
-    </div>
-		<div class="col-sm-2 col-xs-6 padding-5">
-			<label>เลขที่บิล[SAP]</label>
-			<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
-		</div>
-		<div class="col-sm-4 col-xs-6 padding-5">
-			<label>ลูกค้า</label>
-			<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
-		</div>
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+  	<label>เลขที่เอกสาร</label>
+    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
+  </div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  	<label>วันที่</label>
+    <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
+  </div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>เลขที่บิล[SAP]</label>
+		<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
+	</div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>รหัสลูกค้า</label>
+		<input type="text" class="form-control input-sm text-center edit" name="customer_code" id="customer_code" value="<?php echo $doc->customer_code; ?>" disabled />
+	</div>
+	<div class="col-lg-6 col-md-5 col-sm-5 col-xs-8 padding-5">
+		<label>ชื่อลูกค้า</label>
+		<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
+	</div>
+	<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-4 padding-5">
+		<label>รหัสโซน</label>
+		<input type="text" class="form-control input-sm text-center edit" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" disabled />
+	</div>
+	<div class="col-lg-6-harf col-md-6-harf col-sm-6-harf col-xs-8 padding-5">
+		<label>ชื่อโซน]</label>
+		<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
+	</div>
 
-		<div class="col-sm-3 col-xs-6 padding-5">
-			<label>โซน[รับคืน]</label>
-			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
-		</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>การรับ</label>
+		<select class="form-control input-sm edit" name="is_wms" id="is_wms" disabled>
+			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</optoin>
+			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
+		</select>
+	</div>
 
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-			<label>รับที่</label>
-			<select class="form-control input-sm edit" name="is_wms" id="is_wms" disabled>
-				<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</optoin>
-				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
-			</select>
-		</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>Interface</label>
+		<select class="form-control input-sm edit" name="api" id="api" disabled>
+			<option value="1" <?php echo is_selected('1', $doc->api); ?>>ส่ง</option>
+			<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
+		</select>
+	</div>
 
-		<div class="col-sm-1 col-xs-6 padding-5">
-			<label>Interface</label>
-			<select class="form-control input-sm edit" name="api" id="api" disabled>
-				<option value="1" <?php echo is_selected('1', $doc->api); ?>>ส่ง</option>
-				<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
-			</select>
-		</div>
-
-    <div class="col-sm-8 col-8-harf col-xs-8 padding-5">
-    	<label>หมายเหตุ</label>
-        <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
-    </div>
-		<div class="col-sm-1 col-xs-4 padding-5">
-			<label class="display-block not-show">save</label>
-			<?php 	if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
-							<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">แก้ไข</button>
-							<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="updateHeader()">ปรับปรุง</button>
-			<?php	endif; ?>
-		</div>
+  <div class="col-lg-10-harf col-md-10-harf col-sm-10-harf col-xs-9 padding-5">
+  	<label>หมายเหตุ</label>
+    <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
+  </div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">save</label>
+<?php 	if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
+					<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">แก้ไข</button>
+					<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="updateHeader()">ปรับปรุง</button>
+<?php	endif; ?>
+	</div>
 </div>
 
 <input type="hidden" id="return_code" value="<?php echo $doc->code; ?>" />
-<input type="hidden" id="customer_code" value="<?php echo $doc->customer_code; ?>" />
 <input type="hidden" name="warehouse_code" id="warehouse_code" value="<?php echo $doc->warehouse_code; ?>"/>
-<input type="hidden" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" />
 <input type="hidden" name="invoice_code" id="invoice_code" value="<?php echo $doc->invoice; ?>" />
-
 
 <hr class="margin-top-15"/>
 <div class="row">
-	<!--
-	<div class="col-sm-1 padding-5 first">
-    	<label>จำนวน</label>
-        <input type="number" class="form-control input-sm text-center" id="qty" value="1" />
-    </div>
-    <div class="col-sm-2 padding-5">
-    	<label>บาร์โค้ดสินค้า</label>
-        <input type="text" class="form-control input-sm text-center" id="barcode" placeholder="ยิงบาร์โค้ดเพื่อรับสินค้า" autocomplete="off"  />
-    </div>
-    <div class="col-sm-1 padding-5">
-    	<label class="display-block not-show">ok</label>
-        <button type="button" class="btn btn-xs btn-primary" onclick="doReceive()"><i class="fa fa-check"></i> ตกลง</button>
-    </div>
-	-->
-
-	<div class="col-sm-2 col-sm-offset-10 padding-5 last">
+	<div class="col-lg-10 col-md-9-harf col-sm-9 col-xs-6 padding-5">&nbsp;</div>
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 		<button type="button" class="btn btn-sm btn-danger btn-block" onclick="deleteChecked()"><i class="fa fa-trash"></i> ลบรายการที่เลือก</button>
 	</div>
-
-	<!--
-	<div class="col-sm-2 col-sm-offset-9 padding-5">
-		<label>เพิ่มบิล[SAP]</label>
-		<input type="text" class="form-control input-sm text-center" id="invoice-box" placeholder="ดึงใบกำกับเพิ่มเติม" />
-	</div>
-	<div class="col-sm-1 padding-5 last">
-		<label class="display-block not-show">btn</label>
-		<button type="button" class="btn btn-xs btn-info btn-block" onclick="load_invoice()">ดึงข้อมูล</button>
-	</div>
-	-->
 </div>
 
 <hr class=""/>
 <form id="detailsForm" method="post" action="<?php echo $this->home.'/add_details/'.$doc->code; ?>">
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-striped border-1" style="margin-bottom:0px; min-width:1200px;">
 			<thead>
 				<tr>
-					<th class="width-5 text-center">ลำดับ</th>
-					<th class="width-5 text-center">
+					<th class="fix-width-40 text-center">ลำดับ</th>
+					<th class="fix-width-40 text-center">
 					<input type="checkbox" id="chk-all" class="ace" onchange="toggleCheckAll($(this))"/>
 					<span class="lbl"></span>
 					</th>
-					<th class="width-10">บาร์โค้ด</th>
-					<th class="">สินค้า</th>
-					<th class="width-8 text-center">อ้างอิง</th>
-					<th class="width-10 text-center">ออเดอร์</th>
-					<th class="width-8 text-right">จำนวน</th>
-					<th class="width-8 text-right">ราคา</th>
-					<th class="width-8 text-right">ส่วนลด</th>
-					<th class="width-8 text-right">คืน</th>
-					<th class="width-8 text-right">มูลค่า</th>
-					<th class="width-5"></th>
+					<th class="fix-width-175">รหัส</th>
+					<th class="min-width-200">สินค้า</th>
+					<th class="fix-width-100 text-center">อ้างอิง</th>
+					<th class="fix-width-120 text-center">ออเดอร์</th>
+					<th class="fix-width-80 text-right">จำนวน</th>
+					<th class="fix-width-80 text-right">ราคา</th>
+					<th class="fix-width-100 text-right">ส่วนลด</th>
+					<th class="fix-width-80 text-right">คืน</th>
+					<th class="fix-width-100 text-right">มูลค่า</th>
+					<th class="fix-width-40"></th>
 				</tr>
 			</thead>
 			<tbody id="detail-table">
@@ -154,8 +127,8 @@
 				<input type="checkbox" class="chk ace" data-id="<?php echo $rs->id; ?>" value="<?php echo $no; ?>">
 				<span class="lbl"></span>
 			</td>
-			<td class="middle <?php echo $no; ?>"><?php echo $rs->barcode; ?></td>
-			<td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
+			<td class="middle <?php echo $no; ?>"><?php echo $rs->product_code; ?></td>
+			<td class="middle"><?php echo $rs->product_name; ?></td>
 			<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
 			<td class="middle text-center"><?php echo $rs->order_code; ?></td>
 			<td class="middle text-right inv_qty"><?php echo round($rs->sold_qty); ?></td>

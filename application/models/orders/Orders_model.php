@@ -768,7 +768,7 @@ class Orders_model extends CI_Model
     }
     else
     {
-      $this->db->where('orders.date_add >=', from_date($this->_dataDate));
+      //$this->db->where('orders.date_add >=', from_date($this->_dataDate));
     }
 
 
@@ -1146,7 +1146,7 @@ class Orders_model extends CI_Model
       return $rs->row()->amount;
     }
 
-    return 0.00;    
+    return 0.00;
   }
 
 

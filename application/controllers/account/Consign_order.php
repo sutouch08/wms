@@ -5,7 +5,7 @@ class Consign_order extends PS_Controller
   public $menu_code = 'ACCSOD';
 	public $menu_group_code = 'AC';
   public $menu_sub_group_code = '';
-	public $title = 'ตัดยอดขาย(เปิดใบกำกับภาษีเมื่อขายได้)';
+	public $title = 'ตัดยอดฝากขาย(แท้)';
   public $filter;
   public $error = "";
   public function __construct()
@@ -177,18 +177,18 @@ class Consign_order extends PS_Controller
     $code = $this->input->post('code');
     $date_add = db_date($this->input->post('date_add'), TRUE);
     $zone = $this->zone_model->get($this->input->post('zone_code'));
+
     if($code)
     {
       if($this->pm->can_edit)
       {
-
         $arr = array(
           'customer_code' => $this->input->post('customerCode'),
           'customer_name' => $this->input->post('customer'),
           'zone_code' => $zone->code,
           'zone_name' => $zone->name,
           'warehouse_code' => $zone->warehouse_code,
-          'remark' => $this->input->post('remark'),
+          'remark' => get_null(trim($this->input->post('remark'))),
           'date_add' => $date_add,
           'user' => get_cookie('uname')
         );
@@ -219,9 +219,11 @@ class Consign_order extends PS_Controller
   {
     $sc = TRUE;
 		$this->load->model('inventory/delivery_order_model');
+
     if($this->pm->can_delete)
     {
 			$do = $this->delivery_order_model->get_sap_delivery_order($code);
+
 			if(empty($do))
 			{
 				$doc = $this->consign_order_model->get($code);
@@ -248,7 +250,12 @@ class Consign_order extends PS_Controller
 	        }
 	        else
 	        {
-	          if(! $this->consign_order_model->change_status($code, 2))
+            $arr = array(
+              'status' => 2,
+              'cancle_reason' => $this->input->post('reason'),
+              'cancle_user' => $this->_user->uname
+            );
+	          if(! $this->consign_order_model->update($code, $arr))
 	          {
 	            $sc = FALSE;
 	            $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";

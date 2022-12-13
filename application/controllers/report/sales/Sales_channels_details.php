@@ -5,7 +5,7 @@ class Sales_channels_details extends PS_Controller
   public $menu_code = 'RSOCDS';
 	public $menu_group_code = 'RE';
   public $menu_sub_group_code = 'RESALE';
-	public $title = 'รายงานออเดอร์ออนไลน์แสดงรายละเอียกการจัดส่ง(ไม่ใช่ยอดขาย)';
+	public $title = 'รายงานออเดอร์ออนไลน์แสดงรายละเอียดการจัดส่ง(ไม่ใช่ยอดขาย)';
   public $filter;
   public function __construct()
   {

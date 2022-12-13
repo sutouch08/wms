@@ -89,6 +89,7 @@ class Menu extends CI_Model{
     $this->db
     ->where('group_code', $group_code)
     ->where('active', 1);
+
     if($all === FALSE)
     {
       $this->db->where('sub_group IS NULL', NULL, FALSE)

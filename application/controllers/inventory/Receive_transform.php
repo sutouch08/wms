@@ -474,7 +474,7 @@ class Receive_transform extends PS_Controller
 
         if(! empty($doc))
         {
-          if($doc->status == 0 OR $doc->status == 1 OR $_SuperAdmin)
+          if($doc->status == 0 OR $doc->status == 1 OR $this->_SuperAdmin)
           {
             if($doc->status == 1)
             {
