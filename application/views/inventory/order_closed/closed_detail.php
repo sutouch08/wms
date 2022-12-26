@@ -1,9 +1,12 @@
 <?php $this->load->view('include/header'); ?>
-<div class="row top-row">
-  <div class="col-sm-6 top-col">
-    <h4 class="title"><?php echo $this->title; ?></h4>
+<div class="row">
+  <div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-sm-6">
+  <div class="col-xs-12 visible-xs padding-5">
+    <h3 class="title-xs"><?php echo $this->title; ?></h3>
+  </div>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <p class="pull-right top-p">
       <?php if(empty($approve_view)) : ?>
       <button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
@@ -29,48 +32,60 @@
   <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
   <input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
 <?php $reference = empty($order->reference) ? $order->code : $order->code . " [{$order->reference}]"; ?>
-<?php $cust_name = empty($order->customer_ref) ? $order->customer_name : $order->customer_ref; ?>
+<?php $cust_name = empty($order->customer_ref) ? $order->customer_name : $order->customer_name.' ['.$order->customer_ref.']'; ?>
   <div class="row">
-    <div class="col-sm-2 padding-5 first">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
       <label>เลขที่เอกสาร</label>
-      <input type="text" class="form-control input-sm text-center" value="<?php echo $reference; ?>" disabled />
+      <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
     </div>
 
     <?php if($order->role == 'C' OR $order->role == 'N') : ?>
-    <div class="col-sm-4 padding-5">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+      <label>รหัสลูกค้า</label>
+      <input type="text" class="form-control input-sm text-center" value="<?php echo $order->customer_code; ?>" disabled />
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
       <label>ลูกค้า</label>
       <input type="text" class="form-control input-sm" value="<?php echo $cust_name; ?>" disabled />
     </div>
-    <div class="col-sm-4 padding-5">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
       <label>โซน</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->zone_name; ?>" disabled />
     </div>
-    <div class="col-sm-2 padding-5 last">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>พนักงาน</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
     </div>
-    <div class="col-sm-10 padding-5 first">
+    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-4 padding-5">
       <label>หมายเหตุ</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
     </div>
-    <div class="col-sm-2 padding-5 last">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
       <label class="font-size-2 blod">SAP No</label>
       <input type="text" class="form-control input-sm text-center" value="<?php echo $order->inv_code; ?>" disabled />
     </div>
     <?php else : ?>
-      <div class="col-sm-6 padding-5">
+      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+        <label>อ้างอิง</label>
+        <input type="text" class="form-control input-sm text-center" value="<?php echo $order->reference; ?>" disabled />
+      </div>
+      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+        <label>รหัสลูกค้า</label>
+        <input type="text" class="form-control input-sm text-center" value="<?php echo $order->customer_code; ?>" disabled />
+      </div>
+      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
         <label>ลูกค้า</label>
         <input type="text" class="form-control input-sm" value="<?php echo $cust_name; ?>" disabled />
       </div>
-      <div class="col-sm-4 padding-5 last">
+      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
         <label>พนักงาน</label>
         <input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
       </div>
-      <div class="col-sm-10 padding-5 first">
+      <div class="col-lg-8 col-md-8 col-sm-8 col-xs-4 padding-5">
         <label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
       </div>
-      <div class="col-sm-2 padding-5 last">
+      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
         <label class="font-size-2 blod">SAP No</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $order->inv_code; ?>" disabled />
       </div>
@@ -78,30 +93,30 @@
   </div>
   <hr/>
 
-  <div class="row">
+  <div class="row hidden-xs">
     <div class="col-sm-12 text-right">
-      <button type="button" class="btn btn-sm btn-info" onclick="printAddress()"><i class="fa fa-print"></i> ใบนำส่ง</button>
-      <button type="button" class="btn btn-sm btn-primary" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
-      <button type="button" class="btn btn-sm btn-success" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
-      <button type="button" class="btn btn-sm btn-warning" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>
+      <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress()"><i class="fa fa-print"></i> ใบนำส่ง</button>
+      <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
+      <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
+      <button type="button" class="btn btn-sm btn-warning top-btn" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>
     </div>
   </div>
-  <hr/>
+  <hr class="padding-5 hidden-xs"/>
 
   <div class="row">
-    <div class="col-sm-12">
-      <table class="table table-bordered">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+      <table class="table table-bordered" style="min-width:960px;">
         <thead>
           <tr class="font-size-12">
-            <th class="width-5 text-center">ลำดับ</th>
-            <th class="width-35 text-center">สินค้า</th>
-            <th class="width-8 text-center">ราคา</th>
-            <th class="width-8 text-center">ออเดอร์</th>
-            <th class="width-8 text-center">จัด</th>
-            <th class="width-8 text-center">ตรวจ</th>
-            <th class="width-8 text-center">เปิดบิล</th>
-            <th class="width-10 text-center">ส่วนลด</th>
-            <th class="width-10 text-center">มูลค่า</th>
+            <th class="fix-width-40 text-center">ลำดับ</th>
+            <th class="min-width-300 text-center">สินค้า</th>
+            <th class="fix-width-100 text-center">ราคา</th>
+            <th class="fix-width-80 text-center">ออเดอร์</th>
+            <th class="fix-width-80 text-center">จัด</th>
+            <th class="fix-width-80 text-center">ตรวจ</th>
+            <th class="fix-width-80 text-center">เปิดบิล</th>
+            <th class="fix-width-100 text-center">ส่วนลด</th>
+            <th class="fix-width-100 text-center">มูลค่า</th>
           </tr>
         </thead>
         <tbody>
@@ -122,46 +137,46 @@
 		<?php     $color = ($rs->order_qty == $rs->qc OR $rs->is_count == 0) ? '' : 'red'; ?>
 		<?php 	endif; ?>
             <tr class="font-size-12 <?php echo $color; ?>">
-              <td class="text-center">
+              <td class="middle text-center">
                 <?php echo $no; ?>
               </td>
 
               <!--- รายการสินค้า ที่มีการสั่งสินค้า --->
-              <td>
+              <td class="moddle">
                 <?php echo limitText($rs->product_code.' : '. $rs->product_name, 100); ?>
               </td>
 
               <!--- ราคาสินค้า  --->
-              <td class="text-center">
+              <td class="middle text-center">
                 <?php echo number($rs->price, 2); ?>
               </td>
 
               <!---   จำนวนที่สั่ง  --->
-              <td class="text-center">
+              <td class="middle text-center">
                 <?php echo number($rs->order_qty); ?>
               </td>
 
               <!--- จำนวนที่จัดได้  --->
-              <td class="text-center">
+              <td class="middle text-center">
                 <?php echo $rs->is_count == 0 ? number($rs->order_qty) : number($rs->prepared); ?>
               </td>
 
               <!--- จำนวนที่ตรวจได้ --->
-              <td class="text-center">
+              <td class="middle text-center">
                 <?php echo $rs->is_count == 0 ? number($rs->order_qty) : number($rs->qc); ?>
               </td>
 
               <!--- จำนวนที่บันทึกขาย --->
-              <td class="text-center">
+              <td class="middle text-center">
                 <?php echo number($rs->sold); ?>
               </td>
 
               <!--- ส่วนลด  --->
-              <td class="text-center">
+              <td class="middle text-center">
                 <?php echo discountLabel($rs->discount1, $rs->discount2, $rs->discount3); ?>
               </td>
 
-              <td class="text-right">
+              <td class="middle text-right">
                 <?php echo $rs->is_count == 0 ? number($rs->final_price * $rs->order_qty) : number( $rs->final_price * $rs->sold , 2); ?>
               </td>
 

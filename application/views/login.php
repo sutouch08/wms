@@ -71,8 +71,8 @@
 
 													<label class="block clearfix">
 														<span class="block input-icon input-icon-right">
-															<input type="password" name="password" class="form-control" placeholder="Password" required />
-															<i class="ace-icon fa fa-lock"></i>
+															<input type="password" name="password" id="pwd" class="form-control" placeholder="Password" required />
+															<i id="pwd-btn" class="ace-icon fa fa-eye" onclick="showPwd()"></i>
 														</span>
 													</label>
 
@@ -84,7 +84,7 @@
 															<input type="checkbox" name="remember" class="ace" value="1" />
 															<span class="lbl"> Remember Me</span>
 														</label>
-												
+
 														<button type="submit" id="login_btn" class="width-35 pull-right btn btn-sm btn-primary">
 															<i class="ace-icon fa fa-key"></i>
 															<span class="bigger-110">Login</span>
@@ -139,4 +139,22 @@
 			</div><!-- /.main-content -->
 		</div><!-- /.main-container -->
 	</body>
+
+	<script>
+			function showPwd() {
+				var x = document.getElementById("pwd");
+				var y = document.getElementById("pwd-btn");
+
+				if(x.type === "password") {
+					x.type = "text";
+					y.classList.remove('fa-eye');
+					y.classList.add('fa-eye-slash');
+				}
+				else {
+					x.type = "password";
+					y.classList.remove('fa-eye-slash');
+					y.classList.add('fa-eye');
+				}
+			}
+	</script>
 </html>

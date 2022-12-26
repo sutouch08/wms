@@ -556,7 +556,7 @@ function getRequestData(){
 	if(code.length == 0) {
 		return false;
 	}
-	
+
 	load_in();
 	$.ajax({
 		url: HOME + 'get_receive_request_po_detail',

@@ -693,9 +693,11 @@ class Receive_po extends PS_Controller
 						'Rate' => $rs->Rate,
 						'vatGroup' => $rs->VatGroup,
 						'vatRate' => $rs->VatPrcnt,
-	          'qty' => number($rs->Quantity),
+	          'qty_label' => number($rs->Quantity),
+            'qty' => $rs->Quantity,
 	          'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
-	          'backlog' => number($rs->OpenQty),
+	          'backlog_label' => number($rs->OpenQty),
+            'backlog' => $rs->OpenQty,
 	          'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE
 	        );
 	        array_push($ds, $arr);
@@ -774,11 +776,14 @@ class Receive_po extends PS_Controller
               'rate' => $rs->rate,
               'vatGroup' => $rs->vatGroup,
               'vatRate' => $rs->vatRate,
-              'qty' => number($row->Quantity),
-              'request_qty' => number($rs->qty),
+              'qty_label' => number($row->Quantity),
+              'qty' => $row->Quantity,
+              'request_qty_label' => number($rs->qty),
+              'request_qty' => $rs->qty,
               'receive_qty' => $row->OpenQty < $rs->qty ? $row->OpenQty : $rs->qty,
               'limit' => $row->OpenQty < $rs->qty ? $row->OpenQty : $rs->qty,
-              'backlog' => number($row->OpenQty),
+              'backlog_label' => number($row->OpenQty),
+              'backlog' => $row->OpenQty,
               'isOpen' => $row->LineStatus == 'O' ? TRUE : FALSE
             );
 

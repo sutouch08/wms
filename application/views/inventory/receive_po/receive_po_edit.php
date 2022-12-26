@@ -220,7 +220,7 @@
 <table class="table table-striped table-bordered" style="min-width:1000px;">
 	<thead>
 		<tr class="font-size-12">
-			<th class="fix-width-40 text-center">ลำดับ	</th>
+			<th class="fix-width-40 text-center">ลำดับ</th>
 			<th class="fix-width-120 text-center">บาร์โค้ด</th>
 			<th class="fix-width-150">รหัสสินค้า</th>
 			<th class="min-width-200">ชื่อสินค้า</th>
@@ -244,8 +244,8 @@
 			<td class="middle barcode" id="barcode_{{uid}}">{{barcode}}</td>
 			<td class="middle">{{pdCode}}</td>
 			<td class="middle">{{pdName}}</td>
-			<td class="middle text-center" id="qty_{{uid}}">{{qty}}</td>
-			<td class="middle text-center">{{backlog}}</td>
+			<td class="middle text-center" id="qty_{{uid}}">{{qty_label}}</td>
+			<td class="middle text-center">{{backlog_label}}</td>
 			<td class="middle text-center">
 				<input type="hidden" id="limit_{{uid}}" value="{{limit}}"/>
 				<input type="hidden" id="backlog_{{uid}}" value="{{backlog}}" />
@@ -301,9 +301,9 @@
 			<td class="middle barcode" id="barcode_{{uid}}">{{barcode}}</td>
 			<td class="middle">{{pdCode}}</td>
 			<td class="middle">{{pdName}}</td>
-			<td class="middle text-center" id="qty_{{uid}}">{{qty}}</td>
-			<td class="middle text-center">{{request_qty}}</td>
-			<td class="middle text-center">{{backlog}}</td>
+			<td class="middle text-center" id="qty_{{uid}}">{{qty_label}}</td>
+			<td class="middle text-center">{{request_qty_label}}</td>
+			<td class="middle text-center">{{backlog_label}}</td>
 			<td class="middle text-center">
 				<input type="hidden" id="backlog_{{uid}}" value="{{backlog}}" />
 				<input type="hidden" id="limit_{{uid}}" value="{{limit}}"/>

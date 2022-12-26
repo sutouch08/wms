@@ -9,17 +9,19 @@
     <div class="col-sm-6 col-xs-6 padding-5">
       <p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-			<?php if(($this->pm->can_add OR $this->pm->can_edit) && $doc->status == 0 && $doc->valid == 0 && $doc->is_wms == 0) : ?>
+				<?php if(($this->pm->can_add OR $this->pm->can_edit) && $doc->status == 0 && $doc->valid == 0) : ?>
 	      <button type="button" class="btn btn-sm btn-primary" onclick="reloadStock()">
 	        <i class="fa fa-refresh"></i> โหลดยอดตั้งต้นใหม่
 	      </button>
+				<?php if($doc->is_wms == 0) : ?>
 	       <!--- consign_check_detail.js --->
 	      <button type="button" class="btn btn-sm btn-success" onclick="closeCheck()">
 	        <i class="fa fa-bolt"></i> บันทึกการตรวจนับ
 	      </button>
+				<?php endif; ?>
 			<?php endif; ?>
 
-			<?php if($this->pm->can_edit && $doc->status != 2 && $doc->is_wms == 0 && $doc->valid == 0) : ?>
+			<?php if(($this->_SuperAdmin && $doc->status != 2) OR ($this->pm->can_edit && $doc->status != 2 && $doc->is_wms == 0 && $doc->valid == 0)) : ?>
 				<!--- consign_check_detail.js --->
 	      <button type="button" class="btn btn-sm btn-danger" onclick="openCheck()">
 	        <i class="fa fa-bolt"></i> ยกเลิกการบันทึก

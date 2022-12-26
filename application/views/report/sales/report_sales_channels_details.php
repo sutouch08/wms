@@ -1,47 +1,53 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row hidden-print">
-	<div class="col-sm-8">
+	<div class="col-lg-10 col-md-10 col-sm-10 padding-5 hidden-xs">
     <h3 class="title">
       <i class="fa fa-bar-chart"></i>
       <?php echo $this->title; ?>
     </h3>
-    </div>
-		<div class="col-sm-4">
-			<p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
-			</p>
-		</div>
+  </div>
+	<div class="col-xs-12 padding-5 visible-xs">
+    <h3 class="title-xs">
+      <i class="fa fa-bar-chart"></i>
+      <?php echo $this->title; ?>
+    </h3>
+  </div>
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
+		</p>
+	</div>
 </div><!-- End Row -->
-<hr class="hidden-print"/>
+<hr class="padding-5"/>
 <form class="hidden-print" id="reportForm" method="post" action="<?php echo $this->home; ?>/do_export">
 <div class="row">
-  <div class="col-sm-4 padding-5 first">
-    <label class="display-block">ช่องทางการขาย</label>
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>ช่องทางการขาย</label>
     <div class="btn-group width-100">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-channels-all" onclick="toggleAllChannels(1)">ทั้งหมด</button>
       <button type="button" class="btn btn-sm width-50" id="btn-channels-range" onclick="toggleAllChannels(0)">เลือก</button>
     </div>
   </div>
-  <div class="col-sm-4 padding-5">
-    <label class="display-block">สินค้า</label>
+  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
+    <label>สินค้า</label>
     <input type="text" class="form-control input-sm text-center" id="pdFrom" name="pdFrom" placeholder="เริ่มต้น">
   </div>
-  <div class="col-sm-4 padding-5 last">
+  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label class="display-block not-show">End</label>
     <input type="text" class="form-control input-sm text-center" id="pdTo" name="pdTo" placeholder="สิ้นสุด">
   </div>
 
-  <div class="col-sm-4 padding-5 first">
+  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label class="display-block">เลขที่อ้างอิง</label>
     <input type="text" class="form-control input-sm text-center" id="refCodeFrom" name="refCodeFrom" placeholder="เริ่มต้น">
   </div>
-  <div class="col-sm-4 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label class="display-block not-show">End</label>
     <input type="text" class="form-control input-sm text-center" id="refCodeTo" name="refCodeTo" placeholder="สิ้นสุด">
   </div>
 
 
-  <div class="col-sm-4 padding-5 last">
+  <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group width-100">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" placeholder="เริ่มต้น" required />
@@ -55,7 +61,7 @@
 
 
 <div class="modal fade" id="channels-modal" tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
-	<div class='modal-dialog' id='modal' style="width:500px;">
+	<div class='modal-dialog' id='modal' style="width:400px; max-width:95%;">
         <div class='modal-content'>
             <div class='modal-header'>
                 <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>

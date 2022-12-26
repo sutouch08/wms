@@ -171,6 +171,12 @@ class Export
         if($sc === TRUE)
         {
           $this->ci->mc->trans_commit();
+
+          if($order->inv_code != NULL)
+          {
+            $this->ci->orders_model->update($code, array('inv_code' => NULL));
+            $this->ci->orders_model->un_complete($code);            
+          }
         }
         else
         {
@@ -1548,7 +1554,7 @@ public function export_receive_transform($code)
                     $this->error = 'เพิ่มรายการไม่สำเร็จ';
                   }
 
-                  $line++;                  
+                  $line++;
                 }
               }
             }

@@ -14,10 +14,10 @@
             <button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i>
                 กลับ</button>
             <?php if(($this->pm->can_add OR $this->pm->can_edit) && $doc->status == 0 && $doc->valid == 0) : ?>
-							<?php if($doc->is_wms == 0) : ?>
 	            <button type="button" class="btn btn-sm btn-primary" onclick="reloadStock()">
 	                <i class="fa fa-refresh"></i> โหลดยอดตั้งต้นใหม่
 	            </button>
+							<?php if($doc->is_wms == 0) : ?>
 	            <button type="button" class="btn btn-sm btn-success" onclick="closeCheck()">
 	                <i class="fa fa-bolt"></i> บันทึกการตรวจนับ
 	            </button>

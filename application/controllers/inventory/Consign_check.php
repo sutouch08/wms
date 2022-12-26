@@ -515,7 +515,7 @@ class Consign_check extends PS_Controller
 
     $doc = $this->consign_check_model->get($code);
 
-    if($doc->valid == 0 && $doc->status == 1)
+    if(($doc->valid == 0 && $doc->status == 1) OR ($this->_SuperAdmin))
     {
       //--- change status to 0 (not save)
       if(! $this->consign_check_model->change_status($code, 0))
@@ -573,6 +573,7 @@ class Consign_check extends PS_Controller
     $sc = TRUE;
 
     $doc = $this->consign_check_model->get($code);
+
     if( ! empty($doc))
     {
 
@@ -595,7 +596,7 @@ class Consign_check extends PS_Controller
           //--- ตัวไหนมียอดจะถูก update ทีหลัง
           //--- ตัวไหนไม่มียอดจะเป็น 0
           //--- ตัวไหนที่ไม่มีรายการ จะถูกเพิ่ม
-          $this->db->trans_start();
+          $this->db->trans_begin();
 
           //--- set all stock_qty = 0;
           $this->consign_check_model->reset_stock_qty($code);
@@ -606,10 +607,16 @@ class Consign_check extends PS_Controller
             {
               break;
             }
+
             $detail = $this->consign_check_model->get_detail($code, $rs->product_code);
+
             if(!empty($detail))
             {
-              $this->consign_check_model->update_stock_qty($detail->id, $rs->qty);
+              if( ! $this->consign_check_model->update_stock_qty($detail->id, $rs->qty))
+              {
+                $sc = FALSE;
+                $this->error = "Update stock failed";
+              }
             }
             else
             {
@@ -629,7 +636,14 @@ class Consign_check extends PS_Controller
 
           } //-- edn foreach
 
-          $this->db->trans_complete();
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
 
           //--- delete 0 stock_qty and 0 checked
           $this->consign_check_model->delete_no_item_details($code);
@@ -642,7 +656,7 @@ class Consign_check extends PS_Controller
       }
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
