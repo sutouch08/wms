@@ -40,7 +40,8 @@ class Return_consignment extends PS_Controller
       'to_date' => get_filter('to_date', 'cn_to_date', ''),
       'status' => get_filter('status', 'cn_status', 'all'),
       'approve' => get_filter('approve', 'cn_approve', 'all'),
-			'api' => get_filter('api', 'cn_api', 'all')
+			'api' => get_filter('api', 'cn_api', 'all'),
+      'sap' => get_filter('sap', 'cn_sap', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -1322,7 +1323,8 @@ class Return_consignment extends PS_Controller
       'cn_to_date',
       'cn_status',
 			'cn_api',
-      'cn_approve'
+      'cn_approve',
+      'cn_sap'
     );
 
     clear_filter($filter);

@@ -84,37 +84,56 @@ class Warehouse_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
       $this->db->like('code', $ds['code']);
     }
 
-    if(!empty($ds['name']))
+    if( ! empty($ds['name']))
     {
       $this->db->like('name', $ds['name']);
     }
 
-    if(!empty($ds['role']))
+    if( ! empty($ds['role']) && $ds['role'] != 'all')
     {
       $this->db->where('role', $ds['role']);
+    }
+
+    if( isset($ds['active']) && $ds['active'] != 'all')
+    {
+      $this->db->where('active', $ds['active']);
+    }
+
+    if( isset($ds['sell']) && $ds['sell'] != 'all')
+    {
+      $this->db->where('sell', $ds['sell']);
+    }
+
+    if( isset($ds['prepare']) && $ds['prepare'] != 'all')
+    {
+      $this->db->where('prepare', $ds['prepare']);
+    }
+
+    if( isset($ds['auz']) && $ds['auz'] != 'all')
+    {
+      $this->db->where('auz', $ds['auz']);
     }
 
     if(isset($ds['is_consignment']) && $ds['is_consignment'] != 'all')
     {
       if($ds['is_consignment'] == 1)
       {
-        $this->db->where('warehouse.is_consignment', $ds['is_consignment']);
+        $this->db->where('is_consignment', $ds['is_consignment']);
       }
       else
       {
         $this->db
         ->group_start()
-        ->where('warehouse.is_consignment', 0)
-        ->or_where('warehouse.is_consignment IS NULL', NULL, FALSE)
+        ->where('is_consignment', 0)
+        ->or_where('is_consignment IS NULL', NULL, FALSE)
         ->group_end();
       }
     }
-
 
     return $this->db->count_all_results('warehouse');
   }
@@ -138,6 +157,26 @@ class Warehouse_model extends CI_Model
     if(! empty($ds['role']) && $ds['role'] != 'all')
     {
       $this->db->where('warehouse.role', $ds['role']);
+    }
+
+    if( isset($ds['active']) && $ds['active'] != 'all')
+    {
+      $this->db->where('warehouse.active', $ds['active']);
+    }
+
+    if( isset($ds['sell']) && $ds['sell'] != 'all')
+    {
+      $this->db->where('warehouse.sell', $ds['sell']);
+    }
+
+    if( isset($ds['prepare']) && $ds['prepare'] != 'all')
+    {
+      $this->db->where('warehouse.prepare', $ds['prepare']);
+    }
+
+    if( isset($ds['auz']) && $ds['auz'] != 'all')
+    {
+      $this->db->where('warehouse.auz', $ds['auz']);
     }
 
     if(isset($ds['is_consignment']) && $ds['is_consignment'] != 'all')

@@ -48,7 +48,8 @@ class Support extends PS_Controller
 			'notSave' => get_filter('notSave', 'support_notSave', NULL),
       'onlyMe' => get_filter('onlyMe', 'support_onlyMe', NULL),
       'isExpire' => get_filter('isExpire', 'support_isExpire', NULL),
-			'wms_export' => get_filter('wms_export', 'support_wms_export', 'all')
+			'wms_export' => get_filter('wms_export', 'support_wms_export', 'all'),
+      'sap_status' => get_filter('sap_status', 'support_sap_status', 'all')
     );
 
 		$state = array(
@@ -468,6 +469,7 @@ class Support extends PS_Controller
       'support_isApprove',
 			'support_warehouse',
 			'support_wms_export',
+      'support_sap_status',
       'support_notSave',
       'support_onlyMe',
       'support_isExpire',

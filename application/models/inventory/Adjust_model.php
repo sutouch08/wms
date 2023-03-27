@@ -358,6 +358,18 @@ class Adjust_model extends CI_Model
         $this->db->where('adjust.is_approved', $ds['isApprove']);
       }
 
+      if(isset($ds['sap']) && $ds['sap'] != 'all')
+      {
+        if($ds['sap'] == 0)
+        {
+          $this->db->where('issue_code IS NULL', NULL, FALSE)->where('receive_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('issue_code IS NOT NULL', NULL, FALSE)->where('receive_code IS NOT NULL', NULL, FALSE);
+        }
+      }
+
       return $this->db->count_all_results();
     }
 
@@ -421,6 +433,18 @@ class Adjust_model extends CI_Model
       if($ds['isApprove'] !== 'all')
       {
         $this->db->where('adjust.is_approved', $ds['isApprove']);
+      }
+
+      if(isset($ds['sap']) && $ds['sap'] != 'all')
+      {
+        if($ds['sap'] == 0)
+        {
+          $this->db->where('issue_code IS NULL', NULL, FALSE)->where('receive_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('issue_code IS NOT NULL', NULL, FALSE)->where('receive_code IS NOT NULL', NULL, FALSE);
+        }
       }
 
 

@@ -38,7 +38,8 @@ class Return_order extends PS_Controller
       'status' => get_filter('status', 'sm_status', 'all'),
       'approve' => get_filter('approve', 'sm_approve', 'all'),
 			'warehouse' => get_filter('warehouse', 'sm_warehouse', 'all'),
-			'api' => get_filter('api', 'sm_api', 'all')
+			'api' => get_filter('api', 'sm_api', 'all'),
+      'sap' => get_filter('sap', 'sm_sap', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -181,19 +182,36 @@ class Return_order extends PS_Controller
 
     if($this->pm->can_edit)
     {
-      if($this->return_order_model->set_status($code, 0) === FALSE)
+      $docNum = $this->return_order_model->get_sap_doc_num($code);
+      if(empty($docNum))
+      {
+        $arr = array(
+          'status' => 0,
+          'is_approve' => 0,
+          'approver' => NULL,
+          'inv_code' => NULL
+        );
+
+        if( ! $this->return_order_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          $this->error = 'ยกเลิกการบันทึกไม่สำเร็จ';
+        }
+      }
+      else
       {
         $sc = FALSE;
-        $message = 'ยกเลิกการบันทึกไม่สำเร็จ';
+        $this->error = "กรุณายกเลิกเอกสาร ลดหนี้เลขที่ {$docNum} ใน SAP ก่อนยกเลิกการบันทึก";
       }
+
     }
     else
     {
       $sc = FALSE;
-      $message = 'คุณไม่มีสิทธิ์ในการยกเลิกการบันทึก';
+      $this->error = 'คุณไม่มีสิทธิ์ในการยกเลิกการบันทึก';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -928,7 +946,8 @@ class Return_order extends PS_Controller
       'sm_status',
       'sm_approve',
 			'sm_warehouse',
-			'sm_api'
+			'sm_api',
+      'sm_sap'
     );
     clear_filter($filter);
   }

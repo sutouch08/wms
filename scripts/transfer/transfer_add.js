@@ -1,18 +1,19 @@
-function add(){
+function add() {
   var isManual = $('#manualCode').length;
-  if(isManual === 1){
+  if(isManual === 1) {
     getValidate();
-  }else{
+  }
+  else {
     addTransfer();
   }
 }
 
 
-function getValidate(){
+function getValidate() {
   var prefix = $('#prefix').val();
   var runNo = parseInt($('#runNo').val());
   let code = $('#code').val();
-  if(code.length == 0){
+  if(code.length == 0) {
     addTransfer();
     return false;
   }
@@ -45,7 +46,8 @@ function getValidate(){
       })
     }
 
-  }else{
+  }
+  else {
     swal('เลขที่เอกสารไม่ถูกต้อง');
     return false;
   }
@@ -54,7 +56,9 @@ function getValidate(){
 
 
 //--- เพิ่มเอกสารโอนคลังใหม่
-function addTransfer(){
+function addTransfer() {
+
+  var code = $('#code').val();
 
   //--- วันที่เอกสาร
   var date_add = $('#date').val();
@@ -66,9 +70,11 @@ function addTransfer(){
   //--- คลังปลายทาง
   var to_warehouse = $('#to_warehouse').val();
   var to_warehouse_code = $('#to_warehouse_code').val();
+  var api = $('#api').val();
+  var wx_code = $('#wx_code').val();
 
   //--- หมายเหตุ
-  var remark = $('#remark').val();
+  var remark = $.trim($('#remark').val());
 
   //--- ตรวจสอบวันที่
   if( ! isDate(date_add))
@@ -90,13 +96,56 @@ function addTransfer(){
   }
 
   //--- ตรวจสอบว่าเป็นคนละคลังกันหรือไม่ (ต้องเป็นคนละคลังกัน)
-  if( from_warehouse_code == to_warehouse_code){
+  if( from_warehouse_code == to_warehouse_code) {
     swal('คลังต้นทางต้องไม่ตรงกับคลังปลายทาง');
     return false;
   }
 
-  //--- ถ้าไม่มีข้อผิดพลาด
-  $('#addForm').submit();
+  if(remark.length < 10) {
+    swal("กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร");
+    return false;
+  }
+
+  load_in();
+
+  $.ajax({
+    url:HOME + 'add',
+    type:'POST',
+    cache:false,
+    data:{
+      'code' : code,
+      'date' : date_add,
+      'from_warehouse_code' : from_warehouse_code,
+      'to_warehouse_code' : to_warehouse_code,
+      'api' : api,
+      'wx_code' : wx_code,
+      'remark' : remark
+    },
+    success:function(rs) {
+      load_out();
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+        if(ds.status == 'success') {
+          let uuid = get_uuid();
+          window.location.href = HOME + 'edit/'+ds.code+'/'+uuid;
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          });
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  });
 }
 
 
@@ -248,10 +297,11 @@ function save(){
     success:function(rs){
       var rs = $.trim(rs);
       //--- ถ้าไม่มียอดค้างใน temp
-      if( rs == 'not_exists'){
+      if( rs == 'not_exists') {
         //--- ส่งข้อมูลไป formula
         saveTransfer(code);
-      }else{
+      }
+      else{
         swal({
           title:'ข้อผิดพลาด !',
           text:'พบรายการที่ยังไม่โอนเข้าปลายทาง กรุณาตรวจสอบ',
@@ -271,9 +321,9 @@ function saveTransfer(code)
     url:HOME + 'save_transfer/'+code,
     type:'POST',
     cache:false,
-    success:function(rs){
+    success:function(rs) {
       load_out();
-      if(rs == 'success'){
+      if(rs == 'success') {
         swal({
           title:'Saved',
           text: 'บันทึกเอกสารเรียบร้อยแล้ว',
@@ -281,10 +331,11 @@ function saveTransfer(code)
           timer:1000
         });
 
-        setTimeout(function(){
-          window.location.reload();
+        setTimeout(function() {
+          goDetail(code);
         }, 1200);
-      }else{
+      }
+      else{
         swal({
           title:'Error!',
           text:rs,

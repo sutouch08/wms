@@ -22,6 +22,80 @@ function getEdit(code){
   window.location.href = HOME + '/edit/'+code;
 }
 
+$('#uname').autocomplete({
+  source: BASE_URL + 'auto_complete/get_active_user_by_uname',
+  autoFocus:true,
+  select:function(event, ui) {
+    $('#dname').val(ui.item.dname);
+    $('#user_id').val(ui.item.id);
+  }
+});
+
+$('#uname').focusout(function() {
+  if($(this).val() == "") {
+    $('#dname').val("");
+    $('#user_id').val("");
+  }
+});
+
+
+function saveUser() {
+  let code = $('#zone_code').val();
+  let user_id = $('#user_id').val();
+  let uname = $('#uname').val();
+  let dname = $('#dname').val();
+
+  if(user_id == "" && (uname.length > 0 || dname.length > 0)) {
+    swal({
+      title: "Warning",
+      text: "Invalid Username",
+      text:'warning'
+    });
+
+    return false;
+  }
+
+  if((uname.length == 0 && dname.length != 0) || (uname.length != 0 && dname.length == 0)) {
+    swal({
+      title: "Warning",
+      text: "Invalid Username",
+      text:'warning'
+    });
+
+    return false;
+  }
+
+  if(uname.length == 0 && dname.length == 0) {
+    user_id = 0;
+  }
+
+  $.ajax({
+    url:HOME + '/update_owner',
+    type:'POST',
+    cache:false,
+    data: {
+      'zone_code' : code,
+      'user_id' : user_id
+    },
+    success:function(rs) {
+      if(rs === 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  });
+}
+
 
 $("#empName").autocomplete({
 	source: BASE_URL + 'auto_complete/get_employee',
@@ -315,16 +389,23 @@ function syncData(){
 
 function exportFilter(){
   let code = $('#code').val();
-  let name = $('#name').val();
+  let uname = $('#u-name').val();
   let customer = $('#customer').val();
   let warehouse = $('#warehouse').val();
 
-  $('#zone-code').val(code);
-  $('#zone-name').val(name);
-  $('#zone-customer').val(customer);
-  $('#zone-warehouse').val(warehouse);
+  $('#export-code').val(code);
+  $('#export-uname').val(uname);
+  $('#export-customer').val(customer);
+  $('#export-warehouse').val(warehouse);
 
   var token = $('#token').val();
   get_download(token);
   $('#exportForm').submit();
+}
+
+
+function uEdit() {
+  $('#uname').removeAttr('disabled').focus();
+  $('#btn-u-edit').addClass('hide');
+  $('#btn-u-update').removeClass('hide');
 }

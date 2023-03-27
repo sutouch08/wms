@@ -16,27 +16,27 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>ใบสั่งซื้อ</label>
     <input type="text" class="form-control input-sm search" name="po" value="<?php echo $po; ?>" />
   </div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ใบส่งสินค้า</label>
     <input type="text" class="form-control input-sm search" name="invoice" value="<?php echo $invoice; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ผู้จำหน่าย</label>
 		<input type="text" class="form-control input-sm search" name="vendor" value="<?php echo $vendor; ?>" />
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>การรับ</label>
 		<select name="is_wms" class="form-control input-sm" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -45,7 +45,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะ</label>
 		<select name="status" class="form-control input-sm" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -56,7 +56,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>SAP</label>
 		<select name="sap" class="form-control input-sm" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -68,8 +68,8 @@
 	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
-      <input type="text" class="form-control input-sm width-50 from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
-      <input type="text" class="form-control input-sm width-50" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
+      <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
+      <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
   </div>
 
@@ -101,7 +101,7 @@
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-100 middle">เลขที่เอกสาร</th>
-					<th class="fix-width-100 middle">ใบส่งสินค้า</th>
+					<th class="fix-width-150 middle">ใบส่งสินค้า</th>
 					<th class="fix-width-100 middle">ใบสั่งซื้อ</th>
 					<th class="min-width-200 middle">ผู้จำหน่าย</th>
 					<th class="fix-width-100 middle text-center">จำนวน</th>
@@ -121,7 +121,7 @@
               <td class="middle"><?php echo $rs->invoice_code; ?></td>
               <td class="middle"><?php echo $rs->po_code; ?></td>
               <td class="middle"><?php echo $rs->vendor_name; ?></td>
-              <td class="middle text-center"><?php echo $rs->qty; ?></td>
+              <td class="middle text-center"><?php echo number($rs->qty); ?></td>
               <td class="middle text-center">
                 <?php if($rs->status == 0 ) : ?>
                   <span class="blue"><strong>NC</strong></span>

@@ -148,32 +148,45 @@ class Zone_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
+
     if(!empty($ds['customer']))
     {
       return $this->count_rows_customer($ds);
     }
 
+    $this->db
+    ->from('zone AS z')
+    ->join('user AS u', 'z.user_id = u.id', 'left');
+
     if(!empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db
+      ->group_start()
+      ->like('z.code', $ds['code'])
+      ->or_like('z.name', $ds['code'])
+      ->group_end();
     }
 
-    if(!empty($ds['name']))
+    if(!empty($ds['uname']))
     {
-      $this->db->like('name', $ds['name']);
+      $this->db
+      ->group_start()
+      ->like('u.uname', $ds['uname'])
+      ->or_like('u.name', $ds['uname'])
+      ->group_end();
     }
 
     if(!empty($ds['warehouse']))
     {
-      $this->db->where('warehouse_code', $ds['warehouse']);
+      $this->db->where('z.warehouse_code', $ds['warehouse']);
     }
 
     if(isset($ds['active']) && $ds['active'] != 'all')
     {
-      $this->db->where('active', $ds['active']);
+      $this->db->where('z.active', $ds['active']);
     }
 
-    return $this->db->count_all_results('zone');
+    return $this->db->count_all_results();
   }
 
 
@@ -185,17 +198,26 @@ class Zone_model extends CI_Model
     ->from('zone_customer')
     ->join('zone', 'zone.code = zone_customer.zone_code')
     ->join('customers', 'zone_customer.customer_code = customers.code')
+    ->join('user', 'zone.user_id = user.id','left')
     ->like('customers.code', $ds['customer'])
     ->or_like('customers.name', $ds['customer']);
 
     if(!empty($ds['code']))
     {
-      $this->db->like('zone.code', $ds['code']);
+      $this->db
+      ->group_start()
+      ->like('zone.code', $ds['code'])
+      ->or_like('zone.name', $ds['code'])
+      ->group_end();
     }
 
-    if(!empty($ds['name']))
+    if(!empty($ds['uname']))
     {
-      $this->db->like('zone.name', $ds['name']);
+      $this->db
+      ->group_start()
+      ->like('user.uname', $ds['uname'])
+      ->or_like('user.name', $ds['uname'])
+      ->group_end();
     }
 
     if(!empty($ds['warehouse']))
@@ -224,18 +246,29 @@ class Zone_model extends CI_Model
     }
 
     $this->db
-    ->select('zone.code AS code, zone.name AS name, zone.warehouse_code, warehouse.name AS warehouse_name, zone.old_code, zone.active')
+    ->select('zone.code AS code, zone.name AS name, zone.warehouse_code')
+    ->select('zone.old_code, zone.active')
+    ->select('warehouse.name AS warehouse_name, user.uname, user.name AS display_name')
     ->from('zone')
-    ->join('warehouse', 'warehouse.code = zone.warehouse_code', 'left');
+    ->join('warehouse', 'warehouse.code = zone.warehouse_code', 'left')
+    ->join('user', 'zone.user_id = user.id', 'left');
 
     if(!empty($ds['code']))
     {
-      $this->db->like('zone.code', $ds['code']);
+      $this->db
+      ->group_start()
+      ->like('zone.code', $ds['code'])
+      ->or_like('zone.name', $ds['code'])
+      ->group_end();
     }
 
-    if(!empty($ds['name']))
+    if(!empty($ds['uname']))
     {
-      $this->db->like('zone.name', $ds['name']);
+      $this->db
+      ->group_start()
+      ->like('user.uname', $ds['uname'])
+      ->or_like('user.name', $ds['uname'])
+      ->group_end();
     }
 
     if(!empty($ds['warehouse']))
@@ -269,29 +302,43 @@ class Zone_model extends CI_Model
 
 
 
-
-
-
   private function get_list_customer(array $ds = array(), $perpage = NULL, $offset = NULL)
   {
     $this->db
-    ->select('zone.code AS code, zone.name AS name, warehouse.name AS warehouse_name, zone.old_code')
+    ->select('zone.code AS code, zone.name AS name, warehouse.name AS warehouse_name, zone.old_code, zone.active')
     ->select('customers.code AS customer_code, customers.name AS customer_name')
+    ->select('user.uname, user.name AS display_name')
     ->from('zone_customer')
     ->join('zone', 'zone.code = zone_customer.zone_code')
     ->join('customers', 'zone_customer.customer_code = customers.code')
     ->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
-    ->like('customers.code', $ds['customer'])
-    ->or_like('customers.name', $ds['customer']);
+    ->join('user', 'zone.user_id = user.id', 'left');
+
+    if(! empty($ds['customer']))
+    {
+      $this->db
+      ->group_start()
+      ->like('customers.code', $ds['customer'])
+      ->or_like('customers.name', $ds['customer'])
+      ->group_end();
+    }
 
     if(!empty($ds['code']))
     {
-      $this->db->like('zone.code', $ds['code']);
+      $this->db
+      ->group_start()
+      ->like('zone.code', $ds['code'])
+      ->or_like('zone.name', $ds['code'])
+      ->group_end();
     }
 
-    if(!empty($ds['name']))
+    if(!empty($ds['uname']))
     {
-      $this->db->like('zone.name', $ds['name']);
+      $this->db
+      ->group_start()
+      ->like('user.uname', $ds['uname'])
+      ->or_like('user.name', $ds['uname'])
+      ->group_end();
     }
 
     if(!empty($ds['warehouse']))
@@ -362,11 +409,13 @@ class Zone_model extends CI_Model
   public function get($code)
   {
     $rs = $this->db
-    ->select('zone.code, zone.name, zone.warehouse_code')
+    ->select('zone.id, zone.code, zone.name, zone.warehouse_code, zone.user_id')
     ->select('warehouse.name AS warehouse_name, warehouse.role, warehouse_role.name AS role_name')
+    ->select('user.uname, user.name AS display_name')
     ->from('zone')
     ->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
     ->join('warehouse_role', 'warehouse.role = warehouse_role.id', 'left')
+    ->join('user', 'zone.user_id = user.id', 'left')
     ->where('zone.code', $code)
     ->get();
 
@@ -377,10 +426,6 @@ class Zone_model extends CI_Model
 
     return FALSE;
   }
-
-
-
-
 
 
   public function get_warehouse_code($zone_code)

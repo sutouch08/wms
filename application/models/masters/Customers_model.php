@@ -99,93 +99,6 @@ class Customers_model extends CI_Model
   }
 
 
-  public function count_rows($code = '', $name = '', $group = '', $kind = '', $type = '', $class = '', $area = '')
-  {
-    if($code != '')
-    {
-      $this->db->group_start();
-      $this->db->like('code', $code);
-      $this->db->or_like('old_code', $code);
-      $this->db->group_end();
-    }
-
-    if($name != '')
-    {
-      $this->db->like('name', $name);
-    }
-
-
-    if(!empty($group))
-    {
-      if($group === "NULL")
-      {
-        $this->db->where('group_code IS NULL', NULL, FALSE);
-      }
-      else
-      {
-        $this->db->where('group_code', $group);
-      }
-
-    }
-
-
-    if(!empty($kind))
-    {
-      if($kind === "NULL")
-      {
-        $this->db->where('kind_code IS NULL', NULL, FALSE);
-      }
-      else
-      {
-        $this->db->where('kind_code', $kind);
-      }
-    }
-
-    if(!empty($type))
-    {
-      if($type === "NULL")
-      {
-        $this->db->where('type_code IS NULL', NULL, FALSE);
-      }
-      else
-      {
-        $this->db->where('type_code', $type);
-      }
-
-    }
-
-    if(!empty($class))
-    {
-      if($class === 'NULL')
-      {
-        $this->db->where('class_code IS NULL', NULL, FALSE);
-      }
-      else
-      {
-        $this->db->where('class_code', $class);
-      }
-
-    }
-
-    if(! empty($area))
-    {
-      if($area === "NULL")
-      {
-        $this->db->where('area_code IS NULL', NULL, FALSE);
-      }
-      else
-      {
-        $this->db->where('area_code', $area);
-      }
-
-    }
-
-    return $this->db->count_all_results('customers');
-  }
-
-
-
-
   public function get($code)
   {
     $rs = $this->db->where('code', $code)->get('customers');
@@ -210,6 +123,186 @@ class Customers_model extends CI_Model
     return NULL;
   }
 
+
+  public function count_rows(array $ds = array())
+  {
+    if($ds['code'] != "" && $ds['code'] !== NULL)
+    {
+      $this->db
+      ->group_start()
+      ->like('code', $ds['code'])
+      ->or_like('name', $ds['code'])
+      ->group_end();
+    }
+
+    if($ds['group'] != 'all')
+    {
+      if($ds['group'] === "NULL")
+      {
+        $this->db->where('group_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('group_code', $ds['group']);
+      }
+    }
+
+    if($ds['kind'] != "all")
+    {
+      if($ds['kind'] === "NULL")
+      {
+        $this->db->where('kind_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('kind_code', $ds['kind']);
+      }
+    }
+
+    if($ds['type'] != "all")
+    {
+      if($ds['type'] === "NULL")
+      {
+        $this->db->where('type_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('type_code', $ds['type']);
+      }
+
+    }
+
+    if($ds['class'] != "all")
+    {
+      if($ds['class'] === 'NULL')
+      {
+        $this->db->where('class_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('class_code', $ds['class']);
+      }
+
+    }
+
+    if($ds['area'] != 'all')
+    {
+      if($ds['area'] === "NULL")
+      {
+        $this->db->where('area_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('area_code', $ds['area']);
+      }
+    }
+
+    if($ds['status'] != 'all')
+    {
+      $this->db->where('active', $ds['status']);
+    }
+
+    return $this->db->count_all_results('customers');
+  }
+
+
+
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
+  {
+    $this->db
+    ->select('cu.*, cg.name AS group, ck.name AS kind, ct.name AS type, cc.name AS class, ca.name AS area')
+    ->from('customers AS cu')
+    ->join('customer_group AS cg', 'cu.group_code = cg.code', 'left')
+    ->join('customer_kind AS ck', 'cu.kind_code = ck.code', 'left')
+    ->join('customer_type AS ct', 'cu.type_code = ct.code', 'left')
+    ->join('customer_class AS cc', 'cu.class_code = cc.code', 'left')
+    ->join('customer_area AS ca', 'cu.area_code = ca.code', 'left');
+
+    if($ds['code'] != "" && $ds['code'] !== NULL)
+    {
+      $this->db
+      ->group_start()
+      ->like('cu.code', $ds['code'])
+      ->or_like('cu.name', $ds['code'])
+      ->group_end();
+    }
+
+    if($ds['group'] != 'all')
+    {
+      if($ds['group'] === "NULL")
+      {
+        $this->db->where('cu.group_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('cu.group_code', $ds['group']);
+      }
+    }
+
+    if($ds['kind'] != "all")
+    {
+      if($ds['kind'] === "NULL")
+      {
+        $this->db->where('cu.kind_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('cu.kind_code', $ds['kind']);
+      }
+    }
+
+    if($ds['type'] != "all")
+    {
+      if($ds['type'] === "NULL")
+      {
+        $this->db->where('cu.type_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('cu.type_code', $ds['type']);
+      }
+
+    }
+
+    if($ds['class'] != "all")
+    {
+      if($ds['class'] === 'NULL')
+      {
+        $this->db->where('cu.class_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('cu.class_code', $ds['class']);
+      }
+
+    }
+
+    if($ds['area'] != 'all')
+    {
+      if($ds['area'] === "NULL")
+      {
+        $this->db->where('cu.area_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('cu.area_code', $ds['area']);
+      }
+    }
+
+    if($ds['status'] != 'all')
+    {
+      $this->db->where('cu.active', $ds['status']);
+    }
+
+    $rs = $this->db->order_by('cu.code', 'ASC')->limit($perpage, $offset)->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 
 
   public function get_data($code = '', $name = '', $group = '', $kind = '', $type = '', $class = '', $area = '', $perpage = '', $offset = '')

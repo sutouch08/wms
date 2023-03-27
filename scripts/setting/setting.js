@@ -175,6 +175,23 @@ function toggleRequest(option)
 }
 
 
+function toggleTransfer(option)
+{
+	$('#strict-transfer').val(option);
+
+	if(option == 1){
+		$('#btn-transfer-yes').addClass('btn-success');
+		$('#btn-transfer-no').removeClass('btn-success');
+		return;
+	}
+	if(option == 0){
+		$('#btn-transfer-yes').removeClass('btn-success');
+		$('#btn-transfer-no').addClass('btn-success');
+		return;
+	}
+}
+
+
 function toggleControlCredit(option)
 {
 	$('#control-credit').val(option);

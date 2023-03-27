@@ -58,7 +58,9 @@ class Transform_backlogs extends PS_Controller
 					'no' => number($no),
 					'user_ref' => $rs->user_ref, //--- ผู้เบิก
 					'user' => $rs->user_name, //--- ผู้ทำรายการ
+          'date_add' => thai_date($rs->date_add, FALSE),
 					'order_code' => $rs->order_code,
+          'original_code' => $rs->original_code,
 					'product_code' => $rs->product_code,
 					'price' => number($rs->price,2),
 					'qty' => number($rs->qty),
@@ -138,13 +140,13 @@ class Transform_backlogs extends PS_Controller
 
     //--- set report title header
     $this->excel->getActiveSheet()->setCellValue('A1', $report_title);
-    $this->excel->getActiveSheet()->mergeCells('A1:J1');
+    $this->excel->getActiveSheet()->mergeCells('A1:L1');
     $this->excel->getActiveSheet()->setCellValue('A2', $emp_title);
-    $this->excel->getActiveSheet()->mergeCells('A2:J2');
+    $this->excel->getActiveSheet()->mergeCells('A2:L2');
     $this->excel->getActiveSheet()->setCellValue('A3', $pd_title);
-    $this->excel->getActiveSheet()->mergeCells('A3:J3');
+    $this->excel->getActiveSheet()->mergeCells('A3:L3');
     $this->excel->getActiveSheet()->setCellValue('A4', $date_title);
-    $this->excel->getActiveSheet()->mergeCells('A4:J4');
+    $this->excel->getActiveSheet()->mergeCells('A4:L4');
 
     //--- set Table header
 		$row = 5;
@@ -152,24 +154,28 @@ class Transform_backlogs extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('A'.$row, '#');
     $this->excel->getActiveSheet()->setCellValue('B'.$row, 'ผู้เบิก(User)');
     $this->excel->getActiveSheet()->setCellValue('C'.$row, 'ผู้ทำรายการ');
-    $this->excel->getActiveSheet()->setCellValue('D'.$row, 'เลขที่เอกสาร');
-    $this->excel->getActiveSheet()->setCellValue('E'.$row, 'รหัสสินค้า');
-    $this->excel->getActiveSheet()->setCellValue('F'.$row, 'ราคา');
-    $this->excel->getActiveSheet()->setCellValue('G'.$row, 'เบิก');
-    $this->excel->getActiveSheet()->setCellValue('H'.$row, 'รับ');
-    $this->excel->getActiveSheet()->setCellValue('I'.$row, 'ค้างรับ');
-    $this->excel->getActiveSheet()->setCellValue('J'.$row, 'มูลค่าคงรับ');
+    $this->excel->getActiveSheet()->setCellValue('D'.$row, 'วันที่');
+    $this->excel->getActiveSheet()->setCellValue('E'.$row, 'เลขที่เอกสาร');
+    $this->excel->getActiveSheet()->setCellValue('F'.$row, 'รหัสสินค้า(เบิก)');
+    $this->excel->getActiveSheet()->setCellValue('G'.$row, 'รหัสสินค้า(รับ)');
+    $this->excel->getActiveSheet()->setCellValue('H'.$row, 'ราคา');
+    $this->excel->getActiveSheet()->setCellValue('I'.$row, 'เบิก');
+    $this->excel->getActiveSheet()->setCellValue('J'.$row, 'รับ');
+    $this->excel->getActiveSheet()->setCellValue('K'.$row, 'ค้างรับ');
+    $this->excel->getActiveSheet()->setCellValue('L'.$row, 'มูลค่าคงรับ');
 
     //---- กำหนดความกว้างของคอลัมภ์
     $this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
     $this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(20);
     $this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
-    $this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(30);
-    $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
-    $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(30);
+    $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(30);
     $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('I')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('J')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(15);
 
 		$row++;
 
@@ -183,13 +189,15 @@ class Transform_backlogs extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
         $this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->user_ref);
         $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->user_name);
-        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->order_code);
-        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->product_code);
-        $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->price);
-        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->qty);
-        $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->receive);
-        $this->excel->getActiveSheet()->setCellValue('I'.$row, $rs->balance);
-        $this->excel->getActiveSheet()->setCellValue('J'.$row, ($rs->balance * $rs->price));
+        $this->excel->getActiveSheet()->setCellValue('D'.$row, thai_date($rs->date_add));
+        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->order_code);
+        $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->original_code);
+        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->product_code);
+        $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->price);
+        $this->excel->getActiveSheet()->setCellValue('I'.$row, $rs->qty);
+        $this->excel->getActiveSheet()->setCellValue('J'.$row, $rs->receive);
+        $this->excel->getActiveSheet()->setCellValue('K'.$row, $rs->balance);
+        $this->excel->getActiveSheet()->setCellValue('L'.$row, ($rs->balance * $rs->price));
 
         $no++;
         $row++;
@@ -204,13 +212,13 @@ class Transform_backlogs extends PS_Controller
 		$re = $row - 1;
 
 		$this->excel->getActiveSheet()->setCellValue("A{$row}", 'รวม');
-		$this->excel->getActiveSheet()->mergeCells("A{$row}:F{$row}");
+		$this->excel->getActiveSheet()->mergeCells("A{$row}:G{$row}");
 		$this->excel->getActiveSheet()->getStyle("A{$row}")->getAlignment()->setHorizontal('right');
 
-		$this->excel->getActiveSheet()->setCellValue("G{$row}", "=SUM(G6:G{$re})");
-		$this->excel->getActiveSheet()->setCellValue("H{$row}", "=SUM(H6:H{$re})");
 		$this->excel->getActiveSheet()->setCellValue("I{$row}", "=SUM(I6:I{$re})");
 		$this->excel->getActiveSheet()->setCellValue("J{$row}", "=SUM(J6:J{$re})");
+		$this->excel->getActiveSheet()->setCellValue("K{$row}", "=SUM(K6:K{$re})");
+		$this->excel->getActiveSheet()->setCellValue("L{$row}", "=SUM(L6:L{$re})");
 
     setToken($token);
     $file_name = "รายงานสินค้าแปรสภาพค้างรับ_".date('dmY').".xlsx";

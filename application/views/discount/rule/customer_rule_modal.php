@@ -1,6 +1,6 @@
 <?php $id = $rule->id; ?>
 <div class="modal fade" id="cust-name-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="width:600px;">
+  <div class="modal-dialog" style="width:600px; max-width:95vw;">
     <div class="modal-content">
       <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -43,7 +43,7 @@
 
 
 <div class="modal fade" id="cust-group-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="width:400px;">
+  <div class="modal-dialog" style="width:400px; max-width:95vw;">
     <div class="modal-content">
       <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -75,7 +75,7 @@
 
 
 <div class="modal fade" id="cust-type-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="width:400px;">
+  <div class="modal-dialog" style="width:400px; max-width:95vw;">
     <div class="modal-content">
       <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -110,7 +110,7 @@
 
 
 <div class="modal fade" id="cust-kind-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="width:400px;">
+  <div class="modal-dialog" style="width:400px; max-width:95vw;">
     <div class="modal-content">
       <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -145,7 +145,7 @@
 
 
 <div class="modal fade" id="cust-area-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="width:400px;">
+  <div class="modal-dialog" style="width:400px; max-width:95vw;">
     <div class="modal-content">
       <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -180,7 +180,7 @@
 
 
 <div class="modal fade" id="cust-class-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="width:300px;">
+  <div class="modal-dialog" style="width:400px; max-width:95vw;">
     <div class="modal-content">
       <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>

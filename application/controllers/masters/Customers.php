@@ -6,6 +6,7 @@ class Customers extends PS_Controller
 	public $menu_group_code = 'DB';
   public $menu_sub_group_code = 'CUSTOMER';
 	public $title = 'เพิ่ม/แก้ไข รายชื่อลูกค้า';
+  public $segment = 4;
 
   public function __construct()
   {
@@ -23,53 +24,28 @@ class Customers extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'code', '');
-		$name = get_filter('name', 'name', '');
-    $group = get_filter('group', 'group', '');
-    $kind = get_filter('kind', 'kind', '');
-    $type = get_filter('type', 'type', '');
-    $class = get_filter('class', 'class', '');
-    $area = get_filter('area', 'area', '');
-    $skip = get_filter('skip_overdue', 'skip_overdue', 'all');
+    $filter = array(
+      'code' => get_filter('code', 'cu_code', ''),
+      'group' => get_filter('group', 'cu_group', 'all'),
+      'kind' => get_filter('kind', 'cu_kind', 'all'),
+      'type' => get_filter('type', 'cu_type', 'all'),
+      'class' => get_filter('class', 'cu_class', 'all'),
+      'area' => get_filter('area', 'cu_area', 'all'),
+      'status' => get_filter('status', 'cu_status', 'all')
+    );
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
 
-		$segment = 4; //-- url segment
-		$rows = $this->customers_model->count_rows($code, $name, $group, $kind, $type, $class, $area);
+		$rows = $this->customers_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$customers = $this->customers_model->get_data($code, $name, $group, $kind, $type, $class, $area, $perpage, $this->uri->segment($segment));
-    if(!empty($customers))
-    {
-      foreach($customers as $rs)
-      {
-        $rs->group  = $this->customer_group_model->get_name($rs->group_code);
-        $rs->kind   = $this->customer_kind_model->get_name($rs->kind_code);
-        $rs->type   = $this->customer_type_model->get_name($rs->type_code);
-        $rs->class  = $this->customer_class_model->get_name($rs->class_code);
-        //$rs->area   = $this->customer_area_model->get_name($rs->area_code);
-      }
-    }
+		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
+		$customers = $this->customers_model->get_list($filter, $perpage, $this->uri->segment($this->segment));
 
-    $data = array(
-      'code' => $code,
-      'name' => $name,
-      'group' => $group,
-      'kind' => $kind,
-      'type' => $type,
-      'class' => $class,
-      'area' => $area,
-			'data' => $customers
-    );
+    $filter['data'] = $customers;
 
 		$this->pagination->initialize($init);
-    $this->load->view('masters/customers/customers_view', $data);
+    $this->load->view('masters/customers/customers_view', $filter);
   }
 
 
@@ -627,8 +603,17 @@ class Customers extends PS_Controller
 
   public function clear_filter()
 	{
-    $filter = array( 'code', 'name','group','kind','type', 'class','area');
-    clear_filter($filter);
+    $filter = array(
+      'cu_code',
+      'cu_status',
+      'cu_group',
+      'cu_kind',
+      'cu_type',
+      'cu_class',
+      'cu_area'
+    );
+
+    return clear_filter($filter);
 	}
 
 

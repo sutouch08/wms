@@ -28,25 +28,51 @@ function deleteChecked(){
 
 function unsave(){
 	var code = $('#return_code').val();
-	$.ajax({
-		url:HOME + 'unsave/'+code,
-		type:'POST',
-		cache:false,
-		success:function(rs){
-			if(rs === 'success'){
-				swal({
-					title:'Success',
-					text:'ยกเลิกการบันทึกเรียบร้อยแล้ว',
-					type:'success',
-					time:1000
-				});
 
-				setTimeout(function(){
-					goEdit(code);
-				}, 1500);
-			}
-		}
-	})
+	swal({
+		title: "คุณแน่ใจ ?",
+		text: "ต้องการยกเลิกการบันทึก '"+code+"' หรือไม่ ?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: 'ใช่, ฉันต้องการ',
+		cancelButtonText: 'ไม่ใช่',
+		closeOnConfirm: true
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url:HOME + 'unsave/'+code,
+				type:'POST',
+				cache:false,
+				success:function(rs) {
+					load_out();
+					if(rs === 'success') {
+						setTimeout(function() {
+							swal({
+								title:'Success',
+								text:'ยกเลิกการบันทึกเรียบร้อยแล้ว',
+								type:'success',
+								time:1000
+							});
+
+							setTimeout(function(){
+								goEdit(code);
+							}, 1500);
+						}, 200);
+					}
+					else {
+						setTimeout(function() {
+							swal({
+								title:'Error!',
+								text:rs,
+								type:'error'
+							})
+						}, 200);
+					}
+				}
+			});
+	});
 }
 
 

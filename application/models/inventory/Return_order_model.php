@@ -470,6 +470,18 @@ class Return_order_model extends CI_Model
 			$this->db->where('api', $ds['api']);
 		}
 
+    if(isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+    }
+
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
@@ -527,6 +539,18 @@ class Return_order_model extends CI_Model
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    if(isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
     }
 
     $this->db->order_by('code', 'DESC');

@@ -1404,6 +1404,7 @@ class Consign_order extends PS_Controller
     }
     else
     {
+      $this->consign_order_model->update($code, array('inv_code', NULL));
       echo 'success';
     }
   }
@@ -1467,6 +1468,7 @@ class Consign_order extends PS_Controller
   {
     $sc = TRUE;
     $this->load->library('export');
+    
     if(! $this->export->export_consign_order($code))
     {
       $sc = FALSE;

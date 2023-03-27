@@ -28,121 +28,115 @@ $btn_can_group_no = $can_group == 'N' ? 'btn-primary' : '';
 ?>
 
 <div class="tab-pane fade active in" id="discount">
-
 	<div class="row">
-        <div class="col-sm-8 top-col">
-            <h4 class="title">กำหนดส่วนลด</h4>
-        </div>
-				<div class="col-sm-4">
-					<p class="pull-right top-p">
-
-					</p>
-				</div>
-        <div class="divider margin-top-5"></div>
-        <div class="col-sm-2">
-					<span class="form-control left-label text-right">ราคาขาย</span>
-				</div>
-        <div class="col-sm-2">
-          <div class="btn-group width-100">
-          	<button type="button" class="btn btn-sm width-50 <?php echo $btn_price_yes; ?>" id="btn-set-price-yes" onclick="toggleSetPrice('Y')">YES</button>
-						<button type="button" class="btn btn-sm width-50 <?php echo $btn_price_no; ?>" id="btn-set-price-no" onclick="toggleSetPrice('N')">NO</button>
-          </div>
-        </div>
-        <div class="col-sm-2">
-          <input type="number" class="form-control input-sm text-center" id="txt-price" value="<?php echo $rule->item_price; ?>" <?php echo $ac_price; ?> />
-				</div>
-				<div class="divider-hidden"></div>
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<h4 class="title">กำหนดส่วนลด</h4>
+		</div>
+		<div class="divider margin-top-5"></div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4 padding-5">
+			<span class="form-control left-label text-right">ราคาขาย</span>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_price_yes; ?>" id="btn-set-price-yes" onclick="toggleSetPrice('Y')">YES</button>
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_price_no; ?>" id="btn-set-price-no" onclick="toggleSetPrice('N')">NO</button>
+			</div>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4">
+			<input type="number" class="form-control input-sm text-center" id="txt-price" value="<?php echo $rule->item_price; ?>" <?php echo $ac_price; ?> />
+		</div>
+		<div class="divider-hidden"></div>
 
 
-        <div class="col-sm-2">
-					<span class="form-control left-label text-right">ส่วนลด 1</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<input type="number" class="form-control input-sm text-center" id="txt-discount" value="<?php echo $rule->item_disc; ?>" <?php echo $ac_disc; ?> />
-					</div>
-        </div>
-				<div class="col-sm-3">
-          <div class="btn-group width-100">
-          	<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_p; ?>" id="btn-pUnit" onclick="toggleUnit('P')" <?php echo $ac_disc; ?>>เปอร์เซ็นต์</button>
-						<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_a; ?>" id="btn-aUnit" onclick="toggleUnit('A')" <?php echo $ac_disc; ?>>จำนวนเงิน</button>
-          </div>
-				</div>
-				<div class="divider-hidden"></div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4 padding-5">
+			<span class="form-control left-label text-right">ส่วนลด 1</span>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<input type="number" class="form-control input-sm text-center" id="txt-discount" value="<?php echo $rule->item_disc; ?>" <?php echo $ac_disc; ?> />
+			</div>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_p; ?>" id="btn-pUnit" onclick="toggleUnit('P')" <?php echo $ac_disc; ?>>%</button>
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_a; ?>" id="btn-aUnit" onclick="toggleUnit('A')" <?php echo $ac_disc; ?>>THB</button>
+			</div>
+		</div>
+		<div class="divider-hidden"></div>
 
 
-				<div class="col-sm-2">
-					<span class="form-control left-label text-right">ส่วนลด 2</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<input type="number" class="form-control input-sm text-center" id="txt-discount2" value="<?php echo $rule->item_disc_2; ?>" <?php echo $ac_disc2; ?> />
-					</div>
-        </div>
-				<div class="col-sm-3">
-          <div class="btn-group width-100">
-          	<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_p2; ?>" id="btn-pUnit2" onclick="toggleUnit2('P')" <?php echo $ac_disc2; ?>>เปอร์เซ็นต์</button>
-						<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_a2; ?>" id="btn-aUnit2" onclick="toggleUnit2('A')" <?php echo $ac_disc2; ?>>จำนวนเงิน</button>
-          </div>
-				</div>
-				<div class="divider-hidden"></div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4 padding-5">
+			<span class="form-control left-label text-right">ส่วนลด 2</span>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<input type="number" class="form-control input-sm text-center" id="txt-discount2" value="<?php echo $rule->item_disc_2; ?>" <?php echo $ac_disc2; ?> />
+			</div>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_p2; ?>" id="btn-pUnit2" onclick="toggleUnit2('P')" <?php echo $ac_disc2; ?>>%</button>
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_a2; ?>" id="btn-aUnit2" onclick="toggleUnit2('A')" <?php echo $ac_disc2; ?>>THB</button>
+			</div>
+		</div>
+		<div class="divider-hidden"></div>
 
 
-				<div class="col-sm-2">
-					<span class="form-control left-label text-right">ส่วนลด 3</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<input type="number" class="form-control input-sm text-center" id="txt-discount3" value="<?php echo $rule->item_disc_3; ?>" <?php echo $ac_disc3; ?> />
-					</div>
-        </div>
-				<div class="col-sm-3">
-          <div class="btn-group width-100">
-          	<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_p3; ?>" id="btn-pUnit3" onclick="toggleUnit3('P')" <?php echo $ac_disc3; ?>>เปอร์เซ็นต์</button>
-						<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_a3; ?>" id="btn-aUnit3" onclick="toggleUnit3('A')" <?php echo $ac_disc3; ?>>จำนวนเงิน</button>
-          </div>
-				</div>
-				<div class="divider-hidden"></div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4 padding-5">
+			<span class="form-control left-label text-right">ส่วนลด 3</span>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<input type="number" class="form-control input-sm text-center" id="txt-discount3" value="<?php echo $rule->item_disc_3; ?>" <?php echo $ac_disc3; ?> />
+			</div>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_p3; ?>" id="btn-pUnit3" onclick="toggleUnit3('P')" <?php echo $ac_disc3; ?>>%</button>
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_unit_a3; ?>" id="btn-aUnit3" onclick="toggleUnit3('A')" <?php echo $ac_disc3; ?>>THB</button>
+			</div>
+		</div>
+		<div class="divider-hidden"></div>
 
 
-        <div class="col-sm-2">
-					<span class="form-control left-label text-right">จำนวนขั้นต่ำ</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<input type="number" class="form-control input-sm text-center" id="txt-qty" value="<?php echo $rule->qty; ?>" />
-					</div>
-        </div>
-				<div class="divider-hidden"></div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4 padding-5">
+			<span class="form-control left-label text-right">จำนวนขั้นต่ำ</span>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<input type="number" class="form-control input-sm text-center" id="txt-qty" value="<?php echo $rule->qty; ?>" />
+			</div>
+		</div>
+		<div class="divider-hidden"></div>
 
 
-        <div class="col-sm-2">
-					<span class="form-control left-label text-right">มูลค่าขั้นต่ำ</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<input type="number" class="form-control input-sm text-center" id="txt-amount" value="<?php echo $rule->amount; ?>" />
-					</div>
-        </div>
-				<div class="divider-hidden"></div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4 padding-5">
+			<span class="form-control left-label text-right">มูลค่าขั้นต่ำ</span>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<input type="number" class="form-control input-sm text-center" id="txt-amount" value="<?php echo $rule->amount; ?>" />
+			</div>
+		</div>
+		<div class="divider-hidden"></div>
 
-        <div class="col-sm-2">
-					<span class="form-control left-label text-right">รวมยอดได้</span>
-				</div>
-        <div class="col-sm-2">
-          <div class="btn-group width-100">
-          	<button type="button" class="btn btn-sm width-50 <?php echo $btn_can_group_yes; ?>" id="btn-cangroup-yes" onclick="toggleCanGroup('Y')">YES</button>
-						<button type="button" class="btn btn-sm width-50 <?php echo $btn_can_group_no; ?>" id="btn-cangroup-no" onclick="toggleCanGroup('N')">NO</button>
-          </div>
-        </div>
-				<div class="divider-hidden"></div>
-				<div class="col-sm-2">&nbsp;</div>
-				<div class="col-sm-3">
-					<button type="button" class="btn btn-sm btn-success btn-block" onclick="saveDiscount()"><i class="fa fa-save"></i> บันทึก</button>
-				</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4 padding-5">
+			<span class="form-control left-label text-right">รวมยอดได้</span>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-4">
+			<div class="btn-group width-100">
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_can_group_yes; ?>" id="btn-cangroup-yes" onclick="toggleCanGroup('Y')">YES</button>
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_can_group_no; ?>" id="btn-cangroup-no" onclick="toggleCanGroup('N')">NO</button>
+			</div>
+		</div>
+		<div class="divider-hidden"></div>
+		<div class="divider-hidden"></div>
+		<div class="divider-hidden"></div>
 
-
-    </div>
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-2 col-xs-offset-4">
+			<button type="button" class="btn btn-sm btn-success btn-block" onclick="saveDiscount()"><i class="fa fa-save"></i> บันทึก</button>
+		</div>
+	</div>
 
 		<input type="hidden" id="set_price" value="<?php echo $set_price; ?>" />
 		<input type="hidden" id="disc_unit" value="<?php echo $unit; ?>" />

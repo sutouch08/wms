@@ -49,7 +49,8 @@ class Lend extends PS_Controller
 			'notSave' => get_filter('notSave', 'lend_notSave', NULL),
       'onlyMe' => get_filter('onlyMe', 'lend_onlyMe', NULL),
       'isExpire' => get_filter('isExpire', 'lend_isExpire', NULL),
-			'wms_export' => get_filter('wms_export', 'lend_wms_export', 'all')
+			'wms_export' => get_filter('wms_export', 'lend_wms_export', 'all'),
+      'sap_status' => get_filter('sap_status', 'lend_sap_status', 'all')
     );
 
 		$state = array(
@@ -382,6 +383,7 @@ class Lend extends PS_Controller
       'lend_isApprove',
 			'lend_warehouse',
 			'lend_wms_export',
+      'lend_sap_status',
       'lend_notSave',
       'lend_onlyMe',
       'lend_isExpire',

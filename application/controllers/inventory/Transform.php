@@ -51,7 +51,8 @@ class Transform extends PS_Controller
       'to_date'   => get_filter('toDate', 'transform_toDate', ''),
       'isApprove' => get_filter('isApprove', 'transform_isApprove', 'all'),
 			'warehouse' => get_filter('warehouse', 'transform_warehouse', ''),
-			'wms_export' => get_filter('wms_export', 'transform_wms_export', 'all')
+			'wms_export' => get_filter('wms_export', 'transform_wms_export', 'all'),
+      'sap_status' => get_filter('sap_status', 'transform_sap_status', 'all')
     );
 
 		$state = array(
@@ -668,6 +669,7 @@ class Transform extends PS_Controller
       'transform_isApprove',
 			'transform_warehouse',
 			'transform_wms_export',
+      'transform_sap_status',
       'transform_notSave',
       'transform_onlyMe',
       'transform_isExpire',

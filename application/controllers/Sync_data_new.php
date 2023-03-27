@@ -49,6 +49,8 @@ class Sync_data_new extends CI_Controller
 
 		$this->syncTransferInvCode();
 
+    $this->syncReturnLendInvCode();
+
 		$this->syncMoveInvCode();
 
 		$this->syncTransformGoodsIssueCode();
@@ -578,6 +580,40 @@ class Sync_data_new extends CI_Controller
 
     $logs = array(
       'sync_item' => 'WW',
+      'get_item' => $count,
+      'update_item' => $update
+    );
+
+    //--- add logs
+    $this->sync_data_model->add_logs($logs);
+
+  }
+
+
+  public function syncReturnLendInvCode()
+  {
+    $this->load->model('inventory/return_lend_model');
+    $ds = $this->return_lend_model->get_non_inv_code($this->limit);
+
+    $count = 0;
+    $update = 0;
+
+    if(!empty($ds))
+    {
+      foreach($ds as $rs)
+      {
+        $count++;
+        $inv = $this->return_lend_model->get_sap_doc_num($rs->code);
+        if(!empty($inv))
+        {
+          $this->return_lend_model->update_inv($rs->code, $inv);
+          $update++;
+        }
+      }
+    }
+
+    $logs = array(
+      'sync_item' => 'RN',
       'get_item' => $count,
       'update_item' => $update
     );

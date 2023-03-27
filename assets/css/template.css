@@ -1562,9 +1562,9 @@ td.one-attribute{
 
 
 .hide-text{
+  white-space:nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space:normal;
 }
 
 /* .cart-modal {

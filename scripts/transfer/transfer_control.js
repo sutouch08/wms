@@ -1,10 +1,10 @@
 
-
 //-------  ดึงรายการสินค้าในโซน
 function getProductInZone(){
 	var zone_code  = $("#from_zone_code").val();
 	var transfer_code = $('#transfer_code').val();
-	if( zone_code.length > 0 ){
+	if( zone_code.length > 0 ) {
+		load_in();
 		$.ajax({
 			url: HOME + 'get_product_in_zone',
 			type:"GET",
@@ -14,8 +14,9 @@ function getProductInZone(){
         'zone_code' : zone_code
       },
 			success: function(rs){
+				load_out();
 				var rs = 	$.trim(rs);
-				if( isJson(rs) ){
+				if( isJson(rs) ) {
 					var source = $("#zoneTemplate").html();
 					var data		= $.parseJSON(rs);
 					var output	= $("#zone-list");
@@ -23,6 +24,13 @@ function getProductInZone(){
 					$("#transfer-table").addClass('hide');
 					$("#zone-table").removeClass('hide');
 					inputQtyInit();
+				}
+				else {
+					swal({
+						title:'Error',
+						text:rs,
+						type:'error'
+					});
 				}
 			}
 		});

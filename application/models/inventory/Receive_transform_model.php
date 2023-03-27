@@ -159,7 +159,14 @@ class Receive_transform_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('receive_transform');
+    $rs = $this->db
+    ->select('r.*, u.uname, u.name AS display_name')
+    ->from('receive_transform AS r')
+    ->join('zone AS z', 'r.zone_code = z.code', 'left')
+    ->join('user AS u', 'z.user_id = u.id', 'left')
+    ->where('r.code', $code)
+    ->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -226,6 +233,28 @@ class Receive_transform_model extends CI_Model
     return FALSE;
   }
 
+
+  public function get_sum_uncomplete_qty($order_code, $product_code, $receive_code)
+  {
+    $rs = $this->db
+    ->select_sum('rd.qty')
+    ->from('receive_transform_detail AS rd')
+    ->join('receive_transform AS rt', 'rd.receive_code = rt.code', 'left')
+    ->where('rt.order_code', $order_code)
+    ->where_in('rt.status', array(0, 3, 4))
+    ->where('rt.is_expire', 0)
+    ->where('rd.product_code', $product_code)
+    ->where('rd.receive_code !=', $receive_code)
+    ->where('rd.is_cancle', 0)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
 
 
   public function get_sum_qty($code)
@@ -301,15 +330,41 @@ class Receive_transform_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
+    if($ds['must_accept'] != "" && $ds['must_accept'] !== 'all')
+    {
+      $this->db->where('must_accept', $ds['must_accept']);
+    }
+
     if($ds['status'] !== 'all')
     {
       $this->db->where('status', $ds['status']);
+    }
+
+    if(isset($ds['is_expire']) && $ds['is_expire'] != 'all')
+    {
+      $this->db->where('is_expire', $ds['is_expire']);
     }
 
 		if($ds['is_wms'] !== 'all')
 		{
 			$this->db->where('is_wms', $ds['is_wms']);
 		}
+
+    if(isset($ds['sap_status']) && $ds['sap_status'] != 'all')
+    {
+      if($ds['sap_status'] == 0) {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+    }
+
+    if(isset($ds['zone']) && $ds['zone'] != "")
+    {
+      $this->db->like('zone_code', $ds['zone']);
+    }
 
 
     $rs = $this->db->get('receive_transform');
@@ -349,15 +404,42 @@ class Receive_transform_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
+    if($ds['must_accept'] != "" && $ds['must_accept'] !== 'all')
+    {
+      $this->db->where('must_accept', $ds['must_accept']);
+    }
+
     if($ds['status'] !== 'all')
     {
       $this->db->where('status', $ds['status']);
     }
 
+    if(isset($ds['is_expire']) && $ds['is_expire'] != 'all')
+    {
+      $this->db->where('is_expire', $ds['is_expire']);
+    }
+
+
 		if($ds['is_wms'] !== 'all')
 		{
 			$this->db->where('is_wms', $ds['is_wms']);
 		}
+
+    if(isset($ds['sap_status']) && $ds['sap_status'] != 'all')
+    {
+      if($ds['sap_status'] == 0) {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+    }
+
+    if(isset($ds['zone']) && $ds['zone'] != "")
+    {
+      $this->db->like('zone_code', $ds['zone']);
+    }
 
     $this->db->order_by('code', 'DESC');
     if($perpage != '')

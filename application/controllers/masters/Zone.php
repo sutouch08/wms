@@ -21,7 +21,7 @@ class Zone extends PS_Controller
   {
     $filter = array(
       'code' => get_filter('code', 'code', ''),
-      'name' => get_filter('name', 'name', ''),
+      'uname' => get_filter('uname', 'uname', ''),
       'warehouse' => get_filter('warehouse', 'warehouse', ''),
       'customer' => get_filter('customer', 'customer', ''),
       'active' => get_filter('active', 'active', 'all')
@@ -65,6 +65,7 @@ class Zone extends PS_Controller
       $ds['ds'] = $zone;
       $ds['customers'] = $this->zone_model->get_customers($code);
       $ds['employees'] = NULL;
+
       if($zone->role == 8)
       {
         $ds['employees'] = $this->zone_model->get_employee($code);
@@ -78,6 +79,45 @@ class Zone extends PS_Controller
       redirect($this->home);
     }
   }
+
+
+
+  public function update_owner()
+  {
+    $sc = TRUE;
+    if($this->input->post('zone_code'))
+    {
+      $zone_code = $this->input->post('zone_code');
+      $user_id = get_null($this->input->post('user_id'));
+
+      $zone = $this->zone_model->get($zone_code);
+
+      if( ! empty($zone))
+      {
+        $arr = array('user_id' => $user_id);
+
+        if( ! $this->zone_model->update($zone->id, $arr))
+        {
+          $sc = FALSE;
+          $this->error = "Update data failed";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Zone Code";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing required parameter : zone_code";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
 
   public function delete($code)
   {
@@ -385,7 +425,7 @@ class Zone extends PS_Controller
   {
     $ds = array(
       'code' => $this->input->post('zone_code'),
-      'name' => $this->input->post('zone_name'),
+      'uname' => $this->input->post('zone_uname'),
       'customer' => $this->input->post('zone_customer'),
       'warehouse' => $this->input->post('zone_warehouse')
     );
@@ -409,6 +449,7 @@ class Zone extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('D1', 'รหัสคลัง');
     $this->excel->getActiveSheet()->setCellValue('E1', 'คลังสินค้า');
     $this->excel->getActiveSheet()->setCellValue('F1', 'รหัสเก่า');
+    $this->excel->getActiveSheet()->setCellValue('G1', 'เจ้าของโซน');
 
 
     //---- กำหนดความกว้างของคอลัมภ์
@@ -417,6 +458,8 @@ class Zone extends PS_Controller
     $this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
     $this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(30);
     $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(30);
 
 
     $row = 2;
@@ -445,6 +488,13 @@ class Zone extends PS_Controller
         //--- old code
         $this->excel->getActiveSheet()->setCellValue('F'.$row, "{$rs->old_code}");
 
+        //--- user name
+        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->uname);
+
+        $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->display_name);
+
+
+
         $no++;
         $row++;
       }
@@ -462,7 +512,7 @@ class Zone extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('code', 'name', 'customer', 'warehouse', 'active');
+    $filter = array('code', 'uname', 'customer', 'warehouse', 'active');
     clear_filter($filter);
   }
 

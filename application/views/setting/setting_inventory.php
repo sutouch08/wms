@@ -12,6 +12,8 @@
 <?php $wt_btn_no = is_true($LIMIT_CONSIGN) ? '' : 'btn-danger'; ?>
 <?php $wc_btn_yes = is_true($LIMIT_CONSIGNMENT) ? 'btn-success' : ''; ?>
 <?php $wc_btn_no = is_true($LIMIT_CONSIGNMENT) ? '' : 'btn-danger'; ?>
+<?php $strict_transfer_yes = is_true($STRICT_TRANSFER) ? 'btn-success' : ''; ?>
+<?php $strict_transfer_no = is_true($STRICT_TRANSFER) ? '' : 'btn-success'; ?>
 
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
@@ -151,6 +153,19 @@
         </div>
         <span class="help-block">ใช้งาน SYSTEM_BIN_LOCATION หรือไม่</span>
         <input type="hidden" name="SYSTEM_BIN_LOCATION" id="system-bin-location" value="<?php echo $SYSTEM_BIN_LOCATION; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-3">
+        <span class="form-control left-label">ต้องอนุมัติก่อนโอนสินค้าทุกครั้ง</span>
+      </div>
+      <div class="col-sm-9">
+				<div class="btn-group input-medium">
+        	<button type="button" class="btn btn-sm <?php echo $strict_transfer_yes; ?>" style="width:50%;" id="btn-transfer-yes" onClick="toggleTransfer(1)">ทุกครั้ง</button>
+          <button type="button" class="btn btn-sm <?php echo $strict_transfer_no; ?>" style="width:50%;" id="btn-transfer-no" onClick="toggleTransfer(0)">ไม่ต้อง</button>
+        </div>
+        <span class="help-block"></span>
+        <input type="hidden" name="STRICT_TRANSFER" id="strict-transfer" value="<?php echo $STRICT_TRANSFER; ?>" />
       </div>
       <div class="divider-hidden"></div>
 

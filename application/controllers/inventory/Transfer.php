@@ -27,15 +27,17 @@ class Transfer extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code'      => get_filter('code', 'tr_code', ''),
-      'from_warehouse'  => get_filter('from_warehouse', 'tr_from_warehouse', ''),
-      'user'      => get_filter('user', 'tr_user', ''),
-      'to_warehouse'  => get_filter('to_warehouse', 'tr_to_warehouse', ''),
+      'code' => get_filter('code', 'tr_code', ''),
+      'from_warehouse' => get_filter('from_warehouse', 'tr_from_warehouse', ''),
+      'user' => get_filter('user', 'tr_user', ''),
+      'to_warehouse' => get_filter('to_warehouse', 'tr_to_warehouse', ''),
       'from_date' => get_filter('fromDate', 'tr_fromDate', ''),
-      'to_date'   => get_filter('toDate', 'tr_toDate', ''),
+      'to_date' => get_filter('toDate', 'tr_toDate', ''),
       'status' => get_filter('status', 'tr_status', 'all'),
-      'is_export' => get_filter('is_export', 'tr_is_export', 'all'),
-			'api' => get_filter('api', 'tr_api', 'all')
+      'is_approve' => get_filter('is_approve', 'tr_is_approve', 'all'),
+			'api' => get_filter('api', 'tr_api', 'all'),
+      'valid' => get_filter('valid', 'tr_valid', 'all'),
+      'sap' => get_filter('sap', 'tr_sap', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -50,16 +52,9 @@ class Transfer extends PS_Controller
 		$rows     = $this->transfer_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$docs     = $this->transfer_model->get_data($filter, $perpage, $this->uri->segment($segment));
+		$docs     = $this->transfer_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
-    if(!empty($docs))
-    {
-      foreach($docs as $rs)
-      {
-        $rs->from_warehouse_name = $this->warehouse_model->get_name($rs->from_warehouse);
-        $rs->to_warehouse_name = $this->warehouse_model->get_name($rs->to_warehouse);
-      }
-    }
+
 
     $filter['docs'] = $docs;
 		$this->pagination->initialize($init);
@@ -70,7 +65,9 @@ class Transfer extends PS_Controller
 
   public function view_detail($code)
   {
+    $this->load->model('approve_logs_model');
     $doc = $this->transfer_model->get($code);
+
     if(!empty($doc))
     {
       $doc->from_warehouse_name = $this->warehouse_model->get_name($doc->from_warehouse);
@@ -78,6 +75,7 @@ class Transfer extends PS_Controller
     }
 
     $details = $this->transfer_model->get_details($code);
+
     if(!empty($details))
     {
       foreach($details as $rs)
@@ -91,6 +89,7 @@ class Transfer extends PS_Controller
     $ds = array(
       'doc' => $doc,
       'details' => $details,
+      'approve_logs' => $this->approve_logs_model->get($code),
       'barcode' => FALSE
     );
 
@@ -106,8 +105,9 @@ class Transfer extends PS_Controller
 
   public function add()
   {
-    if($this->input->post('date'))
+    if($this->input->post())
     {
+      $sc = TRUE;
       $date_add = db_date($this->input->post('date'), TRUE);
       $from_warehouse = $this->input->post('from_warehouse_code');
       $to_warehouse = $this->input->post('to_warehouse_code');
@@ -135,45 +135,74 @@ class Transfer extends PS_Controller
         $code = $this->get_new_code($date_add);
       }
 
-
-      $ds = array(
-        'code' => $code,
-        'bookcode' => $bookcode,
-        'from_warehouse' => $from_warehouse,
-        'to_warehouse' => $to_warehouse,
-        'remark' => trim($remark),
-        'user' => get_cookie('uname'),
-        'date_add' => $date_add,
-				'is_wms' => $is_wms,
-				'direction' => $direction,
-				'api' => $api,
-				'wx_code' => $wx_code
-      );
-
-      $rs = $this->transfer_model->add($ds);
-
-      if($rs === TRUE)
+      if( ! empty($code))
       {
-        redirect($this->home.'/edit/'.$code);
+        $must_approve = getConfig('STRICT_TRANSFER') == 1 ? 1 : 0;
+
+        $ds = array(
+          'code' => $code,
+          'bookcode' => $bookcode,
+          'from_warehouse' => $from_warehouse,
+          'to_warehouse' => $to_warehouse,
+          'remark' => trim($remark),
+          'user' => get_cookie('uname'),
+          'date_add' => $date_add,
+          'is_wms' => $is_wms,
+          'direction' => $direction,
+          'api' => $api,
+          'wx_code' => $wx_code,
+          'must_approve' => $must_approve
+        );
+
+        if( ! $this->transfer_model->add($ds))
+        {
+          $sc = FALSE;
+          $this->error = 'เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+        }
       }
       else
       {
-        set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-        redirect($this->home.'/add_new');
+        $sc = FALSE;
+        $this->error = "Invalid Document Number";
       }
+
     }
     else
     {
-      set_error('ไม่พบข้อมูลเอกสาร กรุณาตรวจสอบ');
-      redirect($this->home.'/add_new');
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function is_document_avalible()
+  {
+    $code = $this->input->get('code');
+    $uuid = $this->input->get('uuid');
+    if( ! $this->transfer_model->is_document_avalible($code, $uuid))
+    {
+      echo "not_available";
+    }
+    else
+    {
+      echo "available";
     }
   }
 
 
 
-  public function edit($code, $barcode = '')
+  public function edit($code, $uuid, $barcode = '')
   {
     $doc = $this->transfer_model->get($code);
+
     if(!empty($doc))
     {
       $doc->from_warehouse_name = $this->warehouse_model->get_name($doc->from_warehouse);
@@ -181,6 +210,7 @@ class Transfer extends PS_Controller
     }
 
     $details = $this->transfer_model->get_details($code);
+
     if(!empty($details))
     {
       foreach($details as $rs)
@@ -197,9 +227,23 @@ class Transfer extends PS_Controller
       'barcode' => $barcode == '' ? FALSE : TRUE
     );
 
+    $this->transfer_model->update_uuid($code, $uuid);
+
     $this->load->view('transfer/transfer_edit', $ds);
   }
 
+
+  public function update_uuid()
+  {
+    $sc = TRUE;
+    $code = trim($this->input->post('code'));
+    $uuid = trim($this->input->post('uuid'));
+
+    if( ! empty($uuid))
+    {
+      return $this->transfer_model->update_uuid($code, $uuid);
+    }
+  }
 
 
   public function update($code)
@@ -215,6 +259,8 @@ class Transfer extends PS_Controller
 		$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
 
 
+    $must_approve = getConfig('STRICT_TRANSFER') == 1 ? 1 : 0;
+
     $arr = array(
       'date_add' => db_date($this->input->post('date_add'), TRUE),
       'from_warehouse' => $fromWh->code,
@@ -224,6 +270,7 @@ class Transfer extends PS_Controller
 			'direction' => $direction,
 			'api' => $api,
 			'wx_code' => $wx_code,
+      'must_approve' => $must_approve,
       'update_user' => get_cookie('uname')
     );
 
@@ -266,123 +313,140 @@ class Transfer extends PS_Controller
 		if(!empty($doc))
 		{
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
-			if($doc->status == 0)
+
+			if($doc->status == -1 OR $doc->status == 0)
 			{
 				$details = $this->transfer_model->get_details($code);
 
 				if(!empty($details))
 				{
-					//--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-					if($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api == 1)
-					{
-						$this->wms = $this->load->database('wms', TRUE);
-						//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-						if($doc->direction == 1)
-						{
-							$this->load->library('wms_receive_api');
+          //--- ถ้าต้องอนุมัติ แค่เปลี่ยนสถานะเป็น 0 พอ
+          if($doc->must_approve == 1)
+          {
+            $arr = array(
+              'status' => 0,
+              'is_approve' => 0
+            );
 
-							$rs = $this->wms_receive_api->export_transfer($doc, $details);
+            if( ! $this->transfer_model->update($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Update Status Failed";
+            }
+          }
+          else
+          {
+            //--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
+            if($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api == 1)
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+              if($doc->direction == 1)
+              {
+                $this->load->library('wms_receive_api');
 
-							if($rs)
-							{
-								$this->transfer_model->set_status($doc->code, 3); //--- on wms process
-							}
-							else
-							{
-								$sc = FALSE;
-								$this->error = "Error! - ".$this->wms_receive_api->error;
-							}
-						}
+                $rs = $this->wms_receive_api->export_transfer($doc, $details);
 
-						if($doc->direction == 2)
-						{
-							$this->load->library('wms_order_api');
+                if($rs)
+                {
+                  $this->transfer_model->set_status($doc->code, 3); //--- on wms process
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "Error! - ".$this->wms_receive_api->error;
+                }
+              }
 
-							$rs = $this->wms_order_api->export_transfer_order($doc, $details);
+              if($doc->direction == 2)
+              {
+                $this->load->library('wms_order_api');
 
-							if($rs)
-							{
-								$this->transfer_model->set_status($doc->code, 3); //--- on wms process
-							}
-							else
-							{
-								$sc = FALSE;
-								$this->error = "Error! - ".$this->wms_order_api->error;
-							}
-						}
-					}
-					else
-					{
-						$this->load->model('inventory/movement_model');
-						$this->db->trans_begin();
+                $rs = $this->wms_order_api->export_transfer_order($doc, $details);
 
-						$this->transfer_model->update($code, array('shipped_date' => now())); //--- update transferd date
+                if($rs)
+                {
+                  $this->transfer_model->set_status($doc->code, 3); //--- on wms process
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "Error! - ".$this->wms_order_api->error;
+                }
+              }
+            }
+            else
+            {
+              $this->load->model('inventory/movement_model');
+              $this->db->trans_begin();
 
-						foreach($details as $rs)
-						{
-							//--- 2. update movement
-							$move_out = array(
-								'reference' => $code,
-								'warehouse_code' => $doc->from_warehouse,
-								'zone_code' => $rs->from_zone,
-								'product_code' => $rs->product_code,
-								'move_in' => 0,
-								'move_out' => $rs->qty,
-								'date_add' => $date_add
-							);
+              $this->transfer_model->update($code, array('shipped_date' => now())); //--- update transferd date
 
-							$move_in = array(
-								'reference' => $code,
-								'warehouse_code' => $doc->to_warehouse,
-								'zone_code' => $rs->to_zone,
-								'product_code' => $rs->product_code,
-								'move_in' => $rs->qty,
-								'move_out' => 0,
-								'date_add' => $date_add
-							);
+              foreach($details as $rs)
+              {
+                //--- 2. update movement
+                $move_out = array(
+                'reference' => $code,
+                'warehouse_code' => $doc->from_warehouse,
+                'zone_code' => $rs->from_zone,
+                'product_code' => $rs->product_code,
+                'move_in' => 0,
+                'move_out' => $rs->qty,
+                'date_add' => $date_add
+                );
 
-							//--- move out
-							if(! $this->movement_model->add($move_out))
-							{
-								$sc = FALSE;
-								$this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
-								break;
-							}
+                $move_in = array(
+                'reference' => $code,
+                'warehouse_code' => $doc->to_warehouse,
+                'zone_code' => $rs->to_zone,
+                'product_code' => $rs->product_code,
+                'move_in' => $rs->qty,
+                'move_out' => 0,
+                'date_add' => $date_add
+                );
 
-							//--- move in
-							if(! $this->movement_model->add($move_in))
-							{
-								$sc = FALSE;
-								$this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
-								break;
-							}
-						} //--- end foreach
+                //--- move out
+                if(! $this->movement_model->add($move_out))
+                {
+                  $sc = FALSE;
+                  $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
+                  break;
+                }
 
-						if($sc === TRUE && ! $this->transfer_model->set_status($code, 1))
-						{
-							$sc = FALSE;
-							$this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
-						}
+                //--- move in
+                if(! $this->movement_model->add($move_in))
+                {
+                  $sc = FALSE;
+                  $this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+                  break;
+                }
+              } //--- end foreach
 
-						if($sc === TRUE && ! $this->transfer_model->valid_all_detail($code, 1))
-						{
-							$sc = FALSE;
-							$this->error = "เปลี่ยนสถานะรายการไม่สำเร็จ";
-						}
+              if($sc === TRUE && ! $this->transfer_model->set_status($code, 1))
+              {
+                $sc = FALSE;
+                $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+              }
 
-						if($sc === TRUE)
-						{
-							$this->db->trans_commit();
+              if($sc === TRUE && ! $this->transfer_model->valid_all_detail($code, 1))
+              {
+                $sc = FALSE;
+                $this->error = "เปลี่ยนสถานะรายการไม่สำเร็จ";
+              }
 
-							$this->do_export($code);
-						}
-						else
-						{
-							$this->db->trans_rollback();
-						}
+              if($sc === TRUE)
+              {
+                $this->db->trans_commit();
 
+                $this->do_export($code);
+              }
+              else
+              {
+                $this->db->trans_rollback();
+              }
 
-					} //-- end if is_wms
+            } //-- end if is_wms
+          }
 				}
 				else
 				{
@@ -407,20 +471,264 @@ class Transfer extends PS_Controller
   }
 
 
+
+  public function do_approve()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+
+    if($this->pm->can_approve)
+    {
+      $doc = $this->transfer_model->get($code);
+
+      if(!empty($doc))
+      {
+        $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
+        if($doc->status == 0)
+        {
+          $arr = array(
+            'is_approve' => 1
+          );
+
+          if( ! $this->transfer_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "Update Approve Status Failed";
+          }
+
+          if($sc === TRUE)
+          {
+
+            $details = $this->transfer_model->get_details($code);
+
+            if(!empty($details))
+            {
+              //--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
+              if($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api == 1)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                if($doc->direction == 1)
+                {
+                  $this->load->library('wms_receive_api');
+
+                  $rs = $this->wms_receive_api->export_transfer($doc, $details);
+
+                  if($rs)
+                  {
+                    $this->transfer_model->set_status($doc->code, 3); //--- on wms process
+                  }
+                  else
+                  {
+                    $sc = FALSE;
+                    $this->error = "Error! - ".$this->wms_receive_api->error;
+                  }
+                }
+
+                if($doc->direction == 2)
+                {
+                  $this->load->library('wms_order_api');
+
+                  $rs = $this->wms_order_api->export_transfer_order($doc, $details);
+
+                  if($rs)
+                  {
+                    $this->transfer_model->set_status($doc->code, 3); //--- on wms process
+                  }
+                  else
+                  {
+                    $sc = FALSE;
+                    $this->error = "Error! - ".$this->wms_order_api->error;
+                  }
+                }
+              }
+              else
+              {
+                $this->load->model('inventory/movement_model');
+                $this->load->model('approve_logs_model');
+
+                $this->db->trans_begin();
+
+                $this->approve_logs_model->add($code, 1, $this->_user->uname);
+                $this->transfer_model->update($code, array('shipped_date' => now())); //--- update transferd date
+
+                foreach($details as $rs)
+                {
+                  //--- 2. update movement
+                  $move_out = array(
+                  'reference' => $code,
+                  'warehouse_code' => $doc->from_warehouse,
+                  'zone_code' => $rs->from_zone,
+                  'product_code' => $rs->product_code,
+                  'move_in' => 0,
+                  'move_out' => $rs->qty,
+                  'date_add' => $date_add
+                  );
+
+                  $move_in = array(
+                  'reference' => $code,
+                  'warehouse_code' => $doc->to_warehouse,
+                  'zone_code' => $rs->to_zone,
+                  'product_code' => $rs->product_code,
+                  'move_in' => $rs->qty,
+                  'move_out' => 0,
+                  'date_add' => $date_add
+                  );
+
+                  //--- move out
+                  if(! $this->movement_model->add($move_out))
+                  {
+                    $sc = FALSE;
+                    $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
+                    break;
+                  }
+
+                  //--- move in
+                  if(! $this->movement_model->add($move_in))
+                  {
+                    $sc = FALSE;
+                    $this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+                    break;
+                  }
+                } //--- end foreach
+
+                if($sc === TRUE && ! $this->transfer_model->set_status($code, 1))
+                {
+                  $sc = FALSE;
+                  $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+                }
+
+                if($sc === TRUE && ! $this->transfer_model->valid_all_detail($code, 1))
+                {
+                  $sc = FALSE;
+                  $this->error = "เปลี่ยนสถานะรายการไม่สำเร็จ";
+                }
+
+                if($sc === TRUE)
+                {
+                  $this->db->trans_commit();
+
+                  $this->do_export($code);
+                }
+                else
+                {
+                  $this->db->trans_rollback();
+                }
+
+              } //-- end if is_wms
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "ไม่พบรายการโอนย้าย";
+            }
+          }
+
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "สถานะเอกสารไม่ถูกต้อง";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "เลขที่เอกสารไม่ถูกต้อง";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "คุณไม่มีสิทธิ์ในการอนุมัติ";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+  public function do_reject()
+  {
+    $sc = TRUE;
+    $this->load->model('approve_logs_model');
+
+    $code = $this->input->post('code');
+
+    if($this->pm->can_approve)
+    {
+      if( ! empty($code))
+      {
+        $doc = $this->transfer_model->get($code);
+
+        if( ! empty($doc))
+        {
+          if($doc->status == 0 && $doc->is_approve == 0)
+          {
+            $arr = array(
+              'is_approve' => 3
+            );
+
+            if($this->transfer_model->update($code, $arr))
+            {
+              $this->approve_logs_model->add($code, 3, $this->_user->uname);
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Update Status Failed";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Invalid document status";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid document number";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Missing required parameter";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "คุณไม่มีสิทธิ์ในการอนุมัติ";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+
 	public function send_to_wms($code)
   {
     $sc = TRUE;
 
 		$doc = $this->transfer_model->get($code);
 
-		if(!empty($doc))
+		if( ! empty($doc))
 		{
-			if($doc->status == 0) //--- if($doc->status != 3)
+			if($doc->status == -1)
 			{
 				$sc = FALSE;
 				$this->error = "Invalid Document status";
 			}
-			else
+
+      if($doc->must_approve == 1 && $doc->is_approve = 0)
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Approve Status";
+      }
+
+      if($sc === TRUE)
 			{
 				$details = $this->transfer_model->get_details($code);
 
@@ -494,7 +802,6 @@ class Transfer extends PS_Controller
     }
     else
     {
-
       //--- check middle doc delete it if exists
       $middle = $this->transfer_model->get_middle_transfer_doc($code);
       if(!empty($middle))
@@ -507,8 +814,12 @@ class Transfer extends PS_Controller
 
 
       $this->db->trans_start();
-      //--- change state to 1
-      $this->transfer_model->set_status($code, 0);
+      //--- change state to -1
+      $arr = array(
+        'status' => -1,
+        'is_approve' => 0
+      );
+      $this->transfer_model->update($code, $arr);
       $this->transfer_model->valid_all_detail($code, 0);
       $this->movement_model->drop_movement($code);
       $this->db->trans_complete();
@@ -542,19 +853,29 @@ class Transfer extends PS_Controller
 				$code = $data->transfer_code;
 	      $from_zone = $data->from_zone;
 	      $to_zone = $data->to_zone;
+
 	      $items = $data->items;
 
 	      if(!empty($items))
 	      {
-	        $this->db->trans_start();
+	        $this->db->trans_begin();
 
 	        foreach($items as $item)
 	        {
+            if($sc === FALSE)
+            {
+              break;
+            }
+
 	          $id = $this->transfer_model->get_id($code, $item->item_code, $from_zone, $to_zone);
 
 	          if(!empty($id))
 	          {
-	            $this->transfer_model->update_qty($id, $item->qty);
+	            if( !$this->transfer_model->update_qty($id, $item->qty))
+              {
+                $sc = FALSE;
+                $this->error = "Update data failed";
+              }
 	          }
 	          else
 	          {
@@ -567,17 +888,26 @@ class Transfer extends PS_Controller
 	              'qty' => $item->qty
 	            );
 
-	            $this->transfer_model->add_detail($arr);
+	            if( ! $this->transfer_model->add_detail($arr))
+              {
+                $sc = FALSE;
+                $this->error = "Insert data failed";
+              }
 	          }
 	        }
 
-	        $this->db->trans_complete();
-
-	        if($this->db->trans_status() === FALSE)
+	        if($sc === TRUE)
 	        {
-	          $sc = FALSE;
-	          $this->error = 'เพิ่มข้อมูลไม่สำเร็จ';
+            $arr = array('status' => -1);
+            $this->transfer_model->update($data->transfer_code, $arr);
+
+	          $this->db->trans_commit();
+
 	        }
+          else
+          {
+            $this->db->trans_rollback();
+          }
 	      }
 				else
 				{
@@ -602,57 +932,6 @@ class Transfer extends PS_Controller
   }
 
 
-  // public function add_to_transfer()
-  // {
-  //   $sc = TRUE;
-  //   $code = $this->input->post('transfer_code');
-  //   if($code)
-  //   {
-  //     $this->load->model('masters/products_model');
-	//
-  //     $from_zone = $this->input->post('from_zone');
-  //     $to_zone = $this->input->post('to_zone');
-  //     $trans_products = $this->input->post('trans_products');
-  //     if(!empty($trans_products))
-  //     {
-  //       $this->db->trans_start();
-  //       foreach($trans_products as $item => $qty)
-  //       {
-  //         $id = $this->transfer_model->get_id($code, $item, $from_zone, $to_zone);
-  //         if(!empty($id))
-  //         {
-  //           $this->transfer_model->update_qty($id, $qty);
-  //         }
-  //         else
-  //         {
-  //           $arr = array(
-  //             'transfer_code' => $code,
-  //             'product_code' => $item,
-  //             'product_name' => $this->products_model->get_name($item),
-  //             'from_zone' => $from_zone,
-  //             'to_zone' => $to_zone,
-  //             'qty' => $qty
-  //           );
-	//
-  //           $this->transfer_model->add_detail($arr);
-  //         }
-  //       }
-	//
-  //       $this->db->trans_complete();
-	//
-  //       if($this->db->trans_status() === FALSE)
-  //       {
-  //         $sc = FALSE;
-  //         $message = 'เพิ่มข้อมูลไม่สำเร็จ';
-  //       }
-  //     }
-  //   }
-	//
-  //   echo $sc === TRUE ? 'success' : $message;
-	//
-  // }
-
-
 
 
   public function add_to_temp()
@@ -669,6 +948,7 @@ class Transfer extends PS_Controller
       $qty = $this->input->post('qty');
 
       $item = $this->products_model->get_product_by_barcode($barcode);
+
       if(!empty($item))
       {
         $product_code = $item->code;
@@ -733,6 +1013,7 @@ class Transfer extends PS_Controller
       $qty = $this->input->post('qty');
 
       $item = $this->products_model->get_product_by_barcode($barcode);
+
       if(!empty($item))
       {
         //--- ย้ายจำนวนใน temp มาเพิ่มเข้า transfer detail
@@ -982,7 +1263,8 @@ class Transfer extends PS_Controller
 
   public function get_product_in_zone()
   {
-    $sc = array();
+    $sc = TRUE;
+    $ds = array();
 
     if($this->input->get('zone_code'))
     {
@@ -991,7 +1273,8 @@ class Transfer extends PS_Controller
       $zone_code = $this->input->get('zone_code');
       $transfer_code = $this->input->get('transfer_code');
       $stock = $this->stock_model->get_all_stock_in_zone($zone_code);
-      if(!empty($stock))
+
+      if( ! empty($stock))
       {
         $no = 1;
         foreach($stock as $rs)
@@ -1012,17 +1295,23 @@ class Transfer extends PS_Controller
               'qty' => $qty
             );
 
-            array_push($sc, $arr);
+            array_push($ds, $arr);
             $no++;
           }
         }
       }
       else
       {
-        array_push($sc, array("nodata" => "nodata"));
+        array_push($ds, array("nodata" => "nodata"));
       }
-      echo json_encode($sc);
     }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
+    }
+
+    echo $sc = TRUE ? json_encode($ds) : $this->error;
   }
 
 
@@ -1239,8 +1528,10 @@ class Transfer extends PS_Controller
       'tr_fromDate',
       'tr_toDate',
       'tr_status',
-      'tr_is_export',
-			'tr_api'
+			'tr_api',
+      'tr_is_approve',
+      'tr_valid',
+      'tr_sap'
     );
 
     clear_filter($filter);

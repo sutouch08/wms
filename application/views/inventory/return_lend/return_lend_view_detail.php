@@ -50,7 +50,7 @@
 	<div class="divider-hidden"></div>
 
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<label>รัหสโซน[ยืม]</label>
+		<label>รหัสโซน[ยืม]</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->from_zone; ?>" disabled />
 	</div>
 
@@ -59,7 +59,7 @@
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->from_zone_name; ?>" disabled />
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<label>รัหสโซน[รับคืน]</label>
+		<label>รหัสโซน[รับคืน]</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->to_zone; ?>" disabled />
 	</div>
 	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 padding-5">

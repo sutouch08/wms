@@ -15,5 +15,8 @@ function goEdit(id){
 
 
 function viewDetail(id){
-  window.location.href = HOME + 'view_rule_detail/'+id;
+  var center    = ($(document).width() - 800)/2;
+  var prop 			= "width=800, height=900. left="+center+", scrollbars=yes";
+  var target  = HOME + "view_rule_detail/"+id;
+  window.open(target, '_blank', prop);
 }

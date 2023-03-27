@@ -37,7 +37,7 @@
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>
 
-  <?php if($doc->status == 0) : ?>
+  <?php if(($doc->status == -1 OR $doc->status == 0)) : ?>
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">Submit</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"><i class="fa fa-pencil"></i> แก้ไข</button>

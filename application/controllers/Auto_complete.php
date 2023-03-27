@@ -806,6 +806,38 @@ public function get_prepare_item_code()
   }
 
 
+  public function get_active_user_by_uname()
+  {
+    $sc = array();
+    $txt = $_REQUEST['term'];
+    $this->db->select('id, uname, name')->where('active', 1);
+
+    if($txt != '*')
+    {
+      $this->db->like('uname', $txt);
+    }
+
+    $rs = $this->db->limit(20)->get('user');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $ds)
+      {
+        $arr = array(
+          'label' => $ds->uname,
+          'id' => $ds->id,
+          'uname' => $ds->uname,
+          'dname' => $ds->name
+        );
+
+        array_push($sc, $arr);
+      }
+    }
+
+    echo json_encode($sc);
+  }
+
+
   public function get_consign_zone($customer_code = '')
   {
     if($customer_code == '')

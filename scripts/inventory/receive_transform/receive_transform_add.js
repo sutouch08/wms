@@ -13,12 +13,25 @@ function editHeader(){
 }
 
 function updateHeader(){
-	var code = $('#receive_code').val();
-	var date_add = $('#dateAdd').val();
-	var is_wms = $('#is_wms').val();
-	var remark = $('#remark').val();
+	let code = $('#receive_code').val();
+	let date_add = $('#dateAdd').val();
+	let is_wms = $('#is_wms').val();
+	let remark = $('#remark').val().trim();
+	let reqRemark = $('#required-remark').val();
+
 	if(!isDate(date_add)){
 		swal("วันที่ไม่ถูกต้อง");
+		return false;
+	}
+
+
+	if(reqRemark == 1 && remark.length < 10) {
+		swal({
+			title:'ผิดพลาด',
+			text: 'กรุณาใส่หมายเหตุ (ความยาวอย่างน้อย 10 ตัวอักษร)',
+			type:'warning'
+		});
+
 		return false;
 	}
 
@@ -459,14 +472,18 @@ function changePo(){
 }
 
 
-function getData(){
-	var order_code = $("#order_code").val();
+function getData() {
+	let code = $('#receive_code').val();
+	let order_code = $("#order_code").val();
+
 	load_in();
+
 	$.ajax({
 		url: HOME + 'get_transform_detail',
 		type:"GET",
 		cache:"false",
 		data:{
+			"receive_code" : code,
 			"order_code" : order_code
 		},
 		success: function(rs){
@@ -523,6 +540,25 @@ $('#order_code').keyup(function(e) {
 
 
 
+
+
+$('#zone_code').autocomplete({
+	source: BASE_URL + 'auto_complete/get_zone_code',
+	autoFocus: true,
+	close: function() {
+		let rs = $(this).val();
+		let arr = rs.split(' | ');
+
+		if(arr.length == 2) {
+			$('#zone_code').val(arr[0]);
+			$('#zoneName').val(arr[1]);
+		}
+		else {
+			$('#zone_code').val('');
+			$('#zoneName').val('');
+		}
+	}
+});
 
 
 
@@ -648,3 +684,58 @@ $('#code').keyup(function(e){
 		validateOrder();
 	}
 });
+
+
+
+function accept() {
+	$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
+	$('#accept-modal').modal('show');
+}
+
+function acceptConfirm() {
+	let code = $('#receive_code').val();
+	let note = $.trim($('#accept-note').val());
+
+	if(note.length < 10) {
+		$('#accept-error').text('กรุณาระบุหมายเหตุอย่างนี้อย 10 ตัวอักษร');
+		return false;
+	}
+	else {
+		$('#accept-error').text('');
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'accept_confirm',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"accept_remark" : note
+		},
+		success:function(rs) {
+			load_out();
+
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(() => {
+					window.location.reload();
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text: rs,
+					type:'error'
+				});
+			}
+		}
+	});
+
+}

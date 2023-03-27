@@ -18,7 +18,7 @@
 				<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 	<?php endif; ?>
 
-	<?php if($doc->status == 1 &&$doc->is_approve == 0 && $this->pm->can_edit) : ?>
+	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_edit) : ?>
 				<button type="button" class="btn btn-xs btn-danger top-btn" onclick="unsave()">ยกเลิกการบันทึก</button>
 	<?php endif; ?>
 	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_approve) : ?>

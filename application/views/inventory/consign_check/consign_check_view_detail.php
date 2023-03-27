@@ -21,7 +21,7 @@
 				<?php endif; ?>
 			<?php endif; ?>
 
-			<?php if(($this->_SuperAdmin && $doc->status != 2) OR ($this->pm->can_edit && $doc->status != 2 && $doc->is_wms == 0 && $doc->valid == 0)) : ?>
+			<?php if(($this->_SuperAdmin && $doc->status != 2) OR (($this->pm->can_edit OR $this->pm->can_delete) && $doc->status != 2 && $doc->valid == 0)) : ?>
 				<!--- consign_check_detail.js --->
 	      <button type="button" class="btn btn-sm btn-danger" onclick="openCheck()">
 	        <i class="fa fa-bolt"></i> ยกเลิกการบันทึก

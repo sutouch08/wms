@@ -12,9 +12,31 @@ function addNew(){
 
 
 
-function goEdit(code){
-  window.location.href = HOME + 'edit/'+code;
+function goEdit(code) {
+  let uuid = get_uuid();
+  $.ajax({
+    url:HOME + 'is_document_avalible',
+    type:'GET',
+    cache:false,
+    data:{
+      'code' : code,
+      'uuid' : uuid
+    },
+    success:function(rs) {
+      if(rs === 'available') {
+        window.location.href = HOME + 'edit/'+code+'/'+uuid;
+      }
+      else {
+        swal({
+          title:'Oops!',
+          text:'เอกสารกำลังถูกเปิด/แก้ไข โดยเครื่องอื่นอยู่ ไม่สามารถแก้ไขได้ในขณะนี้',
+          type:'warning'
+        });
+      }
+    }
+  });
 }
+
 
 
 function goDetail(code){
@@ -26,8 +48,9 @@ function goDetail(code){
 
 //--- สลับมาใช้บาร์โค้ดในการคีย์สินค้า
 function goUseBarcode(){
-  var code = $('#transfer_code').val();
-  window.location.href = HOME + 'edit/'+code+'/barcode';
+  let code = $('#transfer_code').val();
+  let uuid = get_uuid();
+  window.location.href = HOME + 'edit/'+code+'/'+uuid+'/barcode';
 }
 
 
@@ -35,13 +58,122 @@ function goUseBarcode(){
 
 //--- สลับมาใช้การคื่ย์มือในการย้ายสินค้า
 function goUseKeyboard(){
-  var code = $('#transfer_code').val();
-  window.location.href = HOME + 'edit/'+code;
+  let code = $('#transfer_code').val();
+  let uuid = get_uuid();
+  window.location.href = HOME + 'edit/'+code+'/'+uuid;
 }
 
 
 
 
+function doApprove() {
+  let code = $('#transfer_code').val();
+
+  swal({
+    title:'Approval',
+    text:'ต้องการอนุมัติ '+code+' หรือไม่ ?',
+    type:'warning',
+    showCancelButton:true,
+    confirmButtonColor:'#91b784',
+    confirmButtonText:'อนุมัติ',
+    cancelButtonText:'ยกเลิก',
+    closeOnConfirm:true
+  },
+  function() {
+    load_in();
+
+    $.ajax({
+      url:HOME + 'do_approve',
+      type:'POST',
+      cache:false,
+      data:{
+        'code' : code
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs === 'success') {
+          setTimeout(() => {
+            swal({
+              title:'Success',
+              type:'success',
+              timer:1000
+            });
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 1200);
+
+          }, 200);
+        }
+        else {
+          setTimeout(() => {
+            swal({
+              title:'Error!',
+              text:rs,
+              type:'error'
+            });
+          }, 200);
+        }
+      }
+    });
+  });
+}
+
+
+function doReject() {
+  let code = $('#transfer_code').val();
+
+  swal({
+    title:'Rejection',
+    text:'ต้องการ Reject '+code+' หรือไม่ ?',
+    type:'warning',
+    showCancelButton:true,
+    confirmButtonColor:'#DD6855',
+    confirmButtonText:'Reject',
+    cancelButtonText:'ยกเลิก',
+    closeOnConfirm:true
+  },
+  function() {
+    load_in();
+
+    $.ajax({
+      url:HOME + 'do_reject',
+      type:'POST',
+      cache:false,
+      data:{
+        'code' : code
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs === 'success') {
+          setTimeout(() => {
+            swal({
+              title:'Success',
+              type:'success',
+              timer:1000
+            });
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 1200);
+
+          }, 200);
+        }
+        else {
+          setTimeout(() => {
+            swal({
+              title:'Error!',
+              text:rs,
+              type:'error'
+            });
+          }, 200);
+        }
+      }
+    });
+  });
+}
 
 function goDelete(code, status){
   var title = 'ต้องการยกเลิก '+ code +' หรือไม่ ?';

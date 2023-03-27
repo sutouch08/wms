@@ -262,11 +262,6 @@ class Orders_model extends CI_Model
     ->or_where('ods.is_count', 0)
     ->group_end()
     ->get();
-    //
-    // $qr  = "SELECT * FROM order_details
-    //         WHERE order_code = '{$code}'
-    //         AND (valid = 1 OR is_count = 0)";
-    // $rs = $this->db->query($qr);
 
     if($rs->num_rows() > 0)
     {
@@ -414,8 +409,12 @@ class Orders_model extends CI_Model
     $this->db
     ->from('orders')
     ->join('customers', 'orders.customer_code = customers.code', 'left')
-    ->join('zone', 'orders.zone_code = zone.code', 'left')
     ->join('user', 'orders.user = user.uname', 'left');
+
+    if($role == 'C' OR $role == 'N')
+    {
+        $this->db->join('zone', 'orders.zone_code = zone.code', 'left');
+    }
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']) && ! empty($ds['stated']))
     {
@@ -664,8 +663,12 @@ class Orders_model extends CI_Model
     ->select('orders.*')
     ->from('orders')
     ->join('customers', 'orders.customer_code = customers.code', 'left')
-    ->join('zone', 'orders.zone_code = zone.code', 'left')
     ->join('user', 'orders.user = user.uname', 'left');
+
+    if($role == 'C' OR $role == 'N')
+    {
+        $this->db->join('zone', 'orders.zone_code = zone.code', 'left');
+    }
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']) && ! empty($ds['stated']))
     {

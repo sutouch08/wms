@@ -738,7 +738,7 @@ class Wms_auto_receive extends CI_Controller
               'status' => 1
             );
 
-            $this->return_lend_model->update($order->code, $arr);            
+            $this->return_lend_model->update($order->code, $arr);
 					}
 
 					if($sc === TRUE)
@@ -979,10 +979,10 @@ class Wms_auto_receive extends CI_Controller
 				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
 				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
 			}
-			else if($order->status == 0)
+			else if($order->status == 0 OR $order->status == -1)
 			{
 				$sc = FALSE;
-				$this->error = "Invalid status : Document not saved";
+				$this->error = "Invalid status : Document not saved or not approved";
 				$this->wms_receive_import_logs_model->add($order->code, 'E', $this->error);
 				$this->wms_temp_receive_model->update_status($order->code, 3, $this->error);
 			}

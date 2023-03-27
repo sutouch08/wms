@@ -49,6 +49,7 @@ class Sponsor extends PS_Controller
       'isExpire' => get_filter('isExpire', 'sponsor_isExpire', NULL),
       'isApprove' => get_filter('isApprove', 'sponsor_isApprove', 'all'),
 			'warehouse' => get_filter('warehouse', 'sponsor_warehouse', ''),
+      'sap_status' => get_filter('sap_status', 'sponsor_sap_status', 'all'),
 			'wms_export' => get_filter('wms_export', 'sponsor_wms_export', 'all')
     );
 
@@ -466,6 +467,7 @@ class Sponsor extends PS_Controller
       'sponsor_isApprove',
 			'sponsor_warehouse',
 			'sponsor_wms_export',
+      'sponsor_sap_status',
       'sponsor_notSave',
       'sponsor_onlyMe',
       'sponsor_isExpire',

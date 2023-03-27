@@ -551,6 +551,19 @@ class Return_consignment_model extends CI_Model
 		}
 
 
+    if(isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+    }
+
+
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
@@ -612,7 +625,18 @@ class Return_consignment_model extends CI_Model
 			$this->db->where('is_api', $ds['api']);
 		}
 
-
+    if(isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+    }
+    
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));

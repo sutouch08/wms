@@ -212,7 +212,7 @@ function addToTransfer(){
 
 	ds.items = items;
 
-	if( count > 0 ){
+	if( count > 0 ) {
 		load_in();
 		setTimeout(function(){
 			$.ajax({
@@ -252,97 +252,6 @@ function addToTransfer(){
 
 	}
 }
-
-
-// function addToTransfer(){
-// 	var code	= $('#transfer_code').val();
-//
-// 	//---	โซนต้นทาง
-// 	var from_zone = $("#from_zone_code").val();
-//
-// 	if(from_zone.length == 0)
-// 	{
-// 		swal('โซนต้นทางไม่ถูกต้อง');
-// 		return false;
-// 	}
-//
-// 	//--- โซนปลายทาง
-// 	var to_zone = $('#to_zone_code').val();
-// 	if(to_zone.length == 0)
-// 	{
-// 		swal('โซนปลายทางไม่ถูกต้อง');
-// 		return false;
-// 	}
-//
-// 	//---	จำนวนช่องที่มีการป้อนตัวเลขเพื่อย้ายสินค้าออก
-// 	var count  = countInput();
-// 	if(count == 0)
-// 	{
-// 		swal('ข้อผิดพลาด !', 'กรุณาระบุจำนวนในรายการที่ต้องการย้าย อย่างน้อย 1 รายการ', 'warning');
-// 		return false;
-// 	}
-//
-// 	//---	ตัวแปรสำหรับเก็บ ojbect ข้อมูล
-// 	var ds  = [];
-//
-// 	ds.push(
-// 		{'name' : 'transfer_code', 'value' : code},
-// 		{'name' : 'from_zone', 'value' : from_zone},
-// 		{'name' : 'to_zone', 'value' : to_zone}
-// 	);
-//
-//
-// 	$('.input-qty').each(function(index, element) {
-// 	    var qty = $(this).val();
-// 			var pd_code  = $(this).attr('id')
-// 			var name = "trans_products["+pd_code+"]";
-// 			if( qty != '' && qty != 0 ){
-// 				ds.push(
-// 					{ "name" : name, "value" : qty }
-// 				);
-// 			}
-//     });
-//
-// 	if( count > 0 ){
-// 		load_in();
-// 		setTimeout(function(){
-// 			$.ajax({
-// 				url: HOME + 'add_to_transfer',
-// 				type:"POST",
-// 				cache:"false",
-// 				data: ds ,
-// 				success: function(rs){
-// 					load_out();
-// 					var rs = $.trim(rs);
-// 					if( rs == 'success' ){
-// 						swal({
-// 							title: 'success',
-// 							text: 'เพิ่มรายการเรียบร้อยแล้ว',
-// 							type: 'success',
-// 							timer: 1000
-// 						});
-//
-// 						setTimeout( function(){
-// 							showTransferTable();
-// 						}, 1200);
-//
-// 					}else{
-//
-// 						swal("ข้อผิดพลาด", rs, "error");
-// 					}
-// 				}
-// 			});
-// 		}, 500);
-// 	}
-// 	else
-// 	{
-//
-// 		swal('ข้อผิดพลาด !', 'กรุณาระบุจำนวนในรายการที่ต้องการย้าย อย่างน้อย 1 รายการ', 'warning');
-//
-// 	}
-// }
-
-
 
 
 

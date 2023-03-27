@@ -106,8 +106,8 @@ function set_rows($value = 20)
     'expire' => 259200,
     'path' => '/'
   );
-  $CI =& get_instance();
-  return $CI->input->set_cookie($arr);
+
+  return set_cookie($arr);
 }
 
 
@@ -116,8 +116,9 @@ function set_rows($value = 20)
 
 function get_rows()
 {
-  $CI =& get_instance();
-  return $CI->input->cookie('rows') === NULL ? 20 : $CI->input->cookie('rows');
+  $rows = get_cookie('rows');
+
+	return $rows <= 0 ? 20 : ($rows > 300 ? 300 : $rows);  
 }
 
 

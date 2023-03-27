@@ -62,8 +62,10 @@
 					<th class="width-5 text-center">#</th>
 					<th class="width-15 text-center">ผู้เบิก(User)</th>
 					<th class="width-15 text-center">ผู้ทำรายการ</th>
+					<th class="width-10 text-center">วันที่</th>
 					<th class="width-10 text-center">เลขที่เอกสาร</th>
-					<th class="width-15 text-center">รหัสสินค้า</th>
+					<th class="width-15 text-center">รหัสสินค้า(เบิก)</th>
+					<th class="width-15 text-center">รหัสสินค้า(รับ)</th>
 					<th class="width-8 text-center">ราคา</th>
 					<th class="width-5 text-center">เบิก</th>
 					<th class="width-5 text-center">รับ</th>
@@ -82,7 +84,7 @@
 	{{#each this}}
 		{{#if @last}}
 			<tr class="font-size-12">
-				<td colspan="6" class="middle text-right">รวม</td>
+				<td colspan="8" class="middle text-right">รวม</td>
 				<td class="middle text-right">{{total_qty}}</td>
 				<td class="middle text-right">{{total_turn}}</td>
 				<td class="middle text-right">{{total_balance}}</td>
@@ -93,7 +95,9 @@
 				<td class="middle text-center">{{no}}</td>
 				<td class="middle">{{user_ref}}</td>
 				<td class="middle">{{user}}</td>
+				<td class="middle">{{date_add}}</td>
 				<td class="middle">{{order_code}}</td>
+				<td class="middle">{{original_code}}</td>
 				<td class="middle">{{product_code}}</td>
 				<td class="middle text-right">{{price}}</td>
 				<td class="middle text-right">{{qty}}</td>

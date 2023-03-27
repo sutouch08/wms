@@ -26,7 +26,7 @@ function saveConsign(){
 		confirmButtonColor: "#8CC152",
 		confirmButtonText: 'บันทึก',
 		cancelButtonText: 'ยกเลิก',
-		closeOnConfirm: false
+		closeOnConfirm: true
 		}, function(){
       load_in();
       $.ajax({
@@ -36,22 +36,28 @@ function saveConsign(){
         success:function(rs){
           load_out();
           if(rs == 'success'){
-            swal({
-              title:'Saved',
-              type:'success',
-              timer:1000
-            });
+            setTimeout(function() {
+              swal({
+                title:'Saved',
+                type:'success',
+                timer:1000
+              });
 
-            setTimeout(function(){
-              viewDetail(code);
-            },1500);
-          }else{
-            swal({
-              title:'Error!',
-              text: rs,
-              html:true,
-              type:'error'
-            })
+              setTimeout(function(){
+                viewDetail(code);
+              },1500);
+            }, 200);
+
+          }
+          else {
+            setTimeout(function() {
+              swal({
+                title:'Error!',
+                text: rs,
+                html:true,
+                type:'error'
+              });
+            }, 200);
           }
         }
       });
@@ -90,7 +96,7 @@ function unSaveConsign(){
     confirmButtonColor: "#FA5858",
     confirmButtonText: 'ใช่, ฉันต้องการ',
     cancelButtonText: 'ยกเลิก',
-    closeOnConfirm: false
+    closeOnConfirm: true
     }, function(){
       load_in();
       $.ajax({
@@ -101,18 +107,26 @@ function unSaveConsign(){
           load_out();
           var rs = $.trim(rs);
           if(rs == 'success'){
-            swal({
-              title:'Success',
-              type:'success',
-              timer:1000
-            });
+            setTimeout(function() {
+              swal({
+                title:'Success',
+                type:'success',
+                timer:1000
+              });
 
-            setTimeout(function(){
-              goEdit(code);
-            }, 1500);
+              setTimeout(function(){
+                goEdit(code);
+              }, 1500);
+            }, 200);
 
           }else{
-            swal('Error!', rs, 'error');
+            setTimeout(function() {
+              swal({
+                title:'Error!',
+                text:rs,
+                type:'error'
+              });
+            }, 200);
           }
         }
       });
@@ -279,7 +293,7 @@ function update(){
   let customer_name = $('#customer').val();
   let zone_code = $('#zone_code').val();
   let zone_name = $('#zone').val();
-  
+
   if(!isDate(date)){
     swal('วันที่ไม่ถูกต้อง');
     return false;

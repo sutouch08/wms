@@ -7,6 +7,7 @@ class Discount_rule extends PS_Controller
 	public $menu_group_code = 'SC';
 	public $title = 'เพิ่ม/แก้ไข เงือนไขส่วนลด';
   public $error;
+  public $segment = 4;
 
   public function __construct()
   {
@@ -22,39 +23,29 @@ class Discount_rule extends PS_Controller
     $this->load->helper('discount_policy');
     $this->load->helper('discount_rule');
 
-		$code = get_filter('rule_code', 'rule_code', '');
-    $name = get_filter('rule_name', 'rule_name', '');
-    $active = get_filter('active', 'active', 2); //-- 0 = not active , 1 = active , 2 = all
-    $policy = get_filter('policy', 'policy', ''); //-- รหัส หรือ ชื่อนโยบาย
-    $discount = get_filter('rule_disc', 'rule_disc', '');
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_filter('set_rows', 'rows', 20);
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = get_filter('rows', 'rows', 300);
-		}
+    $filter = array(
+      'code' => get_filter('rule_code', 'rule_code', ''),
+      'policy' => get_filter('policy', 'policy', ''),
+      'rule_status' => get_filter('rule_status', 'rule_status', 'all'),
+      'policy_status' => get_filter('policy_status', 'policy_status', 'all'),
+      'discount' => get_filter('rule_disc', 'rule_disc', '')
+    );
 
-		$segment = 4; //-- url segment
-		$rows = $this->discount_rule_model->count_rows($code, $name, $active, $policy, $discount);
+			//--- แสดงผลกี่รายการต่อหน้า
+		$perpage = get_rows();
+
+		$rows = $this->discount_rule_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
 
-		$result = $this->discount_rule_model->get_data($code, $name, $active, $policy, $discount, $perpage, $this->uri->segment($segment));
+		$result = $this->discount_rule_model->get_list($filter, $perpage, $this->uri->segment($this->segment));
 
-    $ds = array(
-      'code' => $code,
-      'name' => $name,
-      'active' => $active,
-      'policy' => $policy,
-      'discount' => $discount,
-			'rules' => $result
-    );
+    $filter['rules'] = $result;
 
 		$this->pagination->initialize($init);
 
-    $this->load->view('discount/rule/rule_view', $ds);
+    $this->load->view('discount/rule/rule_view', $filter);
   }
 
 
@@ -533,7 +524,7 @@ class Discount_rule extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('rule_code', 'rule_name', 'active', 'policy', 'rule_disc');
+    $filter = array('rule_code', 'policy', 'rule_status', 'policy_status','rule_disc');  
     clear_filter($filter);
   }
 } //--- end class

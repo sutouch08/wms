@@ -31,10 +31,11 @@ class Adjust extends PS_Controller
       'reference'  => get_filter('reference', 'adj_reference', ''),
       'user'      => get_filter('user', 'adj_user', ''),
       'from_date' => get_filter('from_date', 'adj_from_date', ''),
-      'to_date'   => get_filter('from_date', 'adj_to_date', ''),
+      'to_date'   => get_filter('to_date', 'adj_to_date', ''),
       'remark' => get_filter('remark', 'adj_remark', ''),
       'status' => get_filter('status', 'adj_status', 'all'),
-      'isApprove' => get_filter('isApprove', 'adj_isApprove', 'all')
+      'isApprove' => get_filter('isApprove', 'adj_isApprove', 'all'),
+      'sap' => get_filter('sap', 'adj_sap', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -1074,7 +1075,8 @@ class Adjust extends PS_Controller
       'adj_to_date',
       'adj_remark',
       'adj_status',
-      'adj_isApprove'
+      'adj_isApprove',
+      'adj_sap'
     );
 
     clear_filter($filter);

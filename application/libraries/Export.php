@@ -175,7 +175,7 @@ class Export
           if($order->inv_code != NULL)
           {
             $this->ci->orders_model->update($code, array('inv_code' => NULL));
-            $this->ci->orders_model->un_complete($code);            
+            $this->ci->orders_model->un_complete($code);
           }
         }
         else

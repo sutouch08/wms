@@ -49,8 +49,7 @@
       <span class="help-block">กำหนดประเภทวันที่ที่ใช้ในการบันทึกขายและตัดสต็อกในระบบ SAP</span>
     </div>
     <div class="divider-hidden"></div>
-
-
+        
       <div class="col-sm-9 col-sm-offset-3">
         <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
       	<button type="button" class="btn btn-sm btn-success" onClick="updateConfig('systemForm')"><i class="fa fa-save"></i> บันทึก</button>

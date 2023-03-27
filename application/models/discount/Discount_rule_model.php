@@ -34,13 +34,19 @@ class Discount_rule_model extends CI_Model
 
   public function get($id)
   {
-    $rs = $this->db->where('id', $id)->get('discount_rule');
+    $rs = $this->db
+    ->select('r.*, p.code AS policy_code, p.name AS policy_name, p.active AS policy_status')
+    ->from('discount_rule AS r')
+    ->join('discount_policy AS p', 'r.id_policy = p.id', 'left')
+    ->where('r.id', $id)
+    ->get();
+
     if($rs->num_rows() == 1)
     {
       return $rs->row();
     }
 
-    return array();
+    return NULL;
   }
 
 
@@ -1066,92 +1072,113 @@ class Discount_rule_model extends CI_Model
 
 
 
-  public function count_rows($code, $name, $active, $policy, $discount)
+  public function count_rows(array $ds = array())
   {
-    $qr = "SELECT id FROM discount_rule WHERE isDeleted = 0 ";
+    $this->db
+    ->from('discount_rule AS r')
+    ->join('discount_policy AS p', 'r.id_policy = p.id', 'left')
+    ->where('r.isDeleted', 0);
 
-    if($code != "")
+    if(isset($ds['code']) && $ds['code'] != "" && $ds['code'] != NULL)
     {
-      $qr .= "AND code LIKE '%".$code."%' ";
+      $this->db
+      ->group_start()
+      ->like('r.code', $ds['code'])
+      ->or_like('r.name', $ds['code'])
+      ->group_end();
     }
 
-    if($name != "")
+    if(isset($ds['policy']) && $ds['policy'] != "" && $ds['policy'] != NULL)
     {
-      $qr .= "AND name LIKE '%".$name."%' ";
+      $this->db
+      ->group_start()
+      ->like('p.code', $ds['policy'])
+      ->or_like('p.name', $ds['policy'])
+      ->group_end();
     }
 
-    if($active != 2)
+    if(isset($ds['discount']) && $ds['discount'] != "" && $ds['discount'] != NULL)
     {
-      $qr .= "AND active = ".$active." ";
+      $this->db
+      ->group_start()
+      ->where('r.item_price', $ds['discount'])
+      ->or_where('r.item_disc', $ds['discount'])
+      ->or_where('r.item_disc_2', $ds['discount'])
+      ->or_where('r.item_disc_3', $ds['discount'])
+      ->group_end();
     }
 
-    if($policy != "")
+    if(isset($ds['rule_status']) && $ds['rule_status'] != "" && $ds['rule_status'] != NULL && $ds['rule_status'] != "all")
     {
-      $policies = discount_policy_in($policy);
-      $qr .= "AND id_policy IN(".$policies.") ";
+      $this->db->where('r.active', $ds['rule_status']);
     }
 
-    if($discount != "")
+    if(isset($ds['policy_status']) && $ds['policy_status'] != "" && $ds['policy_status'] != NULL && $ds['policy_status'] != "all")
     {
-      $qr .= "AND item_disc = ".$discount." ";
+      $this->db->where('p.active', $ds['policy_status']);
     }
 
-    $rs = $this->db->query($qr);
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->num_rows();
-    }
-
-    return 0;
+    return $this->db->count_all_results();
   }
 
 
 
-  public function get_data($code, $name, $active, $policy, $discount, $perpage = '', $offset = '')
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
-    $qr = "SELECT * FROM discount_rule WHERE isDeleted = 0 ";
+    $this->db
+    ->select('r.*, p.code AS policy_code, p.active AS policy_status')
+    ->from('discount_rule AS r')
+    ->join('discount_policy AS p', 'r.id_policy = p.id', 'left')
+    ->where('r.isDeleted', 0);
 
-    if($code != "")
+    if(isset($ds['code']) && $ds['code'] != "" && $ds['code'] != NULL)
     {
-      $qr .= "AND code LIKE '%".$code."%' ";
+      $this->db
+      ->group_start()
+      ->like('r.code', $ds['code'])
+      ->or_like('r.name', $ds['code'])
+      ->group_end();
     }
 
-    if($name != "")
+    if(isset($ds['policy']) && $ds['policy'] != "" && $ds['policy'] != NULL)
     {
-      $qr .= "AND name LIKE '%".$name."%' ";
+      $this->db
+      ->group_start()
+      ->like('p.code', $ds['policy'])
+      ->or_like('p.name', $ds['policy'])
+      ->group_end();
     }
 
-    if($active != 2)
+    if(isset($ds['discount']) && $ds['discount'] != "" && $ds['discount'] != NULL)
     {
-      $qr .= "AND active = ".$active." ";
+      $this->db
+      ->group_start()
+      ->where('r.item_price', $ds['discount'])
+      ->or_where('r.item_disc', $ds['discount'])
+      ->or_where('r.item_disc_2', $ds['discount'])
+      ->or_where('r.item_disc_3', $ds['discount'])
+      ->group_end();
     }
 
-    if($policy != "")
+    if(isset($ds['rule_status']) && $ds['rule_status'] != "" && $ds['rule_status'] != NULL && $ds['rule_status'] != "all")
     {
-      $policies = discount_policy_in($policy);
-      $qr .= "AND id_policy IN(".$policies.") ";
+      $this->db->where('r.active', $ds['rule_status']);
     }
 
-    if($discount != "")
+    if(isset($ds['policy_status']) && $ds['policy_status'] != "" && $ds['policy_status'] != NULL && $ds['policy_status'] != "all")
     {
-      $qr .= "AND item_disc = ".$discount." ";
+      $this->db->where('p.active', $ds['policy_status']);
     }
 
-    $qr .= "ORDER BY code DESC";
-
-    $rs = $this->db->query($qr);
+    $rs = $this->db->order_by('r.code', 'DESC')->limit($perpage, $offset)->get();
 
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return array();
+    return NULL;
   }
-
-
-
 
 
   public function get_policy_rules($id_policy)

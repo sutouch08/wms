@@ -150,3 +150,21 @@ function syncData(){
     }, 1500);
   });
 }
+
+
+function syncAllData() {
+  load_in();
+
+  $.get(HOME + '/syncAllData', function() {
+    load_out();
+    swal({
+      title:'Completed',
+      type:'success',
+      timer:1000
+    });
+
+    setTimeout(function() {
+      goBack();
+    }, 1500);
+  });
+}

@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-12 padding-5" id="transfer-table">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5" id="transfer-table">
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>
@@ -70,4 +70,16 @@
       </tbody>
     </table>
   </div>
+	<?php if( ! empty($approve_logs)) : ?>
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+			<?php foreach($approve_logs as $logs) : ?>
+				<?php if($logs->approve == 1) : ?>
+					<p class="green">อนุมัติโดย : <?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?></p>
+				<?php endif; ?>
+				<?php if($logs->approve == 3) : ?>
+					<p class="red">Rejected โดย : <?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?></p>
+				<?php endif; ?>
+			<?php endforeach; ?>
+		</div>
+	<?php endif; ?>
 </div>

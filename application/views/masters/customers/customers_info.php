@@ -152,6 +152,15 @@
     </div>
   </div>
 
+	<?php if($ds->CreditLine > 0) : ?>
+		<div class="form-group">
+	    <label class="col-sm-3 control-label no-padding-right">วงเงินคงเหลือ</label>
+	    <div class="col-xs-12 col-sm-3">
+				<input type="number" class="width-100" value="<?php echo round($this->customers_model->get_credit($ds->code), 2); ?>" disabled/>
+	    </div>
+	  </div>
+	<?php endif; ?>
+
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">GP(%)</label>
     <div class="col-xs-12 col-sm-3">

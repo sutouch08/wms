@@ -14,15 +14,15 @@
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
   <div class="row">
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>เลขที่เอกสาร</label>
       <input type="text" class="form-control input-sm text-center search" name="code" value="<?php echo $code; ?>" />
     </div>
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>เลขที่บิล</label>
       <input type="text" class="form-control input-sm text-center search" name="invoice" value="<?php echo $invoice; ?>" />
     </div>
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>ลูกค้า</label>
       <input type="text" class="form-control input-sm text-center search" name="customer_code" value="<?php echo $customer_code; ?>" />
     </div>
@@ -62,9 +62,17 @@
     <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
       <label>วันที่</label>
       <div class="input-daterange input-group">
-        <input type="text" class="form-control input-sm width-50 from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
-        <input type="text" class="form-control input-sm width-50" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
+        <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
+        <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
       </div>
+    </div>
+    <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+      <label>SAP</label>
+  		<select name="sap" class="form-control input-sm" onchange="getSearch()">
+  			<option value="all">ทั้งหมด</option>
+  			<option value="0" <?php echo is_selected('0', $sap); ?>>ยังไม่เข้า</option>
+  			<option value="1" <?php echo is_selected('1', $sap); ?>>เข้าแล้ว</option>
+  		</select>
     </div>
     <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
       <label class="display-block not-show">btn</label>

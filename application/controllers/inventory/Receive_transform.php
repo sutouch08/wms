@@ -11,6 +11,7 @@ class Receive_transform extends PS_Controller
   public $error;
 	public $wms;
 	public $isAPI;
+  public $required_remark = TRUE; //--- บังคับใส่หมายเหตุ
 
   public function __construct()
   {
@@ -32,8 +33,12 @@ class Receive_transform extends PS_Controller
       'order_code' => get_filter('order_code', 'trans_order_code', ''),
       'from_date' => get_filter('from_date', 'trans_from_date', ''),
       'to_date' => get_filter('to_date', 'trans_to_date', ''),
+      'must_accept' => get_filter('must_accept', 'trans_must_accept', 'all'),
       'status' => get_filter('status', 'trans_status', 'all'),
-			'is_wms' => get_filter('is_wms', 'trans_is_wms', 'all')
+			'is_wms' => get_filter('is_wms', 'trans_is_wms', 'all'),
+      'sap_status' => get_filter('sap_status', 'trans_sap_status', 'all'),
+      'is_expire' => get_filter('is_expire', 'trans_is_expire', 'all'),
+      'zone' => get_filter('zone', 'trans_zone', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -72,6 +77,7 @@ class Receive_transform extends PS_Controller
     $this->load->model('masters/products_model');
 
     $doc = $this->receive_transform_model->get($code);
+
     if(!empty($doc))
     {
       $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
@@ -85,6 +91,155 @@ class Receive_transform extends PS_Controller
     );
 
     $this->load->view('inventory/receive_transform/receive_transform_detail', $ds);
+  }
+
+
+  public function accept_confirm()
+  {
+    $sc = TRUE;
+    $this->load->model('inventory/movement_model');
+    $code = $this->input->post('code');
+    $remark = trim($this->input->post('accept_remark'));
+
+    if( ! empty($code))
+    {
+      $doc = $this->receive_transform_model->get($code);
+      if( ! empty($doc))
+      {
+        if( $doc->status == 4)
+        {
+          $status = $this->isAPI === TRUE && $doc->is_wms == 1 ? 3 : 1;
+          $ship_date = $this->isAPI === TRUE && $doc->is_wms == 1 ? NULL : now();
+          $arr = array(
+            "status" => $status,
+            "shipped_date" => $ship_date,
+            "is_accept" => 1,
+            "accept_by" => $this->_user->uname,
+            "accept_on" => now(),
+            "accept_remark" => $remark
+          );
+
+          $this->db->trans_begin();
+
+          if( ! $this->receive_transform_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "Update Acception failed";
+          }
+
+          if($sc === TRUE)
+          {
+            $details = $this->receive_transform_model->get_details($code);
+
+            if(! empty($details))
+            {
+              foreach($details as $rs)
+              {
+                if($sc === FALSE)
+                {
+                  break;
+                }
+
+                if($this->isAPI === FALSE OR $doc->is_wms == 0)
+                {
+                  $arr = array(
+                    'receive_qty' => $rs->qty
+                  );
+
+                  if( ! $this->receive_transform_model->update_detail($rs->id, $arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Receive item failed";
+                  }
+
+                  //--- stock movement
+                  if($sc === TRUE)
+                  {
+                    $arr = array(
+                      'reference' => $doc->code,
+                      'warehouse_code' => $doc->warehouse_code,
+                      'zone_code' => $doc->zone_code,
+                      'product_code' => $rs->product_code,
+                      'move_in' => $rs->qty,
+                      'date_add' => db_date($doc->date_add, TRUE)
+                    );
+
+                    if($this->movement_model->add($arr) === FALSE)
+                    {
+                      $sc = FALSE;
+                      $this->error = 'บันทึก movement ไม่สำเร็จ';
+                    }
+                  }
+
+                  //--- update receive_qty in order_transform_detail
+                  if($sc === TRUE)
+                  {
+                    $this->update_transform_receive_qty($doc->order_code, $rs->product_code, $rs->qty);
+                  }
+                }
+              } //--- end foreach
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "No items in document";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+
+          if($sc === TRUE)
+          {
+            if($this->isAPI === TRUE && $doc->is_wms == 1)
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              $this->load->library('wms_receive_api');
+
+              $ex = $this->wms_receive_api->export_receive_transform($doc, $doc->order_code, $doc->invoice_code, $details);
+
+              if(!$ex)
+              {
+                $sc = FALSE;
+                $thiis->error = "บันทึกข้อมูลสำเร็จแต่ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>{$this->wms_receive_api->error}";
+              }
+            }
+            else
+            {
+              if($this->transform_model->is_complete($doc->order_code) === TRUE)
+              {
+                $this->transform_model->close_transform($doc->order_code);
+              }
+
+              $this->export_receive($code);
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Document Status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Document Number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -201,6 +356,7 @@ class Receive_transform extends PS_Controller
 
 	      $zone_code = $zone->code;
 	      $warehouse_code = $warehouse->code;
+        $must_accept = (empty($zone->user_id) ? FALSE : TRUE);
 	      $receive = $this->input->post('receive');
 				$products = $this->input->post('products');
 
@@ -209,7 +365,11 @@ class Receive_transform extends PS_Controller
 	        'invoice_code' => $invoice,
 	        'zone_code' => $zone_code,
 	        'warehouse_code' => $warehouse_code,
-	        'update_user' => get_cookie('uname')
+	        'update_user' => get_cookie('uname'),
+          'must_accept' => $must_accept ? 1 : 0,
+          'is_accept' => 0,
+          'accept_by' => NULL,
+          'accept_on' => NULL
 	      );
 
 	      $this->db->trans_begin();
@@ -223,7 +383,7 @@ class Receive_transform extends PS_Controller
 	      //--- If update success
 	      if($sc === TRUE)
 	      {
-	        if(!empty($receive))
+	        if( ! empty($receive))
 	        {
 	          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
 	          $this->receive_transform_model->drop_details($code);
@@ -267,7 +427,7 @@ class Receive_transform extends PS_Controller
 		                'product_name' => $pd->name,
 		                'price' => $cost,
 		                'qty' => $qty,
-                    'receive_qty' => ($this->isAPI === FALSE OR $doc->is_wms == 0) ? $qty : 0,
+                    'receive_qty' => $must_accept === TRUE ? 0 : (($this->isAPI === FALSE OR $doc->is_wms == 0) ? $qty : 0),
 		                'amount' => $qty * $cost
 		              );
 
@@ -278,7 +438,7 @@ class Receive_transform extends PS_Controller
 		                break;
 		              }
 
-		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
+		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0 OR $must_accept === FALSE))
 		              {
 		                $ds = array(
 		                  'reference' => $code,
@@ -298,7 +458,7 @@ class Receive_transform extends PS_Controller
 
 
 		              //--- update receive_qty in order_transform_detail
-		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
+		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0 OR $must_accept === FALSE))
 		              {
 		                $this->update_transform_receive_qty($order_code, $pd->code, $qty);
 		              }
@@ -312,35 +472,46 @@ class Receive_transform extends PS_Controller
 	            }//--- end if qty > 0
 	          } //--- end foreach
 
-						if($this->isAPI === TRUE && $doc->is_wms == 1)
-						{
-							$this->wms = $this->load->database('wms', TRUE);
-							$this->load->library('wms_receive_api');
+            if($must_accept)
+            {
+              $arr = array(
+                'status' => 4 //-- must accept = 1 status = 4 รอเจ้าของโซนกดรับ
+              );
 
-							$rs = $this->wms_receive_api->export_receive_transform($doc, $order_code, $invoice, $details);
-						}
+              $this->receive_transform_model->update($code, $arr);
+            }
+            else
+            {
+              if($this->isAPI === TRUE && $doc->is_wms == 1)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                $this->load->library('wms_receive_api');
 
-	          if($sc === TRUE)
-	          {
-							if($this->isAPI === TRUE && $doc->is_wms == 1)
-							{
-								$this->receive_transform_model->set_status($code, 3);
-							}
-							else
-							{
-								$arr = array(
-									'shipped_date' => now(),
-									'status' => 1
-								);
+                $rs = $this->wms_receive_api->export_receive_transform($doc, $order_code, $invoice, $details);
+              }
 
-								$this->receive_transform_model->update($code, $arr);
+              if($sc === TRUE)
+              {
+                if($this->isAPI === TRUE && $doc->is_wms == 1)
+                {
+                  $this->receive_transform_model->set_status($code, 3);
+                }
+                else
+                {
+                  $arr = array(
+                    'shipped_date' => now(),
+                    'status' => 1
+                  );
 
-		            if($this->transform_model->is_complete($order_code) === TRUE)
-		            {
-		              $this->transform_model->close_transform($order_code);
-		            }
-							}
-	          }
+                  $this->receive_transform_model->update($code, $arr);
+
+                  if($this->transform_model->is_complete($order_code) === TRUE)
+                  {
+                    $this->transform_model->close_transform($order_code);
+                  }
+                }
+              }
+            }
 
 	        } //--- end if !empty($receive)
 
@@ -367,7 +538,7 @@ class Receive_transform extends PS_Controller
       $this->error = 'ไม่พบข้อมูล';
     }
 
-    if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
+    if($sc === TRUE && $must_accept == FALSE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
     {
       $this->export_receive($code);
     }
@@ -474,7 +645,7 @@ class Receive_transform extends PS_Controller
 
         if(! empty($doc))
         {
-          if($doc->status == 0 OR $doc->status == 1 OR $this->_SuperAdmin)
+          if($doc->status == 0 OR $doc->status == 1 OR $doc->status == 4 OR $this->_SuperAdmin)
           {
             if($doc->status == 1)
             {
@@ -619,6 +790,7 @@ class Receive_transform extends PS_Controller
   public function get_transform_detail()
   {
     $sc = '';
+    $receive_code = $this->input->get('receive_code');
     $code = $this->input->get('order_code');
     $details = $this->receive_transform_model->get_transform_details($code);
     $ds = array();
@@ -626,11 +798,15 @@ class Receive_transform extends PS_Controller
     {
       $no = 1;
       $totalQty = 0;
+      $totalReceive = 0;
+      $totalUncomplete = 0;
       $totalBacklog = 0;
 
       foreach($details as $rs)
       {
-        $diff = $rs->sold_qty - $rs->receive_qty;
+        $uncomplete_qty = $this->receive_transform_model->get_sum_uncomplete_qty($code, $rs->product_code, $receive_code);
+        $diff = $rs->sold_qty - ($rs->receive_qty + $uncomplete_qty);
+        $diff = $diff < 0 ? 0 : $diff;
 				$cost = $this->get_avg_cost($rs->product_code);
 				$cost = $cost == 0 ? $rs->price : $cost;
         $arr = array(
@@ -639,18 +815,25 @@ class Receive_transform extends PS_Controller
           'pdCode' => $rs->product_code,
           'pdName' => $rs->name,
           'qty' => round($rs->sold_qty,2),
+          'received' => round($rs->receive_qty,2),
+          'uncomplete' => round($uncomplete_qty, 2),
           'price' => round($cost,2),
           'limit' => $diff,
           'backlog' => number($diff)
         );
+
         array_push($ds, $arr);
         $no++;
         $totalQty += $rs->sold_qty;
+        $totalReceive += $rs->receive_qty;
+        $totalUncomplete += $uncomplete_qty;
         $totalBacklog += $diff;
       }
 
       $arr = array(
         'qty' => number($totalQty),
+        'received' => number($totalReceive),
+        'uncomplete' => number($totalUncomplete),
         'backlog' => number($totalBacklog)
       );
       array_push($ds, $arr);
@@ -773,7 +956,7 @@ class Receive_transform extends PS_Controller
         'invoice_code' => NULL,
         'remark' => $this->input->post('remark'),
         'date_add' => $date_add,
-        'user' => get_cookie('uname'),
+        'user' => $this->_user->uname,
 				'is_wms' => $this->input->post('is_wms')
       );
 
@@ -853,7 +1036,19 @@ class Receive_transform extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('trans_code','trans_invoice','trans_order_code','trans_from_date','trans_to_date', 'trans_status', 'trans_is_wms');
+    $filter = array(
+      'trans_code',
+      'trans_invoice',
+      'trans_order_code',
+      'trans_from_date',
+      'trans_to_date',
+      'trans_status',
+      'trans_must_accept',
+      'trans_is_wms',
+      'trans_sap_status',
+      'trans_is_expire',
+      'trans_zone'
+    );
     clear_filter($filter);
   }
 

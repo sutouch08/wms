@@ -255,6 +255,7 @@ class Consign_order_model extends CI_Model
   {
     $this->db
     ->set('status', $status)
+    ->set('inv_code', NULL)
     ->set('update_user', get_cookie('uname'))
     ->where('code', $code);
     return $this->db->update('consign_order');

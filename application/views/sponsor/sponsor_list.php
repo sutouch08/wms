@@ -16,20 +16,20 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
-	<div class="col-lg-1-harf col-md-4-harf col-sm-6 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-4-harf col-sm-6 col-xs-6 padding-5">
 		<label>คลังสินค้า</label>
 		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -37,7 +37,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>การอนุมัติ</label>
 		<select class="form-control input-sm" name="isApprove" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -46,7 +46,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>WMS</label>
 		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -56,13 +56,23 @@
 		</select>
 	</div>
 
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
       <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
   </div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>SAP Status</label>
+		<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $sap_status); ?>>ยังไม่ส่งออก</option>
+			<option value="1" <?php echo is_selected('1', $sap_status); ?>>ยังไม่เข้า SAP</option>
+			<option value="2" <?php echo is_selected('2', $sap_status); ?>>เข้า SAP แล้ว</option>
+			<option value="3" <?php echo is_selected('3', $sap_status); ?>>ส่งออกไม่สำเร็จ</option>
+		</select>
+	</div>
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">search</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>

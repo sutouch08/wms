@@ -18,14 +18,14 @@
     </div>
 </div><!-- End Row -->
 <hr class=""/>
-<form id="addForm" method="post" action="<?php echo $this->home; ?>/add">
+
 <div class="row">
 	<div class="col-sm-1 col-1-harf padding-5">
     <label>เลขที่เอกสาร</label>
 		<?php if($manual_code == 1) : ?>
 	    <input type="text" class="form-control input-sm" name="code" id="code" value="" />
 		<?php else : ?>
-			<input type="text" class="form-control input-sm" value="" disabled />
+			<input type="text" class="form-control input-sm" value="" id="code" disabled />
 		<?php endif; ?>
   </div>
 
@@ -67,7 +67,7 @@
 <hr class="margin-top-15">
 <input type="hidden" name="from_warehouse_code" id="from_warehouse_code" value="" />
 <input type="hidden" name="to_warehouse_code" id="to_warehouse_code" value="" />
-</form>
+
 
 <script src="<?php echo base_url(); ?>scripts/transfer/transfer.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/transfer/transfer_add.js?v=<?php echo date('Ymd'); ?>"></script>

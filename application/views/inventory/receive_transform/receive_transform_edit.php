@@ -49,6 +49,8 @@
 <?php endif; ?>
 	</div>
 
+	<input type="hidden" id="required-remark" value="<?php echo $this->required_remark ? 1 : 0; ?>" />
+
 </div>
 <hr class="margin-top-10 margin-bottom-10"/>
 <form id="receiveForm" method="post" action="<?php echo $this->home; ?>/save">
@@ -97,14 +99,16 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-  	<table class="table table-striped table-bordered" style="min-width:900px;">
+  	<table class="table table-striped table-bordered" style="min-width:1100px;">
     	<thead>
       	<tr class="font-size-12">
         	<th class="fix-width-40 text-center">ลำดับ	</th>
-          <th class="fix-width-150 text-center">บาร์โค้ด</th>
-          <th class="fix-width-150 text-center">รหัสสินค้า</th>
-          <th class="min-width-250">ชื่อสินค้า</th>
-          <th class="fix-width-100 text-center">สั่งซื้อ</th>
+          <th class="fix-width-120 text-center">บาร์โค้ด</th>
+          <th class="fix-width-200 text-center">รหัสสินค้า</th>
+          <th class="min-width-250" style="max-width:350px;">ชื่อสินค้า</th>
+          <th class="fix-width-100 text-center">เบิก</th>
+					<th class="fix-width-100 text-center">รับแล้ว</th>
+					<th class="fix-width-100 text-center">รอยืนยัน</th>
           <th class="fix-width-100 text-center">ค้างรับ</th>
           <th class="fix-width-100 text-center">จำนวน</th>
         </tr>
@@ -145,6 +149,8 @@
         <tr>
             <td colspan="4" class="middle text-right"><strong>รวม</strong></td>
             <td class="middle text-center">{{qty}}</td>
+						<td class="middle text-center">{{received}}</td>
+						<td class="middle text-center">{{uncomplete}}</td>
             <td class="middle text-center">{{backlog}}</td>
             <td class="middle text-center"><span id="total-receive">0</span></td>
         </tr>
@@ -155,6 +161,8 @@
             <td class="middle">{{pdCode}}</td>
             <td class="middle">{{pdName}}</td>
             <td class="middle text-center" id="qty_{{no}}">{{qty}}</td>
+						<td class="middle text-center">{{received}}</td>
+						<td class="middle text-center">{{uncomplete}}</td>
             <td class="middle text-center">{{backlog}}</td>
             <td class="middle text-center">
                 <input type="text" class="form-control input-sm text-center receive-box pdCode" name="receive[{{no}}]" id="receive_{{no}}" data-no="{{no}}" />

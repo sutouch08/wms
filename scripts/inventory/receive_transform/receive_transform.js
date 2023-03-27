@@ -162,14 +162,26 @@ function doCancle() {
 
 function addNew()
 {
-  var date_add = $('#dateAdd').val();
-	var is_wms = $('#is_wms').val();
-  var remark = $('#remark').val();
+  let date_add = $('#dateAdd').val();
+	let is_wms = $('#is_wms').val();
+  let remark = $.trim($('#remark').val());
+	let reqRemark = $('#required-remark').val();
+
 
   if(!isDate(date_add)){
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
+
+	if(reqRemark == 1 && remark.length < 10) {
+		swal({
+			title:'ข้อผิดพลาด',
+			text:'กรุณาใส่หมายเหตุ (ความยาวอย่างน้อย 10 ตัวอักษร)',
+			type:'warning'
+		});
+		
+		return false;
+	}
 
 	$.ajax({
 		url:HOME + 'add',

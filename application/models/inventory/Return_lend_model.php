@@ -283,6 +283,18 @@ class Return_lend_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
+    if( isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+    }
+
     $rs = $this->db->get('return_lend');
 
 
@@ -328,6 +340,19 @@ class Return_lend_model extends CI_Model
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+
+    if( isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
     }
 
     $this->db->order_by('code', 'DESC');
@@ -461,6 +486,28 @@ class Return_lend_model extends CI_Model
 
     $sc = ($ds === TRUE && $do === TRUE) ? TRUE : FALSE;
     return $sc;
+  }
+
+
+  public function get_non_inv_code($limit = 100)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where('status', 1)
+    ->where('inv_code IS NULL', NULL, FALSE)
+    ->get('return_lend');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+  public function update_inv($code, $doc_num)
+  {
+    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('return_lend');
   }
 
 

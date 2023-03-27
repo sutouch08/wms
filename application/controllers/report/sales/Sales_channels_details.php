@@ -180,10 +180,10 @@ class Sales_channels_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
 
         //--- เลขที่อ้างอิง
-        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->reference, PHPExcel_Cell_DataType::TYPE_STRING);
+        $this->excel->getActiveSheet()->setCellValueExplicit('D'.$row, $rs->reference, PHPExcel_Cell_DataType::TYPE_STRING);
 
         //--- เลขที่จัดส่ง
-        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->shipping_code);
+        $this->excel->getActiveSheet()->setCellValueExplicit('E'.$row, $rs->shipping_code, PHPExcel_Cell_DataType::TYPE_STRING);
 
         //--- ชือผู้รับสินค้า
         $this->excel->getActiveSheet()->setCellValue('F'.$row, $adr->name);

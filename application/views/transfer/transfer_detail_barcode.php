@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-12 hide" id="zone-table">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5 hide" id="zone-table">
     	<table class="table table-striped table-bordered">
       	<thead>
 					<tr>
@@ -21,7 +21,7 @@
     </div>
 
 
-		<div class="col-sm-12 hide" id="temp-table">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5 hide" id="temp-table">
     	<table class="table table-striped table-bordered">
       	<thead>
           <tr>
@@ -44,7 +44,7 @@
     </div>
 
 
-	<div class="col-sm-12" id="transfer-table">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5" id="transfer-table">
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>

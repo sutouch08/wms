@@ -1,4 +1,12 @@
 <?php $this->load->view('include/header'); ?>
+<?php
+	$pm = get_permission('APACRT', $this->_user->uid, $this->_user->id_profile);
+	$canAccept = NULL;
+	if( ! empty($pm))
+	{
+		$canAccept = ($pm->can_add + $pm->can_edit + $pm->can_delete + $pm->can_approve) > 0  OR $this->_SuperAdmin ? TRUE : FALSE;
+	}
+	?>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -10,6 +18,9 @@
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-xs btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
       <button type="button" class="btn btn-xs btn-info top-btn" onclick="printReceived()"><i class="fa fa-print"></i> พิมพ์</button>
+			<?php if($doc->status == 4 && ($doc->uname == $this->_user->uname OR $canAccept)) : ?>
+				<button type="button" class="btn btn-xs btn-success top-btn" onclick="accept()">ยืนยันการรับสินค้า</button>
+			<?php endif; ?>
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-xs btn-success top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
@@ -64,8 +75,9 @@
 		<select class="form-control input-sm header-box" name="status" id="status" disabled>
 			<option value="0" <?php echo is_selected('0', $doc->status); ?>>ยังไม่บันทึก</option>
 			<option value="1" <?php echo is_selected('1', $doc->status); ?>>บันทึกแล้ว</option>
-			<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
 			<option value="2" <?php echo is_selected('2', $doc->status); ?>>ยกเลิก</option>
+			<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
+			<option value="4" <?php echo is_selected('4', $doc->status); ?>>รอยืนยัน</option>
 		</select>
 	</div>
 
@@ -98,14 +110,26 @@
 </div>
 
 <?php
-if($doc->status == 2)
+if($doc->is_expire == 1)
 {
-  $this->load->view('cancle_watermark');
+	$this->load->view('expire_watermark');
 }
-
-if($doc->status == 3)
+else
 {
-	$this->load->view('on_process_watermark');
+	if($doc->status == 2)
+	{
+		$this->load->view('cancle_watermark');
+	}
+
+	if($doc->status == 3)
+	{
+		$this->load->view('on_process_watermark');
+	}
+
+	if($doc->status == 4)
+	{
+		$this->load->view('accept_watermark');
+	}	
 }
 ?>
 <hr class="margin-top-15 margin-bottom-15"/>
@@ -157,7 +181,18 @@ if($doc->status == 3)
     </div>
 </div>
 
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<?php if($doc->must_accept == 1 && $doc->is_accept == 1) : ?>
+			<span class="green display-block">ยืนยันการรับโดย : <?php echo $doc->accept_by; ?></span>
+			<span class="green display-block">วัน-เวลา : <?php echo thai_date($doc->accept_on, TRUE); ?></span>
+			<span class="green display-block">หมายเหตุ : <?php echo $doc->accept_remark; ?></span>
+		<?php endif; ?>
+	</div>
+</div>
+
 <?php $this->load->view('cancle_modal'); ?>
+<?php $this->load->view('accept_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js?v=<?php echo date('Ymd'); ?>"></script>

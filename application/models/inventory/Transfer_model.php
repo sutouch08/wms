@@ -582,123 +582,194 @@ class Transfer_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
+    $this->db
+    ->from('transfer AS tr')
+    ->join('user AS u', 'tr.user = u.uname', 'left')
+    ->join('warehouse AS fwh', 'tr.from_warehouse = fwh.code', 'left')
+    ->join('warehouse AS twh', 'tr.to_warehouse = twh.code', 'left');
 
     if(!empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('tr.code', $ds['code']);
     }
 
     if(!empty($ds['from_warehouse']))
     {
       $from_warehouse = $this->get_warehouse_in($ds['from_warehouse']);
-      $this->db->where_in('from_warehouse', $from_warehouse);
+      $this->db->where_in('tr.from_warehouse', $from_warehouse);
     }
 
     if(!empty($ds['to_warehouse']))
     {
       $to_warehouse = $this->get_warehouse_in($ds['to_warehouse']);
-      $this->db->where_in('to_warehouse', $to_warehouse);
+      $this->db->where_in('tr.to_warehouse', $to_warehouse);
     }
 
     if(!empty($ds['user']))
     {
-      $users = user_in($ds['user']);
-      $this->db->where_in('user', $users);
-    }
-
-
-		if($ds['status'] != 'all')
-		{
-			if($ds['status'] == 4)
-			{
-				$this->db->where('status', 1)->where('valid', 0);
-			}
-			else
-			{
-				$this->db->where('status', $ds['status']);
-			}
-    }
-
-    if($ds['is_export'] != 'all')
-    {
-      $this->db->where('is_export', $ds['is_export']);
-    }
-
-		if($ds['api'] != 'all')
-		{
-			$this->db->where('api', $ds['api']);
-		}
-
-    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
-    {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
-    }
-
-    return $this->db->count_all_results('transfer');
-  }
-
-
-  public function get_data(array $ds = array(), $perpage = 20, $offset = 0)
-  {
-
-    if(!empty($ds['code']))
-    {
-      $this->db->like('code', $ds['code']);
-    }
-
-    if(!empty($ds['from_warehouse']))
-    {
-      $from_warehouse = $this->get_warehouse_in($ds['from_warehouse']);
-      $this->db->where_in('from_warehouse', $from_warehouse);
-    }
-
-    if(!empty($ds['to_warehouse']))
-    {
-      $to_warehouse = $this->get_warehouse_in($ds['to_warehouse']);
-      $this->db->where_in('to_warehouse', $to_warehouse);
-    }
-
-    if(!empty($ds['user']))
-    {
-      $users = user_in($ds['user']);
-      $this->db->where_in('user', $users);
+      $this->db
+      ->group_start()
+      ->like('u.uname', $ds['user'])
+      ->or_like('u.name', $ds['user'])
+      ->group_end();
     }
 
     if($ds['status'] != 'all')
     {
-			if($ds['status'] == 4)
-			{
-				$this->db->where('status', 1)->where('valid', 0);
-			}
-			else
-			{
-				$this->db->where('status', $ds['status']);
-			}
-
+      if($ds['status'] == 5)
+      {
+        $this->db->where('tr.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('tr.status', $ds['status']);
+      }
     }
 
-    if($ds['is_export'] != 'all')
+
+    if($ds['is_approve'] != 'all')
     {
-      $this->db->where('is_export', $ds['is_export']);
+      if($ds['is_approve'] < 0)
+      {
+        $this->db->where('must_approve', 0);
+      }
+      else
+      {
+        $this->db->where('must_approve', 1)->where('is_approve', $ds['is_approve']);
+      }
+    }
+
+    if($ds['valid'] != 'all')
+    {
+      $this->db->where('tr.valid', $ds['valid']);
+    }
+
+    if(isset($ds['is_export']) && $ds['is_export'] != 'all')
+    {
+      $this->db->where('tr.is_export', $ds['is_export']);
+    }
+
+    if(isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('tr.inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('tr.inv_code IS NOT NULL', NULL, FALSE);
+      }
     }
 
 		if($ds['api'] != 'all')
 		{
-			$this->db->where('api', $ds['api']);
+			$this->db->where('tr.api', $ds['api']);
 		}
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db->where('tr.date_add >=', from_date($ds['from_date']));
+      $this->db->where('tr.date_add <=', to_date($ds['to_date']));
     }
 
-    $this->db->order_by('code', 'DESC');
+    return $this->db->count_all_results();
+  }
 
-		$this->db->limit($perpage, $offset);
 
-    $rs = $this->db->get('transfer');
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
+  {
+    $this->db
+    ->select('tr.*, u.name AS display_name')
+    ->select('fwh.name AS from_warehouse_name, twh.name AS to_warehouse_name')
+    ->from('transfer AS tr')
+    ->join('user AS u', 'tr.user = u.uname', 'left')
+    ->join('warehouse AS fwh', 'tr.from_warehouse = fwh.code', 'left')
+    ->join('warehouse AS twh', 'tr.to_warehouse = twh.code', 'left');
+
+    if(!empty($ds['code']))
+    {
+      $this->db->like('tr.code', $ds['code']);
+    }
+
+    if(!empty($ds['from_warehouse']))
+    {
+      $from_warehouse = $this->get_warehouse_in($ds['from_warehouse']);
+      $this->db->where_in('tr.from_warehouse', $from_warehouse);
+    }
+
+    if(!empty($ds['to_warehouse']))
+    {
+      $to_warehouse = $this->get_warehouse_in($ds['to_warehouse']);
+      $this->db->where_in('tr.to_warehouse', $to_warehouse);
+    }
+
+    if(!empty($ds['user']))
+    {
+      $this->db
+      ->group_start()
+      ->like('u.uname', $ds['user'])
+      ->or_like('u.name', $ds['user'])
+      ->group_end();
+    }
+
+    if($ds['status'] != 'all')
+    {
+      if($ds['status'] == 5)
+      {
+        $this->db->where('tr.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('tr.status', $ds['status']);
+      }
+    }
+
+    if($ds['is_approve'] != 'all')
+    {
+      if($ds['is_approve'] < 0)
+      {
+        $this->db->where('must_approve', 0);
+      }
+      else
+      {
+        $this->db->where('must_approve', 1)->where('is_approve', $ds['is_approve']);
+      }
+    }
+
+    if($ds['valid'] != 'all')
+    {
+      $this->db->where('tr.valid', $ds['valid']);
+    }
+
+    if(isset($ds['is_export']) && $ds['is_export'] != 'all')
+    {
+      $this->db->where('tr.is_export', $ds['is_export']);
+    }
+
+    if(isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == 0)
+      {
+        $this->db->where('tr.inv_code IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('tr.inv_code IS NOT NULL', NULL, FALSE);
+      }
+    }
+
+		if($ds['api'] != 'all')
+		{
+			$this->db->where('tr.api', $ds['api']);
+		}
+
+    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    {
+      $this->db->where('tr.date_add >=', from_date($ds['from_date']));
+      $this->db->where('tr.date_add <=', to_date($ds['to_date']));
+    }
+
+    $rs = $this->db->order_by('tr.code', 'DESC')->limit($perpage, $offset)->get();
 
 		if($rs->num_rows() > 0)
 		{
@@ -775,6 +846,35 @@ class Transfer_model extends CI_Model
   public function update_inv($code, $doc_num)
   {
     return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('transfer');
+  }
+
+
+  public function is_document_avalible($code, $uuid)
+  {
+    $rs = $this->db
+    ->where('code', $code)
+    ->where('session_uuid !=', $uuid)
+    ->where('session_expire >=', date('Y-m-d H:i:s'))
+    ->count_all_results('transfer');
+
+    if($rs == 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function update_uuid($code, $uuid)
+  {
+    $expiration = date('Y-m-d H:i:s', time() + 1 * 60);
+    $ds = array(
+      'session_uuid' => $uuid,
+      'session_expire' => $expiration
+    );
+
+    return $this->db->where('code', $code)->update('transfer', $ds);
   }
 
 }

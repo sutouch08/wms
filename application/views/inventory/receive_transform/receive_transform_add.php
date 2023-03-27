@@ -5,6 +5,8 @@
 	<input type="hidden" id="prefix" value="<?php echo getConfig('PREFIX_RECEIVE_TRANSFORM'); ?>">
 	<input type="hidden" id="runNo" value="<?php echo getConfig('RUN_DIGIT_RECEIVE_TRANSFORM'); ?>">
 <?php endif; ?>
+
+<input type="hidden" id="required-remark" value="<?php echo $this->required_remark ? 1 : 0; ?>" />
 <div class="row">
 	<div class="col-lg-8 col-md-8 col-sm-8 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
