@@ -11,12 +11,14 @@ class Stock_balance_report_model extends CI_Model
     $this->ms
     ->select('OITM.ItemCode AS product_code')
     ->select('OITM.ItemName AS product_name')
+    ->select('ITM1.Price AS price')
     ->select('OBIN.WhsCode AS warehouse_code')
     ->select('OBIN.BinCode AS zone_code')
     ->select('OBIN.Descr AS zone_name')
     ->select('OIBQ.OnHandQty AS qty')
     ->from('OIBQ')
     ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
+    ->join('ITM1', 'OITM.ItemCode = ITM1.ItemCode AND ITM1.PriceList = 11')
     ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry','left')
     ->where('OIBQ.OnHandQty !=', 0, FALSE);
 

@@ -110,52 +110,102 @@ function save()
 
 function approve(){
 	var code = $('#return_code').val();
-	$.get(HOME+'approve/'+code, function(rs){
-		if(rs === 'success'){
-			swal({
-				title:'Success',
-				type:'success',
-				timer: 1000
-			});
 
-			setTimeout(function(){
-				window.location.reload();
-			}, 1200);
+	swal({
+		title:'Approval',
+		text:'ต้องการอนุมัติ '+code+' หรือไม่ ?',
+		showCancelButton:true,
+		confirmButtonColor:'#8bc34a',
+		confirmButtonText:'อนุมัติ',
+		cancelButtonText:'ยกเลิก',
+		closeOnConfirm:true
+	}, () => {
+		load_in();
 
-		}else{
-			swal({
-				title:'Error',
-				text:rs,
-				type:'error'
-			}, function(){
-				window.location.reload();
-			})
-		}
+		$.ajax({
+			url:HOME + 'approve/'+code,
+			type:'GET',
+			cache:false,
+			success:function(rs) {
+				load_out();
+
+				if(rs === 'success') {
+					setTimeout(() => {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							window.location.reload();
+						}, 1200);
+					}, 200);
+				}
+				else {
+					setTimeout(() => {
+						swal({
+							title:'Error!',
+							text:rs,
+							type:'errr'
+						}, () => {
+							window.location.reload();
+						});
+					}, 200);
+				}
+			}
+		});
 	});
 }
 
 
 
-function unapprove(){
+function unapprove() {
 	var code = $('#return_code').val();
-	$.get(HOME+'unapprove/'+code, function(rs){
-		if(rs === 'success'){
-			swal({
-				title:'Success',
-				type:'success',
-				timer: 1000
-			});
+	swal({
+		title:'Warning',
+		text:'ต้องการยกเลิกการอนุมัติ '+code+' หรือไม่ ?',
+		type:'warning',
+		showCancelButton:true,
+		confirmButtonColor:'#DD6B55',
+		confirmButtonText:'Yes',
+		cancelButtonText:'No',
+		closeOnConfirm:true
+	}, () => {
+		load_in();
 
-			setTimeout(function(){
-				window.location.reload();
-			}, 1200);
-		}else{
-			swal({
-				title:'Error',
-				text:rs,
-				type:'error'
-			})
-		}
+		$.ajax({
+			url: HOME + 'unapprove/'+code,
+			type:'GET',
+			cache:false,
+			success : function(rs) {
+				load_out();
+				if(rs === 'success') {
+					setTimeout(() => {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							window.location.reload();
+						}, 1200);
+					}, 200);
+				}
+				else {
+					setTimeout(() => {
+						swal({
+							title:'Error',
+							text:rs,
+							type:'error'
+						}, () => {
+							window.location.reload();
+						});
+					}, 200);
+				}
+			}
+		});
 	});
 }
 
@@ -245,7 +295,8 @@ function updateHeader(){
 	var zone_code = $('#zone_code').val();
 	var is_wms = $('#is_wms').val();
 	var api = $('#api').val();
-  var remark = $('#remark').val();
+	var reqRemark = $('#required_remark').val();
+  var remark = $.trim($('#remark').val());
 
 	if(!isDate(date_add)){
     swal('วันที่ไม่ถูกต้อง');
@@ -269,6 +320,16 @@ function updateHeader(){
 
 	if(zone_code.length == 0){
 		swal('กรุณาระบุโซนรับสินค้า');
+		return false;
+	}
+
+	if(reqRemark == 1 && remark.length < 10) {
+		swal({
+			title:'ข้อผิดพลาด',
+			text:'กรุณาใส่หมายเหตุ (ความยาวอย่างน้อย 10 ตัวอักษร)',
+			type:'warning'
+		});
+
 		return false;
 	}
 
@@ -337,6 +398,9 @@ function addNew()
 	var customer_code = $('#customer_code').val();
 	var zone_code = $('#zone_code').val();
 	var is_wms = $('#is_wms').val();
+	let remark = $.trim($('#remark').val());
+	let reqRemark = $('#required-remark').val();
+
 
   if(!isDate(date_add)){
     swal('วันที่ไม่ถูกต้อง');
@@ -359,6 +423,17 @@ function addNew()
 			return false;
 		}
 	}
+
+	if(reqRemark == 1 && remark.length < 10) {
+		swal({
+			title:'ข้อผิดพลาด',
+			text:'กรุณาใส่หมายเหตุ (ความยาวอย่างน้อย 10 ตัวอักษร)',
+			type:'warning'
+		});
+
+		return false;
+	}
+
 
   $('#addForm').submit();
 }
@@ -510,6 +585,60 @@ function removeRow(no, id){
 		// reIndex();
 		// recalTotal();
 	}
+}
+
+
+function accept() {
+	$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
+	$('#accept-modal').modal('show');
+}
+
+function acceptConfirm() {
+	let code = $('#return_code').val();
+	let note = $.trim($('#accept-note').val());
+
+	if(note.length < 10) {
+		$('#accept-error').text('กรุณาระบุหมายเหตุอย่างนี้อย 10 ตัวอักษร');
+		return false;
+	}
+	else {
+		$('#accept-error').text('');
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'accept_confirm',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"accept_remark" : note
+		},
+		success:function(rs) {
+			load_out();
+
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(() => {
+					window.location.reload();
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text: rs,
+					type:'error'
+				});
+			}
+		}
+	});
+
 }
 
 

@@ -27,12 +27,19 @@
       <input type="text" class="form-control input-sm text-center search" name="customer_code" value="<?php echo $customer_code; ?>" />
     </div>
 		<div class="col-lg-3 col-md-4-harf col-sm-4-harf col-xs-8 padding-5">
-			<label>คลัง</label>
-			<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
-				<option value="all">ทั้งหมด</option>
-				<?php echo select_warehouse($warehouse); ?>
-			</select>
+			<label>โซน</label>
+			<input type="text" class="form-control input-sm padding-5" name="zone" value="<?php echo $zone; ?>" />
 		</div>
+
+    <div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+      <label>การยืนยัน</label>
+  		<select name="must_accept" class="form-control input-sm" onchange="getSearch()">
+  			<option value="all">ทั้งหมด</option>
+  			<option value="0" <?php echo is_selected('0', $must_accept); ?>>ไม่ต้องยืนยัน</option>
+  			<option value="1" <?php echo is_selected('1', $must_accept); ?>>ต้องยืนยัน</option>
+  		</select>
+    </div>
+
     <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
       <label>สถานะ</label>
       <select class="form-control input-sm" name="status" onchange="getSearch()">
@@ -41,6 +48,8 @@
   			<option value="1" <?php echo is_selected('1', $status); ?>>บันทึกแล้ว</option>
   			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
 				<option value="3" <?php echo is_selected('3', $status); ?>>WMS Process</option>
+        <option value="4" <?php echo is_selected('4', $status); ?>>รอการยืนยัน</option>
+        <option value="5" <?php echo is_selected('5', $status); ?>>หมดอายุ</option>
   		</select>
     </div>
     <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
@@ -91,34 +100,47 @@
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <p class="pull-right top-p">
       สถานะ : ว่างๆ = ปกติ,&nbsp;
-      <span class="blue">NC</span> = ยังไม่บันทึก,&nbsp;
-      <span class="purple">OP</span> = รอรับที่ WMS,&nbsp;
-      <span class="red">CN</span> = ยกเลิก
+      <span class="grey blod">NC</span> = ยังไม่บันทึก,&nbsp;
+      <span class="blue blod">AP</span> = รออนุมัติ,&nbsp;
+      <span class="purple blod">OP</span> = รอรับที่ WMS,&nbsp;
+      <span class="red blod">CN</span> = ยกเลิก, &nbsp;
+      <span class="orange blod">WC</span> = รอการยืนยันม &nbsp;
+      <span class="dark blod">EXP</span> = หมดอายุ
     </p>
   </div>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" style="min-width:1200px;">
+    <table class="table table-striped border-1" style="min-width:1300px;">
       <thead>
         <tr>
+          <th class="fix-width-100"></th>
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
           <th class="fix-width-120">เลขที่เอกสาร</th>
           <th class="fix-width-100">เลขที่บิล</th>
-          <th class="min-width-250">ลูกค้า</th>
-					<th class="fix-width-120">โซน</th>
+          <th class="min-width-200">ลูกค้า</th>
+					<th class="fix-width-150">โซน</th>
           <th class="fix-width-80 text-right">จำนวน</th>
           <th class="fix-width-100 text-right">มลูค่า</th>
           <th class="fix-width-60 text-center">สถานะ</th>
           <th class="fix-width-60 text-center">อนุมัติ</th>
 					<th class="fix-width-60 text-center">WMS</th>
-          <th class="fix-width-120"></th>
+          <th class="fix-width-150">พนักงาน</th>
         </tr>
       </thead>
       <tbody>
 <?php if(!empty($docs)) : ?>
-<?php   $no = $this->uri->segment(4) + 1; ?>
+<?php   $no = $this->uri->segment($this->segment) + 1; ?>
 <?php   foreach($docs as $rs) : ?>
-          <tr class="font-size-12" id="row-<?php $rs->code; ?>">
+          <tr class="font-size-12" id="row-<?php $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
+            <td class="middle">
+              <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+          <?php if($this->pm->can_edit && $rs->status == 0) : ?>
+              <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+          <?php endif; ?>
+          <?php if($this->pm->can_delete && $rs->status != 2) : ?>
+              <button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
+          <?php endif; ?>
+            </td>
             <td class="middle text-center no"><?php echo $no; ?></td>
             <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
             <td class="middle"><?php echo $rs->code; ?></td>
@@ -128,14 +150,24 @@
             <td class="middle text-right"><?php echo number($rs->qty); ?></td>
             <td class="middle text-right"><?php echo number($rs->amount, 2); ?></td>
             <td class="middle text-center">
-              <?php if($rs->status == 2) : ?>
-                <span class="red">CN</span>
-              <?php endif;?>
-              <?php if($rs->status == 0) : ?>
-                <span class="blue">NC</span>
-              <?php endif; ?>
-							<?php if($rs->status == 3) : ?>
-                <span class="purple">OP</span>
+              <?php if($rs->is_expire == 1) : ?>
+                <span class="dark">EXP</span>
+              <?php else : ?>
+                <?php if($rs->status == 2) : ?>
+                  <span class="red">CN</span>
+                <?php endif;?>
+                <?php if($rs->status == 0) : ?>
+                  <span class="blue">NC</span>
+                <?php endif; ?>
+                <?php if($rs->status == 1) : ?>
+                  <span class="blue">AP</span>
+                <?php endif; ?>
+  							<?php if($rs->status == 3) : ?>
+                  <span class="purple">OP</span>
+                <?php endif; ?>
+                <?php if($rs->status == 4) : ?>
+                  <span class="orange">WC</span>
+                <?php endif; ?>
               <?php endif; ?>
             </td>
             <td class="middle text-center">
@@ -144,15 +176,7 @@
 						<td class="middle text-center">
               <?php echo $rs->api == 1 ? 'Y' : 'N'; ?>
             </td>
-            <td class="middle text-right">
-              <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-          <?php if($this->pm->can_edit && $rs->status == 0) : ?>
-              <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
-          <?php endif; ?>
-          <?php if($this->pm->can_delete && $rs->status != 2) : ?>
-              <button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
-          <?php endif; ?>
-            </td>
+            <td class="middle"><?php echo $rs->display_name; ?></td>
           </tr>
 <?php     $no++; ?>
 <?php   endforeach; ?>
@@ -168,6 +192,44 @@
   </div>
 </div>
 
+<?php
+function statusBackgroundColor($is_expire, $status, $is_approve)
+{
+	$bk_color = "";
+
+	if($is_expire == 1)
+	{
+		$bk_color = "#dbdbdb";
+	}
+	else
+	{
+		switch($status)
+		{
+			case -1 :
+				$bk_color = "#fff4d5";
+				break;
+			case 0 :
+				$bk_color = "#ddf0f9";
+				break;
+			case 1 :
+				$bk_color = $is_approve == 1 ? "#f4ffe7" : "#ffe3b9";
+				break;
+			case 2 :
+				$bk_color = "#f7c3bf";
+				break;
+			case 3 :
+				$bk_color = "#fbe4ff";
+				break;
+      case 4 :
+        $bk_color = "#ffe3b9";
+        break;
+		}
+	}
+
+	return "background-color:{$bk_color};";
+}
+
+?>
 <?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js?v=<?php echo date('Ymd');?>"></script>

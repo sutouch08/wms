@@ -97,7 +97,7 @@
 </form>
 
 <div class="row">
-	<div class="col-sm-12" id="rs">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5" id="rs">
 
     </div>
 </div>
@@ -110,37 +110,40 @@
 
 
 <script id="template" type="text/x-handlebars-template">
-  <table class="table table-bordered table-striped">
+  <table class="table table-bordered table-striped" style="min-width:1000px;">
     <tr>
-      <th colspan="6" class="text-center">รายงานสินค้าคงเหลือฝากขาย(แท้) ณ วันที่ {{ reportDate }}</th>
+      <th colspan="8" class="text-center">รายงานสินค้าคงเหลือฝากขาย(แท้) ณ วันที่ {{ reportDate }}</th>
     </tr>
     <tr>
-      <th colspan="6" class="text-center"> คลัง : {{ whList }} </th>
+      <th colspan="8" class="text-center"> คลัง : {{ whList }} </th>
     </tr>
 		<tr>
-      <th colspan="6" class="text-center"> โซน : {{ zoneList }} </th>
+      <th colspan="8" class="text-center"> โซน : {{ zoneList }} </th>
     </tr>
     <tr>
-      <th colspan="6" class="text-center"> สินค้า : {{ productList }} </th>
+      <th colspan="8" class="text-center"> สินค้า : {{ productList }} </th>
     </tr>
     <tr class="font-size-12">
-      <th class="width-5 middle text-center">ลำดับ</th>
-			<th class="width-10 middle text-center">คลัง</th>
-      <th class="width-25 middle text-center">โซน</th>
-      <th class="width-20 middle text-center">รหัส</th>
-      <th class="width-30 middle text-center">สินค้า</th>
-      <th class="width-10 text-right middle">คงเหลือ</th>
+      <th class="fix-width-40 middle text-center">ลำดับ</th>
+			<th class="fix-width-100 middle text-center">คลัง</th>
+      <th class="min-width-200 middle text-center" style="max-width:250px;">โซน</th>
+      <th class="fix-width-150 middle text-center">รหัส</th>
+      <th class="min-width-200 middle text-center" style="max-width:300px;">สินค้า</th>
+			<th class="fix-width-100 middle text-right">ราคาขาย</th>
+      <th class="fix-width-100 text-right middle">คงเหลือ</th>
+			<th class="fix-width-120 text-right middle">มูลค่า</th>
     </tr>
 {{#each bs}}
   {{#if nodata}}
     <tr>
-      <td colspan="6" align="center"><h4>-----  ไม่พบสินค้าคงเหลือตามเงื่อนไขที่กำหนด  -----</h4></td>
+      <td colspan="8" align="center"><h4>-----  ไม่พบสินค้าคงเหลือตามเงื่อนไขที่กำหนด  -----</h4></td>
     </tr>
   {{else}}
     {{#if @last}}
     <tr class="font-size-14">
-      <td colspan="5" class="text-right">รวม</td>
+      <td colspan="6" class="text-right">รวม</td>
       <td class="text-right">{{ totalQty }}</td>
+			<td class="text-right">{{ totalAmount }}</td>
     </tr>
     {{else}}
     <tr class="font-size-12">
@@ -149,7 +152,9 @@
 			<td class="middle">{{ zone }}</td>
       <td class="middle">{{ pdCode }}</td>
       <td class="middle">{{ pdName }}</td>
+			<td class="middle text-right">{{ price }}</td>
       <td class="middle text-right">{{ qty }}</td>
+			<td class="middle text-right">{{ amount }}</td>
     </tr>
     {{/if}}
   {{/if}}
@@ -157,5 +162,5 @@
   </table>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/report/inventory/stock_balance_zone.js"></script>
+<script src="<?php echo base_url(); ?>scripts/report/inventory/stock_balance_zone.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

@@ -28,10 +28,7 @@ class Return_order_model extends CI_Model
     $rs = $this->mc
     ->select('DocEntry')
     ->where('U_ECOMNO', $code)
-    ->group_start()
-    ->where('F_Sap', 'N')
-    ->or_where('F_Sap IS NULL', NULL, FALSE)
-    ->group_end()
+    ->where('F_Sap', 'N')    
     ->get('ORDN');
 
     if($rs->num_rows() > 0)
@@ -183,14 +180,20 @@ class Return_order_model extends CI_Model
     return NULL;
   }
 
+
   public function get($code)
   {
     $rs = $this->db
-    ->select('return_order.*')
-    ->select('customers.name AS customer_name')
-    ->from('return_order')
-    ->join('customers', 'return_order.customer_code = customers.code', 'left')
-    ->where('return_order.code', $code)
+    ->select('r.*')
+    ->select('c.name AS customer_name')
+    ->select('wh.name AS warehouse_name, z.name AS zone_name')
+    ->select('u.uname, u.name AS display_name')
+    ->from('return_order AS r')
+    ->join('customers AS c', 'r.customer_code = c.code', 'left')
+    ->join('warehouse AS wh', 'r.warehouse_code = wh.code', 'left')
+    ->join('zone AS z', 'r.zone_code = z.code', 'left')
+    ->join('user AS u', 'z.user_id = u.id', 'left')
+    ->where('r.code', $code)
     ->get();
 
     if($rs->num_rows() === 1)
@@ -206,7 +209,7 @@ class Return_order_model extends CI_Model
   public function get_details($code)
   {
     $rs = $this->db
-		->select('rd.*, pd.unit_code AS unit_code, pd.count_stock')
+		->select('rd.*, pd.unit_code AS unit_code, pd.count_stock, pd.barcode')
 		->from('return_order_detail AS rd')
 		->join('products AS pd', 'rd.product_code = pd.code', 'left')
 		->where('rd.return_code', $code)
@@ -431,137 +434,182 @@ class Return_order_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
+    $this->db
+    ->from('return_order AS r')
+    ->join('customers AS c', 'r.customer_code = c.code', 'left')
+    ->join('zone AS z', 'r.zone_code = z.code', 'left');
+
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('r.code', $ds['code']);
     }
 
     //---- invoice
     if(!empty($ds['invoice']))
     {
-      $this->db->like('invoice', $ds['invoice']);
+      $this->db->like('r.invoice', $ds['invoice']);
     }
 
     //--- customer
     if(!empty($ds['customer_code']))
     {
-      $this->db->where_in('customer_code', $this->customer_in($ds['customer_code']));
+      $this->db
+      ->group_start()
+      ->like('r.customer_code', $ds['customer_code'])
+      ->or_like('c.name', $ds['customer_code'])
+      ->group_end();
     }
 
-
-		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
-		{
-			$this->db->where('warehouse_code', $ds['warehouse']);
-		}
-
-    if(!empty($ds['status']) && $ds['status'] != 'all')
+		if( ! empty($ds['zone']))
     {
-      $this->db->where('status', $ds['status']);
+      $this->db
+      ->group_start()
+      ->like('r.zone_code', $ds['zone'])
+      ->or_like('z.name', $ds['zone'])
+      ->group_end();
     }
 
-    if(!empty($ds['approve']) && $ds['approve'] != 'all')
+    if($ds['status'] != 'all')
     {
-      $this->db->where('is_approve', $ds['approve']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('r.status', $ds['status']);
+      }
     }
+
+    if($ds['approve'] != 'all')
+    {
+      $this->db->where('r.is_approve', $ds['approve']);
+    }
+
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('r.must_accept', $ds['must_accept']);
+    }
+
 
 		if(isset($ds['api']) && $ds['api'] !== 'all')
 		{
-			$this->db->where('api', $ds['api']);
+			$this->db->where('r.api', $ds['api']);
 		}
+
+    if(!empty($ds['from_date']) && !empty($ds['to_date']))
+    {
+      $this->db->where('r.date_add >=', from_date($ds['from_date']));
+      $this->db->where('r.date_add <=', to_date($ds['to_date']));
+    }
 
     if(isset($ds['sap']) && $ds['sap'] != 'all')
     {
       if($ds['sap'] == 0)
       {
-        $this->db->where('inv_code IS NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 
-    if(!empty($ds['from_date']) && !empty($ds['to_date']))
-    {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
-    }
-
-    return $this->db->count_all_results('return_order');
+    return $this->db->count_all_results();
   }
 
 
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '')
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
+    $this->db
+    ->select('r.*, c.name AS customer_name, z.name AS zone_name, u.name AS display_name')
+    ->from('return_order AS r')
+    ->join('customers AS c', 'r.customer_code = c.code', 'left')
+    ->join('zone AS z', 'r.zone_code = z.code', 'left')
+    ->join('user AS u', 'r.user = u.uname', 'left');
+
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('r.code', $ds['code']);
     }
 
     //---- invoice
     if(!empty($ds['invoice']))
     {
-      $this->db->like('invoice', $ds['invoice']);
+      $this->db->like('r.invoice', $ds['invoice']);
     }
 
     //--- customer
     if(!empty($ds['customer_code']))
     {
-      $this->db->where_in('customer_code', $this->customer_in($ds['customer_code']));
+      $this->db
+      ->group_start()
+      ->like('r.customer_code', $ds['customer_code'])
+      ->or_like('c.name', $ds['customer_code'])
+      ->group_end();
     }
 
-		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
-		{
-			$this->db->where('warehouse_code', $ds['warehouse']);
-		}
+		if( ! empty($ds['zone']))
+    {
+      $this->db
+      ->group_start()
+      ->like('r.zone_code', $ds['zone'])
+      ->or_like('z.name', $ds['zone'])
+      ->group_end();
+    }
 
     if($ds['status'] != 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('r.status', $ds['status']);
+      }
     }
 
     if($ds['approve'] != 'all')
     {
-      $this->db->where('is_approve', $ds['approve']);
+      $this->db->where('r.is_approve', $ds['approve']);
     }
+
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('r.must_accept', $ds['must_accept']);
+    }
+
 
 		if(isset($ds['api']) && $ds['api'] !== 'all')
 		{
-			$this->db->where('api', $ds['api']);
+			$this->db->where('r.api', $ds['api']);
 		}
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db->where('r.date_add >=', from_date($ds['from_date']));
+      $this->db->where('r.date_add <=', to_date($ds['to_date']));
     }
 
     if(isset($ds['sap']) && $ds['sap'] != 'all')
     {
       if($ds['sap'] == 0)
       {
-        $this->db->where('inv_code IS NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 
-    $this->db->order_by('code', 'DESC');
-
-    if(!empty($perpage))
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
-
-    $rs = $this->db->get('return_order');
+    $rs = $this->db->order_by('r.code', 'DESC')->limit($perpage, $offset)->get();
 
     if($rs->num_rows() > 0)
     {

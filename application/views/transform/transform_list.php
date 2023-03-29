@@ -141,16 +141,17 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-sm-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1" style="min-width:700px;">
+		<table class="table table-striped table-hover border-1" style="min-width:860px;">
 			<thead>
 				<tr>
-					<th class="width-5 middle text-center">ลำดับ</th>
-					<th style="min-width: 90px;" class="width-10 middle text-center">วันที่</th>
-					<th style="min-width: 110px;" class="width-20 middle">เลขที่เอกสาร</th>
-					<th style="min-width: 200px;" class="middle">ลูกค้า</th>
-					<th style="min-width: 100px;" class="width-10 middle text-right">จำนวน</th>
-					<th style="min-width: 100px;" class="width-10 middle text-right">ยอดเงิน</th>
-					<th style="min-width: 100px;" class="width-10 middle">สถานะ</th>
+					<th class="fix-width-40 middle text-center">ลำดับ</th>
+					<th class="fix-width-100 middle text-center">วันที่</th>
+					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
+					<th class="min-width-200 middle" style="max-width:350px;">ลูกค้า</th>
+					<th class="fix-width-100 middle text-right">จำนวน</th>
+					<th class="fix-width-100 middle text-right">ยอดเงิน</th>
+					<th class="fix-width-100 middle">สถานะ</th>
+					<th class="fix-width-120">พนักงาน</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -167,7 +168,7 @@
 							</td>
               <td class="middle text-right pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
-              </td>
+              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->user; ?></td>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>

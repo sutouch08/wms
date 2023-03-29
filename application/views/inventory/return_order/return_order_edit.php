@@ -1,4 +1,5 @@
 <?php $this->load->view('include/header'); ?>
+<input type="hidden" id="required_remark" value="<?php echo $this->required_remark; ?>" />
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>

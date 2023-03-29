@@ -74,24 +74,31 @@ class Stock_balance_zone extends PS_Controller
       {
         $no = 1;
         $totalQty = 0;
+        $totalAmount = 0;
 
         foreach($result as $rs)
         {
+          $amount = $rs->qty * $rs->price;
+
           $arr = array(
             'no' => number($no),
             'warehouse' => $rs->warehouse_code,
             'zone' => $rs->zone_name,
             'pdCode' => $rs->product_code,
             'pdName' => $rs->product_name,
-            'qty' => number($rs->qty)
+            'price' => number($rs->price, 2),
+            'qty' => number($rs->qty),
+            'amount' => number($amount, 2)
           );
 
           array_push($bs, $arr);
           $totalQty += $rs->qty;
+          $totalAmount += $amount;
+
           $no++;
         }
 
-        $arr = array( 'totalQty' => number($totalQty) );
+        $arr = array( 'totalQty' => number($totalQty), 'totalAmount' => number($totalAmount, 2));
         array_push($bs, $arr);
       }
     }
@@ -177,7 +184,9 @@ class Stock_balance_zone extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('D5', 'ชื่อโซน');
     $this->excel->getActiveSheet()->setCellValue('E5', 'รหัสสินค้า');
     $this->excel->getActiveSheet()->setCellValue('F5', 'ชื่อสินค้า');
-    $this->excel->getActiveSheet()->setCellValue('G5', 'จำนวน');
+    $this->excel->getActiveSheet()->setCellValue('G5', 'ราคาขาย');
+    $this->excel->getActiveSheet()->setCellValue('H5', 'จำนวน');
+    $this->excel->getActiveSheet()->setCellValue('I5', 'มูลค่า');
 
     $row = 6;
     if(!empty($result))
@@ -192,15 +201,18 @@ class Stock_balance_zone extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->zone_name);
         $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->product_code);
         $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->product_name);
-        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->qty);
-        $totalQty += $rs->qty;
+        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->price);
+        $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->qty);
+        $this->excel->getActiveSheet()->setCellValue('I'.$row, "=G{$row}*H{$row}");
         $no++;
         $row++;
       }
 
+      $ro = $row - 1;
       $this->excel->getActiveSheet()->setCellValue('A'.$row, 'รวม');
-      $this->excel->getActiveSheet()->mergeCells('A'.$row.':F'.$row);
-      $this->excel->getActiveSheet()->setCellValue('G'.$row, $totalQty);
+      $this->excel->getActiveSheet()->mergeCells('A'.$row.':G'.$row);
+      $this->excel->getActiveSheet()->setCellValue('H'.$row, "=SUM(H6:H{$ro})");
+      $this->excel->getActiveSheet()->setCellValue('I'.$row, "=SUM(I6:I{$ro})");
       $this->excel->getActiveSheet()->getStyle('A'.$row)->getAlignment()->setHorizontal('right');
     }
 

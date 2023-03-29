@@ -1,4 +1,13 @@
 <?php $this->load->view('include/header'); ?>
+<?php
+	$pm = get_permission('APACSM', $this->_user->uid, $this->_user->id_profile);
+	$canAccept = NULL;
+
+	if( ! empty($pm))
+	{
+		$canAccept = ($pm->can_add + $pm->can_edit + $pm->can_delete + $pm->can_approve) > 0  OR $this->_SuperAdmin ? TRUE : FALSE;
+	}
+	?>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -17,6 +26,9 @@
 	<?php if($this->isAPI && $doc->is_wms == 1 && $doc->api == 1 && $doc->status != 0 && $doc->status !=2 && $doc->is_complete != 1 && $doc->is_approve == 1) : ?>
 				<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 	<?php endif; ?>
+	<?php if($doc->status == 4 && ($doc->uname == $this->_user->uname OR $canAccept)) : ?>
+		<button type="button" class="btn btn-xs btn-success top-btn" onclick="accept()">ยืนยันการรับสินค้า</button>
+	<?php endif; ?>
 
 	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_edit) : ?>
 				<button type="button" class="btn btn-xs btn-danger top-btn" onclick="unsave()">ยกเลิกการบันทึก</button>
@@ -24,7 +36,7 @@
 	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
 	<?php endif; ?>
-	<?php if($doc->is_wms == 0 && $doc->status == 1 && $doc->is_approve == 1 && $this->pm->can_approve) : ?>
+	<?php if($doc->is_wms == 0 && ($doc->status == 1 OR $doc->status == 4) && $doc->is_approve == 1 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-xs btn-danger top-btn" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
 	<?php endif; ?>
 				<button type="button" class="btn btn-xs btn-info top-btn" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
@@ -125,31 +137,44 @@
 
 <hr class="margin-top-15 margin-bottom-15"/>
 <?php
-if($doc->status == 2)
+if($doc->is_expire == 1)
 {
-  $this->load->view('cancle_watermark');
+	$this->load->view('expire_watermark');
 }
-
-if($doc->status == 3)
+else
 {
-  $this->load->view('on_process_watermark');
+	if($doc->status == 2)
+	{
+		$this->load->view('cancle_watermark');
+	}
+
+	if($doc->status == 3)
+	{
+		$this->load->view('on_process_watermark');
+	}
+
+	if($doc->status == 4)
+	{
+		$this->load->view('accept_watermark');
+	}
 }
 ?>
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+		<table class="table table-striped border-1" style="min-width:1180px;">
 			<thead>
 				<tr>
-					<th class="width-5 text-center">ลำดับ</th>
-					<th class="width-10">บาร์โค้ด</th>
-					<th class="">สินค้า</th>
-					<th class="width-10 text-center">เลขที่บิล</th>
-					<th class="width-12 text-center">ออเดอร์</th>
-					<th class="width-8 text-right">ราคา</th>
-					<th class="width-8 text-right">ส่วนลด</th>
-					<th class="width-8 text-right">จำนวนคืน</th>
-					<th class="width-8 text-right">จำนวนรับ</th>
-					<th class="width-10 text-right">มูลค่า(รับ)</th>
+					<th class="fix-width-40 text-center">ลำดับ</th>
+					<th class="fix-width-100">บาร์โค้ด</th>
+					<th class="fix-width-150">รหัส</th>
+					<th class="min-width-150">สินค้า</th>
+					<th class="fix-width-100 text-center">เลขที่บิล</th>
+					<th class="fix-width-120 text-center">ออเดอร์</th>
+					<th class="fix-width-80 text-right">ราคา</th>
+					<th class="fix-width-100 text-right">ส่วนลด</th>
+					<th class="fix-width-80 text-right">จำนวนคืน</th>
+					<th class="fix-width-80 text-right">จำนวนรับ</th>
+					<th class="fix-width-120 text-right">มูลค่า(รับ)</th>
 				</tr>
 			</thead>
 			<tbody id="detail-table">
@@ -163,7 +188,8 @@ if($doc->status == 3)
 				<tr style="<?php echo $hilight; ?>">
 					<td class="middle text-center no"><?php echo $no; ?></td>
 					<td class="middle"><?php echo $rs->barcode; ?></td>
-					<td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
+					<td class="middle"><?php echo $rs->product_code; ?></td>
+					<td class="middle"><?php echo $rs->product_name; ?></td>
 					<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
 					<td class="middle text-center"><?php echo $rs->order_code; ?></td>
 					<td class="middle text-right"><?php echo number($rs->price, 2); ?></td>
@@ -180,7 +206,7 @@ if($doc->status == 3)
 ?>
 <?php  endforeach; ?>
 				<tr>
-					<td colspan="7" class="middle text-right">รวม</td>
+					<td colspan="8" class="middle text-right">รวม</td>
 					<td class="middle text-right" id="total-qty"><?php echo number($total_qty); ?></td>
 					<td class="middle text-right" id="total-qty"><?php echo number($total_reveice_qty); ?></td>
 					<td class="middle text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
@@ -189,25 +215,30 @@ if($doc->status == 3)
 			</tbody>
 		</table>
 	</div>
-
-	<?php if(!empty($approve_list)) :?>
-		<?php foreach($approve_list as $appr) : ?>
-			<div class="col-sm-12 text-right">
-				<?php if($appr->approve == 1) : ?>
-					<span class="green">
-						อนุมัติโดย : <?php echo $appr->approver; ?> @ <?php echo thai_date($appr->date_upd, TRUE); ?>
-					</span>
-				<?php endif; ?>
-				<?php if($appr->approve == 0) : ?>
-					<span class="red">
-						ยกเลิกการอนุมัติโดย : <?php echo $appr->approver; ?> @ <?php echo thai_date($appr->date_upd, TRUE); ?>
-					</span>
-				<?php endif; ?>
-			</div>
-		<?php endforeach; ?>
-	<?php endif; ?>
-
 </div>
+
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<?php if(!empty($approve_list)) :?>
+			<?php foreach($approve_list as $appr) : ?>
+					<?php if($appr->approve == 1) : ?>
+						<span class="green display-block">อนุมัติโดย : <?php echo $appr->approver; ?> @ <?php echo thai_date($appr->date_upd, TRUE); ?></span>
+					<?php endif; ?>
+					<?php if($appr->approve == 0) : ?>
+						<span class="red display-block">ยกเลิกการอนุมัติโดย : <?php echo $appr->approver; ?> @ <?php echo thai_date($appr->date_upd, TRUE); ?></span>
+					<?php endif; ?>
+			<?php endforeach; ?>
+		<?php endif; ?>
+
+		<?php if($doc->must_accept == 1 && $doc->is_accept == 1) : ?>
+			<span class="green display-block">ยืนยันการรับโดย : <?php echo $doc->accept_by; ?> @ <?php echo thai_date($doc->accept_on, TRUE); ?></span>
+			<span class="green display-block">หมายเหตุ : <?php echo $doc->accept_remark; ?></span>
+		<?php endif; ?>
+	</div>
+</div>
+
+<?php $this->load->view('cancle_modal'); ?>
+<?php $this->load->view('accept_modal'); ?>
 
 
 <script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js?v=<?php echo date('Ymd');?>"></script>
