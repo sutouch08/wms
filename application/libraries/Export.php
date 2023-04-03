@@ -8,7 +8,7 @@ class Export
 	public function __construct()
 	{
     // Assign the CodeIgniter super-object
-    $this->ci =& get_instance();
+    $this->ci =& get_instance();    
 	}
 
 
@@ -797,6 +797,7 @@ public function export_transfer($code)
             if(!empty($details))
             {
               $line = 0;
+
               foreach($details as $rs)
               {
 								if($doc->is_wms == 1 && ($rs->wms_qty > 0 OR $doc->api == 0))
@@ -841,7 +842,7 @@ public function export_transfer($code)
 
 	                $line++;
 								}
-								else if( $doc->is_wms == 0)
+								else
 								{
 									$arr = array(
 	                  'DocEntry' => $docEntry,

@@ -64,6 +64,7 @@ function save()
 	let lendCode = $('#lend_code').val();
 	let date_add = $('#dateAdd').val();
 	let remark = $.trim($('#remark').val());
+	let reqRemark = $('#required_remark').val();
 
 	if(!isDate(date_add)){
 		swal("วันที่ไม่ถูกต้อง");
@@ -85,10 +86,21 @@ function save()
 		return false;
 	}
 
+	if(reqRemark == 1 && remark.length < 10) {
+		swal({
+			title:'ข้อผิดพลาด',
+			text:'กรุณาใส่หมายเหตุ (ความยาวอย่างน้อย 10 ตัวอักษร)',
+			type:'warning'
+		});
+
+		return false;
+	}
+
 	let header = {
 		"code" : code,
 		"date_add" : date_add,
 		"empID" : empID,
+		"empName" : empName,
 		"lendCode" : lendCode,
 		"zone_code" : zone_code,
 		"remark" : remark
@@ -155,9 +167,9 @@ function save()
 			load_out();
 
 			if(isJson(rs)) {
-				ds = $.parseJSON(rs);
+				ds = JSON.parse(rs);
 
-				if(ds.result === 'success') {
+				if(ds.status === 'success') {
 					setTimeout(function() {
 						swal({
 							title:'Success',
@@ -170,11 +182,22 @@ function save()
 						}, 1200);
 					}, 200);
 				}
+				else if(ds.status == 'warning') {
+					setTimeout(function() {
+						swal({
+							title:'Warning',
+							text:ds.message,
+							type:'warning'
+						}, () => {
+							viewDetail(ds.code);
+						});
+					}, 200);
+				}
 				else {
 					setTimeout(function() {
 						swal({
 							title:'Error!',
-							text:ds.error,
+							text:ds.message,
 							type:'error',
 							html:true
 						});
@@ -335,4 +358,73 @@ function sendToWms() {
 			})
 		}
 	})
+}
+
+
+function accept() {
+	$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
+	$('#accept-modal').modal('show');
+}
+
+function acceptConfirm() {
+	let code = $('#code').val();
+	let note = $.trim($('#accept-note').val());
+
+	if(note.length < 10) {
+		$('#accept-error').text('กรุณาระบุหมายเหตุอย่างนี้อย 10 ตัวอักษร');
+		return false;
+	}
+	else {
+		$('#accept-error').text('');
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'accept_confirm',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"accept_remark" : note
+		},
+		success:function(rs) {
+			load_out();
+			if(isJson(rs))
+			{
+				let ds = JSON.parse(rs);
+				if(ds.status === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(() => {
+						window.location.reload();
+					}, 1200);
+				}
+				else if(ds.status === 'warning') {
+
+					swal({
+						title:'Warning',
+						text:ds.message,
+						type:'warning'
+					}, () => {
+						setTimeout(() => {
+							window.location.reload();
+						}, 500);
+					});
+				}
+				else {
+					swal({
+						title:'Error!',
+						text: rs,
+						type:'error'
+					});
+				}
+			}
+		}
+	});
+
 }

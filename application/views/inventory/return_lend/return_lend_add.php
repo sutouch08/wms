@@ -5,6 +5,7 @@
 	<input type="hidden" id="prefix" value="<?php echo getConfig('PREFIX_RETURN_LEND'); ?>">
 	<input type="hidden" id="runNo" value="<?php echo getConfig('RUN_DIGIT_RETURN_LEND'); ?>">
 <?php endif; ?>
+<input type="hidden" id="required_remark" value="<?php echo $this->required_remark; ?>" />
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -57,20 +58,22 @@
 		<button type="button" class="btn btn-xs btn-success btn-block" id="btn-set-code" onclick="load_lend_details()">ดึงข้อมูล</button>
 		<button type="button" class="btn btn-xs btn-primary btn-block hide" id="btn-change-code" onclick="change_lend_code()">เปลี่ยน</button>
 	</div>
-	<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-5 padding-5">
+	<div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-5 padding-5">
 		<label>รหัสโซน</label>
 		<input type="text" class="form-control input-sm" name="zone_code" id="zone_code" value="" required />
 	</div>
-	<div class="col-lg-3 col-md-5 col-sm-5 col-xs-9 padding-5">
+	<div class="col-lg-6-harf col-md-4-harf col-sm-4-harf col-xs-9 padding-5">
 		<label>โซน[รับคืน]</label>
 		<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="" placeholder="กำหนดโซนที่จะรับสินค้าเข้า" required />
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">chang</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block hide" id="btn-change-zone" onclick="changeZone()">เปลี่ยนโซน</button>
 		<button type="button" class="btn btn-xs btn-success btn-block" id="btn-set-zone" onclick="setZone()">ตกลง</button>
 	</div>
-
+</div>
+<div class="divider"></div>
+<div class="row">
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label>จำนวน</label>
 		<input type="number" class="form-control input-sm text-center" id="qty" value="1">
@@ -85,7 +88,17 @@
 		<button type="button" class="btn btn-xs btn-success btn-block" onclick="doReceive()">ตกลง</button>
 	</div>
 
+	<div class="col-lg-5 col-md-3 col-sm-3 col-xs-4">&nbsp;</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label class="display-block not-show">add</label>
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="receiveAll()">คืนทั้งหมด</button>
+	</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label class="display-block not-show">clear</label>
+		<button type="button" class="btn btn-xs btn-danger btn-block" onclick="clearAll()">เคลียร์ทั้งหมด</button>
+	</div>
 </div>
+
 <hr class="margin-top-15"/>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">

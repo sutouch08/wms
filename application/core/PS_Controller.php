@@ -56,7 +56,7 @@ class PS_Controller extends CI_Controller
 
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
-    //$this->cn = $this->load->database('cn', TRUE); //--- consign Database
+    $this->cn = $this->load->database('cn', TRUE); //--- consign Database
 
     $dataDate = getConfig('DATA_DATE');
     if( ! empty($dataDate))
@@ -83,6 +83,10 @@ class PS_Controller extends CI_Controller
     }
   }
 
+  public function _response($sc = TRUE)
+  {
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
 
   public function deny_page()
   {

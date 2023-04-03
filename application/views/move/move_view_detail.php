@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-12" id="move-table">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="move-table">
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>
@@ -12,7 +12,7 @@
           <th class="width-20">สินค้า</th>
           <th class="width-25">ต้นทาง</th>
           <th class="width-25">ปลายทาง</th>
-          <th class="width-15 text-right">จำนวน</th>
+          <th class="width-15 text-center">จำนวน</th>
         </tr>
       </thead>
 
@@ -36,13 +36,13 @@
 					<!--- โซนต้นทาง --->
 	        <td class="middle">
 	      		<input type="hidden" class="row-zone-from" id="row-from-<?php echo $rs->id; ?>" value="<?php echo $rs->from_zone; ?>" />
-						<?php echo $rs->from_zone_name; ?>
+						<?php echo $rs->from_zone; ?>
 	        </td>
 	        <td class="middle" id="row-label-<?php echo $rs->id; ?>">
-						<?php 	echo $rs->to_zone_name; 	?>
+						<?php 	echo $rs->to_zone; 	?>
 	        </td>
 
-					<td class="middle text-right" >
+					<td class="middle text-center" >
 						<?php echo number($rs->qty); ?>
 					</td>
 	      </tr>
@@ -51,7 +51,7 @@
 <?php		endforeach;			?>
 				<tr>
 					<td colspan="5" class="middle text-right"><strong>รวม</strong></td>
-					<td class="middle text-right"><strong><?php echo number($total_qty); ?></strong></td>
+					<td class="middle text-center"><strong><?php echo number($total_qty); ?></strong></td>
 				</tr>
 <?php	else : ?>
  				<tr>
@@ -62,3 +62,20 @@
     </table>
   </div>
 </div>
+
+<?php if($doc->must_accept == 1 && ! empty($accept_list)) : ?>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+	<?php if($doc->is_accept == 1 && $doc->accept_by != NULL) : ?>
+		<p class="green">ยืนยันโดย : <?php echo $doc->display_name; ?> @ <?php echo thai_date($doc->accept_on, TRUE); ?><br/>
+			Note : <?php echo $doc->accept_remark; ?></p>
+	<?php else : ?>
+		<?php foreach($accept_list as $ac) : ?>
+			<?php if($ac->is_accept == 1) : ?>
+				<p class="green">ยืนยันโดย : <?php echo $ac->display_name; ?> @ <?php echo thai_date($ac->accept_on, TRUE); ?></p>
+			<?php endif; ?>
+		<?php endforeach; ?>
+	<?php endif; ?>
+		</div>
+	</div>
+<?php endif; ?>

@@ -1,12 +1,21 @@
 <?php $this->load->view('include/header'); ?>
+<?php
+	$pm = get_permission('APACRN', $this->_user->uid, $this->_user->id_profile);
+	$canAccept = NULL;
+
+	if( ! empty($pm))
+	{
+		$canAccept = (($pm->can_add + $pm->can_edit + $pm->can_delete + $pm->can_approve) > 0  OR $this->_SuperAdmin) ? TRUE : FALSE;
+	}
+	?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
+	<div class="col-lg-6 col-md-4 col-sm-4 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
 	<div class="col-xs-12 visible-xs padding-5">
     <h3 class="title-xs"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+  <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 padding-5">
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 			<?php if($doc->status != 2 && $this->pm->can_delete) : ?>
@@ -18,8 +27,13 @@
 			<?php if($this->isAPI && $doc->is_wms == 1 && $doc->status == 3) : ?>
 				<button type="button" class="btn btn-sm btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 			<?php endif; ?>
+			<?php if($doc->status == 4 && ($doc->owner == $this->_user->uname OR $canAccept)) : ?>
+				<button type="button" class="btn btn-sm btn-success top-btn" onclick="accept()"><i class="fa fa-check-circle"></i> ยืนยันการรับสินค้า</button>
+			<?php endif; ?>
 			<button type="button" class="btn btn-sm btn-info top-btn" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
+			<?php if($doc->is_wms && ($doc->status == 3 OR $doc->status == 1)) : ?>
 			<button type="button" class="btn btn-sm btn-info top-btn" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+			<?php endif; ?>
     </p>
   </div>
 </div>
@@ -40,7 +54,7 @@
 
 	<div class="col-lg-3-harf col-md-3 col-sm-3 col-xs-6 padding-5">
 		<label>ผู้รับคืน</label>
-		<input type="text" class="form-control input-sm"  value="<?php echo $doc->user_name; ?>" disabled/>
+		<input type="text" class="form-control input-sm"  value="<?php echo $doc->display_name; ?>" disabled/>
 	</div>
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>ใบยืมสินค้า</label>
@@ -92,14 +106,26 @@
 </div>
 
 <?php
-if($doc->status == 2)
+if($doc->is_expire)
 {
-  $this->load->view('cancle_watermark');
+	$this->load->view('expire_watermark');
 }
-
-if($doc->status == 3)
+else
 {
-	$this->load->view('on_process_watermark');
+	if($doc->status == 2)
+	{
+		$this->load->view('cancle_watermark');
+	}
+
+	if($doc->status == 3)
+	{
+		$this->load->view('on_process_watermark');
+	}
+
+	if($doc->status == 4)
+	{
+		$this->load->view('accept_watermark');
+	}
 }
 ?>
 <hr class="margin-top-15"/>
@@ -109,7 +135,7 @@ if($doc->status == 3)
 			<thead>
 				<tr>
 					<th class="fix-width-40 middle text-center">#</th>
-					<th class="fix-width-150 middle">บาร์โคด</th>
+					<th class="min-width-150 middle">รหัส</th>
 					<th class="min-width-200 middle">สินค้า</th>
 					<th class="fix-width-100 middle text-center">ยืม</th>
 					<th class="fix-width-100 middle text-center">คืนแล้ว<br/>(รวมครั้งนี้)</th>
@@ -169,7 +195,17 @@ if($doc->status == 3)
 <input type="hidden" id="zone_code" value="<?php echo $doc->to_zone; ?>">
 <input type="hidden" id="code" value="<?php echo $doc->code; ?>">
 
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<?php if($doc->must_accept == 1 && $doc->is_accept == 1) : ?>
+			<span class="green display-block">ยืนยันการรับโดย : <?php echo $doc->accept_by; ?> @ <?php echo thai_date($doc->accept_on, TRUE); ?></span>
+			<span class="green display-block">หมายเหตุ : <?php echo $doc->accept_remark; ?></span>
+		<?php endif; ?>
+	</div>
+</div>
+
 <?php $this->load->view('cancle_modal'); ?>
+<?php $this->load->view('accept_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend.js?v=<?php echo date('Ymd');?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/return_lend/return_lend_add.js?v=<?php echo date('Ymd');?>"></script>

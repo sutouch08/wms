@@ -70,8 +70,24 @@
       </tbody>
     </table>
   </div>
+
+	<div class="col-lg-6 col-md-5 col-sm-6 col-xs-12 padding-5">
+
+		<?php if( ! empty($doc->must_accept == 1 &&  ! empty($accept_list))) : ?>
+			<?php if($doc->is_accept == 1 && $doc->accept_by != NULL) : ?>
+				<p class="green">ยืนยันโดย : <?php echo $doc->display_name; ?> @ <?php echo thai_date($doc->accept_on, TRUE); ?><br/>
+					Note : <?php echo $doc->accept_remark; ?></p>
+			<?php else : ?>
+				<?php foreach($accept_list as $ac) : ?>
+					<?php if($ac->is_accept == 1) : ?>
+						<p class="green">ยืนยันโดย : <?php echo $ac->display_name; ?> @ <?php echo thai_date($ac->accept_on, TRUE); ?></p>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			<?php endif; ?>
+		<?php endif; ?>
+	</div>
+	<div class="col-lg-6 col-md-5 col-sm-6 col-xs-12 padding-5 text-right">
 	<?php if( ! empty($approve_logs)) : ?>
-		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 			<?php foreach($approve_logs as $logs) : ?>
 				<?php if($logs->approve == 1) : ?>
 					<p class="green">อนุมัติโดย : <?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?></p>
@@ -80,6 +96,6 @@
 					<p class="red">Rejected โดย : <?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?></p>
 				<?php endif; ?>
 			<?php endforeach; ?>
-		</div>
 	<?php endif; ?>
+	</div>
 </div>

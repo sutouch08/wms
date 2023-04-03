@@ -43,6 +43,7 @@
 			<option value="all">ทั้งหมด</option>
 			<option value="-1" <?php echo is_selected('-1', $status); ?>>ยังไม่บันทึก</option>
 			<option value="0" <?php echo is_selected('0', $status); ?>>รออนุมัติ</option>
+			<option value="4" <?php echo is_selected('4', $status); ?>>รอยืนยัน</option>
 			<option value="3" <?php echo is_selected('3', $status); ?>>Wms Process</option>
 			<option value="1" <?php echo is_selected('1', $status); ?>>สำเร็จแล้ว</option>
 			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
@@ -60,6 +61,15 @@
 			<option value="-1" <?php echo is_selected('-1', $is_approve); ?>>ไม่ต้องอนุมัติ</option>
 		</select>
   </div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+		<label>การยืนยัน</label>
+		<select class="form-control input-sm" name="must_accept" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $must_accept); ?>>ต้องยืนยัน</option>
+			<option value="0" <?php echo is_selected('0', $must_accept); ?>>ไม่ต้องยืนยัน</option>
+		</select>
+	</div>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
 		<label>WMS Interface</label>
@@ -119,14 +129,15 @@
 			<span class="red bold">NC</span> = สินค้าไม่ครบ, &nbsp;
 			<span class="orange bold">DF</span> = ยังไม่บันทึก, &nbsp;
 			<span class="blue bold">AP</span> = รออนุมัติ, &nbsp;
+			<span class="orange bold">WC</span> = รอยืนยัน, &nbsp;
 			<span class="purple bold">OP</span> = อยู่ที่ WMS, &nbsp;
 			<span class="red bold">CN</span> = ยกเลิก, &nbsp;
 			<span class="red bold">NE</span> = ยังไม่ส่งออก, &nbsp;
-			<span class="dark bold">EXP</span> = หมดอายุ
+			<span class="dark bold">EXP</span> = หมดอายุ &nbsp;
 		</p>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-bordered border-1" style="min-width:1060px;">
+		<table class="table table-striped border-1" style="min-width:1060px;">
 			<thead>
 				<tr>
 					<th class="fix-width-100 middle"></th>
@@ -177,6 +188,9 @@
 									<?php if($rs->status == 3) : ?>
 										<span class="purple">OP</span>
 									<?php endif; ?>
+									<?php if($rs->status == 4) : ?>
+										<span class="orange">WC</span>
+									<?php endif; ?>
 									<?php if($rs->status == 1 && $rs->is_export == 0) : ?>
 										<span class="red">NE</span>
 									<?php endif; ?>
@@ -208,41 +222,6 @@
 		</table>
 	</div>
 </div>
-
-<?php
-function statusBackgroundColor($is_expire, $status)
-{
-	$bk_color = "";
-
-	if($is_expire == 1)
-	{
-		$bk_color = "#dbdbdb";
-	}
-	else
-	{
-		switch($status)
-		{
-			case -1 :
-				$bk_color = "#fff4d5";
-				break;
-			case 0 :
-				$bk_color = "#ddf0f9";
-				break;
-			case 1 :
-				$bk_color = "#f4ffe7";
-				break;
-			case 2 :
-				$bk_color = "#f7c3bf";
-				break;
-			case 3 :
-				$bk_color = "#fbe4ff";
-				break;
-		}
-	}
-
-	return "background-color:{$bk_color};";
-}
-?>
 
 
 <script src="<?php echo base_url(); ?>scripts/transfer/transfer.js?v=<?php echo date('Ymd'); ?>"></script>

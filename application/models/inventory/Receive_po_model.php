@@ -45,13 +45,19 @@ class Receive_po_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('receive_product');
+    $rs = $this->db
+    ->select('r.*, z.user_id')
+    ->from('receive_product AS r')
+    ->join('zone AS z', 'r.zone_code = z.code', 'left')
+    ->where('r.code', $code)
+    ->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -71,7 +77,7 @@ class Receive_po_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -350,32 +356,44 @@ class Receive_po_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
+    $this->db
+    ->from('receive_product AS r')
+    ->join('user AS u', 'r.user = u.uname', 'left');
 
     //---- เลขที่เอกสาร
-    if($ds['code'] != '')
+    if( ! empty($ds['code']))
     {
-      $this->db->group_start();
-      $this->db->like('code', $ds['code']);
-      $this->db->or_like('inv_code', $ds['code']);
-      $this->db->group_end();
+      $this->db->like('r.code', $ds['code']);
     }
 
     //--- ใบสั่งซื้อ
-    if($ds['po'] != '')
+    if( ! empty($ds['po']))
     {
-      $this->db->like('po_code', $ds['po']);
+      $this->db->like('r.po_code', $ds['po']);
     }
 
     //---- invoice
-    if($ds['invoice'] != '')
+    if( ! empty($ds['invoice']))
     {
-      $this->db->like('invoice_code', $ds['invoice']);
+      $this->db->like('r.invoice_code', $ds['invoice']);
     }
 
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
+
+    //--- vendor
+    if( ! empty($ds['vendor']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db
+      ->group_start()
+      ->like('r.vendor_code', $ds['vendor'])
+      ->or_like('r.vendor_name', $ds['vendor'])
+      ->group_end();
+    }
+
+
+    if( ! ($ds['from_date']) && ! empty($ds['to_date']))
+    {
+      $this->db->where('r.date_add >=', from_date($ds['from_date']));
+      $this->db->where('r.date_add <=', to_date($ds['to_date']));
     }
 
 		if($ds['is_wms'] !== 'all')
@@ -385,65 +403,91 @@ class Receive_po_model extends CI_Model
 
     if($ds['status'] !== 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('r.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('status', $ds['status']);
+      }
     }
+
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('r.must_accept', $ds['must_accept']);
+    }
+
 
     if($ds['sap'] !== 'all')
     {
       if($ds['sap'] == '0')
       {
-        $this->db->where('inv_code IS NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 
+    if( ! empty($ds['user']))
+    {
+      $this->db
+      ->group_start()
+      ->like('r.user', $ds['user'])
+      ->or_like('u.name', $ds['user'])
+      ->group_end();
+    }
 
-    return $this->db->count_all_results('receive_product');
+    return $this->db->count_all_results();
   }
 
 
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '', $role = 'S')
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
+    $this->db
+    ->select('r.*, u.name AS display_name')
+    ->from('receive_product AS r')
+    ->join('user AS u', 'r.user = u.uname', 'left');
+
     //---- เลขที่เอกสาร
-    if($ds['code'] != '')
+    if( ! empty($ds['code']))
     {
-      $this->db->group_start();
-      $this->db->like('code', $ds['code']);
-      $this->db->or_like('inv_code', $ds['code']);
-      $this->db->group_end();
+      $this->db->like('r.code', $ds['code']);
     }
 
     //--- ใบสั่งซื้อ
-    if($ds['po'] != '')
+    if( ! empty($ds['po']))
     {
-      $this->db->like('po_code', $ds['po']);
+      $this->db->like('r.po_code', $ds['po']);
     }
 
     //---- invoice
-    if($ds['invoice'] != '')
+    if( ! empty($ds['invoice']))
     {
-      $this->db->like('invoice_code', $ds['invoice']);
+      $this->db->like('r.invoice_code', $ds['invoice']);
     }
 
 
     //--- vendor
-    if($ds['vendor'] != '')
+    if( ! empty($ds['vendor']))
     {
-      $this->db->like('vendor_code', $ds['vendor']);
-      $this->db->or_like('vendor_name', $ds['vendor']);
+      $this->db
+      ->group_start()
+      ->like('r.vendor_code', $ds['vendor'])
+      ->or_like('r.vendor_name', $ds['vendor'])
+      ->group_end();
     }
 
 
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    if( ! ($ds['from_date']) && ! empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db->where('r.date_add >=', from_date($ds['from_date']));
+      $this->db->where('r.date_add <=', to_date($ds['to_date']));
     }
 
 		if($ds['is_wms'] !== 'all')
@@ -453,32 +497,53 @@ class Receive_po_model extends CI_Model
 
     if($ds['status'] !== 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('r.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('status', $ds['status']);
+      }
+    }
+
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('r.must_accept', $ds['must_accept']);
     }
 
     if($ds['sap'] !== 'all')
     {
       if($ds['sap'] == '0')
       {
-        $this->db->where('inv_code IS NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 
-    $this->db->order_by('date_add', 'DESC');
-    $this->db->order_by('code', 'DESC');
-
-    if($perpage != '')
+    if( ! empty($ds['user']))
     {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
+      $this->db
+      ->group_start()
+      ->like('r.user', $ds['user'])
+      ->or_like('u.name', $ds['user'])
+      ->group_end();
     }
 
-    $rs = $this->db->get('receive_product');
-    return $rs->result();
+    $this->db->order_by('r.date_add', 'DESC');
+    $this->db->order_by('code', 'DESC');
+
+    $rs = $this->db->limit($perpage, $offset)->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

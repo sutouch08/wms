@@ -30,6 +30,7 @@ function doExport()
 function deleteMoveItem(id, code)
 {
 	var code = $('#move_code').val();
+
   swal({
 		title: 'คุณแน่ใจ ?',
 		text: 'ต้องการลบ '+ code +' หรือไม่ ?',
@@ -43,10 +44,14 @@ function deleteMoveItem(id, code)
 		$.ajax({
 			url:HOME + 'delete_detail/'+ id,
 			type:"POST",
-      cache:"false",
-			success: function(rs){
+      cache:false,
+			data:{
+				'code' : code,
+				'id' : id
+			},
+			success: function(rs) {
 				var rs = $.trim(rs);
-				if( rs == 'success' ){
+				if( rs == 'success' ) {
 					swal({
 						title:'Success',
 						text: 'ดำเนินการเรียบร้อยแล้ว',
@@ -243,4 +248,139 @@ function countInput(){
         count += ($(this).val() == "" ? 0 : 1 );
     });
 	return count;
+}
+
+
+function accept() {
+	let canAccept = $('#can-accept').val() == 1 ? true : false;
+	let code = $('#move_code').val();
+
+	if(canAccept) {
+		$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
+		$('#accept-modal').modal('show');
+	}
+	else {
+
+		swal({
+			title:'Acception',
+			text:'ยินยอมให้โอนสินค้าเข้าโซนของคุณใช่หรือไม่ ?',
+			type:'info',
+			showCancelButton:true,
+			confirmButtonColor:'#87B87F',
+			confirmButtonText:'ยืนยัน',
+			cancelButtonText:'ยกเลิก',
+			closeOnConfirm:true
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url:HOME + 'accept_zone',
+				type:'POST',
+				cache:false,
+				data: {
+					'code' : code
+				},
+				success:function(rs) {
+					load_out();
+					if(isJson(rs))
+					{
+						let ds = JSON.parse(rs);
+						if(ds.status === 'success') {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							setTimeout(() => {
+								window.location.reload();
+							}, 1200);
+						}
+						else if(ds.status === 'warning') {
+
+							swal({
+								title:'Warning',
+								text:ds.message,
+								type:'warning'
+							}, () => {
+								setTimeout(() => {
+									window.location.reload();
+								}, 500);
+							});
+						}
+						else {
+							swal({
+								title:'Error!',
+								text: rs,
+								type:'error'
+							});
+						}
+					}
+				}
+			})
+		})
+	}
+}
+
+
+function acceptConfirm() {
+	let code = $('#move_code').val();
+	let note = $.trim($('#accept-note').val());
+
+	if(note.length < 10) {
+		$('#accept-error').text('กรุณาระบุหมายเหตุอย่างนี้อย 10 ตัวอักษร');
+		return false;
+	}
+	else {
+		$('#accept-error').text('');
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'accept_confirm',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"accept_remark" : note
+		},
+		success:function(rs) {
+			load_out();
+			if(isJson(rs))
+			{
+				let ds = JSON.parse(rs);
+				if(ds.status === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(() => {
+						window.location.reload();
+					}, 1200);
+				}
+				else if(ds.status === 'warning') {
+
+					swal({
+						title:'Warning',
+						text:ds.message,
+						type:'warning'
+					}, () => {
+						setTimeout(() => {
+							window.location.reload();
+						}, 500);
+					});
+				}
+				else {
+					swal({
+						title:'Error!',
+						text: rs,
+						type:'error'
+					});
+				}
+			}
+		}
+	});
 }

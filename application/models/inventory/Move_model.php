@@ -150,7 +150,17 @@ class Move_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('move');
+    $rs = $this->db
+    ->select('m.*')
+    ->select('fw.name AS from_warehouse_name, tw.name AS to_warehouse_name')
+    ->select('u.uname, u.name AS display_name')
+    ->from('move AS m')
+    ->join('warehouse AS fw', 'm.from_warehouse = fw.code', 'left')
+    ->join('warehouse AS tw', 'm.to_warehouse = tw.code', 'left')
+    ->join('user AS u', 'm.accept_by = u.uname', 'left')
+    ->where('m.code', $code)
+    ->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -163,10 +173,12 @@ class Move_model extends CI_Model
   public function get_details($code)
   {
     $rs = $this->db
-    ->select('move_detail.*, products.barcode')
-    ->from('move_detail')
-    ->join('products', 'products.code = move_detail.product_code', 'left')
-    ->where('move_detail.move_code', $code)
+    ->select('md.*, pd.barcode, fz.name AS from_zone_name, tz.name AS to_zone_name')
+    ->from('move_detail AS md')
+    ->join('products AS pd', 'md.product_code = pd.code', 'left')
+    ->join('zone AS fz', 'md.from_zone = fz.code', 'left')
+    ->join('zone AS tz', 'md.to_zone = tz.code', 'left')
+    ->where('md.move_code', $code)
     ->get();
 
     if($rs->num_rows() > 0)
@@ -181,7 +193,15 @@ class Move_model extends CI_Model
 
   public function get_detail($id)
   {
-    $rs = $this->db->where('id', $id)->get('move_detail');
+    $rs = $this->db
+    ->select('md.*, pd.barcode, fz.name AS from_zone_name, tz.name AS to_zone_name')
+    ->from('move_detail AS md')
+    ->join('products AS pd', 'md.product_code = pd.code', 'left')
+    ->join('zone AS fz', 'md.from_zone = fz.code', 'left')
+    ->join('zone AS tz', 'md.to_zone = tz.code', 'left')
+    ->where('md.id', $id)
+    ->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -206,6 +226,114 @@ class Move_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_accept_list($code)
+  {
+    $rs = $this->db
+    ->select('m.is_accept, m.accept_by, m.accept_on')
+    ->select('u.uname, u.name AS display_name')
+    ->from('move_detail AS m')
+    ->join('zone AS z', 'm.to_zone = z.code', 'left')
+    ->join('user AS u', 'z.user_id = u.id', 'left')
+    ->where('m.move_code', $code)
+    ->where('m.must_accept', 1)
+    ->where('z.user_id IS NOT NULL', NULL, FALSE)
+    ->group_by('z.user_id')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+  public function is_accept_all($code)
+  {
+    $count = $this->db
+    ->where('move_code', $code)
+    ->where('must_accept', 1)
+    ->where('is_accept', 0)
+    ->count_all_results('move_detail');
+
+    if($count == 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function accept_all($code, $uname)
+  {
+    $arr = array(
+      'is_accept' => 1,
+      'accept_by' => $uname,
+      'accept_on' => now()
+    );
+
+    $this->db
+    ->where('move_code', $code)
+    ->where('must_accept', 1)
+    ->where('is_accept', 0);
+
+    return $this->db->update('move_detail', $arr);
+  }
+
+
+  public function is_owner_zone($code, $user_id)
+  {
+    $count = $this->db
+    ->from('move_detail AS md')
+    ->join('zone AS zn', 'md.to_zone = zn.code', 'left')
+    ->where('md.move_code', $code)
+    ->where('md.must_accept', 1)
+    ->where('zn.user_id', $this->_user->id)
+    ->count_all_results();
+
+    if($count > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function accept_zone($code, $zone_code, $uname)
+  {
+    $arr = array(
+      'is_accept' => 1,
+      'accept_by' => $uname,
+      'accept_on' => now()
+    );
+
+    return $this->db->where('move_code', $code)->where('to_zone', $zone_code)->update('move_detail', $arr);
+  }
+
+
+  public function get_my_zone($code, $user_id)
+  {
+    $rs = $this->db
+    ->select('md.to_zone')
+    ->from('move_detail AS md')
+    ->join('zone AS zn', 'md.to_zone = zn.code', 'left')
+    ->where('move_code', $code)
+    ->where('md.must_accept', 1)
+    ->where('zn.user_id', $user_id)
+    ->group_by('md.to_zone')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->to_zone;
+    }
+
+    return NULL;
   }
 
 
@@ -440,102 +568,157 @@ class Move_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $this->db->where('code IS NOT NULL',NULL, FALSE);
+    $this->db
+    ->from('move AS m')
+    ->join('warehouse AS fw', 'm.from_warehouse = fw.code', 'left')
+    ->join('warehouse AS tw', 'm.to_warehouse = tw.code', 'left')
+    ->join('user AS u', 'm.user = u.uname', 'left');
 
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('m.code', $ds['code']);
     }
 
-    if(!empty($ds['from_warehouse']))
+    if( ! empty($ds['from_warehouse']))
     {
-      $from_warehouse = $this->get_warehouse_in($ds['from_warehouse']);
-      $this->db->group_start();
-      $this->db->where_in('from_warehouse', $from_warehouse);
-      $this->db->or_where_in('to_warehouse', $from_warehouse);
-      $this->db->group_end();
+      $this->db
+      ->group_start()
+      ->like('m.from_warehouse', $ds['from_warehouse'])
+      ->or_like('fw.name', $ds['from_warehouse'])
+      ->group_end();
     }
 
-
-    if(!empty($ds['user']))
+    if( ! empty($ds['to_warehouse']))
     {
-      $users = user_in($ds['user']);
-      $this->db->where_in('user', $users);
+      $this->db
+      ->group_start()
+      ->like('m.to_warehouse', $ds['to_warehouse'])
+      ->or_like('tw.name', $ds['to_warehouse'])
+      ->group_end();
+    }
+
+    if( ! empty($ds['user']))
+    {
+      $this->db
+      ->group_start()
+      ->like('u.uname', $ds['user'])
+      ->or_like('u.name', $ds['user'])
+      ->group_end();
     }
 
     if($ds['status'] != 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if( $ds['status'] == 5)
+      {
+        $this->db->where('m.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('m.status', $ds['status']);
+      }
+    }
+
+    if(isset($ds['must_accept']) && $ds['must_accept'] != 'all')
+    {
+      $this->db->where('m.must_accept', $ds['must_accept']);
     }
 
     if($ds['is_export'] != 'all')
     {
-      $this->db->where('is_exported', $ds['is_export']);
+      $this->db->where('m.is_exported', $ds['is_export']);
     }
+
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db->where('m.date_add >=', from_date($ds['from_date']));
+      $this->db->where('m.date_add <=', to_date($ds['to_date']));
     }
 
-    return $this->db->count_all_results('move');
+    return $this->db->count_all_results();
   }
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '')
+  public function get_data(array $ds = array(), $perpage = 20, $offset = 0)
   {
-    $this->db->where('code IS NOT NULL',NULL, FALSE);
-    if(!empty($ds['code']))
+    $this->db
+    ->select('m.*')
+    ->select('fw.name AS from_warehouse_name, tw.name AS to_warehouse_name')
+    ->select('u.name AS display_name')
+    ->from('move AS m')
+    ->join('warehouse AS fw', 'm.from_warehouse = fw.code', 'left')
+    ->join('warehouse AS tw', 'm.to_warehouse = tw.code', 'left')
+    ->join('user AS u', 'm.user = u.uname', 'left');
+
+    if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('m.code', $ds['code']);
     }
 
-    if(!empty($ds['from_warehouse']))
+    if( ! empty($ds['from_warehouse']))
     {
-      $from_warehouse = $this->get_warehouse_in($ds['from_warehouse']);
-      $this->db->where_in('from_warehouse', $from_warehouse);
+      $this->db
+      ->group_start()
+      ->like('m.from_warehouse', $ds['from_warehouse'])
+      ->or_like('fw.name', $ds['from_warehouse'])
+      ->group_end();
     }
 
-    if(!empty($ds['to_warehouse']))
+    if( ! empty($ds['to_warehouse']))
     {
-      $to_warehouse = $this->get_warehouse_in($ds['to_warehouse']);
-      $this->db->where_in('to_warehouse', $to_warehouse);
+      $this->db
+      ->group_start()
+      ->like('m.to_warehouse', $ds['to_warehouse'])
+      ->or_like('tw.name', $ds['to_warehouse'])
+      ->group_end();
     }
 
-    if(!empty($ds['user']))
+    if( ! empty($ds['user']))
     {
-      $users = user_in($ds['user']);
-      $this->db->where_in('user', $users);
+      $this->db
+      ->group_start()
+      ->like('u.uname', $ds['user'])
+      ->or_like('u.name', $ds['user'])
+      ->group_end();
     }
 
     if($ds['status'] != 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if( $ds['status'] == 5)
+      {
+        $this->db->where('m.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('m.status', $ds['status']);
+      }
+    }
+
+    if(isset($ds['must_accept']) && $ds['must_accept'] != 'all')
+    {
+      $this->db->where('m.must_accept', $ds['must_accept']);
     }
 
     if($ds['is_export'] != 'all')
     {
-      $this->db->where('is_exported', $ds['is_export']);
+      $this->db->where('m.is_exported', $ds['is_export']);
     }
+
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db->where('m.date_add >=', from_date($ds['from_date']));
+      $this->db->where('m.date_add <=', to_date($ds['to_date']));
     }
 
-    $this->db->order_by('code', 'DESC');
+    $rs = $this->db->order_by('m.code', 'DESC')->limit($perpage, $offset)->get();
 
-    if($perpage != '')
+    if($rs->num_rows() > 0)
     {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
+      return $rs->result();
     }
 
-    $rs = $this->db->get('move');
-    //echo $this->db->get_compiled_select('move');
-    return $rs->result();
+    return NULL;
   }
 
 
@@ -642,6 +825,23 @@ class Move_model extends CI_Model
     return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('move');
   }
 
+
+  public function must_accept($code)
+  {
+    $rs = $this->db
+    ->from('move_detail AS md')
+    ->join('zone AS z', 'md.to_zone = z.code', 'left')
+    ->where('md.move_code', $code)
+    ->where('z.user_id IS NOT NULL', NULL, FALSE)
+    ->count_all_results();
+
+    if($rs > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
 
 }
  ?>

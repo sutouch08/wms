@@ -99,18 +99,20 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-  	<table class="table table-striped table-bordered" style="min-width:1100px;">
+  	<table class="table table-striped table-bordered" style="min-width:1300px;">
     	<thead>
       	<tr class="font-size-12">
-        	<th class="fix-width-40 text-center">ลำดับ	</th>
-          <th class="fix-width-120 text-center">บาร์โค้ด</th>
+        	<th class="fix-width-40 text-center">ลำดับ</th>
+          <th class="fix-width-120 text-center hide">บาร์โค้ด</th>
           <th class="fix-width-200 text-center">รหัสสินค้า</th>
           <th class="min-width-250" style="max-width:350px;">ชื่อสินค้า</th>
+					<th class="fix-width-100 text-right">ต้นทุน(เฉลี่ย)</th>
           <th class="fix-width-100 text-center">เบิก</th>
 					<th class="fix-width-100 text-center">รับแล้ว</th>
 					<th class="fix-width-100 text-center">รอยืนยัน</th>
           <th class="fix-width-100 text-center">ค้างรับ</th>
           <th class="fix-width-100 text-center">จำนวน</th>
+					<th class="fix-width-100 text-center">มูลค่า</th>
         </tr>
       </thead>
       <tbody id="receiveTable">
@@ -153,13 +155,16 @@
 						<td class="middle text-center">{{uncomplete}}</td>
             <td class="middle text-center">{{backlog}}</td>
             <td class="middle text-center"><span id="total-receive">0</span></td>
+						<td class="middle text-center"><span id="total-amount">0.00</span></td>
         </tr>
     {{else}}
         <tr class="font-size-12">
-            <td class="middle text-center">{{ no }}</td>
-            <td class="middle barcode" id="barcode_{{no}}">{{barcode}}</td>
+            <td class="middle text-center">{{no}}</td>
             <td class="middle">{{pdCode}}</td>
             <td class="middle">{{pdName}}</td>
+						<td class="middle text-right">
+							<input type="number" class="form-control input-sm text-right input-price" id="price_{{no}}" value="{{price}}" {{disabled}} />
+						</td>
             <td class="middle text-center" id="qty_{{no}}">{{qty}}</td>
 						<td class="middle text-center">{{received}}</td>
 						<td class="middle text-center">{{uncomplete}}</td>
@@ -167,13 +172,14 @@
             <td class="middle text-center">
                 <input type="text" class="form-control input-sm text-center receive-box pdCode" name="receive[{{no}}]" id="receive_{{no}}" data-no="{{no}}" />
             </td>
+						<td class="middle text-right line-amount" id="line-amount-{{no}}">0.00</td>
 						<input type="hidden" id="product_{{no}}" value="{{pdCode}}"/>
+						<input type="hidden" id="product_name_{{no}}" value="{{pdName}}" />
 						<input type="hidden" id="limit_{{no}}" value="{{limit}}"/>
 						{{#if barcode}}
 						<input type="hidden" id="{{barcode}}" value="{{no}}" />
 						{{/if}}
 						<input type="hidden" id="backlog_{{no}}" value="{{backlog}}" />
-						<input type="hidden" id="price_{{no}}" value="{{price}}" />
         </tr>
     {{/if}}
 {{/each}}

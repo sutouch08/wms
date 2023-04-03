@@ -1,5 +1,3 @@
-// JavaScript Document
-
 var data = [];
 var poError = 0;
 var invError = 0;
@@ -203,29 +201,52 @@ function save() {
 			"header" : JSON.stringify(header),
 			"items" : JSON.stringify(rows)
 		},
-		success: function(rs){
+		success: function(rs) {
 			load_out();
 
-			rs = $.trim(rs);
-			if(rs == 'success'){
-				swal({
-					title:'Success',
-					text:'บันทึกรายการเรียบร้อยแล้ว',
-					type:'success',
-					timer:1000
-				});
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+				if(ds.status == 'success') {
+					swal({
+						title:'Success',
+						text:'บันทึกรายการเรียบร้อยแล้ว',
+						type:'success',
+						timer:1000
+					});
 
-				setTimeout(function(){
-					viewDetail(code);
-				}, 1200);
+					setTimeout(function() {
+						viewDetail(code);
+					}, 1200);
+				}
+				else if(ds.status == 'warning') {
+					swal({
+						title:'Warning',
+						text: ds.message,
+						type:'warning',
+						html:true
+					}, () => {
+						viewDetail(code);
+					});
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:ds.message,
+						type:'error',
+						html:true
+					});
+				}
 			}
-			else
-			{
-				swal("ข้อผิดพลาด !", rs, "error");
+			else {
+				swal({
+					title:'Error!',
+					text:ds.message,
+					type:'error',
+					html:true
+				});
 			}
 		}
 	});
-
 
 }	//--- end save
 
@@ -506,7 +527,7 @@ function getPoCurrency(poCode)
 function getData(){
 	var po = $("#poCode").val();
 
-	if(po.length == 0) {
+	if(po.length < 5) {
 		return false;
 	}
 
@@ -833,14 +854,7 @@ $("#zone_code").autocomplete({
 });
 
 
-
-
-
 $("#dateAdd").datepicker({ dateFormat: 'dd-mm-yy'});
-
-
-
-
 
 
 function checkBarcode() {
@@ -917,15 +931,23 @@ $("#barcode").keyup(function(e) {
 });
 
 
-
-
 function sumReceive(){
-	var qty = 0;
-	$(".receive-box").each(function(index, element) {
-    	var cqty = isNaN( parseInt( $(this).val() ) ) ? 0 : parseInt( $(this).val() );
-			qty += cqty;
-    });
-	$("#total-receive").text( addCommas(qty) );
+	let totalQty = 0;
+	let totalAmount = 0;
+
+	$(".receive-box").each(function() {
+		let no = $(this).data('uid');
+    let qty = parseDefault(parseFloat($(this).val()), 0);
+		let price = parseDefault(parseFloat($('#price_'+no).val()), 0);
+		let amount = qty * price;
+		totalQty += qty;
+		totalAmount += amount;
+
+		$('#line_total_'+no).text(addCommas(amount.toFixed(2)));
+  });
+
+	$("#total-receive").text( addCommas(totalQty) );
+	$('#total-amount').text(addCommas(totalAmount.toFixed(2)));
 }
 
 
@@ -1014,12 +1036,6 @@ function getFile(){
 }
 
 
-
-
-
-
-
-
 $("#uploadFile").change(function(){
 	if($(this).val() != '')
 	{
@@ -1038,7 +1054,6 @@ $("#uploadFile").change(function(){
     $('#show-file-name').text(name);
 	}
 });
-
 
 
 	function uploadfile()
@@ -1090,4 +1105,71 @@ $("#uploadFile").change(function(){
 				}
 			});
 		}
+	}
+
+
+	function accept() {
+		$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
+		$('#accept-modal').modal('show');
+	}
+
+	function acceptConfirm() {
+		let code = $('#receive_code').val();
+		let note = $.trim($('#accept-note').val());
+
+		if(note.length < 10) {
+			$('#accept-error').text('กรุณาระบุหมายเหตุอย่างนี้อย 10 ตัวอักษร');
+			return false;
+		}
+		else {
+			$('#accept-error').text('');
+		}
+
+		load_in();
+
+		$.ajax({
+			url:HOME + 'accept_confirm',
+			type:'POST',
+			cache:false,
+			data:{
+				"code" : code,
+				"accept_remark" : note
+			},
+			success:function(rs) {
+				load_out();
+				if(isJson(rs))
+				{
+					let ds = JSON.parse(rs);
+					if(ds.status === 'success') {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							window.location.reload();
+						}, 1200);
+					}
+					else if(ds.status === 'warning') {
+
+						swal({
+							title:'Warning',
+							text:ds.message,
+							type:'warning'
+						}, () => {
+							window.location.reload();							
+						});
+					}
+					else {
+						swal({
+							title:'Error!',
+							text: rs,
+							type:'error'
+						});
+					}
+				}
+			}
+		});
+
 	}

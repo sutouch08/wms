@@ -1,4 +1,13 @@
 <?php $this->load->view('include/header'); ?>
+<?php
+	$pm = get_permission('APACWR', $this->_user->uid, $this->_user->id_profile);
+	$canAccept = FALSE;
+
+	if( ! empty($pm))
+	{
+		$canAccept = (($pm->can_add + $pm->can_edit + $pm->can_delete + $pm->can_approve) > 0  OR $this->_SuperAdmin) ? TRUE : FALSE;
+	}
+?>
 <div class="row">
 	<div class="col-lg-4 col-md-4 col-sm-4 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -8,13 +17,16 @@
 	</div>
 	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5">
     <p class="pull-right top-p">
-			<button type="button" class="btn btn-xs btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-      <button type="button" class="btn btn-xs btn-info" onclick="printReceived()"><i class="fa fa-print"></i> พิมพ์</button>
+			<button type="button" class="btn btn-xs btn-warning btn-top" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+      <button type="button" class="btn btn-xs btn-info btn-top" onclick="printReceived()"><i class="fa fa-print"></i> พิมพ์</button>
 			<?php if($doc->status == 1) : ?>
-			<button type="button" class="btn btn-xs btn-success" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+			<button type="button" class="btn btn-xs btn-success btn-top" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
-			<?php if($this->isAPI && $doc->is_wms == 1 && ($doc->status == 3 OR $doc->status == 0)) : ?>
-			<button type="button" class="btn btn-xs btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+			<?php if($this->isAPI && $doc->is_wms == 1 && $doc->status == 3) : ?>
+			<button type="button" class="btn btn-xs btn-success btn-top" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+			<?php endif; ?>
+			<?php if($doc->status == 4 && ($doc->user_id = $this->_user->id OR $canAccept)) : ?>
+				<button type="button" class="btn btn-xs btn-success btn-top" onclick="accept()"><i class="fa fa-check-circle"></i> ยืนยันการรับสินค้า</button>
 			<?php endif; ?>
       <?php if($this->pm->can_delete && $doc->status != 2) : ?>
         <button type="button" class="btn btn-xs btn-danger" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-exclamation-triangle"></i> ยกเลิก</button>
@@ -22,7 +34,7 @@
     </p>
   </div>
 </div>
-<hr />
+<hr class="padding-5" />
 
 <div class="row">
   <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
@@ -99,13 +111,26 @@
 </div>
 
 <?php
-if($doc->status == 2)
+if($doc->is_expire)
 {
-  $this->load->view('cancle_watermark');
+	$this->load->view('expire_watermark');
 }
-if($doc->status == 3)
+else
 {
-  $this->load->view('on_process_watermark');
+	if($doc->status == 2)
+	{
+		$this->load->view('cancle_watermark');
+	}
+
+	if($doc->status == 3)
+	{
+		$this->load->view('on_process_watermark');
+	}
+
+	if($doc->status == 4)
+	{
+		$this->load->view('accept_watermark');
+	}
 }
 ?>
 <hr class="margin-top-15 padding-5"/>
@@ -166,29 +191,30 @@ if($doc->status == 3)
     </div>
 </div>
 
-<?php if(!empty($approve_logs)) : ?>
-	<div class="row">
-		<?php foreach($approve_logs as $logs) : ?>
-		<div class="col-sm-12 text-right padding-5 first last">
-			<?php if($logs->approve == 1) : ?>
-			  <span class="green">
-					อนุมัติโดย :
-					<?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?>
-				</span>
-			<?php else : ?>
-				<span class="red">
-				ยกเลิกโดย :
-				<?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?>
-			  </span>
-			<?php endif; ?>
-
-		</div>
-	<?php endforeach; ?>
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<?php if(!empty($approve_logs)) : ?>
+				<?php foreach($approve_logs as $logs) : ?>
+					<?php if($logs->approve == 1) : ?>
+					  <span class="green">อนุมัติโดย : <?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?></span>
+					<?php else : ?>
+						<span class="red">ยกเลิกโดย : <?php echo $logs->approver; ?> @ <?php echo thai_date($logs->date_upd, TRUE); ?> </span>
+					<?php endif; ?>
+			<?php endforeach; ?>
+		<?php endif; ?>
+		
+		<?php if($doc->must_accept == 1 && $doc->is_accept == 1) : ?>
+			<span class="green display-block">ยืนยันการรับโดย : <?php echo $doc->accept_by; ?> @ <?php echo thai_date($doc->accept_on, TRUE); ?></span>
+			<span class="green display-block">หมายเหตุ : <?php echo $doc->accept_remark; ?></span>
+		<?php endif; ?>
 	</div>
-<?php endif; ?>
+</div>
+
+
 
 
 <?php $this->load->view('cancle_modal'); ?>
+<?php $this->load->view('accept_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>

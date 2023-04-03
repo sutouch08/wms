@@ -43,7 +43,7 @@ function cancle_received(code)
 		},
 		success: function(rs){
 			load_out();
-			
+
 			var rs = $.trim(rs);
 			if( rs == 'success' ){
 				swal({
@@ -87,14 +87,62 @@ $('#cancle-modal').on('shown.bs.modal', function() {
 
 function addNew()
 {
-  var date_add = $('#dateAdd').val();
-  var remark = $('#remark').val();
-  if(!isDate(date_add)){
+  let date_add = $('#dateAdd').val();
+	let is_wms = $('#is_wms').val() == 1 ? 1 : 0;
+  let remark = $.trim($('#remark').val());
+	let reqRemark = $('#required_remark').val();
+
+  if(!isDate(date_add)) {
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
-  $('#addForm').submit();
+	if(reqRemark == 1 && remark.length < 10) {
+		swal({
+			title:'ข้อผิดพลาด',
+			text:'กรุณาใส่หมายเหตุ (ความยาวอย่างน้อย 10 ตัวอักษร)',
+			type:'warning'
+		});
+
+		return false;
+	}
+	
+	load_in();
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data: {
+			'date_add' : date_add,
+			'is_wms' : is_wms,
+			'remark' : remark
+		},
+		success:function(rs) {
+			load_out();
+
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+				if(ds.status == 'success') {
+					goEdit(ds.code);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:ds.message,
+						type:'error'
+					});
+				}
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	})
 }
 
 
@@ -105,12 +153,12 @@ function goAdd(){
 
 
 function goEdit(code){
-	window.location.href = HOME + 'edit/'+ code; //"index.php?content=receive_product&edit=Y&id_receive_product="+id;
+	window.location.href = HOME + 'edit/'+ code;
 }
 
 
 function viewDetail(code){
-	window.location.href = HOME + 'view_detail/'+ code; //"index.php?content=receive_product&view_detail=Y&id_receive_product="+id;
+	window.location.href = HOME + 'view_detail/'+ code;
 }
 
 

@@ -48,26 +48,37 @@ class Return_lend_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('return_lend');
+    $rs = $this->db
+    ->select('r.*, fz.name AS from_zone_name, tz.name AS to_zone_name, u.name AS display_name, uz.uname AS owner')
+    ->from('return_lend AS r')
+    ->join('zone AS fz', 'r.from_zone = fz.code', 'left')
+    ->join('zone AS tz', 'r.to_zone = tz.code', 'left')
+    ->join('user AS u', 'r.user = u.uname', 'left')
+    ->join('user AS uz', 'tz.user_id = uz.id', 'left')
+    ->where('r.code', $code)
+    ->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
 
   public function get_details($code)
   {
-    $qr  = "SELECT rld.*, old.qty AS lend_qty, old.receive AS receive, pd.unit_code ";
-    $qr .= "FROM return_lend_detail AS rld ";
-    $qr .= "LEFT JOIN order_lend_detail AS old ON old.order_code = rld.lend_code ";
-    $qr .= "AND old.product_code = rld.product_code ";
-		$qr .= "LEFT JOIN products AS pd ON rld.product_code = pd.code ";
-    $qr .= "WHERE rld.return_code = '{$code}'";
-    $rs  = $this->db->query($qr);
+    $rs = $this->db
+    ->select('r.*')
+    ->select('(l.qty - l.receive) AS backlogs, l.qty AS lend_qty, l.receive AS receive')
+    ->select('p.barcode, p.unit_code')
+    ->from('return_lend_detail AS r')
+    ->join('order_lend_detail AS l', 'r.lend_code = l.order_code AND r.product_code = l.product_code', 'left')
+    ->join('products AS p', 'r.product_code = p.code', 'left')
+    ->where('r.return_code', $code)
+    ->get();
 
     if($rs->num_rows() > 0)
     {
@@ -246,100 +257,137 @@ class Return_lend_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $this->db->select('status');
+    $this->db
+    ->from('return_lend AS r')
+    ->join('zone AS z', 'r.to_zone = z.code', 'left')
+    ->join('user AS u', 'r.user = u.uname', 'left');
 
     //---- เลขที่เอกสาร
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('r.code', $ds['code']);
     }
 
     //---- invoice
-    if(!empty($ds['lend_code']))
+    if( ! empty($ds['lend_code']))
     {
-      $this->db->like('lend_code', $ds['lend_code']);
+      $this->db->like('r.lend_code', $ds['lend_code']);
     }
 
     //--- emp
-    if(!empty($ds['empName']))
+    if( ! empty($ds['empName']))
     {
-      $emp_in = employee_in($ds['empName']); //--- employee_helper;
-      $this->db->where_in('empID', $emp_in);
+      $this->db->like('r.empName', $ds['empName']);
     }
 
-		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
-		{
-			$this->db->where('to_warehouse', $ds['warehouse']);
-		}
-
-    if(!empty($ds['status']) && $ds['status'] != 'all')
+    if($ds['status'] != 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('r.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('r.status', $ds['status']);
+      }
+    }
+
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('r.must_accept', $ds['must_accept']);
+    }
+
+		if( ! empty($ds['zone']))
+    {
+      $this->db
+      ->group_start()
+      ->like('r.to_zone', $ds['zone'])
+      ->or_like('z.name', $ds['zone'])
+      ->group_end();
     }
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db->where('r.date_add >=', from_date($ds['from_date']));
+      $this->db->where('r.date_add <=', to_date($ds['to_date']));
     }
+
 
     if( isset($ds['sap']) && $ds['sap'] != 'all')
     {
       if($ds['sap'] == 0)
       {
-        $this->db->where('inv_code IS NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 
-    $rs = $this->db->get('return_lend');
-
-
-    return $rs->num_rows();
+    return $this->db->count_all_results();
   }
 
 
 
 
 
-  public function get_list(array $ds = array(), $perpage = '', $offset = '')
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
+    $this->db
+    ->select('r.*, z.name AS zone_name, u.name AS display_name')
+    ->from('return_lend AS r')
+    ->join('zone AS z', 'r.to_zone = z.code', 'left')
+    ->join('user AS u', 'r.user = u.uname', 'left');
+
     //---- เลขที่เอกสาร
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('r.code', $ds['code']);
     }
 
     //---- invoice
-    if(!empty($ds['lend_code']))
+    if( ! empty($ds['lend_code']))
     {
-      $this->db->like('lend_code', $ds['lend_code']);
+      $this->db->like('r.lend_code', $ds['lend_code']);
     }
 
     //--- emp
-    if(!empty($ds['empName']))
+    if( ! empty($ds['empName']))
     {
-      $emp_in = employee_in($ds['empName']); //--- employee_helper;
-      $this->db->where_in('empID', $emp_in);
+      $this->db->like('r.empName', $ds['empName']);
     }
 
     if($ds['status'] != 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('r.is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('r.status', $ds['status']);
+      }
     }
 
-		if(!empty($ds['warehouse']) && $ds['warehouse'] !== 'all')
-		{
-			$this->db->where('to_warehouse', $ds['warehouse']);
-		}
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('r.must_accept', $ds['must_accept']);
+    }
+
+		if( ! empty($ds['zone']))
+    {
+      $this->db
+      ->group_start()
+      ->like('r.to_zone', $ds['zone'])
+      ->or_like('z.name', $ds['zone'])
+      ->group_end();
+    }
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      $this->db->where('r.date_add >=', from_date($ds['from_date']));
+      $this->db->where('r.date_add <=', to_date($ds['to_date']));
     }
 
 
@@ -347,23 +395,15 @@ class Return_lend_model extends CI_Model
     {
       if($ds['sap'] == 0)
       {
-        $this->db->where('inv_code IS NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('r.inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 
-    $this->db->order_by('code', 'DESC');
-
-    if(!empty($perpage))
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
-
-    $rs = $this->db->get('return_lend');
+    $rs = $this->db->order_by('r.code', 'DESC')->limit($perpage, $offset)->get();
 
     return $rs->result();
   }

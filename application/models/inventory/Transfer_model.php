@@ -258,22 +258,36 @@ class Transfer_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('transfer');
+    $rs = $this->db
+    ->select('t.*')
+    ->select('fw.name AS from_warehouse_name, tw.name AS to_warehouse_name')
+    ->select('u.uname, u.name AS display_name')
+    ->from('transfer AS t')
+    ->join('warehouse AS fw', 't.from_warehouse = fw.code', 'left')
+    ->join('warehouse AS tw', 't.to_warehouse = tw.code', 'left')
+    ->join('user AS u', 't.accept_by = u.uname', 'left')
+    ->where('t.code', $code)
+    ->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
   public function get_details($code)
   {
     $rs = $this->db
-    ->select('td.*, pd.barcode, pd.unit_code')
+    ->select('td.*')
+    ->select('pd.barcode, pd.unit_code')
+    ->select('fz.name AS from_zone_name, tz.name AS to_zone_name')
     ->from('transfer_detail AS td')
     ->join('products AS pd', 'td.product_code = pd.code', 'left')
+    ->join('zone AS fz', 'td.from_zone = fz.code', 'left')
+    ->join('zone AS tz', 'td.to_zone = tz.code', 'left')
     ->where('td.transfer_code', $code)
     ->get();
 
@@ -282,7 +296,7 @@ class Transfer_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -593,16 +607,22 @@ class Transfer_model extends CI_Model
       $this->db->like('tr.code', $ds['code']);
     }
 
-    if(!empty($ds['from_warehouse']))
+    if( ! empty($ds['from_warehouse']))
     {
-      $from_warehouse = $this->get_warehouse_in($ds['from_warehouse']);
-      $this->db->where_in('tr.from_warehouse', $from_warehouse);
+      $this->db
+      ->group_start()
+      ->like('tr.from_warehouse', $ds['from_warehouse'])
+      ->or_like('fwh.name', $ds['from_warehouse'])
+      ->group_end();
     }
 
     if(!empty($ds['to_warehouse']))
     {
-      $to_warehouse = $this->get_warehouse_in($ds['to_warehouse']);
-      $this->db->where_in('tr.to_warehouse', $to_warehouse);
+      $this->db
+      ->group_start()
+      ->like('tr.to_warehouse', $ds['to_warehouse'])
+      ->or_like('twh.name', $ds['to_warehouse'])
+      ->group_end();
     }
 
     if(!empty($ds['user']))
@@ -637,6 +657,11 @@ class Transfer_model extends CI_Model
       {
         $this->db->where('must_approve', 1)->where('is_approve', $ds['is_approve']);
       }
+    }
+
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('must_accept', $ds['must_accept']);
     }
 
     if($ds['valid'] != 'all')
@@ -691,16 +716,22 @@ class Transfer_model extends CI_Model
       $this->db->like('tr.code', $ds['code']);
     }
 
-    if(!empty($ds['from_warehouse']))
+    if( ! empty($ds['from_warehouse']))
     {
-      $from_warehouse = $this->get_warehouse_in($ds['from_warehouse']);
-      $this->db->where_in('tr.from_warehouse', $from_warehouse);
+      $this->db
+      ->group_start()
+      ->like('tr.from_warehouse', $ds['from_warehouse'])
+      ->or_like('fwh.name', $ds['from_warehouse'])
+      ->group_end();
     }
 
     if(!empty($ds['to_warehouse']))
     {
-      $to_warehouse = $this->get_warehouse_in($ds['to_warehouse']);
-      $this->db->where_in('tr.to_warehouse', $to_warehouse);
+      $this->db
+      ->group_start()
+      ->like('tr.to_warehouse', $ds['to_warehouse'])
+      ->or_like('twh.name', $ds['to_warehouse'])
+      ->group_end();
     }
 
     if(!empty($ds['user']))
@@ -734,6 +765,11 @@ class Transfer_model extends CI_Model
       {
         $this->db->where('must_approve', 1)->where('is_approve', $ds['is_approve']);
       }
+    }
+
+    if($ds['must_accept'] != 'all')
+    {
+      $this->db->where('must_accept', $ds['must_accept']);
     }
 
     if($ds['valid'] != 'all')
@@ -875,6 +911,131 @@ class Transfer_model extends CI_Model
     );
 
     return $this->db->where('code', $code)->update('transfer', $ds);
+  }
+
+
+  public function must_accept($code)
+  {
+    $count = $this->db
+    ->from('transfer_detail AS t')
+    ->join('zone AS z', 't.to_zone = z.code', 'left')
+    ->where('t.transfer_code', $code)
+    ->where('z.user_id IS NOT NULL', NULL, FALSE)
+    ->count_all_results();
+
+    if($count > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  public function get_accept_list($code)
+  {
+    $rs = $this->db
+    ->select('t.is_accept, t.accept_by, t.accept_on')
+    ->select('u.uname, u.name AS display_name')
+    ->from('transfer_detail AS t')
+    ->join('zone AS z', 't.to_zone = z.code', 'left')
+    ->join('user AS u', 'z.user_id = u.id', 'left')
+    ->where('t.transfer_code', $code)
+    ->where('t.must_accept', 1)
+    ->where('z.user_id IS NOT NULL', NULL, FALSE)
+    ->group_by('z.user_id')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+  public function is_accept_all($code)
+  {
+    $count = $this->db
+    ->where('transfer_code', $code)
+    ->where('must_accept', 1)
+    ->where('is_accept', 0)
+    ->count_all_results('transfer_detail');
+
+    if($count == 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function accept_all($code, $uname)
+  {
+    $arr = array(
+      'is_accept' => 1,
+      'accept_by' => $uname,
+      'accept_on' => now()
+    );
+
+    $this->db
+    ->where('transfer_code', $code)
+    ->where('must_accept', 1)
+    ->where('is_accept', 0);
+
+    return $this->db->update('transfer_detail', $arr);
+  }
+
+
+  public function is_owner_zone($code, $user_id)
+  {
+    $count = $this->db
+    ->from('transfer_detail AS t')
+    ->join('zone AS zn', 't.to_zone = zn.code', 'left')
+    ->where('t.move_code', $code)
+    ->where('t.must_accept', 1)
+    ->where('zn.user_id', $this->_user->id)
+    ->count_all_results();
+
+    if($count > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function accept_zone($code, $zone_code, $uname)
+  {
+    $arr = array(
+      'is_accept' => 1,
+      'accept_by' => $uname,
+      'accept_on' => now()
+    );
+
+    return $this->db->where('transfer_code', $code)->where('to_zone', $zone_code)->update('transfer_detail', $arr);
+  }
+
+
+  public function get_my_zone($code, $user_id)
+  {
+    $rs = $this->db
+    ->select('t.to_zone')
+    ->from('transfer_detail AS t')
+    ->join('zone AS zn', 't.to_zone = zn.code', 'left')
+    ->where('transfer_code', $code)
+    ->where('t.must_accept', 1)
+    ->where('zn.user_id', $user_id)
+    ->group_by('t.to_zone')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->to_zone;
+    }
+
+    return NULL;
   }
 
 }

@@ -91,20 +91,43 @@ function doApprove() {
       },
       success:function(rs) {
         load_out();
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
 
-        if(rs === 'success') {
-          setTimeout(() => {
-            swal({
-              title:'Success',
-              type:'success',
-              timer:1000
-            });
-
+          if(ds.status == 'success') {
             setTimeout(() => {
-              window.location.reload();
-            }, 1200);
+              swal({
+                title:'Success',
+                type:'success',
+                timer:1000
+              });
 
-          }, 200);
+              setTimeout(() => {
+                window.location.reload();
+              }, 1200);
+
+            }, 200);
+          }
+          else if(ds.status == 'warning') {
+            setTimeout(() => {
+              swal({
+                title:'Warning',
+                text:ds.message,
+                type:'warning'
+              }, () => {
+                window.location.reload();
+              });
+            }, 200);
+          }
+          else {
+            setTimeout(() => {
+              swal({
+                title:'Error!',
+                text:ds.message,
+                type:'error'
+              });
+            }, 200);
+          }
         }
         else {
           setTimeout(() => {

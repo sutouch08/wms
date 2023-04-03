@@ -128,6 +128,7 @@ function setZone(){
   }
 
   $('#zone').attr('disabled', 'disabled');
+  $('#zone_code').attr('disabled', 'disabled');
   $('#btn-set-zone').addClass('hide');
   $('#btn-change-zone').removeClass('hide');
 
@@ -135,6 +136,7 @@ function setZone(){
     $('#lend_code').focus();
     return;
   }
+
   $('#barcode').focus();
 }
 
@@ -143,9 +145,10 @@ function changeZone(){
   $('#zone_code').val('');
   $('#zone').val('');
   $('#zone').removeAttr('disabled');
+  $('#zone_code').removeAttr('disabled');
   $('#btn-change-zone').addClass('hide');
   $('#btn-set-zone').removeClass('hide');
-  $('#zone').focus();
+  $('#zone_code').focus();
 }
 
 
@@ -192,4 +195,24 @@ function doReceive() {
       type:'warning'
     });
   }
+}
+
+
+function receiveAll() {
+  $('.qty').each(function() {
+    let no = $(this).data('no');
+    let qty = parseDefault(parseFloat($('#backlogs-'+no).val()), 0);
+    $(this).val(qty);
+  });
+
+  recalTotal();
+}
+
+
+function clearAll() {
+  $('.qty').each(function() {
+    $(this).val('');
+  });
+
+  recalTotal();
 }

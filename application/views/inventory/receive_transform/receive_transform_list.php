@@ -128,7 +128,7 @@
 					<th class="fix-width-120 middle">ใบเบิกแปรสภาพ</th>
 					<th class="fix-width-100 middle text-center">จำนวน</th>
 					<th class="fix-width-80 middle text-center">สถานะ</th>
-					<th class="fix-width-100 middle">พนักงาน</th>
+					<th class="min-width-100 middle">พนักงาน</th>
 				</tr>
 			</thead>
 			<tbody>

@@ -595,7 +595,7 @@ class Return_order extends PS_Controller
         'customer_code' => $customer_code,
         'warehouse_code' => $zone->warehouse_code,
         'zone_code' => $zone->code,
-        'user' => get_cookie('uname'),
+        'user' => $this->_user->uname,
         'date_add' => $date_add,
         'remark' => $remark,
 				'is_wms' => $is_wms,
@@ -747,7 +747,7 @@ class Return_order extends PS_Controller
 				'api' => $api,
         'remark' => $remark,
         'must_accept' => $must_accept,
-        'update_user' => get_cookie('uname')
+        'update_user' => $this->_user->uname
       );
 
       if($this->return_order_model->update($code, $arr) === FALSE)

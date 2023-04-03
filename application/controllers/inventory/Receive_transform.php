@@ -321,23 +321,21 @@ class Receive_transform extends PS_Controller
   public function save()
   {
     $sc = TRUE;
+    $data = json_decode($this->input->post('data'));
 
-		$code = $this->input->post('receive_code');
-
-    if(!empty($code))
+    if(! empty($data))
     {
       $this->load->model('masters/products_model');
       $this->load->model('masters/zone_model');
 			$this->load->model('masters/warehouse_model');
 			$this->load->model('inventory/movement_model');
 
+      $code = $data->receive_code;
       $doc = $this->receive_transform_model->get($code);
 
 			if(!empty($doc))
 			{
-				$order_code = $this->input->post('order_code');
-	      $invoice = $this->input->post('invoice');
-				$zone = $this->zone_model->get($this->input->post('zone_code'));
+				$zone = $this->zone_model->get($data->zone_code);
 				$warehouse = $this->warehouse_model->get($zone->warehouse_code);
 
 				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
@@ -354,18 +352,16 @@ class Receive_transform extends PS_Controller
 					$this->error = "เอกสารต้องรับเข้าที่ WARRIX";
 				}
 
-	      $zone_code = $zone->code;
 	      $warehouse_code = $warehouse->code;
         $must_accept = (empty($zone->user_id) ? FALSE : TRUE);
-	      $receive = $this->input->post('receive');
-				$products = $this->input->post('products');
+	      $receive = $data->items;
 
 	      $arr = array(
-	        'order_code' => $order_code,
-	        'invoice_code' => $invoice,
-	        'zone_code' => $zone_code,
+	        'order_code' => $data->order_code,
+	        'invoice_code' => $data->invoice,
+	        'zone_code' => $data->zone_code,
 	        'warehouse_code' => $warehouse_code,
-	        'update_user' => get_cookie('uname'),
+	        'update_user' => $this->_user->uname,
           'must_accept' => $must_accept ? 1 : 0,
           'is_accept' => 0,
           'accept_by' => NULL,
@@ -390,20 +386,20 @@ class Receive_transform extends PS_Controller
 
 						$details = array();
 
-	          foreach($receive as $index => $qty)
+	          foreach($receive as $rs)
 	          {
 							if($sc === FALSE)
 							{
 								break;
 							}
 
-	            if($qty != 0 && $sc === TRUE)
+	            if($rs->qty > 0)
 	            {
-	              $pd = $this->products_model->get($products[$index]);
-								if(!empty($pd))
+	              $pd = $this->products_model->get($rs->product_code);
+
+								if( ! empty($pd))
 								{
-									$price = $this->get_avg_cost($pd->code);
-									$cost = $price == 0 ? $pd->cost : $price;
+									$cost = $rs->price == 0 ? $pd->cost : $rs->price;
 
 									if($this->isAPI && $doc->is_wms)
 									{
@@ -413,9 +409,9 @@ class Receive_transform extends PS_Controller
 										$de->product_code = $pd->code;
 										$de->product_name = $pd->name;
 										$de->unit_code = $pd->unit_code;
-										$de->price = $cost;
-										$de->qty = $qty;
-										$de->amount = $qty * $cost;
+										$de->price = $rs->cost;
+										$de->qty = $rs->qty;
+										$de->amount = $rs->qty * $cost;
 
 										$details[] = $de;
 									}
@@ -426,9 +422,9 @@ class Receive_transform extends PS_Controller
 		                'product_code' => $pd->code,
 		                'product_name' => $pd->name,
 		                'price' => $cost,
-		                'qty' => $qty,
-                    'receive_qty' => $must_accept === TRUE ? 0 : (($this->isAPI === FALSE OR $doc->is_wms == 0) ? $qty : 0),
-		                'amount' => $qty * $cost
+		                'qty' => $rs->qty,
+                    'receive_qty' => $must_accept === TRUE ? 0 : (($this->isAPI === FALSE OR $doc->is_wms == 0) ? $rs->qty : 0),
+		                'amount' => $rs->qty * $cost
 		              );
 
 		              if($this->receive_transform_model->add_detail($ds) === FALSE)
@@ -438,14 +434,14 @@ class Receive_transform extends PS_Controller
 		                break;
 		              }
 
-		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0 OR $must_accept === FALSE))
+		              if($sc === TRUE && $must_accept === FALSE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
 		              {
 		                $ds = array(
 		                  'reference' => $code,
 		                  'warehouse_code' => $warehouse_code,
-		                  'zone_code' => $zone_code,
+		                  'zone_code' => $data->zone_code,
 		                  'product_code' => $pd->code,
-		                  'move_in' => $qty,
+		                  'move_in' => $rs->qty,
 		                  'date_add' => db_date($date_add, TRUE)
 		                );
 
@@ -458,15 +454,15 @@ class Receive_transform extends PS_Controller
 
 
 		              //--- update receive_qty in order_transform_detail
-		              if($sc === TRUE && ($this->isAPI === FALSE OR $doc->is_wms == 0 OR $must_accept === FALSE))
+		              if($sc === TRUE && $must_accept === FALSE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
 		              {
-		                $this->update_transform_receive_qty($order_code, $pd->code, $qty);
+		                $this->update_transform_receive_qty($data->order_code, $pd->code, $rs->qty);
 		              }
 								}
 								else
 								{
 									$sc = FALSE;
-									$this->error = "ไม่พบรหัสสินค้า : {$products[$index]}";
+									$this->error = "ไม่พบรหัสสินค้า : {$rs->product_code}";
 								}
 
 	            }//--- end if qty > 0
@@ -487,7 +483,7 @@ class Receive_transform extends PS_Controller
                 $this->wms = $this->load->database('wms', TRUE);
                 $this->load->library('wms_receive_api');
 
-                $rs = $this->wms_receive_api->export_receive_transform($doc, $order_code, $invoice, $details);
+                $rs = $this->wms_receive_api->export_receive_transform($doc, $data->order_code, $data->invoice, $details);
               }
 
               if($sc === TRUE)
@@ -505,9 +501,9 @@ class Receive_transform extends PS_Controller
 
                   $this->receive_transform_model->update($code, $arr);
 
-                  if($this->transform_model->is_complete($order_code) === TRUE)
+                  if($this->transform_model->is_complete($data->order_code) === TRUE)
                   {
-                    $this->transform_model->close_transform($order_code);
+                    $this->transform_model->close_transform($data->order_code);
                   }
                 }
               }
@@ -793,6 +789,8 @@ class Receive_transform extends PS_Controller
     $receive_code = $this->input->get('receive_code');
     $code = $this->input->get('order_code');
     $details = $this->receive_transform_model->get_transform_details($code);
+    $pm = get_permission('ICRTCOST', $this->_user->uid, $this->_user->id_profile);
+    $can_edit_price = ($pm->can_view + $pm->can_add + $pm->can_edit + $pm->can_delete + $pm->can_approve) > 0 ? TRUE : FALSE;
     $ds = array();
     if(!empty($details))
     {
@@ -819,7 +817,8 @@ class Receive_transform extends PS_Controller
           'uncomplete' => round($uncomplete_qty, 2),
           'price' => round($cost,2),
           'limit' => $diff,
-          'backlog' => number($diff)
+          'backlog' => number($diff),
+          'disabled' => $can_edit_price ? "" : "disabled"
         );
 
         array_push($ds, $arr);

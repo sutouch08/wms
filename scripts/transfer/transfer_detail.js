@@ -66,38 +66,56 @@ function sendToWms() {
 	})
 }
 
-function deleteMoveItem(id, code)
+function deleteMoveItem(id, item_code)
 {
 	var code = $('#transfer_code').val();
+
   swal({
 		title: 'คุณแน่ใจ ?',
-		text: 'ต้องการลบ '+ code +' หรือไม่ ?',
+		text: 'ต้องการลบ '+ item_code +' หรือไม่ ?',
 		type: 'warning',
 		showCancelButton: true,
 		comfirmButtonColor: '#DD6855',
 		confirmButtonText: 'ใช่ ฉันต้องการ',
 		cancelButtonText: 'ไม่ใช่',
-		closeOnConfirm: false
-	}, function(){
+		closeOnConfirm: true
+	}, function() {
+		load_in();
+
 		$.ajax({
-			url:HOME + 'delete_detail/'+ id,
+			url:HOME + 'delete_detail',
 			type:"POST",
       cache:"false",
-			success: function(rs){
+			data:{
+				'code' : code,
+				'id' : id
+			},
+			success: function(rs) {
+				load_out();
 				var rs = $.trim(rs);
-				if( rs == 'success' ){
-					swal({
-						title:'Success',
-						text: 'ดำเนินการเรียบร้อยแล้ว',
-						type: 'success',
-						timer: 1000
-					});
+				if( rs == 'success' ) {
+					setTimeout(() => {
+						swal({
+							title:'Success',
+							text: 'ดำเนินการเรียบร้อยแล้ว',
+							type: 'success',
+							timer: 1000
+						});
 
-					$('#row-'+id).remove();
-					reIndex();
-					reCal();
-				}else{
-					swal("ข้อผิดพลาด", rs, "error");
+						$('#row-'+id).remove();
+						reIndex();
+						reCal();
+					}, 200);
+
+				}
+				else {
+					setTimeout(() => {
+						swal({
+							title:'Error!',
+							text: rs,
+							type:'error'
+						});
+					}, 200);
 				}
 			}
 		});
@@ -279,4 +297,139 @@ function countInput(){
         count += ($(this).val() == "" ? 0 : 1 );
     });
 	return count;
+}
+
+
+function accept() {
+	let canAccept = $('#can-accept').val() == 1 ? true : false;
+	let code = $('#transfer_code').val();
+
+	if(canAccept) {
+		$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
+		$('#accept-modal').modal('show');
+	}
+	else {
+
+		swal({
+			title:'Acception',
+			text:'ยินยอมให้โอนสินค้าเข้าโซนของคุณใช่หรือไม่ ?',
+			type:'info',
+			showCancelButton:true,
+			confirmButtonColor:'#87B87F',
+			confirmButtonText:'ยืนยัน',
+			cancelButtonText:'ยกเลิก',
+			closeOnConfirm:true
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url:HOME + 'accept_zone',
+				type:'POST',
+				cache:false,
+				data: {
+					'code' : code
+				},
+				success:function(rs) {
+					load_out();
+					if(isJson(rs))
+					{
+						let ds = JSON.parse(rs);
+						if(ds.status === 'success') {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							setTimeout(() => {
+								window.location.reload();
+							}, 1200);
+						}
+						else if(ds.status === 'warning') {
+
+							swal({
+								title:'Warning',
+								text:ds.message,
+								type:'warning'
+							}, () => {
+								setTimeout(() => {
+									window.location.reload();
+								}, 500);
+							});
+						}
+						else {
+							swal({
+								title:'Error!',
+								text: rs,
+								type:'error'
+							});
+						}
+					}
+				}
+			})
+		})
+	}
+}
+
+
+function acceptConfirm() {
+	let code = $('#transfer_code').val();
+	let note = $.trim($('#accept-note').val());
+
+	if(note.length < 10) {
+		$('#accept-error').text('กรุณาระบุหมายเหตุอย่างนี้อย 10 ตัวอักษร');
+		return false;
+	}
+	else {
+		$('#accept-error').text('');
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'accept_confirm',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"accept_remark" : note
+		},
+		success:function(rs) {
+			load_out();
+			if(isJson(rs))
+			{
+				let ds = JSON.parse(rs);
+				if(ds.status === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(() => {
+						window.location.reload();
+					}, 1200);
+				}
+				else if(ds.status === 'warning') {
+
+					swal({
+						title:'Warning',
+						text:ds.message,
+						type:'warning'
+					}, () => {
+						setTimeout(() => {
+							window.location.reload();
+						}, 500);
+					});
+				}
+				else {
+					swal({
+						title:'Error!',
+						text: rs,
+						type:'error'
+					});
+				}
+			}
+		}
+	});
 }

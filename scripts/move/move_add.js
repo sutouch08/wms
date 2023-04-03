@@ -53,21 +53,22 @@ function getValidate(){
 
 
 //--- เพิ่มเอกสารโอนคลังใหม่
-function addMove(){
-
+function addMove() {
+  var code = $('#code').val();
   //--- วันที่เอกสาร
   var date_add = $('#date').val();
 
   //--- คลังต้นทาง
-  var from_warehouse = $('#from_warehouse').val();
+  var from_warehouse = $('#from_warehouse_name').val();
   var from_warehouse_code = $('#from_warehouse_code').val();
 
   //--- คลังปลายทาง
-  var to_warehouse = $('#to_warehouse').val();
+  var to_warehouse = $('#to_warehouse_name').val();
   var to_warehouse_code = $('#to_warehouse_code').val();
 
   //--- หมายเหตุ
-  var remark = $('#remark').val();
+  var remark = $.trim($('#remark').val());
+  var reqRemark = $('#require_remark').val();
 
   //--- ตรวจสอบวันที่
   if( ! isDate(date_add))
@@ -94,8 +95,55 @@ function addMove(){
     return false;
   }
 
-  //--- ถ้าไม่มีข้อผิดพลาด
-  $('#addForm').submit();
+  if(reqRemark == 1 && remark.length < 10) {
+    swal({
+      title:'Required',
+      text:'กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร',
+      type:'warning'
+    });
+
+    return false;
+  }
+
+  load_in();
+
+  $.ajax({
+    url:HOME + 'add',
+    type:'POST',
+    cache:false,
+    data:{
+      'code' : code,
+      'date_add' : date_add,
+      'from_warehouse_code' : from_warehouse_code,
+      'to_warehouse_code' : to_warehouse_code,
+      'remark' : remark
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          goEdit(ds.code);
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          });
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  });
 }
 
 
@@ -268,20 +316,40 @@ function saveMove(code)
     url:HOME + 'save_move/'+code,
     type:'POST',
     cache:false,
-    success:function(rs){
+    success:function(rs) {
       load_out();
-      if(rs == 'success'){
-        swal({
-          title:'Saved',
-          text: 'บันทึกเอกสารเรียบร้อยแล้ว',
-          type:'success',
-          timer:1000
-        });
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+        if(ds.status == 'success') {
+          swal({
+            title:'Saved',
+            text: 'บันทึกเอกสารเรียบร้อยแล้ว',
+            type:'success',
+            timer:1000
+          });
 
-        setTimeout(function(){
-          window.location.reload();
-        }, 1200);
-      }else{
+          setTimeout(function() {
+            goDetail(code);
+          }, 1200);
+        }
+        else if(ds.status == 'warning') {
+          swal({
+            title:'Warning',
+            text:ds.message,
+            type:'warning'
+          }, () => {
+            goDetail(code);
+          });
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          });
+        }
+      }
+      else {
         swal({
           title:'Error!',
           text:rs,
@@ -293,45 +361,42 @@ function saveMove(code)
 }
 
 
+$('#from_warehouse_code').autocomplete({
+  source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
+  autoFocus:true,
+  close:function() {
+    let rs = $(this).val();
+    let arr = rs.split(' | ');
 
-function unSave(){
-  var code = $('#move_code').val();
-  swal({
-		title: 'คำเตือน !!',
-		text: 'หากต้องการยกเลิกการบันทึก คุณต้องยกเลิกเอกสารนี้ใน SAP ก่อน ต้องการยกเลิกการบันทึก '+ code +' หรือไม่ ?',
-		type: 'warning',
-		showCancelButton: true,
-		comfirmButtonColor: '#DD6855',
-		confirmButtonText: 'ใช่ ฉันต้องการ',
-		cancelButtonText: 'ไม่ใช่',
-		closeOnConfirm: false
-	}, function(){
-		$.ajax({
-			url:HOME + 'unsave_move/'+ code,
-			type:"POST",
-      cache:"false",
-			success: function(rs){
-				var rs = $.trim(rs);
-				if( rs == 'success' ){
-					swal({
-						title:'Success',
-						text: 'ดำเนินการเรียบร้อยแล้ว',
-						type: 'success',
-						timer: 1000
-					});
+    if(arr.length == 2) {
+      $(this).val(arr[0]);
+      $('#from_warehouse_name').val(arr[1]);
+    }
+    else {
+      $(this).val('');
+      $('#from_warehouse_name').val('');
+    }
+  }
+});
 
-					setTimeout(function(){
-						window.location.reload();
-					}, 1200);
 
-				}else{
-					swal("ข้อผิดพลาด", rs, "error");
-				}
-			}
-		});
-	});
-}
+$('#to_warehouse_code').autocomplete({
+  source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
+  autoFocus:true,
+  close:function() {
+    let rs = $(this).val();
+    let arr = rs.split(' | ');
 
+    if(arr.length == 2) {
+      $(this).val(arr[0]);
+      $('#to_warehouse_name').val(arr[1]);
+    }
+    else {
+      $(this).val('');
+      $('#to_warehouse_name').val('');
+    }
+  }
+});
 
 
 

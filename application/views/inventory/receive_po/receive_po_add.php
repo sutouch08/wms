@@ -5,6 +5,7 @@
 	<input type="hidden" id="prefix" value="<?php echo getConfig('PREFIX_RECEIVE_PO'); ?>">
 	<input type="hidden" id="runNo" value="<?php echo getConfig('RUN_DIGIT_RECEIVE_PO'); ?>">
 <?php endif; ?>
+<input type="hidden" id="required_remark" value="<?php echo $this->required_remark; ?>" />
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
     <h3 class="title" >

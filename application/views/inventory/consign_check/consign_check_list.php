@@ -38,9 +38,10 @@
       <label>สถานะ</label>
       <select class="form-control input-sm" name="status" onchange="getSearch()">
   			<option value="all">ทั้งหมด</option>
-  			<option value="0" <?php if($status == '0'){ echo 'selected'; } ?>>ยังไม่บันทึก</option>
-  			<option value="1" <?php echo is_selected(1, $status); ?>>บันทึกแล้ว</option>
-  			<option value="2" <?php echo is_selected(2, $status); ?>>ยกเลิก</option>
+  			<option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่บันทึก</option>
+  			<option value="1" <?php echo is_selected('1', $status); ?>>บันทึกแล้ว</option>
+  			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
+        <option value="3" <?php echo is_selected('3', $status); ?>>WMS Process</option>
   		</select>
     </div>
 

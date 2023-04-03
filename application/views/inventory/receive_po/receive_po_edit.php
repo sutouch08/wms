@@ -217,16 +217,17 @@
 
 <script src="<?php echo base_url(); ?>scripts/validate_credentials.js"></script>
 <script id="template" type="text/x-handlebarsTemplate">
-<table class="table table-striped table-bordered" style="min-width:1000px;">
+<table class="table table-striped table-bordered" style="min-width:1110px;">
 	<thead>
 		<tr class="font-size-12">
 			<th class="fix-width-40 text-center">ลำดับ</th>
-			<th class="fix-width-120 text-center">บาร์โค้ด</th>
-			<th class="fix-width-150">รหัสสินค้า</th>
-			<th class="min-width-200">ชื่อสินค้า</th>
+			<th class="fix-width-200">รหัสสินค้า</th>
+			<th class="" style="min-width:250px; max-width:350px;">ชื่อสินค้า</th>
+			<th class="fix-width-100 text-center">ราคา (PO)</th>
 			<th class="fix-width-100 text-center">สั่งซื้อ</th>
 			<th class="fix-width-100 text-center">ค้างรับ</th>
-			<th class="fix-width-100 text-center">จำนวน</th>
+			<th class="fix-width-100 text-center" style="width:100px !important;">จำนวน</th>
+			<th calss="fix-width-120 text-center" style="width:120px !important;">มูลค่า</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -237,33 +238,35 @@
 			<td class="middle text-center">{{qty}}</td>
 			<td class="middle text-center">{{backlog}}</td>
 			<td class="middle text-center"><span id="total-receive"></span></td>
+			<td class="middle text-right"><span id="total-amount"></span></td>
 		</tr>
 	{{else}}
 		<tr class="font-size-12">
-			<td class="middle text-center no">{{ no }}</td>
-			<td class="middle barcode" id="barcode_{{uid}}">{{barcode}}</td>
+			<td class="middle text-center no">{{no}}</td>
 			<td class="middle">{{pdCode}}</td>
 			<td class="middle">{{pdName}}</td>
+			<td class="middle text-right">{{price_label}} <span style="font-size:10px;">{{currency}}</span></td>
 			<td class="middle text-center" id="qty_{{uid}}">{{qty_label}}</td>
 			<td class="middle text-center">{{backlog_label}}</td>
 			<td class="middle text-center">
+				<input type="number" class="form-control input-sm text-center receive-box pdCode" name="receive[{{uid}}]" id="receive_{{uid}}" data-uid="{{uid}}" value="" />
+			</td>
+			<td class="middle text-right" id="line_total_{{uid}}">0.00</td>
 				<input type="hidden" id="limit_{{uid}}" value="{{limit}}"/>
 				<input type="hidden" id="backlog_{{uid}}" value="{{backlog}}" />
 				{{#if barcode}}
-				<input type="hidden" class="{{barcode}}" id="bc-{{uid}}" data-limit="{{limit}}" value="{{uid}}" />
+					<input type="hidden" class="{{barcode}}" id="bc-{{uid}}" data-limit="{{limit}}" value="{{uid}}" />
 				{{/if}}
 				{{#if isOpen}}
-				<input type="number" class="form-control input-sm text-center receive-box pdCode" name="receive[{{uid}}]" id="receive_{{uid}}" data-uid="{{uid}}" value="" />
-				<input type="hidden" name="items[{{uid}}]" id="item_{{uid}}" value="{{pdCode}}" />
-				<input type="hidden" name="prices[{{uid}}]" id="price_{{uid}}" value="{{price}}" />
-				<input type="hidden" name="currency[{{uid}}]" id="currency_{{uid}}" value="{{currency}}" />
-				<input type="hidden" name="rate[{{uid}}]" id="rate_{{uid}}" value="{{Rate}}" />
-				<input type="hidden" name="vatGroup[{{uid}}]" id="vatGroup_{{uid}}" value="{{vatGroup}}">
-				<input type="hidden" name="vatRate[{{uid}}]" id="vatRate_{{uid}}" value="{{vatRate}}">
-				<input type="hidden" name="docEntry-{{uid}}" id="docEntry_{{uid}}" value="{{docEntry}}" />
-				<input type="hidden" name="lineNum-{{uid}}" id="lineNum_{{uid}}" value="{{lineNum}}" />
+					<input type="hidden" name="items[{{uid}}]" id="item_{{uid}}" value="{{pdCode}}" />
+					<input type="hidden" name="prices[{{uid}}]" id="price_{{uid}}" value="{{price}}" />
+					<input type="hidden" name="currency[{{uid}}]" id="currency_{{uid}}" value="{{currency}}" />
+					<input type="hidden" name="rate[{{uid}}]" id="rate_{{uid}}" value="{{Rate}}" />
+					<input type="hidden" name="vatGroup[{{uid}}]" id="vatGroup_{{uid}}" value="{{vatGroup}}">
+					<input type="hidden" name="vatRate[{{uid}}]" id="vatRate_{{uid}}" value="{{vatRate}}">
+					<input type="hidden" name="docEntry-{{uid}}" id="docEntry_{{uid}}" value="{{docEntry}}" />
+					<input type="hidden" name="lineNum-{{uid}}" id="lineNum_{{uid}}" value="{{lineNum}}" />
 				{{/if}}
-			</td>
 		</tr>
 	{{/if}}
 	{{/each}}

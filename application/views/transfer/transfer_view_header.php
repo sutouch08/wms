@@ -47,3 +47,20 @@
 </div>
 <input type="hidden" id="transfer_code" value="<?php echo $doc->code; ?>" />
 <hr class="margin-top-15 margin-bottom-15"/>
+<?php if($doc->must_accept == 1) : ?>
+<div class="row margin-bottom-10">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <span class="">รายชื่อเจ้าของโซน : </span>    
+    <?php if( ! empty($accept_list)) : ?>
+      <?php foreach($accept_list AS $ac) : ?>
+        <?php if($ac->is_accept == 1) : ?>
+          <span class="label label-success label-white middle"><i class="fa fa-check-circle"></i> <?php echo $ac->display_name; ?></span>
+        <?php else : ?>
+          <span class="label label-default label-white middle"><?php echo $ac->display_name; ?></span>
+        <?php endif; ?>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  </div>
+</div>
+
+<?php endif; ?>

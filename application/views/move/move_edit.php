@@ -50,10 +50,10 @@
 <?php else : ?>
 <?php $this->load->view('deny_page'); ?>
 <?php endif; ?>
-<script src="<?php echo base_url(); ?>scripts/move/move.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/move/move_add.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/move/move_control.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/move/move_detail.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/move/move.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/move/move_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/move/move_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/move/move_detail.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>

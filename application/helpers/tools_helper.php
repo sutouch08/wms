@@ -118,7 +118,7 @@ function get_rows()
 {
   $rows = get_cookie('rows');
 
-	return $rows <= 0 ? 20 : ($rows > 300 ? 300 : $rows);  
+	return $rows <= 0 ? 20 : ($rows > 300 ? 300 : $rows);
 }
 
 
@@ -316,6 +316,42 @@ function convert($txt)
 {
 	//return iconv('UTF-8', 'CP850', $txt);
 	return $txt;
+}
+
+function statusBackgroundColor($is_expire, $status, $is_approve = 1)
+{
+	$bk_color = "";
+
+	if($is_expire == 1)
+	{
+		$bk_color = "#dbdbdb";
+	}
+	else
+	{
+		switch($status)
+		{
+			case -1 :
+				$bk_color = "#fff4d5";
+				break;
+			case 0 :
+				$bk_color = "#ddf0f9";
+				break;
+			case 1 :
+				$bk_color = $is_approve == 1 ? "#f4ffe7" : "#ffe3b9";
+				break;
+			case 2 :
+				$bk_color = "#f7c3bf";
+				break;
+			case 3 :
+				$bk_color = "#fbe4ff";
+				break;
+      case 4 :
+        $bk_color = "#ffe3b9";
+        break;
+		}
+	}
+
+	return "background-color:{$bk_color};";
 }
 
  ?>

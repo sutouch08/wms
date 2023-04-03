@@ -9,6 +9,8 @@ class Move extends PS_Controller
 	public $title = 'ย้ายพื้นที่จัดเก็บ';
   public $filter;
   public $error;
+  public $require_remark = 1;
+
   public function __construct()
   {
     parent::__construct();
@@ -26,35 +28,23 @@ class Move extends PS_Controller
     $filter = array(
       'code'      => get_filter('code', 'move_code', ''),
       'from_warehouse'  => get_filter('from_warehouse', 'move_from_warehouse', ''),
+      'to_warehouse' => get_filter('to_warehouse', 'move_to_warehouse', ''),
       'user'      => get_filter('user', 'move_user', ''),
       'from_date' => get_filter('fromDate', 'move_fromDate', ''),
       'to_date'   => get_filter('toDate', 'move_toDate', ''),
       'status' => get_filter('status', 'move_status', 'all'),
-      'is_export' => get_filter('is_export', 'move_is_export', 'all')
+      'is_export' => get_filter('is_export', 'move_is_export', 'all'),
+      'must_accept' => get_filter('must_accept', 'move_must_accept', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_rows();
 		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
-
 		$segment  = 4; //-- url segment
 		$rows     = $this->move_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 		$docs     = $this->move_model->get_data($filter, $perpage, $this->uri->segment($segment));
-
-    if(!empty($docs))
-    {
-      foreach($docs as $rs)
-      {
-        $rs->from_warehouse_name = $this->warehouse_model->get_name($rs->from_warehouse);
-        $rs->to_warehouse_name = $this->warehouse_model->get_name($rs->to_warehouse);
-      }
-    }
 
     $filter['docs'] = $docs;
 		$this->pagination->initialize($init);
@@ -66,19 +56,13 @@ class Move extends PS_Controller
   public function view_detail($code)
   {
     $doc = $this->move_model->get($code);
-    if(!empty($doc))
-    {
-      $doc->from_warehouse_name = $this->warehouse_model->get_name($doc->from_warehouse);
-      $doc->to_warehouse_name = $this->warehouse_model->get_name($doc->to_warehouse);
-    }
 
     $details = $this->move_model->get_details($code);
+
     if(!empty($details))
     {
       foreach($details as $rs)
       {
-        $rs->from_zone_name = $this->zone_model->get_name($rs->from_zone);
-        $rs->to_zone_name = $this->zone_model->get_name($rs->to_zone);
         $rs->temp_qty = $this->move_model->get_temp_qty($code, $rs->product_code, $rs->from_zone);
       }
     }
@@ -86,6 +70,7 @@ class Move extends PS_Controller
     $ds = array(
       'doc' => $doc,
       'details' => $details,
+      'accept_list' => $doc->must_accept == 1 ? $this->move_model->get_accept_list($code) : NULL,
       'barcode' => FALSE
     );
 
@@ -101,50 +86,46 @@ class Move extends PS_Controller
 
   public function add()
   {
-    if($this->input->post('date'))
+    $sc = TRUE;
+    $date_add = db_date($this->input->post('date_add'), TRUE);
+    $from_warehouse = $this->input->post('from_warehouse_code');
+    $to_warehouse = $this->input->post('to_warehouse_code');
+    $remark = $this->input->post('remark');
+    $bookcode = getConfig('BOOK_CODE_MOVE');
+    $isManual = getConfig('MANUAL_DOC_CODE');
+
+    if($isManual == 1 && $this->input->post('code'))
     {
-      $date_add = db_date($this->input->post('date'), TRUE);
-      $from_warehouse = $this->input->post('from_warehouse_code');
-      $to_warehouse = $this->input->post('to_warehouse_code');
-      $remark = $this->input->post('remark');
-      $bookcode = getConfig('BOOK_CODE_MOVE');
-      $isManual = getConfig('MANUAL_DOC_CODE');
-
-      if($isManual == 1 && $this->input->post('code'))
-      {
-        $code = $this->input->post('code');
-      }
-      else
-      {
-        $code = $this->get_new_code($date_add);
-      }
-
-      $ds = array(
-        'code' => $code,
-        'bookcode' => $bookcode,
-        'from_warehouse' => $from_warehouse,
-        'to_warehouse' => $to_warehouse,
-        'remark' => $remark,
-        'user' => get_cookie('uname'),
-        'date_add' => $date_add
-      );
-
-      $rs = $this->move_model->add($ds);
-      if($rs === TRUE)
-      {
-        redirect($this->home.'/edit/'.$code);
-      }
-      else
-      {
-        set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-        redirect($this->home.'/add_new');
-      }
+      $code = $this->input->post('code');
     }
     else
     {
-      set_error('ไม่พบข้อมูลเอกสาร กรุณาตรวจสอบ');
-      redirect($this->home.'/add_new');
+      $code = $this->get_new_code($date_add);
     }
+
+    $ds = array(
+      'code' => $code,
+      'bookcode' => $bookcode,
+      'from_warehouse' => $from_warehouse,
+      'to_warehouse' => $to_warehouse,
+      'remark' => $remark,
+      'user' => $this->_user->uname,
+      'date_add' => $date_add
+    );
+
+    if( ! $this->move_model->add($ds))
+    {
+      $sc = FALSE;
+      $this->error = "เพิ่มเอกสารไม่สำเร็จ";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL
+    );
+
+    echo json_encode($arr);
   }
 
 
@@ -187,7 +168,7 @@ class Move extends PS_Controller
       'from_warehouse' => $this->input->post('from_warehouse'),
       'to_warehouse' => $this->input->post('to_warehouse'),
       'remark' => $this->input->post('remark'),
-      'update_user' => get_cookie('uname')
+      'update_user' => $this->_user->uname
     );
 
     $rs = $this->move_model->update($code, $arr);
@@ -223,168 +204,591 @@ class Move extends PS_Controller
   public function save_move($code)
   {
     $sc = TRUE;
-    $this->db->trans_begin();
-    //--- change state to 1
-    $this->move_model->set_status($code, 1);
-    $this->move_model->valid_all_detail($code, 1);
-
-    $details = $this->move_model->get_details($code);
+    $ex = 1;
     $doc = $this->move_model->get($code);
-		$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
-    if(!empty($details))
+    if( ! empty($doc))
     {
-      $this->load->model('inventory/movement_model');
-      foreach($details as $rs)
+      if($doc->status == 0)
       {
-        //--- 2. update movement
-        $move_out = array(
-          'reference' => $code,
-          'warehouse_code' => $doc->from_warehouse,
-          'zone_code' => $rs->from_zone,
-          'product_code' => $rs->product_code,
-          'move_in' => 0,
-          'move_out' => $rs->qty,
-          'date_add' => $date_add
-        );
+        $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+        $must_accept = $this->move_model->must_accept($code);
 
-        $move_in = array(
-          'reference' => $code,
-          'warehouse_code' => $doc->to_warehouse,
-          'zone_code' => $rs->to_zone,
-          'product_code' => $rs->product_code,
-          'move_in' => $rs->qty,
-          'move_out' => 0,
-          'date_add' => $date_add
-        );
+        $this->db->trans_begin();
 
-        //--- move out
-        if($this->movement_model->add($move_out) === FALSE)
+        if($must_accept)
         {
-          $sc = FALSE;
-          $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
-          break;
-        }
+          $arr = array(
+            'must_accept' => 1,
+            'status' => 4
+          );
 
-        //--- move in
-        if($this->movement_model->add($move_in) === FALSE)
-        {
-          $sc = FALSE;
-          $this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
-          break;
-        }
-      }
-    }
-
-		if($sc === TRUE)
-		{
-			//--- update transfered date
-			$this->move_model->update($code, array('shipped_date' => now()));
-		}
-
-		if($sc === TRUE)
-		{
-			$this->db->trans_commit();
-		}
-		else
-		{
-			$this->trans_rollback();
-		}
-
-    if($sc === TRUE)
-    {
-      $this->do_export($code);
-    }
-
-    echo $sc === TRUE ? 'success' : $this->error;
-  }
-
-
-
-  public function unsave_move($code)
-  {
-    $sc = TRUE;
-    $this->load->model('inventory/movement_model');
-    $this->db->trans_start();
-    //--- change state to 1
-    $this->move_model->set_status($code, 0);
-    $this->move_model->valid_all_detail($code, 0);
-    $this->movement_model->drop_movement($code);
-    $this->db->trans_complete();
-
-    if($this->db->trans_status() === FALSE)
-    {
-      $sc = FALSE;
-      $message = $this->db->error();
-    }
-
-    echo $sc === TRUE ? 'success' : $message;
-  }
-
-
-
-  public function add_to_move()
-  {
-    $sc = TRUE;
-    $code = $this->input->post('move_code');
-    if($code)
-    {
-      $this->load->model('masters/products_model');
-
-      $from_zone = $this->input->post('from_zone');
-      $to_zone = $this->input->post('to_zone');
-      $trans_products = $this->input->post('items');
-
-      if($from_zone != $to_zone)
-      {
-        if(!empty($trans_products))
-        {
-          $items = json_decode($trans_products);
-          $this->db->trans_start();
-          foreach($items as $item)
-          {
-            $id = $this->move_model->get_id($code, $item->code, $from_zone, $to_zone);
-            if(!empty($id))
-            {
-              $this->move_model->update_qty($id, $item->qty);
-            }
-            else
-            {
-              $arr = array(
-                'move_code' => $code,
-                'product_code' => $item->code,
-                'product_name' => $this->products_model->get_name($item->code),
-                'from_zone' => $from_zone,
-                'to_zone' => $to_zone,
-                'qty' => $item->qty
-              );
-
-              $this->move_model->add_detail($arr);
-            }
-          }
-
-          $this->db->trans_complete();
-
-
-          if($this->db->trans_status() === FALSE)
+          if( ! $this->move_model->update($code, $arr))
           {
             $sc = FALSE;
-            $message = 'เพิ่มข้อมูลไม่สำเร็จ';
+            $this->error = "Update Document Status Failed";
+          }
+        }
+        else
+        {
+          $this->load->model('inventory/movement_model');
+          $details = $this->move_model->get_details($code);
+
+          if( ! empty($details))
+          {
+            foreach($details as $rs)
+            {
+              if($sc === FALSE) { break; }
+              //--- 2. update movement
+              $move_out = array(
+                'reference' => $code,
+                'warehouse_code' => $doc->from_warehouse,
+                'zone_code' => $rs->from_zone,
+                'product_code' => $rs->product_code,
+                'move_in' => 0,
+                'move_out' => $rs->qty,
+                'date_add' => $date_add
+              );
+
+              $move_in = array(
+                'reference' => $code,
+                'warehouse_code' => $doc->to_warehouse,
+                'zone_code' => $rs->to_zone,
+                'product_code' => $rs->product_code,
+                'move_in' => $rs->qty,
+                'move_out' => 0,
+                'date_add' => $date_add
+              );
+
+              //--- move out
+              if($this->movement_model->add($move_out) === FALSE)
+              {
+                $sc = FALSE;
+                $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
+              }
+
+              //--- move in
+              if($this->movement_model->add($move_in) === FALSE)
+              {
+                $sc = FALSE;
+                $this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+              }
+            } //--- foreach
+
+            if($sc === TRUE)
+            {
+              $arr = array(
+                'status' => 1,
+                'must_accept' => 0
+              );
+
+              if( ! $this->move_model->update($code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Update Status Failed";
+              }
+              else
+              {
+                if( ! $this->move_model->valid_all_detail($code, 1))
+                {
+                  $sc = FALSE;
+                  $this->error = "Update Rows Status Failed";
+                }
+              }
+            }
+          }
+        } //-- if must_accept
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+
+        if($sc === TRUE && $must_accept == 0)
+        {
+          $this->move_model->update($code, array('shipped_date' => now()));
+          $this->load->library('export');
+
+          if(! $this->export->export_move($code))
+          {
+            $sc = FALSE;
+            $ex = 0;
+            $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ";
           }
         }
       }
       else
       {
         $sc = FALSE;
-        $message = 'โซนต้นทาง - ปลายทาง ต้องเป็นคนละโซนกัน';
+        $this->error = "Invalid Document Status";
       }
-
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Invalid Document Number";
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : ($ex == 0 ? 'warning' : 'failed'),
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
 
+    echo json_encode($arr);
   }
 
+
+
+  function accept_confirm()
+  {
+    $sc = TRUE;
+    $ex = 1;
+    $code = $this->input->post('code');
+    $remark = $this->input->post('accept_remark');
+    $doc = $this->move_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->status == 4)
+      {
+        if($this->canAccept())
+        {
+          $this->db->trans_begin();
+
+          if( ! $this->move_model->accept_all($code, $this->_user->uname))
+          {
+            $sc = FALSE;
+            $this->error = "Update Accept Status Failed";
+          }
+
+          if( $sc === TRUE)
+          {
+            $arr = array(
+              'status' => 1,
+              'is_accept' => 1,
+              'accept_by' => $this->_user->uname,
+              'accept_on' => now(),
+              'accept_remark' => $remark
+            );
+
+            if( ! $this->move_model->update($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Update Status Failed";
+            }
+
+            if($sc === TRUE)
+            {
+              $this->load->model('inventory/movement_model');
+
+              $details = $this->move_model->get_details($code);
+
+              if( ! empty($details))
+              {
+                $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
+                foreach($details as $rs)
+                {
+                  if($sc === FALSE) { break; }
+
+                  $move_out = array(
+                    'reference' => $code,
+                    'warehouse_code' => $doc->from_warehouse,
+                    'zone_code' => $rs->from_zone,
+                    'product_code' => $rs->product_code,
+                    'move_in' => 0,
+                    'move_out' => $rs->qty,
+                    'date_add' => $date_add
+                  );
+
+                  $move_in = array(
+                    'reference' => $code,
+                    'warehouse_code' => $doc->to_warehouse,
+                    'zone_code' => $rs->to_zone,
+                    'product_code' => $rs->product_code,
+                    'move_in' => $rs->qty,
+                    'move_out' => 0,
+                    'date_add' => $date_add
+                  );
+
+                  if( ! $this->movement_model->add($move_out))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Insert Movement (out) Failed";
+                  }
+
+                  if( ! $this->movement_model->add($move_in))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Insert Movement (in) Failed";
+                  }
+                } //-- foreach
+
+                if($sc === TRUE)
+                {
+                  if( ! $this->move_model->valid_all_detail($code, 1))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Update Row(s) Status Failed";
+                  }
+                }
+              } //-- empty details
+            } //--- sc == TURE
+          } //--- sc == TURE
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+
+          if($sc === TRUE)
+          {
+            $this->move_model->update($code, array('shipped_date' => now()));
+            $this->load->library('export');
+
+            if(! $this->export->export_move($code))
+            {
+              $sc = FALSE;
+              $ex = 0;
+              $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ";
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "You don't have permission to perform this operation.";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Document Status";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Invalid Document Number";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : ($ex == 0 ? 'warning' : 'failed'),
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  function accept_zone()
+  {
+    $sc = TRUE;
+    $ex = 1;
+    $code = $this->input->post('code');
+    $doc = $this->move_model->get($code);
+    $is_accept_all = FALSE;
+
+    if( ! empty($doc))
+    {
+      if($doc->status == 4)
+      {
+        $my_zone = $this->move_model->get_my_zone($code, $this->_user->id);
+
+        if( ! empty($my_zone))
+        {
+          $this->db->trans_begin();
+
+          if( ! $this->move_model->accept_zone($code, $my_zone, $this->_user->uname))
+          {
+            $sc = FALSE;
+            $this->error = "Update Accept Status Failed";
+          }
+
+          if( $sc === TRUE)
+          {
+            //--- check all accept ?
+            $is_accept_all = $this->move_model->is_accept_all($code);
+
+            if($is_accept_all)
+            {
+              $arr = array(
+                'status' => 1,
+                'is_accept' => 1,
+                'accept_by' => NULL,
+                'accept_on' => now(),
+                'accept_remark' => NULL
+              );
+
+              if( ! $this->move_model->update($code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Update Status Failed";
+              }
+
+              if($sc === TRUE)
+              {
+                $this->load->model('inventory/movement_model');
+
+                $details = $this->move_model->get_details($code);
+
+                if( ! empty($details))
+                {
+                  $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
+                  foreach($details as $rs)
+                  {
+                    if($sc === FALSE) { break; }
+
+                    $move_out = array(
+                      'reference' => $code,
+                      'warehouse_code' => $doc->from_warehouse,
+                      'zone_code' => $rs->from_zone,
+                      'product_code' => $rs->product_code,
+                      'move_in' => 0,
+                      'move_out' => $rs->qty,
+                      'date_add' => $date_add
+                    );
+
+                    $move_in = array(
+                      'reference' => $code,
+                      'warehouse_code' => $doc->to_warehouse,
+                      'zone_code' => $rs->to_zone,
+                      'product_code' => $rs->product_code,
+                      'move_in' => $rs->qty,
+                      'move_out' => 0,
+                      'date_add' => $date_add
+                    );
+
+                    if( ! $this->movement_model->add($move_out))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Insert Movement (out) Failed";
+                    }
+
+                    if( ! $this->movement_model->add($move_in))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Insert Movement (in) Failed";
+                    }
+                  } //-- foreach
+
+                  if($sc === TRUE)
+                  {
+                    if( ! $this->move_model->valid_all_detail($code, 1))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Update Row(s) Status Failed";
+                    }
+                  }
+                } //-- empty details
+              } //--- sc == TURE
+            }
+          } //--- sc == TURE
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+
+          if($sc === TRUE && $is_accept_all === TRUE)
+          {
+            $this->move_model->update($code, array('shipped_date' => now()));
+            $this->load->library('export');
+
+            if(! $this->export->export_move($code))
+            {
+              $sc = FALSE;
+              $ex = 0;
+              $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ";
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "You don't have permission to perform this operation.";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Document Status";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Invalid Document Number";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : ($ex == 0 ? 'warning' : 'failed'),
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function canAccept()
+  {
+    $pm = get_permission('APACMV', $this->_user->uid, $this->_user->id_profile);
+
+    if( ! empty($pm))
+    {
+      return ($pm->can_view + $pm->can_add + $pm->can_edit + $pm->can_delete + $pm->can_approve) > 0 ? TRUE : FALSE;
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function add_to_move()
+  {
+    $this->load->model('masters/products_model');
+
+    $sc = TRUE;
+    $code = $this->input->post('move_code');
+    if( ! empty($code))
+    {
+      $doc = $this->move_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 0)
+        {
+          $from_zone = $this->input->post('from_zone');
+          $to_zone = $this->input->post('to_zone');
+
+          if( $from_zone != $to_zone )
+          {
+            $fzone = $this->zone_model->get($from_zone);
+            $tzone = $this->zone_model->get($to_zone);
+
+            if( ! empty($fzone) && ! empty($tzone))
+            {
+              $must_accept = empty($tzone->user_id) ? 0 : 1;
+
+              $items = json_decode($this->input->post('items'));
+
+              if( ! empty($items))
+              {
+                $this->db->trans_begin();
+
+                foreach($items as $item)
+                {
+                  if( $sc === FALSE) { break; }
+
+                  $id = $this->move_model->get_id($code, $item->code, $from_zone, $to_zone);
+
+                  if(! empty($id))
+                  {
+                    if( ! $this->move_model->update_qty($id, $item->qty))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Update Move Item Qty Failed";
+                    }
+                  }
+                  else
+                  {
+                    $arr = array(
+                      'move_code' => $code,
+                      'product_code' => $item->code,
+                      'product_name' => $this->products_model->get_name($item->code),
+                      'from_zone' => $from_zone,
+                      'to_zone' => $to_zone,
+                      'qty' => $item->qty,
+                      'must_accept' => $must_accept
+                    );
+
+                    if( ! $this->move_model->add_detail($arr))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Insert Move Item Failed";
+                    }
+                  }
+                }
+
+                if($sc === TRUE && $must_accept == 1)
+                {
+                  $arr = array(
+                    'must_accept' => 1
+                  );
+
+                  $this->move_model->update($code, $arr);
+                }
+
+                if($sc === TRUE)
+                {
+                  $this->db->trans_commit();
+                }
+                else
+                {
+                  $this->db->trans_rollback();
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "ไม่พบรายการที่ต้องการย้าย";
+              }
+            }
+            else
+            {
+              if(empty($fzone))
+              {
+                $sc = FALSE;
+                $this->error = "โซนต้นทางไม่ถูกต้อง";
+              }
+
+              if(empty($tzone))
+              {
+                $sc = FALSE;
+                $this->error = "โซนปลายทางไม่ถูกต้อง";
+              }
+            }
+
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "โซนต้นทาง - ปลายทาง ต้องเป็นคนละโซนกัน";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Document Status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Document Number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing Required Parameter";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
 
 
 
@@ -463,19 +867,24 @@ class Move extends PS_Controller
       $code = $this->input->post('move_code');
       $barcode = trim($this->input->post('barcode'));
       $to_zone = $this->input->post('zone_code');
+      $zone = $this->zone_model->get($to_zone);
+      $must_accept = empty($zone->user_id) ? 0 : 1;
       $qty = $this->input->post('qty');
 
       $item = $this->products_model->get_product_by_barcode($barcode);
+
       if(!empty($item))
       {
         //--- ย้ายจำนวนใน temp มาเพิ่มเข้า move detail
         //--- โดยเอา temp ออกมา(อาจมีหลายรายการ เพราะอาจมาจากหลายโซน
         //--- ดึงรายการจาก temp ตามรายการสินค้า (อาจมีหลายบรรทัด)
         $temp = $this->move_model->get_temp_product($code, $item->code);
-        if(!empty($temp))
+
+        if(! empty($temp))
         {
           //--- เริ่มใช้งาน transction
           $this->db->trans_begin();
+
           foreach($temp as $rs)
           {
             if($sc === FALSE)
@@ -511,7 +920,8 @@ class Move extends PS_Controller
                     'product_name' => $item->name,
                     'from_zone' => $rs->zone_code,
                     'to_zone' => $to_zone,
-                    'qty' => $temp_qty
+                    'qty' => $temp_qty,
+                    'must_accept' => $must_accept
                   );
 
                   if($this->move_model->add_detail($ds) === FALSE)
@@ -549,6 +959,8 @@ class Move extends PS_Controller
           } //--- end foreach
 
 
+
+
           //--- เมื่อทำงานจนจบแล้ว ถ้ายังเหลือยอด แสดงว่ายอดที่ต้องการย้ายเข้า มากกว่ายอดที่ย้ายออกมา
           //--- จะให้ทำกร roll back แล้วแจ้งกลับ
           if($qty > 0)
@@ -557,13 +969,26 @@ class Move extends PS_Controller
             $message = 'ยอดที่ย้ายเข้ามากกว่ายอดที่ย้ายออกมา';
           }
 
-          if($sc === FALSE)
+          //---- ถ้าโซนมีเจ้าของ update ให้ต้องกดรับ
+          if($sc === TRUE)
           {
-            $this->db->trans_rollback();
+            if($must_accept == 1)
+            {
+              $arr = array(
+                'must_accept' => 1
+              );
+
+              $this->move_model->update($code, $arr);
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
           }
           else
           {
-            $this->db->trans_commit();
+            $this->db->trans_rollback();
           }
         }
         else
@@ -805,17 +1230,44 @@ class Move extends PS_Controller
 
 
 
-  public function delete_detail($id)
+  public function delete_detail()
   {
-    $rs = $this->move_model->drop_detail($id);
-    if($rs === TRUE)
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $id = $this->input->post('id');
+
+    $this->db->trans_begin();
+
+    if($this->move_model->drop_detail($id))
     {
-      echo 'success';
+      $must_accept = $this->move_model->must_accept($code) ? 1 : 0;
+
+      $arr = array(
+        'must_accept' => $must_accept
+      );
+
+      if( ! $this->move_model->update($code, $arr))
+      {
+        $sc = FALSE;
+        $this->error = "Update Acception Status Failed";
+      }
     }
     else
     {
-      echo $this->db->error();
+      $sc = FALSE;
+      $this->error = "Delete Failed";
     }
+
+    if( $sc === TRUE)
+    {
+      $this->db->trans_commit();
+    }
+    else
+    {
+      $this->db->trans_rollback();
+    }
+
+    $this->_response($sc);
   }
 
 
@@ -827,23 +1279,34 @@ class Move extends PS_Controller
     $this->load->model('inventory/movement_model');
 
     $move = $this->move_model->get($code);
+
     if(!empty($move))
     {
       $docNum = $this->move_model->get_sap_doc_num($code);
-      if(empty($move->inv_code) && empty($docNum))
+
+      if(empty($docNum))
       {
         $this->db->trans_begin();
+
         //--- clear temp
         if(! $this->move_model->drop_all_temp($code))
         {
           $sc = FALSE;
           $this->error = "ลบ temp ไม่สำเร็จ";
         }
+
         //--- delete detail
         if(! $this->move_model->drop_all_detail($code))
         {
           $sc = FALSE;
           $this->error = "ลบรายการไม่สำเร็จ";
+        }
+
+        //--- drop movement
+        if( ! $this->movement_model->drop_movement($code))
+        {
+          $sc = FALSE;
+          $this->error = "ลบ Movement ไม่สำเร็จ";
         }
 
         //--- Mare as Cancled
@@ -862,10 +1325,11 @@ class Move extends PS_Controller
           $this->db->trans_rollback();
         }
 
-        if($sc === TRUE)
+        if($sc === TRUE && $move->status == 1)
         {
           //---- delete middle
           $middle = $this->move_model->get_middle_move_doc($code);
+
           if(!empty($middle))
           {
             foreach($middle as $rows)
@@ -888,9 +1352,8 @@ class Move extends PS_Controller
       $this->error = "ไม่พบเลขที่เอกสาร";
     }
 
-    echo $sc === TRUE ? 'success' : $this->error;
+    $this->_response($sc);
   }
-
 
 
 
@@ -963,7 +1426,8 @@ class Move extends PS_Controller
       'move_fromDate',
       'move_toDate',
       'move_status',
-      'move_is_export'
+      'move_is_export',
+      'move_must_accept'
     );
 
     clear_filter($filter);

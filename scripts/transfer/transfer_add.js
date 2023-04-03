@@ -75,6 +75,7 @@ function addTransfer() {
 
   //--- หมายเหตุ
   var remark = $.trim($('#remark').val());
+  var reqRemark = $('#require_remark').val() == 1 ? true : false;
 
   //--- ตรวจสอบวันที่
   if( ! isDate(date_add))
@@ -101,8 +102,13 @@ function addTransfer() {
     return false;
   }
 
-  if(remark.length < 10) {
-    swal("กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร");
+  if(reqRemark && remark.length < 10) {
+    swal({
+      title: 'Required',
+      text: "กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร",
+      type:'warning'
+    });
+
     return false;
   }
 
@@ -317,25 +323,45 @@ function save(){
 function saveTransfer(code)
 {
   load_in();
+
   $.ajax({
     url:HOME + 'save_transfer/'+code,
     type:'POST',
     cache:false,
     success:function(rs) {
       load_out();
-      if(rs == 'success') {
-        swal({
-          title:'Saved',
-          text: 'บันทึกเอกสารเรียบร้อยแล้ว',
-          type:'success',
-          timer:1000
-        });
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+        if(ds.status == 'success') {
+          swal({
+            title:'Saved',
+            text: 'บันทึกเอกสารเรียบร้อยแล้ว',
+            type:'success',
+            timer:1000
+          });
 
-        setTimeout(function() {
-          goDetail(code);
-        }, 1200);
+          setTimeout(function() {
+            goDetail(code);
+          }, 1200);
+        }
+        else if(ds.status == 'warning') {
+          swal({
+            title:'Warning',
+            text:ds.message,
+            type:'warning'
+          }, () => {
+            goDetail(code);
+          });
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          });
+        }
       }
-      else{
+      else {
         swal({
           title:'Error!',
           text:rs,
@@ -385,6 +411,51 @@ function unSave(){
 		});
 	});
 }
+
+
+
+$('#from_warehouse_code').autocomplete({
+  source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
+  autoFocus:true,
+  close:function() {
+    var rs = $(this).val();
+    var arr = rs.split(' | ');
+    if(arr.length == 2)
+    {
+      code = arr[0];
+      name = arr[1];
+      $('#from_warehouse_code').val(code);
+      $('#from_warehouse').val(name);
+    }
+    else
+    {
+      $('#from_warehouse_code').val('');
+      $('#from_warehouse').val('');
+    }
+  }
+});
+
+
+$('#to_warehouse_code').autocomplete({
+  source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
+  autoFocus:true,
+  close:function() {
+    var rs = $(this).val();
+    var arr = rs.split(' | ');
+    if(arr.length == 2)
+    {
+      code = arr[0];
+      name = arr[1];
+      $('#to_warehouse_code').val(code);
+      $('#to_warehouse').val(name);
+    }
+    else
+    {
+      $('#to_warehouse_code').val('');
+      $('#to_warehouse').val('');
+    }
+  }
+});
 
 
 

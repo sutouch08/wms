@@ -48,6 +48,7 @@ function goDelete(code, status){
   if(status == 1){
     title = 'หากต้องการยกเลิก คุณต้องยกเลิกเอกสารนี้ใน SAP ก่อน ต้องการยกเลิก '+ code +' หรือไม่ ?';
   }
+
 	swal({
 		title: 'คุณแน่ใจ ?',
 		text: title,
@@ -56,28 +57,36 @@ function goDelete(code, status){
 		comfirmButtonColor: '#DD6855',
 		confirmButtonText: 'ใช่ ฉันต้องการ',
 		cancelButtonText: 'ไม่ใช่',
-		closeOnConfirm: false
-	}, function(){
+		closeOnConfirm: true
+	}, function() {
+
+    load_in();
+
 		$.ajax({
 			url:HOME + 'delete_move/'+code,
 			type:"POST",
       cache:"false",
-			success: function(rs){
+			success: function(rs) {
+        load_out();
 				var rs = $.trim(rs);
-				if( rs == 'success' ){
-					swal({
-						title:'Success',
-						text: 'ยกเลิกเอกสารเรียบร้อยแล้ว',
-						type: 'success',
-						timer: 1000
-					});
+				if( rs == 'success' ) {
+          setTimeout(() => {
+            swal({
+              title:'Success',
+              text: 'ยกเลิกเอกสารเรียบร้อยแล้ว',
+              type: 'success',
+              timer: 1000
+            });
 
-					setTimeout(function(){
-						goBack();
-					}, 1200);
-
-				}else{
-					swal("ข้อผิดพลาด", rs, "error");
+            setTimeout(function(){
+              goBack();
+            }, 1200);
+          }, 200);
+				}
+        else {
+          setTimeout(() => {
+            swal("ข้อผิดพลาด", rs, "error");
+          }, 200);
 				}
 			}
 		});
