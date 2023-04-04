@@ -587,7 +587,7 @@ class Document_running extends PS_Controller
 	        $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
 					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
 	        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->inv_code);
-	        $this->excel->getActiveSheet()->setCellValue('E'.$row, ($rs->status == 0 ? 'Pending' : ($rs->status == 1 ? 'Success' : ($rs->status == 2 ? 'Canceled' : 'WMS'))));
+	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $this->statusLabel($rs->status, $rs->is_expire));
           if($rs->status == 2)
           {
             $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->reason);
@@ -638,7 +638,7 @@ class Document_running extends PS_Controller
 	        $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
 					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
 	        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->inv_code);
-	        $this->excel->getActiveSheet()->setCellValue('E'.$row, ($rs->status == 0 ? 'Pending' : ($rs->status == 1 ? 'Success' : ($rs->status == 2 ? 'Canceled' : 'WMS'))));
+	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $this->statusLabel($rs->status, $rs->is_expire));
           if(!empty($rs->reason))
 					{
 						$this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->reason);
@@ -742,7 +742,7 @@ class Document_running extends PS_Controller
 					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
 					$this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->reference);
 	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->inv_code);
-	        $this->excel->getActiveSheet()->setCellValue('F'.$row, ($rs->status == 0 ? 'Pending' : ($rs->status == 1 ? 'Success' : ($rs->status == 2 ? 'Canceled' : 'WMS'))));
+	        $this->excel->getActiveSheet()->setCellValue('F'.$row, $this->statusLabel($rs->status, $rs->is_expire));
           if(!empty($rs->reason))
 					{
 						$this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->reason);
@@ -794,7 +794,7 @@ class Document_running extends PS_Controller
 					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
 					$this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->reference);
 	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->inv_code);
-	        $this->excel->getActiveSheet()->setCellValue('F'.$row, ($rs->status == 0 ? 'Pending' : ($rs->status == 1 ? 'Success' : ($rs->status == 2 ? 'Canceled' : 'WMS'))));
+	        $this->excel->getActiveSheet()->setCellValue('F'.$row, $this->statusLabel($rs->status, $rs->is_expire));
           if(!empty($rs->reason))
 					{
 						$this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->reason);
@@ -846,7 +846,7 @@ class Document_running extends PS_Controller
 					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
 					$this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->reference);
 	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->inv_code);
-	        $this->excel->getActiveSheet()->setCellValue('F'.$row, ($rs->status == 0 ? 'Pending' : ($rs->status == 1 ? 'Success' : ($rs->status == 2 ? 'Canceled' : 'WMS'))));
+	        $this->excel->getActiveSheet()->setCellValue('F'.$row, $this->statusLabel($rs->status, $rs->is_expire));
           if(!empty($rs->reason))
 					{
 						$this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->reason);
@@ -1025,6 +1025,42 @@ class Document_running extends PS_Controller
 
   }
 
+
+  public function statusLabel($status, $is_expire = 0)
+  {
+    $label = "Unknow";
+
+    if($is_expire == 1)
+    {
+      $label = "Expired";
+    }
+    else
+    {
+      switch($status)
+      {
+        case -1 :
+          $label = "Draft";
+          break;
+        case 0 :
+          $label = "Pending";
+          break;
+        case 1 :
+          $label = "Success";
+          break;
+        case 2 :
+          $label = "Canceled";
+          break;
+        case 3 :
+          $label = "WMS";
+          break;
+        case 4 :
+          $label = "Acception";
+          break;
+      }
+    }
+
+    return $label;
+  }
 
 } //--- end class
 

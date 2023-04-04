@@ -28,7 +28,7 @@ class Return_order_model extends CI_Model
     $rs = $this->mc
     ->select('DocEntry')
     ->where('U_ECOMNO', $code)
-    ->where('F_Sap', 'N')    
+    ->where('F_Sap', 'N')
     ->get('ORDN');
 
     if($rs->num_rows() > 0)
@@ -474,11 +474,11 @@ class Return_order_model extends CI_Model
     {
       if($ds['status'] == 5)
       {
-        $this->db->where('is_expire', 1);
+        $this->db->where('r.is_expire', 1);
       }
       else
       {
-        $this->db->where('r.status', $ds['status']);
+        $this->db->where('r.is_expire', 0)->where('r.status', $ds['status']);
       }
     }
 
@@ -567,11 +567,11 @@ class Return_order_model extends CI_Model
     {
       if($ds['status'] == 5)
       {
-        $this->db->where('is_expire', 1);
+        $this->db->where('r.is_expire', 1);
       }
       else
       {
-        $this->db->where('r.status', $ds['status']);
+        $this->db->where('r.is_expire', 0)->where('r.status', $ds['status']);
       }
     }
 

@@ -409,7 +409,7 @@ class Receive_po_model extends CI_Model
       }
       else
       {
-        $this->db->where('status', $ds['status']);
+        $this->db->where('r.is_expire', 0)->where('status', $ds['status']);
       }
     }
 
@@ -503,7 +503,7 @@ class Receive_po_model extends CI_Model
       }
       else
       {
-        $this->db->where('status', $ds['status']);
+        $this->db->where('r.is_expire', 0)->where('status', $ds['status']);
       }
     }
 

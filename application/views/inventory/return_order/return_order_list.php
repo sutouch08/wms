@@ -134,7 +134,7 @@
           <tr class="font-size-12" id="row-<?php $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
             <td class="middle">
               <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-          <?php if($this->pm->can_edit && $rs->status == 0) : ?>
+          <?php if($this->pm->can_edit && $rs->status == 0 && $rs->is_expire == 0) : ?>
               <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
           <?php endif; ?>
           <?php if($this->pm->can_delete && $rs->status != 2) : ?>

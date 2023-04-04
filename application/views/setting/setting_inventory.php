@@ -14,6 +14,8 @@
 <?php $wc_btn_no = is_true($LIMIT_CONSIGNMENT) ? '' : 'btn-danger'; ?>
 <?php $strict_transfer_yes = is_true($STRICT_TRANSFER) ? 'btn-success' : ''; ?>
 <?php $strict_transfer_no = is_true($STRICT_TRANSFER) ? '' : 'btn-success'; ?>
+<?php $eom_yes = is_true($TRANSFER_EXPIRE_EOM) ? 'btn-success' : ''; ?>
+<?php $eom_no = is_true($TRANSFER_EXPIRE_EOM) ? '' : 'btn-success'; ?>
 
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
@@ -169,6 +171,28 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="col-sm-3">
+        <span class="form-control left-label">เอกสารกลุ่มโอนคลังหมดอายุทุกสิ้นเดือน</span>
+      </div>
+      <div class="col-sm-9">
+				<div class="btn-group input-medium">
+        	<button type="button" class="btn btn-sm <?php echo $eom_yes; ?>" style="width:50%;" id="btn-eom-yes" onClick="toggleTransferEOM(1)">เปิด</button>
+          <button type="button" class="btn btn-sm <?php echo $eom_no; ?>" style="width:50%;" id="btn-eom-no" onClick="toggleTransferEOM(0)">ปิด</button>
+        </div>
+        <span class="help-block">กำหนดให้เอกสารหมดอายุทุกๆ สิ้นเดือนหรือไม่</span>
+        <input type="hidden" name="TRANSFER_EXPIRE_EOM" id="transfer-eom" value="<?php echo $TRANSFER_EXPIRE_EOM; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-3">
+        <span class="form-control left-label">อายุเอกสารกลุ่มโอนคลัง(วัน)</span>
+      </div>
+      <div class="col-sm-9">
+        <input type="number" class="form-control input-sm input-small text-center" name="TRANSFER_EXPIRATION"  value="<?php echo $TRANSFER_EXPIRATION; ?>" />
+				<span class="help-block">เอกสารจะหมดอายุภายในจำนวนวันที่กำหนด กำหนดเป็น 0 หากไม่ต้องการใช้งาน</span>
+      </div>
+      <div class="divider-hidden"></div>
+
 
       <div class="col-sm-9 col-sm-offset-3">
 				<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
@@ -178,6 +202,8 @@
 				<?php endif; ?>
       </div>
       <div class="divider-hidden"></div>
+
+
 
   	</div><!--/ row -->
   </form>

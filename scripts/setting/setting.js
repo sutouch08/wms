@@ -576,6 +576,23 @@ function toggleLimitWT(option) {
 }
 
 
+function toggleTransferEOM(option) {
+	$('#transfer-eom').val(option);
+
+	if(option == 1) {
+		$('#btn-eom-no').removeClass('btn-success');
+		$('#btn-eom-yes').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-eom-yes').removeClass('btn-success');
+		$('#btn-eom-no').addClass('btn-success');
+		return;
+	}
+}
+
+
 
 function toggleLogJson(option) {
 
