@@ -109,10 +109,12 @@ class Products extends PS_Controller
 
   public function export_filter()
   {
+    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+
     $token = $this->input->post('token');
     $this->load->library('excel');
     $this->excel->setActiveSheetIndex(0);
-    $this->excel->getActiveSheet()->setTitle('Stock Balance Report');
+    $this->excel->getActiveSheet()->setTitle('Item Master');
 
     //--- set report title header
     $this->excel->getActiveSheet()->setCellValue('A1', 'Code');
@@ -136,6 +138,7 @@ class Products extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('S1', 'IsAPI');
     $this->excel->getActiveSheet()->setCellValue('T1', 'OldModel');
     $this->excel->getActiveSheet()->setCellValue('U1', 'OldCode');
+    $this->excel->getActiveSheet()->setCellValue('V1', 'IsActive');
 
     $row = 2;
 
@@ -179,6 +182,7 @@ class Products extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('S'.$row, ($rs->is_api == 1 ? 'Y':'N'));
         $this->excel->getActiveSheet()->setCellValue('T'.$row, $rs->old_style);
         $this->excel->getActiveSheet()->setCellValue('U'.$row, $rs->old_code);
+        $this->excel->getActiveSheet()->setCellValue('V'.$row, ($rs->active == 1 ? 'Y' : 'N'));
         $row++;
       }
     }
@@ -212,8 +216,8 @@ class Products extends PS_Controller
       $category = get_null($this->input->post('category_code'));
       $kind     = get_null($this->input->post('kind_code'));
       $type     = get_null($this->input->post('type_code'));
-      $old_code = get_null($this->input->post('old_style'));
-      $old_code = empty($old_code) ? $code : $old_code;
+      $old_code = NULL; //get_null($this->input->post('old_style'));
+      //$old_code = empty($old_code) ? $code : $old_code;
       $brand    = get_null($this->input->post('brand_code'));
       $year     = get_null($this->input->post('year'));
       $cost     = $this->input->post('cost');
@@ -339,7 +343,7 @@ class Products extends PS_Controller
     if($this->input->post('code'))
     {
       $code = $this->input->post('code');
-      $old_code = get_null(trim($this->input->post('old_code')));
+      $old_code = NULL;//get_null(trim($this->input->post('old_code')));
       $barcode = get_null(trim($this->input->post('barcode')));
       $cost = get_null($this->input->post('cost'));
       $price = get_null($this->input->post('price'));
@@ -382,7 +386,7 @@ class Products extends PS_Controller
     {
       $code = $this->input->post('code'); //--- style code
       $name = $this->input->post('name'); //--- style name
-      $old_code = get_null($this->input->post('old_style'));
+      get_null($this->input->post('old_style'));
       $old_code = empty($old_code) ? $code : $old_code;
       $cost = $this->input->post('cost'); //--- style cost
       $price = $this->input->post('price'); //--- style price
@@ -717,7 +721,7 @@ class Products extends PS_Controller
     if($this->input->post('style'))
     {
       $code = $this->input->post('style');
-      $old_code = $this->input->post('old_code'); //--- array of old_code
+      $this->input->post('old_code'); //--- array of old_code
       $colors = $this->input->post('colors');
       $sizes = $this->input->post('sizes');
       $images = $this->input->post('image');

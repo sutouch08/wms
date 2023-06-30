@@ -1,28 +1,25 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-xs-12">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
-    </div>
-		<div class="col-sm-6">
-
-		</div>
+  </div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า/ผู้เบิก</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
@@ -32,7 +29,7 @@
     </select>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
@@ -40,11 +37,11 @@
     </div>
   </div>
 
-  <div class="col-sm-1 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -54,27 +51,27 @@
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <p class="pull-right">
       สถานะ : ว่างๆ = ปกติ, &nbsp;
       <span class="red">ERROR</span> = เกิดข้อผิดพลาด, &nbsp;
       <span class="blue">NC</span> = ยังไม่เข้า SAP
     </p>
   </div>
-  <div class="col-sm-12">
-    <table class="table table-striped border-1 dataTable">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1 dataTable" style="min-width:1100px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-8 text-center">วันที่</th>
-          <th class="width-10">เลขที่เอกสาร </th>
-          <th class="10">รหัสลูกค้า</th>
-          <th class="15">ชื่อลูกค้า</th>
-          <th class="width-10">เข้าถังกลาง</th>
-          <th class="width-10">เข้า SAP</th>
-          <th class="width-5 text-center">สถานะ</th>
-					<th class="">หมายเหตุ</th>
-					<th class="widht-10"></th>
+					<th class="fix-width-80"></th>
+          <th class="fix-width-60 text-center">ลำดับ</th>
+          <th class="fix-width-100 text-center">วันที่</th>
+          <th class="fix-width-120">เลขที่เอกสาร </th>
+          <th class="fix-width-100">รหัสลูกค้า</th>
+          <th class="fix-width-250">ชื่อลูกค้า</th>
+          <th class="fix-width-150">เข้าถังกลาง</th>
+          <th class="fix-width-150">เข้า SAP</th>
+          <th class="fix-width-60 text-center">สถานะ</th>
+					<th class="min-width-100">หมายเหตุ</th>
         </tr>
       </thead>
       <tbody>
@@ -83,6 +80,16 @@
 <?php   foreach($orders as $rs)  : ?>
 
         <tr class="font-size-12" id="row-<?php echo $rs->DocEntry; ?>">
+					<td class="text-right">
+						<?php if($rs->F_Sap !== 'Y') : ?>
+							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">
+								<i class="fa fa-trash"></i>
+							</button>
+						<?php endif; ?>
+						<button type="button" class="btn btn-minier btn-primary" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
+							<i class="fa fa-eye"></i>
+						</button>
+					</td>
           <td class="text-center no"><?php echo $no; ?></td>
 
           <td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
@@ -90,7 +97,7 @@
           <td class="">
 
 						<?php echo $rs->U_ECOMNO; ?>
-					
+
 					</td>
 
           <td class=""><?php echo $rs->CardCode; ?></td>
@@ -124,16 +131,6 @@
             }
             ?>
           </td>
-					<td class="text-right">
-						<button type="button" class="btn btn-minier btn-primary" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
-							<i class="fa fa-eye"></i>
-						</button>
-						<?php if($rs->F_Sap !== 'Y') : ?>
-							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">
-								<i class="fa fa-trash"></i>
-							</button>
-						<?php endif; ?>
-					</td>
         </tr>
 <?php  $no++; ?>
 <?php endforeach; ?>

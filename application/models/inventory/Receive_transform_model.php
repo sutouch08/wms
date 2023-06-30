@@ -160,7 +160,7 @@ class Receive_transform_model extends CI_Model
   public function get($code)
   {
     $rs = $this->db
-    ->select('r.*, u.uname, u.name AS display_name')
+    ->select('r.*, z.name AS zone_name, u.uname, u.name AS display_name')
     ->from('receive_transform AS r')
     ->join('zone AS z', 'r.zone_code = z.code', 'left')
     ->join('user AS u', 'z.user_id = u.id', 'left')
@@ -337,12 +337,14 @@ class Receive_transform_model extends CI_Model
 
     if($ds['status'] !== 'all')
     {
-      $this->db->where('status', $ds['status']);
-    }
-
-    if(isset($ds['is_expire']) && $ds['is_expire'] != 'all')
-    {
-      $this->db->where('is_expire', $ds['is_expire']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('is_expire', 0)->where('status', $ds['status']);
+      }
     }
 
 		if($ds['is_wms'] !== 'all')
@@ -377,7 +379,7 @@ class Receive_transform_model extends CI_Model
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '')
+  public function get_data(array $ds = array(), $perpage = 20, $offset = 0)
   {
     //---- เลขที่เอกสาร
     if($ds['code'] != '')
@@ -411,14 +413,15 @@ class Receive_transform_model extends CI_Model
 
     if($ds['status'] !== 'all')
     {
-      $this->db->where('status', $ds['status']);
+      if($ds['status'] == 5)
+      {
+        $this->db->where('is_expire', 1);
+      }
+      else
+      {
+        $this->db->where('is_expire', 0)->where('status', $ds['status']);
+      }
     }
-
-    if(isset($ds['is_expire']) && $ds['is_expire'] != 'all')
-    {
-      $this->db->where('is_expire', $ds['is_expire']);
-    }
-
 
 		if($ds['is_wms'] !== 'all')
 		{

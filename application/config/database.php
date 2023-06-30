@@ -95,6 +95,29 @@ $db['default'] = array(
 	'save_queries' => TRUE
 );
 
+// $db['default'] = array(
+// 	'dsn'	=> 'mysql:host=172.21.12.29;port=3306;dbname=warrix_sap',
+// 	'hostname' => '172.21.12.29',
+// 	'username' => 'wrxadmin',
+// 	'password' => 'W@rr1X$p0rt',
+// 	'database' => 'warrix_sap',
+// 	'dbdriver' => 'pdo',
+// 	'dbprefix' => '',
+// 	'pconnect' => FALSE,
+// 	'db_debug' => (ENVIRONMENT !== 'production'),
+// 	'cache_on' => FALSE,
+// 	'cachedir' => '',
+// 	'char_set' => 'utf8',
+// 	'dbcollat' => 'utf8_general_ci',
+// 	'swap_pre' => '',
+// 	'encrypt' => FALSE,
+// 	'compress' => FALSE,
+// 	'stricton' => FALSE,
+// 	'failover' => array(),
+// 	'save_queries' => TRUE
+// );
+
+
 
 $db['ms'] = array(
 	'dsn'	=> '',

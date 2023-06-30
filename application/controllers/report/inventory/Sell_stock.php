@@ -73,7 +73,7 @@ class Sell_stock extends PS_Controller
 
       foreach($result as $rs)
       {
-        $item = $this->products_model->get($rs->product_code);
+        $item = $this->products_model->get_item($rs->product_code);
         if(!empty($item))
         {
           $reserv_stock = $this->inventory_report_model->get_reserv_stock($item->code, $warehouse);
@@ -179,7 +179,7 @@ class Sell_stock extends PS_Controller
       $no = 1;
       foreach($result as $rs)
       {
-        $item = $this->products_model->get($rs->product_code);
+        $item = $this->products_model->get_item($rs->product_code);
         if(!empty($item))
         {
           $reserv_stock = $this->inventory_report_model->get_reserv_stock($item->code, $warehouse);

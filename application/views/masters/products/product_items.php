@@ -1,15 +1,17 @@
 
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-sm-12">
 		<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
 		<button type="button" class="btn btn-sm btn-primary" onclick="newItems()">สร้างรายการสินค้า</button>
 		<button type="button" class="btn btn-sm btn-info" onclick="setImages()">เชื่อมโยงรูปภาพ</button>
 		<button type="button" class="btn btn-sm btn-warning" onclick="setBarcodeForm()">Generate Barcode</button>
 		<button type="button" class="btn btn-sm btn-purple" onclick="downloadBarcode('<?php echo $style->code; ?>')">Download Barcode</button>
 		<button type="button" class="btn btn-sm btn-info" onclick="doExport('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป SAP </button>
+
 		<button type="button" class="btn btn-sm btn-yellow" onclick="checkOldCode('<?php echo $style->code; ?>','<?php echo $style->old_code; ?>')">
 			Generate รหัสเก่า
 		</button>
+
 		<?php if(is_true(getConfig('WEB_API')) === TRUE) : ?>
 			<button type="button" class="btn btn-sm btn-success" onclick="sendToWeb('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป Magento</button>
 		<?php endif; ?>
@@ -18,22 +20,22 @@
 </div>
 <hr/>
 <div class="row">
-	<div class="col-sm-12">
-		<table class="table table-striped table-hover">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+		<table class="table table-striped table-hover" style="min-width:1150px;">
 			<thead>
 				<tr>
-					<th class="width-5 text-center">รูปภาพ</th>
-					<th class="width-20">รหัสสินค้า</th>
-					<th class="width-15">รหัสเก่า</th>
-					<th class="width-10">บาร์โค้ด</th>
-					<th class="width-5 text-center">สี</th>
-					<th class="width-5 text-center">ไซส์</th>
-					<th class="width-8 text-right">ทุน</th>
-					<th class="width-8 text-right">ราคา</th>
-					<th class="width-5 text-center">ขาย</th>
-					<th class="width-5 text-center">เปิด</th>
-					<th class="width-5 text-center">API</th>
-					<th class=""></th>
+					<th class="fix-width-60 text-center">รูปภาพ</th>
+					<th class="fix-width-200">รหัสสินค้า</th>
+					<th class="fix-width-200">รหัสเก่า</th>
+					<th class="fix-width-120">บาร์โค้ด</th>
+					<th class="fix-width-60 text-center">สี</th>
+					<th class="fix-width-60 text-center">ไซส์</th>
+					<th class="fix-width-100 text-right">ทุน</th>
+					<th class="fix-width-100 text-right">ราคา</th>
+					<th class="fix-width-50 text-center">ขาย</th>
+					<th class="fix-width-50 text-center">เปิด</th>
+					<th class="fix-width-50 text-center">API</th>
+					<th class="min-width-100"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -45,15 +47,8 @@
 						<img src="<?php echo $img; ?>" style="width:50px;" />
 					</td>
 					<td class="middle"><?php echo $item->code; ?></td>
-					<td class="middle">
-						<span class="lb" id="old-lbl-<?php echo $item->code; ?>"><?php echo $item->old_code; ?></span>
-						<input type="text"
-						class="form-control input-sm old-code edit hide"
-						name="oldCode[<?php echo $item->code; ?>]"
-						id="old-<?php echo $item->code; ?>"
-						value="<?php echo $item->old_code; ?>"
-						/>
-					</td>
+					<td class="middle"><?php echo $item->old_code; ?></td>
+
 					<td class="middle">
 						<span class="lb" id="bc-lbl-<?php echo $item->code; ?>"><?php echo $item->barcode; ?></span>
 						<input type="text"

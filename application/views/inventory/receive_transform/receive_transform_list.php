@@ -54,15 +54,7 @@
 			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
 			<option value="3" <?php echo is_selected('3', $status); ?>>WMS Process</option>
 			<option value="4" <?php echo is_selected('4', $status); ?>>รอการยืนยัน</option>
-		</select>
-  </div>
-
-	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
-    <label>หมดอายุ</label>
-		<select name="is_expire" class="form-control input-sm" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="0" <?php echo is_selected('0', $is_expire); ?>>ไม่หมดอายุ</option>
-			<option value="1" <?php echo is_selected('1', $is_expire); ?>>หมดอายุแล้ว</option>
+			<option value="5" <?php echo is_selected('5', $status); ?>>หมดอายุ</option>
 		</select>
   </div>
 

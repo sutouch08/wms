@@ -447,6 +447,55 @@ function leave(){
 }
 
 
+function rollbackStatus() {
+	swal({
+		title:'ย้อนสถานะ',
+		text:'ต้องการยกเลิกการบันทึกหรือไม่ ?',
+		type:'warning',
+		showCancelButton:true,
+		cancelButtonText:'No',
+		confirmButtonText:'Yes',
+		closeOnConfirm:true
+	}, function() {
+		load_in();
+		let code = $('#receive_code').val();
+
+		$.ajax({
+			url:HOME + 'rollback_status',
+			type:'POST',
+			cache:false,
+			data:{
+				'code' : code
+			},
+			success:function(rs) {
+				load_out();
+				if(rs == 'success') {
+					setTimeout(() => {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							goEdit(code);
+						}, 1200);
+					}, 200);
+				}
+				else {
+					setTimeout(() => {
+						swal({
+							title:'Error!',
+							text:rs,
+							type:'error'
+						});
+					}, 200);
+				}
+			}
+		});
+	});
+}
+
 function changePo(){
 	swal({
 		title: 'ยกเลิกข้อมูลนี้ ?',

@@ -139,6 +139,37 @@ class Temp_consignment_model extends CI_Model
 
 
 
+  public function delete($docEntry)
+  {
+    $sc = TRUE;
+
+    $this->mc->trans_begin();
+
+    if( ! $this->mc->where('DocEntry', $docEntry)->delete('CNDLN1'))
+    {
+      $sc = FALSE;
+    }
+    else
+    {
+      if( ! $this->mc->where('DocEntry', $docEntry)->delete('CNODLN'))
+      {
+        $sc = FALSE;
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      $this->mc->trans_commit();
+    }
+    else
+    {
+      $this->mc->trans_rollback();
+    }
+
+    return $sc;
+  }
+
+
   public function get_error_list()
   {
     $rs = $this->mc

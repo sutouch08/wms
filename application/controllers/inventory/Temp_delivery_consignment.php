@@ -68,6 +68,29 @@ class Temp_delivery_consignment extends PS_Controller
   }
 
 
+  public function removeRow()
+  {
+    $sc = TRUE;
+    $docEntry = $this->input->post('DocEntry');
+
+    if( ! empty($docEntry))
+    {
+      if( ! $this->temp_consignment_model->delete($docEntry))
+      {
+        $sc = FALSE;
+        $this->error = "Delete Temp data failed";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "No DocEntry found";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
 
   public function export_diff()
   {

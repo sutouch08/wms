@@ -5,6 +5,7 @@ class Import_order extends CI_Controller
   public $mc;
 	public $isAPI = FALSE;
 	public $wms;
+  public $_user;
 	public $sync_chatbot_stock = FALSE;
 
 
@@ -14,6 +15,10 @@ class Import_order extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
 		$this->wms = $this->load->database('wms', TRUE);
+
+    $uid = get_cookie('uid');
+
+		$this->_user = $this->user_model->get_user_by_uid($uid);
 
     $this->load->model('orders/orders_model');
     $this->load->model('masters/channels_model');
@@ -188,7 +193,7 @@ class Import_order extends CI_Controller
 								'V' => 'Remark',
 								'W' => 'Carrier',
 								'X' => 'Warehouse code',
-								'Y' => 'Country'
+								'Y' => 'Country'                
               );
 
               foreach($headCol as $col => $field)
@@ -295,34 +300,41 @@ class Import_order extends CI_Controller
               if($is_exists === FALSE OR $rs['S'] == 1)
               {
                 //---- รหัสลูกค้าจะมีการเปลี่ยนแปลงตามเงื่อนไขด้านล่างนี้
-                $customer_code = NULL;
+                $customer_code = trim($rs['Z']);
                 //---- ตรวจสอบว่าช่องทางขายที่กำหนดมา เป็นเว็บไซต์หรือไม่(เพราะจะมีช่องทางการชำระเงินหลายช่องทาง)
-                if($channels->code === $web_channels)
-                {
-                  if($payment->code === '2C2P')
-                  {
-                    //---- กำหนดรหัสลูกค้าตามค่าที่ config สำหรับเว็บไซต์ที่ชำระโดยบัตรเครดติ(2c2p)
-                    $customer_code = $web_customer_2c2p;
-                  }
-                  else if($payment->code === 'COD')
-                  {
-                    //---- กำหนดรหัสลูกค้าตามค่าที่ config สำหรับเว็บไซต์ที่ชำระแบบ COD
-                    $customer_code = $web_customer_cod;
-                  }
-									else
-									{
-										$customer_code = $channels->customer_code;
-									}
-                }
-                else
-                {
-                  //--- หากไม่ใช่ช่องทางเว็บไซต์
-                  //--- กำหนดรหัสลูกค้าตามช่องทางขายที่ได้ผูกไว้
-                  //--- หากไม่มีการผูกไว้ให้
-                  $customer_code = empty($channels->customer_code) ? $default_customer : $channels->customer_code;
-                }
 
                 $customer = $this->customers_model->get($customer_code);
+
+                if(empty($customer))
+                {
+                  if($channels->code === $web_channels)
+                  {
+                    if($payment->code === '2C2P')
+                    {
+                      //---- กำหนดรหัสลูกค้าตามค่าที่ config สำหรับเว็บไซต์ที่ชำระโดยบัตรเครดติ(2c2p)
+                      $customer_code = $web_customer_2c2p;
+                    }
+                    else if($payment->code === 'COD')
+                    {
+                      //---- กำหนดรหัสลูกค้าตามค่าที่ config สำหรับเว็บไซต์ที่ชำระแบบ COD
+                      $customer_code = $web_customer_cod;
+                    }
+                    else
+                    {
+                      $customer_code = $channels->customer_code;
+                    }
+                  }
+                  else
+                  {
+                    //--- หากไม่ใช่ช่องทางเว็บไซต์
+                    //--- กำหนดรหัสลูกค้าตามช่องทางขายที่ได้ผูกไว้
+                    //--- หากไม่มีการผูกไว้ให้
+                    $customer_code = empty($channels->customer_code) ? $default_customer : $channels->customer_code;
+                  }
+
+                  $customer = $this->customers_model->get($customer_code);
+                }
+
 
               	//---	ถ้าเป็นออเดอร์ขาย จะมี id_sale
               	$sale_code = $customer->sale_code;
@@ -371,7 +383,7 @@ class Import_order extends CI_Controller
                     'status' => 1,
                     'date_add' => $date_add,
                     'warehouse_code' => (!empty($xWh) ? $xWh->code : $warehouse_code),
-                    'user' => get_cookie('uname'),
+                    'user' => $this->_user->uname,
                     'is_import' => 1,
 										'remark' => $remark,
 										'is_wms' => (!empty($xWh) ? $xWh->is_wms : $is_wms),
@@ -388,7 +400,7 @@ class Import_order extends CI_Controller
                     $arr = array(
                       'order_code' => $order_code,
                       'state' => $state,
-                      'update_user' => get_cookie('uname')
+                      'update_user' => $this->_user->uname
                     );
                     //--- add state event
                     $this->order_state_model->add_state($arr);
@@ -439,7 +451,7 @@ class Import_order extends CI_Controller
                       'state' => $state,
                       'is_term' => $payment->has_term,
                       'date_add' => $date_add,
-                      'user' => get_cookie('uname')
+                      'user' => $this->_user->uname
                     );
 
                     $this->orders_model->update($order_code, $ds);

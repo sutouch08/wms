@@ -37,7 +37,6 @@ class Receive_transform extends PS_Controller
       'status' => get_filter('status', 'trans_status', 'all'),
 			'is_wms' => get_filter('is_wms', 'trans_is_wms', 'all'),
       'sap_status' => get_filter('sap_status', 'trans_sap_status', 'all'),
-      'is_expire' => get_filter('is_expire', 'trans_is_expire', 'all'),
       'zone' => get_filter('zone', 'trans_zone', '')
     );
 
@@ -91,6 +90,50 @@ class Receive_transform extends PS_Controller
     );
 
     $this->load->view('inventory/receive_transform/receive_transform_detail', $ds);
+  }
+
+  public function rollback_status()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->receive_transform_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 4)
+        {
+          $arr = array(
+            'status' => 0
+          );
+
+          if( ! $this->receive_transform_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "สถานะเอกสารไม่ถูกต้อง";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบเลขที่เอกสาร";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -848,41 +891,125 @@ class Receive_transform extends PS_Controller
   }
 
 
-
   public function edit($code)
   {
-    $document = $this->receive_transform_model->get($code);
+    $doc = $this->receive_transform_model->get($code);
 
-    $zone_code = NULL;
-    $zone = NULL;
+    if(!empty($doc))
+    {
+      $pm = get_permission('ICRTCOST', $this->_user->uid, $this->_user->id_profile);
+      $can_edit_price = ($pm->can_view + $pm->can_add + $pm->can_edit + $pm->can_delete + $pm->can_approve) > 0 ? TRUE : FALSE;
 
-		if(!empty($document))
-		{
-			$ds['document'] = $document;
+      $ds = array(
+        'doc' => $doc,
+        'details' => array(),
+      );
 
-			if($document->is_wms)
-			{
-        $zone_code = getConfig('WMS_ZONE');
+      $details = $this->receive_transform_model->get_transform_details($doc->order_code);
 
-        if($zone_code != "" && $zone_code != NULL)
+      if( ! empty($details))
+      {
+        $no = 1;
+        $totalQty = 0;
+        $totalReceive = 0;
+        $totalUncomplete = 0;
+        $totalBacklog = 0;
+        $totalInputQty = 0;
+        $totalAmount = 0;
+
+        foreach($details as $rs)
         {
-          $this->load->model('masters/zone_model');
-          $zone = $this->zone_model->get($zone_code);
+          $row = $this->receive_transform_model->get_detail_row($doc->code, $rs->product_code);
+
+          $uncomplete_qty = $this->receive_transform_model->get_sum_uncomplete_qty($rs->order_code, $rs->product_code, $doc->code);
+          $diff = $rs->sold_qty - ($rs->receive_qty + $uncomplete_qty);
+          $diff = $diff < 0 ? 0 : $diff;
+  				$cost = ( ! empty($row) ? $row->price : $this->get_avg_cost($rs->product_code));
+  				$cost = $cost == 0 ? $rs->price : $cost;
+          $receive_qty = ( ! empty($row) ? round($row->qty, 2) : 0);
+          $amount = round($cost * $receive_qty, 2);
+
+          $arr = array(
+            'no' => $no,
+            'barcode' => $rs->barcode,
+            'product_code' => $rs->product_code,
+            'product_name' => limitText($rs->name, 50),
+            'qty' => round($rs->sold_qty,2),
+            'received' => round($rs->receive_qty,2),
+            'uncomplete' => round($uncomplete_qty, 2),
+            'receive_qty' => $receive_qty,
+            'price' => round($cost,2),
+            'amount' => $amount,
+            'limit' => $diff,
+            'backlog' => number($diff),
+            'disabled' => $can_edit_price ? "" : "disabled"
+          );
+
+          array_push($ds['details'], (object)$arr);
+
+          $no++;
+          $totalInputQty += $receive_qty;
+          $totalQty += $rs->sold_qty;
+          $totalReceive += $rs->receive_qty;
+          $totalUncomplete += $uncomplete_qty;
+          $totalBacklog += $diff;
         }
 
-				$ds['details'] = !empty($document) ? $this->receive_transform_model->get_details($code) : NULL;
-			}
+        $ds['totalQty'] = $totalQty;
+        $ds['totalReceived'] = $totalReceive;
+        $ds['totalUncomplete'] = $totalUncomplete;
+        $ds['totalBacklog'] = $totalBacklog;
+        $ds['totalInputQty'] = $totalInputQty;
+        $ds['totalAmount'] = $totalAmount;
+      }
 
-      $ds['zone_code'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->code) : "";
-      $ds['zone_name'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->name) : "";
 
-	    $this->load->view('inventory/receive_transform/receive_transform_edit', $ds);
-		}
-		else
-		{
-			$this->page_error();
-		}
+
+      // $ds['zone_code'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->code) : "";
+      // $ds['zone_name'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->name) : "";
+
+      $this->load->view('inventory/receive_transform/receive_transform_edit', $ds);
+    }
+    else
+    {
+      $this->page_error();
+    }
   }
+
+  // public function edit($code)
+  // {
+  //   $document = $this->receive_transform_model->get($code);
+  //
+  //   $zone_code = NULL;
+  //   $zone = NULL;
+  //
+	// 	if(!empty($document))
+	// 	{
+	// 		$ds['document'] = $document;
+  //
+	// 		if($document->is_wms)
+	// 		{
+  //       $zone_code = getConfig('WMS_ZONE');
+  //
+  //       if($zone_code != "" && $zone_code != NULL)
+  //       {
+  //         $this->load->model('masters/zone_model');
+  //         $zone = $this->zone_model->get($zone_code);
+  //       }
+  //
+	// 			$ds['details'] = ! empty($document) ? $this->receive_transform_model->get_details($code) : NULL;
+	// 		}
+  //
+  //     $ds['zone_code'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->code) : "";
+  //     $ds['zone_name'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->name) : "";
+  //
+	//     $this->load->view('inventory/receive_transform/receive_transform_edit', $ds);
+	// 	}
+	// 	else
+	// 	{
+	// 		$this->page_error();
+	// 	}
+  // }
 
 
   public function update_header(){
@@ -1045,7 +1172,6 @@ class Receive_transform extends PS_Controller
       'trans_must_accept',
       'trans_is_wms',
       'trans_sap_status',
-      'trans_is_expire',
       'trans_zone'
     );
     clear_filter($filter);

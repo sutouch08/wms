@@ -57,7 +57,7 @@ class Prepare extends PS_Controller
 		$orders   = $this->prepare_model->get_data($filter, $perpage, $this->uri->segment($segment), 3);
 
     $filter['orders'] = $orders;
-    
+
 		$this->pagination->initialize($init);
     $this->load->view('inventory/prepare/prepare_list', $filter);
   }
@@ -126,12 +126,12 @@ class Prepare extends PS_Controller
         $arr = array(
           'order_code' => $code,
           'state' => 4,
-          'update_user' => get_cookie('uname')
+          'update_user' => $this->_user->uname
         );
         $this->order_state_model->add_state($arr);
       }
     }
-
+    
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $order->channels_name = $this->channels_model->get_name($order->channels_code);
@@ -405,7 +405,7 @@ class Prepare extends PS_Controller
       $arr = array(
         'order_code' => $code,
         'state' => 5,
-        'update_user' => get_cookie('uname')
+        'update_user' => $this->_user->uname
       );
 
       //--- add state event
@@ -443,7 +443,7 @@ class Prepare extends PS_Controller
       $arr = array(
         'order_code' => $code,
         'state' => 3,
-        'update_user' => get_cookie('uname')
+        'update_user' => $this->_user->uname
       );
 
       $this->orders_model->change_state($code, 3);

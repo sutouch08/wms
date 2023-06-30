@@ -528,7 +528,7 @@ class Products_model extends CI_Model
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -561,12 +561,26 @@ class Products_model extends CI_Model
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
+  }
+
+  //---
+  public function get_item($code)
+  {
+      $rs = $this->db->where('code', $code)->get('products');
+
+      if($rs->num_rows() === 1)
+      {
+        return $rs->row();
+      }
+
+      return NULL;
   }
 
 
   public function get_with_old_code($code)
   {
+    //$rs = $this->db->where('code', $code)->or_where('old_code', $code)->get('products');
     $rs = $this->db->where('code', $code)->or_where('old_code', $code)->get('products');
     if($rs->num_rows() > 0)
     {
@@ -574,7 +588,7 @@ class Products_model extends CI_Model
     }
 
 
-    return FALSE;
+    return NULL;
   }
 
 

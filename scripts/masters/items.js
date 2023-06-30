@@ -149,7 +149,17 @@ function duplicate(code){
 
 $('#style').autocomplete({
   source: BASE_URL + 'auto_complete/get_style_code',
-  autoFocus:true
+  autoFocus:true,
+  close:function() {
+    let rs = $(this).val();
+    let arr = rs.split(' | ');
+    if(arr.length == 2) {
+      $(this).val(arr[0]);
+    }
+    else {
+      $(this).val('');
+    }
+  }
 });
 
 $('#color').autocomplete({

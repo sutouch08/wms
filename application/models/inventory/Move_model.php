@@ -833,6 +833,7 @@ class Move_model extends CI_Model
     ->join('zone AS z', 'md.to_zone = z.code', 'left')
     ->where('md.move_code', $code)
     ->where('z.user_id IS NOT NULL', NULL, FALSE)
+    ->where('z.user_id >', 0)
     ->count_all_results();
 
     if($rs > 0)

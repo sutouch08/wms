@@ -169,7 +169,7 @@ class Stock_balance_year extends PS_Controller
       $no = 1;
       foreach($result as $rs)
       {
-        $item = $this->products_model->get($rs->product_code);
+        $item = $this->products_model->get_item($rs->product_code);
         if(!empty($item))
         {
           $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);

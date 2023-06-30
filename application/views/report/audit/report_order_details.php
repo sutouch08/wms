@@ -243,6 +243,7 @@
 				<th class="fix-width-60 text-center">#</th>
 				<th class="fix-width-100 text-center">วันที่</th>
 				<th class="fix-width-120">เลขที่</th>
+				<th class="fix-width-120">อ้างอิง</th>
 				<th class="fix-width-100 text-right">มูลค่า</th>
 				<th class="fix-width-120">รหัสลูกค้า</th>
 				<th class="fix-width-350">ชื่อลูกค้า</th>
@@ -261,6 +262,7 @@
 					<td class="middle text-center">{{no}}</td>
 					<td class="middle text-center">{{date_add}}</td>
 					<td class="middle">{{code}}</td>
+					<td class="middle">{{reference}}</td>
 					<td class="middle text-right">{{total_amount}}</td>
 					<td class="middle">{{customer_code}}</td>
 					<td class="middle">{{customer_name}}</td>
@@ -281,5 +283,5 @@
 </script>
 
 
-<script src="<?php echo base_url(); ?>scripts/report/audit/order_details.js"></script>
+<script src="<?php echo base_url(); ?>scripts/report/audit/order_details.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

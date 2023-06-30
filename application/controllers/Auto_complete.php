@@ -169,14 +169,14 @@ public function get_prepare_style_code()
   ->like('code', $_REQUEST['term'])
   ->or_like('old_code', $_REQUEST['term'])
   ->group_end()
-  ->order_by('old_code', 'ASC')
+  ->order_by('code', 'ASC')
   ->limit(20);
   $qs = $this->db->get('product_style');
 
   if($qs->num_rows() > 0)
   {
     foreach($qs->result() as $rs)
-    $sc[] = $rs->old_code .' | '.$rs->code;
+    $sc[] = $rs->code .' | '.$rs->old_code;
   }
 
 	echo json_encode($sc);
@@ -195,14 +195,14 @@ public function get_prepare_item_code()
   ->like('code', $_REQUEST['term'])
   ->or_like('old_code', $_REQUEST['term'])
   ->group_end()
-  ->order_by('old_code', 'ASC')
+  ->order_by('code', 'ASC')
   ->limit(50);
   $qs = $this->db->get('products');
 
   if($qs->num_rows() > 0)
   {
     foreach($qs->result() as $rs)
-    $sc[] = $rs->old_code .' | '.$rs->code;
+    $sc[] = $rs->code .' | '.$rs->old_code;
   }
 
 	echo json_encode($sc);
@@ -981,9 +981,12 @@ public function get_prepare_item_code()
     $sc = array();
     $txt = $_REQUEST['term'];
     $rs = $this->db
-    ->select('code')
+    ->select('code, old_code')
     ->where('active', 1)
+    ->group_start()
     ->like('code', $txt)
+    ->or_like('old_code', $txt)
+    ->group_end()
     ->limit(20)
     ->get('products');
 

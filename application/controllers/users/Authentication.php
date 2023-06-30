@@ -89,7 +89,7 @@ class Authentication extends CI_Controller
           'name' => $key,
           'value' => $val,
           'expire' => $times,
-          'path' => '/'
+          'path' => $this->config->item('cookie_path')
         );
 
         $this->input->set_cookie($cookie);

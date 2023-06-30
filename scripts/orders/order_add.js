@@ -322,7 +322,12 @@ $('#pd-box').keyup(function(event) {
 $('#item-code').autocomplete({
 	source:BASE_URL + 'auto_complete/get_product_code',
 	minLength: 4,
-	autoFocus:true
+	autoFocus:true,
+  close:function() {
+    var rs = $(this).val();
+    var arr = rs.split(' | ');
+    $(this).val(arr[0]);
+  }
 });
 
 $('#item-code').keyup(function(e){

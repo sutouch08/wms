@@ -36,7 +36,7 @@ function saveOrder(){
 }
 
 
-$("#customerCode").autocomplete({
+$("#customer-code").autocomplete({
 	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
 	autoFocus: true,
 	close: function(){
@@ -46,13 +46,16 @@ $("#customerCode").autocomplete({
 			var code = arr[0];
 			var name = arr[1];
 			$("#customerCode").val(code);
+      $('#customer-code').val(code);
 			$("#customer").val(name);
 		}else{
+      $('#customer-code').val('');
 			$("#customerCode").val('');
 			$('#customer').val('');
 		}
 	}
 });
+
 
 
 $("#customer").autocomplete({
@@ -65,14 +68,21 @@ $("#customer").autocomplete({
 			var code = arr[0];
 			var name = arr[1];
 			$("#customerCode").val(code);
+      $('#customer-code').val(code);
 			$("#customer").val(name);
 		}else{
+      $('#customer-code').val('');
 			$("#customerCode").val('');
 			$(this).val('');
 		}
 	}
 });
 
+
+$('#wq-ref').autocomplete({
+  source: BASE_URL + 'auto_complete/get_transform_code/'+true,
+  autoFocus: true
+});
 
 
 $('#customer').focusout(function(){
@@ -149,6 +159,8 @@ function addOrder(){
   var zoneCode = $('#zoneCode').val();
   var zoneName = $('#zone').val();
   var warehouse_code = $('#warehouse').val();
+  var remark = $('#remark').val();
+  var reqRemark = $('#require_remark').val() == 1 ? true : false;
 
   if(customer_code.length == 0 || customer_name.length == 0){
     swal('ชื่อผู้รับไม่ถูกต้อง');
@@ -176,6 +188,16 @@ function addOrder(){
 
   if(warehouse_code.length == 0){
     swal('กรุณาเลือกคลัง');
+    return false;
+  }
+
+  if(reqRemark && remark.length < 10) {
+    swal({
+      title: 'Required',
+      text: "กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร",
+      type:'warning'
+    });
+
     return false;
   }
 
@@ -426,6 +448,8 @@ function validUpdate(){
   var zoneCode = $('#zoneCode').val();
   var zoneName = $('#zone').val();
   var warehouse_code = $('#warehouse').val();
+  var remark = $('#remark').val().trim();
+  var reqRemark = $('#require_remark').val() == 1 ? true : false;
 
   if(customer_code.length == 0 || customer_name.length == 0){
     swal('ชื่อผู้รับไม่ถูกต้อง');
@@ -462,6 +486,16 @@ function validUpdate(){
 		return false;
 	}
 
+  if(reqRemark && remark.length < 10) {
+    swal({
+      title:'Required',
+      text:'กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร',
+      type:'warning'
+    });
+
+    return false;
+  }
+
   updateOrder();
 }
 
@@ -479,6 +513,7 @@ function updateOrder(){
   var zoneCode = $('#zoneCode').val();
   var zoneName = $('#zone').val();
   var warehouse_code = $('#warehouse').val();
+  var reference = $('#wq-ref').val();
 
 	load_in();
 
@@ -490,6 +525,7 @@ function updateOrder(){
       "order_code" : order_code,
   		"date_add"	: date_add,
   		"customer_code" : customer_code,
+      "reference" : reference,
       "user_ref" : user_ref,
       "zone_code" : zoneCode,
       "warehouse" : warehouse_code,

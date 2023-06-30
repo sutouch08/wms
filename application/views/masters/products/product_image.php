@@ -1,15 +1,18 @@
 <div class="row">
-  <div class="col-sm-4">
+  <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-center">
     <span class="form-control label-right">
       <h4 class="title">เพิ่มรูปภาพสำหรับสินค้านี้</h4>
     </span>
   </div>
-  <div class="col-sm-4">
+  <div class="divider-hidden visible-xs"></div>
+
+  <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
     <button type="button" class="btn btn-primary btn-block" onClick="showUploadBox()">
       <i class="fa fa-cloud-upload"></i> เพิ่มรูปภาพ
     </button>
   </div>
-  <div class="col-sm-4">
+  <div class="divider-hidden visible-xs"></div>
+  <div class="col-sm-4 col-xs-12">
     <span class="help-block" style="margin-top:15px; margin-bottom:0px;">ไฟล์ : jpg, png, gif ขนาดสูงสุด 2 MB</span>
   </div>
 </div><!--/ row -->
@@ -19,7 +22,7 @@
 <?php if(!empty($images) ) : ?>
 <?php		foreach( $images as $img ) : 	?>
 <?php			$cover	= $img->cover == 1 ? 'btn-success' : ''; ?>
-  <div class="col-sm-3" id="div-image-<?php echo $img->id; ?>">
+  <div class="col-sm-3 col-xs-6" id="div-image-<?php echo $img->id; ?>">
     <div class="thumbnail">
       <a data-rel="colorbox" href="<?php echo get_image_path($img->id, 'large'); ?>">
         <img class="img-rounded" src="<?php echo get_image_path($img->id, 'medium'); ?>" />

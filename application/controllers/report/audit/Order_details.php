@@ -163,17 +163,18 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue("A{$row}", 'ลำดับ');
       $this->excel->getActiveSheet()->setCellValue("B{$row}", 'วันที่');
       $this->excel->getActiveSheet()->setCellValue("C{$row}", 'เลขที่');
-      $this->excel->getActiveSheet()->setCellValue("D{$row}", 'มูลค่า');
-      $this->excel->getActiveSheet()->setCellValue("E{$row}", 'รหัสลูกค้า');
-      $this->excel->getActiveSheet()->setCellValue("F{$row}", 'ชื่อลูกค้า');
-      $this->excel->getActiveSheet()->setCellValue("G{$row}", 'สถานะ');
-      $this->excel->getActiveSheet()->setCellValue("H{$row}", 'หมดอายุ');
-      $this->excel->getActiveSheet()->setCellValue("I{$row}", 'ช่องทางขาย');
-      $this->excel->getActiveSheet()->setCellValue("J{$row}", 'การชำระเงิน');
-      $this->excel->getActiveSheet()->setCellValue("K{$row}", 'รหัสคลัง');
-      $this->excel->getActiveSheet()->setCellValue("L{$row}", 'ชื่อคลัง');
-      $this->excel->getActiveSheet()->setCellValue("M{$row}", 'Username');
-      $this->excel->getActiveSheet()->setCellValue("N{$row}", 'พนักงาน');
+      $this->excel->getActiveSheet()->setCellValue("D{$row}", 'อ้างอิง');
+      $this->excel->getActiveSheet()->setCellValue("E{$row}", 'มูลค่า');
+      $this->excel->getActiveSheet()->setCellValue("F{$row}", 'รหัสลูกค้า');
+      $this->excel->getActiveSheet()->setCellValue("G{$row}", 'ชื่อลูกค้า');
+      $this->excel->getActiveSheet()->setCellValue("H{$row}", 'สถานะ');
+      $this->excel->getActiveSheet()->setCellValue("I{$row}", 'หมดอายุ');
+      $this->excel->getActiveSheet()->setCellValue("J{$row}", 'ช่องทางขาย');
+      $this->excel->getActiveSheet()->setCellValue("K{$row}", 'การชำระเงิน');
+      $this->excel->getActiveSheet()->setCellValue("L{$row}", 'รหัสคลัง');
+      $this->excel->getActiveSheet()->setCellValue("M{$row}", 'ชื่อคลัง');
+      $this->excel->getActiveSheet()->setCellValue("N{$row}", 'Username');
+      $this->excel->getActiveSheet()->setCellValue("O{$row}", 'พนักงาน');
 
       $row++;
 
@@ -182,15 +183,16 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(20);
       $this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
       $this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
-      $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(90);
-      $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(15);
-      $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
-      $this->excel->getActiveSheet()->getColumnDimension('I')->setWidth(20);
+      $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
+      $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(90);
+      $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('I')->setWidth(10);
       $this->excel->getActiveSheet()->getColumnDimension('J')->setWidth(20);
-      $this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(15);
-      $this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(40);
-      $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(20);
+      $this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(40);
       $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(15);
 
       if( ! empty($details))
       {
@@ -207,24 +209,25 @@ class Order_details extends PS_Controller
           $this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
           $this->excel->getActiveSheet()->setCellValue("B{$row}", $date);
           $this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->code);
-          $this->excel->getActiveSheet()->setCellValue("D{$row}", $amount);
-          $this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->customer_code);
-          $this->excel->getActiveSheet()->setCellValue("F{$row}", $rs->customer_name);
-          $this->excel->getActiveSheet()->setCellValue("G{$row}", $rs->state_name);
-          $this->excel->getActiveSheet()->setCellValue("H{$row}", $rs->is_expired == 1 ? 'Y' : 'N');
-          $this->excel->getActiveSheet()->setCellValue("I{$row}", $rs->channels_name);
-          $this->excel->getActiveSheet()->setCellValue("J{$row}", $rs->payment_name);
-          $this->excel->getActiveSheet()->setCellValue("K{$row}", $rs->warehouse_code);
-          $this->excel->getActiveSheet()->setCellValue("L{$row}", $rs->warehouse_name);
-          $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->uname);
-          $this->excel->getActiveSheet()->setCellValue("N{$row}", $rs->emp_name);
+          $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->reference);
+          $this->excel->getActiveSheet()->setCellValue("E{$row}", $amount);
+          $this->excel->getActiveSheet()->setCellValue("F{$row}", $rs->customer_code);
+          $this->excel->getActiveSheet()->setCellValue("G{$row}", $rs->customer_name);
+          $this->excel->getActiveSheet()->setCellValue("H{$row}", $rs->state_name);
+          $this->excel->getActiveSheet()->setCellValue("I{$row}", $rs->is_expired == 1 ? 'Y' : 'N');
+          $this->excel->getActiveSheet()->setCellValue("J{$row}", $rs->channels_name);
+          $this->excel->getActiveSheet()->setCellValue("K{$row}", $rs->payment_name);
+          $this->excel->getActiveSheet()->setCellValue("L{$row}", $rs->warehouse_code);
+          $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->warehouse_name);
+          $this->excel->getActiveSheet()->setCellValue("N{$row}", $rs->uname);
+          $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->emp_name);
 
           $no++;
           $row++;
         }
 
         $this->excel->getActiveSheet()->getStyle("B10:B{$row}")->getNumberFormat()->setFormatCode('dd/mm/yyyy');
-        $this->excel->getActiveSheet()->getStyle("D10:D{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+        $this->excel->getActiveSheet()->getStyle("E10:E{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
       }
     }
 

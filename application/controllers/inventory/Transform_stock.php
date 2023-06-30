@@ -11,6 +11,7 @@ class Transform_stock extends PS_Controller
   public $role = 'Q';
   public $isClosed = FALSE;
 	public $isAPI;
+  public $require_remark = 1;
 
   public function __construct()
   {
@@ -158,6 +159,7 @@ class Transform_stock extends PS_Controller
         'role' => $role,
         'bookcode' => $book_code,
         'customer_code' => $this->input->post('customerCode'),
+        'reference' => get_null(trim($this->input->post('reference'))),
         'user' => get_cookie('uname'),
         'remark' => $this->input->post('remark'),
         'user_ref' => $this->input->post('empName'),
@@ -265,6 +267,7 @@ class Transform_stock extends PS_Controller
 
       $ds = array(
         'customer_code' => $this->input->post('customer_code'),
+        'reference' => get_null(trim($this->input->post('reference'))),
         'date_add' => db_date($this->input->post('date_add')),
         'user_ref' => $this->input->post('user_ref'),
         'remark' => $this->input->post('remark'),

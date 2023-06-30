@@ -23,6 +23,14 @@ function changeURL(style, tab)
 }
 
 
+function toggleTab(tabName) {
+  $('.tab-pane').removeClass('in');
+  $('.tab-pane').removeClass('active');
+
+  $('#'+tabName).addClass('active');
+  $('#'+tabName).addClass('in');
+}
+
 
 
 function newItems(){

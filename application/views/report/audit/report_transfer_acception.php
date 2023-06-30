@@ -78,7 +78,7 @@
 </form>
 
 <div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" id="result" style="min-height: 300px; max-height: 600px; overflow:auto;">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" id="result">
 
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 margin-top-10">
@@ -88,16 +88,17 @@
 
 <script id="template" type="text/x-handlebars-template">
 {{#if data}}
-	<table class="table table-striped border-1" style="min-width:800px;">
+	<table class="table table-striped border-1" style="min-width:950px;">
 		<thead>
 			<tr>
 				<th class="fix-width-60 text-center">#</th>
 				<th class="fix-width-100 text-center">วันที่เอกสาร</th>
 				<th class="fix-width-120">เลขที่เอกสาร</th>
+				<th class="fix-width-150">เจ้าของโซน</th>
 				<th class="fix-width-100 text-center">การกดรับ</th>
 				<th class="fix-width-150">กดรับโดย</th>
 				<th class="fix-width-150">วันที่กดรับ</th>
-				<th class="min-width-150">หมายเหตุ</th>
+				<th class="min-width-100">หมายเหตุ</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -106,6 +107,7 @@
 					<td class="middle text-center">{{no}}</td>
 					<td class="middle text-center">{{date_add}}</td>
 					<td class="middle">{{code}}</td>
+					<td class="middle">{{owner_name}}</td>
 					<td class="middle">{{is_accept}}</td>
 					<td class="middle">{{accept_by}}</td>
 					<td class="middle">{{accept_on}}</td>

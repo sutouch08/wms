@@ -274,7 +274,7 @@ class Orders_model extends CI_Model
 
   public function get_state($code)
   {
-    $rs = $this->db->select('state')->where('code', $code)->or_where('reference', $code)->get('orders');
+    $rs = $this->db->select('state')->where('code', $code)->get('orders');
     if($rs->num_rows() === 1)
     {
       return $rs->row()->state;
@@ -583,7 +583,8 @@ class Orders_model extends CI_Model
 			}
 			else
 			{
-				$this->db->where('orders.wms_export', $ds['wms_export']);		}
+				$this->db->where('orders.wms_export', $ds['wms_export']);
+      }
 		}
 
 		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
@@ -654,8 +655,7 @@ class Orders_model extends CI_Model
 
 
 
-
-
+  
   public function get_data(array $ds = array(), $perpage = '', $offset = '', $role = 'S')
   {
     $this->db

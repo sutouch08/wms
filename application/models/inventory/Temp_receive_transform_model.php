@@ -44,7 +44,7 @@ class Temp_receive_transform_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = NULL, $offset = 0)
   {
     $this->mc
-    ->select('U_ECOMNO, DocDate, CardCode, CardName')
+    ->select('DocEntry, U_ECOMNO, DocDate, CardCode, CardName')
     ->select('F_E_Commerce, F_E_CommerceDate')
     ->select('F_Sap, F_SapDate')
     ->select('F_Error AS Message');
@@ -84,6 +84,22 @@ class Temp_receive_transform_model extends CI_Model
     }
 
     $rs = $this->mc->get('OIGN');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_detail($docEntry)
+  {
+    $rs = $this->mc
+    ->select('U_ECOMNO, ItemCode, Dscription, Quantity, FisrtBin AS BinCode')
+    ->where('DocEntry', $docEntry)
+    ->get('IGN1');
 
     if($rs->num_rows() > 0)
     {

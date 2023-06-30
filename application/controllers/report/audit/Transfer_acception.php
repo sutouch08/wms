@@ -61,19 +61,12 @@ class Transfer_acception extends PS_Controller
         {
           foreach($list as $rs)
           {
-            $name = $rs->display_name;
+            $name = ($doc != 'WW' && $doc != 'MV') ? $rs->accept_name : NULL;
+            $owner = ($doc != 'WW' && $doc != 'MV') ? $rs->owner_name : $this->transfer_acception_model->get_owner_list($doc, $rs->code);
 
             if($rs->is_accept == 1 && empty($rs->accept_by))
             {
-              if($doc == "WW")
-              {
-                $name = $this->transfer_acception_model->get_transfer_accept_list($rs->code);
-              }
-
-              if($doc == "MV")
-              {
-                $name = $this->transfer_acception_model->get_move_accept_list($rs->code);
-              }
+              $name = $this->transfer_acception_model->get_accept_list($doc, $rs->code);
             }
 
             $arr = array(
@@ -81,6 +74,7 @@ class Transfer_acception extends PS_Controller
               'date_add' => thai_date($rs->date_add),
               'code' => $rs->code,
               'is_accept' => $rs->is_accept == 1 ? 'กดรับแล้ว' : 'ยังไม่กดรับ',
+              'owner_name' => $owner,
               'accept_by' => $name,
               'accept_on' => thai_date($rs->accept_on, TRUE),
               'accept_remark' => $rs->accept_remark
@@ -146,11 +140,12 @@ class Transfer_acception extends PS_Controller
     //--- set report title header
     $this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(8);
     $this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
-    $this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(15);
-    $this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(30);
     $this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
-    $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
-    $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(30);
+    $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(25);
+    $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(50);
 
     $this->excel->getActiveSheet()->setCellValue('A1', 'รายงานเอกสารโอนคลังที่ต้องกดรับ');
 
@@ -158,10 +153,12 @@ class Transfer_acception extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('A2', 'ลำดับ');
     $this->excel->getActiveSheet()->setCellValue('B2', 'วันที่');
     $this->excel->getActiveSheet()->setCellValue('C2', 'เลขที่');
-    $this->excel->getActiveSheet()->setCellValue('D2', 'การกดรับ');
-    $this->excel->getActiveSheet()->setCellValue('E2', 'กดรับโดย');
-    $this->excel->getActiveSheet()->setCellValue('F2', 'วันที่กดรับ');
-    $this->excel->getActiveSheet()->setCellValue('G2', 'หมายเหตุ');
+    $this->excel->getActiveSheet()->setCellValue('D2', 'เจ้าของโซน');
+    $this->excel->getActiveSheet()->setCellValue('E2', 'การกดรับ');
+    $this->excel->getActiveSheet()->setCellValue('F2', 'กดรับโดย');
+    $this->excel->getActiveSheet()->setCellValue('G2', 'วันที่กดรับ');
+    $this->excel->getActiveSheet()->setCellValue('H2', 'หมายเหตุ');
+
 
 		if(! empty($docList))
 		{
@@ -176,28 +173,22 @@ class Transfer_acception extends PS_Controller
         {
           foreach($list as $rs)
           {
-            $name = $rs->display_name;
+            $name = ($doc != 'WW' && $doc != 'MV') ? $rs->accept_name : NULL;
+            $owner = ($doc != 'WW' && $doc != 'MV') ? $rs->owner_name : $this->transfer_acception_model->get_owner_list($doc, $rs->code);
 
             if($rs->is_accept == 1 && empty($rs->accept_by))
             {
-              if($doc == "WW")
-              {
-                $name = $this->transfer_acception_model->get_transfer_accept_list($rs->code);
-              }
-
-              if($doc == "MV")
-              {
-                $name = $this->transfer_acception_model->get_move_accept_list($rs->code);
-              }
+              $name = $this->transfer_acception_model->get_accept_list($doc, $rs->code);
             }
 
             $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
   	        $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
   					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
-  	        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->is_accept == 1 ? 'กดรับแล้ว' : 'ยังไม่กดรับ');
-  	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $name);
-  					$this->excel->getActiveSheet()->setCellValue('F'.$row, thai_date($rs->accept_on, TRUE, '/'));
-            $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->accept_remark);
+            $this->excel->getActiveSheet()->setCellValue('D'.$row, $owner);
+  	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->is_accept == 1 ? 'กดรับแล้ว' : 'ยังไม่กดรับ');
+  	        $this->excel->getActiveSheet()->setCellValue('F'.$row, $name);
+  					$this->excel->getActiveSheet()->setCellValue('G'.$row, thai_date($rs->accept_on, TRUE, '/'));
+            $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->accept_remark);
 
   					$no++;
   					$row++;

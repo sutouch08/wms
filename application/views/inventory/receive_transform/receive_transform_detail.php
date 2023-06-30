@@ -21,6 +21,9 @@
 			<?php if($doc->status == 4 && ($doc->uname == $this->_user->uname OR $canAccept)) : ?>
 				<button type="button" class="btn btn-xs btn-success top-btn" onclick="accept()">ยืนยันการรับสินค้า</button>
 			<?php endif; ?>
+			<?php if($doc->status == 4 && ($this->pm->can_edit OR $this->pm->can_delete)) : ?>
+				<button type="button" class="btn btn-xs btn-warning top-btn" onclick="rollbackStatus()">ยกเลิกการบันทึก</button>
+			<?php endif; ?>
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-xs btn-success top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
@@ -129,7 +132,7 @@ else
 	if($doc->status == 4)
 	{
 		$this->load->view('accept_watermark');
-	}	
+	}
 }
 ?>
 <hr class="margin-top-15 margin-bottom-15"/>

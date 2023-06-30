@@ -41,17 +41,27 @@ class Wms_auto_delivery_order extends CI_Controller
 		$sc = TRUE;
 		$limit = 100;
 
+    $this->wms_order_import_logs_model->add('sync', 'S', NULL);
+    
 		$list = $this->wms_temp_order_model->get_unprocess_list($limit);
 
 		if(!empty($list))
 		{
+      $orderList = array();
+      foreach($list as $ro)
+      {
+        $orderList[] = $ro->code;
+      }
+
+      //--- update status to processing
+      $this->wms_temp_order_model->processing_status($orderList);
+
 			foreach($list as $data)
 			{
 				$order = $this->orders_model->get($data->code);
 
 				if(!empty($order))
 				{
-
 					if($order->state == 8 OR $order->state == 7)
 					{
 						$sc = FALSE;
@@ -329,7 +339,7 @@ class Wms_auto_delivery_order extends CI_Controller
 							$this->wms_order_import_logs_model->add($order->code, 'E', $this->error);
 						}
 					}
-				
+
 
 					//---- insert Qc
 					if($sc === TRUE)

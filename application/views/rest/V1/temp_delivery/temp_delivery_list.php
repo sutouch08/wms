@@ -30,10 +30,11 @@
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่เข้า</option>
       <option value="1" <?php echo is_selected('1', $status); ?>>เข้าแล้ว</option>
-      <option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่เข้า</option>
+			<option value="2" <?php echo is_selected('2', $status); ?>>Processing</option>
       <option value="3" <?php echo is_selected('3', $status); ?>>Error</option>
-			<option value="2" <?php echo is_selected('2', $status); ?>>Closed</option>
+			<option value="10" <?php echo is_selected('10', $status); ?>>Closed</option>
     </select>
   </div>
 
@@ -113,8 +114,10 @@
 					<td class="middle text-center" id="status-label-<?php echo $rs->id; ?>">
             <?php if($rs->status == 0) : ?>
               <span class="blue">NC</span>
-						<?php elseif($rs->status == 2) : ?>
+						<?php elseif($rs->status == 10) : ?>
 							<span class="blue">Closed</span>
+						<?php elseif($rs->status == 2) : ?>
+							<span class="blue">Processing</span>
             <?php elseif($rs->status == 3) : ?>
               <span class="red">ERROR</span>
 						<?php elseif($rs->status == 1) : ?>
@@ -123,7 +126,7 @@
           </td>
           <td class="middle">
             <?php
-            if($rs->status == 3 OR $rs->status == 2)
+            if($rs->status == 3 OR $rs->status == 10)
             {
               echo $rs->message;
             }
@@ -134,8 +137,8 @@
 						<button type="button" class="btn btn-minier btn-info" onclick="getDetails(<?php echo $rs->id; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-						<?php if($this->_SuperAdmin && $rs->status != 1) : ?>
-							<?php if($rs->status != 2) : ?>
+						<?php if($this->_SuperAdmin && $rs->status != 1 && $rs->status != 2) : ?>
+							<?php if($rs->status != 10) : ?>
 							<button type="button" class="btn btn-minier btn-warning" id="btn-close-<?php echo $rs->id; ?>" onclick="closeOrder(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
 								<i class="fa fa-times"></i>
 							</button>

@@ -61,6 +61,57 @@ function getInvoice(code)
 }
 
 
+
+function deleteRow(docEntry, code)
+{
+  swal({
+    title:"Confirmation",
+    text:"ต้องการลบ "+code+" หรือไม่ ?",
+    type:"warning",
+    showCancelButton:true,
+    confirmButtonColor:'#d15b47',
+    confirmButtonText:'ยืนยัน',
+    cancelButtonText:'ยกเลิก',
+    closeOnConfirm:true
+  }, function() {
+
+    load_in();
+
+    $.ajax({
+      url:HOME + 'removeRow',
+      type:'POST',
+      cache:false,
+      data:{
+        'DocEntry' : docEntry
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs == 'success') {
+          setTimeout(() => {
+            $('#row-'+docEntry).remove();
+
+            swal({
+              title:'Deleted',
+              type:'success',
+              timer:1000
+            })
+          }, 200)
+        }
+        else {
+          setTimeout(() => {
+            swal({
+              title:'Error',
+              text:rs,
+              type:'error'
+            });
+          }, 200)
+        }
+      }
+    })
+  })
+}
+
 function export_diff()
 {
   var token = $('#token').val();

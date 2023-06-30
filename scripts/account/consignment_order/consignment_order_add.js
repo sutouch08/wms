@@ -649,7 +649,12 @@ function uploadfile(){
 			}
 			else
 			{
-				swal("Error!", rs, "error");
+				swal({
+          title:"Error!",
+          text:rs,
+          type:"error",
+          html:true
+        });
 			}
 		},
 		error:function(xhr, status, error){

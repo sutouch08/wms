@@ -62,7 +62,7 @@ function db_date($date, $time = FALSE, $sp = '-')
   {
     $date = date('Y-m-d');
   }
-  
+
   if($time === TRUE)
   {
     $c_time = date('H:i:s', strtotime($date));

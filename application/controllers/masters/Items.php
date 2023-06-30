@@ -162,9 +162,9 @@ class Items extends PS_Controller
                 'P' => 'Price',
                 'Q' => 'Unit',
                 'R' => 'CountStock',
-                'S' => 'IsAPI',
-                'T' => 'OldModel',
-                'U' => 'OldCode'
+                'S' => 'IsAPI'
+                // 'T' => 'OldModel',
+                // 'U' => 'OldCode'
               );
 
               foreach($headCol as $col => $field)
@@ -194,7 +194,7 @@ class Items extends PS_Controller
               $rs['D'] = str_replace(array("\n", "\r"), '', $rs['D']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
 
               $style = preg_replace($code_pattern, '', get_null(trim($rs['D'])));
-              $old_style = get_null(trim($rs['T'])) === NULL ? $style : trim($rs['T']);
+              $old_style = NULL; //get_null(trim($rs['T'])) === NULL ? $style : trim($rs['T']);
               $color_code = get_null(trim($rs['E']));
               $size_code = get_null(trim($rs['F']));
               $group_code = get_null(trim($rs['G']));
@@ -291,7 +291,7 @@ class Items extends PS_Controller
 
               $rs['A'] = str_replace(array("\n", "\r"), '', $rs['A']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
               $code = preg_replace($code_pattern, '', trim($rs['A']));
-              $old_code = get_null(trim($rs['U'])) === NULL ? $code : trim($rs['U']);
+              $old_code = NULL; //get_null(trim($rs['U'])) === NULL ? $code : trim($rs['U']);
               $arr = array(
                 'code' => $code,
                 'name' => trim($rs['B']),
@@ -569,56 +569,6 @@ class Items extends PS_Controller
 
 		echo $sc === TRUE ? 'success' : $this->error;
   }
-
-
-  // public function update()
-  // {
-	// 	$code = $this->input->post('code');
-  //   $count = $this->input->post('count_stock');
-  //   $sell = $this->input->post('can_sell');
-  //   $api = $this->input->post('is_api');
-  //   $active = $this->input->post('active');
-  //   $user = get_cookie('uname');
-	//
-  //   $arr = array(
-  //     'name' => trim($this->input->post('name')),
-  //     'barcode' => get_null(trim($this->input->post('barcode'))),
-  //     'style_code' => trim($this->input->post('style')),
-  //     'color_code' => get_null($this->input->post('color')),
-  //     'size_code' => get_null($this->input->post('size')),
-  //     'group_code' => get_null($this->input->post('group_code')),
-	// 		'main_group_code' => get_null($this->input->post('main_group_code')),
-  //     'sub_group_code' => get_null($this->input->post('sub_group_code')),
-  //     'category_code' => get_null($this->input->post('category_code')),
-  //     'kind_code' => get_null($this->input->post('kind_code')),
-  //     'type_code' => get_null($this->input->post('type_code')),
-  //     'brand_code' => get_null($this->input->post('brand_code')),
-  //     'year' => $this->input->post('year'),
-  //     'cost' => round($this->input->post('cost'), 2),
-  //     'price' => round($this->input->post('price'), 2),
-  //     'unit_code' => $this->input->post('unit_code'),
-  //     'count_stock' => is_null($count) ? 0 : 1,
-  //     'can_sell' => is_null($sell) ? 0 : 1,
-  //     'active' => is_null($active) ? 0 : 1,
-  //     'is_api' => is_null($api) ? 0 : 1,
-  //     'update_user' => $user,
-  //     'old_style' => get_null($this->input->post('old_style')),
-  //     'old_code' => get_null($this->input->post('old_code'))
-  //   );
-	//
-  //   if($this->products_model->update($code, $arr))
-  //   {
-  //     set_message('Update success');
-  //     $this->do_export($code);
-  //     redirect($this->home.'/edit/'.$code);
-  //   }
-  //   else
-  //   {
-  //     set_error('Update failed');
-  //     redirect($this->home.'/edit/'.$code);
-  //   }
-  // }
-
 
 
   public function is_exists_code($code, $old_code = '')

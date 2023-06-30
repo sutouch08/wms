@@ -20,11 +20,11 @@ class Zone extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code' => get_filter('code', 'code', ''),
-      'uname' => get_filter('uname', 'uname', ''),
-      'warehouse' => get_filter('warehouse', 'warehouse', ''),
-      'customer' => get_filter('customer', 'customer', ''),
-      'active' => get_filter('active', 'active', 'all')
+      'code' => get_filter('code', 'z_code', ''),
+      'uname' => get_filter('uname', 'z_uname', ''),
+      'warehouse' => get_filter('warehouse', 'z_warehouse', ''),
+      'customer' => get_filter('customer', 'z_customer', ''),
+      'active' => get_filter('active', 'z_active', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -512,7 +512,7 @@ class Zone extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('code', 'uname', 'customer', 'warehouse', 'active');
+    $filter = array('z_code', 'z_uname', 'z_customer', 'z_warehouse', 'z_active');
     clear_filter($filter);
   }
 

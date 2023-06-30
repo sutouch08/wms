@@ -130,6 +130,17 @@ class Wms_temp_order_model extends CI_Model
 	}
 
 
+	public function processing_status(array $ds = array())
+	{
+		if( ! empty($ds))
+		{
+			return $this->wms->set('status', 2)->where_in('code', $ds)->update($this->tb);
+		}
+
+		return FALSE;
+	}
+
+
 	public function get_unprocess_list($limit = 100)
 	{
 		$date = $this->last_minute();

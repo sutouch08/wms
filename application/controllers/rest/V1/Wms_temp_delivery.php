@@ -71,7 +71,7 @@ class Wms_temp_delivery extends PS_Controller
 		$id = $this->input->post('id');
 
 		$arr = array(
-			'status' => 2,
+			'status' => 10,
 			'closed_by' => $this->_user->name
 		);
 

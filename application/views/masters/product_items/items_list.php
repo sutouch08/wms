@@ -137,7 +137,7 @@
 					<tr id="row-<?php echo $rs->code; ?>" class="font-size-12">
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->barcode; ?></td>
-						<td class="middle"><?php echo $rs->code; ?></td>
+						<td class="middle"><?php echo $rs->code; ?> <?php echo (empty($rs->old_code) ? "" : " | {$rs->old_code}"); ?></td>
 						<td class="middle"><?php echo $rs->style_code; ?></td>
 						<td class="middle text-center"><?php echo $rs->color_code; ?></td>
 						<td class="middle text-center"><?php echo $rs->size_code; ?></td>

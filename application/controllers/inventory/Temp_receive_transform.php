@@ -47,15 +47,17 @@ class Temp_receive_transform extends PS_Controller
 
 
 
-  public function get_detail($code)
+  public function get_detail($docEntry)
   {
     $this->load->model('stock/stock_model');
-    $detail = $this->temp_receive_transform_model->get_detail($code);
+    $detail = $this->temp_receive_transform_model->get_detail($docEntry);
+    $code = "";
     if(!empty($detail))
     {
       foreach($detail as $rs)
       {
         $rs->onhand = $this->stock_model->get_stock_zone($rs->BinCode, $rs->ItemCode);
+        $code = $rs->U_ECOMNO;
       }
     }
 
