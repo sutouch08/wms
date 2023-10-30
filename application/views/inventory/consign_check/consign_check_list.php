@@ -148,5 +148,7 @@
   </div>
 </div>
 
+<?php $this->load->view('cancle_modal'); ?>
+
 <script src="<?php echo base_url(); ?>scripts/inventory/consign_check/consign_check.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

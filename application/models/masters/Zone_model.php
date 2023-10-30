@@ -410,7 +410,7 @@ class Zone_model extends CI_Model
   {
     $rs = $this->db
     ->select('zone.id, zone.code, zone.name, zone.warehouse_code, zone.user_id')
-    ->select('warehouse.name AS warehouse_name, warehouse.role, warehouse_role.name AS role_name')
+    ->select('warehouse.name AS warehouse_name, warehouse.role, warehouse_role.name AS role_name, warehouse.is_consignment')
     ->select('user.uname, user.name AS display_name')
     ->from('zone')
     ->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')

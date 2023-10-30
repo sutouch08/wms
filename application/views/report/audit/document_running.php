@@ -130,6 +130,13 @@
 
 						<div class="col-sm-12">
 							<label>
+                <input type="checkbox" class="ace chk" id="role-mv" name="role[MV]" value="MV" data-prefix="MV" style="margin-right:10px;" />
+                <span class="lbl">   MV - ย้ายพื้นที่จัดเก็บสินค้า</span>
+              </label>
+            </div>
+
+						<div class="col-sm-12">
+							<label>
                 <input type="checkbox" class="ace chk" id="role-wg" name="role[WG]" value="WG" data-prefix="WG" style="margin-right:10px;" />
                 <span class="lbl">   WG - ตัดยอดแปรสภาพ</span>
               </label>

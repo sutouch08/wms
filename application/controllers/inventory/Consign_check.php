@@ -736,18 +736,26 @@ class Consign_check extends PS_Controller
   public function cancle($code)
   {
     $sc = TRUE;
+
     if($this->pm->can_delete)
     {
       //--- delete all data
       if( ! $this->delete_all_details($code))
       {
         $sc = FALSE;
+        //-- error throw from function delete_all_details
       }
 
+      //--- change status = 2 (cancle)
       if($sc === TRUE)
       {
-        //--- change status = 2 (cancle)
-        if( ! $this->consign_check_model->change_status($code, 2))
+        $arr = array(
+          'status' => 2,
+          'cancle_reason' => trim($this->input->post('reason')),
+          'cancle_user' => $this->_user->uname
+        );
+
+        if( ! $this->consign_check_model->update($code, $arr))
         {
           $sc = FALSE;
           $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";

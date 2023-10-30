@@ -2,18 +2,18 @@
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-sm-12">
 		<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-		<button type="button" class="btn btn-sm btn-primary" onclick="newItems()">สร้างรายการสินค้า</button>
-		<button type="button" class="btn btn-sm btn-info" onclick="setImages()">เชื่อมโยงรูปภาพ</button>
-		<button type="button" class="btn btn-sm btn-warning" onclick="setBarcodeForm()">Generate Barcode</button>
-		<button type="button" class="btn btn-sm btn-purple" onclick="downloadBarcode('<?php echo $style->code; ?>')">Download Barcode</button>
-		<button type="button" class="btn btn-sm btn-info" onclick="doExport('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป SAP </button>
+		<button type="button" class="btn btn-sm btn-primary top-btn" onclick="newItems()">สร้างรายการสินค้า</button>
+		<button type="button" class="btn btn-sm btn-info top-btn" onclick="setImages()">เชื่อมโยงรูปภาพ</button>
+		<button type="button" class="btn btn-sm btn-warning top-btn" onclick="setBarcodeForm()">Generate Barcode</button>
+		<button type="button" class="btn btn-sm btn-purple top-btn" onclick="downloadBarcode('<?php echo $style->code; ?>')">Download Barcode</button>
+		<button type="button" class="btn btn-sm btn-info top-btn" onclick="doExport('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป SAP </button>
 
-		<button type="button" class="btn btn-sm btn-yellow" onclick="checkOldCode('<?php echo $style->code; ?>','<?php echo $style->old_code; ?>')">
+		<button type="button" class="btn btn-sm btn-yellow top-btn" onclick="checkOldCode('<?php echo $style->code; ?>','<?php echo $style->old_code; ?>')">
 			Generate รหัสเก่า
 		</button>
 
 		<?php if(is_true(getConfig('WEB_API')) === TRUE) : ?>
-			<button type="button" class="btn btn-sm btn-success" onclick="sendToWeb('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป Magento</button>
+			<button type="button" class="btn btn-sm btn-success top-btn" onclick="sendToWeb('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป Magento</button>
 		<?php endif; ?>
 		<?php endif; ?>
 	</div>

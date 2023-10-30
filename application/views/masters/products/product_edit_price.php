@@ -1,6 +1,6 @@
 <form class="form-horizontal" id="sizeForm" method="post" action="<?php echo $this->home."/update_all_cost_price_by_size"; ?>">
 <div class="row">
-	<div class="col-sm-6 col-xs-12">
+	<div class="col-sm-6 col-xs-12 padding-5">
 		<table class="table table-striped border-1">
 			<thead>
 				<tr>

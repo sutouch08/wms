@@ -1,37 +1,38 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-		<div class="col-sm-6">
-			<p class="pull-right top-p">
+	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
+		<h3 class="title" ><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-xs-12 visible-xs padding-5">
+		<h3 class="title-xs" ><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+		<p class="pull-right top-p">
 			<?php if($this->pm->can_add) : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
 			<?php endif; ?>
-			</p>
-		</div>
+		</p>
+	</div>
 </div><!-- End Row -->
-<hr class=""/>
+<hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+	<div class="col-lg-1-harf col-md-3 col-sm-2-harf col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>อ้างถึง</label>
     <input type="text" class="form-control input-sm search" name="reference" value="<?php echo $reference; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-1-harf col-md-3 col-sm-2-harf col-xs-4 padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 		<label>การอนุมัติ</label>
 		<select class="form-control input-sm" name="isApprove" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -40,7 +41,7 @@
 		</select>
 	</div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
     <label>สถานะ</label>
 		<select class="form-control input-sm" name="status" onchange="getSearch()">
 			<option value="all" <?php echo is_selected($status, 'all'); ?>>ทั้งหมด</option>
@@ -50,20 +51,19 @@
 		</select>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
       <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
-
   </div>
 
-  <div class="col-sm-1 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -72,26 +72,26 @@
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-sm-12 first last">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 		<p class="pull-right">
       สถานะ : ว่างๆ = ปกติ, &nbsp;
       <span class="red">CN</span> = ยกเลิก, &nbsp;
       <span class="blue">NC</span> = ยังไม่บันทึก
     </p>
   </div>
-  <div class="col-sm-12">
-    <table class="table table-striped border-1">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1" style="min-width:960px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-10">วันที่</th>
-          <th class="width-10">เลขที่เอกสาร</th>
-          <th class="width-15">อ้างถึง</th>
-          <th class="width-15">พนักงาน</th>
-          <th class="">หมายเหตุ</th>
-          <th class="width-5 text-center">สถานะ</th>
-					<th class="width-5 text-center">อนุมัติ</th>
-					<th class="width-10"></th>
+          <th class="fix-width-40 text-center">ลำดับ</th>
+          <th class="fix-width-100">วันที่</th>
+          <th class="fix-width-100">เลขที่เอกสาร</th>
+          <th class="fix-width-150">อ้างถึง</th>
+          <th class="fix-width-150">พนักงาน</th>
+          <th class="min-width-200">หมายเหตุ</th>
+          <th class="fix-width-50 text-center">สถานะ</th>
+					<th class="fix-width-50 text-center">อนุมัติ</th>
+					<th class="fix-width-120"></th>
         </tr>
       </thead>
       <tbody>
@@ -109,11 +109,11 @@
 
           <td class="middle"><?php echo $rs->reference; ?></td>
 
-          <td class="middle hide-text"><?php echo $rs->user_name; ?></td>
+          <td class="middle"><?php echo $rs->user_name; ?></td>
 
-          <td class="middle hide-text"><?php echo $rs->remark; ?></td>
+          <td class="middle"><?php echo $rs->remark; ?></td>
 
-          <td class="middle text-center hide-text">
+          <td class="middle text-center">
 						<?php if($rs->status == 0) : ?>
 							<span class="blue">NC</span>
 						<?php endif; ?>
@@ -160,6 +160,8 @@
     </table>
   </div>
 </div>
+
+<?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/adjust_consignment/adjust_consignment.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/adjust_consignment/adjust_consignment_list.js?v=<?php echo date('Ymd'); ?>"></script>

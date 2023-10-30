@@ -182,14 +182,18 @@ class stock_model extends CI_Model
   }
 
 
-
   //---- สินค้าทั้งหมดที่อยู่ในโซน (ใช้โอนสินค้าระหว่างคลัง)
   public function get_all_stock_in_zone($zone_code)
   {
     $rs = $this->ms
     ->select('OIBQ.ItemCode AS product_code, OIBQ.OnHandQty AS qty')
+    ->select('OITM.ItemName AS product_name, OITM.CodeBars AS barcode')
+    ->select('ITM1.Price AS cost, ITM2.Price AS price')
     ->from('OIBQ')
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
+    ->join('ITM1 AS ITM1', '(ITM1.ItemCode = OITM.ItemCode AND ITM1.PriceList = 13)')
+    ->join('ITM1 AS ITM2', '(ITM2.ItemCode = OITM.ItemCode AND ITM2.PriceList = 11)')
     ->where('OBIN.BinCode', $zone_code)
     ->where('OIBQ.OnHandQty !=', 0)
     ->get();
@@ -207,8 +211,13 @@ class stock_model extends CI_Model
   {
     $rs = $this->cn
     ->select('OIBQ.ItemCode AS product_code, OIBQ.OnHandQty AS qty')
+    ->select('OITM.ItemName AS product_name, OITM.CodeBars AS barcode')
+    ->select('ITM1.Price AS cost, ITM2.Price AS price')
     ->from('OIBQ')
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
+    ->join('ITM1 AS ITM1', '(ITM1.ItemCode = OITM.ItemCode AND ITM1.PriceList = 13)')
+    ->join('ITM1 AS ITM2', '(ITM2.ItemCode = OITM.ItemCode AND ITM2.PriceList = 11)')
     ->where('OBIN.BinCode', $zone_code)
     ->where('OIBQ.OnHandQty !=', 0)
     ->get();

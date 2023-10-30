@@ -41,7 +41,7 @@
 					<?php endif; ?>
 		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 		    <?php endif; ?>
-				<?php if($this->isAPI && $doc->is_wms == 1 && $doc->api == 1 && $doc->is_expire == 0 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
+				<?php if($this->isAPI && $doc->is_wms == 1 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 				<?php endif; ?>
 				<?php if($doc->status == 0 && $doc->must_approve == 1 && $doc->is_approve == 0 && ($this->pm->can_approve OR $this->_SuperAdmin)) : ?>
@@ -59,17 +59,19 @@
 <input type="hidden" id="can-accept" name="can_accept" value="<?php echo $canAccept ? 1 : 0; ?>" />
 <hr/>
 <?php
-	if($doc->is_expire == 1)
-	{
-		$this->load->view('expire_watermark');
-	}
-	else
+	if($doc->is_expire == 1 OR $doc->status == 2)
 	{
 		if($doc->status == 2)
 		{
 			$this->load->view('cancle_watermark');
 		}
-
+		else
+		{
+			$this->load->view('expire_watermark');
+		}
+	}
+	else
+	{	
 		if($doc->status == 3)
 		{
 			$this->load->view('on_process_watermark');

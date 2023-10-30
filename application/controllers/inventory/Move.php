@@ -1310,10 +1310,20 @@ class Move extends PS_Controller
         }
 
         //--- Mare as Cancled
-        if(! $this->move_model->set_status($code, 2))
+        if( $sc === TRUE)
         {
-          $sc = FALSE;
-          $this->error = "ลบเอกสารไม่สำเร็จ";
+          $arr = array(
+            'status' => 2,
+            'inv_code' => NULL,
+            'cancle_reason' => trim($this->input->post('reason')),
+            'cancle_user' => $this->_user->uname
+          );
+
+          if(! $this->move_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "ลบเอกสารไม่สำเร็จ";
+          }
         }
 
         if($sc === TRUE)

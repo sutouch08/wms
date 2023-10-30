@@ -63,23 +63,6 @@ class Product_style_model extends CI_Model
 
   public function get_sap_list($date_add, $date_upd, $limit, $offset)
   {
-    // $rs = $this->ms->distinct()
-    // ->select('OITM.U_MODEL, OITM.U_GROUP, OITM.U_MAJOR')
-    // ->select('OITM.U_CATE, OITM.U_SUBTYPE, OITM.U_TYPE')
-    // ->select('OITM.U_BRAND, OITM.U_YEAR, OITM.InvntItem, OITM.InvntryUom')
-    // ->select('ITM1.Price AS cost, ITM2.Price AS price')
-    // ->from('OITM')
-    // ->join('ITM1 AS ITM1', '(ITM1.ItemCode = OITM.ItemCode AND ITM1.PriceList = 13)','left')
-    // ->join('ITM1 AS ITM2', '(ITM2.ItemCode = OITM.ItemCode AND ITM2.PriceList = 11)', 'left')
-    // ->where('OITM.U_MODEL IS NOT NULL', NULL, FALSE)
-    // ->where('OITM.U_MODEL !=', '')
-    // ->where('OITM.U_MODEL !=','0')
-    // ->group_start()
-    // ->where('OITM.CreateDate >', $date_add)
-    // ->or_where('UpdateDate >', $date_upd)
-    // ->group_end()
-    // ->limit($limit, $offset)
-    // ->get();
 
     $rs = $this->ms
     ->select('U_MODEL')
@@ -117,12 +100,6 @@ class Product_style_model extends CI_Model
     ->limit(1)
     ->get();
 
-    // $rs = $this->ms
-    // ->select('U_MODEL, U_GROUP, U_MAJOR, U_CATE, U_TYPE, U_SUBTYPE, U_BRAND, U_YEAR, InvntryUom, InvntItem')
-    // ->where('U_MODEL', $code)
-    // ->limit(1)
-    // ->get('OITM');
-
     if($rs->num_rows() > 0)
     {
       return $rs->row();
@@ -133,8 +110,6 @@ class Product_style_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $this->db->select('active');
-
     if(!empty($ds))
     {
       if(!empty($ds['code']))
@@ -150,50 +125,107 @@ class Product_style_model extends CI_Model
         $this->db->like('name', $ds['name']);
       }
 
-      if(!empty($ds['group']))
+      if($ds['group'] != 'all')
       {
-        $this->db->where('group_code', $ds['group']);
+        if($ds['group'] == 'NULL')
+        {
+          $this->db->where('group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('group_code', $ds['group']);
+        }
       }
 
-			if(!empty($ds['main_group']))
+			if($ds['main_group'] != 'all')
 			{
-				$this->db->where('main_group_code', $ds['main_group']);
+        if($ds['main_group'] == 'NULL')
+        {
+          $this->db->where('main_group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('main_group_code', $ds['main_group']);
+        }
 			}
 
-      if(!empty($ds['sub_group']))
+      if($ds['sub_group'] != 'all')
       {
-        $this->db->where('sub_group_code', $ds['sub_group']);
+        if($ds['sub_group'] == 'NULL')
+        {
+          $this->db->where('sub_group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('sub_group_code', $ds['sub_group']);
+        }
       }
 
-      if(!empty($ds['category']))
+      if($ds['category'] != 'all')
       {
-        $this->db->where('category_code', $ds['category']);
+        if($ds['category'] == 'NULL')
+        {
+          $this->db->where('category_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('category_code', $ds['category']);
+        }
       }
 
-      if(!empty($ds['kind']))
+      if($ds['kind'] != 'all')
       {
-        $this->db->where('kind_code', $ds['kind']);
+        if($ds['kind'] == 'NULL')
+        {
+          $this->db->where('kind_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('kind_code', $ds['kind']);
+        }
       }
 
-      if(!empty($ds['type']))
+      if($ds['type'] != 'all')
       {
-        $this->db->where('type_code', $ds['type']);
+        if($ds['type'] == 'NULL')
+        {
+          $this->db->where('type_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('type_code', $ds['type']);
+        }
       }
 
-      if(!empty($ds['brand']))
+      if($ds['brand'] != 'all')
       {
-        $this->db->where('brand_code', $ds['brand']);
+        if($ds['brand'] == 'NULL')
+        {
+          $this->db->where('brand_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('brand_code', $ds['brand']);
+        }
       }
 
-      if(!empty($ds['year']))
+      if($ds['year'] != 'all')
       {
         $this->db->where('year', $ds['year']);
       }
+
+      if($ds['sell'] != 'all')
+      {
+        $this->db->where('can_sell', $ds['sell']);
+      }
+
+      if($ds['active'] != 'all')
+      {
+        $this->db->where('active', $ds['active']);
+      }
     }
 
-    $rs = $this->db->get('product_style');
-
-    return $rs->num_rows();
+    return $this->db->count_all_results('product_style');
   }
 
 
@@ -250,9 +282,9 @@ class Product_style_model extends CI_Model
 
   public function get_data(array $ds = array(), $perpage = '', $offset = '')
   {
-    if(!empty($ds))
+    if(! empty($ds))
     {
-      if(!empty($ds['code']))
+      if(! empty($ds['code']))
       {
         $this->db->group_start();
         $this->db->like('code', $ds['code']);
@@ -260,49 +292,108 @@ class Product_style_model extends CI_Model
         $this->db->group_end();
       }
 
-      if(!empty($ds['name']))
+      if(! empty($ds['name']))
       {
         $this->db->like('name', $ds['name']);
       }
 
-      if(!empty($ds['group']))
+      if($ds['group'] != 'all')
       {
-        $this->db->where('group_code', $ds['group']);
+        if($ds['group'] == 'NULL')
+        {
+          $this->db->where('group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('group_code', $ds['group']);
+        }
       }
 
-			if(!empty($ds['main_group']))
+			if($ds['main_group'] != 'all')
 			{
-				$this->db->where('main_group_code', $ds['main_group']);
+        if($ds['main_group'] == 'NULL')
+        {
+          $this->db->where('main_group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('main_group_code', $ds['main_group']);
+        }
 			}
 
-      if(!empty($ds['sub_group']))
+      if($ds['sub_group'] != 'all')
       {
-        $this->db->where('sub_group_code', $ds['sub_group']);
+        if($ds['sub_group'] == 'NULL')
+        {
+          $this->db->where('sub_group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('sub_group_code', $ds['sub_group']);
+        }
       }
 
-      if(!empty($ds['category']))
+      if($ds['category'] != 'all')
       {
-        $this->db->where('category_code', $ds['category']);
+        if($ds['category'] == 'NULL')
+        {
+          $this->db->where('category_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('category_code', $ds['category']);
+        }
       }
 
-      if(!empty($ds['kind']))
+      if($ds['kind'] != 'all')
       {
-        $this->db->where('kind_code', $ds['kind']);
+        if($ds['kind'] == 'NULL')
+        {
+          $this->db->where('kind_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('kind_code', $ds['kind']);
+        }
       }
 
-      if(!empty($ds['type']))
+      if($ds['type'] != 'all')
       {
-        $this->db->where('type_code', $ds['type']);
+        if($ds['type'] == 'NULL')
+        {
+          $this->db->where('type_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('type_code', $ds['type']);
+        }
       }
 
-      if(!empty($ds['brand']))
+      if($ds['brand'] != 'all')
       {
-        $this->db->where('brand_code', $ds['brand']);
+        if($ds['brand'] == 'NULL')
+        {
+          $this->db->where('brand_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('brand_code', $ds['brand']);
+        }
       }
 
-      if(!empty($ds['year']))
+      if($ds['year'] != 'all')
       {
         $this->db->where('year', $ds['year']);
+      }
+
+      if($ds['sell'] != 'all')
+      {
+        $this->db->where('can_sell', $ds['sell']);
+      }
+
+      if($ds['active'] != 'all')
+      {
+        $this->db->where('active', $ds['active']);
       }
     }
 

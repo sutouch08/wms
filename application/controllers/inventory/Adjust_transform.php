@@ -408,11 +408,11 @@ class Adjust_transform extends PS_Controller
 
 
 
-  public function cancle()
+  public function cancle($code)
   {
     $this->load->model('inventory/transform_model');
     $sc = TRUE;
-    $code = $this->input->post('code');
+
     if(!empty($code))
     {
       $doc = $this->adjust_transform_model->get($code);
@@ -423,6 +423,7 @@ class Adjust_transform extends PS_Controller
           if(empty($doc->issue_code))
           {
             $sap = $this->adjust_transform_model->get_sap_issue_doc($code);
+
             if($sap === FALSE)
             {
               $middle = $this->adjust_transform_model->get_middle_goods_issue($code);
@@ -448,7 +449,14 @@ class Adjust_transform extends PS_Controller
                 //--- change doc status to 2 Cancled
                 if($sc === TRUE)
                 {
-                  if(! $this->adjust_transform_model->change_status($code, 2))
+                  $arr = array(
+                    'issue_code' => NULL,
+                    'status' => 2,
+                    'cancle_reason' => trim($this->input->post('reason')),
+                    'cancle_user' => $this->_user->uname
+                  );
+
+                  if(! $this->adjust_transform_model->update($code, $arr))
                   {
                     $sc = FALSE;
                     $this->error = "ยกเลิกเอกสารไม่สำเร็จ";

@@ -64,7 +64,8 @@ class Items extends PS_Controller
       'kind'      => get_filter('kind', 'kind', ''),
       'type'      => get_filter('type', 'type', ''),
       'brand'     => get_filter('brand', 'brand', ''),
-      'year'      => get_filter('year', 'year', '')
+      'year'      => get_filter('year', 'year', ''),
+      'active' => get_filter('active', 'active', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -387,10 +388,10 @@ class Items extends PS_Controller
           'cost' => round($this->input->post('cost'), 2),
           'price' => round($this->input->post('price'), 2),
           'unit_code' => $this->input->post('unit_code'),
-          'count_stock' => is_null($count) ? 0 : 1,
-          'can_sell' => is_null($sell) ? 0 : 1,
-          'active' => is_null($active) ? 0 : 1,
-          'is_api' => is_null($api) ? 0 : 1,
+          'count_stock' => empty($count) ? 0 : 1,
+          'can_sell' => empty($sell) ? 0 : 1,
+          'active' => empty($active) ? 0 : 1,
+          'is_api' => empty($api) ? 0 : 1,
           'update_user' => $user,
           'old_style' => get_null($this->input->post('old_style')),
           'old_code' => get_null($this->input->post('old_code'))
@@ -451,10 +452,10 @@ class Items extends PS_Controller
           'cost' => round($this->input->post('cost'), 2),
           'price' => round($this->input->post('price'), 2),
           'unit_code' => $this->input->post('unit_code'),
-          'count_stock' => is_null($count) ? 0 : 1,
-          'can_sell' => is_null($sell) ? 0 : 1,
-          'active' => is_null($active) ? 0 : 1,
-          'is_api' => is_null($api) ? 0 : 1,
+          'count_stock' => empty($count) ? 0 : 1,
+          'can_sell' => empty($sell) ? 0 : 1,
+          'active' => empty($active) ? 0 : 1,
+          'is_api' => empty($api) ? 0 : 1,
           'update_user' => $user,
           'old_style' => get_null($this->input->post('old_style')),
           'old_code' => get_null($this->input->post('old_code'))
@@ -547,10 +548,10 @@ class Items extends PS_Controller
       'cost' => round($ds->cost, 2),
       'price' => round($ds->price, 2),
       'unit_code' => $ds->unit_code,
-      'count_stock' => is_null($ds->count_stock) ? 0 : 1,
-      'can_sell' => is_null($ds->can_sell) ? 0 : 1,
-      'active' => is_null($ds->active) ? 0 : 1,
-      'is_api' => is_null($ds->is_api) ? 0 : 1,
+      'count_stock' => empty($ds->count_stock) ? 0 : 1,
+      'can_sell' => empty($ds->can_sell) ? 0 : 1,
+      'active' => empty($ds->active) ? 0 : 1,
+      'is_api' => empty($ds->is_api) ? 0 : 1,
       'update_user' => $this->_user->uname,
       'old_style' => get_null($ds->old_style),
       'old_code' => get_null($ds->old_code)
@@ -634,9 +635,10 @@ class Items extends PS_Controller
   }
 
 
-  public function delete_item($item)
+  public function delete_item()
   {
     $sc = TRUE;
+    $item = $this->input->get('code');
 
     if($item != '')
     {
@@ -838,7 +840,7 @@ class Items extends PS_Controller
 
   public function clear_filter()
 	{
-    $filter = array('item_code','item_name','item_barcode','color', 'size','group','sub_group','category','kind','type','brand','year');
+    $filter = array('item_code','item_name','item_barcode','color', 'size','group','sub_group','category','kind','type','brand','year', 'active');
     clear_filter($filter);
 	}
 }

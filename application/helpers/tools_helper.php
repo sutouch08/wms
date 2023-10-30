@@ -279,15 +279,15 @@ function get_zero($value)
 function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment = 3)
 {
     $rows = get_rows();
-    $input_rows  = '<p class="pull-right pagination hidden-xs">';
-    $input_rows .= 'ทั้งหมด '.number($total_rows).' รายการ | แสดง';
+    $input_rows  = '<p class="pull-right pagination">';
+    $input_rows .= 'ทั้งหมด '.number($total_rows).' รายการ';
     $input_rows .= '<input type="number" name="set_rows" id="set_rows" class="input-mini text-center margin-left-15 margin-right-10" value="'.$rows.'" />';
     $input_rows .= 'ต่อหน้า ';
     $input_rows .= '<buton class="btn btn-success btn-xs" type="button" onClick="set_rows()">แสดง</button>';
     $input_rows .= '</p>';
 
 		$config['full_tag_open'] 		= '<nav><ul class="pagination">';
-		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr>';
+		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr class="hidden-xs">';
 		$config['first_link'] 				= 'First';
 		$config['first_tag_open'] 		= '<li>';
 		$config['first_tag_close'] 		= '</li>';
@@ -322,9 +322,9 @@ function statusBackgroundColor($is_expire, $status, $is_approve = 1)
 {
 	$bk_color = "";
 
-	if($is_expire == 1)
+	if($is_expire == 1 OR $status == 2)
 	{
-		$bk_color = "#dbdbdb";
+		$bk_color = $status == 2 ? "#f7c3bf" : "#dbdbdb";
 	}
 	else
 	{

@@ -1,7 +1,7 @@
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update_style"; ?>">
 <div class="row">
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">รหัสรุ่นสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">รหัสรุ่นสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<label class="form-control width-100" disabled="disabled"><?php echo $style->code; ?></label>
 			<input type="hidden" name="code" id="code" value="<?php echo $style->code; ?>" />
@@ -10,7 +10,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">ชื่อรุ่นสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">ชื่อรุ่นสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<input type="text" name="name" id="name" class="width-100" value="<?php echo $style->name; ?>" required />
 		</div>
@@ -18,7 +18,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">รหัสรุ่นเก่า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">รหัสรุ่นเก่า</label>
 		<div class="col-xs-12 col-sm-3">
 			<input type="text" name="old_style" id="old_style" class="width-100" value="<?php echo $style->old_code; ?>" placeholder="รหัสรุ่นเก่า (ไม่บังคับ)" />
 		</div>
@@ -26,11 +26,11 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">ทุน</label>
-		<div class="col-xs-8 col-sm-3">
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">ทุน</label>
+		<div class="col-xs-5 col-sm-3">
 			<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $style->cost; ?>" />
 		</div>
-		<div class="col-sm-3 col-xs-3">
+		<div class="col-sm-3 col-xs-7">
 			<label>
 				<input type="checkbox" class="ace" id="cost-update" name="cost_update" value="Y"/>
 				<span class="lbl">  อัพเดตทุนในรายการด้วย</span>
@@ -40,11 +40,11 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">ราคา</label>
-		<div class="col-xs-12 col-sm-3">
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">ราคา</label>
+		<div class="col-xs-5 col-sm-3">
 			<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $style->price; ?>" />
 		</div>
-		<div class="col-sm-3 col-xs-3">
+		<div class="col-sm-3 col-xs-7">
 			<label>
 				<input type="checkbox" class="ace" id="price-update" name="price_update" value="Y"/>
 				<span class="lbl">  อัพเดตราคาในรายการด้วย</span>
@@ -55,7 +55,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">หน่วยนับ</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">หน่วยนับ</label>
 		<div class="col-xs-12 col-sm-3">
 			<select class="form-control input-sm" name="unit_code" id="unit_code" required>
 				<option value="">เลือกรายการ</option>
@@ -66,7 +66,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">ยี่ห้อ</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="brand_code" id="brand" class="form-control" required>
 				<option value="">กรุณาเลือก</option>
@@ -77,7 +77,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">กลุ่มสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">กลุ่มสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="group_code" id="group" class="form-control" required>
 				<option value="">กรุณาเลือก</option>
@@ -88,7 +88,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">กลุ่มหลักสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">กลุ่มหลักสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="main_group_code" id="mainGroup" class="form-control" required>
 				<option value="">กรุณาเลือก</option>
@@ -99,7 +99,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">กลุ่มย่อยสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">กลุ่มย่อยสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="sub_group_code" id="subGroup" class="form-control">
 				<option value="">กรุณาเลือก</option>
@@ -110,7 +110,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">หมวดหมู่สินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">หมวดหมู่สินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="category_code" id="category" class="form-control" required>
 				<option value="">กรุณาเลือก</option>
@@ -121,7 +121,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">ประเภทสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">ประเภทสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="kind_code" id="kind" class="form-control" required>
 				<option value="">กรุณาเลือก</option>
@@ -132,7 +132,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">ชนิดสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">ชนิดสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="type_code" id="type" class="form-control" required>
 				<option value="">กรุณาเลือก</option>
@@ -144,7 +144,7 @@
 
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">ปีสินค้า</label>
+		<label class="col-sm-3 col-xs-12 control-label no-padding-right">ปีสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
 			<select name="year" id="year" class="form-control" required>
 				<option value="">กรุณาเลือก</option>

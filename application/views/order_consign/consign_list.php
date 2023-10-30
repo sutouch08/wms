@@ -165,16 +165,16 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1020px;">
+		<table class="table table-striped border-1" style="min-width:1100px;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
-					<th class="fix-width-250 middle">ลูกค้า</th>
+					<th class="min-width-300 middle">ลูกค้า</th>
 					<th class="fix-width-250 middle">โซน</th>
 					<th class="fix-width-100 middle">ยอดเงิน</th>
-					<th class="fix-width-100 middle">สถานะ</th>
+					<th class="fix-width-150 middle">สถานะ</th>
 					<th class="fix-width-60 middle">อนุมัติ</th>
 				</tr>
 			</thead>
@@ -189,7 +189,13 @@
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->customer_name; ?></td>
 							<td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->zone_name; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
+              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php if($rs->is_expired) : ?>
+									หมดอายุ
+								<?php else : ?>
+									<?php echo $rs->state_name; ?>
+								<?php endif; ?>
+							</td>
 							<td class="middle pointer text-center" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo $rs->is_approved == 1 ? 'Yes' : 'No'; ?>
 							</td>

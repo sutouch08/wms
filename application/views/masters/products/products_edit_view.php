@@ -53,6 +53,17 @@ li {
 	font-size: 10px;
 	color:white;
 }
+
+@media (max-width:767px) {
+  .help-block {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+
+  .tab-content {
+    margin-top:-30px;
+  }
+}
 </style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs">
@@ -87,16 +98,16 @@ $tab4 = $tab == 'priceTab' ? 'active in' : '';
 <div class="col-lg-1 col-md-1 col-sm-1-harf hidden-xs padding-right-0 padding-top-15">
 	<ul id="myTab1" class="setting-tabs width-100" style="margin-left:0px;">
 	  <li class="li-block <?php echo $tab1; ?>" onclick="changeURL('<?php echo $style->code; ?>','styleTab')" >
-			<a href="#styleTab" data-toggle="tab" style="text-decoration:none;">ข้อมูล</a>
+			<a href="#styleTab" data-toggle="tab" id="styleTab-a" style="text-decoration:none;">ข้อมูล</a>
 		</li>
 		<li class="li-block <?php echo $tab2; ?>" onclick="changeURL('<?php echo $style->code; ?>','itemTab')" >
-			<a href="#itemTab" data-toggle="tab" style="text-decoration:none;">รายการ</a>
+			<a href="#itemTab" data-toggle="tab" id="itemTab-a" style="text-decoration:none;">รายการ</a>
 		</li>
 		<li class="li-block <?php echo $tab3; ?>" onclick="changeURL('<?php echo $style->code; ?>','imageTab')" >
-			<a href="#imageTab" data-toggle="tab" style="text-decoration:none;" >รูปภาพ</a>
+			<a href="#imageTab" data-toggle="tab" id="imageTab-a" style="text-decoration:none;" >รูปภาพ</a>
 		</li>
 		<li class="li-block <?php echo $tab4; ?>" onclick="changeURL('<?php echo $style->code; ?>','priceTab')" >
-			<a href="#priceTab" data-toggle="tab" style="text-decoration:none;" >ราคา</a>
+			<a href="#priceTab" data-toggle="tab" id="priceTab-a" style="text-decoration:none;" >ราคา</a>
 		</li>
 	</ul>
 </div>
@@ -123,32 +134,32 @@ $tab4 = $tab == 'priceTab' ? 'active in' : '';
 	<div class="pg-footer-inner">
 		<div class="pg-footer-content text-right">
 			<div class="footer-menu width-20">
-				<li  onclick="changeURL('<?php echo $style->code; ?>','styleTab')">
-					<a href="javascript:toggleTab('styleTab')"><i class="fa fa-info-circle fa-2x white"></i><span>ข้อมูล</span></a>
+				<li  onclick="changeURL('<?php echo $style->code; ?>','styleTab', 'a')">
+					<a href="#" data-toggle="tab" style="text-decoration:none;"><i class="fa fa-info-circle fa-2x white"></i><span>ข้อมูล</span></a>
 				</li>
 			</div>
 			<div class="footer-menu width-25">
-				<li onclick="changeURL('<?php echo $style->code; ?>','itemTab')">
-					<a href="javascript:toggleTab('itemTab')"><i class="fa fa-cubes fa-2x white"></i><span>รายการ</span></a>
+				<li onclick="changeURL('<?php echo $style->code; ?>','itemTab', 'a')">
+					<a href="#" data-toggle="tab" style="text-decoration:none;"><i class="fa fa-cubes fa-2x white"></i><span>รายการ</span></a>
 				</li>
 			</div>
 			<div class="footer-menu width-25">
-				<li onclick="changeURL('<?php echo $style->code; ?>','imageTab')">
-					<a href="javascript:toggleTab('imageTab')"><i class="fa fa-file-image-o fa-2x white"></i><span>รูปภาพ</span></a>
+				<li onclick="changeURL('<?php echo $style->code; ?>','imageTab', 'a')">
+					<a href="#" data-toggle="tab" style="text-decoration:none;"><i class="fa fa-file-image-o fa-2x white"></i><span>รูปภาพ</span></a>
 				</li>
 			</div>
 			<div class="footer-menu width-25">
-				<li onclick="changeURL('<?php echo $style->code; ?>','priceTab')">
-					<a href="javascript:toggleTab('priceTab')"><i class="fa fa-tags fa-2x white"></i><span>ราคา</span></a>
+				<li onclick="changeURL('<?php echo $style->code; ?>','priceTab', 'a')">
+					<a href="#" data-toggle="tab" style="text-decoration:none;"><i class="fa fa-tags fa-2x white"></i><span>ราคา</span></a>
 				</li>
 			</div>
 		</div>
 	</div><!-- footer inner-->
 </div><!-- /.footer -->
 
-<script src="<?php echo base_url(); ?>scripts/masters/products.js"></script>
-<script src="<?php echo base_url(); ?>scripts/masters/product_info.js"></script>
-<script src="<?php echo base_url(); ?>scripts/masters/product_image.js"></script>
-<script src="<?php echo base_url(); ?>scripts/masters/product_items.js"></script>
-<script src="<?php echo base_url(); ?>scripts/masters/product_price.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/products.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/product_info.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/product_image.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/product_items.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/product_price.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

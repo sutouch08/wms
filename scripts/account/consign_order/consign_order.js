@@ -34,7 +34,7 @@ function getDelete(code){
 		closeOnConfirm: true
 		}, function(){
       $('#cancle-code').val(code);
-      $('#cancle-reason').val('');
+      $('#cancle-reason').val('').removeClass('has-error');
       cancle(code);
 	});
 }
@@ -44,7 +44,7 @@ function cancle(code)
 {
 	var reason = $.trim($('#cancle-reason').val());
 
-	if(reason == "")
+	if(reason.length < 10)
 	{
 		$('#cancle-modal').modal('show');
 		return false;
@@ -92,7 +92,8 @@ function doCancle() {
 	let code = $('#cancle-code').val();
 	let reason = $.trim($('#cancle-reason').val());
 
-	if( reason.length == 0 || code.length == 0) {
+	if( reason.length < 10) {
+    $('#cancle-reason').addClass('has-error').focus();
 		return false;
 	}
 

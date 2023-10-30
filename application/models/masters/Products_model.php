@@ -235,6 +235,11 @@ class Products_model extends CI_Model
       {
         $this->db->where('year', $ds['year']);
       }
+
+      if(isset($ds['active']) && $ds['active'] != 'all')
+      {
+        $this->db->where('products.active', $ds['active']);
+      }
     }
 
     return $this->db->count_all_results();
@@ -352,6 +357,11 @@ class Products_model extends CI_Model
       {
         $this->db->where('year', $ds['year']);
       }
+
+      if(isset($ds['active']) && $ds['active'] != 'all')
+      {
+        $this->db->where('products.active', $ds['active']);
+      }
     }
 
     $this->db->order_by('style_code', 'ASC');
@@ -382,7 +392,7 @@ class Products_model extends CI_Model
 
     if(!empty($ds))
     {
-      if(!empty($ds['code']))
+      if(! empty($ds['code']))
       {
         $this->db->group_start();
         $this->db->like('products.code', $ds['code']);
@@ -390,45 +400,109 @@ class Products_model extends CI_Model
         $this->db->group_end();
       }
 
-      if(!empty($ds['name']))
+      if(! empty($ds['name']))
       {
         $this->db->like('products.name', $ds['name']);
       }
 
 
-      if(!empty($ds['group']))
+      if($ds['group'] != 'all')
       {
-        $this->db->where('group_code', $ds['group']);
+        if($ds['group'] == 'NULL')
+        {
+          $this->db->where('group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('group_code', $ds['group']);
+        }
       }
 
-      if(!empty($ds['sub_group']))
+			if($ds['main_group'] != 'all')
+			{
+        if($ds['main_group'] == 'NULL')
+        {
+          $this->db->where('main_group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('main_group_code', $ds['main_group']);
+        }
+			}
+
+      if($ds['sub_group'] != 'all')
       {
-        $this->db->where('sub_group_code', $ds['sub_group']);
+        if($ds['sub_group'] == 'NULL')
+        {
+          $this->db->where('sub_group_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('sub_group_code', $ds['sub_group']);
+        }
       }
 
-      if(!empty($ds['category']))
+      if($ds['category'] != 'all')
       {
-        $this->db->where('category_code', $ds['category']);
+        if($ds['category'] == 'NULL')
+        {
+          $this->db->where('category_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('category_code', $ds['category']);
+        }
       }
 
-      if(!empty($ds['kind']))
+      if($ds['kind'] != 'all')
       {
-        $this->db->where('kind_code', $ds['kind']);
+        if($ds['kind'] == 'NULL')
+        {
+          $this->db->where('kind_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('kind_code', $ds['kind']);
+        }
       }
 
-      if(!empty($ds['type']))
+      if($ds['type'] != 'all')
       {
-        $this->db->where('type_code', $ds['type']);
+        if($ds['type'] == 'NULL')
+        {
+          $this->db->where('type_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('type_code', $ds['type']);
+        }
       }
 
-      if(!empty($ds['brand']))
+      if($ds['brand'] != 'all')
       {
-        $this->db->where('brand_code', $ds['brand']);
+        if($ds['brand'] == 'NULL')
+        {
+          $this->db->where('brand_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('brand_code', $ds['brand']);
+        }
       }
 
-      if(!empty($ds['year']))
+      if($ds['year'] != 'all')
       {
         $this->db->where('year', $ds['year']);
+      }
+
+      if($ds['sell'] != 'all')
+      {
+        $this->db->where('can_sell', $ds['sell']);
+      }
+
+      if($ds['active'] != 'all')
+      {
+        $this->db->where('products.active', $ds['active']);
       }
     }
 
@@ -438,7 +512,12 @@ class Products_model extends CI_Model
 
     $rs = $this->db->get();
 
-    return $rs->result();
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

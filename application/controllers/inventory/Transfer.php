@@ -1849,28 +1849,56 @@ class Transfer extends PS_Controller
 
   public function delete_transfer($code)
   {
+    $sc = TRUE;
     $this->load->model('inventory/movement_model');
 
-    $this->db->trans_start();
+    $this->db->trans_begin();
 
     //--- clear temp
-    $this->transfer_model->drop_all_temp($code);
-    //--- delete detail
-    $this->transfer_model->drop_all_detail($code);
-    //--- drop movement
-    $this->movement_model->drop_movement($code);
-    //--- change status to 2 (cancled)
-    $this->transfer_model->set_status($code, 2);
-
-    $this->db->trans_complete();
-    if($this->db->trans_status() === FALSE)
+    if( ! $this->transfer_model->drop_all_temp($code))
     {
-      echo $this->db->error();
+      $sc = FALSE;
+      $this->error = "Failed to delete transfer temp";
+    }
+
+    //--- delete detail
+    if( ! $this->transfer_model->drop_all_detail($code))
+    {
+      $sc = FALSE;
+      $this->error = "Failed to delete transfer rows";
+    }
+
+    //--- drop movement
+    if( ! $this->movement_model->drop_movement($code))
+    {
+      $sc = FALSE;
+      $this->error = "Failed to delete movement";
+    }
+
+    //--- change status to 2 (cancled)
+    $arr = array(
+      'status' => 2,
+      'inv_code' => NULL,
+      'cancle_reason' => trim($this->input->post('reason')),
+      'cancle_user' => $this->_user->uname
+    );
+
+    if( ! $this->transfer_model->update($code, $arr))
+    {
+      $sc = FALSE;
+      $this->error = "Change status failed";
+    }
+
+    if($sc === TRUE)
+    {
+      $this->db->trans_commit();
     }
     else
     {
-      echo 'success';
+      $this->db->trans_rollback();
     }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

@@ -63,6 +63,13 @@
 		<label>SAP</label>
 		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled >
 	</div>
+
+  <?php if($doc->status == 2 && ! empty($doc->cancle_reason)) : ?>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+      <label>เหตุผลในการยกเลิก</label>
+      <input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled>
+    </div>
+  <?php endif; ?>
 </div>
 <input type="hidden" id="transfer_code" value="<?php echo $doc->code; ?>" />
 <hr class="margin-top-15 margin-bottom-15"/>

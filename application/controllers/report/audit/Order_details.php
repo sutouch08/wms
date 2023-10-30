@@ -17,6 +17,7 @@ class Order_details extends PS_Controller
     $this->load->model('masters/channels_model');
     $this->load->model('masters/payment_methods_model');
     $this->load->model('masters/warehouse_model');
+    $this->load->model('masters/customers_model');
   }
 
   public function index()
@@ -30,6 +31,82 @@ class Order_details extends PS_Controller
     $this->load->view('report/audit/report_order_details', $ds);
   }
 
+  private function channels_array()
+  {
+    $ds = array();
+
+    $rs = $this->db->get('channels');
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $ds[$rd->code] = $rd->name;
+      }
+    }
+
+    return $ds;
+  }
+
+  private function payment_array()
+  {
+    $ds = array();
+    $rs = $this->db->get('payment_method');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $ds[$rd->code] = $rd->name;
+      }
+    }
+
+    return $ds;
+  }
+
+  private function warehouse_array()
+  {
+    $ds = array();
+    $rs = $this->db->get('warehouse');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $ds[$rd->code] = $rd->name;
+      }
+    }
+
+    return $ds;
+  }
+
+  private function state_array()
+  {
+    $ds = array(
+      '1' => 'รอดำเนินการ',
+      '2' => 'รอชำระเงิน',
+      '3' => 'รอจัดสินค้า',
+      '4' => 'กำลังจัดสินค้า',
+      '5' => 'รอตรวจสินค้า',
+      '6' => 'กำลังตรวจสินค้า',
+      '7' => 'รอการจัดส่ง',
+      '8' => 'จัดส่งแล้ว',
+      '9' => 'ยกเลิก'
+    );
+
+    return $ds;
+  }
+
+  private function cancel_reason($code)
+  {
+    $rs = $this->db->where('code', $code)->order_by('id', 'DESC')->limit(1)->get('order_cancle_reason');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->reason;
+    }
+
+    return NULL;
+  }
 
 
   public function get_report()
@@ -65,13 +142,35 @@ class Order_details extends PS_Controller
 
         if( ! empty($details))
         {
+          $state = $this->state_array();
+          $wh = $this->warehouse_array();
+          $channels = $this->channels_array();
+          $payment = $this->payment_array();
+          $cust = array();
+
           $no = 1;
+
           foreach($details as $rs)
           {
             $rs->no = number($no);
             $rs->expired = $rs->is_expired == 1 ? 'Y' : 'N';
             $rs->date_add = thai_date($rs->date_add, FALSE, '/');
             $rs->total_amount = number($this->order_details_model->get_doc_total($rs->code), 2);
+            $rs->channels_name = empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code];
+            $rs->payment_name = empty($payment[$rs->payment_code]) ? NULL : $payment[$rs->payment_code];
+            $rs->warehouse_name = empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code];
+            $rs->state_name = $state[$rs->state];
+            $rs->uname = $rs->user;
+            $rs->emp_name = $this->user_model->get_name($rs->user);
+            $rs->cancel_reason = $rs->state == 9 ? $this->cancel_reason($rs->code) : NULL;
+
+            if(empty($cust[$rs->customer_code]))
+            {
+              $customer_name = $this->customers_model->get_name($rs->customer_code);
+              $cust[$rs->customer_code] = $customer_name;
+            }
+
+            $rs->customer_name = $cust[$rs->customer_code];
             $no++;
           }
         }
@@ -175,6 +274,7 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue("M{$row}", 'ชื่อคลัง');
       $this->excel->getActiveSheet()->setCellValue("N{$row}", 'Username');
       $this->excel->getActiveSheet()->setCellValue("O{$row}", 'พนักงาน');
+      $this->excel->getActiveSheet()->setCellValue("P{$row}", 'cancel reason');
 
       $row++;
 
@@ -193,9 +293,16 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(40);
       $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
       $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(40);
 
       if( ! empty($details))
       {
+        $state = $this->state_array();
+        $wh = $this->warehouse_array();
+        $channels = $this->channels_array();
+        $payment = $this->payment_array();
+        $cust = array();
+
         $no = 1;
         foreach($details as $rs)
         {
@@ -206,21 +313,32 @@ class Order_details extends PS_Controller
 
           $amount = $this->order_details_model->get_doc_total($rs->code);
 
+          if(empty($cust[$rs->customer_code]))
+          {
+            $customer_name = $this->customers_model->get_name($rs->customer_code);
+            $cust[$rs->customer_code] = $customer_name;
+          }
+
           $this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
           $this->excel->getActiveSheet()->setCellValue("B{$row}", $date);
           $this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->code);
           $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->reference);
           $this->excel->getActiveSheet()->setCellValue("E{$row}", $amount);
           $this->excel->getActiveSheet()->setCellValue("F{$row}", $rs->customer_code);
-          $this->excel->getActiveSheet()->setCellValue("G{$row}", $rs->customer_name);
-          $this->excel->getActiveSheet()->setCellValue("H{$row}", $rs->state_name);
+          $this->excel->getActiveSheet()->setCellValue("G{$row}", $cust[$rs->customer_code]);
+          $this->excel->getActiveSheet()->setCellValue("H{$row}", $state[$rs->state]);
           $this->excel->getActiveSheet()->setCellValue("I{$row}", $rs->is_expired == 1 ? 'Y' : 'N');
-          $this->excel->getActiveSheet()->setCellValue("J{$row}", $rs->channels_name);
-          $this->excel->getActiveSheet()->setCellValue("K{$row}", $rs->payment_name);
+          $this->excel->getActiveSheet()->setCellValue("J{$row}", empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]);
+          $this->excel->getActiveSheet()->setCellValue("K{$row}", empty($payment[$rs->payment_code]) ? NULL : $payment[$rs->payment_code]);
           $this->excel->getActiveSheet()->setCellValue("L{$row}", $rs->warehouse_code);
-          $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->warehouse_name);
-          $this->excel->getActiveSheet()->setCellValue("N{$row}", $rs->uname);
-          $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->emp_name);
+          $this->excel->getActiveSheet()->setCellValue("M{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
+          $this->excel->getActiveSheet()->setCellValue("N{$row}", $rs->user);
+          $this->excel->getActiveSheet()->setCellValue("O{$row}", $this->user_model->get_name($rs->user));
+          if($rs->state == 9)
+          {
+            $this->excel->getActiveSheet()->setCellValue("P{$row}", $this->cancel_reason($rs->code));
+          }
+
 
           $no++;
           $row++;

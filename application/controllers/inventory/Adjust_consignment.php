@@ -167,7 +167,7 @@ class Adjust_consignment extends PS_Controller
                       $sc = FALSE;
                       $this->error = "ปรับปรุงรายการไม่สำเร็จ";
                     }
-                  }                  
+                  }
                 }
                 else
                 {
@@ -819,10 +819,10 @@ class Adjust_consignment extends PS_Controller
 
 
 
-  public function cancle()
+  public function cancle($code)
   {
     $sc = TRUE;
-    $code = $this->input->post('code');
+
     if(!empty($code))
     {
       $doc = $this->adjust_consignment_model->get($code);
@@ -858,7 +858,15 @@ class Adjust_consignment extends PS_Controller
             //--- change doc status to 2 Cancled
             if($sc === TRUE)
             {
-              if(! $this->adjust_consignment_model->change_status($code, 2))
+              $arr = array(
+                'issue_code' => NULL,
+                'receive_code' => NULL,
+                'status' => 2,
+                'cancle_reason' => trim($this->input->post('reason')),
+                'cancle_user' => $this->_user->uname
+              );
+
+              if(! $this->adjust_consignment_model->update($code, $arr))
               {
                 $sc = FALSE;
                 $this->error = "ยกเลิกเอกสารไม่สำเร็จ";

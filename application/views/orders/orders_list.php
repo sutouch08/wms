@@ -85,33 +85,6 @@
 		</select>
 	</div>
 
-	<!--
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-		<label class="display-block">สถานะ</label>
-		<select class="form-control input-sm" name="stated">
-			<option value="">เลือกสถานะ</option>
-			<option value="3" <?php echo is_selected($stated, '3'); ?>>รอจัดสินค้า</option>
-			<option value="4" <?php echo is_selected($stated, '4'); ?>>กำลังจัดสินค้า</option>
-			<option value="5" <?php echo is_selected($stated, '5'); ?>>รอตรวจ</option>
-			<option value="6" <?php echo is_selected($stated, '6'); ?>>กำลังตรวจ</option>
-			<option value="7" <?php echo is_selected($stated, '7'); ?>>รอเปิดบิล</option>
-		</select>
-	</div>
-
-	<div class="col-sm-1 col-1-harf  col-xs-6 padding-5">
-		<label class="display-block">เริ่มต้น</label>
-		<select class="form-control input-sm" name="startTime">
-			<?php echo selectTime($startTime); ?>
-		</select>
-	</div>
-
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-		<label class="display-block">สิ้นสุด</label>
-		<select class="form-control input-sm" name="endTime">
-			<?php echo selectTime($endTime); ?>
-		</select>
-	</div>
--->
 	<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
 		<label>คลัง</label>
 		<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
@@ -197,19 +170,19 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="double-scroll">
-		<table class="table table-striped table-hover dataTable" style="min-width:1000px; border-collapse:inherit;">
+		<table class="table table-striped table-hover dataTable" style="min-width:1240px; border-collapse:inherit;">
 			<thead>
 				<tr>
-					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-10 middle text-center sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-					<th class="width-15 middle sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
-					<th class="middle">ลูกค้า</th>
-					<th class="width-10 middle">ยอดเงิน</th>
-					<th class="width-10 middle">ช่องทางขาย</th>
-					<th class="width-10 middle">การชำระเงิน</th>
-					<th class="width-10 middle">สถานะ</th>
+					<th class="fix-width-40 middle text-center">ลำดับ</th>
+					<th class="fix-width-100 middle text-center sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
+					<th class="fix-width-250 middle sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
+					<th class="fix-width-350 middle">ลูกค้า</th>
+					<th class="fix-width-100 middle text-right">ยอดเงิน</th>
+					<th class="fix-width-150 middle">ช่องทางขาย</th>
+					<th class="fix-width-150 middle">การชำระเงิน</th>
+					<th class="fix-width-150 middle">สถานะ</th>
 					<?php if($this->_SuperAdmin && $instant_export) : ?>
-						<th class="width-5 middle"></th>
+						<th class="fix-width-100 middle"></th>
 					<?php endif; ?>
 				</tr>
 			</thead>
@@ -230,10 +203,16 @@
 									<?php echo $rs->customer_name.$cus_ref; ?>
 								<?php endif; ?>
 							</td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
+              <td class="middle pointer text-right" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->channels_name; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->payment_name; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
+              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php if($rs->is_expired) : ?>
+									หมดอายุ
+								<?php else : ?>
+									<?php echo $rs->state_name; ?>
+								<?php endif; ?>
+							</td>
               <?php if($this->_SuperAdmin && $instant_export) : ?>
 							<td class="middle text-right"><button type="button" class="btn btn-minier btn-primary" onclick="sendToWms('<?php echo $rs->code; ?>')">Wms</button></td>
 							<?php endif; ?>
@@ -245,6 +224,25 @@
 		</table>
 	</div>
 </div>
+<?php if($this->_SuperAdmin) : ?>
+<div >
+	<?php
+	list($usec, $sec) = explode(' ',$start);
+	$querytime_before = ((float)$usec + (float)$sec);
+	list($usec, $sec) = explode(' ',$end);
+	$querytime_after = ((float)$usec + (float)$sec);
+	$querytime = $querytime_after - $querytime_before;
+	echo "Query Time : ".round($querytime, 4)." Second";
+
+	list($usec, $sec) = explode(' ',$loop_start);
+	$querytime_before = ((float)$usec + (float)$sec);
+	list($usec, $sec) = explode(' ',$loop_end);
+	$querytime_after = ((float)$usec + (float)$sec);
+	$querytime = $querytime_after - $querytime_before;
+	echo "&nbsp;&nbsp;&nbsp; Loop Time : ".round($querytime, 4)." Second";
+	?>
+</div>
+<?php endif; ?>
 
 <?php
 if($can_upload == 1) :

@@ -142,14 +142,15 @@
 								<?php endif; ?>
 							</td>
 							<td class="middle text-center">
-								<?php if($rs->is_expire) : ?>
-									<span class="dark">EXP</span>
+								<?php if($rs->is_expire OR $rs->status == 2) : ?>
+									<?php if($rs->status == 2) : ?>
+										<span class="red"><strong>CN</strong></span>
+									<?php else : ?>
+										<span class="dark">EXP</span>
+									<?php endif; ?>
 								<?php else : ?>
 									<?php if($rs->status == 0 ) : ?>
 										<span class="blue"><strong>DF</strong></span>
-									<?php endif; ?>
-									<?php if($rs->status == 2) : ?>
-										<span class="red"><strong>CN</strong></span>
 									<?php endif; ?>
 									<?php if($rs->status == 3 ) : ?>
 										<span class="purple"><strong>OP</strong></span>

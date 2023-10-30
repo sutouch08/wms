@@ -484,6 +484,7 @@ function changeState(){
 		var id_sender = $('#id_sender').val();
 		var cancle_reason = $.trim($('#cancle-reason').val());
 
+
 		if(is_wms) {
 			if(state == 3 && id_address == "") {
 				swal("กรุณาระบุที่อยู่จัดส่ง");
@@ -508,7 +509,8 @@ function changeState(){
 			}
 		}
 
-		if(state == 9 && cancle_reason == "") {
+		if(state == 9 && cancle_reason.length < 10) {
+      $('#cancle-reason').removeClass('has-error');
 			$('#cancle-modal').modal('show');
 			return false;
 		}
@@ -554,10 +556,14 @@ function changeState(){
 
 
 function doCancle() {
-	$('#cancle-modal').modal('hide');
-	if($.trim($('#cancle-reason').val()) == "") {
+	let reason = $.trim($('#cancle-reason').val());
+
+	if( reason.length < 10) {
+		$('#cancle-reason').addClass('has-error').focus();
 		return false;
 	}
+
+	$('#cancle-modal').modal('hide');
 
 	return changeState();
 }

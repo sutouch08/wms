@@ -735,6 +735,7 @@ class Return_lend extends PS_Controller
                 if($sc === TRUE)
                 {
                   $arr = array(
+                    'inv_code' => NULL,
                     'status' => 2,
                     'cancle_reason' => $reason,
                     'cancle_user' => $this->_user->uname

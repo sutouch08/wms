@@ -66,7 +66,7 @@ class Document_model extends CI_Model
 	public function WR($fromDate, $toDate)
 	{
 		$rs = $this->db
-		->select('date_add, code, inv_code, status, cancle_reason AS reason')
+		->select('date_add, code, inv_code, status, is_expire, cancle_reason AS reason')
 		->where('date_add >=', from_date($fromDate))
 		->where('date_add <=', to_date($toDate))
 		->get('receive_product');
@@ -83,10 +83,26 @@ class Document_model extends CI_Model
 	public function WW($fromDate, $toDate)
 	{
 		$rs = $this->db
-		->select('date_add, code, inv_code, status, cancle_reason AS reason')
+		->select('date_add, code, inv_code, status, is_expire, cancle_reason AS reason')
 		->where('date_add >=', from_date($fromDate))
 		->where('date_add <=', to_date($toDate))
 		->get('transfer');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+	public function MV($fromDate, $toDate)
+	{
+		$rs = $this->db
+		->select('date_add, code, inv_code, status')
+		->where('date_add >=', from_date($fromDate))
+		->where('date_add <=', to_date($toDate))
+		->get('move');
 
 		if($rs->num_rows() > 0)
 		{
@@ -117,7 +133,7 @@ class Document_model extends CI_Model
 	public function RT($fromDate, $toDate)
 	{
 		$rs = $this->db
-		->select('date_add, code, order_code AS reference, inv_code, status, cancle_reason AS reason')
+		->select('date_add, code, order_code AS reference, inv_code, status, is_expire, cancle_reason AS reason')
 		->where('date_add >=', from_date($fromDate))
 		->where('date_add <=', to_date($toDate))
 		->get('receive_transform');
@@ -133,7 +149,7 @@ class Document_model extends CI_Model
 	public function RN($fromDate, $toDate)
 	{
 		$rs = $this->db
-		->select('date_add, code, lend_code AS reference, inv_code, status, cancle_reason AS reason')
+		->select('date_add, code, lend_code AS reference, inv_code, status, is_expire, cancle_reason AS reason')
 		->where('date_add >=', from_date($fromDate))
 		->where('date_add <=', to_date($toDate))
 		->get('return_lend');
@@ -149,7 +165,7 @@ class Document_model extends CI_Model
 	public function SM($fromDate, $toDate)
 	{
 		$rs = $this->db
-		->select('date_add, code, invoice AS reference, inv_code, status, cancle_reason AS reason')
+		->select('date_add, code, invoice AS reference, inv_code, status, is_expire, cancle_reason AS reason')
 		->where('date_add >=', from_date($fromDate))
 		->where('date_add <=', to_date($toDate))
 		->get('return_order');

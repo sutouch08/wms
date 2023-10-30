@@ -453,7 +453,7 @@ class User_model extends CI_Model
 		}
 
 		//--- Receive transform
-		if($this->db->where('user', $uname)->count_all_results('receive_transfrom') > 0)
+		if($this->db->where('user', $uname)->count_all_results('receive_transform') > 0)
 		{
 			return TRUE;
 		}
@@ -501,7 +501,7 @@ class User_model extends CI_Model
 		}
 
 		//--- WG
-		if($this->db->where('user', $uname)->count_all_results('adjust_transfrom') > 0)
+		if($this->db->where('user', $uname)->count_all_results('adjust_transform') > 0)
 		{
 			return TRUE;
 		}

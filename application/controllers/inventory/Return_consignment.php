@@ -11,6 +11,7 @@ class Return_consignment extends PS_Controller
   public $error;
 	public $isAPI;
 	public $wms;
+  public $required_remark = 1;
 
   public function __construct()
   {
@@ -1007,7 +1008,14 @@ class Return_consignment extends PS_Controller
 
 						$this->db->trans_begin();
 
-			      if(! $this->return_consignment_model->set_status($code, 2))
+            $arr = array(
+              'status' => 2,
+              'inv_code' => NULL,
+              'cancle_reason' => trim($this->input->post('reason')),
+              'cancle_user' => $this->_user->uname              
+            );
+
+			      if(! $this->return_consignment_model->update($code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Change document status failed";
@@ -1025,12 +1033,6 @@ class Return_consignment extends PS_Controller
 
 			      if($sc === TRUE)
 						{
-							$arr = array(
-								'inv_code' => NULL
-							);
-
-							$this->return_consignment_model->update($code, $arr);
-
 							$this->db->trans_commit();
 						}
 						else

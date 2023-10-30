@@ -8,7 +8,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <input type="text" class="form-control input-sm" id="cancle-reason" maxlength="100" value=""/>
+            <input type="text" class="form-control input-sm" id="cancle-reason" maxlength="100" value="" placeholder="กรุณาระบุเหตุผลในการยกเลิกอย่างน้อย 10 ตัวอักษร"/>
             <input type="hidden" id="cancle-code" value="" />
           </div>
         </div>

@@ -180,6 +180,4 @@ class Item extends REST_Controller
 
 	}
 
-
-
 } //--- end class

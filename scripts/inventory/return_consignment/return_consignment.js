@@ -10,32 +10,80 @@ function goDelete(code){
 		confirmButtonColor: "#DD6B55",
 		confirmButtonText: 'ใช่, ฉันต้องการ',
 		cancelButtonText: 'ไม่ใช่',
-		closeOnConfirm: false
+		closeOnConfirm: true
 		}, function(){
-			$.ajax({
-				url: HOME + 'cancle_return/'+code,
-				type:"POST",
-				cache:"false",
-				success: function(rs){
-					var rs = $.trim(rs);
-					if( rs == 'success' ){
-						swal({
-							title: 'Cancled',
-							type: 'success',
-							timer: 1000
-						});
-
-						setTimeout(function(){
-							window.location.reload();
-						}, 1200);
-
-					}else{
-						swal("Error !", rs, "error");
-					}
-				}
-			});
+			$('#cancle-code').val(code);
+			$('#cancle-reason').val('').removeClass('has-error');
+			cancle_return(code);
 	});
 }
+
+function cancle_return(code)
+{
+	var reason = $.trim($('#cancle-reason').val());
+
+	if(reason.length < 10)
+	{
+		$('#cancle-modal').modal('show');
+		return false;
+	}
+
+	load_in();
+
+	$.ajax({
+		url: HOME + 'cancle_return/'+code,
+		type:"POST",
+		cache:"false",
+		data:{
+			"reason" : reason
+		},
+		success: function(rs) {
+			var rs = $.trim(rs);
+			if( rs == 'success' ) {
+				setTimeout(function() {
+					swal({
+						title: 'Cancled',
+						type: 'success',
+						timer: 1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
+				}, 200);
+			}
+			else {
+				setTimeout(function() {
+					swal({
+						title:"Error!",
+						text:rs,
+						type:'error'
+					});
+				}, 200);
+			}
+		}
+	});
+}
+
+function doCancle() {
+	let code = $('#cancle-code').val();
+	let reason = $.trim($('#cancle-reason').val());
+
+	if( reason.length < 10) {
+		$('#cancle-reason').addClass('has-error').focus();
+		return false;
+	}
+
+	$('#cancle-modal').modal('hide');
+
+	return cancle_return(code);
+}
+
+
+
+$('#cancle-modal').on('shown.bs.modal', function() {
+	$('#cancle-reason').focus();
+});
 
 
 

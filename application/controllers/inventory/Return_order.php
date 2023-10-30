@@ -877,7 +877,7 @@ class Return_order extends PS_Controller
 
 			if(!empty($doc))
 			{
-				if($doc->status == 1 OR $this->_SuperAdmin)
+				if($doc->status == 1 OR $doc->status == 0 OR $this->_SuperAdmin)
 				{
 					//--- check sap
 					$sap = $this->return_order_model->get_sap_doc_num($code);
@@ -890,6 +890,7 @@ class Return_order extends PS_Controller
 							if($this->drop_middle_exits_data($code))
 							{
                 $arr = array(
+                  'inv_code' => NULL,
                   'status' => 2,
                   'cancle_reason' => trim($this->input->post('reason')),
                   'cancle_user' => $this->_user->uname

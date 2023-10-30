@@ -71,6 +71,16 @@
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
     </div>
+	<?php if($doc->status == 2) : ?>
+		<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 padding-5">
+    	<label>เหตุผลในการยกเลิก</label>
+        <input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled>
+    </div>
+		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 padding-5">
+			<label>ยกเลิกโดย</label>
+      <input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_user; ?>" disabled>
+		</div>
+	<?php endif; ?>
 </div>
 <input type="hidden" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>">
 <input type="hidden" name="customer_code" id="customer_code" value="<?php echo $doc->customer_code; ?>">

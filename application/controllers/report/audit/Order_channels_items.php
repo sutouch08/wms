@@ -61,8 +61,12 @@ class Order_channels_items extends PS_Controller
       '5' => 'รอตรวจ',
       '6' => 'กำลังตรวจ',
       '7' => 'รอเปิดบิล',
-      '8' => 'เปิดบิลแล้ว'
+      '8' => 'เปิดบิลแล้ว',
+      '9' => 'ยกเลิก'
     );
+
+    $ch_name = $this->order_channels_items_model->channels_array();
+    $pm_name = $this->order_channels_items_model->payment_array();
 
     $state = array();
     $state_list = array();
@@ -155,6 +159,7 @@ class Order_channels_items extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('T8', 'ค่าจัดส่ง');
     $this->excel->getActiveSheet()->setCellValue('U8', 'ค่าบริการ');
     $this->excel->getActiveSheet()->setCellValue('V8', 'สถานะ');
+    $this->excel->getActiveSheet()->setCellValue('W8', 'เหตุผลในการยกเลิก');
 
     //---- กำหนดความกว้างของคอลัมภ์
     $this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
@@ -174,6 +179,7 @@ class Order_channels_items extends PS_Controller
     $this->excel->getActiveSheet()->getColumnDimension('T')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('U')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('V')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('W')->setWidth(15);
 
     $row = 9;
 
@@ -252,10 +258,10 @@ class Order_channels_items extends PS_Controller
         //--- เบอร์โทรศัพท์
         $this->excel->getActiveSheet()->setCellValueExplicit('L'.$row, $adr->phone, PHPExcel_Cell_DataType::TYPE_STRING);
         //--- ช่องทางการขาย
-        $this->excel->getActiveSheet()->setCellValue('M'.$row, $rs->channels);
+        $this->excel->getActiveSheet()->setCellValue('M'.$row, $ch_name[$rs->channels_code]);
 
         //--- ช่องทางการชำระเงิน
-        $this->excel->getActiveSheet()->setCellValue('N'.$row, $rs->payment);
+        $this->excel->getActiveSheet()->setCellValue('N'.$row, $pm_name[$rs->payment_code]);
 
         //--- รหัสสินค้า
         $this->excel->getActiveSheet()->setCellValue('O'.$row, $rs->product_code);
@@ -279,7 +285,13 @@ class Order_channels_items extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('U'.$row, $rs->service_fee);
 
         //--- สถานะออเดอร์
-        $this->excel->getActiveSheet()->setCellValue('V'.$row, $rs->state);
+        $this->excel->getActiveSheet()->setCellValue('V'.$row, $state_name[$rs->state]);
+
+        //--- เหตุผลในการยกเลิก
+        if($rs->state == 9)
+        {
+          $this->excel->getActiveSheet()->setCellValue('W'.$row, $this->order_channels_items_model->cancel_reason($rs->code));
+        }
 
         $no++;
         $row++;

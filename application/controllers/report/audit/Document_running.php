@@ -650,6 +650,53 @@ class Document_running extends PS_Controller
 		} //--- end WW
 
 
+    if(!empty($role['MV']) OR $all)
+		{
+			$worksheet = new PHPExcel_Worksheet($this->excel, "MV");
+			$this->excel->addSheet($worksheet, $index);
+			$this->excel->setActiveSheetIndex($index);
+			$this->excel->getActiveSheet()->setTitle('MV');
+
+			$index++;
+
+			//--- set Table header
+			$this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(8);
+			$this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
+			$this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(15);
+			$this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
+			$this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
+			$this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
+			$this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+
+			$this->excel->getActiveSheet()->setCellValue('A1', 'ลำดับ');
+			$this->excel->getActiveSheet()->setCellValue('B1', 'วันที่');
+			$this->excel->getActiveSheet()->setCellValue('C1', 'เลขที่');
+			$this->excel->getActiveSheet()->setCellValue('D1', 'SAP TR');
+			$this->excel->getActiveSheet()->setCellValue('E1', 'สถานะ');
+      $this->excel->getActiveSheet()->setCellValue('F1', 'หมายเหตุ');
+
+			$data = $this->document_model->MV($fromDate, $toDate);
+
+			if(!empty($data))
+			{
+				$no = 1;
+				$row = 2;
+
+				foreach($data as $rs)
+				{
+					$this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
+	        $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
+					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
+	        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->inv_code);
+	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $this->statusLabel($rs->status, $rs->is_expire));          
+
+					$no++;
+					$row++;
+				}
+			}
+		} //--- end MV
+
+
 		if(!empty($role['WG']) OR $all)
 		{
 			$worksheet = new PHPExcel_Worksheet($this->excel, "WG");

@@ -80,8 +80,8 @@
 
 													<div class="clearfix">
 
-														<label class="inline">
-															<input type="checkbox" name="remember" class="ace" value="1" />
+														<label class="inline" id="rem-label" style="visibility:hidden;">
+															<input type="checkbox" name="remember" id="rem-box" class="ace" value="1" />
 															<span class="lbl"> Remember Me</span>
 														</label>
 
@@ -101,7 +101,6 @@
 														{
 															echo $this->session->flashdata('error_message');
 														}
-
 														?>
 
 														</p>
@@ -141,20 +140,39 @@
 	</body>
 
 	<script>
-			function showPwd() {
-				var x = document.getElementById("pwd");
-				var y = document.getElementById("pwd-btn");
 
-				if(x.type === "password") {
-					x.type = "text";
-					y.classList.remove('fa-eye');
-					y.classList.add('fa-eye-slash');
-				}
-				else {
-					x.type = "password";
-					y.classList.remove('fa-eye-slash');
-					y.classList.add('fa-eye');
-				}
+		window.addEventListener('load', () => {
+			const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+			const rem = document.getElementById('rem-box');
+			const label = document.getElementById('rem-label');
+
+			console.log(isMobile);
+
+			if(isMobile) {
+				rem.checked = true;
+				label.style.visibility = 'visible';
 			}
+			else {
+				rem.checked = false;
+				label.style.visibility = 'hidden';
+			}
+		});
+
+		function showPwd() {
+			var x = document.getElementById("pwd");
+			var y = document.getElementById("pwd-btn");
+
+			if(x.type === "password") {
+				x.type = "text";
+				y.classList.remove('fa-eye');
+				y.classList.add('fa-eye-slash');
+			}
+			else {
+				x.type = "password";
+				y.classList.remove('fa-eye-slash');
+				y.classList.add('fa-eye');
+			}
+		}
+
 	</script>
 </html>

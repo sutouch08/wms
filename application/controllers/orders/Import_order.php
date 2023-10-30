@@ -193,7 +193,7 @@ class Import_order extends CI_Controller
 								'V' => 'Remark',
 								'W' => 'Carrier',
 								'X' => 'Warehouse code',
-								'Y' => 'Country'                
+								'Y' => 'Country'
               );
 
               foreach($headCol as $col => $field)
@@ -247,7 +247,7 @@ class Import_order extends CI_Controller
 								//-- remark
 								$remark = $rs['V'];
 
-								$order_code  = $this->orders_model->get_order_code_by_reference($ref_code);
+								$order_code  = $this->orders_model->get_active_order_code_by_reference($ref_code);
 
 	              $is_exists = empty($order_code) ? FALSE : TRUE;
 

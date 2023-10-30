@@ -638,7 +638,7 @@ class Transfer_model extends CI_Model
     {
       if($ds['status'] == 5)
       {
-        $this->db->where('tr.is_expire', 1);
+        $this->db->where('tr.is_expire', 1)->where('tr.status !=', 2);
       }
       else
       {
@@ -747,7 +747,7 @@ class Transfer_model extends CI_Model
     {
       if($ds['status'] == 5)
       {
-        $this->db->where('tr.is_expire', 1);
+        $this->db->where('tr.is_expire', 1)->where('tr.status !=', 2);
       }
       else
       {

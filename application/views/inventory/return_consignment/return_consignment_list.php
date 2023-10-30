@@ -169,6 +169,7 @@
     </table>
   </div>
 </div>
+<?php $this->load->view('cancle_modal'); ?>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

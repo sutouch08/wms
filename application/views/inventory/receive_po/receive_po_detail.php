@@ -111,17 +111,19 @@
 </div>
 
 <?php
-if($doc->is_expire)
-{
-	$this->load->view('expire_watermark');
-}
-else
+if($doc->is_expire OR $doc->status == 2)
 {
 	if($doc->status == 2)
 	{
 		$this->load->view('cancle_watermark');
 	}
-
+	else
+	{
+		$this->load->view('expire_watermark');
+	}
+}
+else
+{
 	if($doc->status == 3)
 	{
 		$this->load->view('on_process_watermark');
@@ -202,7 +204,7 @@ else
 					<?php endif; ?>
 			<?php endforeach; ?>
 		<?php endif; ?>
-		
+
 		<?php if($doc->must_accept == 1 && $doc->is_accept == 1) : ?>
 			<span class="green display-block">ยืนยันการรับโดย : <?php echo $doc->accept_by; ?> @ <?php echo thai_date($doc->accept_on, TRUE); ?></span>
 			<span class="green display-block">หมายเหตุ : <?php echo $doc->accept_remark; ?></span>

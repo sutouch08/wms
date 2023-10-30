@@ -223,7 +223,8 @@ function clearFilter(){
 }
 
 
-function getDelete(code){
+function getDelete(code, no){
+  let url = BASE_URL + 'masters/items/delete_item/';// + encodeURIComponent(code);
   swal({
     title:'Are sure ?',
     text:'ต้องการลบ ' + code + ' หรือไม่ ?',
@@ -235,19 +236,21 @@ function getDelete(code){
 		closeOnConfirm: false
   },function(){
     $.ajax({
-      url: BASE_URL + 'masters/items/delete_item/' + code,
+      url: url,
       type:'GET',
       cache:false,
+      data:{
+        'code' : code
+      },
       success:function(rs){
         if(rs === 'success'){
           swal({
             title:'Deleted',
-            text:'ลบรุ่นสินค้าเรียบร้อยแล้ว',
             type:'success',
             timer:1000
           });
 
-          $('#row-'+code).remove();
+          $('#row-'+no).remove();
         }else{
           swal({
             title:'Error!',

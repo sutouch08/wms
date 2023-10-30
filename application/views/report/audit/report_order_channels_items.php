@@ -68,37 +68,18 @@
     </div>
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-1" class="btn btn-xs btn-block " onclick="toggleState(1)">รอดำเนินการ</button>
-	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1 col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-2" class="btn btn-xs btn-block" onclick="toggleState(2)">รอชำระเงิน</button>
-	</div>
-	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-3" class="btn btn-xs btn-block" onclick="toggleState(3)">รอจัด</button>
-	</div>
-	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-4" class="btn btn-xs btn-block" onclick="toggleState(4)">กำลังจัด</button>
-	</div>
-	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-5" class="btn btn-xs btn-block" onclick="toggleState(5)">รอตรวจ</button>
-	</div>
-	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-6" class="btn btn-xs btn-block" onclick="toggleState(6)">กำลังตรวจ</button>
-	</div>
-	<div class="col-lg-1-harf col-md-1 col-sm-1 col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-7" class="btn btn-xs btn-block" onclick="toggleState(7)">รอเปิดบิล</button>
-	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" id="btn-state-8" class="btn btn-xs btn-block" onclick="toggleState(8)">เปิดบิลแล้ว</button>
+	<div class="divider-hidden"></div>
+
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<button type="button" id="btn-state-1" class="btn btn-xs btn-100" onclick="toggleState(1)">รอดำเนินการ</button>
+		<button type="button" id="btn-state-2" class="btn btn-xs btn-100" onclick="toggleState(2)">รอชำระเงิน</button>
+		<button type="button" id="btn-state-3" class="btn btn-xs btn-100" onclick="toggleState(3)">รอจัด</button>
+		<button type="button" id="btn-state-4" class="btn btn-xs btn-100" onclick="toggleState(4)">กำลังจัด</button>
+		<button type="button" id="btn-state-5" class="btn btn-xs btn-100" onclick="toggleState(5)">รอตรวจ</button>
+		<button type="button" id="btn-state-6" class="btn btn-xs btn-100" onclick="toggleState(6)">กำลังตรวจ</button>
+		<button type="button" id="btn-state-7" class="btn btn-xs btn-100" onclick="toggleState(7)">รอเปิดบิล</button>
+		<button type="button" id="btn-state-8" class="btn btn-xs btn-100" onclick="toggleState(8)">เปิดบิลแล้ว</button>
+		<button type="button" id="btn-state-9" class="btn btn-xs btn-100" onclick="toggleState(9)">ยกเลิก</button>
 	</div>
 </div>
 
@@ -116,6 +97,7 @@
   <input type="hidden" id="state-6" name="state[6]" value="0">
   <input type="hidden" id="state-7" name="state[7]" value="0">
   <input type="hidden" id="state-8" name="state[8]" value="0">
+	<input type="hidden" id="state-9" name="state[9]" value="0">
 	<input type="hidden" id="token" name="token"  value="<?php echo uniqid(); ?>">
 
 

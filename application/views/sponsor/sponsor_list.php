@@ -143,7 +143,7 @@
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
 					<th class="fix-width-300 middle">ลูกค้า</th>
 					<th class="fix-width-120 middle text-right">ยอดเงิน</th>
-					<th class="fix-width-100 middle text-center">สถานะ</th>
+					<th class="fix-width-150 middle text-center">สถานะ</th>
 					<th class="fix-width-100 middle text-center">พนักงาน</th>
 				</tr>
 			</thead>
@@ -157,7 +157,13 @@
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->customer_name; ?></td>
               <td class="middle pointer text-right" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
-              <td class="middle pointer text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
+              <td class="middle pointer text-center" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php if($rs->is_expired) : ?>
+									หมดอายุ
+								<?php else : ?>
+									<?php echo $rs->state_name; ?>
+								<?php endif; ?>
+							</td>
 							<td class="middle pointer text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->user; ?></td>
               </td>
             </tr>

@@ -125,12 +125,13 @@
 								<?php endif; ?>
 							</td>
 							<td class="middle text-center">
-								<?php if($rs->is_expire) : ?>
-									<span class="dark">EXP</span>
-								<?php else : ?>
+								<?php if($rs->is_expire OR $rs->status == 2) : ?>
 									<?php if($rs->status == 2) : ?>
 										<span class="red">CN</span>
+									<?php else : ?>
+										<span class="dark">EXP</span>
 									<?php endif; ?>
+								<?php else : ?>									
 									<?php if($rs->status == 0) : ?>
 										<span class="blue">NC</span>
 									<?php endif; ?>
@@ -155,6 +156,8 @@
 		</table>
 	</div>
 </div>
+
+<?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/move/move.js?v=<?php echo date('Ymd'); ?>"></script>
 <script>

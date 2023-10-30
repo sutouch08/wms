@@ -58,7 +58,7 @@
     </div>
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 		<label>SAP</label>
 		<select name="sap" class="form-control input-sm" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -67,11 +67,11 @@
 		</select>
 	</div>
 
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -169,7 +169,8 @@
   </div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/adjust/adjust.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/adjust/adjust_list.js"></script>
+<?php $this->load->view('cancle_modal'); ?>
+<script src="<?php echo base_url(); ?>scripts/inventory/adjust/adjust.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/adjust/adjust_list.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

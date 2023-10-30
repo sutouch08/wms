@@ -5,6 +5,10 @@
     <input type="text" class="form-control input-sm text-center zone" id="barcode-box" autofocus <?php echo $disActive; ?> />
   </div>
 
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 hide">
+    <label>Qty</label>
+    <input type="number" class="form-control input-sm text-center" id="qc-qty" value="1" />
+  </div>
   <div class="col-sm-2 padding-5">
     <label>บาร์โค้ดสินค้า</label>
     <input type="text" class="form-control input-sm text-center item" id="barcode-item" disabled />

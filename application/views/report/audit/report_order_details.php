@@ -227,7 +227,7 @@
 </form>
 
 <div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center" id="result" style="min-height: 300px; max-height: 600px; overflow:auto;">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" id="result" style="min-height: 300px; max-height: 500px; overflow:auto;">
 
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 margin-top-10">
@@ -237,7 +237,7 @@
 
 <script id="template" type="text/x-handlebars-template">
 {{#if details}}
-	<table class="table table-striped border-1" style="min-width:1740px;">
+	<table class="table table-striped border-1" style="min-width:2200px;">
 		<thead>
 			<tr>
 				<th class="fix-width-60 text-center">#</th>
@@ -254,6 +254,7 @@
 				<th class="fix-width-200">คลังสินค้า</th>
 				<th class="fix-width-100">User</th>
 				<th class="fix-width-150">พนักงาน</th>
+				<th class="min-width-200">Cancel Reason</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -273,6 +274,7 @@
 					<td class="middle">{{warehouse_name}}</td>
 					<td class="middle">{{uname}}</td>
 					<td class="middle">{{emp_name}}</td>
+					<td class="middle">{{cancel_reason}}</td>
 				</tr>
 			{{/each}}
 		</tbody>

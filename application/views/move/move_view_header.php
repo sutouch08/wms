@@ -41,6 +41,13 @@
     <label>SAP</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled/>
   </div>
+
+  <?php if($doc->status == 2 && ! empty($doc->cancle_reason)) : ?>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+      <label>เหตุผลในการยกเลิก</label>
+      <input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled>
+    </div>
+  <?php endif; ?>
 </div>
 <input type="hidden" id="move_code" value="<?php echo $doc->code; ?>" />
 <hr class="margin-top-15"/>
@@ -64,9 +71,9 @@
 <?php
 function showStatus($is_expire, $status)
 {
-  if($is_expire == 1)
+  if($is_expire == 1 OR $status == 2)
   {
-    return "หมดอายุ";
+    return $status == 2 ? "ยกเลิก" : "หมดอายุ";
   }
 
   $text = "Unknow";
@@ -91,17 +98,19 @@ function showStatus($is_expire, $status)
 }
 
 
-if($doc->is_expire == 1)
-{
-  $this->load->view('expire_watermark');
-}
-else
+if($doc->is_expire == 1 OR $doc->status == 2)
 {
   if($doc->status == 2)
   {
     $this->load->view('cancle_watermark');
   }
-
+  else
+  {
+    $this->load->view('expire_watermark');
+  }
+}
+else
+{
   if($doc->status == 4)
   {
     $this->load->view('accept_watermark');

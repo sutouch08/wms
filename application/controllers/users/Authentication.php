@@ -21,6 +21,7 @@ class Authentication extends CI_Controller
     $sc = TRUE;
     $user_name = $this->input->post('user_name');
     $pwd = $this->input->post('password');
+    $rem = $this->input->post('remember');
 
 		$rs = $this->user_model->get_user_credentials($user_name);
 
@@ -41,7 +42,7 @@ class Authentication extends CI_Controller
 					'id_profile' => $rs->id_profile
 				);
 
-				$this->create_user_data($ds);
+				$this->create_user_data($ds, $rem);
       }
       else
       {
@@ -77,11 +78,11 @@ class Authentication extends CI_Controller
 
 
 
-  public function create_user_data(array $ds = array() )
+  public function create_user_data(array $ds = array(), $remember = NULL )
   {
     if(!empty($ds))
     {
-      $times = intval(60*60*8*100);
+      $times =  ! empty($remember) ? intval(60*60*24*356) : intval(60*60*12);
 
       foreach($ds as $key => $val)
       {

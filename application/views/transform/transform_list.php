@@ -140,17 +140,17 @@
 
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-sm-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1" style="min-width:860px;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+		<table class="table table-striped table-hover border-1" style="min-width:900px;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
-					<th class="min-width-200 middle" style="max-width:350px;">ลูกค้า</th>
+					<th class="min-width-200 middle">ลูกค้า</th>
 					<th class="fix-width-100 middle text-right">จำนวน</th>
 					<th class="fix-width-100 middle text-right">ยอดเงิน</th>
-					<th class="fix-width-100 middle">สถานะ</th>
+					<th class="fix-width-150 middle">สถานะ</th>
 					<th class="fix-width-120">พนักงาน</th>
 				</tr>
 			</thead>
@@ -167,7 +167,13 @@
 								<?php echo number($this->transform_model->get_sum_qty($rs->code)); ?>
 							</td>
               <td class="middle text-right pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
+              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php if($rs->is_expired) : ?>
+									หมดอายุ
+								<?php else : ?>
+									<?php echo $rs->state_name; ?>
+								<?php endif; ?>
+							</td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->user; ?></td>
             </tr>
             <?php $no++; ?>

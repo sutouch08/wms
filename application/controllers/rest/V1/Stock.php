@@ -13,6 +13,7 @@ class Stock extends REST_Controller
     parent::__construct();
     $this->ms = $this->load->database('ms', TRUE);
 		$this->api = is_true(getConfig('CHATBOT_API'));
+
 		if($this->api)
 		{
 			$this->load->model('stock/stock_model');
@@ -147,7 +148,6 @@ class Stock extends REST_Controller
     }
 
   }
-
 
 
 }// End Class

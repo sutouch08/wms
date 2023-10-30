@@ -803,14 +803,14 @@ class Adjust extends PS_Controller
 
 
 
-  public function cancle()
+  public function cancle($code)
   {
     $sc = TRUE;
-    $code = $this->input->post('code');
+
     if(!empty($code))
     {
       $doc = $this->adjust_model->get($code);
-      if(!empty($doc))
+      if( ! empty($doc))
       {
         if(empty($doc->issue_code) && empty($doc->receive_code))
         {
@@ -842,13 +842,20 @@ class Adjust extends PS_Controller
             //--- change doc status to 2 Cancled
             if($sc === TRUE)
             {
-              if(! $this->adjust_model->change_status($code, 2))
+              $arr = array(
+                'issue_code' => NULL,
+                'receive_code' => NULL,
+                'status' => 2,
+                'cancle_reason' => trim($this->input->post('reason')),
+                'cancle_user' => $this->_user->uname
+              );
+
+              if(! $this->adjust_model->update($code, $arr))
               {
                 $sc = FALSE;
                 $this->error = "ยกเลิกเอกสารไม่สำเร็จ";
               }
             }
-
 
             if($sc === TRUE)
             {

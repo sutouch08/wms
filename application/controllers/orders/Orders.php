@@ -116,11 +116,14 @@ class Orders extends PS_Controller
 		}
 
 		$segment  = 4; //-- url segment
+    $startTime = microtime();
 		$rows     = $this->orders_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
     $offset   = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
 		$orders   = $this->orders_model->get_data($filter, $perpage, $offset);
+    $endTime = microtime();
+    $loopStart = microtime();
     $ds       = array();
     if(!empty($orders))
     {
@@ -135,9 +138,15 @@ class Orders extends PS_Controller
       }
     }
 
+    $loopEnd = microtime();
+
     $filter['orders'] = $ds;
     $filter['state'] = $state;
     $filter['btn'] = $button;
+    $filter['start'] = $startTime;
+    $filter['end'] = $endTime;
+    $filter['loop_start']  = $loopStart;
+    $filter['loop_end'] = $loopEnd;
 
 		$this->pagination->initialize($init);
     $this->load->view('orders/orders_list', $filter);

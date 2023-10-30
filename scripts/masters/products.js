@@ -10,16 +10,20 @@ function goBack(){
 
 
 function getEdit(code){
-  window.location.href = BASE_URL + 'masters/products/edit/'+code;
+  url = BASE_URL + 'masters/products/edit/' + encodeURIComponent(code);
+  window.location.href = url;
 }
 
 
-function changeURL(style, tab)
+function changeURL(style, tab, a)
 {
-
 	var url = BASE_URL + 'masters/products/edit/' + style + '/' + tab;
 	var stObj = { stage: 'stage' };
 	window.history.pushState(stObj, 'products', url);
+  if( a !== undefined )
+  {
+    $('#'+tab+'-a').click();
+  }
 }
 
 
@@ -53,24 +57,30 @@ function export_filter(){
   let code = $('#code').val();
   let name = $('#name').val();
   let group = $('#group').val();
+  let main_group = $('#main_group').val();
   let sub_group = $('#sub_group').val();
   let category = $('#category').val();
   let kind = $('#kind').val();
   let type = $('#type').val();
   let brand = $('#brand').val();
   let year = $('#year').val();
+  let sell = $('#sell').val();
+  let active = $('#active').val();
   let token	= new Date().getTime();
 
 
   $('#export_code').val(code);
   $('#export_name').val(name);
   $('#export_group').val(group);
+  $('#export_main_group').val(main_group);
   $('#export_sub_group').val(sub_group);
   $('#export_category').val(category);
   $('#export_kind').val(kind);
   $('#export_type').val(type);
   $('#export_brand').val(brand);
   $('#export_year').val(year);
+  $('#export_sell').val(sell);
+  $('#export_active').val(active);
   $('#token').val(token);
 
   get_download(token);
@@ -92,7 +102,7 @@ function getDelete(code){
 		closeOnConfirm: false
   },function(){
     $.ajax({
-      url: BASE_URL + 'masters/products/delete_style/' + code,
+      url: BASE_URL + 'masters/products/delete_style/' + encodeURIComponent(code),
       type:'GET',
       cache:false,
       success:function(rs){

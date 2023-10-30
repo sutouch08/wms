@@ -17,39 +17,51 @@
 <hr class="padding-5" />
 
 <div class="row">
-    <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     	<label>เลขที่เอกสาร</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
     </div>
-		<div class="col-sm-1 col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     	<label>วันที่</label>
       <input type="text" class="form-control input-sm text-center" id="date_add" value="<?php echo thai_date($doc->date_add) ?>" readonly disabled/>
     </div>
-		<div class="col-sm-1 col-1-harf col-xs-12 padding-5">
+		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
 			<label>อ้างถึง</label>
 			<input type="text" class="form-control input-sm text-center" id="reference" value="<?php echo $doc->reference; ?>" disabled />
 		</div>
-		<div class="col-sm-2 col-xs-4 padding-5">
+		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
 			<label>โซนแปรสภาพ</label>
-			<input type="text" class="form-control input-sm text-center" id="zone" value="<?php echo $doc->from_zone; ?>" disabled />
+			<input type="text" class="form-control input-sm" id="zone" value="<?php echo $doc->from_zone; ?>" disabled />
 		</div>
-		<div class="col-sm-4 col-4-harf col-xs-4 padding-5">
+		<div class="col-lg-3-harf col-md-5 col-sm-4 col-xs-12 padding-5">
 			<label class="not-show">โซนแปรสภาพ</label>
-			<input type="text" class="form-control input-sm text-center" id="zoneName" value="<?php echo $doc->zone_name; ?>" disabled />
+			<input type="text" class="form-control input-sm" id="zoneName" value="<?php echo $doc->zone_name; ?>" disabled />
 		</div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>Goods Issue</label>
 			<input type="text" class="form-control input-sm text-center" id="issue_code" value="<?php echo $doc->issue_code; ?>" disabled />
 		</div>
 
-		<div class="col-sm-3 col-xs-12 padding-5">
+		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
 			<label>พนักงาน</label>
 			<input type="text" class="form-control input-sm" id="user" value="<?php echo $doc->user_name; ?>" disabled />
 		</div>
-		<div class="col-sm-9 col-xs-12 padding-5">
+		<div class="col-lg-10 col-md-8-harf col-sm-8-harf col-xs-12 padding-5">
 	   	<label>หมายเหตุ</label>
 	    <input type="text" class="form-control input-sm" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled/>
 	  </div>
+
+		<?php if($doc->status == 2) : ?>
+			<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 padding-5">
+		   	<label>เหตุผลในการยกเลิก</label>
+		    <input type="text" class="form-control input-sm" id="remark" value="<?php echo $doc->cancle_reason; ?>" disabled/>
+		  </div>
+			<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 padding-5">
+		   	<label>ยกเลิกโดย</label>
+		    <input type="text" class="form-control input-sm"  value="<?php echo $doc->cancle_user; ?>" disabled/>
+		  </div>
+		<?php endif; ?>
+
     <input type="hidden" id="code" value="<?php echo $doc->code; ?>" />
 </div>
 
@@ -62,21 +74,21 @@ if($doc->status == 2)
 }
 ?>
 <div class="row">
-  <div class="col-sm-12 paddint-5 first last">
-    <p class="pull-right top-p">
-		<?php if(! empty($doc->issue_code)) : ?>
-      <span class="red">** เอกสารเข้าระบบ SAP แล้วไม่สามารถแก้ไขได้</span>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+		<?php if(! empty($doc->issue_code) OR ! empty($doc->receive_code)) : ?>
+			<span class="red">** เอกสารเข้าระบบ SAP แล้วไม่สามารถแก้ไขได้</span>
 		<?php endif; ?>
-    </p>
-  </div>
-  <div class="col-sm-12 padding-5">
-    <table class="table table-striped border-1">
+		</p>
+	</div>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+		<table class="table table-striped border-1" style="min-width:990px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-20">รหัสสินค้า</th>
-          <th class="">สินค้า</th>
-          <th class="width-10 text-center">จำนวน</th>
+          <th class="fix-width-50 text-center">ลำดับ</th>
+          <th class="fix-width-250">รหัสสินค้า</th>
+          <th class="min-width-300">สินค้า</th>
+          <th class="fix-width-10 text-center">จำนวน</th>
         </tr>
       </thead>
       <tbody id="detail-table">

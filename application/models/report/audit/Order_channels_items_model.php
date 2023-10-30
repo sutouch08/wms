@@ -12,21 +12,14 @@ class Order_channels_items_model extends CI_Model
     if(!empty($ds))
     {
       $this->db
-      ->select('o.code AS code, o.date_add, o.reference, o.warehouse_code')
-      ->select('o.shipping_code, o.shipping_fee, o.service_fee')
-      ->select('o.customer_ref, o.id_address, c.name AS channels')
-      ->select('pm.name AS payment, st.name AS state')
+      ->select('o.*')
       ->select('od.product_code, od.price')
       ->select('od.qty, od.discount_amount, od.total_amount')
       ->from('order_details AS od')
       ->join('orders AS o', 'od.order_code = o.code', 'left')
-      ->join('channels AS c', 'o.channels_code = c.code', 'left')
-      ->join('payment_method AS pm', 'o.payment_code = pm.code', 'left')
-      ->join('order_state AS st', 'o.state = st.state', 'left')
       ->where('o.date_add >=', from_date($ds['fromDate']))
       ->where('o.date_add <=', to_date($ds['toDate']))
       ->where('o.role', 'S')
-      ->where('o.status', 1)
       ->where('o.is_expired', 0);
 
       if(empty($ds['allChannels']) && !empty($ds['channels']))
@@ -66,6 +59,57 @@ class Order_channels_items_model extends CI_Model
       {
         return $rs->result();
       }
+    }
+
+    return NULL;
+  }
+
+
+  public function channels_array()
+  {
+    $ds = array();
+    $rs = $this->db->select('code, name')->get('channels');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $ds[$rd->code] = $rd->name;
+      }
+    }
+
+    return $ds;
+  }
+
+
+  public function payment_array()
+  {
+    $ds = array();
+    $rs = $this->db->select('code, name')->get('payment_method');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $ds[$rd->code] = $rd->name;
+      }
+    }
+
+    return $ds;
+  }
+
+  public function cancel_reason($order_code)
+  {
+    $rs = $this->db
+    ->select('reason')
+    ->where('code', $order_code)
+    ->order_by('cancle_date', 'DESC')
+    ->limit(1, 0)
+    ->get('order_cancle_reason');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->reason;
     }
 
     return NULL;

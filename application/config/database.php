@@ -74,11 +74,11 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 $db['default'] = array(
-	'dsn'	=> 'mysql:host=localhost;port=3306;dbname=warrix_sap',
+	'dsn'	=> 'mysql:host=localhost;port=3306;dbname=wx_wmp',
 	'hostname' => 'localhost',
 	'username' => 'root',
 	'password' => 'ZT20o15u21c3H808',
-	'database' => 'warrix_sap',
+	'database' => 'wx_wmp',
 	'dbdriver' => 'pdo',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
