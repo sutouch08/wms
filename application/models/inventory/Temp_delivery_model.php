@@ -47,7 +47,12 @@ class Temp_delivery_model extends CI_Model
       }
       else if($ds['status'] === 'N')
       {
-        $this->mc->where('F_Sap IS NULL', NULL, FALSE);
+        $this->mc
+        ->group_start()
+        ->where('F_Sap IS NULL', NULL, FALSE)
+        ->or_where('F_Sap', 'P')
+        ->group_end();
+        //$this->mc->where('F_Sap IS NULL', NULL, FALSE);
       }
       else if($ds['status'] === 'E')
       {
@@ -95,7 +100,12 @@ class Temp_delivery_model extends CI_Model
       }
       else if($ds['status'] === 'N')
       {
-        $this->mc->where('F_Sap IS NULL', NULL, FALSE);
+        $this->mc
+        ->group_start()
+        ->where('F_Sap IS NULL', NULL, FALSE)
+        ->or_where('F_Sap', 'P')
+        ->group_end();
+        //$this->mc->where('F_Sap IS NULL', NULL, FALSE);
       }
       else if($ds['status'] === 'E')
       {

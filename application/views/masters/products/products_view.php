@@ -158,7 +158,7 @@
 					<th class="fix-width-80 middle text-center">ราคา</th>
 					<th class="fix-width-150 middle text-center">กลุ่ม</th>
 					<th class="fix-width-150 middle text-center">กลุ่มหลัก</th>
-					<th class="fix-width-150 middle text-center">กลุ่มหลัก</th>
+					<th class="fix-width-150 middle text-center">กลุ่มย่อย</th>
 					<th class="fix-width-150 middle text-center">หมวดหมู่</th>
 					<th class="fix-width-150 middle text-center">ประเภท</th>
 					<th class="fix-width-150 middle text-center">ชนิด</th>

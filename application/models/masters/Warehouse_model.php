@@ -226,6 +226,18 @@ class Warehouse_model extends CI_Model
     return FALSE;
   }
 
+  public function get_all_warehouse_list()
+  {
+    $rs = $this->db->where('active', 1)->order_by('code', 'ASC')->get('warehouse');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
 
   ///---- คลังฝากขายทั้งหมด
   public function get_consign_warehouse_list()

@@ -5,7 +5,7 @@ class Order_details extends PS_Controller
   public $menu_code = 'RAODDT';
 	public $menu_group_code = 'RE';
   public $menu_sub_group_code = 'REAUDIT';
-	public $title = 'รายงานสถานะเอกสารแสดงรายละเอียด';
+	public $title = 'รายงานสถานะเอกสารขาออก แสดงรายละเอียด';
   public $filter;
   public function __construct()
   {
@@ -155,6 +155,7 @@ class Order_details extends PS_Controller
             $rs->no = number($no);
             $rs->expired = $rs->is_expired == 1 ? 'Y' : 'N';
             $rs->date_add = thai_date($rs->date_add, FALSE, '/');
+            $rs->date_upd = thai_date($rs->date_upd, FALSE, '/');
             $rs->total_amount = number($this->order_details_model->get_doc_total($rs->code), 2);
             $rs->channels_name = empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code];
             $rs->payment_name = empty($payment[$rs->payment_code]) ? NULL : $payment[$rs->payment_code];
@@ -268,14 +269,14 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue("G{$row}", 'ชื่อลูกค้า');
       $this->excel->getActiveSheet()->setCellValue("H{$row}", 'สถานะ');
       $this->excel->getActiveSheet()->setCellValue("I{$row}", 'หมดอายุ');
-      $this->excel->getActiveSheet()->setCellValue("J{$row}", 'ช่องทางขาย');
-      $this->excel->getActiveSheet()->setCellValue("K{$row}", 'การชำระเงิน');
-      $this->excel->getActiveSheet()->setCellValue("L{$row}", 'รหัสคลัง');
-      $this->excel->getActiveSheet()->setCellValue("M{$row}", 'ชื่อคลัง');
-      $this->excel->getActiveSheet()->setCellValue("N{$row}", 'Username');
-      $this->excel->getActiveSheet()->setCellValue("O{$row}", 'พนักงาน');
-      $this->excel->getActiveSheet()->setCellValue("P{$row}", 'cancel reason');
-
+      $this->excel->getActiveSheet()->setCellValue("J{$row}", 'วันที่แก้ไข');
+      $this->excel->getActiveSheet()->setCellValue("K{$row}", 'ช่องทางขาย');
+      $this->excel->getActiveSheet()->setCellValue("L{$row}", 'การชำระเงิน');
+      $this->excel->getActiveSheet()->setCellValue("M{$row}", 'รหัสคลัง');
+      $this->excel->getActiveSheet()->setCellValue("N{$row}", 'ชื่อคลัง');
+      $this->excel->getActiveSheet()->setCellValue("O{$row}", 'Username');
+      $this->excel->getActiveSheet()->setCellValue("P{$row}", 'พนักงาน');
+      $this->excel->getActiveSheet()->setCellValue("Q{$row}", 'cancel reason');
       $row++;
 
       //---- กำหนดความกว้างของคอลัมภ์
@@ -287,13 +288,14 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(90);
       $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
       $this->excel->getActiveSheet()->getColumnDimension('I')->setWidth(10);
-      $this->excel->getActiveSheet()->getColumnDimension('J')->setWidth(20);
+      $this->excel->getActiveSheet()->getColumnDimension('J')->setWidth(15);
       $this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(20);
-      $this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(15);
-      $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(40);
-      $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(20);
+      $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(40);
       $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(15);
-      $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(40);
+      $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(15);
+      $this->excel->getActiveSheet()->getColumnDimension('Q')->setWidth(40);
 
       if( ! empty($details))
       {
@@ -306,10 +308,15 @@ class Order_details extends PS_Controller
         $no = 1;
         foreach($details as $rs)
         {
-          $y		= date('Y', strtotime($rs->date_add));
-          $m		= date('m', strtotime($rs->date_add));
-          $d		= date('d', strtotime($rs->date_add));
-          $date = PHPExcel_Shared_Date::FormattedPHPToExcel($y, $m, $d);
+          $ay		= date('Y', strtotime($rs->date_add));
+          $am		= date('m', strtotime($rs->date_add));
+          $ad		= date('d', strtotime($rs->date_add));
+          $date_add = PHPExcel_Shared_Date::FormattedPHPToExcel($ay, $am, $ad);
+
+          $uy		= date('Y', strtotime($rs->date_upd));
+          $um		= date('m', strtotime($rs->date_upd));
+          $ud		= date('d', strtotime($rs->date_upd));
+          $date_upd = PHPExcel_Shared_Date::FormattedPHPToExcel($uy, $um, $ud);
 
           $amount = $this->order_details_model->get_doc_total($rs->code);
 
@@ -320,7 +327,7 @@ class Order_details extends PS_Controller
           }
 
           $this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
-          $this->excel->getActiveSheet()->setCellValue("B{$row}", $date);
+          $this->excel->getActiveSheet()->setCellValue("B{$row}", $date_add);
           $this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->code);
           $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->reference);
           $this->excel->getActiveSheet()->setCellValue("E{$row}", $amount);
@@ -328,15 +335,16 @@ class Order_details extends PS_Controller
           $this->excel->getActiveSheet()->setCellValue("G{$row}", $cust[$rs->customer_code]);
           $this->excel->getActiveSheet()->setCellValue("H{$row}", $state[$rs->state]);
           $this->excel->getActiveSheet()->setCellValue("I{$row}", $rs->is_expired == 1 ? 'Y' : 'N');
-          $this->excel->getActiveSheet()->setCellValue("J{$row}", empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]);
-          $this->excel->getActiveSheet()->setCellValue("K{$row}", empty($payment[$rs->payment_code]) ? NULL : $payment[$rs->payment_code]);
-          $this->excel->getActiveSheet()->setCellValue("L{$row}", $rs->warehouse_code);
-          $this->excel->getActiveSheet()->setCellValue("M{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
-          $this->excel->getActiveSheet()->setCellValue("N{$row}", $rs->user);
-          $this->excel->getActiveSheet()->setCellValue("O{$row}", $this->user_model->get_name($rs->user));
+          $this->excel->getActiveSheet()->setCellValue("J{$row}", $date_upd);
+          $this->excel->getActiveSheet()->setCellValue("K{$row}", empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]);
+          $this->excel->getActiveSheet()->setCellValue("L{$row}", empty($payment[$rs->payment_code]) ? NULL : $payment[$rs->payment_code]);
+          $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->warehouse_code);
+          $this->excel->getActiveSheet()->setCellValue("N{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
+          $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->user);
+          $this->excel->getActiveSheet()->setCellValue("P{$row}", $this->user_model->get_name($rs->user));
           if($rs->state == 9)
           {
-            $this->excel->getActiveSheet()->setCellValue("P{$row}", $this->cancel_reason($rs->code));
+            $this->excel->getActiveSheet()->setCellValue("Q{$row}", $this->cancel_reason($rs->code));
           }
 
 
@@ -345,6 +353,7 @@ class Order_details extends PS_Controller
         }
 
         $this->excel->getActiveSheet()->getStyle("B10:B{$row}")->getNumberFormat()->setFormatCode('dd/mm/yyyy');
+        $this->excel->getActiveSheet()->getStyle("J10:J{$row}")->getNumberFormat()->setFormatCode('dd/mm/yyyy');
         $this->excel->getActiveSheet()->getStyle("E10:E{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
       }
     }

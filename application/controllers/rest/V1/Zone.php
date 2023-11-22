@@ -18,7 +18,7 @@ class Zone extends REST_Controller
     $rs = $this->db
     ->from('zone AS z')
     ->join('warehouse AS w', 'z.warehouse_code = w.code', 'left')
-    ->where('w.role', 2)
+    //->where('w.role', 2)
     ->where('z.name !=', '')
     ->where('z.name IS NOT NULL', NULL, FALSE)
     ->count_all_results();
@@ -47,7 +47,7 @@ class Zone extends REST_Controller
       ->select('w.code AS warehouse_code, w.name AS warehouse_name, w.is_consignment')
       ->from('zone AS z')
       ->join('warehouse AS w', 'z.warehouse_code = w.code', 'left')
-      ->where('w.role', 2)
+      //->where('w.role', 2)
       ->where('z.name !=', '')
       ->where('z.name IS NOT NULL', NULL, FALSE)
       ->limit($limit, $offset)

@@ -115,7 +115,7 @@
 					 	?>
 				 	</td>
 					<td class="middle text-center">
-            <?php if($rs->F_Sap === NULL) : ?>
+            <?php if($rs->F_Sap === NULL OR $rs->F_Sap == 'P') : ?>
               <span class="blue">NC</span>
             <?php elseif($rs->F_Sap === 'N') : ?>
               <span class="red">ERROR</span>

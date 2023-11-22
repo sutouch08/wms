@@ -1999,3 +1999,13 @@ input[type=number]::-webkit-outer-spin-button {
 .btn-group-30 {
   height:30px;
 }
+
+
+.freez > th {
+  top:-1px;
+  position: sticky;
+  background-color: #ddd;
+  outline: none;
+  min-height: 30px;
+  height: 30px;
+}

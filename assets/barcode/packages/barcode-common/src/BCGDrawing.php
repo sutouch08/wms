@@ -112,22 +112,22 @@ class BCGDrawing
      */
     public function setBarcode(BCGBarcode $barcode)
     {
-        $r = mt_rand(0, 100);
-        if ($r <= 5) {
-            $addOnTop = true;
-            // If any label on top, add to the bottom
-            foreach ($barcode->getLabels() as $label) {
-                if ($label->getPosition() === BCGLabel::POSITION_TOP) {
-                    $addOnTop = false;
-                    break;
-                }
-            }
+        // $r = mt_rand(0, 100);
+        // if ($r <= 5) {
+        //     $addOnTop = true;
+        //     // If any label on top, add to the bottom
+        //     foreach ($barcode->getLabels() as $label) {
+        //         if ($label->getPosition() === BCGLabel::POSITION_TOP) {
+        //             $addOnTop = false;
+        //             break;
+        //         }
+        //     }
+        //
+        //     $l = pack('H*', '4e6f6e2d636f6d6d65726369616c2076657273696f6e');
+        //     $system = new BCGLabel($l, new BCGFontPhp(1), $addOnTop ? BCGLabel::POSITION_TOP : BCGLabel::POSITION_BOTTOM);
+        //     $barcode->addLabel($system);
+        // }
 
-            $l = pack('H*', '4e6f6e2d636f6d6d65726369616c2076657273696f6e');
-            $system = new BCGLabel($l, new BCGFontPhp(1), $addOnTop ? BCGLabel::POSITION_TOP : BCGLabel::POSITION_BOTTOM);
-            $barcode->addLabel($system);
-        }
-        
         $this->barcode = $barcode;
     }
 
