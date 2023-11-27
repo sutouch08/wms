@@ -160,16 +160,18 @@ class Cancle_model extends CI_Model
 
 
 
-  public function is_exists($order_code, $product_code, $zone_code)
+  public function is_exists($order_code, $product_code, $zone_code, $detail_id = NULL)
   {
-    $rs = $this->db
-    ->select('id')
+    $this->db
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
     ->where('zone_code', $zone_code)
-    ->get('cancle');
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
 
-    if($rs->num_rows() == 1)
+    if( $this->db->count_all_results('cancle') > 0)
     {
       return TRUE;
     }
@@ -180,11 +182,11 @@ class Cancle_model extends CI_Model
 
   public function add(array $ds = array())
   {
-    if(!empty($ds))
+    if(! empty($ds))
     {
-      if($this->is_exists($ds['order_code'], $ds['product_code'], $ds['zone_code']))
+      if($this->is_exists($ds['order_code'], $ds['product_code'], $ds['zone_code'], $ds['order_detail_id']))
       {
-        return $this->update($ds['order_code'], $ds['product_code'], $ds['zone_code'], $ds['qty']);
+        return $this->update($ds['order_code'], $ds['product_code'], $ds['zone_code'], $ds['qty'], $ds['order_detail_id']);
       }
       else
       {
@@ -197,14 +199,19 @@ class Cancle_model extends CI_Model
 
 
 
-  public function update($order_code, $product_code, $zone_code, $qty)
+  public function update($order_code, $product_code, $zone_code, $qty, $detail_id = NULL)
   {
-    return $this->db
+    $this->db
     ->set('qty', "qty + {$qty}", FALSE)
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
     ->where('zone_code', $zone_code)
-    ->update('cancle');
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
+
+    return $this->db->update('cancle');
   }
 
 
@@ -229,17 +236,19 @@ class Cancle_model extends CI_Model
           break;
         }
 
-        if($this->is_buffer_exists($rd->order_code, $rd->product_code, $rd->zone_code) === TRUE)
+        if($this->is_buffer_exists($rd->order_code, $rd->product_code, $rd->zone_code, $rd->order_detail_id))
         {
-          $qs = $this->db
+          $this->db
           ->set("qty", "qty + {$rs->qty}", FALSE)
           ->where('order_code', $rd->order_code)
           ->where('product_code', $rd->product_code)
-          ->where('zone-code', $rd->zone_code)
-          ->where('user', $rd->user)
-          ->update('buffer');
+          ->where('zone_code', $rd->zone_code)
+          ->group_start()
+          ->where('order_detail_id', $rd->order_detail_id)
+          ->or_where('order_detail_id IS NULL', NULL, FALSE)
+          ->group_end();
 
-          if(! $qs)
+          if( ! $this->db->update('buffer'))
           {
             $sc = FALSE;
           }
@@ -252,20 +261,20 @@ class Cancle_model extends CI_Model
             'warehouse_code' => $rd->warehouse_code,
             'zone_code' => $rd->zone_code,
             'qty' => $rd->qty,
-            'user' => $rd->user
+            'user' => $rd->user,
+            'order_detail_id' => $rd->order_detail_id
           );
 
-          if(! $this->db->insert('buffer', $arr) )
-          {
-            $sc = FALSE;
-          }
-
-          if($sc === TRUE)
+          if($this->db->insert('buffer', $arr))
           {
             if(! $this->delete($rd->id) )
             {
               $sc = FALSE;
             }
+          }
+          else
+          {
+            $sc = FALSE;
           }
         }
       } //--- end foreach
@@ -275,15 +284,18 @@ class Cancle_model extends CI_Model
   }
 
 
-  public function is_buffer_exists($code, $pd_code, $zone_code)
+  public function is_buffer_exists($code, $pd_code, $zone_code, $detail_id = NULL)
   {
-    $rs = $this->db->select('id')
+    $this->db
     ->where('order_code', $code)
     ->where('product_code', $pd_code)
     ->where('zone_code', $zone_code)
-    ->get('buffer');
-
-    if($rs->num_rows() > 0)
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
+    
+    if( $this->db->count_all_results('buffer') > 0)
     {
       return TRUE;
     }

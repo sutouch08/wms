@@ -135,7 +135,7 @@ class Temp_delivery_model extends CI_Model
   public function get_detail($docEntry)
   {
     $rs = $this->mc
-    ->select('LineNum, U_ECOMNO, ItemCode, Dscription, Quantity, BinCode')
+    ->select('LineNum, U_ECOMNO, ItemCode, Dscription, Quantity, PriceBefDi, BinCode')
     ->where('DocEntry', $docEntry)
     ->get('DLN1');
 

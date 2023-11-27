@@ -66,20 +66,23 @@ class Invoice extends PS_Controller
     $this->load->model('inventory/qc_model');
     $this->load->helper('order');
     $this->load->helper('discount');
+
     $approve_view = isset($_GET['approve_view']) ? TRUE : NULL;
 
     $order = $this->orders_model->get($code);
+
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
 
     if($order->role == 'C' OR $order->role == 'N')
     {
       $this->load->model('masters/zone_model');
+
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
+
       if($order->role == 'N')
       {
         $order->is_received = $this->invoice_model->is_received($order->code);
       }
-
     }
 
     $details = $this->invoice_model->get_billed_detail($code);
@@ -101,6 +104,7 @@ class Invoice extends PS_Controller
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $details = $this->invoice_model->get_details($code); //--- รายการที่มีการบันทึกขายไป
+    
     if(!empty($details))
     {
       foreach($details as $rs)

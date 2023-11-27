@@ -13,6 +13,7 @@
           <th class="width-5 text-center">No.</th>
           <th class="width-20">รหัสสินค้า</th>
           <th class="">ชื่อสินค้า</th>
+          <th class="width-10 text-right">ราคา</th>
           <th class="width-20">Bin location</th>
           <th class="width-10 text-right">Order Qty</th>
           <th class="width-10 text-right">Bin Qty</th>
@@ -27,6 +28,7 @@
               <td class="middle text-center"><?php echo $rs->LineNum; ?></td>
               <td class="middle"><?php echo $rs->ItemCode; ?></td>
               <td class="middle"><?php echo $rs->Dscription; ?></td>
+              <td class="middle text-right"><?php echo number($rs->PriceBefDi, 2); ?></td>
               <td class="middle"><?php echo $rs->BinCode; ?></td>
               <td class="middle text-right"><?php echo intval($rs->Quantity); ?></td>
               <td class="middle text-right"><?php echo $rs->onhand; ?></td>

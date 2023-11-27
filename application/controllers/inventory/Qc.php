@@ -49,78 +49,103 @@ class Qc extends PS_Controller
   public function save_qc()
   {
     $sc = TRUE;
-    if($this->input->post('order_code'))
+
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
-      $this->load->model('inventory/buffer_model');
-
-      $code = $this->input->post('order_code');
-      $id_box = $this->input->post('id_box');
-      $rows = $this->input->post('rows');
-
-      if(empty($rows))
+      if( ! empty($data->order_code))
       {
-        $sc = FALSE;
-        $message = 'ไม่พบรายการตรวจสินค้า';
-      }
-
-      if($sc === TRUE)
-      {
-        $this->db->trans_start();
-
-        foreach($rows as $id => $qty)
+        if( ! empty($data->rows))
         {
-          $detail = $this->orders_model->get_detail($id);
-          $orderQty = $detail->qty;
-          $bufferQty = $this->buffer_model->get_sum_buffer_product($code, $detail->product_code);
-          $qcQty = $this->qc_model->get_sum_qty($code, $detail->product_code);
+          $this->load->model('inventory/buffer_model');
 
-          //--- ยอดที่จัดมาต้องน้อยกว่า หรือ เท่ากับยอดที่สั่ง
-          //--- ถ้ามากกว่าให้ใช้ยอดที่สั่งในการตรวจสอบ
-          $prepared = $bufferQty <= $orderQty ? $bufferQty : $orderQty;
+          $this->db->trans_begin();
 
-          //--- ยอดที่จะบันทึกตรวจต้องรวมกันแล้วไม่เกินยอดที่จัดและต้องไม่เกินยอดสั่ง
-          $updateQty = $qcQty + $qty;
-
-
-          if($updateQty > $prepared)
+          foreach($data->rows as $row)
           {
-            $sc = FALSE;
-            $message = $detail->product_code.' ยอดตรวจเกินยอดจัดหรือยอดสั่ง';
+            $qty = $row->qty;
+
+            $details = $this->orders_model->get_unvalid_qc_detail($data->order_code, $row->product_code);
+
+            if( ! empty($details))
+            {
+              foreach($details as $detail)
+              {
+                if($qty > 0)
+                {
+                  $Qty = $qty >= $detail->qty ? $detail->qty : $qty; //-- 3
+                  $bufferQty = $this->buffer_model->get_sum_buffer_product($detail->order_code, $detail->product_code, $detail->id); //--- 5
+                  $qcQty = $this->qc_model->get_sum_qty($detail->order_code, $detail->product_code, $detail->id); //-- 2
+                  //--- ยอดที่จัดมาต้องน้อยกว่า หรือ เท่ากับยอดที่สั่ง
+                  //--- ถ้ามากกว่าให้ใช้ยอดที่สั่งในการตรวจสอบ                  
+
+                  //--- ยอดที่จะบันทึกตรวจต้องรวมกันแล้วไม่เกินยอดที่จัดและต้องไม่เกินยอดสั่ง
+                  $updateQty = $qcQty + $Qty; //--- 2 + 3
+
+                  if($updateQty > $bufferQty)
+                  {
+                    $sc = FALSE;
+                    $this->error = $detail->product_code.' ยอดตรวจเกินยอดจัดหรือยอดสั่ง';
+                  }
+
+                  //--- update ยอดตรวจ
+                  if( ! $this->qc_model->update_checked($data->order_code, $detail->product_code, $data->id_box, $Qty, $detail->id))
+                  {
+                    $sc = FALSE;
+                    $this->error = $detail->product_code.' บันทึกยอดตรวจไม่สำเร็จ';
+                  }
+
+                  $qty = $qty - $Qty;
+
+                  if($detail->qty == $updateQty)
+                  {
+                    $this->orders_model->valid_qc($detail->id);
+                  }
+                }
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Order item {$row->product_code} not exists";
+            }
+          } //--- end foreach
+
+          if($sc === TRUE)
+          {
+            $this->qc_model->drop_zero_qc($data->order_code);
           }
 
-          //--- update ยอดตรวจ
-          if($this->qc_model->update_checked($code, $detail->product_code, $id_box, $qty) === FALSE)
+          if($sc === TRUE)
           {
-            $sc = FALSE;
-            $message = $detail->product_code.' บันทึกยอดตรวจไม่สำเร็จ';
+            $this->db->trans_commit();
           }
-
-        } //--- end foreach
-
-        if($sc === TRUE)
-        {
-          $this->qc_model->drop_zero_qc($code);
+          else
+          {
+            $this->db->trans_rollback();
+          }
         }
-
-        $this->db->trans_complete();
-
-        if($this->db->trans_status() === FALSE)
+        else
         {
           $sc = FALSE;
-          $message = 'ทำรายการไม่สำเร็จ';
+          $this->error = "No item found";
         }
-
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->eror = "Order number not found";
       }
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบเลขที่เอกสาร';
+      $this->error = "Missing required parameter";
     }
 
-    echo $sc == TRUE ? 'success' : $message;
+    echo $sc == TRUE ? 'success' : $this->error;
   }
-
 
   public function index()
   {
@@ -213,6 +238,7 @@ class Qc extends PS_Controller
     }
 
     $order = $this->orders_model->get($code);
+
     if(!empty($order))
     {
       $order->customer_name = $this->customers_model->get_name($order->customer_code);
@@ -222,28 +248,47 @@ class Qc extends PS_Controller
     $barcode_list = array();
 
     $uncomplete = $this->qc_model->get_in_complete_list($code);
+
     if(!empty($uncomplete))
     {
       foreach($uncomplete as $rs)
       {
         $barcode = $this->get_barcode($rs->product_code);
         $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
-        $barcode_list[$rs->id] = $rs->barcode;
-        $rs->from_zone = $this->get_prepared_from_zone($code, $rs->product_code, $rs->is_count);
+        $bc = new stdClass();
+        $bc->barcode = md5($rs->barcode);
+        $bc->product_code = $rs->product_code;
+        $barcode_list[] = $bc;
+        $arr = array(
+          'order_code' => $code,
+          'product_code' => $rs->product_code,
+          'is_count' => $rs->is_count
+        );
+
+        $rs->from_zone = $this->get_prepared_from_zone($arr);
       }
     }
 
     $complete = $this->qc_model->get_complete_list($code);
+
     if(!empty($complete))
     {
       foreach($complete as $rs)
       {
         $barcode = $this->get_barcode($rs->product_code);
         $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
-        $barcode_list[$rs->product_code] = $rs->barcode;
-        //$rs->barcode = $this->get_barcode($rs->product_code);
-        //$rs->prepared = $rs->is_count == 1 ? $this->get_prepared($rs->order_code, $rs->product_code) : $rs->qty;
-        $rs->from_zone = $this->get_prepared_from_zone($code, $rs->product_code, $rs->is_count);
+        $bc = new stdClass();
+        $bc->barcode = md5($rs->barcode);
+        $bc->product_code = $rs->product_code;
+        $barcode_list[] = $bc;
+
+        $arr = array(
+          'order_code' => $code,
+          'product_code' => $rs->product_code,
+          'is_count' => $rs->is_count
+        );
+
+        $rs->from_zone = $this->get_prepared_from_zone($arr);
       }
     }
 
@@ -280,32 +325,40 @@ class Qc extends PS_Controller
   }
 
 
-
-  public function get_prepared_from_zone($order_code, $item_code, $is_count)
+  public function get_prepared_from_zone(array $ds = array())
   {
-    if($is_count == 1)
-    {
-      $this->load->model('inventory/prepare_model');
+    $label = "ไม่พบข้อมูล";
 
-      $sc = 'ไม่พบข้อมูล';
-      $buffer = $this->prepare_model->get_prepared_from_zone($order_code, $item_code);
-      if(!empty($buffer))
+    if( ! empty($ds))
+    {
+      if( ! empty($ds['is_count']))
       {
-        $sc = '';
-        foreach($buffer as $rs)
+        $this->load->model('inventory/prepare_model');
+
+        $buffer = $this->prepare_model->get_prepared_from_zone($ds['order_code'], $ds['product_code']);
+
+        if( ! empty($buffer))
         {
-          $sc .= $rs->name.' : '.number($rs->qty).'<br/>';
+          $label = "";
+
+          foreach($buffer as $rs)
+          {
+            $label .= $rs->name.' : '.number($rs->qty).'<br/>';
+          }
+        }
+        else
+        {
+          $label = "ไม่พบข้อมูล";
         }
       }
-    }
-    else
-    {
-      $sc = 'ไม่นับสต็อก';
+      else
+      {
+        $label = "ไม่นับสต็อก";
+      }
     }
 
-  	return $sc;
+  	return $label;
   }
-
 
 
   public function get_box()

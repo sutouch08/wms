@@ -267,11 +267,16 @@ var intv = setInterval(function(){
 }, 10000);
 
 
-function removeBuffer(orderCode, pdCode){
+function removeBuffer(orderCode, pdCode, order_detail_id) {
   $.ajax({
-    url:BASE_URL + 'inventory/prepare/remove_buffer/'+orderCode+'/'+pdCode,
+    url:BASE_URL + 'inventory/prepare/remove_buffer/',
     type:'POST',
     cache:false,
+    data:{
+      'order_code' : orderCode,
+      'product_code' : pdCode,
+      'order_detail_id' : order_detail_id
+    },
     success:function(rs){
       if(rs === 'success'){
         window.location.reload();

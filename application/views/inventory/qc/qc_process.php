@@ -1,4 +1,5 @@
 <?php $this->load->view('include/header'); ?>
+<script src="<?php echo base_url(); ?>/assets/js/md5.min.js"></script>
 <div class="row top-row">
   <div class="col-sm-6 top-col">
     <h4 class="title"><?php echo $this->title; ?></h4>
@@ -39,7 +40,7 @@
   </div>
   <hr />
 <?php
-        
+
     $this->load->view('inventory/qc/qc_box');
     $this->load->view('inventory/qc/qc_control');
     $this->load->view('inventory/qc/qc_incomplete_list');
@@ -117,9 +118,9 @@
 <?php
 if(!empty($barcode_list))
 {
-  foreach($barcode_list as $id => $barcode)
+  foreach($barcode_list as $bc)
   {
-    echo '<input type="hidden" class="'.$barcode.'" id="'.$id.'" value="1" />';
+    echo '<input type="hidden" class="'.$bc->barcode.'" data-code="'.$bc->product_code.'" value="1" />';
   }
 }
  ?>

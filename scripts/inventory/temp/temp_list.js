@@ -1,4 +1,4 @@
-var HOME = BASE_URL + '/inventory/temp_delivery_order/';
+var HOME = BASE_URL + 'inventory/temp_delivery_order/';
 
 function goBack(){
   window.location.href = HOME;

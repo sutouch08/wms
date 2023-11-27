@@ -315,7 +315,6 @@ class Orders extends PS_Controller
     $err_qty = 0;
     $data = $this->input->post('data');
     $order = $this->orders_model->get($order_code);
-
     if(!empty($data))
     {
       foreach($data as $rs)
@@ -336,12 +335,8 @@ class Orders extends PS_Controller
           if( $sumStock >= $qty OR $item->count_stock == 0 OR $auz == 1)
           {
 
-
             //---- ถ้ายังไม่มีรายการในออเดอร์
-            //--- อาจจะได้มากกกว่า 1 บรรทัด แต่จะเอามาแค่บรรทัดเดียว
-            $detail = $this->orders_model->get_exists_detail($order_code, $item->code, $item->price);
-
-            if(empty($detail))
+            if( $this->orders_model->is_exists_detail($order_code, $item->code) === FALSE )
             {
               //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
               $discount = array(
@@ -427,6 +422,7 @@ class Orders extends PS_Controller
             }
             else  //--- ถ้ามีรายการในออเดอร์อยู่แล้ว
             {
+              $detail 	= $this->orders_model->get_order_detail($order_code, $item->code);
               $qty			= $qty + $detail->qty;
 
               $discount = array(
@@ -443,16 +439,17 @@ class Orders extends PS_Controller
                 $discount 	= $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add, $order->code);
               }
 
+
               $arr = array(
-                "qty"		=> $qty,
-                "discount1"	=> $discount['discLabel1'],
-                "discount2" => $discount['discLabel2'],
-                "discount3" => $discount['discLabel3'],
-                "discount_amount" => $discount['amount'],
-                "total_amount"	=> ($item->price * $qty) - $discount['amount'],
-                "id_rule"	=> get_null($discount['id_rule']),
-                "valid" => 0
-              );
+                        "qty"		=> $qty,
+                        "discount1"	=> $discount['discLabel1'],
+                        "discount2" => $discount['discLabel2'],
+                        "discount3" => $discount['discLabel3'],
+                        "discount_amount" => $discount['amount'],
+                        "total_amount"	=> ($item->price * $qty) - $discount['amount'],
+                        "id_rule"	=> get_null($discount['id_rule']),
+                        "valid" => 0
+                        );
 
               if( $this->orders_model->update_detail($detail->id, $arr) === FALSE )
               {
@@ -467,7 +464,9 @@ class Orders extends PS_Controller
                 {
 									if($order->warehouse_code == $chatbot_warehouse_code)
 									{
-										$sync_stock[] = $item->code;									
+										$sync_stock[] = $item->code;
+										// $inventory = $this->get_sell_stock($item->code, $chatbot_warehouse_code);
+										// array_push($sync_stock, array('productCode' => $item->code, 'inventory' => $inventory));
 									}
                 }
               }
@@ -2637,9 +2636,9 @@ class Orders extends PS_Controller
           if($rs->is_count == 1)
           {
             //---- restore_buffer
-            if($this->buffer_model->is_exists($rs->reference, $rs->product_code, $rs->zone_code, $rs->order_detail_id) === TRUE)
+            if($this->buffer_model->is_exists($rs->reference, $rs->product_code, $rs->zone_code) === TRUE)
             {
-              if(! $this->buffer_model->update($rs->reference, $rs->product_code, $rs->zone_code, $rs->qty, $rs->order_detail_id))
+              if(! $this->buffer_model->update($rs->reference, $rs->product_code, $rs->zone_code, $rs->qty))
               {
                 $sc = FALSE;
                 $this->error = "Restore buffer (update) failed";
@@ -2653,8 +2652,7 @@ class Orders extends PS_Controller
                 'warehouse_code' => $rs->warehouse_code,
                 'zone_code' => $rs->zone_code,
                 'qty' => $rs->qty,
-                'user' => $rs->user,
-                'order_detail_id' => $rs->order_detail_id
+                'user' => $rs->user
               );
 
               if(! $this->buffer_model->add($ds) )
@@ -2798,7 +2796,6 @@ class Orders extends PS_Controller
     {
       //--- put prepared product to cancle zone
       $prepared = $this->prepare_model->get_details($code);
-
       if(!empty($prepared))
       {
         foreach($prepared AS $rs)
@@ -2809,15 +2806,13 @@ class Orders extends PS_Controller
           }
 
           $zone = $this->zone_model->get($rs->zone_code);
-
           $arr = array(
             'order_code' => $rs->order_code,
             'product_code' => $rs->product_code,
             'warehouse_code' => empty($zone->warehouse_code) ? NULL : $zone->warehouse_code,
             'zone_code' => $rs->zone_code,
             'qty' => $rs->qty,
-            'user' => $this->_user->uname,
-            'order_detail_id' => $rs->order_detail_id
+            'user' => get_cookie('uname')
           );
 
           if( ! $this->cancle_model->add($arr) )
@@ -3000,6 +2995,8 @@ class Orders extends PS_Controller
 									if(!empty($item) && $item->is_api)
 									{
 										$sync_stock[] = $item->code;
+										// $qty = $this->get_sell_stock($item->code, $chatbot_warehouse_code);
+										// array_push($sync_stock, array("productCode" => $item->code, "inventory" => $qty));
 									}
 								}
 							}
@@ -3040,14 +3037,11 @@ class Orders extends PS_Controller
             'warehouse_code' => $rs->warehouse_code,
             'zone_code' => $rs->zone_code,
             'qty' => $rs->qty,
-            'user' => $this->_user->uname,
-            'order_detail_id' => $rs->order_detail_id
+            'user' => get_cookie('uname')
           );
-
           //--- move buffer to cancle
           $this->cancle_model->add($arr);
         }
-
         //--- delete cancle
         $this->buffer_model->delete($rs->id);
       }

@@ -300,7 +300,7 @@ class Import_order extends CI_Controller
               if($is_exists === FALSE OR $rs['S'] == 1)
               {
                 //---- รหัสลูกค้าจะมีการเปลี่ยนแปลงตามเงื่อนไขด้านล่างนี้
-                $customer_code = trim($rs['Z']);
+                $customer_code = empty($rs['Z']) ? 'NULL' : trim($rs['Z']);
                 //---- ตรวจสอบว่าช่องทางขายที่กำหนดมา เป็นเว็บไซต์หรือไม่(เพราะจะมีช่องทางการชำระเงินหลายช่องทาง)
 
                 $customer = $this->customers_model->get($customer_code);
@@ -544,7 +544,7 @@ class Import_order extends CI_Controller
                 //----  ถ้ามี force update และ สถานะออเดอร์ไม่เกิน 3 (รอจัดสินค้า)
                 if($rs['S'] == 1 && $state <= 3)
                 {
-                  $od  = $this->orders_model->get_order_detail($order_code, $item->code);
+                  $row_id  = $this->orders_model->get_detail_id($order_code, $item->code);
 
                   $arr = array(
                     "style_code"		=> $item->style_code,
@@ -563,7 +563,7 @@ class Import_order extends CI_Controller
                     "is_import" => 1
                   );
 
-                  if($this->orders_model->update_detail($od->id, $arr) === FALSE)
+                  if($this->orders_model->update_detail($row_id, $arr) === FALSE)
                   {
                     $sc = FALSE;
                     $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
@@ -628,12 +628,12 @@ class Import_order extends CI_Controller
                   {
                     if($rs['S'] == 1)
                     {
-                      $od  = $this->orders_model->get_order_detail($order_code, $shipping_item->code);
+                      $row_id  = $this->orders_model->get_detail_id($order_code, $shipping_item->code);
                       $arr = array(
                         "price"	=> $shipping_fee
                       );
 
-                      if($this->orders_model->update_detail($od->id, $arr) === FALSE)
+                      if($this->orders_model->update_detail($row_id, $arr) === FALSE)
                       {
                         $sc = FALSE;
                         $message = 'update ค่าจัดส่ง ไม่สำเร็จ : '.$ref_code;

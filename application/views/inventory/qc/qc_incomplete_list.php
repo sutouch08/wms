@@ -16,7 +16,8 @@
 <?php   $show_force = !empty($uncomplete_details) ? '' : 'hide'; ?>
 <?php  if(!empty($uncomplete_details)) : ?>
 <?php   foreach($uncomplete_details as $rs) : ?>
-      <tr class="font-size-12 incomplete" id="row-<?php echo $rs->id; ?>">
+<?php   $id = md5($rs->barcode); ?>
+      <tr class="font-size-12 incomplete" id="row-<?php echo $id; ?>">
         <td class="middle text-center td bc"><?php echo $rs->barcode; ?></td>
         <td class="middle td">
           <?php echo $rs->product_code; ?> :
@@ -27,8 +28,8 @@
           <?php endif; ?>
         </td>
         <td class="middle text-center td"><?php echo number($rs->order_qty); ?></td>
-        <td class="middle text-center td" id="prepared-<?php echo $rs->id; ?>"> <?php echo number($rs->prepared); ?></td>
-        <td class="middle text-center td" id="qc-<?php echo $rs->id; ?>"><?php echo number($rs->qc); ?></td>
+        <td class="middle text-center td" id="prepared-<?php echo $id; ?>"> <?php echo number($rs->prepared); ?></td>
+        <td class="middle text-center td" id="qc-<?php echo $id; ?>"><?php echo number($rs->qc); ?></td>
         <td class="middle text-right td">
           <button
             type="button"
@@ -42,8 +43,8 @@
             title="">
             ที่เก็บ
           </button>
-          <input type="hidden" class="hidden-qc" id="<?php echo $rs->id; ?>" value="0"/>
-          <input type="hidden" id="id-<?php echo $rs->id; ?>" value="<?php echo $rs->id; ?>" />
+          <input type="hidden" class="hidden-qc" id="<?php echo $id; ?>" data-code="<?php echo $rs->product_code; ?>" value="0"/>
+          <input type="hidden" id="id-<?php echo $id; ?>" value="<?php echo $id; ?>" />
         </td>
       </tr>
 

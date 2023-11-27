@@ -34,9 +34,9 @@ class Prepare_model extends CI_Model
     return  NULL;
   }
 
-  public function update_buffer($order_code, $product_code, $zone_code, $qty)
+  public function update_buffer($order_code, $product_code, $zone_code, $qty, $detail_id = NULL)
   {
-    if(!$this->is_exists_buffer($order_code, $product_code, $zone_code))
+    if( ! $this->is_exists_buffer($order_code, $product_code, $zone_code, $detail_id))
     {
       $arr = array(
         'order_code' => $order_code,
@@ -44,6 +44,7 @@ class Prepare_model extends CI_Model
         'warehouse_code' => $this->get_warehouse_code($zone_code),
         'zone_code' => $zone_code,
         'qty' => $qty,
+        'order_detail_id' => $detail_id,
         'user' => get_cookie('uname')
       );
 
@@ -51,27 +52,37 @@ class Prepare_model extends CI_Model
     }
     else
     {
+      $this->db
+      ->set("qty", "qty + {$qty}", FALSE)
+      ->where('order_code', $order_code)
+      ->where('product_code', $product_code)
+      ->where('zone_code', $zone_code)
+      ->group_start()
+      ->where('order_detail_id', $detail_id)
+      ->or_where('order_detail_id IS NULL', NULL, FALSE)
+      ->group_end();
 
-      $qr  = "UPDATE buffer SET qty = qty + {$qty} ";
-      $qr .= "WHERE order_code = '{$order_code}' ";
-      $qr .= "AND product_code = '{$product_code}' ";
-      $qr .= "AND zone_code = '{$zone_code}' ";
-
-      return $this->db->query($qr);
+      return $this->db->update('buffer');
     }
 
     return FALSE;
   }
 
 
-  public function is_exists_buffer($order_code, $item_code, $zone_code)
+  public function is_exists_buffer($order_code, $item_code, $zone_code, $detail_id = NULL)
   {
-    $rs = $this->db->where('order_code', $order_code)
+    $this->db
+    ->where('order_code', $order_code)
     ->where('product_code', $item_code)
     ->where('zone_code', $zone_code)
-    ->get('buffer');
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
 
-    if($rs->num_rows() > 0)
+    $count = $this->db->count_all_results('buffer');
+
+    if($count > 0)
     {
       return TRUE;
     }
@@ -93,28 +104,34 @@ class Prepare_model extends CI_Model
 	}
 
 
-  public function update_prepare($order_code, $product_code, $zone_code, $qty)
+  public function update_prepare($order_code, $product_code, $zone_code, $qty, $detail_id = NULL)
   {
-    if(!$this->is_exists_prepare($order_code, $product_code, $zone_code))
+    if( ! $this->is_exists_prepare($order_code, $product_code, $zone_code, $detail_id))
     {
       $arr = array(
         'order_code' => $order_code,
         'product_code' => $product_code,
         'zone_code' => $zone_code,
         'qty' => $qty,
-        'user' => get_cookie('uname')
+        'order_detail_id' => $detail_id,
+        'user' => $this->_user->uname
       );
 
       return $this->db->insert('prepare', $arr);
     }
     else
     {
-      $qr  = "UPDATE prepare SET qty = qty + {$qty} ";
-      $qr .= "WHERE order_code = '{$order_code}' ";
-      $qr .= "AND product_code = '{$product_code}' ";
-      $qr .= "AND zone_code = '{$zone_code}' ";
+      $this->db
+      ->set("qty", "qty + {$qty}", FALSE)
+      ->where('order_code', $order_code)
+      ->where('product_code', $product_code)
+      ->where('zone_code', $zone_code)
+      ->group_start()
+      ->where('order_detail_id', $detail_id)
+      ->or_where('order_detail_id IS NULL', NULL, FALSE)
+      ->group_end();
 
-      return $this->db->query($qr);
+      return $this->db->update('prepare');
     }
 
     return FALSE;
@@ -122,14 +139,17 @@ class Prepare_model extends CI_Model
 
 
 
-  public function is_exists_prepare($order_code, $item_code, $zone_code)
+  public function is_exists_prepare($order_code, $item_code, $zone_code, $detail_id = NULL)
   {
-    $rs = $this->db->where('order_code', $order_code)
+    $this->db
+    ->where('order_code', $order_code)
     ->where('product_code', $item_code)
-    ->where('zone_code', $zone_code)
-    ->get('prepare');
+    ->where('zone_code', $zone_code)->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
 
-    if($rs->num_rows() > 0)
+    if($this->db->count_all_results('prepare') > 0)
     {
       return TRUE;
     }
@@ -139,22 +159,45 @@ class Prepare_model extends CI_Model
 
 
 
-
-
-  public function get_prepared($order_code, $item_code)
+  public function get_prepared($order_code, $product_code, $detail_id = NULL)
   {
-    $rs = $this->db->select_sum('qty')
+    $this->db
+    ->select_sum('qty')
     ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->get('buffer');
+    ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
 
-    return is_null($rs->row()->qty) ? 0 : $rs->row()->qty;
+    $rs = $this->db->get('buffer');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
   }
 
 
+  public function remove_prepare($order_code, $item_code, $order_detail_id = NULL)
+  {
+    $this->db
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->group_start()
+    ->where('order_detail_id', $order_detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
+
+    return $this->db->delete('prepare');
+  }
+
   public function get_total_prepared($order_code)
   {
-    $rs = $this->db->select_sum('qty')
+    $rs = $this->db
+    ->select_sum('qty')
     ->where('order_code', $order_code)
     ->get('buffer');
 
@@ -163,14 +206,20 @@ class Prepare_model extends CI_Model
 
 
   //---- แสดงสินค้าว่าจัดมาจากโซนไหนบ้าง
-  public function get_prepared_from_zone($order_code, $item_code)
+  public function get_prepared_from_zone($order_code, $item_code, $detail_id = NULL)
   {
-    $rs = $this->db->select('buffer.*, zone.name')
+    $this->db
+    ->select('buffer.*, zone.name')
     ->from('buffer')
     ->join('zone', 'zone.code = buffer.zone_code')
     ->where('order_code', $order_code)
     ->where('product_code', $item_code)
-    ->get();
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
+
+    $rs = $this->db->get();
 
     if($rs->num_rows() > 0)
     {
@@ -211,7 +260,8 @@ class Prepare_model extends CI_Model
   {
 		$full_mode = getConfig('WMS_FULL_MODE') == 1 ? TRUE : FALSE;
 
-    $this->db->select('state')
+    $this->db
+    ->select('state')
     ->from('orders')
     ->join('channels', 'channels.code = orders.channels_code','left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
@@ -313,9 +363,7 @@ class Prepare_model extends CI_Model
       }
     }
 
-    $this->db->group_by('orders.code');
-
-    return $this->db->count_all_results();
+    return $this->db->group_by('orders.code')->count_all_results();
   }
 
 

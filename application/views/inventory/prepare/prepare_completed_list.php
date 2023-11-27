@@ -50,7 +50,8 @@
         <span class="zoneLabel <?php echo $showZone; ?>" style="display:inline-block;">
             <?php echo $rs->from_zone; ?>
         </span>
-        <button type="button" class="btn btn-minier btn-danger" onclick="removeBuffer('<?php echo $order->code; ?>', '<?php echo $rs->product_code; ?>')">
+        <button type="button" class="btn btn-minier btn-danger"
+        onclick="removeBuffer('<?php echo $order->code; ?>', '<?php echo $rs->product_code; ?>', '<?php echo $rs->id; ?>')">
           <i class="fa fa-trash"></i>
         </button>
       </td>

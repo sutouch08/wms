@@ -191,14 +191,14 @@ class Delivery_order_model extends CI_Model
     //--- กรณีสินค้าเป็นสินค้าที่ไม่นับสต็อกจะบันทึกตามยอดที่สั่งมา
     public function get_billed_detail($code)
     {
-      $qr = "SELECT o.product_code, o.product_name, o.qty AS order_qty, o.is_count, ";
+      $qr = "SELECT o.id, o.product_code, o.product_name, o.qty AS order_qty, o.is_count, ";
       $qr .= "o.price, o.discount1, o.discount2, o.discount3, ";
       $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
       $qr .= "(o.total_amount/o.qty) AS final_price, ";
-      $qr .= "(SELECT SUM(qty) FROM prepare WHERE order_code = '{$code}' AND product_code = o.product_code) AS prepared, ";
-      $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code) AS qc ";
+      $qr .= "(SELECT SUM(qty) FROM prepare WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS prepared, ";
+      $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS qc ";
       $qr .= "FROM order_details AS o ";
-      $qr .= "WHERE o.order_code = '{$code}' GROUP BY o.product_code";
+      $qr .= "WHERE o.order_code = '{$code}'";
 
       $rs = $this->db->query($qr);
       if($rs->num_rows() > 0)
@@ -223,11 +223,11 @@ class Delivery_order_model extends CI_Model
       $qr .= "o.id_rule, ru.id_policy, o.is_count, ";
       $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
       $qr .= "(o.total_amount/o.qty) AS final_price, ";
-      $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_code = '{$code}' AND product_code = o.product_code) AS prepared, ";
-      $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code) AS qc ";
+      $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS prepared, ";
+      $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS qc ";
       $qr .= "FROM order_details AS o ";
       $qr .= "LEFT JOIN discount_rule AS ru ON ru.id = o.id_rule ";
-      $qr .= "WHERE o.order_code = '{$code}' GROUP BY o.product_code ";
+      $qr .= "WHERE o.order_code = '{$code}' ";
       $qr .= "HAVING qc IS NOT NULL";
 
       $rs = $this->db->query($qr);
@@ -241,7 +241,7 @@ class Delivery_order_model extends CI_Model
 
     public function get_non_count_bill_detail($code)
     {
-      $qr  = "SELECT o.product_code, o.product_name, o.style_code, o.qty, ";
+      $qr  = "SELECT o.id, o.product_code, o.product_name, o.style_code, o.qty, ";
       $qr .= "o.cost, o.price, o.discount1, o.discount2, o.discount3, ";
       $qr .= "o.id_rule, ru.id_policy, o.is_count, ";
       $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";

@@ -93,23 +93,38 @@ class Buffer_model extends CI_Model
     return $this->db->count_all_results();
   }
 
-  public function get_sum_buffer_product($order_code, $product_code)
+  public function get_sum_buffer_product($order_code, $product_code, $detail_id = NULL)
   {
-    $rs = $this->db->select_sum('qty')
+    $rs = $this->db
+    ->select_sum('qty')
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
     ->get('buffer');
 
-    return intval($rs->row()->qty);
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
   }
 
 
-  public function get_details($order_code, $product_code)
+  public function get_details($order_code, $product_code, $detail_id = NULL)
   {
-    $rs = $this->db
+    $this->db
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
-    ->get('buffer');
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
+
+    $rs = $this->db->get('buffer');
 
     if($rs->num_rows() > 0)
     {
@@ -168,13 +183,17 @@ class Buffer_model extends CI_Model
   }
 
 
-  public function update($order_code, $product_code, $zone_code, $qty)
+  public function update($order_code, $product_code, $zone_code, $qty, $detail_id = NULL)
   {
     $this->db
     ->set("qty", "qty + {$qty}", FALSE)
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
-    ->where('zone_code', $zone_code);
+    ->where('zone_code', $zone_code)
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
 
     return $this->db->update('buffer');
   }
@@ -199,15 +218,20 @@ class Buffer_model extends CI_Model
 	}
 
 
-  public function is_exists($order_code, $product_code, $zone_code)
+  public function is_exists($order_code, $product_code, $zone_code, $detail_id = NULL)
   {
-    $rs = $this->db->select('id')
+    $this->db
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
     ->where('zone_code', $zone_code)
-    ->get('buffer');
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
 
-    if($rs->num_rows() > 0)
+    $count = $this->db->count_all_results('buffer');
+
+    if($count > 0)
     {
       return TRUE;
     }
@@ -223,9 +247,17 @@ class Buffer_model extends CI_Model
   }
 
 
-  public function remove_buffer($order_code, $item_code)
+  public function remove_buffer($order_code, $item_code, $detail_id = NULL)
   {
-    return $this->db->where('order_code', $order_code)->where('product_code', $item_code)->delete('buffer');
+    $this->db
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();    
+
+    return $this->db->delete('buffer');
   }
 }
  ?>

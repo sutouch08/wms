@@ -16,15 +16,20 @@ class Qc_model extends CI_Model
 
 
 
-  public function update($order_code, $product_code, $box_id, $qty)
+  public function update($order_code, $product_code, $box_id, $qty, $detail_id = NULL)
   {
-    $user = get_cookie('uname');
-    $qr = "UPDATE qc SET qty = (qty + {$qty}), user = '{$user}'
-           WHERE order_code = '{$order_code}'
-           AND product_code = '{$product_code}'
-           AND box_id = {$box_id}";
+    $this->db
+    ->set("qty", "qty + {$qty}", FALSE)
+    ->set('user', $this->_user->uname)
+    ->where('order_code', $order_code)
+    ->where('product_code', $product_code)
+    ->where('box_id', $box_id)
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end();
 
-    return $this->db->query($qr);
+    return $this->db->update('qc');
   }
 
 
@@ -147,12 +152,11 @@ class Qc_model extends CI_Model
   }
 
 
-
-
   //--- รายการที่ตรวจครบแล้ว
   public function get_complete_list($order_code)
   {
-    $qr = "SELECT o.id, o.product_code, o.product_name, o.qty AS order_qty, o.is_count, pd.old_code, ";
+    $qr = "SELECT o.id, o.product_code, o.product_name, o.is_count, pd.old_code, ";
+    $qr .= "(SELECT SUM(qty) FROM order_details WHERE order_code = '{$order_code}' AND product_code = o.product_code) AS order_qty, ";
     $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_code = '{$order_code}' AND product_code = o.product_code) AS prepared, ";
     $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$order_code}' AND product_code = o.product_code) AS qc ";
     $qr .= "FROM order_details AS o ";
@@ -160,6 +164,7 @@ class Qc_model extends CI_Model
     $qr .= "WHERE o.order_code = '{$order_code}' GROUP BY o.product_code HAVING prepared <= qc ";
 
     $rs = $this->db->query($qr);
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -169,18 +174,18 @@ class Qc_model extends CI_Model
   }
 
 
-
   //--- รายการที่ยังไม่ได้ตรวจหรือยังตรวจไม่ครบ
   public function get_in_complete_list($order_code)
   {
-    $qr = "SELECT o.id, o.product_code, o.product_name, o.qty AS order_qty, o.is_count, pd.old_code, ";
+    $qr = "SELECT o.id, o.product_code, o.product_name, o.is_count, pd.old_code, ";
+    $qr .= "(SELECT SUM(qty) FROM order_details WHERE order_code = '{$order_code}' AND product_code = o.product_code) AS order_qty, ";
     $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_code = '{$order_code}' AND product_code = o.product_code) AS prepared, ";
     $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$order_code}' AND product_code = o.product_code) AS qc ";
     $qr .= "FROM order_details AS o ";
     $qr .= "JOIN buffer AS b ON o.product_code = b.product_code ";
     $qr .= "LEFT JOIN products AS pd ON o.product_code = pd.code ";
     $qr .= "WHERE o.order_code = '{$order_code}' AND o.is_count = 1 ";
-    $qr .= "GROUP BY o.product_code HAVING ( prepared > qc OR ISNULL(qc) )";
+    $qr .= "GROUP BY o.product_code HAVING ( prepared > qc OR qc IS NULL )";
 
 
     $rs = $this->db->query($qr);
@@ -192,7 +197,6 @@ class Qc_model extends CI_Model
 
     return FALSE;
   }
-
 
 
   //--- รายการกล่องทั้งหมดที่ตรวจในออเดอร์ที่กำหนด
@@ -261,41 +265,45 @@ class Qc_model extends CI_Model
   //--- จำนวนรวมของสินค้าที่ตรวจแล้วทั้งออเดอร์(ไม่รวมที่ยังไม่ตรวจ)
   public function total_qc($order_code)
   {
-    $qr = "SELECT SUM(qty) AS qty
-           FROM qc
-           WHERE
-           order_code = '{$order_code}'
-           AND
-           product_code IN((SELECT product_code FROM order_details WHERE order_code = '{$order_code}'))";
+    $qr  = "SELECT SUM(qty) AS qty FROM qc ";
+    $qr .= "WHERE order_code = '{$order_code}' ";
+    $qr .= "AND product_code IN((SELECT product_code FROM order_details WHERE order_code = '{$order_code}'))";
 
     $rs = $this->db->query($qr);
+
     return intval($rs->row()->qty);
   }
 
 
   //---- ยอดรวมสินค้าที่ตรวจไปแล้ว
-  public function get_sum_qty($order_code, $product_code)
+  public function get_sum_qty($order_code, $product_code, $detail_id = NULL)
   {
     $rs = $this->db->select_sum('qty')
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
     ->get('qc');
 
     return intval($rs->row()->qty);
   }
 
-
-
   //----  ถ้ามีรายการที่ตรวจอยู่แล้ว
-  public function is_exists($order_code, $product_code, $id_box)
+  public function is_exists($order_code, $product_code, $id_box, $detail_id = NULL)
   {
-    $rs = $this->db->select('id')
+    $rows = $this->db
     ->where('order_code', $order_code)
     ->where('product_code', $product_code)
     ->where('box_id', $id_box)
-    ->get('qc');
+    ->group_start()
+    ->where('order_detail_id', $detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
+    ->count_all_results('qc');
 
-    if($rs->num_rows() > 0)
+    if($rows > 0)
     {
       return TRUE;
     }
@@ -305,11 +313,11 @@ class Qc_model extends CI_Model
 
 
 
-  public function update_checked($order_code, $product_code, $box_id, $qty)
+  public function update_checked($order_code, $product_code, $box_id, $qty, $detail_id = NULL)
   {
-    if($this->is_exists($order_code, $product_code, $box_id) === TRUE)
+    if( $this->is_exists($order_code, $product_code, $box_id, $detail_id))
     {
-      return $this->update($order_code, $product_code, $box_id, $qty);
+      return $this->update($order_code, $product_code, $box_id, $qty, $detail_id);
     }
     else
     {
@@ -318,6 +326,7 @@ class Qc_model extends CI_Model
 				'product_code' => $product_code,
 				'box_id' => $box_id,
 				'qty' => $qty,
+        'order_detail_id' => $detail_id,
 				'user' => $this->_user->uname
 			);
 
@@ -338,7 +347,7 @@ class Qc_model extends CI_Model
 		return $this->db->where('order_code', $order_code)->delete('qc');
 	}
 
-	
+
 
   public function drop_zero_qc($order_code)
   {
@@ -351,12 +360,13 @@ class Qc_model extends CI_Model
     $rs = $this->db
     ->select('b.box_no')
     ->select('od.product_code, od.product_name')
-    ->select('qc.qty')
+    ->select_sum('qc.qty')
     ->from('qc')
-    ->join('order_details AS od', 'od.order_code = qc.order_code AND od.product_code = qc.product_code')
+    ->join('order_details AS od', 'od.order_code = qc.order_code AND od.product_code = qc.product_code AND (qc.order_detail_id = od.id OR qc.order_detail_id IS NULL)', 'left')
     ->join('qc_box AS b', 'b.id = qc.box_id')
     ->where('qc.order_code', $order_code)
     ->where('qc.box_id', $box_id)
+    ->group_by('qc.product_code')
     ->get();
 
     if($rs->num_rows() > 0)

@@ -135,6 +135,21 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_detail_id($order_code, $item_code)
+  {
+    $rs = $this->db
+    ->select('id')
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->get('order_detaills');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->id;
+    }
+
+    return NULL;
+  }
 
 
   public function get_order_detail($order_code, $item_code)
@@ -144,12 +159,81 @@ class Orders_model extends CI_Model
     ->where('product_code', $item_code)
     ->get('order_details');
 
-    if($rs->num_rows() == 1)
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_exists_detail($order_code, $item_code, $price)
+  {
+    $rs = $this->db
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->where('price', $price)    
+    ->get('order_details');
+
+    if($rs->num_rows() > 0)
     {
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
+  }
+
+
+  public function get_unvalid_order_detail($order_code, $item_code)
+  {
+    $rs = $this->db
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->where('valid', 0)
+    ->get('order_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_unvalid_qc_detail($order_code, $item_code)
+  {
+    $rs = $this->db
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->where('valid_qc', 0)
+    ->get('order_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+  //--- use in prepare to check item is exists in order or not and get sum of qty
+  public function get_sum_item_qty($order_code, $item_code)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->group_by('product_code')
+    ->get('order_details');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
   }
 
 
@@ -329,20 +413,30 @@ class Orders_model extends CI_Model
     return $this->db->set('valid', 1)->where('id', $id)->update('order_details');
   }
 
-  public function unvalid_detail($order_code, $item_code)
+  public function unvalid_detail($id)
   {
-    return $this->db->set('valid', 0)->where('order_code', $order_code)->where('product_code', $item_code)->update('order_details');
+    return $this->db->set('valid', 0)->where('id', $id)->update('order_details');
   }
-
-
 
   public function valid_all_details($code)
   {
     return $this->db->set('valid', 1)->where('order_code', $code)->update('order_details');
   }
 
+  public function valid_qc($id)
+  {
+    return $this->db->set('valid_qc', 1)->where('id', $id)->update('order_details');
+  }
 
+  public function unvalid_qc($id)
+  {
+    return $this->db->set('valid_qc', 0)->where('id', $id)->update('order_details');
+  }
 
+  public function valid_all_qc_details($code)
+  {
+    return $this->db->set('valid_qc', 1)->where('order_code', $code)->update('order_details');
+  }
 
   public function change_state($code, $state)
   {

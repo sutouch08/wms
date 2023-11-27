@@ -131,7 +131,7 @@ class Prepare extends PS_Controller
         $this->order_state_model->add_state($arr);
       }
     }
-    
+
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $order->channels_name = $this->channels_model->get_name($order->channels_code);
@@ -142,19 +142,28 @@ class Prepare extends PS_Controller
       foreach($uncomplete as $rs)
       {
         $rs->barcode = $this->get_barcode($rs->product_code);
-        $rs->prepared = $this->get_prepared($rs->order_code, $rs->product_code);
+        $rs->prepared = $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id);
         $rs->stock_in_zone = $this->get_stock_in_zone($rs->product_code, get_null($order->warehouse_code));
       }
     }
 
     $complete = $this->orders_model->get_valid_details($code);
+
     if(!empty($complete))
     {
       foreach($complete as $rs)
       {
         $rs->barcode = $this->get_barcode($rs->product_code);
-        $rs->prepared = $rs->is_count == 1 ? $this->get_prepared($rs->order_code, $rs->product_code) : $rs->qty;
-        $rs->from_zone = $this->get_prepared_from_zone($rs->order_code, $rs->product_code, $rs->is_count);
+        $rs->prepared = $rs->is_count == 1 ? $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id) : $rs->qty;
+
+        $arr = array(
+          'order_code' => $rs->order_code,
+          'product_code' => $rs->product_code,
+          'order_detail_id' => $rs->id,
+          'is_count' => $rs->is_count
+        );
+
+        $rs->from_zone = $this->get_prepared_from_zone($arr);
       }
     }
 
@@ -188,6 +197,7 @@ class Prepare extends PS_Controller
       if($state == 4)
       {
         $item = $this->products_model->get_product_by_barcode($barcode);
+
         if(empty($item))
         {
           $item = $this->products_model->get($barcode);
@@ -198,11 +208,15 @@ class Prepare extends PS_Controller
         {
           if($item->count_stock == 1)
           {
-            $ds = $this->orders_model->get_order_detail($order_code, $item->code);
-            if(!empty($ds))
+            //---- มีสินค้านี้อยู่ในออเดอร์หรือไม่ ถ้ามี รวมยอดมา อาจมีมาก
+            $ds = $this->orders_model->get_unvalid_order_detail($order_code, $item->code);
+            //$orderQty = $this->orders_model->get_sum_item_qty($order_code, $item->code);
+
+            if( ! empty($ds))
             {
               //--- ดึงยอดที่จัดแล้ว
-              $prepared = $this->get_prepared($ds->order_code, $ds->product_code);
+              // $prepared = $this->get_prepared($order_code, $item->code);
+              $prepared = $this->prepare_model->get_prepared($order_code, $item->code, $ds->id);
 
               //--- ยอดคงเหลือค้างจัด
               $bQty = $ds->qty - $prepared;
@@ -211,33 +225,49 @@ class Prepare extends PS_Controller
               if( $bQty < $qty)
               {
                 $sc = FALSE;
-                $message = "สินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
+                $this->error = "สินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
               }
               else
               {
-                $stock = $this->get_stock_zone($zone_code, $ds->product_code); //1000;
+                $stock = $this->get_stock_zone($zone_code, $item->code); //1000;
 
                 if($stock < $qty)
                 {
                   $sc = FALSE;
-                  $message = "สินค้าไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
+                  $this->error = "สินค้าไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
                 }
                 else
                 {
-                  $this->db->trans_start();
-                  $this->prepare_model->update_buffer($ds->order_code, $ds->product_code, $zone_code, $qty);
-                  $this->prepare_model->update_prepare($ds->order_code, $ds->product_code, $zone_code, $qty);
-                  $this->db->trans_complete();
+                  $this->db->trans_begin();
 
-                  if($this->db->trans_status() === FALSE)
+                  if( ! $this->prepare_model->update_buffer($order_code, $item->code, $zone_code, $qty, $ds->id))
                   {
                     $sc = FALSE;
-                    $message = 'ทำรายการไม่สำเร็จ';
+                    $this->error = "Failed to update buffer";
                   }
 
                   if($sc === TRUE)
                   {
-                    $preparedQty = $this->get_prepared($ds->order_code, $ds->product_code);
+                    if( ! $this->prepare_model->update_prepare($order_code, $item->code, $zone_code, $qty, $ds->id))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Failed to update prepare";
+                    }
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    $this->db->trans_commit();
+                  }
+                  else
+                  {
+                    $this->trans_rollback();
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    $preparedQty = $prepared + $qty;
+
                     if($preparedQty == $ds->qty)
                     {
                       $this->orders_model->valid_detail($ds->id);
@@ -251,29 +281,29 @@ class Prepare extends PS_Controller
             else
             {
               $sc = FALSE;
-              $message = 'สินค้าไม่ตรงกับออเดอร์';
+              $this->error = 'สินค้าไม่ตรงกับออเดอร์';
             }
           }
           else
           {
             $sc = FALSE;
-            $message = 'สินค้าไม่นับสต็อก ไม่จำเป็นต้องจัดสินค้านี้';
+            $this->error = 'สินค้าไม่นับสต็อก ไม่จำเป็นต้องจัดสินค้านี้';
           }
         }
         else
         {
           $sc = FALSE;
-          $message = 'บาร์โค้ดไม่ถูกต้อง กรุณาตรวจสอบ';
+          $this->error = 'บาร์โค้ดไม่ถูกต้อง กรุณาตรวจสอบ';
         }
       }
       else
       {
         $sc = FALSE;
-        $message = 'สถานะออเดอร์ถูกเปลี่ยน ไม่สามารถจัดสินค้าต่อได้';
+        $this->error = 'สถานะออเดอร์ถูกเปลี่ยน ไม่สามารถจัดสินค้าต่อได้';
       }
     }
 
-    echo $sc === TRUE ? json_encode(array("id" => $ds->id, "qty" => $qty, "valid" => $valid)) : $message;
+    echo $sc === TRUE ? json_encode(array("id" => $ds->id, "qty" => $qty, "valid" => $valid)) : $this->error;
   }
 
 
@@ -285,35 +315,45 @@ class Prepare extends PS_Controller
   }
 
 
-  public function get_prepared($order_code, $item_code)
+  public function get_prepared($order_code, $item_code, $detail_id)
   {
-    return $this->prepare_model->get_prepared($order_code, $item_code);
+    return $this->prepare_model->get_prepared($order_code, $item_code, $detail_id);
   }
 
 
 
 
-  public function get_prepared_from_zone($order_code, $item_code, $is_count)
+  public function get_prepared_from_zone(array $ds = array())
   {
-    if($is_count == 1)
+    $label = "ไม่พบข้อมูล";
+
+    if( ! empty($ds))
     {
-      $sc = 'ไม่พบข้อมูล';
-      $buffer = $this->prepare_model->get_prepared_from_zone($order_code, $item_code);
-      if(!empty($buffer))
+      if( ! empty($ds['is_count']))
       {
-        $sc = '';
-        foreach($buffer as $rs)
+        $buffer = $this->prepare_model->get_prepared_from_zone($ds['order_code'], $ds['product_code'], $ds['order_detail_id']);
+
+        if( ! empty($buffer))
         {
-          $sc .= $rs->name.' : '.number($rs->qty).'<br/>';
+          $label = "";
+
+          foreach($buffer as $rs)
+          {
+            $label .= $rs->name.' : '.number($rs->qty).'<br/>';
+          }
+        }
+        else
+        {
+          $label = "ไม่พบข้อมูล";
         }
       }
-    }
-    else
-    {
-      $sc = 'ไม่นับสต็อก';
+      else
+      {
+        $label = "ไม่นับสต็อก";
+      }
     }
 
-  	return $sc;
+  	return $label;
   }
 
 
@@ -454,19 +494,50 @@ class Prepare extends PS_Controller
   }
 
 
-  function remove_buffer($order_code, $item_code)
+  function remove_buffer()
   {
+    $sc = TRUE;
     $this->load->model('inventory/buffer_model');
-    $rs = $this->buffer_model->remove_buffer($order_code, $item_code);
-    if($rs === TRUE)
+    $order_code = $this->input->post('order_code');
+    $item_code = $this->input->post('product_code');
+    $detail_id = $this->input->post('order_detail_id');
+
+    $this->db->trans_begin();
+
+    if( ! $this->buffer_model->remove_buffer($order_code, $item_code, $detail_id))
     {
-      $this->orders_model->unvalid_detail($order_code, $item_code);
-      echo 'success';
+      $sc = FALSE;
+      $this->error = "Failed to delete buffer";
+    }
+
+    if( $sc === TRUE)
+    {
+      if( ! $this->prepare_model->remove_prepare($order_code, $item_code, $detail_id))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to delete prepare logs";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      if( ! $this->orders_model->unvalid_detail($detail_id) )
+      {
+        $sc = FALSE;
+        $this->error = "Failed to rollback item status (unvalid)";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      $this->db->trans_commit();
     }
     else
     {
-      echo 'delete fail';
+      $this->db->trans_rollback();
     }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

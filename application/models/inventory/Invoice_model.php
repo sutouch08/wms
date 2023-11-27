@@ -12,11 +12,11 @@ class Invoice_model extends CI_Model
     $qr .= "o.price, o.discount1, o.discount2, o.discount3, ";
     $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
     $qr .= "(o.total_amount/o.qty) AS final_price, ";
-    $qr .= "(SELECT SUM(qty) FROM prepare WHERE order_code = '{$code}' AND product_code = o.product_code) AS prepared, ";
-    $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code) AS qc, ";
-    $qr .= "(SELECT SUM(qty) FROM order_sold WHERE reference = '{$code}' AND product_code = o.product_code) AS sold ";
+    $qr .= "(SELECT SUM(qty) FROM prepare WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS prepared, ";
+    $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS qc, ";
+    $qr .= "(SELECT SUM(qty) FROM order_sold WHERE reference = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS sold ";
     $qr .= "FROM order_details AS o ";
-    $qr .= "WHERE o.order_code = '{$code}' GROUP BY o.product_code";
+    $qr .= "WHERE o.order_code = '{$code}'";
 
     $rs = $this->db->query($qr);
     if($rs->num_rows() > 0)
@@ -52,6 +52,7 @@ class Invoice_model extends CI_Model
   public function get_details($code)
   {
     $rs = $this->db->where('reference', $code)->get('order_sold');
+    
     if($rs->num_rows() > 0)
     {
       return $rs->result();

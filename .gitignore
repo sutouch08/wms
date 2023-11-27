@@ -6,3 +6,4 @@
 *.pdf
 *.xls
 *.xlsx
+/application/config/*
