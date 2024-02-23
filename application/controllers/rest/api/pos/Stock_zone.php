@@ -63,7 +63,7 @@ class Stock_zone extends REST_Controller
       $count = $this->stock_model->count_items_zone($zone->code);
     }
 
-    $this->response(['status' => TRUE, 'message' => 'success', 'rows' => $count], 200);
+    $this->response(['status' => TRUE, 'message' => 'success', 'count' => $count], 200);
   }
 
 

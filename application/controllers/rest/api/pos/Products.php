@@ -91,7 +91,7 @@ class Products extends REST_Controller
 			{
         $arr = array(
           'status' => TRUE,
-          'rows' => $rs->num_rows(),
+          'count' => $rs->num_rows(),
           'items' => $rs->result()
         );
 			}
@@ -99,7 +99,7 @@ class Products extends REST_Controller
       {
         $arr = array(
           'status' => TRUE,
-          'rows' => 0,
+          'count' => 0,
           'items' => NULL
         );
       }

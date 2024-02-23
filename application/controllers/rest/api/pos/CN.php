@@ -24,15 +24,13 @@ class CN extends REST_Controller
       $this->logs = $this->load->database('logs', TRUE); //--- api logs database
       $this->log_json = is_true(getConfig('POS_LOG_JSON'));
       $this->user = "pos@warrix.co.th";
-      $this->load->model('account/consign_order_model');
-      $this->load->model('inventory/delivery_order_model');
-      $this->load->model('inventory/movement_model');
-      $this->load->model('masters/zone_model');
+
+      $this->load->model('inventory/return_order_model');
       $this->load->model('masters/warehouse_model');
-      $this->load->model('masters/products_model');
+      $this->load->model('masters/zone_model');
       $this->load->model('masters/customers_model');
+      $this->load->model('masters/products_model');
       $this->load->model('rest/V1/order_api_logs_model');
-      $this->load->helper('discount');
     }
     else
     {
@@ -54,7 +52,7 @@ class CN extends REST_Controller
     {
       $this->error = "Missing required parameters";
 
-      $this->add_logs('WM', 'create', 'error', $this->error, NULL);
+      $this->add_logs('CN', 'create', 'error', $this->error, NULL);
       $this->response(['status' => FALSE, 'message' => 'Missing required parameters'], 400);
     }
 
