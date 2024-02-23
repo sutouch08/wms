@@ -13,18 +13,20 @@
 	       <i class="fa fa-download"></i> ไฟล์ตัวอย่าง
 	     </button>
 			<?php if(($this->pm->can_add OR $this->pm->can_edit) && $doc->status == 0) : ?>
-				<button type="button" class="btn btn-sm btn-primary top-btn" onclick="getUploadFile()">
-	        นำเข้าจากไฟล์ Excel
-	      </button>
-				<?php if(empty($doc->ref_code)) : ?>
-					<button type="button" class="btn btn-sm btn-info top-btn" onclick="getActiveCheckList()">
-		        โหลดเอกสารกระทบยอด
-		      </button>
+				<?php if($doc->is_api == 0) : ?>
+					<button type="button" class="btn btn-sm btn-primary top-btn" onclick="getUploadFile()">
+						นำเข้าจากไฟล์ Excel
+					</button>
+					<?php if(empty($doc->ref_code)) : ?>
+						<button type="button" class="btn btn-sm btn-info top-btn" onclick="getActiveCheckList()">
+							โหลดเอกสารกระทบยอด
+						</button>
+					<?php endif; ?>
 				<?php endif; ?>
 				<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-				<button type="button" class="btn btn-sm btn-success top-btn" onclick="saveConsign()">
-	        <i class="fa fa-save"></i> บันทึก
-	      </button>
+					<button type="button" class="btn btn-sm btn-success top-btn" onclick="saveConsign()">
+						<i class="fa fa-save"></i> บันทึก
+					</button>
 				<?php endif; ?>
 			<?php endif; ?>
     </p>
@@ -56,7 +58,7 @@
 		<input type="text" class="form-control input-sm text-center edit" id="zone_code" name="zone_code" value="<?php echo $doc->zone_code; ?>" disabled />
 	</div>
 
-	<div class="col-lg-5 col-md-4-harf col-sm-4-harf col-xs-8 padding-5">
+	<div class="col-lg-4-harf col-md-4-harf col-sm-4-harf col-xs-8 padding-5">
     <label>โซน[ฝากขาย]</label>
 		<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
   </div>
@@ -66,20 +68,35 @@
 		<input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled />
 	</div>
 
-<?php if($this->pm->can_edit) : ?>
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
-    <label class="display-block not-show">Submit</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"></i class="fa fa-pencil"></i> แก้ไข</button>
-    <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="update()"><i class="fa fa-save"></i> บันทึก</button>
-  </div>
+<?php if($doc->is_api == 0) : ?>
+	<?php if($this->pm->can_edit) : ?>
+	  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+	    <label class="display-block not-show">Submit</label>
+	    <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"></i class="fa fa-pencil"></i> แก้ไข</button>
+	    <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="update()"><i class="fa fa-save"></i> บันทึก</button>
+	  </div>
+	<?php endif; ?>
+<?php else : ?>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label>POS Ref.</label>
+		<input type="text" class="form-control input-sm" id="pos-ref" value="<?php echo $doc->pos_ref; ?>" disabled />
+	</div>
 <?php endif; ?>
 </div>
 <hr class="margin-top-15">
 <input type="hidden" name="consign_code" id="consign_code" value="<?php echo $doc->code; ?>">
 <input type="hidden" name="auz" id="auz" value="<?php echo $auz; ?>">
 </form>
-
-<?php $this->load->view('account/consign_order/consign_order_control'); ?>
+<?php if($doc->is_api == 0) : ?>
+	<?php $this->load->view('account/consign_order/consign_order_control'); ?>
+<?php endif; ?>
+<?php if($doc->is_api == 1) : ?>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<p class="red text-center">** เอกสารนี้ถูกสร้างโดยระบบ POS จึงไม่สามารถแก้ไขรายการได้ **</p>
+		</div>
+	</div>
+<?php endif; ?>
 <?php $this->load->view('account/consign_order/consign_order_detail'); ?>
 
 

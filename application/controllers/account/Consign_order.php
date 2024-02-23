@@ -17,6 +17,7 @@ class Consign_order extends PS_Controller
     $this->load->model('masters/warehouse_model');
     $this->load->model('masters/products_model');
     $this->load->helper('discount');
+    $this->load->helper('print');
   }
 
 
@@ -147,7 +148,6 @@ class Consign_order extends PS_Controller
 
   public function edit($code)
   {
-    $this->load->helper('print');
     $doc = $this->consign_order_model->get($code);
     $details = $this->consign_order_model->get_details($code);
     if(!empty($details))
@@ -1468,7 +1468,7 @@ class Consign_order extends PS_Controller
   {
     $sc = TRUE;
     $this->load->library('export');
-    
+
     if(! $this->export->export_consign_order($code))
     {
       $sc = FALSE;

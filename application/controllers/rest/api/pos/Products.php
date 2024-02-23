@@ -6,17 +6,27 @@ class Products extends REST_Controller
 {
   public $error;
   public $user;
+  public $api = FALSE;
 
   public function __construct()
   {
     parent::__construct();
+    $this->api = is_true(getConfig('POS_API'));
 
-    $this->load->model('masters/products_model');
-    $this->user = 'api@warrix';
+    if($this->api)
+    {
+      $this->load->model('masters/products_model');
+      $this->user = 'api@warrix';
+    }
+    else
+    {
+      $this->response(['status' => FALSE, 'error' => "Access denied"], 400);
+    }
   }
 
-  //--- for check stock
-	public function countUpdateItem_get()
+
+  //---- for POS and Website
+  public function countUpdateItems_get()
 	{
 		$json = file_get_contents("php://input");
 		$data = json_decode($json);
@@ -27,8 +37,6 @@ class Products extends REST_Controller
 
 			$rs = $this->db
       ->where('count_stock', 1)
-      ->where('barcode IS NOT NULL', NULL, FALSE)
-      ->where('barcode !=', '')
       ->group_start()
       ->where('date_add >', $last_sync)
       ->or_where('date_upd >', $last_sync)
@@ -54,8 +62,8 @@ class Products extends REST_Controller
 
 	}
 
-  //---- for check stock
-	public function getUpdateItem_get()
+  //---- for POS and Website
+	public function getUpdateItems_get()
 	{
 		$json = file_get_contents("php://input");
 		$ds = json_decode($json);
@@ -72,8 +80,6 @@ class Products extends REST_Controller
       ->select('sub_group_code, category_code, kind_code, type_code')
       ->select('brand_code, year, unit_code, active')
       ->where('count_stock', 1)
-      ->where('barcode IS NOT NULL', NULL, FALSE)
-      ->where('barcode !=', '')
       ->group_start()
       ->where('date_add >', $date)
       ->or_where('date_upd >', $date)
@@ -109,5 +115,45 @@ class Products extends REST_Controller
 
 			$this->response($arr, 400);
 		}
-	}  
+	}
+
+
+  public function getProductProperties_get()
+  {
+    $ds = [];
+
+    $prop = array(
+      'product_color',
+      'product_size',
+      'product_brand',
+      'product_category',
+      'product_group',
+      'product_main_group',
+      'product_sub_group',
+      'product_kind',
+      'product_type'
+    );
+
+    if( ! empty($prop))
+    {
+      foreach($prop as $tb)
+      {
+        $rs = $this->db->select('code, name')->get($tb);
+
+        if( ! empty($rs))
+        {
+          $ds[$tb] = $rs->result_array();
+        }
+      }
+    }
+
+    $arr = array(
+      'status' => TRUE,
+      'props' => $ds
+    );
+
+    $this->response($arr, 200);
+  }
+
+
 } //--- end class

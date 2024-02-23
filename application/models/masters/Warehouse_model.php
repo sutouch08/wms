@@ -196,7 +196,7 @@ class Warehouse_model extends CI_Model
     }
 
 
-    if(!empty($perpage))
+    if( ! empty($perpage))
     {
       $offset = $offset === NULL ? 0 : $offset;
       $this->db->limit($perpage, $offset);

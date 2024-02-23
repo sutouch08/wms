@@ -57,7 +57,7 @@
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>อ้างอิง</label>
-		<input type="text" class="form-control input-sm"  value="<?php echo $doc->ref_code; ?>" disabled />
+		<input type="text" class="form-control input-sm"  value="<?php echo $doc->is_api ? $doc->pos_ref : $doc->ref_code; ?>" disabled />
   </div>
 
 	<div class="col-lg-4-harf col-md-10-harf col-sm-10-harf col-xs-5 padding-5">

@@ -214,7 +214,7 @@ class Wms_auto_delivery_order extends CI_Controller
                 {
                   $sc = FALSE;
                   $this->error = "Insert buffer failed : {$order->code} : {$rs->product_code}";
-                  $this->wms_order_import_logs_model->add($order->code, 'E', $this->error);                  
+                  $this->wms_order_import_logs_model->add($order->code, 'E', $this->error);
                 }
               }
 
@@ -384,7 +384,7 @@ class Wms_auto_delivery_order extends CI_Controller
                 }
               }
 
-              $sell_price = ($ro->qty > 0) ? round($ds->total_amount/$ro->qty, 2) : $ro->price;
+              $sell_price = ($ro->qty > 0) ? round($ro->total_amount/$ro->qty, 2) : $ro->price;
               $discount_amount = ($ro->qty > 0) ? round($ro->discount_amount/$ro->qty, 2) : 0;
               $id_policy = empty($ro->id_rule) ? NULL : $this->discount_rule_model->get_policy_id($ro->id_rule);
 

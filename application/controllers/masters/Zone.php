@@ -450,6 +450,8 @@ class Zone extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('E1', 'คลังสินค้า');
     $this->excel->getActiveSheet()->setCellValue('F1', 'รหัสเก่า');
     $this->excel->getActiveSheet()->setCellValue('G1', 'เจ้าของโซน');
+    $this->excel->getActiveSheet()->setCellValue('H1', 'ผู้รับผิดชอบ');
+    $this->excel->getActiveSheet()->setCellValue('I1', 'Active');
 
 
     //---- กำหนดความกว้างของคอลัมภ์
@@ -460,6 +462,7 @@ class Zone extends PS_Controller
     $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
     $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
     $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(30);
+    $this->excel->getActiveSheet()->getColumnDimension('I')->setWidth(15);
 
 
     $row = 2;
@@ -492,6 +495,8 @@ class Zone extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->uname);
 
         $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->display_name);
+
+        $this->excel->getActiveSheet()->setCellValue('I'.$row, ($rs->active ? 'Y' : 'N'));
 
 
 

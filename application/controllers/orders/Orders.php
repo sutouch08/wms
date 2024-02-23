@@ -119,28 +119,37 @@ class Orders extends PS_Controller
     $startTime = microtime();
 		$rows     = $this->orders_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-    $offset   = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
-		$orders   = $this->orders_model->get_data($filter, $perpage, $offset);
+		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+    $offset = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
+		$orders = $this->orders_model->get_data($filter, $perpage, $offset);
+
     $endTime = microtime();
     $loopStart = microtime();
-    $ds       = array();
+    $ds = array();
+
     if(!empty($orders))
     {
+      $ch = []; //-- channels name
+      $pm = []; //-- payment name
+      $cs = []; //--- customer name
+
       foreach($orders as $rs)
       {
-        $rs->channels_name = $this->channels_model->get_name($rs->channels_code);
-        $rs->payment_name  = $this->payment_methods_model->get_name($rs->payment_code);
-        $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-        $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+        $ch[$rs->channels_code] = empty($ch[$rs->channels_code]) ? $this->channels_model->get_name($rs->channels_code) : $ch[$rs->channels_code];
+        $pm[$rs->payment_code] = empty($pm[$rs->payment_code]) ? $this->payment_methods_model->get_name($rs->payment_code) : $pm[$rs->payment_code];
+        $cs[$rs->customer_code] = empty($cs[$rs->customer_code]) ? $this->customers_model->get_name($rs->customer_code) : $cs[$rs->customer_code];
+        $rs->channels_name = $ch[$rs->channels_code];
+        $rs->payment_name  = $pm[$rs->payment_code];
+        $rs->customer_name = $cs[$rs->customer_code];
+        $rs->total_amount  = $rs->doc_total; //$this->orders_model->get_order_total_amount($rs->code);
         $rs->state_name    = get_state_name($rs->state);
-        $ds[] = $rs;
+        //$ds[] = $rs;
       }
     }
 
     $loopEnd = microtime();
 
-    $filter['orders'] = $ds;
+    $filter['orders'] = $orders; //$ds;
     $filter['state'] = $state;
     $filter['btn'] = $button;
     $filter['start'] = $startTime;
@@ -236,7 +245,7 @@ class Orders extends PS_Controller
 			$customer_ref = trim($this->input->post('cust_ref'));
       $role = 'S'; //--- S = ขาย
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
-      $sale_code = $customer->sale_code;//$this->customers_model->get_sale_code($this->input->post('customerCode'));
+      $sale_code = $customer->sale_code;
 
       //--- check over due
       $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
@@ -261,6 +270,7 @@ class Orders extends PS_Controller
           'bookcode' => $book_code,
           'reference' => $this->input->post('reference'),
           'customer_code' => $customer->code,
+          'customer_name' => $customer->name,
           'customer_ref' => $customer_ref,
           'channels_code' => $this->input->post('channels'),
           'payment_code' => $this->input->post('payment'),
@@ -335,8 +345,6 @@ class Orders extends PS_Controller
           //--- ถ้ามีสต็อกมากว่าที่สั่ง หรือ เป็นสินค้าไม่นับสต็อก
           if( $sumStock >= $qty OR $item->count_stock == 0 OR $auz == 1)
           {
-
-
             //---- ถ้ายังไม่มีรายการในออเดอร์
             //--- อาจจะได้มากกกว่า 1 บรรทัด แต่จะเอามาแค่บรรทัดเดียว
             $detail = $this->orders_model->get_exists_detail($order_code, $item->code, $item->price);
@@ -467,7 +475,7 @@ class Orders extends PS_Controller
                 {
 									if($order->warehouse_code == $chatbot_warehouse_code)
 									{
-										$sync_stock[] = $item->code;									
+										$sync_stock[] = $item->code;
 									}
                 }
               }
@@ -482,15 +490,22 @@ class Orders extends PS_Controller
         }	//--- if qty > 0
       }
 
+      if($result === TRUE)
+      {
+        $doc_total = $this->orders_model->get_order_total_amount($order_code);
+        $arr = array(
+          'doc_total' => $doc_total,
+          'status' => 0
+        );
+
+        $this->orders_model->update($order_code, $arr);
+      }
+
 			if($this->sync_chatbot_stock && !empty($sync_stock))
 			{
 				$this->update_chatbot_stock($sync_stock);
 			}
 
-      if($result === TRUE)
-      {
-        $this->orders_model->set_status($order_code, 0);
-      }
     }
 
     echo $result === TRUE ? 'success' : ( $err_qty > 0 ? $error.' : '.$err_qty.' item(s)' : $error);
@@ -518,12 +533,36 @@ class Orders extends PS_Controller
 					}
 					else
 					{
+            $this->db->trans_begin();
+
 						if(! $this->orders_model->remove_detail($id))
 						{
 							$sc = FALSE;
 							$this->error = "Delete filed";
 						}
+
+            if($sc === TRUE)
+            {
+              $doc_total = $this->orders_model->get_order_total_amount($detail->order_code);
+              $arr = array('doc_total' => $doc_total);
+
+              if( ! $this->orders_model->update($detail->order_code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update doc total amount";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
             else
+            {
+              $this->db->trans_rollback();
+            }
+
+            if($sc === TRUE)
             {
               if($this->log_delete)
               {
@@ -544,18 +583,13 @@ class Orders extends PS_Controller
 							if($this->sync_chatbot_stock && $detail->is_count == 1)
 							{
 								$item = $this->products_model->get($detail->product_code);
+
 								if(!empty($item))
 								{
 									if($item->is_api == 1)
 									{
 										$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
 										$arr = array($item->code);
-											// array(
-											// 	'productCode' => $item->code,
-											// 	'inventory' => $this->get_sell_stock($item->code, $chatbot_warehouse_code)
-											// )
-										//);
-
 										$this->update_chatbot_stock($arr);
 									}
 								}
@@ -655,11 +689,11 @@ class Orders extends PS_Controller
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment_code'));
       $sale_code = $this->customers_model->get_sale_code($this->input->post('customer_code'));
 
-      $customer = $this->customers_model->get($this->input->post('customerCode'));
+      $customer = $this->customers_model->get($this->input->post('customer_code'));
 
       //--- check over due
       $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
-      $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customerCode')) : FALSE;
+      $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customer_code')) : FALSE;
 
       //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
       //--- ไม่ให้เพิ่มออเดอร์
@@ -675,6 +709,7 @@ class Orders extends PS_Controller
         $ds = array(
           'reference' => $this->input->post('reference'),
           'customer_code' => $this->input->post('customer_code'),
+          'customer_name' => $customer->name,
           'customer_ref' => $this->input->post('customer_ref'),
           'channels_code' => $this->input->post('channels_code'),
           'payment_code' => $this->input->post('payment_code'),
@@ -3063,6 +3098,7 @@ class Orders extends PS_Controller
     $order = $this->orders_model->get($code);
     $user = get_cookie('uname');
     $this->load->model('orders/discount_logs_model');
+
   	if(!empty($discount))
   	{
   		foreach( $discount as $id => $value )
@@ -3102,26 +3138,27 @@ class Orders extends PS_Controller
   					$total_amount = ( $detail->qty * $detail->price ) - $total_discount; //--- ยอดรวมสุดท้าย
 
   					$arr = array(
-  								"discount1" => $discLabel[0],
-  								"discount2" => $discLabel[1],
-  								"discount3" => $discLabel[2],
-  								"discount_amount"	=> $total_discount,
-  								"total_amount" => $total_amount ,
-  								"id_rule"	=> NULL,
-                  "update_user" => $user
-  							);
+              "discount1" => $discLabel[0],
+              "discount2" => $discLabel[1],
+              "discount3" => $discLabel[2],
+              "discount_amount"	=> $total_discount,
+              "total_amount" => $total_amount ,
+              "id_rule"	=> NULL,
+              "update_user" => $user
+            );
 
   					$cs = $this->orders_model->update_detail($id, $arr);
+
             if($cs)
             {
               $log_data = array(
-    												"order_code"		=> $code,
-    												"product_code"	=> $detail->product_code,
-    												"old_discount"	=> discountLabel($detail->discount1, $detail->discount2, $detail->discount3),
-    												"new_discount"	=> discountLabel($discLabel[0], $discLabel[1], $discLabel[2]),
-    												"user"	=> $user,
-    												"approver"		=> $approver
-    												);
+                "order_code"		=> $code,
+                "product_code"	=> $detail->product_code,
+                "old_discount"	=> discountLabel($detail->discount1, $detail->discount2, $detail->discount3),
+                "new_discount"	=> discountLabel($discLabel[0], $discLabel[1], $discLabel[2]),
+                "user"	=> $user,
+                "approver"		=> $approver
+              );
     					$this->discount_logs_model->logs_discount($log_data);
             }
 
@@ -3129,8 +3166,17 @@ class Orders extends PS_Controller
   			} //--- End if value
   		}	//--- end foreach
 
-      $this->orders_model->set_status($code, 0);
+      //$this->orders_model->set_status($code, 0);
+
+      $doc_total = $this->orders_model->get_order_total_amount($code);
+      $arr = array(
+        'doc_total' => $doc_total,
+        'status' => 0
+      );
+
+      $this->orders_model->update($code, $arr);
   	}
+
     echo 'success';
   }
 

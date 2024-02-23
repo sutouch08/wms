@@ -142,6 +142,7 @@ class Transform_stock extends PS_Controller
 
       $book_code = getConfig('BOOK_CODE_TRANSFORM_STOCK');
       $date_add = db_date($this->input->post('date'));
+
       if($this->input->post('code'))
       {
         $code = $this->input->post('code');
@@ -156,6 +157,7 @@ class Transform_stock extends PS_Controller
 
       $ds = array(
         'code' => $code,
+        'date_add' => $date_add,
         'role' => $role,
         'bookcode' => $book_code,
         'customer_code' => $this->input->post('customerCode'),

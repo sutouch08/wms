@@ -53,6 +53,17 @@ class Consign_order_model extends CI_Model
   }
 
 
+  public function update_details($code, $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('consign_code', $code)->update('consign_order_detail', $ds);
+    }
+
+    return FALSE;
+  }
+
+
 
   public function update_ref_code($code, $check_code)
   {
@@ -400,6 +411,17 @@ class Consign_order_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function is_exists_pos_ref($pos_ref)
+  {
+    $count = $this->db
+    ->where('pos_ref', $pos_ref)
+    ->where('status !=', 2)
+    ->count_all_results('consign_order');
+
+    return $count > 0 ? TRUE : FALSE;
   }
 
 

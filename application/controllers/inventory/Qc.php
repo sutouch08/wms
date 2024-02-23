@@ -78,7 +78,7 @@ class Qc extends PS_Controller
                   $bufferQty = $this->buffer_model->get_sum_buffer_product($detail->order_code, $detail->product_code, $detail->id); //--- 5
                   $qcQty = $this->qc_model->get_sum_qty($detail->order_code, $detail->product_code, $detail->id); //-- 2
                   //--- ยอดที่จัดมาต้องน้อยกว่า หรือ เท่ากับยอดที่สั่ง
-                  //--- ถ้ามากกว่าให้ใช้ยอดที่สั่งในการตรวจสอบ                  
+                  //--- ถ้ามากกว่าให้ใช้ยอดที่สั่งในการตรวจสอบ
 
                   //--- ยอดที่จะบันทึกตรวจต้องรวมกันแล้วไม่เกินยอดที่จัดและต้องไม่เกินยอดสั่ง
                   $updateQty = $qcQty + $Qty; //--- 2 + 3
@@ -221,6 +221,7 @@ class Qc extends PS_Controller
   {
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
+    $this->load->model('inventory/buffer_model');
     $state = $this->orders_model->get_state($code);
 
     if($state == 5)
@@ -333,9 +334,7 @@ class Qc extends PS_Controller
     {
       if( ! empty($ds['is_count']))
       {
-        $this->load->model('inventory/prepare_model');
-
-        $buffer = $this->prepare_model->get_prepared_from_zone($ds['order_code'], $ds['product_code']);
+        $buffer = $this->buffer_model->get_prepared_from_zone($ds['order_code'], $ds['product_code']);
 
         if( ! empty($buffer))
         {

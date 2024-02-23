@@ -943,11 +943,11 @@ function sumReceive(){
 		totalQty += qty;
 		totalAmount += amount;
 
-		$('#line_total_'+no).text(addCommas(amount.toFixed(2)));
+		$('#line_total_'+no).text(addCommas(amount.toFixed(4)));
   });
 
 	$("#total-receive").text( addCommas(totalQty) );
-	$('#total-amount').text(addCommas(totalAmount.toFixed(2)));
+	$('#total-amount').text(addCommas(totalAmount.toFixed(4)));
 }
 
 
@@ -1158,7 +1158,7 @@ $("#uploadFile").change(function(){
 							text:ds.message,
 							type:'warning'
 						}, () => {
-							window.location.reload();							
+							window.location.reload();
 						});
 					}
 					else {

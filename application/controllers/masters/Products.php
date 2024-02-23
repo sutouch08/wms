@@ -139,7 +139,7 @@ class Products extends PS_Controller
       'year' => $this->input->post('export_year'),
       'sell' => $this->input->post('export_sell'),
       'active' => $this->input->post('export_active')
-    );    
+    );
 
     $header = array(
       'Code', 'Name', 'Barcode', 'Model', 'Color', 'Size', 'Group', 'MainGroup',

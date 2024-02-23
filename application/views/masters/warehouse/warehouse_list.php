@@ -10,6 +10,7 @@
   	<p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-info" onclick="syncData()"><i class="fa fa-refresh"></i> Sync</button>
 			<button type="button" class="btn btn-sm btn-info" onclick="syncAllData()"><i class="fa fa-refresh"></i> Sync all</button>
+			<button type="button" class="btn btn-sm btn-purple" onclick="exportFilter()"><i class="fa fa-file-excel-o"></i> Export</button>
     </p>
   </div>
 </div><!-- End Row -->
@@ -21,7 +22,7 @@
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ชื่อ</label>
     <input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
@@ -36,7 +37,7 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>คลังเทียม</label>
-    <select class="form-control input-sm filter" name="is_consignment" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="is_consignment" id="is_consignment" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $is_consignment); ?>>YES</option>
 			<option value="0" <?php echo is_selected('0', $is_consignment); ?>>NO</option>
@@ -45,7 +46,7 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>สถานะ</label>
-    <select class="form-control input-sm filter" name="active" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="active" id="active" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $active); ?>>Active</option>
 			<option value="0" <?php echo is_selected('0', $active); ?>>Inactive</option>
@@ -54,7 +55,7 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>ขาย</label>
-    <select class="form-control input-sm filter" name="sell" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="sell" id="sell" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $sell); ?>>YES</option>
 			<option value="0" <?php echo is_selected('0', $sell); ?>>NO</option>
@@ -63,7 +64,7 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>จัด</label>
-    <select class="form-control input-sm filter" name="prepare" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="prepare" id="prepare" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $prepare); ?>>YES</option>
 			<option value="0" <?php echo is_selected('0', $prepare); ?>>NO</option>
@@ -72,7 +73,7 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>ติดลบ</label>
-    <select class="form-control input-sm filter" name="auz" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="auz" id="auz" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $auz); ?>>YES</option>
 			<option value="0" <?php echo is_selected('0', $auz); ?>>NO</option>
@@ -92,6 +93,17 @@
 </div>
 </form>
 <hr class="padding-5 margin-top-15">
+<form class="hidden" id="exportForm" method="post" action="<?php echo $this->home; ?>/export_filter">
+	<input type="hidden" name="whCode" id="export-code" >
+	<input type="hidden" name="whName" id="export-name" >
+	<input type="hidden" name="whRole" id="export-role">
+	<input type="hidden" name="whIsConsignment" id="export-is-consignment">
+	<input type="hidden" name="whSell" id="export-sell">
+	<input type="hidden" name="whPrepare" id="export-prepare">
+	<input type="hidden" name="whActive" id="export-active">
+	<input type="hidden" name="whAuz" id="export-auz">
+	<input type="hidden" name="token" id="token" value="<?php echo genUid(); ?>">
+</form>
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">

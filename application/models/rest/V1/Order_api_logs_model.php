@@ -6,6 +6,7 @@ class Order_api_logs_model extends CI_Model
 	private $order_table = 'orders_api_logs';
 	private $stock_table = 'stock_api_logs';
 	private $approve_table = 'approve_api_logs';
+	private $pos = 'pos_api_logs';
 
   public function __construct()
   {
@@ -34,6 +35,7 @@ class Order_api_logs_model extends CI_Model
 		return $this->logs->insert($this->order_table, $arr);
 	}
 
+
 	public function logs_order($ds = array())
 	{
 		return $this->logs->insert($this->order_table, $ds);
@@ -49,6 +51,12 @@ class Order_api_logs_model extends CI_Model
 	public function logs_approve($ds = array())
 	{
 		return $this->logs->insert($this->approve_table, $ds);
+	}
+
+
+	public function logs_pos($ds = array())
+	{
+		return $this->logs->insert($this->pos, $ds);
 	}
 
 } //---

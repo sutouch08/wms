@@ -171,6 +171,26 @@ class Buffer_model extends CI_Model
     return $rs->row()->qty;
   }
 
+  //---- เอาเฉพาะสินค้าและโซน ใช้ตอน QC
+  public function get_prepared_from_zone($order_code, $product_code)
+  {
+    $this->db
+    ->select('buffer.*, zone.name')
+    ->from('buffer')
+    ->join('zone', 'zone.code = buffer.zone_code')
+    ->where('order_code', $order_code)
+    ->where('product_code', $product_code);
+
+    $rs = $this->db->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 
   public function add(array $ds = array())
   {
@@ -255,7 +275,7 @@ class Buffer_model extends CI_Model
     ->group_start()
     ->where('order_detail_id', $detail_id)
     ->or_where('order_detail_id IS NULL', NULL, FALSE)
-    ->group_end();    
+    ->group_end();
 
     return $this->db->delete('buffer');
   }

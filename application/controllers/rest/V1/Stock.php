@@ -149,5 +149,89 @@ class Stock extends REST_Controller
 
   }
 
+  public function getAvailableStock_get()
+  {
+		//--- Get raw post data
+		$json = file_get_contents("php://input");
+
+    $data = json_decode($json);
+
+    if(empty($data))
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'Missing required parameters'
+      );
+      $this->response($arr, 400);
+    }
+
+		if(empty($data->items))
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'Missing required parameter: items'
+      );
+
+      $this->response($arr, 400);
+    }
+
+
+    if( ! empty($data->items))
+    {
+			$count = count($data->items);
+
+			if($count > 100)
+			{
+				$ds = array(
+					'status' => 'FALSE',
+					'error' => 'Requested items are over limited items per request ('.$count.'/100)'
+				);
+
+				$this->response($ds, 400);
+			}
+			else
+			{
+				$stocks = array();
+				$items = 0;
+				foreach($data->items as $item)
+				{
+					$code = $item->item;
+					$sell_stock = $this->stock_model->get_sell_stock($code);
+	        $reserv_stock = $this->orders_model->get_reserv_stock($code);
+	        $availableStock = $sell_stock - $reserv_stock;
+	        $stock = $availableStock < 0 ? 0 : $availableStock;
+
+	        $arr = array(
+						'item' => $code,
+						'qty' => $stock
+	        );
+
+					array_push($stocks, $arr);
+					$items++;
+				}
+
+				$ds = array(
+					'status' => 'SUCCESS',
+					'request_items' => $count,
+					'result_items' => $items,
+					'data' => $stocks
+				);
+
+				$this->response($ds, 200);
+			}
+
+    }
+    else
+    {
+      $ds = array(
+        'status' => 'FALSE',
+        'error' => 'Missing required parameter : sku_code'
+      );
+
+      $this->response($ds, 400);
+    }
+
+  }
+
 
 }// End Class

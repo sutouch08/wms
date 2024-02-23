@@ -173,7 +173,7 @@ class Orders_model extends CI_Model
     $rs = $this->db
     ->where('order_code', $order_code)
     ->where('product_code', $item_code)
-    ->where('price', $price)    
+    ->where('price', $price)
     ->get('order_details');
 
     if($rs->num_rows() > 0)
@@ -757,7 +757,7 @@ class Orders_model extends CI_Model
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '', $role = 'S')
+  public function get_data(array $ds = array(), $perpage = 20, $offset = 0, $role = 'S')
   {
     $this->db->where('role', $role);
 
@@ -1048,6 +1048,7 @@ class Orders_model extends CI_Model
   private function customer_in($customer)
   {
     $ds = array();
+    $customer = $this->db->escape_str($customer);
 
     $qr = "SELECT code FROM customers WHERE code LIKE '%{$customer}%' OR name LIKE '%{$customer}%'";
     $qs = $this->db->query($qr);
@@ -1066,6 +1067,8 @@ class Orders_model extends CI_Model
   private function user_in($user)
   {
     $ds = array();
+
+    $user = $this->db->escape_str($user);
 
     $qr = "SELECT uname FROM user WHERE uname LIKE '%{$user}%' OR name LIKE '%{$user}%'";
     $qs = $this->db->query($qr);
@@ -1129,7 +1132,7 @@ class Orders_model extends CI_Model
     }
 
     $rs = $this->db->get();
-    //echo $this->db->get_compiled_select('orders');
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();

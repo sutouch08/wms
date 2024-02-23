@@ -371,6 +371,7 @@ class Import_order extends CI_Controller
                     'bookcode' => $bookcode,
                     'reference' => $ref_code,
                     'customer_code' => $customer_code,
+                    'customer_name' => $customer->name,
                     'customer_ref' => $customer_ref,
                     'channels_code' => $channels_code,
                     'payment_code' => $payment_code,
@@ -439,11 +440,13 @@ class Import_order extends CI_Controller
                 else
                 {
                   $order = $this->orders_model->get($order_code);
+
                   if($order->state <= 3)
                   {
                     //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
                     $ds = array(
                       'customer_code' => $customer_code,
+                      'customer_name' => $customer->name,
                       'customer_ref' => $customer_ref,
                       'channels_code' => $channels_code,
                       'payment_code' => $payment_code,
@@ -655,6 +658,13 @@ class Import_order extends CI_Controller
             } //--- end header column
 
           } //--- end foreach
+
+          if( ! empty($orderCode))
+          {
+            $doc_total = $this->orders_model->get_order_total_amount($orderCode);
+
+            $this->orders_model->update($orderCode, array('doc_total' => $doc_total));
+          }
 
 					if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
 					{

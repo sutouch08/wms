@@ -1,0 +1,35 @@
+{
+  "pos_ref" : "PS20240226-1",
+  "customer_code" : "CD010001",
+  "zone_code" : "SH0005-00015",
+  "date" : "2024-02-26",
+  "items" : [
+    {
+      "product_code" : "WA-PLAN15-AA-L",
+      "qty" : 2,
+      "price" : 449.00,
+      "discount_label" : "40%",
+      "discount_amount" : 179.6,
+      "line_total" : 538.8,
+      "bill_ref" : "IV01-240200003"
+    },
+    {
+      "product_code" : "WA-PLAN15-AA-L",
+      "qty" : 1,
+      "price" : 449.00,
+      "discount_label" : "0",
+      "discount_amount" : 0,
+      "line_total" : 449.00,
+      "bill_ref" : "IV01-240200004"
+    },
+    {
+      "product_code" : "WA-PLAN15-AA-XL",
+      "qty" : 4,
+      "price" : 449.00,
+      "discount_label" : "40%",
+      "discount_amount" : 179.6,
+      "line_total" : 1077.6,
+      "bill_ref" : "IV01-240200013"
+    }
+  ]
+}

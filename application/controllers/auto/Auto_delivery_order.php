@@ -16,13 +16,15 @@ class Auto_delivery_order extends CI_Controller
   public function index()
   {
 		$sc = "";
-    $rs  = $this->db->where('status', 0)->get('auto_send_to_sap_order');
+    $rs  = $this->db->where('status', 0)->limit(100)->get('auto_send_to_sap_order');
+
 		if($rs->num_rows() > 0)
 		{
 			$i = 1;
+
 			foreach($rs->result() as $rd)
 			{
-				if(!$this->export->export_order($rd->code))
+				if( ! $this->export->export_order($rd->code))
 				{
 					$arr = array(
 						'status' => 3,

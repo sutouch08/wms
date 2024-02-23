@@ -36,6 +36,7 @@ class Sponsor_model extends CI_Model
     ->from('order_details')
     ->join('orders', 'orders.code = order_details.order_code', 'left')
     ->where('orders.role', 'P')
+    ->where('orders.state !=', 9)
     ->where('orders.customer_code', $code)
     ->where('order_details.is_complete', 0)
     ->where('orders.is_expired', 0)

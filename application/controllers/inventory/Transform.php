@@ -156,6 +156,7 @@ class Transform extends PS_Controller
 
       $ds = array(
         'code' => $code,
+        'date_add' => $date_add,
         'role' => $role,
         'bookcode' => $book_code,
         'customer_code' => $this->input->post('customerCode'),

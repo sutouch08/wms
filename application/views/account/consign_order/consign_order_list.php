@@ -81,14 +81,14 @@
 
 <div class="row">
    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
-     <table class="table table-striped border-1" style="min-width:1200px;">
+     <table class="table table-striped border-1">
        <thead>
          <tr class="font-size-12">
            <th class="fix-width-40 text-center">#</th>
            <th class="fix-width-100">วันที่</th>
            <th class="fix-width-120">เลขที่เอกสาร</th>
-           <th class="fix-width-350">ลูกค้า</th>
-           <th class="fix-width-250">โซน</th>
+           <th class="min-width-200">ลูกค้า</th>
+           <th class="min-width-200">โซน</th>
            <th class="fix-width-100 text-right">มูลค่า</th>
            <th class="fix-width-100 text-center">อ้างอิง</th>
            <th class="fix-width-40 text-center">สถานะ</th>
@@ -110,16 +110,16 @@
             <?php echo $rs->code; ?>
           </td>
           <td class="middle">
-            <?php echo $rs->customer_name; ?>
+            <?php echo inputRow($rs->customer_name, 'border:0px; color:#393939; background-color:transparent;'); ?>
           </td>
           <td class="middle">
-            <?php echo $rs->zone_name; ?>
+            <?php echo inputRow($rs->zone_name, 'border:0px; color:#393939; background-color:transparent;'); ?>
           </td>
           <td class="middle text-right">
             <?php echo number($rs->amount, 2); ?>
           </td>
           <td class="middle text-center">
-            <?php echo $rs->ref_code; ?>
+            <?php echo $rs->is_api ? $rs->pos_ref : $rs->ref_code; ?>
           </td>
 
           <td class="middle text-center">
@@ -131,7 +131,7 @@
             <?php endif; ?>
           </td>
           <td class="middle text-right">
-            <?php if($rs->status == 1) : ?>
+            <?php if($rs->status == 1 OR $rs->status == 2) : ?>
               <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
             <?php endif; ?>
             <?php if($rs->status == 0 && $this->pm->can_edit) : ?>

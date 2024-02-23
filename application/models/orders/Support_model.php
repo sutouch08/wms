@@ -7,23 +7,6 @@ class Support_model extends CI_Model
   }
 
 
-  // public function get_budget($code)
-  // {
-  //   $this->ms
-  //   ->select('Balance, DNotesBal, OrdersBal, CreditLine')
-  //   ->where('CardType', 'C')
-  //   ->where('CardCode', $code);
-  //   $rs = $this->ms->get('OCRD');
-  //   if($rs->num_rows() === 1)
-  //   {
-  //     $amount = $rs->row()->CreditLine - ($rs->row()->Balance + $rs->row()->DNotesBal + $rs->row()->OrdersBal);
-  //     return $amount;
-  //   }
-  //
-  //   return 0;
-  // }
-
-
   public function get_budget($code)
   {
     $rs = $this->ms
@@ -52,6 +35,7 @@ class Support_model extends CI_Model
     ->from('order_details')
     ->join('orders', 'orders.code = order_details.order_code', 'left')
     ->where('orders.role', 'U')
+    ->where('orders.state !=', 9)
     ->where('orders.customer_code', $code)
     ->where('order_details.is_complete', 0)
     ->where('orders.is_expired', 0)

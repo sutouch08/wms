@@ -52,13 +52,31 @@ class Invoice_model extends CI_Model
   public function get_details($code)
   {
     $rs = $this->db->where('reference', $code)->get('order_sold');
-    
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
     return FALSE;
+  }
+
+  //-- use in API
+  public function get_details_summary_group_by_item($code)
+  {
+    $rs = $this->db
+    ->select('reference AS code, product_code, product_name')
+    ->select_sum('qty')
+    ->where('reference', $code)
+    ->group_by('product_code')
+    ->get('order_sold');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

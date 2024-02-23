@@ -23,10 +23,10 @@ class Wms_stock_api
 	public function send_stock($warehouse_code)
 	{
 		$sc = TRUE;
-		ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
-    ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
-    ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
-    ini_set('max_execution_time', 600);
+		ini_set('memory_limit','1024M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('sqlsrv.ClientBufferMaxKBSize','1048576'); // Setting to 1024M
+    ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1048576'); // Setting to 1024M - for pdo_sqlsrv
+    ini_set('max_execution_time', 1800);
 
 		$data = $this->ci->stock_model->get_items_stock($warehouse_code);
 

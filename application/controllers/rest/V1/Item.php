@@ -136,6 +136,7 @@ class Item extends REST_Controller
 				foreach($data->result() as $rs)
 				{
 					$arr = array(
+            'id' => $rs->id,
 						'code' => $rs->code,
 						'name' => $rs->name,
 						'barcode' => $rs->barcode,

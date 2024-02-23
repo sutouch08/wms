@@ -168,3 +168,27 @@ function syncAllData() {
     }, 1500);
   });
 }
+
+function exportFilter(){
+  let code = $('#code').val();
+  let name = $('#name').val();
+  let role = $('#role').val();
+  let is_consignment = $('#is_consignment').val();
+  let sell = $('#sell').val();
+  let prepare = $('#prepare').val();
+  let active = $('#active').val();
+  let auz = $('#auz').val();
+
+  $('#export-code').val(code);
+  $('#export-name').val(name);
+  $('#export-role').val(role);
+  $('#export-is-consignment').val(is_consignment);
+  $('#export-sell').val(sell);
+  $('#export-prepare').val(prepare);
+  $('#export-active').val(active);
+  $('#export-auz').val(auz);
+
+  var token = $('#token').val();
+  get_download(token);
+  $('#exportForm').submit();
+}

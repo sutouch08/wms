@@ -15,6 +15,61 @@ class Stock_zone extends REST_Controller
     $this->load->model('stock/stock_model');
   }
 
+
+  public function countItems_get()
+  {
+    $json = file_get_contents("php://input");
+
+    $data = json_decode($json);
+
+    if( ! empty($data) && ! empty($data->zone_code))
+    {
+      $zone = $this->zone_model->get($data->zone_code);
+
+      $count = 0;
+
+      if( ! empty($zone))
+      {
+        if($zone->is_consignment)
+        {
+          $this->cn = $this->load->database('cn', TRUE);
+          $count = $this->stock_model->count_items_consignment_zone($zone->code);
+        }
+        else
+        {
+          $this->ms = $this->load->database('ms', TRUE);
+          $count = $this->stock_model->count_items_zone($zone->code);
+        }
+
+        $arr = array(
+          'status' => TRUE,
+          'rows' => $count
+        );
+
+        $this->response($arr, 200);
+      }
+      else
+      {
+        $arr = array(
+          'status' => FALSE,
+          'error' => 'Invalid zone code'
+        );
+
+        $this->response($arr, 200);
+      }
+    }
+    else
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => "Missing required parameter"
+      );
+
+      $this->response($arr, 400);
+    }
+  }
+  
+  //---- for check stock
   public function getStockZone_get()
   {
     //--- Get raw post data
@@ -74,7 +129,7 @@ class Stock_zone extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => 'empty zone code'
+        'error' =>"Missing required parameter 'zone code'"
       );
 
       $this->response($arr, 400);

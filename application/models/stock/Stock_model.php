@@ -41,6 +41,28 @@ class stock_model extends CI_Model
   }
 
 
+  public function count_items_zone($zone_code)
+  {
+    $this->ms
+    ->from('OBIN')
+    ->join('OIBQ', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->where('OBIN.BinCode', $zone_code)
+    ->where('OIBQ.OnHandQty >', 0, FALSE);
+
+    return $this->ms->count_all_results();
+  }
+
+
+  public function count_items_consignment_zone($zone_code)
+  {
+    $this->cn
+    ->from('OIBQ')
+    ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OIBQ.BinAbs = OBIN.AbsEntry', 'left')
+    ->where('OBIN.BinCode', $zone_code);
+
+    return $this->cn->count_all_results();
+  }
+
 
   public function get_stock_zone($zone_code, $pd_code)
   {
@@ -196,6 +218,49 @@ class stock_model extends CI_Model
     ->join('ITM1 AS ITM2', '(ITM2.ItemCode = OITM.ItemCode AND ITM2.PriceList = 11)')
     ->where('OBIN.BinCode', $zone_code)
     ->where('OIBQ.OnHandQty !=', 0)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+  //---- สินค้าทั้งหมดที่อยู่ในโซน POS API
+  public function getAllStockInZone($zone_code, $limit = 10000, $offset = 0)
+  {
+    $rs = $this->ms
+    ->select('OIBQ.ItemCode AS product_code, OIBQ.OnHandQty AS qty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->where('OBIN.BinCode', $zone_code)
+    ->where('OIBQ.OnHandQty !=', 0)
+    ->order_by('OIBQ.ItemCode', 'ASC')
+    ->limit($limit, $offset)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  //---- สินค้าทั้งหมดที่อยู่ในโซน POS API
+  public function getAllStockInConsignmentZone($zone_code, $limit = 10000, $offset = 0)
+  {
+    $rs = $this->cn
+    ->select('OIBQ.ItemCode AS product_code, OIBQ.OnHandQty AS qty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->where('OBIN.BinCode', $zone_code)
+    ->where('OIBQ.OnHandQty !=', 0)
+    ->order_by('OIBQ.ItemCode', 'ASC')
+    ->limit($limit, $offset)
     ->get();
 
     if($rs->num_rows() > 0)

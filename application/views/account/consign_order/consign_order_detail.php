@@ -4,14 +4,17 @@
     <table class="table table-striped border-1">
       <thead>
         <tr class="font-size-12">
-          <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-10">บาร์โค้ด</th>
-          <th class="width-40" style="min-width:200px;">สินค้า</th>
-          <th class="width-10 text-right"style="min-width:90px;">ราคา</th>
-          <th class="width-10 text-right"style="min-width:90px;">ส่วนลด</th>
-          <th class="width-10 text-right">จำนวน</th>
-          <th class="width-10 text-right">มูลค่า</th>
-          <th class="width-5"></th>
+          <th class="fix-width-40 text-center">ลำดับ</th>
+          <th class="fix-width-200">รหัสสินค้า</th>
+          <th class="min-width-250">สินค้า</th>
+          <th class="fix-width-120">bill code</th>
+          <th class="fix-width-100 text-right">ราคา</th>
+          <th class="fix-width-100 text-right">ส่วนลด</th>
+          <th class="fix-width-100 text-right">จำนวน</th>
+          <th class="fix-width-100 text-right">มูลค่า</th>
+        <?php if($doc->is_api == 0) : ?>
+          <th class="fix-width-60"></th>
+        <?php endif; ?>
         </tr>
       </thead>
       <tbody id="detail-table">
@@ -24,12 +27,13 @@
           <td class="middle text-center no">
             <?php echo $no; ?>
           </td>
-          <td class="middle text-center">
-            <?php echo $rs->barcode; ?>
+          <td class="middle">
+            <?php echo $rs->product_code; ?>
           </td>
           <td class="middle hide-text">
-            <?php echo inputRow($rs->product_code.' : '.$rs->product_name, 'border:0px; background-color:transparent;'); ?>
+            <?php echo inputRow($rs->product_name, 'border:0px; background-color:transparent;'); ?>
           </td>
+          <td class="middle text-center"><?php echo $rs->bill_ref; ?></td>
           <td class="middle text-right">
             <span class="price" id="price-<?php echo $rs->id; ?>"><?php echo number($rs->price,2); ?></span>
             <input type="number" class="form-control input-xs text-center hide input-price" id="input-price-<?php echo $rs->id; ?>" value="<?php echo round($rs->price,2); ?>" />
@@ -44,6 +48,7 @@
           <td class="middle text-right amount" id="amount-<?php echo $rs->id; ?>">
             <?php echo number($rs->amount, 2); ?>
           </td>
+        <?php if($doc->is_api == 0) : ?>
           <td class="middle text-center">
           <?php if($rs->status == 0 && ($this->pm->can_edit OR $this->pm->can_delete)) : ?>
             <button type="button" class="btn btn-minier btn-danger" onclick="deleteRow('<?php echo $rs->id; ?>', '<?php echo $rs->product_code; ?>')">
@@ -51,6 +56,7 @@
             </button>
           <?php endif; ?>
           </td>
+        <?php endif; ?>
         </tr>
 
 <?php  $no++; ?>
@@ -58,25 +64,35 @@
 <?php  $totalAmount += $rs->amount; ?>
 <?php endforeach; ?>
       <tr id="total-row">
-        <td colspan="5" class="middle text-right"><strong>รวม</strong></td>
+        <td colspan="6" class="middle text-right"><strong>รวม</strong></td>
         <td id="total-qty" class="middle text-right"><?php echo number($totalQty); ?></td>
         <td id="total-amount" class="middle text-right"><?php echo number($totalAmount,2); ?></td>
+      <?php if($doc->is_api == 0) : ?>
         <td></td>
+      <?php endif; ?>
       </tr>
 
 <?php else : ?>
-  <tr id="total-row">
-    <td colspan="5" class="middle text-right"><strong>รวม</strong></td>
-    <td id="total-qty" class="middle text-right">0</td>
-    <td id="total-amount" class="middle text-right">0</td>
-    <td></td>
-  </tr>
+      <tr id="total-row">
+        <td colspan="5" class="middle text-right"><strong>รวม</strong></td>
+        <td id="total-qty" class="middle text-right">0</td>
+        <td id="total-amount" class="middle text-right">0</td>
+        <td></td>
+      </tr>
 <?php endif; ?>
-
       </tbody>
     </table>
   </div>
 </div>
+
+<?php if($doc->status == 2) : ?>
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 red">
+    <p>ยกเลิกโดย : <?php echo $doc->cancle_user; ?> @ <?php echo thai_date($doc->cancle_date, TRUE); ?></p>
+    <p>หมายเหตุ : <?php echo $doc->cancle_reason; ?></p>
+  </div>
+</div>
+<?php endif; ?>
 
 <script id="new-row-template" type="text/x-handlebarsTemplate">
 <tr class="font-size-12 rox" id="row-{{id}}">

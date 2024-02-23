@@ -27,6 +27,6 @@
   }
 ?>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/bill/bill.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/bill/bill_detail.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/bill/bill.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/bill/bill_detail.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>
