@@ -36,11 +36,13 @@
 	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
 	<?php endif; ?>
-	<?php if($doc->is_wms == 0 && ($doc->status == 1 OR $doc->status == 4) && $doc->is_approve == 1 && $this->pm->can_approve) : ?>
+	<?php if($doc->is_wms == 0 && ($doc->status == 1 OR $doc->status == 4) && $doc->is_approve == 1 && $doc->is_pos_api == 0 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-xs btn-danger top-btn" onclick="unapprove()"><i class="fa fa-refresh"></i> ไม่อนุมัติ</button>
 	<?php endif; ?>
 				<button type="button" class="btn btn-xs btn-info top-btn" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
+			<?php if($doc->is_wms == 1) : ?>
 				<button type="button" class="btn btn-xs btn-info top-btn" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+			<?php endif; ?>
     </p>
   </div>
 </div>

@@ -11,6 +11,7 @@ class WM extends REST_Controller
   public $logs;
   public $log_json = FALSE;
   public $api = FALSE;
+  private $path = "/rest/api/pos/WM/";
 
   public function __construct()
   {
@@ -64,7 +65,7 @@ class WM extends REST_Controller
 		//---- if any error return
     if($sc === FALSE)
     {
-      $this->add_logs('WM', 'create', 'error', $this->error, NULL);
+      $this->add_logs('WM', 'create', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'error' => $this->error], 400);
     }
 
@@ -312,7 +313,7 @@ class WM extends REST_Controller
   } //-- end function create
 
 
-  public function cancle_post()
+  public function cancel_post()
   {
     $sc = TRUE;
     $json = file_get_contents('php://input');
@@ -351,6 +352,7 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid document number : {$code}";
+      $this->add_logs('WM', 'cancel', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
 
@@ -362,6 +364,7 @@ class WM extends REST_Controller
       {
         $sc = FALSE;
         $this->error = "Unable to cancel : {$code} already imported into SAP. Please cancel this document in SAP before and try again";
+        $this->add_logs('WM', 'cancel', $this->error, $json);
         $this->response(['status' => FALSE, 'message' => $this->error], 200);
       }
 
@@ -377,7 +380,7 @@ class WM extends REST_Controller
             if( ! $this->delivery_order_model->drop_middle_exits_data($rows->DocEntry))
             {
               $sc = FALSE;
-              $this->error = "Failed to delete temp data";
+              $this->error = "Failed to delete SAP Temp";
             }
           }
         }
@@ -385,6 +388,7 @@ class WM extends REST_Controller
 
       if($sc === FALSE)
       {
+        $this->add_logs('WM', 'cancel', $this->error, $json);
         $this->response(['status' => FALSE, 'message' => $this->error], 200);
       }
 
@@ -421,7 +425,8 @@ class WM extends REST_Controller
         $arr = array(
           'status' => 2,
           'cancle_reason' => $reason,
-          'cancle_user' => $this->user
+          'cancle_user' => $this->user,
+          'cancle_date' => now()
         );
 
         if(! $this->consign_order_model->update($code, $arr))
@@ -443,19 +448,13 @@ class WM extends REST_Controller
 
     if($sc === TRUE)
     {
-      $this->add_logs('WM', 'cancel', 'success', $json);
-    }
-    else
-    {
-      $this->add_logs('WM', 'cancel', $this->error, $json);
-    }
-
-    if($sc === TRUE)
-    {
+      $this->add_logs('WM', 'cancel', 'success', 'success', $json);
+      $this->add_logs('WM', 'cancel', 'response', 'success', json_encode(['status' => TRUE, 'message' => "{$code} canceled successful"]));
       $this->response(['status' => TRUE, 'message' => "{$code} canceled successful"], 200);
     }
     else
     {
+      $this->add_logs('WM', 'cancel', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
   }
@@ -490,6 +489,7 @@ class WM extends REST_Controller
     {
       $log = array(
         'trans_id' => genUid(),
+        'api_path' => $this->path,
         'code' => $code,
         'action' => $action,
         'status' => $status,

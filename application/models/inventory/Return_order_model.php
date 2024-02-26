@@ -145,6 +145,17 @@ class Return_order_model extends CI_Model
 	}
 
 
+  public function update_details($code, $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('return_code', $code)->update('return_order_detail', $ds);
+    }
+
+    return FALSE;
+  }
+
+
   public function update_inv($code, $doc_num)
   {
     return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('return_order');
@@ -446,9 +457,13 @@ class Return_order_model extends CI_Model
     }
 
     //---- invoice
-    if(!empty($ds['invoice']))
+    if( ! empty($ds['invoice']))
     {
-      $this->db->like('r.invoice', $ds['invoice']);
+      $this->db
+      ->group_start()
+      ->like('r.invoice', $ds['invoice'])
+      ->or_like('r.bill_code', $ds['invoice'])
+      ->group_end();
     }
 
     //--- customer
@@ -497,6 +512,11 @@ class Return_order_model extends CI_Model
 		{
 			$this->db->where('r.api', $ds['api']);
 		}
+
+    if(isset($ds['is_pos_api']) && $ds['is_pos_api'] !== 'all')
+    {
+      $this->db->where('r.is_pos_api', $ds['is_pos_api']);
+    }
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
@@ -539,9 +559,13 @@ class Return_order_model extends CI_Model
     }
 
     //---- invoice
-    if(!empty($ds['invoice']))
+    if( ! empty($ds['invoice']))
     {
-      $this->db->like('r.invoice', $ds['invoice']);
+      $this->db
+      ->group_start()
+      ->like('r.invoice', $ds['invoice'])
+      ->or_like('r.bill_code', $ds['invoice'])
+      ->group_end();
     }
 
     //--- customer
@@ -591,6 +615,11 @@ class Return_order_model extends CI_Model
 			$this->db->where('r.api', $ds['api']);
 		}
 
+    if(isset($ds['is_pos_api']) && $ds['is_pos_api'] !== 'all')
+    {
+      $this->db->where('r.is_pos_api', $ds['is_pos_api']);
+    }
+
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('r.date_add >=', from_date($ds['from_date']));
@@ -620,7 +649,15 @@ class Return_order_model extends CI_Model
   }
 
 
+  public function is_exists_pos_ref($pos_ref)
+  {
+    $count = $this->db
+    ->where('pos_ref', $pos_ref)
+    ->where('status !=', 2)
+    ->count_all_results('return_order');
 
+    return $count > 0 ? TRUE : FALSE;
+  }
 
 
 

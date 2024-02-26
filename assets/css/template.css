@@ -1686,8 +1686,10 @@ input[type=number]::-webkit-outer-spin-button {
 
 .print-row {
   width:100%;
-  padding:0px;
-  border:0px;
+  padding:0px !important;
+  border:0px !important;
+  background-color: transparent !important;
+  color:inherit !important;
 }
 
 

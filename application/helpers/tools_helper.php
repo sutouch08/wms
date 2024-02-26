@@ -152,14 +152,28 @@ function getConfig($code)
 
 
 
-function get_vat_amount($amount, $vat = NULL)
+function get_vat_amount($amount, $vat = NULL, $type = 'I')
 {
-	if($vat === NULL)
+	//--- type I = include, E = exclude
+	$re_vat = 0;
+
+	if($amount > 0)
 	{
-		$vat = getConfig('SALE_VAT_RATE');
+		if($vat === NULL)
+		{
+			$vat = getConfig('SALE_VAT_RATE');
+		}
+
+		if($type == 'E')
+		{
+			$re_vat = $amount * ($vat * 0.01);
+		}
+		else
+		{
+			$re_vat = ($amount * $vat) / (100+$vat);
+		}		
 	}
 
-	$re_vat = ($amount * $vat) / (100+$vat);
 
 	return round($re_vat,6);
 }

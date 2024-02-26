@@ -31,6 +31,7 @@ class Return_order extends PS_Controller
   public function index()
   {
 		$this->load->helper('warehouse');
+    $this->load->helper('print');
     $filter = array(
       'code'    => get_filter('code', 'sm_code', ''),
       'invoice' => get_filter('invoice', 'sm_invoice', ''),
@@ -41,6 +42,7 @@ class Return_order extends PS_Controller
       'approve' => get_filter('approve', 'sm_approve', 'all'),
 			'zone' => get_filter('zone', 'sm_zone', ''),
 			'api' => get_filter('api', 'sm_api', 'all'),
+      'is_pos_api' => get_filter('is_pos_api', 'sm_pos_api', 'all'),
       'must_accept' => get_filter('must_accept', 'sm_must_accept', 'all'),
       'sap' => get_filter('sap', 'sm_sap', 'all')
     );
@@ -178,6 +180,7 @@ class Return_order extends PS_Controller
     if($this->pm->can_edit)
     {
       $docNum = $this->return_order_model->get_sap_doc_num($code);
+
       if(empty($docNum))
       {
         $arr = array(
@@ -507,33 +510,55 @@ class Return_order extends PS_Controller
         {
           foreach($temp as $tmp)
           {
-            $this->return_order_model->drop_middle_exits_data($tmp->DocEntry);
+            if( ! $this->return_order_model->drop_middle_exits_data($tmp->DocEntry))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete SAP Temp";
+            }
           }
         }
 
-        $this->load->model('inventory/movement_model');
-        $this->load->model('approve_logs_model');
-
-        $arr = array(
-          'status' => 1,
-          'is_approve' => 0,
-          'is_accept' => NULL,
-          'accept_on' => NULL,
-          'accept_by' => NULL,
-          'accept_remark' => NULL
-        );
-
-
-        if($this->return_order_model->update($code, $arr))
+        if($sc === TRUE)
         {
-          $this->approve_logs_model->add($code, 0, $this->_user->uname);
+          $this->load->model('inventory/movement_model');
+          $this->load->model('approve_logs_model');
 
-          $this->movement_model->drop_movement($code);
-        }
-        else
-        {
-					$sc = FALSE;
-          $this->error = 'ยกเลิกอนุมัติเอกสารไม่สำเร็จ';
+          $arr = array(
+            'status' => 1,
+            'is_approve' => 0,
+            'is_accept' => NULL,
+            'accept_on' => NULL,
+            'accept_by' => NULL,
+            'accept_remark' => NULL
+          );
+
+          $this->db->trans_begin();
+
+          if( ! $this->return_order_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to update document status";
+          }
+
+          if($sc === TRUE)
+          {
+            $this->approve_logs_model->add($code, 0, $this->_user->uname);
+
+            if( ! $this->movement_model->drop_movement($code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete movement";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
         }
       }
 			else
@@ -889,23 +914,40 @@ class Return_order extends PS_Controller
 						{
 							if($this->drop_middle_exits_data($code))
 							{
-                $arr = array(
-                  'inv_code' => NULL,
-                  'status' => 2,
-                  'cancle_reason' => trim($this->input->post('reason')),
-                  'cancle_user' => $this->_user->uname
-                );
+								$this->db->trans_begin();
 
-								$this->db->trans_start();
-                $this->return_order_model->update($code, $arr);
-					      $this->return_order_model->set_status($code, 2);
-					      $this->db->trans_complete();
+                //--- set details to cancle
+                if( ! $this->return_order_model->update_details($code, array('is_cancle' => 1)))
+                {
+                  $sc = FALSE;
+                  $this->error = "เปลี่ยนสถานะรายการไม่สำเร็จ";
+                }
 
-					      if($this->db->trans_status() === FALSE)
-					      {
-					        $sc = FALSE;
-					        $this->error = $this->db->error();
-					      }
+                if($sc === TRUE)
+                {
+                  $arr = array(
+                    'inv_code' => NULL,
+                    'status' => 2,
+                    'cancle_reason' => trim($this->input->post('reason')),
+                    'cancle_user' => $this->_user->uname,
+                    'cancle_date' => now()
+                  );
+
+                  if( ! $this->return_order_model->update($code, $arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = "ยกเลิกเอกสารไม่สำเร็จ";
+                  }
+                }
+
+					      if($sc === TRUE)
+                {
+                  $this->db->trans_commit();
+                }
+                else
+                {
+                  $this->db->trans_rollback();
+                }
 							}
 							else
 							{
@@ -970,8 +1012,6 @@ class Return_order extends PS_Controller
 
     return $sc;
   }
-
-
 
 
   public function get_item()
@@ -1122,6 +1162,7 @@ class Return_order extends PS_Controller
       'sm_zone',
       'sm_must_accept',
 			'sm_api',
+      'sm_pos_api',
       'sm_sap'
     );
     clear_filter($filter);

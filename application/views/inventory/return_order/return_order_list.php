@@ -68,6 +68,14 @@
   			<option value="1" <?php echo is_selected($api, '1'); ?>>ปกติ</option>
   		</select>
     </div>
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+      <label>POS</label>
+      <select class="form-control input-sm" name="is_pos_api" onchange="getSearch()">
+  			<option value="all">ทั้งหมด</option>
+  			<option value="0" <?php echo is_selected($is_pos_api, '0'); ?>>ไม่ใช่</option>
+  			<option value="1" <?php echo is_selected($is_pos_api, '1'); ?>>ใช่</option>
+  		</select>
+    </div>
     <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
       <label>วันที่</label>
       <div class="input-daterange input-group">
@@ -116,7 +124,7 @@
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
           <th class="fix-width-120">เลขที่เอกสาร</th>
-          <th class="fix-width-100">เลขที่บิล</th>
+          <th class="fix-width-120">เลขที่บิล</th>
           <th class="min-width-200">ลูกค้า</th>
 					<th class="fix-width-150">โซน</th>
           <th class="fix-width-80 text-right">จำนวน</th>
@@ -137,15 +145,15 @@
           <?php if($this->pm->can_edit && $rs->status == 0 && $rs->is_expire == 0) : ?>
               <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
           <?php endif; ?>
-          <?php if($this->pm->can_delete && $rs->status != 2) : ?>
+          <?php if(($this->pm->can_delete && $rs->status != 2 && $rs->is_pos_api == 0) OR ($rs->status != 2 && $_SuperAdmin)) : ?>
               <button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
           <?php endif; ?>
             </td>
             <td class="middle text-center no"><?php echo $no; ?></td>
             <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
             <td class="middle"><?php echo $rs->code; ?></td>
-            <td class="middle"><?php echo $rs->invoice; ?></td>
-            <td class="middle"><?php echo $rs->customer_name; ?></td>
+            <td class="middle"><?php echo ($rs->is_pos_api == 1 ? $rs->bill_code : $rs->invoice); ?></td>
+            <td class="middle"><?php echo inputRow($rs->customer_name); ?></td>
 						<td class="middle"><?php echo $rs->zone_code; ?></td>
             <td class="middle text-right"><?php echo number($rs->qty); ?></td>
             <td class="middle text-right"><?php echo number($rs->amount, 2); ?></td>
@@ -159,7 +167,7 @@
                 <?php if($rs->status == 0) : ?>
                   <span class="blue">NC</span>
                 <?php endif; ?>
-                <?php if($rs->status == 1) : ?>
+                <?php if($rs->status == 1 && $rs->is_approve == 0) : ?>
                   <span class="blue">AP</span>
                 <?php endif; ?>
   							<?php if($rs->status == 3) : ?>
@@ -182,7 +190,7 @@
 <?php   endforeach; ?>
 <?php else : ?>
         <tr>
-          <td colspan="12" class="text-center">
+          <td colspan="13" class="text-center">
             --- ไม่พบรายการ ---
           </td>
         </tr>
