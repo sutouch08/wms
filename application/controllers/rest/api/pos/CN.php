@@ -319,6 +319,7 @@ class CN extends REST_Controller
       $sc = FALSE;
       $this->error = "The document was not created by the POS system. It cannot be canceled via the API.";
       $this->add_logs('CN', 'cancel', 'error', $this->error, $json);
+      $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
 
     if($doc->status != 2)

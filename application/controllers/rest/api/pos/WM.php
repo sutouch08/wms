@@ -356,6 +356,14 @@ class WM extends REST_Controller
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
 
+    if($doc->is_api != 1)
+    {
+      $sc = FALSE;
+      $this->error = "The document was not created by the POS system. It cannot be canceled via the API.";
+      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
+      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+    }
+
     if($doc->status != 2)
     {
       $do = $this->delivery_order_model->get_sap_delivery_order($code);
