@@ -161,6 +161,13 @@ else
 	}
 }
 ?>
+<?php if($doc->is_pos_api == 1) : ?>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<p class="red text-center">** เอกสารนี้ถูกสร้างโดยระบบ POS จึงไม่สามารถแก้ไขรายการได้ **</p>
+		</div>
+	</div>
+<?php endif; ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-striped border-1" style="min-width:1200px;">

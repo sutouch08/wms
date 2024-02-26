@@ -75,7 +75,13 @@
 <input type="hidden" name="customer_code" id="customer_code" value="<?php echo $doc->customer_code; ?>">
 <input type="hidden" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" >
 </form>
-
+<?php if($doc->is_api == 1) : ?>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<p class="red text-center">** เอกสารนี้ถูกสร้างโดยระบบ POS จึงไม่สามารถแก้ไขรายการได้ **</p>
+		</div>
+	</div>
+<?php endif; ?>
 <?php $this->load->view('account/consign_order/consign_order_detail'); ?>
 
 
