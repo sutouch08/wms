@@ -145,7 +145,7 @@
           <?php if($this->pm->can_edit && $rs->status == 0 && $rs->is_expire == 0) : ?>
               <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
           <?php endif; ?>
-          <?php if(($this->pm->can_delete && $rs->status != 2 && $rs->is_pos_api == 0) OR ($rs->status != 2 && $_SuperAdmin)) : ?>
+          <?php if(($this->pm->can_delete && $rs->status != 2 && $rs->is_pos_api == 0) OR ($rs->status != 2 && $this->_SuperAdmin)) : ?>
               <button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
           <?php endif; ?>
             </td>
