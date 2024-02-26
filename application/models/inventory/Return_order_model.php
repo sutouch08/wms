@@ -28,8 +28,10 @@ class Return_order_model extends CI_Model
     $rs = $this->mc
     ->select('DocEntry')
     ->where('U_ECOMNO', $code)
+    ->group_start()
     ->where('F_Sap IS NULL', NULL, FALSE)
-    ->where('F_Sap', 'N')
+    ->or_where('F_Sap', 'N')
+    ->group_end()
     ->get('ORDN');
 
     if($rs->num_rows() > 0)
