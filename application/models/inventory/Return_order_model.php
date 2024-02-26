@@ -28,6 +28,7 @@ class Return_order_model extends CI_Model
     $rs = $this->mc
     ->select('DocEntry')
     ->where('U_ECOMNO', $code)
+    ->where('F_Sap IS NULL', NULL, FALSE)
     ->where('F_Sap', 'N')
     ->get('ORDN');
 
