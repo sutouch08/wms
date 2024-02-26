@@ -324,7 +324,7 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameters";
-      $this->add_logs('WM', 'cancel', $this->error, $json);
+      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'error' => $this->error], 400);
     }
 
@@ -332,7 +332,7 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameter: code";
-      $this->add_logs('WM', 'cancel', $this->error, $json);
+      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'error' => $this->error], 400);
     }
 
@@ -340,7 +340,7 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameter: cancel_reason";
-      $this->add_logs('WM', 'cancel', $this->error, $json);
+      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'error' => $this->error], 400);
     }
 
@@ -352,7 +352,7 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid document number : {$code}";
-      $this->add_logs('WM', 'cancel', $this->error, $json);
+      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
 
@@ -364,7 +364,7 @@ class WM extends REST_Controller
       {
         $sc = FALSE;
         $this->error = "Unable to cancel : {$code} already imported into SAP. Please cancel this document in SAP before and try again";
-        $this->add_logs('WM', 'cancel', $this->error, $json);
+        $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
         $this->response(['status' => FALSE, 'message' => $this->error], 200);
       }
 
@@ -388,7 +388,7 @@ class WM extends REST_Controller
 
       if($sc === FALSE)
       {
-        $this->add_logs('WM', 'cancel', $this->error, $json);
+        $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
         $this->response(['status' => FALSE, 'message' => $this->error], 200);
       }
 
@@ -454,7 +454,7 @@ class WM extends REST_Controller
     }
     else
     {
-      $this->add_logs('WM', 'cancel', $this->error, $json);
+      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
   }

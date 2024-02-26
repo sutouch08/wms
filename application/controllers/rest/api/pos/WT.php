@@ -169,7 +169,7 @@ class WT extends REST_Controller
   } //--- end confirm
 
 
-  public function add_logs($code = 'CN', $action = 'create', $status = 'error', $message = NULL, $json = NULL)
+  public function add_logs($code = 'WT', $action = 'create', $status = 'error', $message = NULL, $json = NULL)
   {
     if($this->log_json)
     {

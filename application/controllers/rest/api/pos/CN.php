@@ -282,7 +282,7 @@ class CN extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameters";
-      $this->add_logs('CN', 'cancel', $this->error, $json);
+      $this->add_logs('CN', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 400);
     }
 
@@ -290,7 +290,7 @@ class CN extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameter: code";
-      $this->add_logs('CN', 'cancel', $this->error, $json);
+      $this->add_logs('CN', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 400);
     }
 
@@ -298,7 +298,7 @@ class CN extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameter: cancel_reason";
-      $this->add_logs('CN', 'cancel', $this->error, $json);
+      $this->add_logs('CN', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 400);
     }
 
@@ -310,8 +310,15 @@ class CN extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid document number : {$code}";
-      $this->add_logs('CN', 'cancel', 'error', $json);
+      $this->add_logs('CN', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
+    }
+
+    if($doc->is_pos_api != 1)
+    {
+      $sc = FALSE;
+      $this->error = "The document was not created by the POS system. It cannot be canceled via the API.";
+      $this->add_logs('CN', 'cancel', 'error', $this->error, $json);
     }
 
     if($doc->status != 2)
@@ -402,7 +409,7 @@ class CN extends REST_Controller
     }
     else
     {
-      $this->add_logs('CN', 'cancel', $this->error, $json);
+      $this->add_logs('CN', 'cancel', 'error', $this->error, $json);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
   }
