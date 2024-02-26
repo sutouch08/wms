@@ -142,8 +142,7 @@ class Orders extends PS_Controller
         $rs->payment_name  = $pm[$rs->payment_code];
         $rs->customer_name = $cs[$rs->customer_code];
         $rs->total_amount  = $rs->doc_total; //$this->orders_model->get_order_total_amount($rs->code);
-        $rs->state_name    = get_state_name($rs->state);
-        //$ds[] = $rs;
+        $rs->state_name    = get_state_name($rs->state);        
       }
     }
 
@@ -3165,7 +3164,7 @@ class Orders extends PS_Controller
   				}	//--- end if detail
   			} //--- End if value
   		}	//--- end foreach
-      
+
       $doc_total = $this->orders_model->get_order_total_amount($code);
       $arr = array(
         'doc_total' => $doc_total,

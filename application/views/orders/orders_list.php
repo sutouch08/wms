@@ -227,6 +227,7 @@
 <?php if($this->_SuperAdmin) : ?>
 <div >
 	<?php
+	echo "query : {$start} - {$end} &nbsp;&nbsp;&nbsp;";
 	list($usec, $sec) = explode(' ',$start);
 	$querytime_before = ((float)$usec + (float)$sec);
 	list($usec, $sec) = explode(' ',$end);
@@ -234,6 +235,7 @@
 	$querytime = $querytime_after - $querytime_before;
 	echo "Query Time : ".round($querytime, 4)." Second";
 
+	echo "&nbsp;&nbsp;&nbsp; loop : {$loop_start} - {$loop_end} &nbsp;&nbsp;&nbsp;";
 	list($usec, $sec) = explode(' ',$loop_start);
 	$querytime_before = ((float)$usec + (float)$sec);
 	list($usec, $sec) = explode(' ',$loop_end);
