@@ -8,7 +8,7 @@
     'เลขที่' => $doc->code,
     'วันที่'  => thai_date($doc->date_add, FALSE, '/'),
     'ลูกค้า' => $doc->customer_code.' : '.$doc->customer_name,
-    'เลขที่อ้างอิง' => $doc->invoice,
+    'เลขที่อ้างอิง' => $doc->is_pos_api ? $doc->bill_code : $doc->invoice,
     'โซน' => $doc->zone_name,
     'คลัง' => $doc->warehouse_name,
     'พนักงาน' => $this->user_model->get_name($doc->user)

@@ -163,14 +163,14 @@ else
 ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1180px;">
+		<table class="table table-striped border-1" style="min-width:1200px;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 text-center">ลำดับ</th>
 					<th class="fix-width-100">บาร์โค้ด</th>
 					<th class="fix-width-150">รหัส</th>
 					<th class="min-width-150">สินค้า</th>
-					<th class="fix-width-100 text-center">เลขที่บิล</th>
+					<th class="fix-width-120 text-center">เลขที่บิล</th>
 					<th class="fix-width-120 text-center">ออเดอร์</th>
 					<th class="fix-width-80 text-right">ราคา</th>
 					<th class="fix-width-100 text-right">ส่วนลด</th>
@@ -192,7 +192,7 @@ else
 					<td class="middle"><?php echo $rs->barcode; ?></td>
 					<td class="middle"><?php echo $rs->product_code; ?></td>
 					<td class="middle"><?php echo $rs->product_name; ?></td>
-					<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
+					<td class="middle text-center"><?php echo $doc->is_pos_api ? $rs->bill_code : $rs->invoice_code; ?></td>
 					<td class="middle text-center"><?php echo $rs->order_code; ?></td>
 					<td class="middle text-right"><?php echo number($rs->price, 2); ?></td>
 					<td class="middle text-right"><?php echo $rs->discount_percent; ?> %</td>
