@@ -242,41 +242,7 @@ function updatePrice(){
 	});
 }
 
-
-
-function updateCost(){
-	var price = [];
-
-	price.push( { "name" : "id_order", "value" : $("#id_order").val() } );
-	price.push( { "name" : "approver", "value" : $("#approverName").val() } ); //--- ชื่อผู้อนุมัติ
-	price.push( { "name" : "token", "value" : $("#approveToken").val() } ); //--- Token
-	$(".cost-box").each(function(index, element) {
-        var attr = $(this).attr('id').split('_');
-		var id = attr[1];
-		var name = "cost["+id+"]";
-		var value = $(this).val();
-		price.push( {"name" : name, "value" : value });
-    });
-	$.ajax({
-		url:"controller/orderController.php?updateEditCost",
-		type:"POST", cache:"false", data: price,
-		success: function(rs){
-			var rs = $.trim(rs);
-			if( rs == 'success' ){
-				swal({title: "Done", type: "success", timer: 1000});
-				setTimeout(function(){ window.location.reload(); }, 1200 );
-			}else{
-				swal("Error!", rs, "error");
-			}
-		}
-	});
-}
-
-
-
-
-
-function getApprove(tab){
+function getApprove(tab) {
 	//--- แก้ไขส่วนลด id_tab = 35
 	//--- แก้ไขราคา id_tab = 65
 	if( tab == 'discount' ){
@@ -297,14 +263,6 @@ function getApprove(tab){
 		}
 	}
 
-	if( tab == 'cost' ){
-		var initialData = {
-			"title" : 'อนุมัติแก้ไขราคาทุน',
-			"menu" : 'SOCOST',
-			"field" : "", //--- add/edit/delete ถ้าอันไหนเป็น 1 ถือว่ามีสิทธิ์ /// ถ้าต้องการเฉพาะให้ระบุเป็น  add, edit หรือ delete
-			"callback" : function(){ updateCost();  }
-		}
-	}
 
 	showValidateBox(initialData);
 }
