@@ -12,14 +12,15 @@ class Product_barcode extends PS_Controller
 
 
 
-  public function valid_barcode($barcode, $item)
+  public function valid_barcode()
   {
-    $rs = $this->product_barcode_model->is_exists($barcode, $item);
+    $barcode = $this->input->post('barcode');
+    $id = $this->input->post('id');
+
+    $rs = $this->product_barcode_model->is_exists($barcode, $id);
 
     echo $rs === TRUE ? 'exists' : 'ok';
   }
-
-
 
 }//--- end class
   ?>

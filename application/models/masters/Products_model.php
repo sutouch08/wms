@@ -570,12 +570,23 @@ class Products_model extends CI_Model
   }
 
 
-
-
-
-  public function get_status($field, $item)
+  public function update_by_id($id, array $ds = array())
   {
-    $rs = $this->db->select($field)->where('code', $item)->get('products');
+    if( ! empty($ds))
+    {
+      return $this->db->where('id', $id)->update('products', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+
+
+
+  public function get_status($field, $id)
+  {
+    $rs = $this->db->select($field)->where('id', $id)->get('products');
     if($rs->num_rows() == 1)
     {
       return $rs->row()->$field;
@@ -613,15 +624,10 @@ class Products_model extends CI_Model
 
 
 
-  public function set_status($field, $item, $val)
+  public function set_status($field, $id, $val)
   {
-    return $this->db->set($field, $val)->where('code', $item)->update('products');
+    return $this->db->set($field, $val)->where('id', $id)->update('products');
   }
-
-
-
-
-
 
 
   public function delete_item($code)

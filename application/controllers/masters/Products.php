@@ -342,8 +342,9 @@ class Products extends PS_Controller
   //--- update item data
   public function update_item()
   {
-    if($this->input->post('code'))
+    if($this->input->post('id'))
     {
+      $id = $this->input->post('id');
       $code = $this->input->post('code');
       $old_code = NULL;//get_null(trim($this->input->post('old_code')));
       $barcode = get_null(trim($this->input->post('barcode')));
@@ -357,9 +358,8 @@ class Products extends PS_Controller
         'old_code' => $old_code
       );
 
-      if($this->products_model->update($code, $ds))
+      if($this->products_model->update_by_id($id, $ds))
       {
-
 
         $this->do_export($code, 'U'); //--- A = add, U = update
 
@@ -653,12 +653,12 @@ class Products extends PS_Controller
     redirect($this->home.'/edit/'.$code.'/priceTab');
   }
 
-  public function toggle_can_sell($code)
+  public function toggle_can_sell($id)
   {
-    $status = $this->products_model->get_status('can_sell', $code);
+    $status = $this->products_model->get_status('can_sell', $id);
     $status = $status == 1 ? 0 : 1;
 
-    if($this->products_model->set_status('can_sell', $code, $status))
+    if($this->products_model->set_status('can_sell', $id, $status))
     {
       echo $status;
     }
@@ -669,12 +669,12 @@ class Products extends PS_Controller
   }
 
 
-  public function toggle_active($code)
+  public function toggle_active($id)
   {
-    $status = $this->products_model->get_status('active', $code);
+    $status = $this->products_model->get_status('active', $id);
     $status = $status == 1 ? 0 : 1;
 
-    if($this->products_model->set_status('active', $code, $status))
+    if($this->products_model->set_status('active', $id, $status))
     {
       echo $status;
     }
@@ -686,12 +686,12 @@ class Products extends PS_Controller
 
 
 
-  public function toggle_api($code)
+  public function toggle_api($id)
   {
-    $status = $this->products_model->get_status('is_api', $code);
+    $status = $this->products_model->get_status('is_api', $id);
     $status = $status == 1 ? 0 : 1;
 
-    if($this->products_model->set_status('is_api', $code, $status))
+    if($this->products_model->set_status('is_api', $id, $status))
     {
       echo $status;
     }
@@ -987,11 +987,12 @@ class Products extends PS_Controller
   }
 
 
-  public function delete_item($item)
+  public function delete_item()
   {
     $sc = TRUE;
+    $item = $this->input->post('code');
 
-    if($item != '')
+    if( ! empty($item))
     {
       if(! $this->products_model->has_transection($item))
       {

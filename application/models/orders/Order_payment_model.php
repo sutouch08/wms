@@ -8,16 +8,20 @@ class Order_payment_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $this->db->select('order_payment.valid')
+    $this->db
     ->from('order_payment')
     ->join('orders', 'orders.code = order_payment.order_code', 'left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
-    ->join('channels','orders.channels_code = channels.code', 'left')
-    ->where('valid', $ds['valid']);
+    ->join('channels','orders.channels_code = channels.code', 'left');
 
+
+    if( isset($ds['valid']) && $ds['valid'] != 'all')
+    {
+      $this->db->where('order_payment.valid', $ds['valid']);
+    }
 
     //---- เลขที่เอกสาร
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
       $this->db->like('order_payment.order_code', $ds['code']);
     }
@@ -42,7 +46,7 @@ class Order_payment_model extends CI_Model
       $this->db->where('id_account', $ds['account']);
     }
 
-    
+
 		//---- user name / display name
     if(!empty($ds['user']))
     {
@@ -56,24 +60,32 @@ class Order_payment_model extends CI_Model
       $this->db->where('pay_date <=', to_date($ds['to_date']));
     }
 
-    $rs = $this->db->get();
+    if( isset($ds['is_pre_order']) && $ds['is_pre_order'] != 'all')
+    {
+      $this->db->where('order_payment.is_pre_order', $ds['is_pre_order']);
+    }
 
-
-    return $rs->num_rows();
+    return $this->db->count_all_results();
   }
 
 
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '')
+  public function get_data(array $ds = array(), $perpage = 20, $offset = 0)
   {
-    $this->db->select('order_payment.*, customers.name AS customer_name, orders.customer_ref, channels.name AS channels')
+    $this->db
+    ->select('order_payment.*')
+    ->select('customers.name AS customer_name, orders.customer_ref, channels.name AS channels')
     ->from('order_payment')
     ->join('orders', 'orders.code = order_payment.order_code', 'left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
-    ->join('channels','orders.channels_code = channels.code', 'left')
-    ->where('valid', $ds['valid']);
+    ->join('channels','orders.channels_code = channels.code', 'left');
+
+    if( isset($ds['valid']) && $ds['valid'] != 'all')
+    {
+      $this->db->where('order_payment.valid', $ds['valid']);
+    }    
 
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))
@@ -116,17 +128,21 @@ class Order_payment_model extends CI_Model
       $this->db->where('order_payment.pay_date <=', to_date($ds['to_date']));
     }
 
-    $this->db->order_by('order_payment.order_code', 'ASC');
-
-    if($perpage != '')
+    if( isset($ds['is_pre_order']) && $ds['is_pre_order'] != 'all')
     {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
+      $this->db->where('order_payment.is_pre_order', $ds['is_pre_order']);
     }
 
-    $rs = $this->db->get();
+    $this->db->order_by('order_payment.order_code', 'ASC');
 
-    return $rs->result();
+    $rs = $this->db->limit($perpage, $offset)->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

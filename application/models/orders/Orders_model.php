@@ -688,6 +688,12 @@ class Orders_model extends CI_Model
 		}
 
 
+    if( isset($ds['is_pre_order']) && $ds['is_pre_order'] !== 'all')
+    {
+      $this->db->where('is_pre_order', $ds['is_pre_order']);
+    }
+
+
 		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
 		{
 			if($ds['sap_status'] == 0)
@@ -933,6 +939,12 @@ class Orders_model extends CI_Model
 			{
 				$this->db->where('wms_export', $ds['wms_export']);		}
 		}
+
+
+    if( isset($ds['is_pre_order']) && $ds['is_pre_order'] !== 'all')
+    {
+      $this->db->where('is_pre_order', $ds['is_pre_order']);
+    }
 
 
 		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')

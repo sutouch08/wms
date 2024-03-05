@@ -21,11 +21,12 @@
 <hr/>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover" style="min-width:1150px;">
+		<table class="table table-striped table-hover" style="min-width:1130px;">
 			<thead>
 				<tr>
+					<th class="fix-width-80"></th>
 					<th class="fix-width-60 text-center">รูปภาพ</th>
-					<th class="fix-width-200">รหัสสินค้า</th>
+					<th class="min-width-200">รหัสสินค้า</th>
 					<th class="fix-width-200">รหัสเก่า</th>
 					<th class="fix-width-120">บาร์โค้ด</th>
 					<th class="fix-width-60 text-center">สี</th>
@@ -35,58 +36,77 @@
 					<th class="fix-width-50 text-center">ขาย</th>
 					<th class="fix-width-50 text-center">เปิด</th>
 					<th class="fix-width-50 text-center">API</th>
-					<th class="min-width-100"></th>
+
 				</tr>
 			</thead>
 			<tbody>
 <?php if(!empty($items)) : ?>
 	<?php foreach($items as $item) : ?>
 		<?php $img = get_product_image($item->code, 'mini'); ?>
-				<tr id="row-<?php echo $item->code; ?>" style="font-size:12px;">
+				<tr id="row-<?php echo $item->id; ?>" style="font-size:12px;">
+					<td class="middle text-right">
+						<?php if($this->pm->can_edit) : ?>
+							<button type="button" class="btn btn-mini btn-warning lb" id="btn-edit-<?php echo $item->id; ?>" onclick="editItem('<?php echo $item->id; ?>')">
+								<i class="fa fa-pencil"></i>
+							</button>
+							<button type="button" class="btn btn-mini btn-success edit hide" id="btn-update-<?php echo $item->id; ?>" onclick="updateItem('<?php echo $item->id; ?>')">
+								<i class="fa fa-save"></i>
+							</button>
+						<?php endif; ?>
+						<?php if($this->pm->can_delete) : ?>
+							<button type="button" class="btn btn-mini btn-danger" onclick="deleteItem(<?php echo $item->id; ?>, '<?php echo $item->code; ?>')">
+								<i class="fa fa-trash"></i>
+							</button>
+						<?php endif; ?>
+					</td>
 					<td class="middle text-center">
 						<img src="<?php echo $img; ?>" style="width:50px;" />
 					</td>
-					<td class="middle"><?php echo $item->code; ?></td>
+					<td class="middle">
+						<?php echo $item->code; ?>
+						<input type="hidden" id="code-<?php echo $item->id; ?>" value="<?php echo $item->code; ?>" />
+					</td>
 					<td class="middle"><?php echo $item->old_code; ?></td>
 
 					<td class="middle">
-						<span class="lb" id="bc-lbl-<?php echo $item->code; ?>"><?php echo $item->barcode; ?></span>
+						<span class="lb" id="bc-lbl-<?php echo $item->id; ?>"><?php echo $item->barcode; ?></span>
 						<input type="text"
 						class="form-control input-sm barcode edit hide tooltip-error"
-						name="bc[<?php echo $item->code; ?>]"
-						id="bc-<?php echo $item->code; ?>"
+						name="bc[<?php echo $item->id; ?>]"
+						id="bc-<?php echo $item->id; ?>"
 						value="<?php echo $item->barcode; ?>"
+						data-id="<?php echo $item->id; ?>"
 						data-toggle="tooltip" data-placement="right" title=""
 						/>
 					</td>
 					<td class="middle text-center"><?php echo $item->color_code; ?></td>
 					<td class="middle text-center"><?php echo $item->size_code; ?></td>
 					<td class="middle text-right">
-						<span class="lb" id="cost-lbl-<?php echo $item->code; ?>">
+						<span class="lb" id="cost-lbl-<?php echo $item->id; ?>">
 						<?php echo number($item->cost, 2); ?>
 						</span>
 						<input type="number"
 						class="form-control input-sm text-center cost edit hide"
-						name="cost[<?php echo $item->code; ?>]"
-						id="cost-<?php echo $item->code; ?>"
+						name="cost[<?php echo $item->id; ?>]"
+						id="cost-<?php echo $item->id; ?>"
 						value="<?php echo $item->cost; ?>"
 						/>
 					</td>
 					<td class="middle text-right">
-						<span class="lb" id="price-lbl-<?php echo $item->code; ?>">
+						<span class="lb" id="price-lbl-<?php echo $item->id; ?>">
 						<?php echo number($item->price, 2); ?>
 						</span>
 						<input type="number"
 						class="form-control input-sm text-center price edit hide"
-						name="price[<?php echo $item->code; ?>]"
-						id="price-<?php echo $item->code; ?>"
+						name="price[<?php echo $item->id; ?>]"
+						id="price-<?php echo $item->id; ?>"
 						value="<?php echo $item->price; ?>"
 						 />
 					</td>
 
 					<td class="middle text-center">
 						<?php if($this->pm->can_edit) : ?>
-							<a href="javascript:void(0)" class="can-sell" data-code="<?php echo $item->code; ?>">
+							<a href="javascript:void(0)" class="can-sell" data-code="<?php echo $item->id; ?>">
 								<?php echo is_active($item->can_sell); ?>
 							</a>
 						<?php else : ?>
@@ -96,7 +116,7 @@
 
 					<td class="middle text-center">
 						<?php if($this->pm->can_edit) : ?>
-							<a href="javascript:void(0)" class="act" data-code="<?php echo $item->code; ?>">
+							<a href="javascript:void(0)" class="act" data-code="<?php echo $item->id; ?>">
 								<?php echo is_active($item->active); ?>
 							</a>
 						<?php else : ?>
@@ -106,28 +126,14 @@
 
 					<td class="middle text-center">
 						<?php if($this->pm->can_edit) : ?>
-							<a href="javascript:void(0)" class="api" data-code="<?php echo $item->code; ?>">
+							<a href="javascript:void(0)" class="api" data-code="<?php echo $item->id; ?>">
 								<?php echo is_active($item->is_api); ?>
 							</a>
 						<?php else : ?>
 						<?php echo is_active($item->is_api); ?>
 						<?php endif; ?>
 					</td>
-					<td class="middle text-right">
-						<?php if($this->pm->can_edit) : ?>
-							<button type="button" class="btn btn-mini btn-warning lb" id="btn-edit-<?php echo $item->code; ?>" onclick="editItem('<?php echo $item->code; ?>')">
-								<i class="fa fa-pencil"></i>
-							</button>
-							<button type="button" class="btn btn-mini btn-success edit hide" id="btn-update-<?php echo $item->code; ?>" onclick="updateItem('<?php echo $item->code; ?>')">
-								<i class="fa fa-save"></i>
-							</button>
-						<?php endif; ?>
-						<?php if($this->pm->can_delete) : ?>
-							<button type="button" class="btn btn-mini btn-danger" onclick="deleteItem('<?php echo $item->code; ?>', '<?php echo $style->code; ?>')">
-								<i class="fa fa-trash"></i>
-							</button>
-						<?php endif; ?>
-					</td>
+
 				</tr>
 	<?php endforeach; ?>
 <?php else : ?>

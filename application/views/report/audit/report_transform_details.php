@@ -68,7 +68,8 @@
 					<th class="fix-width-80 text-center fix-header">เบิก</th>
 					<th class="fix-width-80 text-center fix-header">รับ</th>
 					<th class="fix-width-80 text-center fix-header">ค้างรับ</th>
-					<th class="fix-width-100 text-center fix-header">มูลค่า</th>          
+					<th class="fix-width-100 text-center fix-header">มูลค่า</th>
+          <th class="fix-width-150 text-center fix-header">เพิ่ม/รับ ล่าสุด</th>
 					<th class="fix-width-150 text-center fix-header">ผู้เบิก(User)</th>
 					<th class="fix-width-150 text-center fix-header">ผู้ทำรายการ</th>
 				</tr>
@@ -89,7 +90,7 @@
 				<td class="middle text-right">{{total_return}}</td>
 				<td class="middle text-right">{{total_balance}}</td>
 				<td class="middle text-right">{{total_amount}}</td>
-				<td colspan="2" class="middle text-right"></td>
+        <td colspan="3" class="middle text-right"></td>
 			</tr>
 		{{else}}
 			<tr class="font-size-10">
@@ -103,6 +104,7 @@
 				<td class="middle text-right">{{return}}</td>
 				<td class="middle text-right">{{balance}}</td>
 				<td class="middle text-right">{{amount}}</td>
+        <td class="middle">{{date_upd}}</td>
 				<td class="middle">{{user_ref}}</td>
 				<td class="middle">{{user}}</td>
 			</tr>
@@ -112,5 +114,5 @@
 
 
 
-<script src="<?php echo base_url(); ?>scripts/report/audit/report_transform_backlogs.js?v=<?php echo date('Ymdh'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/report/audit/report_transform_details.js?v=<?php echo date('Ymdh'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

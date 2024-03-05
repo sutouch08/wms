@@ -1,5 +1,5 @@
 <?php $this->load->view('include/header'); ?>
-<?php $manual_code = getConfig('MANUAL_DOC_CODE');  ?>
+<?php $manual_code = 0; //getConfig('MANUAL_DOC_CODE');  ?>
 <?php if($manual_code == 1) :?>
 	<input type="hidden" id="manualCode" value="<?php echo $manual_code; ?>">
 	<input type="hidden" id="prefix" value="<?php echo getConfig('PREFIX_ORDER'); ?>">
@@ -17,7 +17,7 @@
     </div>
 </div><!-- End Row -->
 <hr class=""/>
-<form id="searchForm" method="post" action="<?php echo $this->home; ?>/add">
+<form id="searchForm" method="post" >
 <div class="row">
   <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
@@ -38,25 +38,25 @@
 		<input type="text" class="form-control input-sm text-center" id="customer_code" name="customer_code" value="" disabled/>
 	</div>
 
-  <div class="col-lg-4-harf col-md-6 col-sm-6 col-xs-8 padding-5">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
     <label>ชื่อลูกค้า[ในระบบ]</label>
     <input type="text" class="form-control input-sm" name="customer" id="customer" value="" required />
   </div>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า[ออนไลน์]</label>
-		<input type="text" class="form-control input-sm" name="cust_ref" value="" />
+		<input type="text" class="form-control input-sm" id="customer_ref" name="cust_ref" value="" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
-		<select class="form-control input-sm" name="channels" required>
+		<select class="form-control input-sm" name="channels" id="channels" required>
 			<option value="">ทั้งหมด</option>
 			<?php echo select_channels(); ?>
 		</select>
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>การชำระเงิน</label>
 		<select class="form-control input-sm" name="payment" id="payment" required>
 			<option value="">ทั้งหมด</option>
@@ -64,20 +64,28 @@
 		</select>
   </div>
 
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>อ้างอิงออเดอร์</label>
-		<input type="text" class="form-control input-sm" name="reference" value="" />
+		<input type="text" class="form-control input-sm" name="reference" id="reference" value="" />
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>แปรสภาพ</label>
-		<select class="form-control input-sm" name="transformed">
+		<select class="form-control input-sm" name="transformed" id="transformed">
 			<option value="0">No</option>
 			<option value="1">Yes</option>
 		</select>
   </div>
 
-	<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <label>Pre Order</label>
+		<select class="form-control input-sm" name="is_pre_order" id="is_pre_order">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</select>
+  </div>
+
+	<div class="col-lg-3 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>คลัง</label>
     <select class="form-control input-sm" name="warehouse" id="warehouse" required>
 			<option value="">เลือกคลัง</option>
@@ -85,17 +93,16 @@
 		</select>
   </div>
 
-  <div class="col-lg-4-harf col-md-10-harf col-sm-10-harf col-xs-8 padding-5">
+  <div class="col-lg-10-harf col-md-10-harf col-sm-10-harf col-xs-8 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">Submit</label>
 	<?php if($manual_code == 1) : ?>
     <button type="Button" class="btn btn-xs btn-success btn-block" onclick="validateOrder()"><i class="fa fa-plus"></i> เพิ่ม</button>
-		<button type="submit" class="btn btn-xs btn-success btn-block hidden" id="btn-submit">เพิ่ม</button>
 	<?php else : ?>
-		<button type="submit" class="btn btn-xs btn-success btn-block" id="btn-submit"><i class="fa fa-plus"></i> เพิ่ม</button>
+		<button type="button" class="btn btn-xs btn-success btn-block" onclick="add()"><i class="fa fa-plus"></i> เพิ่ม</button>
 	<?php endif; ?>
   </div>
 </div>

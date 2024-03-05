@@ -2004,10 +2004,33 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 .freez > th {
-  top:-1px;
-  position: sticky;
-  background-color: #ddd;
-  outline: none;
-  min-height: 30px;
-  height: 30px;
+	top: 0;
+	position: sticky;
+	background-color: lightsalmon;
+	min-height: 30px;
+	height: 60px;
+}
+
+.tableFixHead {
+	table-layout: fixed;
+	min-width: 100%;
+	/*margin-top:-1px;
+  margin-left:-1px;
+  margin-right:0px;*/
+	margin-bottom: 0;
+}
+
+.tableFixHead thead th {
+	position: sticky;
+	top: -1px;
+	background-color: #f2f2f2;
+	font-size: 14px;
+}
+
+.tableFixHead tr>td {
+	padding: 3px !important;
+}
+
+.fix-header {
+	z-index: 2;
 }

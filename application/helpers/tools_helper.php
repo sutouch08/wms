@@ -171,7 +171,7 @@ function get_vat_amount($amount, $vat = NULL, $type = 'I')
 		else
 		{
 			$re_vat = ($amount * $vat) / (100+$vat);
-		}		
+		}
 	}
 
 
@@ -251,11 +251,23 @@ function add_vat($amount, $vat = NULL)
 }
 
 
-
-function set_error($message)
+function set_error($key, $name = "data")
 {
-  $CI =& get_instance();
-  $CI->session->set_flashdata('error', $message);
+	$error = array(
+		'insert' => "Insert {$name} failed.",
+		'update' => "Update {$name} failed.",
+		'delete' => "Delete {$name} failed.",
+		'permission' => "You don't have permission to perform this operation.",
+		'required' => "Missing required parameter.",
+		'exists' => "'{$name}' already exists.",
+		'status' => "Invalid document status",
+		'notfound' => "Document number not found",
+		'transection' => "Unable to delete {$name} because transections exists or link to other module."
+	);
+
+	$ci =& get_instance();
+
+	$ci->error = (!empty($error[$key]) ? $error[$key] : "Unknow error.");
 }
 
 

@@ -22,6 +22,60 @@ $hide = $order->status == 1 ? 'hide' : '';
 <hr class="margin-bottom-15" />
 <?php $this->load->view('orders/order_edit_detail_header'); ?>
 
+<?php if($order->is_pre_order) : ?>
+  <div class="row">
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+      <button type="button" class="btn btn-sm btn-primary btn-block" onclick="getPreorderItem()">รายการสินค้า</button>
+    </div>
+  </div>
+  <div class="divider-hidden"> </div>
+
+
+  <div class="modal fade" id="preOrderModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  	<div class="modal-dialog" style="width:500px; max-width:90vw;">
+  		<div class="modal-content">
+    			<div class="modal-header">
+  				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+  				<h4 class="modal-title">Pre Order Items</h4>
+  			 </div>
+  			 <div class="modal-body">
+           <div class="row">
+             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="max-height:70vh; overflow:auto;">
+               <table class="table table-striped border-1">
+                 <thead>
+                   <tr>
+                     <th class="min-width-200">รหัส</th>
+                     <th class="fix-width-100 text-center">จำนวน</th>
+                   </tr>
+                 </thead>
+                 <tbody id="preOrderTable">
+
+                 </tbody>
+               </table>
+             </div>
+           </div>
+         </div>
+  			 <div class="modal-footer">
+  				<button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+  				<button type="button" class="btn btn-primary" onClick="addPreOrderItems()" >เพิ่มในรายการ</button>
+  			 </div>
+  		</div>
+  	</div>
+  </div>
+
+<script id="preOrderTemplate" type="text/x-handlebarsTemplate">
+  {{#each this}}
+    <tr>
+      <td class="middle">{{product_code}}</td>
+      <td class="middle text-center">
+        <input type="number" class="form-control input-sm text-center pre-qty" id="pd-{{id}}" data-id="{{id}}" data-pd="{{product_code}}" value="" />
+      </td>
+    </tr>
+  {{/each}}
+</script>
+
+<?php else : ?>
+
 <?php
 		$asq = getConfig('ALLOW_LOAD_QUOTATION');
 		$qt =  'disabled';
@@ -88,6 +142,7 @@ $hide = $order->status == 1 ? 'hide' : '';
 	</div>
 </div>
 <!-- End Category Menu ------------------------------------>
+<?php endif;  //--- end if( $order->is_pre_order) ?>
 
 <?php $this->load->view('orders/order_detail');  ?>
 
@@ -128,7 +183,93 @@ $hide = $order->status == 1 ? 'hide' : '';
 			$('#cate-widget').addClass('collapsed');
 		}
 	}
+
+  function getPreorderItem() {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'orders/pre_order_policy/get_active_items',
+      type:'GET',
+      cache:false,
+      success:function(rs) {
+        load_out();
+        if( isJson(rs)) {
+          let ds = JSON.parse(rs);
+          let source = $('#preOrderTemplate').html();
+          let output = $('#preOrderTable');
+
+          render(source, ds, output);
+
+          $('#preOrderModal').modal('show');
+        }
+        else {
+          swal({
+            title:'Not found',
+            text:'ไม่พบรายการสินค้าที่เปิด Pre Order',
+            type:'info'
+          });
+        }
+      }
+    })
+  }
+
+
+  function addPreOrderItems() {
+    let order_code = $('#order_code').val();
+    let items = [];
+
+    $('.pre-qty').each(function() {
+      if($(this).val() != '') {
+        let qty = parseDefault(parseFloat($(this).val()), 0);
+        let code = $(this).data('pd');
+
+        if(qty > 0) {
+          items.push({"code" : code, "qty" : qty});
+        }
+      }
+    });
+
+    if(items.length > 0) {
+      $('#preOrderModal').modal('hide');
+
+      load_in();
+
+      $.ajax({
+        url:BASE_URL + 'orders/orders/add_pre_order_detail',
+        type:'POST',
+        cache:false,
+        data:{
+          'order_code' : order_code,
+          'data' : JSON.stringify(items)
+        },
+        success:function(rs) {
+          load_out();
+
+          if(rs === 'success') {
+            swal({
+              title:'Success',
+              type:'success',
+              timer:1000
+            });
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 1200);
+          }
+          else {
+            swal({
+              title:'Error!',
+              text:rs,
+              type:'error'
+            })
+          }
+        }
+      })
+    }
+  }
 </script>
+
+
 <script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/order_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/product_tab_menu.js?v=<?php echo date('YmdH'); ?>"></script>

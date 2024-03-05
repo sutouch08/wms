@@ -34,7 +34,8 @@ class Order_payment extends PS_Controller
       'channels' => get_filter('channels', 'channels', 'all'),
       'from_date' => get_filter('from_date', 'from_date', ''),
       'to_date'  => get_filter('to_date', 'to_date', ''),
-      'valid' => get_filter('valid', 'valid', 0)
+      'valid' => get_filter('valid', 'valid', '0'),
+      'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -134,7 +135,7 @@ class Order_payment extends PS_Controller
 	      //--- add state event
 	      $this->order_state_model->add_state($arr);
 
-				if($order->is_wms && $isAPI)
+				if($order->is_wms && $isAPI && ! $order->is_pre_order)
 				{
 					$this->wms = $this->load->database('wms', TRUE);
 					$this->load->library('wms_order_api');
@@ -179,7 +180,7 @@ class Order_payment extends PS_Controller
 						$this->orders_model->update($order->code, $arr);
 					}
 				}
-				
+
 				//---- send api to chatbot
 				if($order->is_api == 1 && !empty($order->reference))
 				{
@@ -340,7 +341,7 @@ class Order_payment extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('code', 'account', 'user', 'channels','from_date', 'to_date', 'customer', 'valid');
+    $filter = array('code', 'account', 'user', 'channels','from_date', 'to_date', 'customer', 'valid', 'is_pre_order');
     clear_filter($filter);
   }
 } //--- end class

@@ -16,7 +16,7 @@ class Product_barcode_model extends CI_Model
       return $this->db->insert('barcode_ean13', $ds);
     }
 
-    return FALSE;    
+    return FALSE;
   }
 
 
@@ -35,21 +35,16 @@ class Product_barcode_model extends CI_Model
 
 
 
-  public function is_exists($barcode, $item = '')
+  public function is_exists($barcode, $id = NULL)
   {
-    if($item != '')
+    if( ! empty($id))
     {
-      $this->db->where('code !=', $item);
+      $this->db->where('id !=', $id);
     }
 
-    $rs = $this->db->where('barcode', $barcode)->get('products');
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
+    $count = $this->db->where('barcode', $barcode)->count_all_results('products');
 
-    return FALSE;
-
+    return $count > 0 ? TRUE : FALSE;
   }
 
 

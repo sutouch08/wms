@@ -14,12 +14,14 @@ function editItem(code){
 
 
 
-function updateItem(code)
+function updateItem(id)
 {
-  var oldCode = $('#old-'+code).val();
-  var barcode = $('#bc-'+code).val();
-  var cost = $('#cost-'+code).val();
-  var price = $('#price-'+code).val();
+  var code = $('#code-'+id).val();
+  var oldCode = $('#old-'+id).val();
+  var barcode = $('#bc-'+id).val();
+  var cost = $('#cost-'+id).val();
+  var price = $('#price-'+id).val();
+
   if( $('.has-error').length ){
     swal({
       title:'Error!',
@@ -36,6 +38,7 @@ function updateItem(code)
     type:'POST',
     cache:false,
     data:{
+      'id' : id,
       'code' : code,
       'old_code' : oldCode,
       'barcode' : barcode,
@@ -45,20 +48,20 @@ function updateItem(code)
     success:function(rs){
       var rs = $.trim(rs);
       if(rs === 'success'){
-        $('#old-lbl-'+code).text(oldCode);
-        $('#old-'+code).addClass('hide');
-        $('#old-lbl-'+code).removeClass('hide');
-        $('#bc-lbl-'+code).text(barcode);
-        $('#bc-'+code).addClass('hide');
-        $('#bc-lbl-'+code).removeClass('hide');
-        $('#cost-lbl-'+code).text(cost);
-        $('#cost-'+code).addClass('hide');
-        $('#cost-lbl-'+code).removeClass('hide');
-        $('#price-lbl-'+code).text(price);
-        $('#price-'+code).addClass('hide');
-        $('#price-lbl-'+code).removeClass('hide');
-        $('#btn-update-'+code).addClass('hide');
-        $('#btn-edit-'+code).removeClass('hide');
+        $('#old-lbl-'+id).text(oldCode);
+        $('#old-'+id).addClass('hide');
+        $('#old-lbl-'+id).removeClass('hide');
+        $('#bc-lbl-'+id).text(barcode);
+        $('#bc-'+id).addClass('hide');
+        $('#bc-lbl-'+id).removeClass('hide');
+        $('#cost-lbl-'+id).text(cost);
+        $('#cost-'+id).addClass('hide');
+        $('#cost-lbl-'+id).removeClass('hide');
+        $('#price-lbl-'+id).text(price);
+        $('#price-'+id).addClass('hide');
+        $('#price-lbl-'+id).removeClass('hide');
+        $('#btn-update-'+id).addClass('hide');
+        $('#btn-edit-'+id).removeClass('hide');
       }else{
         swal({
           title:'Error!',
@@ -75,21 +78,24 @@ function updateItem(code)
 $('.barcode').focusout(function(){
   let bc = $(this).val();
   if(bc.length > 0){
-    let id = $(this).attr('id');
-    let item = id.replace('bc-', '');
-    checkBarcode(bc, item);
+    let id = $(this).data('id');
+    checkBarcode(bc, id);
   }
 });
 
 
 
-function checkBarcode(barcode, item)
+function checkBarcode(barcode, id)
 {
-  var el = $('#bc-'+item);
+  var el = $('#bc-'+id);
   $.ajax({
-    url: BASE_URL + 'masters/product_barcode/valid_barcode/' + barcode + '/' + item,
-    type:'GET',
+    url: BASE_URL + 'masters/product_barcode/valid_barcode/',
+    type:'POST',
     cache:false,
+    data:{
+      'barcode' : barcode,
+      'id' : id
+    },
     success:function(rs){
       if(rs === 'exists'){
       el.addClass('has-error');
@@ -303,10 +309,10 @@ $('.api').click(function(){
 
 
 
-function deleteItem(item){
+function deleteItem(id, code){
   swal({
     title:'Are sure ?',
-    text:'ต้องการลบ ' + item + ' หรือไม่ ?',
+    text:'ต้องการลบ ' + code + ' หรือไม่ ?',
     type:'warning',
     showCancelButton: true,
 		confirmButtonColor: '#FA5858',
@@ -315,9 +321,12 @@ function deleteItem(item){
 		closeOnConfirm: false
   },function(){
     $.ajax({
-      url: BASE_URL + 'masters/products/delete_item/' + item,
-      type:'GET',
+      url: BASE_URL + 'masters/products/delete_item',
+      type:'POST',
       cache:false,
+      data:{
+        'code' : code
+      },
       success:function(rs){
         if(rs === 'success'){
           swal({

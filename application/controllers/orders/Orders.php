@@ -70,7 +70,8 @@ class Orders extends PS_Controller
       'stated' => get_filter('stated', 'stated', ''),
       'startTime' => get_filter('startTime', 'startTime', ''),
       'endTime' => get_filter('endTime', 'endTime', ''),
-			'wms_export' => get_filter('wms_export', 'wms_export', 'all')
+			'wms_export' => get_filter('wms_export', 'wms_export', 'all'),
+      'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all')
     );
 
     $state = array(
@@ -141,8 +142,8 @@ class Orders extends PS_Controller
         $rs->channels_name = $ch[$rs->channels_code];
         $rs->payment_name  = $pm[$rs->payment_code];
         $rs->customer_name = $cs[$rs->customer_code];
-        $rs->total_amount  = $rs->doc_total; //$this->orders_model->get_order_total_amount($rs->code);
-        $rs->state_name    = get_state_name($rs->state);        
+        $rs->total_amount  =  $this->orders_model->get_order_total_amount($rs->code); //$rs->doc_total;
+        $rs->state_name    = get_state_name($rs->state);
       }
     }
 
@@ -221,45 +222,41 @@ class Orders extends PS_Controller
 
   public function add()
   {
-    if($this->input->post('customerCode'))
+    $sc = TRUE;
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
       $this->load->model('inventory/invoice_model');
 			$this->load->model('masters/warehouse_model');
 			$this->load->model('masters/sender_model');
       $this->load->model('address/address_model');
 
-
       $book_code = getConfig('BOOK_CODE_ORDER');
-      $date_add = db_date($this->input->post('date'));
-      if($this->input->post('code'))
-      {
-        $code = trim($this->input->post('code'));
-      }
-      else
-      {
-        $code = $this->get_new_code($date_add);
-      }
+      $date_add = db_date($data->date_add);
+      $code = $this->get_new_code($date_add);
 
-      $customer = $this->customers_model->get($this->input->post('customerCode'));
-			$customer_ref = trim($this->input->post('cust_ref'));
+      $customer = $this->customers_model->get($data->customer_code);
+			$customer_ref = trim($data->customer_ref);
       $role = 'S'; //--- S = ขาย
-      $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
+      $has_term = $this->payment_methods_model->has_term($data->payment_code);
       $sale_code = $customer->sale_code;
 
       //--- check over due
       $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
-      $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customerCode')) : FALSE;
+      $overDue = $is_strict ? $this->invoice_model->is_over_due($data->customer_code) : FALSE;
 
       //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
       //--- ไม่ให้เพิ่มออเดอร์
       if($overDue && $has_term && !($customer->skip_overdue))
       {
-        set_error('มียอดค้างชำระเกินกำหนดไม่อนุญาติให้ขาย');
-        redirect($this->home.'/add_new');
+        $sc = FALSE;
+        $this->error = 'มียอดค้างชำระเกินกำหนดไม่อนุญาติให้ขาย';
       }
-      else
+
+      if($sc === TRUE)
       {
-				$wh = $this->warehouse_model->get($this->input->post('warehouse'));
+				$wh = $this->warehouse_model->get($data->warehouse_code);
 				$ship_to = empty($customer_ref) ? $this->address_model->get_ship_to_address($customer->code) : $this->address_model->get_shipping_address($customer_ref);
         $id_address = empty($ship_to) ? NULL : (count($ship_to) == 1 ? $ship_to[0]->id : NULL);
         $ds = array(
@@ -267,47 +264,44 @@ class Orders extends PS_Controller
           'code' => $code,
           'role' => $role,
           'bookcode' => $book_code,
-          'reference' => $this->input->post('reference'),
+          'reference' => get_null($data->reference),
           'customer_code' => $customer->code,
           'customer_name' => $customer->name,
           'customer_ref' => $customer_ref,
-          'channels_code' => $this->input->post('channels'),
-          'payment_code' => $this->input->post('payment'),
+          'channels_code' => $data->channels_code,
+          'payment_code' => $data->payment_code,
           'warehouse_code' => $wh->code,
           'sale_code' => $sale_code,
           'is_term' => ($has_term === TRUE ? 1 : 0),
-          'user' => get_cookie('uname'),
-          'remark' => addslashes($this->input->post('remark')),
+          'user' => $this->_user->uname,
+          'remark' => get_null($data->remark),
 					'id_address' => $id_address,
 					'id_sender' => $this->sender_model->get_main_sender($customer->code),
 					'is_wms' => $wh->is_wms,
-					'transformed' => $this->input->post('transformed')
+					'transformed' => $data->transformed,
+          'is_pre_order' => $data->is_pre_order
         );
 
-        if($this->orders_model->add($ds) === TRUE)
+        if( !$this->orders_model->add($ds))
         {
-          $arr = array(
-            'order_code' => $code,
-            'state' => 1,
-            'update_user' => get_cookie('uname')
-          );
-
-          $this->order_state_model->add_state($arr);
-
-          redirect($this->home.'/edit_detail/'.$code);
-        }
-        else
-        {
-          set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-          redirect($this->home.'/add_new');
+          $sc = FALSE;
+          $this->error = "เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
         }
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูลลูกค้า กรุณาตรวจสอบ');
-      redirect($this->home.'/add_new');
+      $sc = FALSE;
+      set_error('required');
     }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL
+    );
+
+    echo json_encode($arr);
   }
 
 
@@ -508,6 +502,102 @@ class Orders extends PS_Controller
     }
 
     echo $result === TRUE ? 'success' : ( $err_qty > 0 ? $error.' : '.$err_qty.' item(s)' : $error);
+  }
+
+
+
+  public function add_pre_order_detail()
+  {
+    $sc = TRUE;
+    $order_code = $this->input->post('order_code');
+    $data = json_decode($this->input->post('data'));
+    $order = $this->orders_model->get($order_code);
+
+    if( ! empty($data))
+    {
+      if( ! empty($order))
+      {
+        foreach($data as $rs)
+        {
+          if($rs->qty > 0)
+          {
+            $item = $this->products_model->get($rs->code);
+
+            if( ! empty($item))
+            {
+              $qty = ceil($rs->qty);
+
+              $detail = $this->orders_model->get_exists_detail($order_code, $item->code, $item->price);
+
+              if(empty($detail))
+              {
+                $arr = array(
+                  "order_code" => $order_code,
+                  "style_code" => $item->style_code,
+                  "product_code" => $item->code,
+                  "product_name" => addslashes($item->name),
+                  "cost"  => $item->cost,
+                  "price"	=> $item->price,
+                  "qty"	=> $qty,
+                  "discount1"	=> 0,
+                  "discount2" => 0,
+                  "discount3" => 0,
+                  "discount_amount" => 0,
+                  "total_amount"	=> ($item->price * $qty),
+                  "id_rule"	=> NULL,
+                  "is_count" => $item->count_stock
+                );
+
+                if( ! $this->orders_model->add_detail($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to insert item : {$item->code}";
+                }
+              }
+              else //--- if ! empty detail
+              {
+                $qty = $qty + $detail->qty;
+
+                $arr = array(
+                  "qty"	=> $qty,
+                  "total_amount"	=> ($item->price * $qty),
+                  "valid" => 0
+                );
+
+                if( ! $this->orders_model->update_detail($detail->id, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to update item : {$item->code}";
+                }
+              } //-- end if ! empty($detail)
+            } //-- end if ! empty($item)
+          } //-- end if $rs->qty > 0
+        } //--- end foreach
+
+        if( $sc === TRUE)
+        {
+          $doc_total = $this->orders_model->get_order_total_amount($order_code);
+          $arr = array(
+            'doc_total' => $doc_total,
+            'status' => 0
+          );
+
+          $this->orders_model->update($order_code, $arr);
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Order number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบรายการสินค้า";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -779,8 +869,10 @@ class Orders extends PS_Controller
   public function edit_detail($code)
   {
     $this->load->helper('product_tab');
+
     $ds = array();
     $rs = $this->orders_model->get($code);
+
     if($rs->state <= 3)
     {
       $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
@@ -1842,7 +1934,8 @@ class Orders extends PS_Controller
         'pay_date' => $pay_date,
         'id_account' => $this->input->post('id_account'),
         'acc_no' => $this->input->post('acc_no'),
-        'user' => get_cookie('uname')
+        'user' => get_cookie('uname'),
+        'is_pre_order' => $order->is_pre_order
       );
 
       //--- บันทึกรายการ
@@ -1859,6 +1952,7 @@ class Orders extends PS_Controller
               'state' => 2,
               'update_user' => get_cookie('uname')
             );
+
             $this->order_state_model->add_state($arr);
           }
 
@@ -3652,7 +3746,8 @@ class Orders extends PS_Controller
       'stated',
       'startTime',
       'endTime',
-			'wms_export'
+			'wms_export',
+      'is_pre_order'
     );
 
     clear_filter($filter);
@@ -3767,6 +3862,107 @@ class Orders extends PS_Controller
 			$sc = FALSE;
 			$this->error = "Missing required parameter : code";
 		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+  public function send_multiple_orders_to_wms()
+	{
+		$sc = TRUE;
+    $errCount = 0;
+    $errCode = [];
+
+		$list = json_decode($this->input->post('orders'));
+
+    if( ! empty($list))
+    {
+      if($this->isAPI)
+      {
+        $this->wms = $this->load->database('wms', TRUE);
+        $this->load->library('wms_order_api');
+
+        foreach($list as $code)
+        {
+          $order = $this->orders_model->get($code);
+
+          if( ! empty($order))
+          {
+            $rs = $this->wms_order_api->export_order($code);
+
+      			if(! $rs)
+      			{
+      				$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> (".$this->wms_order_api->error.")";
+      				$txt = "998 : This order no {$code} was already processed by PLC operation.";
+
+      				if($this->wms_order_api->error == $txt)
+      				{
+      					if($order->wms_export != 1)
+      					{
+      						$arr = array(
+      							'wms_export' => 1,
+      							'wms_export_error' => NULL
+      						);
+
+      						$this->orders_model->update($code, $arr);
+      					}
+      				}
+      				else
+      				{
+      					if($order->wms_export != 1)
+      					{
+      						$sc = FALSE;
+      						$arr = array(
+      							'wms_export' => 3,
+      							'wms_export_error' => $this->wms_order_api->error
+      						);
+
+      						$this->orders_model->update($code, $arr);
+
+                  $errCount++;
+                  $errCode[] = ['code' => $code, 'message' => $this->wms_order_api->error];
+      					}
+      				}
+      			}
+      			else
+      			{
+      				$arr = array(
+      					'wms_export' => 1,
+      					'wms_export_error' => NULL
+      				);
+
+      				$this->orders_model->update($code, $arr);
+      			}
+          }
+          else
+      		{
+      			$sc = FALSE;
+      			$this->error = "Invalid order code : {$code}";
+            $errCount++;
+            $errCode[] = ['code' => $code, 'message' => $this->error];
+      		}
+        }
+      }
+    }
+    else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
+		}
+
+    if($sc === FALSE)
+    {
+      if($errCount > 0 && ! empty($errCode))
+      {
+        $err = "";
+
+        foreach($errCode AS $as)
+        {
+          $err .= "{$as['code']} : {$as['message']} <br/>";
+        }
+
+        $this->error = $err;
+      }
+    }
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}

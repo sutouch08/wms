@@ -642,6 +642,99 @@ function unExpired(){
 }
 
 
+function add() {
+	var date_add = $("#date").val();
+	var customer_code = $("#customerCode").val();
+  var customer_name = $("#customer").val();
+  var customer_ref = $('#customer_ref').val();
+	var channels_code = $("#channels").val();
+	var payment_code = $("#payment").val();
+	var reference = $('#reference').val();
+  var warehouse_code = $('#warehouse').val();
+	var transformed = $('#transformed').val();
+  var is_pre_order = $('#is_pre_order').val();
+	var remark = $("#remark").val();
+
+  //---- ตรวจสอบวันที่
+	if( ! isDate(date_add) ){
+		swal("วันที่ไม่ถูกต้อง");
+		return false;
+	}
+
+	//--- ตรวจสอบลูกค้า
+	if( customer_code.length == 0 || customer_name == "" ){
+		swal("ชื่อลูกค้าไม่ถูกต้อง");
+		return false;
+	}
+
+  if(channels_code == ""){
+    swal('กรุณาเลือกช่องทางขาย');
+    return false;
+  }
+
+
+  if(payment_code == ""){
+    swal('กรุณาเลือกช่องทางการชำระเงิน');
+    return false;
+  }
+
+  if(warehouse_code == "") {
+    swal('กรุณาระบุคลังสินค้า');
+    return false;
+  }
+
+  let data = {
+    "date_add"	: date_add,
+    "customer_code" : customer_code,
+    "customer_ref" : customer_ref,
+    "channels_code" : channels_code,
+    "payment_code" : payment_code,
+    "reference" : reference,
+    "warehouse_code" : warehouse_code,
+    "remark" : remark,
+    "transformed" : transformed,
+    "is_pre_order" : is_pre_order
+  };
+
+  load_in();
+
+	$.ajax({
+		url:BASE_URL + 'orders/orders/add',
+		type:"POST",
+		cache:false,
+		data:{
+  		"data" : JSON.stringify(data)
+    },
+		success: function(rs){
+			load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          window.location.href = BASE_URL + 'orders/orders/edit_order/'+ ds.code;
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          })
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error',
+          html:true
+        });
+      }
+		}
+	});
+}
+
+
 function validateOrder(){
   var prefix = $('#prefix').val();
   var runNo = parseInt($('#runNo').val());

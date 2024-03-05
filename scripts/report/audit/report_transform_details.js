@@ -1,4 +1,4 @@
-var HOME = BASE_URL + 'report/audit/transform_backlogs/';
+var HOME = BASE_URL + 'report/audit/transform_details/';
 
 window.addEventListener('load', () => {
   let height = $(window).height();
@@ -207,9 +207,7 @@ function doExport() {
 	var dname = $('#dname').val();
 	var allPd = $('#allProduct').val();
 	var pdFrom = $("#pdFrom").val();
-	var pdTo = $('#pdTo').val();
-	var fromDate = $('#fromDate').val();
-	var toDate = $('#toDate').val();
+	var pdTo = $('#pdTo').val();	
 
 	if(allUser == 0 && dname == "") {
 		swal("กรุณาระบุผู้เบิก");

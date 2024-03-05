@@ -1,22 +1,22 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class Transform_backlogs extends PS_Controller
+class Transform_details extends PS_Controller
 {
-  public $menu_code = 'RAWQBL';
+  public $menu_code = 'RAWQDL';
 	public $menu_group_code = 'RE';
   public $menu_sub_group_code = 'REAUDIT';
-	public $title = 'รายงานสินค้าแปรสภาพค้างรับ';
+	public $title = 'รายงานสินค้าแปรสภาพ';
   public $filter;
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'report/audit/transform_backlogs';
-    $this->load->model('report/audit/transform_backlogs_model');
+    $this->home = base_url().'report/audit/transform_details';
+    $this->load->model('report/audit/transform_details_model');
   }
 
   public function index()
   {
-    $this->load->view('report/audit/report_transform_backlogs');
+    $this->load->view('report/audit/report_transform_details');
   }
 
 
@@ -27,8 +27,8 @@ class Transform_backlogs extends PS_Controller
 		$allPd = $this->input->get('allProduct');
 		$pdFrom = $this->input->get('pdFrom');
 		$pdTo = $this->input->get('pdTo');
-		$fromDate = empty($this->input->get('fromDate')) ? "" : from_date($this->input->get('fromDate'));
-		$toDate = empty($this->input->get('toDate')) ? "" : to_date($this->input->get('toDate'));
+		$fromDate = empty($this->input->get('fromDate')) ? date('Y-m-01 00:00:00') : from_date($this->input->get('fromDate'));
+		$toDate = empty($this->input->get('toDate')) ? date('Y-m-t 23:59:59') : to_date($this->input->get('toDate'));
 
 		$arr = array(
 			'allUser' => $allUser,
@@ -46,7 +46,7 @@ class Transform_backlogs extends PS_Controller
 		$total_balance = 0;
 		$total_amount = 0;
 
-		$data = $this->transform_backlogs_model->get_data($arr);
+		$data = $this->transform_details_model->get_data($arr);
 
 		if(!empty($data))
 		{
@@ -59,6 +59,7 @@ class Transform_backlogs extends PS_Controller
 					'user_ref' => $rs->user_ref, //--- ผู้เบิก
 					'user' => $rs->user_name, //--- ผู้ทำรายการ
           'date_add' => thai_date($rs->date_add, FALSE),
+          'date_upd' => thai_date($rs->date_update, TRUE),
 					'order_code' => $rs->order_code,
           'original_code' => $rs->original_code,
 					'product_code' => $rs->product_code,
@@ -110,15 +111,15 @@ class Transform_backlogs extends PS_Controller
 		$allPd = $this->input->post('allProduct');
 		$pdFrom = $this->input->post('pdFrom');
 		$pdTo = $this->input->post('pdTo');
-		$fromDate = empty($this->input->post('fromDate')) ? "" : from_date($this->input->post('fromDate'));
-		$toDate = empty($this->input->post('toDate'))? "" : to_date($this->input->post('toDate'));
+		$fromDate = empty($this->input->post('fromDate')) ? date('Y-m-01 00:00:00') : from_date($this->input->post('fromDate'));
+		$toDate = empty($this->input->post('toDate'))? date('Y-m-t 23:59:59') : to_date($this->input->post('toDate'));
 		$token = $this->input->post('token');
 
 		//---  Report title
     $report_title = "รายงานสินค้าแปรสภาพค้างร้บ (วันที่พิมพ์รายงาน : ".date('d/m/Y H:i').")";
     $emp_title = 'ผู้เบิก :  '. ($allUser == 1 ? 'ทั้งหมด' : $dname);
     $pd_title = 'สินค้า :  '. ($allPd == 1 ? 'ทั้งหมด' : '('.$pdFrom.') - ('.$pdTo.')');
-		$date_title = 'วันที่เอกสาร : '.((empty($fromDate) OR empty($toDate)) ? 'ทั้งหมด' : thai_date($fromDate, '/').' - '.thai_date($toDate, '/'));
+		$date_title = 'วันที่เอกสาร : '.thai_date($fromDate, '/').' - '.thai_date($toDate, '/');
 
 		$arr = array(
 			'allUser' => $allUser,
@@ -130,7 +131,7 @@ class Transform_backlogs extends PS_Controller
 			'to_date' => $toDate
 		);
 
-    $data = $this->transform_backlogs_model->get_data($arr);
+    $data = $this->transform_details_model->get_data($arr);
 
     //--- load excel library
     $this->load->library('excel');
@@ -163,6 +164,7 @@ class Transform_backlogs extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('J'.$row, 'รับ');
     $this->excel->getActiveSheet()->setCellValue('K'.$row, 'ค้างรับ');
     $this->excel->getActiveSheet()->setCellValue('L'.$row, 'มูลค่าคงรับ');
+    $this->excel->getActiveSheet()->setCellValue('M'.$row, 'วันที่ เพิ่ม/รับ ล่าสุด');
 
     //---- กำหนดความกว้างของคอลัมภ์
     $this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
@@ -176,11 +178,12 @@ class Transform_backlogs extends PS_Controller
     $this->excel->getActiveSheet()->getColumnDimension('J')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(20);
 
 		$row++;
 
 
-    if(!empty($data))
+    if( ! empty($data))
     {
       $no = 1;
 
@@ -198,36 +201,39 @@ class Transform_backlogs extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue('J'.$row, $rs->receive);
         $this->excel->getActiveSheet()->setCellValue('K'.$row, $rs->balance);
         $this->excel->getActiveSheet()->setCellValue('L'.$row, ($rs->balance * $rs->price));
+        $this->excel->getActiveSheet()->setCellValue('M'.$row, thai_date($rs->date_update));
 
         $no++;
         $row++;
       }
 
-			$re = $row - 1;
+      $re = $row - 1;
 
 		$this->excel->getActiveSheet()->setCellValue("A{$row}", 'รวม');
 		$this->excel->getActiveSheet()->mergeCells("A{$row}:G{$row}");
 		$this->excel->getActiveSheet()->getStyle("A{$row}")->getAlignment()->setHorizontal('right');
+    $this->excel->getActiveSheet()->getStyle("D6:D{$row}")->getAlignment()->setHorizontal('center');
+    $this->excel->getActiveSheet()->getStyle("M6:M{$row}")->getAlignment()->setHorizontal('center');
 
 		$this->excel->getActiveSheet()->setCellValue("I{$row}", "=SUM(I6:I{$re})");
 		$this->excel->getActiveSheet()->setCellValue("J{$row}", "=SUM(J6:J{$re})");
 		$this->excel->getActiveSheet()->setCellValue("K{$row}", "=SUM(K6:K{$re})");
 		$this->excel->getActiveSheet()->setCellValue("L{$row}", "=SUM(L6:L{$re})");
 
-		$this->excel->getActiveSheet()->getStyle("H6:H{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
-		$this->excel->getActiveSheet()->getStyle("I6:K{$row}")->getNumberFormat()->setFormatCode('#,##0');
-		$this->excel->getActiveSheet()->getStyle("L6:L{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+    $this->excel->getActiveSheet()->getStyle("H6:H{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+    $this->excel->getActiveSheet()->getStyle("I6:K{$row}")->getNumberFormat()->setFormatCode('#,##0');
+    $this->excel->getActiveSheet()->getStyle("L6:L{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+
     }
 		else
 		{
-			$this->excel->getActiveSheet()->setCellValue('A'.$row, "ไม่พบข้อมูลตามเงื่อนไขที่กำหนด");
-			$row++;
+			$this->excel->getActiveSheet()->setCellValue('A'.$row, "ไม่พบข้อมูลตามเงื่อนไขที่ระบุ");			
 		}
 
 		
 
     setToken($token);
-    $file_name = "รายงานสินค้าแปรสภาพค้างรับ_".date('dmY').".xlsx";
+    $file_name = "รายงานสินค้าแปรสภาพ_".date('dmY').".xlsx";
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
     header('Content-Disposition: attachment;filename="'.$file_name.'"');
     $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
@@ -236,12 +242,5 @@ class Transform_backlogs extends PS_Controller
   }
 
 } //--- end class
-
-
-
-
-
-
-
 
  ?>

@@ -12,10 +12,13 @@
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
 				<?php if($can_upload == 1) : ?>
-					<button type="button" class="btn btn-xs btn-purple" onclick="getUploadFile()">นำเข้าออเดอร์</button>
+					<button type="button" class="btn btn-xs btn-purple btn-100" onclick="getUploadFile()">นำเข้าออเดอร์</button>
 				<?php endif;?>
-        <button type="button" class="btn btn-xs btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+        <button type="button" class="btn btn-xs btn-success btn-100" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
       <?php endif; ?>
+			<?php if($this->isAPI) : ?>
+				<button type="button" class="btn btn-xs btn-primary btn-100" onclick="sendOrdersToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+			<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
@@ -85,6 +88,15 @@
 		</select>
 	</div>
 
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>Pre order</label>
+		<select class="form-control input-sm" name="is_pre_order" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_pre_order); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $is_pre_order); ?>>No</option>
+		</select>
+	</div>
+
 	<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
 		<label>คลัง</label>
 		<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
@@ -104,7 +116,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 hide">
     <label>DO No.</label>
     <input type="text" class="form-control input-sm search" name="DoNo" value="<?php echo $DoNo; ?>" />
   </div>
@@ -119,16 +131,14 @@
 			<option value="2" <?php echo is_selected('2', $method); ?>>API</option>
 		</select>
 	</div>
-
-
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-    <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
-  </div>
+		<label class="display-block not-show">search</label>
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
+	</div>
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-    <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
-  </div>
+		<label class="display-block not-show">reset</label>
+		<button type="button" class="btn btn-xs btn-warning btn-100" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+	</div>
 </div>
 
 
@@ -169,20 +179,28 @@
 <?php $sort_date = $order_by == '' ? "" : ($order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="double-scroll">
-		<table class="table table-striped table-hover dataTable" style="min-width:1240px; border-collapse:inherit;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="order-table" style="overflow:auto;">
+		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1280px; margin-bottom:20px;">
 			<thead>
 				<tr>
-					<th class="fix-width-40 middle text-center">ลำดับ</th>
-					<th class="fix-width-100 middle text-center sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-					<th class="fix-width-250 middle sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
-					<th class="fix-width-350 middle">ลูกค้า</th>
-					<th class="fix-width-100 middle text-right">ยอดเงิน</th>
-					<th class="fix-width-150 middle">ช่องทางขาย</th>
-					<th class="fix-width-150 middle">การชำระเงิน</th>
-					<th class="fix-width-150 middle">สถานะ</th>
+			<?php if($this->isAPI) : ?>
+					<th class="fix-width-40 middle text-center fix-header">
+						<label>
+							<input type="checkbox" class="ace" id="chk-all" />
+							<span class="lbl"></span>
+						</label>
+					</th>
+			<?php endif; ?>
+					<th class="fix-width-40 middle text-center fix-header">ลำดับ</th>
+					<th class="fix-width-100 middle text-center fix-header sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
+					<th class="fix-width-250 middle fix-header sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
+					<th class="fix-width-350 middle fix-header">ลูกค้า</th>
+					<th class="fix-width-100 middle text-right fix-header">ยอดเงิน</th>
+					<th class="fix-width-150 middle fix-header">ช่องทางขาย</th>
+					<th class="fix-width-150 middle fix-header">การชำระเงิน</th>
+					<th class="fix-width-150 middle fix-header">สถานะ</th>
 					<?php if($this->_SuperAdmin && $instant_export) : ?>
-						<th class="fix-width-100 middle"></th>
+						<th class="fix-width-100 middle fix-header"></th>
 					<?php endif; ?>
 				</tr>
 			</thead>
@@ -193,7 +211,17 @@
 						<?php $ref = empty($rs->reference) ? '' :' ['.$rs->reference.']'; ?>
 						<?php $cus_ref = empty($rs->customer_ref) ? '' : ' ['.$rs->customer_ref.']'; ?>
             <tr id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
-              <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+					<?php if($this->isAPI) : ?>
+							<td class="middle text-center">
+								<?php if($rs->state == 3 && $rs->is_wms == 1 && $rs->wms_export != 1) : ?>
+									<label>
+										<input type="checkbox" class="ace chk-wms" data-code="<?php echo $rs->code; ?>"/>
+										<span class="lbl"></span>
+									</label>
+								<?php endif; ?>
+							</td>
+					<?php endif; ?>
+              <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code.$ref; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">

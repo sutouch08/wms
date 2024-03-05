@@ -62,6 +62,16 @@
 		<select class="form-control input-sm" name="valid" onchange="getSearch()">
       <option value="0" <?php echo is_selected($valid, '0'); ?>>รอตรวจสอบ</option>
       <option value="1" <?php echo is_selected($valid, '1'); ?>>ยืนยันแล้ว</option>
+			<option value="all" <?php echo is_selected($valid, 'all'); ?>>ทั้งหมด</option>
+    </select>
+  </div>
+
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+    <label>Pre Order</label>
+		<select class="form-control input-sm" name="is_pre_order" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+      <option value="0" <?php echo is_selected($is_pre_order, '0'); ?>>No</option>
+      <option value="1" <?php echo is_selected($is_pre_order, '1'); ?>>Yes</option>
     </select>
   </div>
 
