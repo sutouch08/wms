@@ -8,8 +8,8 @@ class Wms_order_api
 	protected $ci;
   public $error;
 	public $log_xml;
+  public $test;
 	public $type = 'OB';
-	public $test = TRUE;
 
   public function __construct()
   {
@@ -19,6 +19,7 @@ class Wms_order_api
 		$this->WH_NO = getConfig('WMS_WH_NO');
 		$this->CUS_CODE = getConfig('WMS_CUST_CODE');
 		$this->log_xml = getConfig('LOG_XML');
+    $this->test = getConfig('WMS_TEST') ? TRUE : FALSE;
   }
 
 
@@ -84,6 +85,7 @@ class Wms_order_api
 				$channels_name = !empty($channels) ? $channels->name : "";
 				$amount = $order->role === 'S' ? $this->ci->orders_model->get_order_total_amount($code) : 0.00;
 				$cod = $order->role === 'S' ? ($order->payment_code === 'COD' ? 'COD' : 'NON-COD') : 'NON-COD';
+
 				if(!empty($details))
 				{
 					$xml .= "<WOB>";
@@ -180,48 +182,44 @@ class Wms_order_api
 			$this->error = "เลขที่ออเดอร์ไม่ถูกต้อง";
 		}
 
-		if($this->test === TRUE)
+		if( ! $this->test)
 		{
-			return $sc;
+      if($sc === TRUE && !empty($xml))
+      {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->url);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+
+
+        $res = json_decode(json_encode(simplexml_load_string($response)));
+
+
+        if(!empty($res))
+        {
+
+          if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+          {
+            $sc = FALSE;
+            $this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "No response";
+        }
+      }
 		}
-
-    if($sc === TRUE && !empty($xml))
-    {
-      $ch = curl_init();
-
-      curl_setopt($ch, CURLOPT_URL, $this->url);
-      curl_setopt($ch, CURLOPT_POST, TRUE);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
-
-      $response = curl_exec($ch);
-
-      curl_close($ch);
-
-
-      $res = json_decode(json_encode(simplexml_load_string($response)));
-
-
-			if(!empty($res))
-			{
-
-				if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
-				{
-					$sc = FALSE;
-					$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "No response";
-
-			}
-    }
-
 
 		if($sc === TRUE)
 		{
@@ -235,8 +233,6 @@ class Wms_order_api
 
 		return $sc;
   }
-
-
 
 
 
@@ -341,41 +337,42 @@ class Wms_order_api
 			$this->error = "Empty order data";
 		}
 
-		// echo $xml;
-		// exit;
-    if($sc === TRUE && !empty($xml))
+		if( ! $this->test)
     {
-      $ch = curl_init();
+      if($sc === TRUE && !empty($xml))
+      {
+        $ch = curl_init();
 
-      curl_setopt($ch, CURLOPT_URL, $this->url);
-      curl_setopt($ch, CURLOPT_POST, TRUE);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+        curl_setopt($ch, CURLOPT_URL, $this->url);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
 
-      $response = curl_exec($ch);
+        $response = curl_exec($ch);
 
-      curl_close($ch);
-
-
-      $res = json_decode(json_encode(simplexml_load_string($response)));
+        curl_close($ch);
 
 
-			if(!empty($res))
-			{
+        $res = json_decode(json_encode(simplexml_load_string($response)));
 
-				if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
-				{
-					$sc = FALSE;
-					$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "No response";
-			}
+
+        if(!empty($res))
+        {
+
+          if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+          {
+            $sc = FALSE;
+            $this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "No response";
+        }
+      }
     }
 
 
