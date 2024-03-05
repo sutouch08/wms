@@ -6,4 +6,5 @@
 *.pdf
 *.xls
 *.xlsx
+/.htaccess
 /application/config/*
