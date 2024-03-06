@@ -371,7 +371,7 @@ class Import_order extends CI_Controller
                     'bookcode' => $bookcode,
                     'reference' => $ref_code,
                     'customer_code' => $customer_code,
-                    'customer_name' => $customer->name,
+                    // 'customer_name' => $customer->name,
                     'customer_ref' => $customer_ref,
                     'channels_code' => $channels_code,
                     'payment_code' => $payment_code,
