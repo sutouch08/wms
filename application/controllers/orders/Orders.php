@@ -266,7 +266,7 @@ class Orders extends PS_Controller
           'bookcode' => $book_code,
           'reference' => get_null($data->reference),
           'customer_code' => $customer->code,
-          'customer_name' => $customer->name,
+          // 'customer_name' => $customer->name,
           'customer_ref' => $customer_ref,
           'channels_code' => $data->channels_code,
           'payment_code' => $data->payment_code,
