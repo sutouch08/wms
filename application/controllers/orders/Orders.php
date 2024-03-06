@@ -287,6 +287,17 @@ class Orders extends PS_Controller
           $sc = FALSE;
           $this->error = "เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
         }
+
+        if($sc === TRUE)
+        {
+          $arr = array(
+            'order_code' => $code,
+            'state' => 1,
+            'update_user' => $this->_user->uname
+          );
+
+          $this->order_state_model->add_state($arr);
+        }
       }
     }
     else
