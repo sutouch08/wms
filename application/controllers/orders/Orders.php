@@ -798,7 +798,7 @@ class Orders extends PS_Controller
         $ds = array(
           'reference' => $this->input->post('reference'),
           'customer_code' => $this->input->post('customer_code'),
-          'customer_name' => $customer->name,
+          // 'customer_name' => $customer->name,
           'customer_ref' => $this->input->post('customer_ref'),
           'channels_code' => $this->input->post('channels_code'),
           'payment_code' => $this->input->post('payment_code'),
