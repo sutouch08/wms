@@ -6,7 +6,7 @@
 	}
 </style>
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 padding-5 hidden-xs">
+	<div class="col-lg-6 col-md-6 col-sm-6 padding-5 hidden-xs">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
@@ -14,28 +14,33 @@
 	<div class="col-xs-12 padding-5 visible-xs">
 		<h3 class="title-xs"><?php echo $this->title; ?></h3>
 	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-primary btn-100" id="btn-export" onclick="exportFilter()">Export Filter</button>
+		</p>
+	</div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
   <div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
+    <input type="text" class="form-control input-sm search" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
   <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>ลูกค้า</label>
-    <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
+    <input type="text" class="form-control input-sm search" name="customer" id="customer" value="<?php echo $customer; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>พนักงาน</label>
-    <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
+    <input type="text" class="form-control input-sm search" name="user" id="user" value="<?php echo $user; ?>" />
   </div>
 
 	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>ช่องทาง</label>
-    <select class="form-control input-sm" name="channels" onchange="getSearch()">
+    <select class="form-control input-sm" name="channels" id="channels" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_channels($channels); ?>
 		</select>
@@ -43,8 +48,8 @@
 
 	<div class="col-lg-3 col-md-3-harf col-sm-4 col-xs-6 padding-5">
     <label>เลขที่บัญชี</label>
-		<select class="form-control input-sm" name="account" onchange="getSearch()">
-      <option value="">ทั้งหมด</option>
+		<select class="form-control input-sm" name="account" id="account" onchange="getSearch()">
+      <option value="all">ทั้งหมด</option>
       <?php echo select_bank_account($account); ?>
     </select>
   </div>
@@ -59,7 +64,7 @@
 
   <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะ</label>
-		<select class="form-control input-sm" name="valid" onchange="getSearch()">
+		<select class="form-control input-sm" name="valid" id="valid" onchange="getSearch()">
       <option value="0" <?php echo is_selected($valid, '0'); ?>>รอตรวจสอบ</option>
       <option value="1" <?php echo is_selected($valid, '1'); ?>>ยืนยันแล้ว</option>
 			<option value="all" <?php echo is_selected($valid, 'all'); ?>>ทั้งหมด</option>
@@ -68,7 +73,7 @@
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>Pre Order</label>
-		<select class="form-control input-sm" name="is_pre_order" onchange="getSearch()">
+		<select class="form-control input-sm" name="is_pre_order" id="is_pre_order" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
       <option value="0" <?php echo is_selected($is_pre_order, '0'); ?>>No</option>
       <option value="1" <?php echo is_selected($is_pre_order, '1'); ?>>Yes</option>
@@ -84,8 +89,9 @@
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
-<hr class="margin-top-15">
+<input type="hidden" name="search" value="1" />
 </form>
+<hr class="margin-top-15">
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
@@ -133,6 +139,19 @@
 		</table>
 	</div>
 </div>
+
+<form id="exportForm" method="post" action="<?php echo $this->home; ?>/export_filter">
+	<input type="hidden" name="code" id="ex-code" />
+	<input type="hidden" name="customer" id="ex-customer" />
+	<input type="hidden" name="user" id="ex-user" />
+	<input type="hidden" name="channels" id="ex-channels" />
+	<input type="hidden" name="account" id="ex-account" />
+	<input type="hidden" name="from_date" id="ex-from_date" />
+	<input type="hidden" name="to_date" id="ex-to_date" />
+	<input type="hidden" name="valid" id="ex-valid" />
+	<input type="hidden" name="is_pre_order" id="ex-is_pre_order" />
+	<input type="hidden" name="token" id="token" />
+</form>
 
 <div class='modal fade' id='confirmModal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
     <div class='modal-dialog' style="width:350px; max-width:95%;">

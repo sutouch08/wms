@@ -29,7 +29,7 @@ class Order_payment extends PS_Controller
     $filter = array(
       'code'  => get_filter('code', 'code', ''),
       'customer' => get_filter('customer', 'customer', ''),
-      'account' => get_filter('account', 'account', ''),
+      'account' => get_filter('account', 'account', 'all'),
       'user'  => get_filter('user', 'user', ''),
       'channels' => get_filter('channels', 'channels', 'all'),
       'from_date' => get_filter('from_date', 'from_date', ''),
@@ -38,24 +38,31 @@ class Order_payment extends PS_Controller
       'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all')
     );
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
+    if($this->input->post('search'))
+    {
+      redirect($this->home);
+    }
+    else
+    {
+      //--- แสดงผลกี่รายการต่อหน้า
+      $perpage = get_rows();
+      //--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
+      if($perpage > 300)
+      {
+        $perpage = 20;
+      }
 
-		$segment  = 4; //-- url segment
-		$rows     = $this->order_payment_model->count_rows($filter);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->order_payment_model->get_data($filter, $perpage, $this->uri->segment($segment));
+      $segment  = 4; //-- url segment
+      $rows     = $this->order_payment_model->count_rows($filter);
+      //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+      $init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+      $orders   = $this->order_payment_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
-    $filter['orders'] = $orders;
+      $filter['orders'] = $orders;
 
-		$this->pagination->initialize($init);
-    $this->load->view('orders/payment/order_payment_list', $filter);
+      $this->pagination->initialize($init);
+      $this->load->view('orders/payment/order_payment_list', $filter);
+    }
   }
 
 
@@ -115,7 +122,7 @@ class Order_payment extends PS_Controller
       $arr = array(
         'order_code' => $detail->order_code,
         'state' => 3,
-        'update_user' => get_cookie('uname')
+        'update_user' => $this->_user->uname
       );
 
       //--- start transection
@@ -336,7 +343,132 @@ class Order_payment extends PS_Controller
     echo $sc === TRUE ? 'success' : $message;
   }
 
+  private function novalue($value = NULL)
+  {
+    $re = ($value == NULL OR $value == "") ? "ไม่ระบุ" : $value;
+    return $re;
+  }
 
+
+  public function export_filter()
+  {
+    $this->load->model('masters/channels_model');
+
+    $filter = array(
+      'code'  => get_filter('code', 'code', ''),
+      'customer' => get_filter('customer', 'customer', ''),
+      'account' => get_filter('account', 'account', 'all'),
+      'user'  => get_filter('user', 'user', ''),
+      'channels' => get_filter('channels', 'channels', 'all'),
+      'from_date' => get_filter('from_date', 'from_date', ''),
+      'to_date'  => get_filter('to_date', 'to_date', ''),
+      'valid' => get_filter('valid', 'valid', '0'),
+      'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all')
+    );
+
+    $token = $this->input->post('token');
+
+    $data = $this->order_payment_model->get_data($filter);
+
+    //--- load excel library
+    $this->load->library('excel');
+
+    $this->excel->setActiveSheetIndex(0);
+    $this->excel->getActiveSheet()->setTitle('ตรวจสอบยอดชำระเงิน');
+
+    //--- set report title header
+    $this->excel->getActiveSheet()->setCellValue('A1', "รายกงานตรวจสอบยอดชำระเงิน @".date('d/m/Y'));
+    $this->excel->getActiveSheet()->mergeCells('A1:L1');
+    $row = 2;
+    $date = empty($filter['from_date'] OR $filter['to_date']) ? 'ไม่ระบุ' : $filter['from_date'].' ถึง '.$filter['to_date'];
+
+    $bank = $filter['account'] == 'all' ? NULL : $this->bank_model->get_detail($filter['account']);
+    $acc = $filter['account'] == 'all' ? 'ทั้งหมด' : (empty($bank) ? "" : $bank->account_no);
+
+    $channels = $filter['channels'] == 'all' ? 'ทั้งหมด' : $this->channels_model->get_name($filter['channels']);
+
+    $this->excel->getActiveSheet()->setCellValue('A'.$row, 'Filter');
+    $this->excel->getActiveSheet()->setCellValue('B'.$row, $this->novalue($filter['code']));
+    $this->excel->getActiveSheet()->setCellValue('C'.$row, $filter['is_pre_order'] == '1' ? 'Y' : ($filter['is_pre_order'] == '0' ? 'N' : 'ทั้งหมด'));
+    $this->excel->getActiveSheet()->setCellValue('D'.$row, $channels);
+    $this->excel->getActiveSheet()->setCellValue('E'.$row, $this->novalue($filter['customer']));
+    $this->excel->getActiveSheet()->setCellValue('F'.$row, $this->novalue($filter['user']));
+    $this->excel->getActiveSheet()->setCellValue('G'.$row, $date);
+    $this->excel->getActiveSheet()->setCellValue('I'.$row, $acc);
+    $this->excel->getActiveSheet()->setCellValue('J'.$row, $filter['valid'] == 'all' ? 'ทั้งหมด' : ($filter['valid'] == '1' ? 'ยืนยันแล้ว' : 'รอยืนยัน'));
+
+    //--- set Table header
+		$row = 3;
+
+    $this->excel->getActiveSheet()->setCellValue('A'.$row, '#');
+    $this->excel->getActiveSheet()->setCellValue('B'.$row, 'เลขที่เอกสาร');
+    $this->excel->getActiveSheet()->setCellValue('C'.$row, 'Pre order');
+    $this->excel->getActiveSheet()->setCellValue('D'.$row, 'ช่องทางขาย');
+    $this->excel->getActiveSheet()->setCellValue('E'.$row, 'ลูกค้า');
+    $this->excel->getActiveSheet()->setCellValue('F'.$row, 'พนักงาน');
+    $this->excel->getActiveSheet()->setCellValue('G'.$row, 'วัน-เวลา');
+    $this->excel->getActiveSheet()->setCellValue('H'.$row, 'ยอดเงิน');
+    $this->excel->getActiveSheet()->setCellValue('I'.$row, 'เลขที่บัญชี');
+    $this->excel->getActiveSheet()->setCellValue('J'.$row, 'สถานะ');
+    $this->excel->getActiveSheet()->setCellValue('K'.$row, 'ยืนยันโดย');
+    $this->excel->getActiveSheet()->setCellValue('L'.$row, 'วันที่ยืนยัน');
+
+    //---- กำหนดความกว้างของคอลัมภ์
+    $this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
+    $this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(30);
+    $this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(30);
+    $this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('I')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('J')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(15);
+
+		$row++;
+
+
+    if( ! empty($data))
+    {
+      $no = 1;
+
+      foreach($data as $rs)
+      {
+        $customer_name = ( ! empty($rs->customer_ref)) ? $rs->customer_ref : $rs->customer_name;
+
+        $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
+        $this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->order_code);
+        $this->excel->getActiveSheet()->setCellValue('C'.$row, ($rs->is_pre_order ? 'Y' : 'N'));
+        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->channels);
+        $this->excel->getActiveSheet()->setCellValue('E'.$row, $customer_name);
+        $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->user);
+        $this->excel->getActiveSheet()->setCellValue('G'.$row, thai_date($rs->pay_date, TRUE));
+        $this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->pay_amount);
+        $this->excel->getActiveSheet()->setCellValue('I'.$row, $rs->acc_no);
+        $this->excel->getActiveSheet()->setCellValue('J'.$row, ($rs->valid == 1 ? 'ยืนยันแล้ว' : 'รอยืนยัน'));
+        $this->excel->getActiveSheet()->setCellValue('K'.$row, $rs->validate_by);
+        $this->excel->getActiveSheet()->setCellValue('L'.$row, thai_date($rs->date_upd, TRUE));
+
+        $no++;
+        $row++;
+      }
+
+      $this->excel->getActiveSheet()->getStyle("H4:H{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+
+    }
+		else
+		{
+			$this->excel->getActiveSheet()->setCellValue('A'.$row, "ไม่พบข้อมูลตามเงื่อนไขที่ระบุ");
+		}
+
+    setToken($token);
+    $file_name = "รายงานตรวจสอบยอดชำระเงิน_".date('dmY').".xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
+    header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+    $writer->save('php://output');
+  }
 
 
   public function clear_filter()

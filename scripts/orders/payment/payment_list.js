@@ -147,3 +147,45 @@ $("#toDate").datepicker({
 		$("#fromDate").datepicker("option", "maxDate", sd);
 	}
 });
+
+
+function exportFilter() {
+	let code = $('#code').val();
+	let customer = $('#customer').val();
+	let user = $('#user').val();
+	let channels = $('#channels').val();
+	let account = $('#account').val();
+	let from_date = $('#fromDate').val();
+	let to_date = $('#toDate').val();
+	let valid = $('#valid').val();
+	let is_pre_order = $('#is_pre_order').val();
+
+	if(valid != '0') {
+		if( ! isDate(from_date) || ! isDate(to_date)) {
+			swal({
+				title:'กรุณาระบุวันที่',
+				text:'เมื่อตัวกรองระบุสถานะ ยืนยันแล้ว หรือ ทั้งหมด จำเป็นต้องระบุวันที่',
+				type:'warning'
+			});
+
+			return false;
+		}
+	}
+
+	let token = generateUID();
+
+	$('#ex-code').val(code);
+	$('#ex-customer').val(customer);
+	$('#ex-user').val(user);
+	$('#ex-channels').val(channels);
+	$('#ex-account').val(account);
+	$('#ex-from_date').val(from_date);
+	$('#ex-to_date').val(to_date);
+	$('#ex-valid').val(valid);
+	$('#ex-is_pre_order').val(is_pre_order);
+	$('#token').val(token);
+
+
+  get_download(token);
+  $('#exportForm').submit();
+}
