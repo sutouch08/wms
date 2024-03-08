@@ -1677,6 +1677,42 @@ class Orders_model extends CI_Model
 
     return FALSE;
   }
+
+
+  public function get_order_tracking($code)
+  {
+    $rs = $this->db
+    ->select('tracking_no, carton_code, courier_code, courier_name')
+    ->select_sum('qty')
+    ->where('order_code', $code)
+    ->group_by('tracking_no')
+    ->group_by('carton_code')
+    ->get('order_tracking_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+  
+
+  public function drop_tracking_list($code)
+  {
+    return $this->db->where('order_code', $code)->delete('order_tracking_details');
+  }
+
+
+  public function add_tracking(array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->insert('order_tracking_details', $ds);
+    }
+
+    return FALSE;
+  }
 } //--- End class
 
 

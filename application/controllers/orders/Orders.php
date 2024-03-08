@@ -755,6 +755,7 @@ class Orders extends PS_Controller
 	    $details = $this->orders_model->get_order_details($code);
 	    $ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
 	    $banks = $this->bank_model->get_active_bank();
+      $tracking = $this->orders_model->get_order_tracking($code);
 
 
 	    $ds['state'] = $ost;
@@ -762,6 +763,7 @@ class Orders extends PS_Controller
 	    $ds['details'] = $details;
 	    $ds['addr']  = $ship_to;
 	    $ds['banks'] = $banks;
+      $ds['tracking'] = $tracking;
 			$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
 	    $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
 	    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;

@@ -21,6 +21,7 @@ class Wms_auto_delivery_order extends CI_Controller
 		$this->zone_code = getConfig('WMS_ZONE'); //--- โซน wms
 
 		$this->load->model('rest/V1/wms_temp_order_model');
+    $this->load->model('rest/V1/wms_temp_tracking_model');
 		$this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
     $this->load->model('masters/products_model');
@@ -60,7 +61,7 @@ class Wms_auto_delivery_order extends CI_Controller
 			{
 				$order = $this->orders_model->get($data->code);
 
-				if(!empty($order))
+				if( ! empty($order))
 				{
 					if($order->state == 8 OR $order->state == 7)
 					{
@@ -80,9 +81,10 @@ class Wms_auto_delivery_order extends CI_Controller
 					{
 						$details = $this->wms_temp_order_model->get_details($data->id);
 
-						if(!empty($details))
+						if( ! empty($details))
 						{
 							$channels = $this->channels_model->get($order->channels_code);
+
 							if($channels->is_online == 1)
 							{
 								$order->shipped_date = $data->shipped_date;
@@ -95,6 +97,30 @@ class Wms_auto_delivery_order extends CI_Controller
 								$this->process_pre_delivery($order, $details);
 							}
 
+              $tracking_list = $this->wms_temp_tracking_model->get_tracking_list_by_order_code($order->code);
+
+              if( ! empty($tracking_list))
+              {
+                //---- add tracking to table order_tracking
+                 //-- drop _eixsts
+                 if($this->orders_model->drop_tracking_list($order->code))
+                 {
+                   foreach($tracking_list as $tk)
+                   {
+                     $arr = array(
+                       'order_code' => $tk->order_code,
+                       'tracking_no' => $tk->tracking_no,
+                       'carton_code' => $tk->carton_code,
+                       'product_code' => $tk->product_code,
+                       'qty' => $tk->qty,
+                       'courier_code' => $tk->courier_code,
+                       'courier_name' => $tk->courier_name
+                     );
+
+                     $this->orders_model->add_tracking($arr);
+                   }
+                 }
+              } //--- if ! empty tracking list 
 						}
 						else
 						{

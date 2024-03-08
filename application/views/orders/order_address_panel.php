@@ -38,6 +38,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 					<?php endif; ?>
 				<button type="button" class="btn btn-xs btn-primary pull-right margin-left-5" onclick="update_wms_status()">WMS Status</button>
 				<?php endif; ?>
+        <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="show_tracking()">Tracking No</button>
 			</div>
     	<ul class="nav nav-tabs" role="tablist">
         <li class="active">
@@ -192,7 +193,54 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
  </div>
 </div>
 
+
+<div class="modal fade" id="tracking-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog" style="width:500px;">
+   <div class="modal-content">
+       <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h4 class="modal-title">Tracking No</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th class="fix-width-150">Tracking No</th>
+                  <th class="fix-width-120">Carton No</th>
+                  <th class="fix-width-100">Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+          <?php if( ! empty($tracking)) : ?>
+            <?php foreach($tracking as $rs) : ?>
+              <tr>
+                <td><?php echo $rs->tracking_no; ?></td>
+                <td><?php echo $rs->carton_code; ?></td>
+                <td><?php echo number($rs->qty); ?></td>
+              </tr>
+            <?php endforeach; ?>
+          <?php else : ?>
+            <tr>
+              <td colspan="3" class="text-center">-- No Tracking Number ---</td>
+            </tr>
+          <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+       </div>
+   </div>
+ </div>
+</div>
+
 <script>
+function show_tracking() {
+  $('#tracking-modal').modal('show');
+}
+
+
 function update_wms_status() {
 	const order_code = $("#order_code").val();
 	if(order_code !== "" && order_code !== undefined) {

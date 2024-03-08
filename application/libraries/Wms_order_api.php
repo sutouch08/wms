@@ -128,6 +128,7 @@ class Wms_order_api
 						$xml .=   "<REF_NO2>".$order->shipping_code."</REF_NO2>";
 						$xml .=   "<TRANSFORMED_ITEMS>".($order->transformed == 1 ? "Yes" : "No")."</TRANSFORMED_ITEMS>";
 						$xml .=   "<REMARK><![CDATA[".$order->remark."]]></REMARK>";
+            $xml .=   "<INSURANCE_COLLECTION>YES</INSURANCE_COLLECTION>";
 						$xml .=  "</HEADER>";
 
 						//--- Item start
