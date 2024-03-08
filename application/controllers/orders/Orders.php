@@ -556,7 +556,8 @@ class Orders extends PS_Controller
                   "discount_amount" => 0,
                   "total_amount"	=> ($item->price * $qty),
                   "id_rule"	=> NULL,
-                  "is_count" => $item->count_stock
+                  "is_count" => $item->count_stock,
+                  "pre_order_detail_id" => $rs->id
                 );
 
                 if( ! $this->orders_model->add_detail($arr))

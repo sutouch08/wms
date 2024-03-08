@@ -455,9 +455,7 @@
 						timer:1000
 					});
 
-					// setTimeout(function(){
-					// 	window.location.reload();
-					// }, 1200);
+					$('#row-'+id).remove();					
 				}
 				else {
 					swal({

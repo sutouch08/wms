@@ -222,9 +222,10 @@ $hide = $order->status == 1 ? 'hide' : '';
       if($(this).val() != '') {
         let qty = parseDefault(parseFloat($(this).val()), 0);
         let code = $(this).data('pd');
+        let id = $(this).data('id'); //pre_order_detail_id
 
         if(qty > 0) {
-          items.push({"code" : code, "qty" : qty});
+          items.push({"id" : id, "code" : code, "qty" : qty});
         }
       }
     });

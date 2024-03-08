@@ -8,6 +8,7 @@ class Wms_order_api
 	protected $ci;
   public $error;
 	public $log_xml;
+  public $test;
 	public $type = 'OB';
 
   public function __construct()
@@ -18,11 +19,12 @@ class Wms_order_api
 		$this->WH_NO = getConfig('WMS_WH_NO');
 		$this->CUS_CODE = getConfig('WMS_CUST_CODE');
 		$this->log_xml = getConfig('LOG_XML');
+    $this->test = getConfig('WMS_TEST') ? TRUE : FALSE;
   }
 
 
 	//---- export
-  public function export_order($code)
+	public function export_order($code)
   {
 		$this->ci->load->model('orders/orders_model');
 		$this->ci->load->model('address/address_model');
@@ -53,7 +55,7 @@ class Wms_order_api
 			if(empty($order->id_address))
 			{
 				$sc = FALSE;
-				$this->error = "No Shipping Address";
+				$this->error = "ไม่พบที่อยู่จัดส่ง";
 			}
 			else
 			{
@@ -62,7 +64,7 @@ class Wms_order_api
         if(empty($addr))
 				{
 					$sc = FALSE;
-					$this->error = "No Shipping Address";
+					$this->error = "ไม่พบที่อยู่จัดส่ง";
 				}
 
 				$sender = $this->ci->sender_model->get($order->id_sender);
@@ -70,7 +72,7 @@ class Wms_order_api
 				if(empty($sender))
 				{
 					$sc = FALSE;
-					$this->error = "No Shipping Vender";
+					$this->error = "ไม่ได้ระบุขนส่ง";
 				}
 			}
 
@@ -83,6 +85,7 @@ class Wms_order_api
 				$channels_name = !empty($channels) ? $channels->name : "";
 				$amount = $order->role === 'S' ? $this->ci->orders_model->get_order_total_amount($code) : 0.00;
 				$cod = $order->role === 'S' ? ($order->payment_code === 'COD' ? 'COD' : 'NON-COD') : 'NON-COD';
+
 				if(!empty($details))
 				{
 					$xml .= "<WOB>";
@@ -105,25 +108,26 @@ class Wms_order_api
 						$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
 						$xml .=   "<SHIPMENT_DATE>".date('Y/m/d', strtotime($order->date_add))."</SHIPMENT_DATE>";
 						$xml .=   "<SHIP_TO_CODE>".(!empty($sender) ? $sender->code : "")."</SHIP_TO_CODE>";
-						$xml .=   "<SHIP_TO_NAME>".(!empty($sender) ? $sender->name : "")."</SHIP_TO_NAME>";
-						$xml .=   "<SHIP_TO_ADDRESS1>".(!empty($sender) ? $sender->address1 : "")."</SHIP_TO_ADDRESS1>";
-						$xml .=   "<SHIP_TO_ADDRESS2>".(!empty($sender) ? $sender->address2 : "")."</SHIP_TO_ADDRESS2>";
-            $xml .=   "<RECEIPT_NAME>".(!empty($addr) ? $addr->name : "")."</RECEIPT_NAME>";
+						$xml .=   "<SHIP_TO_NAME><![CDATA[".(!empty($sender) ? $sender->name : "")."]]></SHIP_TO_NAME>";
+						$xml .=   "<SHIP_TO_ADDRESS1><![CDATA[".(!empty($sender) ? $sender->address1 : "")."]]></SHIP_TO_ADDRESS1>";
+						$xml .=   "<SHIP_TO_ADDRESS2><![CDATA[".(!empty($sender) ? $sender->address2 : "")."]]></SHIP_TO_ADDRESS2>";
+            $xml .=   "<RECEIPT_NAME><![CDATA[".(!empty($addr) ? $addr->name : "")."]]></RECEIPT_NAME>";
             $xml .=   "<RECEIPT_MOBILENO>".(!empty($addr) ? $addr->phone : "")."</RECEIPT_MOBILENO>";
             $xml .=   "<RECEIPT_EMAIL>".(!empty($addr) ? $addr->email : "")."</RECEIPT_EMAIL>";
-            $xml .=   "<RECEIPT_FULLSHIPPINGADDRESS>".(!empty($addr) ? $addr->address : "")."</RECEIPT_FULLSHIPPINGADDRESS>";
+            $xml .=   "<RECEIPT_FULLSHIPPINGADDRESS><![CDATA[".(!empty($addr) ? $addr->address : "")."]]></RECEIPT_FULLSHIPPINGADDRESS>";
             $xml .=   "<RECEIPT_STREET></RECEIPT_STREET>";
-            $xml .=   "<RECEIPT_SUBDISTRICT>".(!empty($addr) ? $addr->sub_district : "")."</RECEIPT_SUBDISTRICT>";
-            $xml .=   "<RECEIPT_DISTRICT>".(!empty($addr) ? $addr->district : "")."</RECEIPT_DISTRICT>";
-            $xml .=   "<RECEIPT_PROVINCE>".(!empty($addr) ? $addr->province : "")."</RECEIPT_PROVINCE>";
+            $xml .=   "<RECEIPT_SUBDISTRICT><![CDATA[".(!empty($addr) ? $addr->sub_district : "")."]]></RECEIPT_SUBDISTRICT>";
+            $xml .=   "<RECEIPT_DISTRICT><![CDATA[".(!empty($addr) ? $addr->district : "")."]]></RECEIPT_DISTRICT>";
+            $xml .=   "<RECEIPT_PROVINCE><![CDATA[".(!empty($addr) ? $addr->province : "")."]]></RECEIPT_PROVINCE>";
             $xml .=   "<RECEIPT_POSTCODE>".(!empty($addr) ? $addr->postcode : "")."</RECEIPT_POSTCODE>";
             $xml .=   "<PAYMENT_METHOD>".$cod."</PAYMENT_METHOD>";
             $xml .=   "<COD_AMOUNT>".round($amount,2)."</COD_AMOUNT>";
 						$xml .=   "<SALES_CHANNEL_CODE>".$channels_code."</SALES_CHANNEL_CODE>";
-						$xml .=   "<SALES_CHANNEL_NAME>".$channels_name."</SALES_CHANNEL_NAME>";
+						$xml .=   "<SALES_CHANNEL_NAME><![CDATA[".$channels_name."]]></SALES_CHANNEL_NAME>";
 						$xml .=   "<REF_NO1>".$order->reference."</REF_NO1>";
 						$xml .=   "<REF_NO2>".$order->shipping_code."</REF_NO2>";
-						$xml .=   "<REMARK>".$order->remark."</REMARK>";
+						$xml .=   "<TRANSFORMED_ITEMS>".($order->transformed == 1 ? "Yes" : "No")."</TRANSFORMED_ITEMS>";
+						$xml .=   "<REMARK><![CDATA[".$order->remark."]]></REMARK>";
 						$xml .=  "</HEADER>";
 
 						//--- Item start
@@ -168,52 +172,54 @@ class Wms_order_api
 				else
 				{
 					$sc = FALSE;
-					$this->error = "No item in this order";
+					$this->error = "ไม่พบรายการสินค้าในออเดอร์";
 				}
 			}
 		}
 		else
 		{
 			$sc = FALSE;
-			$this->error = "Invalid Order Code";
+			$this->error = "เลขที่ออเดอร์ไม่ถูกต้อง";
 		}
 
+		if( ! $this->test)
+		{
+      if($sc === TRUE && !empty($xml))
+      {
+        $ch = curl_init();
 
-    if($sc === TRUE && !empty($xml))
-    {
-      $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->url);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
 
-      curl_setopt($ch, CURLOPT_URL, $this->url);
-      curl_setopt($ch, CURLOPT_POST, TRUE);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+        $response = curl_exec($ch);
 
-      $response = curl_exec($ch);
-
-      curl_close($ch);
-
-
-      $res = json_decode(json_encode(simplexml_load_string($response)));
+        curl_close($ch);
 
 
-			if(!empty($res))
-			{
+        $res = json_decode(json_encode(simplexml_load_string($response)));
 
-				if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
-				{
-					$sc = FALSE;
-					$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-					$this->ci->wms_error_logs_model->add($order->code, 'E', $this->error, $this->type);
-				}
-			}
-			else
-			{
-				$this->ci->wms_error_logs_model->add($order->code, 'S', 'No response', $this->type);
-			}
-    }
 
+        if(!empty($res))
+        {
+
+          if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+          {
+            $sc = FALSE;
+            $this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "No response";
+        }
+      }
+		}
 
 		if($sc === TRUE)
 		{
@@ -221,6 +227,7 @@ class Wms_order_api
 		}
 		else
 		{
+
 			$this->ci->wms_error_logs_model->add($code, 'E', $this->error, $this->type);
 		}
 
@@ -279,7 +286,8 @@ class Wms_order_api
 					$xml .=   "<SALES_CHANNEL_NAME></SALES_CHANNEL_NAME>";
 					$xml .=   "<REF_NO1></REF_NO1>";
 					$xml .=   "<REF_NO2></REF_NO2>";
-					$xml .=   "<REMARK>".$order->remark."</REMARK>";
+					$xml .=   "<TRANSFORMED_ITEMS>NO</TRANSFORMED_ITEMS>";
+					$xml .=   "<REMARK><![CDATA[".$order->remark."]]></REMARK>";
 					$xml .=  "</HEADER>";
 
 					//--- Item start
@@ -329,41 +337,42 @@ class Wms_order_api
 			$this->error = "Empty order data";
 		}
 
-		// echo $xml;
-		// exit;
-    if($sc === TRUE && !empty($xml))
+		if( ! $this->test)
     {
-      $ch = curl_init();
+      if($sc === TRUE && !empty($xml))
+      {
+        $ch = curl_init();
 
-      curl_setopt($ch, CURLOPT_URL, $this->url);
-      curl_setopt($ch, CURLOPT_POST, TRUE);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+        curl_setopt($ch, CURLOPT_URL, $this->url);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
 
-      $response = curl_exec($ch);
+        $response = curl_exec($ch);
 
-      curl_close($ch);
-
-
-      $res = json_decode(json_encode(simplexml_load_string($response)));
+        curl_close($ch);
 
 
-			if(!empty($res))
-			{
+        $res = json_decode(json_encode(simplexml_load_string($response)));
 
-				if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
-				{
-					$sc = FALSE;
-					$this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-					$this->ci->wms_error_logs_model->add($order->code, 'E', $this->error, $this->type);
-				}
-			}
-			else
-			{
-				$this->ci->wms_error_logs_model->add($order->code, 'S', 'No response', $this->type);
-			}
+
+        if(!empty($res))
+        {
+
+          if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+          {
+            $sc = FALSE;
+            $this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "No response";
+        }
+      }
     }
 
 
@@ -373,7 +382,7 @@ class Wms_order_api
 		}
 		else
 		{
-			$this->ci->wms_error_logs_model->add('Code not found', 'E', $this->error, $this->type);
+			$this->ci->wms_error_logs_model->add($order->code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;

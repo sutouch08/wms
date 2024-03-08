@@ -273,6 +273,7 @@ class Wms_temp_order_model extends CI_Model
 		$this->wms->trans_begin();
 		$rd = $this->wms->where('id_order', $id)->delete('wms_temp_order_detail');
 		$rs = $this->wms->where('id', $id)->delete('wms_temp_order');
+		$rt = $this->wms->where('id_order', $id)->delete('wms_tracking_detail');
 
 		if($rd && $rs)
 		{
@@ -288,6 +289,16 @@ class Wms_temp_order_model extends CI_Model
 		return FALSE;
 	}
 
+
+	public function add_tracking(array $ds = array())
+	{
+		if( ! empty($ds))
+		{
+			return $this->wms->insert('wms_tracking_detail', $ds);
+		}
+
+		return FALSE;
+	}
 
 
 } //--- end model

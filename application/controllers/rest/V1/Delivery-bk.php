@@ -109,7 +109,6 @@ class Delivery extends REST_Controller
 						if($sc === TRUE)
 						{
 							$id = $this->wms_temp_order_model->add($arr);
-
 							if(! $id)
 							{
 								$sc = FALSE;
@@ -120,7 +119,6 @@ class Delivery extends REST_Controller
 							else
 							{
 								$details = $ds->details;
-
 								if(!empty($details))
 								{
 									foreach($details as $rs)
@@ -146,33 +144,11 @@ class Delivery extends REST_Controller
 								{
 									$sc = FALSE;
 									$err = "Empty Order details";
-									array_push($error_mesage, array('order_number' => $ds->order_number, 'error_mesage' => $err));
-								}
-
-								if( ! empty($ds->shipping_details))
-								{
-									foreach($ds->shipping_details as $rs)
-									{
-										$arr = array(
-											'id_order' => $id,
-											'order_code' => $ds->order_number,
-											'product_code' => $rs->sku,
-											'carton_code' => $rs->carton_number,
-											'tracking_no' => $rs->tracking_number,
-											'courier_code' => $ds->courier_code,
-											'courier_name' => $ds->courier_name
-										);
-
-										if( ! $this->wms_temp_order_model->add_tracking($arr))
-										{
-											$sc = FALSE;
-											$err = "Failed to create tracking list data";
-											array_push($error_mesage, array('order_number' => $ds->order_number, 'error_mesage' => $err));
-										}
-									}
+									array_push($error_mesage, array('order_number' => $ds->order_number, 'status' => 'Empty Order details'));
 								}
 							}
 						}
+
 					}
 
 					if($sc === TRUE)
@@ -185,8 +161,9 @@ class Delivery extends REST_Controller
 						$this->wms->trans_rollback();
 						$this->wms_error_logs_model->add($ds->order_number, 'E', $err, $trans_no);
 					}
-				} //-- end foreach data
+				}
 			}
+
 		}
 
 		if(!empty($error_mesage))
@@ -209,6 +186,8 @@ class Delivery extends REST_Controller
 		}
 
 	}//-- end create
+
+
 }
 
 //--- end class
