@@ -1068,32 +1068,42 @@ class Products extends PS_Controller
     if(!empty($items) && !empty($images))
     {
       $imgs = array();
-      $sc = '<table class="table table-bordered">';
+      $count = count($images);
+      $width = $count <= 6 ? 600 : $count * 80;
+      $sc = '<table class="table table-bordered tableFixHead" style="min-width:'.$width.'px;">';
+
+      $sc .= '<thead>';
       //---- image header
-  		$sc .= '<tr><td></td>';
+  		$sc .= '<tr><th class="fix-width-150 fix-header fix-code" style="background-color: white;
+      border: 0 !important;
+      outline: solid 1px #dddddd;
+			z-index: 50;"></th>';
+
       foreach($images as $img)
       {
-        $sc .= '<td>';
+        $sc .= '<th class="fix-width-80 fix-header">';
   			$sc .= '<img src="'.get_image_path($img->id, 'default').'" class="width-100" />';
-  			$sc .= '</td>';
+  			$sc .= '</th>';
   			$imgs[$img->id] = $img->id;
       }
-      $sc .= '</tr>';
+
+      $sc .= '</tr></thead>';
 
 
       foreach( $items as $item )
   		{
   			$sc .= '<tr>';
-  			$sc .= '<td>'.$item->code.'</td>';
+  			$sc .= '<td class="middle fix-width-150 fix-code" scope="row">'.$item->code.'</td>';
 
   			foreach($imgs as $id)
   			{
-  				$sc .= '<td>
+  				$sc .= '<td class="fix-width-80">
                     <label style="width:100%; text-align:center;">
                     <input type="radio" class="ace"
                     name="items['.$item->code.']"
                     value="'.$id.'" '.is_checked( $id, $this->product_image_model->get_id_image($item->code) ).' />
-                    <span class="lbl"></span>
+                    <span class="lbl" style="font-size:9px; color:grey;"><br/>'.$item->color_code.'-'.$item->size_code.'</span>
+
                     </label>
                     </td>';
   			}

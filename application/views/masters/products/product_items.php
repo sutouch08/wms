@@ -1,3 +1,25 @@
+<style>
+  @media (min-width: 768px) {
+    .fix-code {
+      left: 0;
+      position: sticky !important;
+    }
+
+    .fix-header {
+			position: sticky;
+      z-index: 10;
+      background-color: white;
+      outline: solid 1px #dddddd;
+    }
+
+    td[scope=row] {
+      background-color: white;
+      border: 0 !important;
+      outline: solid 1px #dddddd;
+			z-index: 2;
+    }
+  }
+</style>
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-sm-12">
@@ -150,13 +172,13 @@
 <form id="mappingForm" method="post" action="<?php echo $this->home; ?>/mapping_image">
 	<input type="hidden" name="styleCode" value="<?php echo $style->code; ?>" />
 	<div class="modal fade" id="imageMappingTable" tabindex="-1" role="dialog" aria-labelledby="mapping" aria-hidden="true">
-		<div class="modal-dialog" style="width:1000px">
+		<div class="modal-dialog" style="width:90vw;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title">จับคู่รูปภาพกับสินค้า</h4>
 				</div>
 				<div class="modal-body">
-					<div class="table-responsive" id="mappingBody"></div>
+					<div class="table-responsive" id="mappingBody" style="max-width:90vw; max-height:70vh; overflow:auto;"></div>
 
 					</div>
 					<div class="modal-footer">
