@@ -1074,14 +1074,19 @@ class Products extends PS_Controller
 
       $sc .= '<thead>';
       //---- image header
-  		$sc .= '<tr><th class="fix-width-150 fix-header fix-code" style="background-color: white;
-      border: 0 !important;
-      outline: solid 1px #dddddd;
-			z-index: 50;"></th>';
+  		$sc .= '<tr><th class="fix-width-150 fix-header fix-code"
+        style="background-color: white;
+        border: 0 !important;
+        outline: solid 1px #dddddd;
+  			z-index: 50;"></th>';
 
       foreach($images as $img)
       {
-        $sc .= '<th class="fix-width-80 fix-header">';
+        $sc .= '<th class="fix-width-80 fix-header"
+          style="background-color: white;
+          border: 0 !important;
+          outline: solid 1px #dddddd;
+    			z-index: 10;">';
   			$sc .= '<img src="'.get_image_path($img->id, 'default').'" class="width-100" />';
   			$sc .= '</th>';
   			$imgs[$img->id] = $img->id;
@@ -1099,14 +1104,14 @@ class Products extends PS_Controller
   			{
   				$sc .= '<td class="fix-width-80">
                     <label style="width:100%; text-align:center;">
-                    <input type="radio" class="ace"
-                    name="items['.$item->code.']"
-                    value="'.$id.'" '.is_checked( $id, $this->product_image_model->get_id_image($item->code) ).' />
-                    <span class="lbl" style="font-size:9px; color:grey;"><br/>'.$item->color_code.'-'.$item->size_code.'</span>
-
+                      <input type="radio" class="ace"
+                      name="items['.$item->code.']"
+                      value="'.$id.'" '.is_checked( $id, $this->product_image_model->get_id_image($item->code) ).' />
+                      <span class="lbl" style="font-size:9px; color:grey;"><br/>'.$item->color_code.'-'.$item->size_code.'</span>
                     </label>
-                    </td>';
+                  </td>';
   			}
+
   			$sc .= '</tr>';
   		}
   		$sc .= '</table>';
