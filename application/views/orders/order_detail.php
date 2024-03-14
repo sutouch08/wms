@@ -85,7 +85,7 @@
       					<button type="button" class="btn btn-mini btn-info hide" id="btn-update-price-<?php echo $rs->id; ?>" onclick="updateNonCountPrice(<?php echo $rs->id; ?>)"><i class="fa fa-save"></i></button>
       				<?php endif; ?>
               <?php if( ( $order->is_paid == 0 && $order->state != 2 && $order->is_expired == 0 ) && ($edit OR $add)) : ?>
-								<?php if(($order->is_wms == 0 && $order->state < 4 ) OR ($order->is_wms == 1 && $order->state < 3) OR ($rs->is_count == 0 && $order->state != 8)) : ?>
+								<?php if( $order->state < 3 OR ($rs->is_count == 0 && $order->state != 8)) : ?>
               			<button type="button" class="btn btn-mini btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')">
 											<i class="fa fa-trash"></i>
 										</button>

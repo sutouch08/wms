@@ -1,5 +1,5 @@
 <?php $this->load->view('include/header'); ?>
-<?php $isAdmin = (get_cookie('id_profile') == -987654321 ? TRUE : FALSE); ?>
+<?php $isAdmin = $this->_SuperAdmin; ?>
 
 <div class="row">
 	<div class="col-lg-2 col-md-2 col-sm-2 padding-5 hidden-xs">
@@ -29,7 +29,7 @@
 								<button type="button" class="btn btn-xs btn-warning top-btn" onclick="unExpired()">ทำให้ไม่หมดอายุ</button>
 				<?php endif; ?>
 
-				<?php if((($order->is_wms == 0 && $order->state < 4) OR ($order->is_wms == 1 && $order->state < 3))) : ?>
+				<?php if($order->state < 3) : ?>
 				 	<?php if( $order->is_expired == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 						<button type="button" class="btn btn-xs btn-yellow top-btn" onclick="editDetail()">แก้ไขรายการ</button>
 					<?php endif; ?>

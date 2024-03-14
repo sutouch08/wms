@@ -158,10 +158,11 @@ function updateDiscount(){
 		data: disc,
 		success: function(rs){
 			var rs = $.trim(rs);
-			if( rs == 'success' ){
+			if( rs == 'success' ) {
 				swal({title: "Done", type: "success", timer: 1000});
 				setTimeout(function(){ window.location.reload(); }, 1200 );
-			}else{
+			}
+			else {
 				swal("Error!", rs, "error");
 			}
 		}
