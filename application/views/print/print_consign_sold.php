@@ -10,7 +10,7 @@
     'วันที่'  => thai_date($doc->date_add, FALSE, '/'),
     'ลูกค้า' => $doc->customer_code.' : '.$doc->customer_name,
     'เลขที่อ้างอิง' => $doc->ref_code,
-    'โซน' => $doc->zone_name,
+    'โซน' => $doc->zone_code.' : '.$doc->zone_name,
     'คลัง' => $doc->warehouse_name,
     'พนักงาน' => $this->user_model->get_name($doc->user)
 	);
