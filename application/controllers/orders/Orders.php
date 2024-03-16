@@ -958,28 +958,32 @@ class Orders extends PS_Controller
 
 		$id_sender = $this->input->post('id_sender');
 		$tracking = trim($this->input->post('tracking'));
+    $cod_amount = $this->input->post('cod_amount');
 
 		$arr = array();
 
-		if(!empty($id_sender))
+		if(! empty($id_sender))
 		{
 			$arr['id_sender'] = $id_sender;
 		}
 
-		if(!empty($tracking))
+		if(! empty($tracking))
 		{
 			$arr['shipping_code'] = $tracking;
 		}
 
-		if(!empty($arr))
+    $arr['cod_amount'] = $cod_amount < 0 ? 0 : get_zero($cod_amount);
+
+		if(! empty($arr))
 		{
 			$this->orders_model->update($code, $arr);
 		}
 
 
     $order = $this->orders_model->get($code);
+
     //--- ถ้าออเดอร์เป็นแบบเครดิต
-    if($order->is_term == 1 && $order->role === 'S')
+    if($order->is_term == 1 && $order->role === 'S' && $order->payment_role == 5)
     {
       //--- creadit used
       $credit_used = round($this->orders_model->get_sum_not_complete_amount($order->customer_code), 2);
@@ -4069,5 +4073,46 @@ class Orders extends PS_Controller
 
 		return $status;
 	}
+
+
+  public function update_cod_amount()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $amount = $this->input->post('amount');
+    $amount = $amount >= 0 ? $amount : 0;
+    $order = $this->orders_model->get($code);
+
+    if( ! empty($order))
+    {
+      if( $order->state < 3)
+      {
+        $arr = array(
+          'cod_amount' => $amount
+        );
+
+        if( ! $this->orders_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update data";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid order status";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Invalid order code";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+
 }
 ?>

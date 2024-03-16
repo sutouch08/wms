@@ -30,6 +30,16 @@ class Payment_methods_model extends CI_Model
     return FALSE;
   }
 
+  public function update_by_id($id, array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('id', $id)->update('payment_method', $ds);
+    }
+
+    return FALSE;
+  }
+
 
   public function delete($code)
   {
@@ -37,29 +47,29 @@ class Payment_methods_model extends CI_Model
   }
 
 
-  public function count_rows($c_code = '', $c_name = '', $term = '')
+  public function count_rows(array $ds = array())
   {
-    $this->db->select('code');
-
-    if($term == 1)
+    if( ! empty($ds['code']))
     {
-      $this->db->where('has_term', 1);
+      $this->db->like('code', $ds['code']);
     }
 
-
-    if($c_code != '')
+    if( ! empty($ds['name']))
     {
-      $this->db->like('code', $c_code);
+      $this->db->like('name', $ds['name']);
     }
 
-    if($c_name != '')
+    if( isset($ds['term']) && $ds['term'] != 'all')
     {
-      $this->db->like('name', $c_name);
+      $this->db->where('has_term', $ds['term']);
     }
 
-    $rs = $this->db->get('payment_method');
+    if( isset($ds['role']) && $ds['role'] != 'all')
+    {
+      $this->db->where('role', $ds['role']);
+    }
 
-    return $rs->num_rows();
+    return $this->db->count_all_results('payment_method');
   }
 
 
@@ -96,6 +106,38 @@ class Payment_methods_model extends CI_Model
     return FALSE;
   }
 
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
+  {
+    if( ! empty($ds['code']))
+    {
+      $this->db->like('code', $ds['code']);
+    }
+
+    if( ! empty($ds['name']))
+    {
+      $this->db->like('name', $ds['name']);
+    }
+
+    if( isset($ds['term']) && $ds['term'] != 'all')
+    {
+      $this->db->where('has_term', $ds['term']);
+    }
+
+    if( isset($ds['role']) && $ds['role'] != 'all')
+    {
+      $this->db->where('role', $ds['role']);
+    }
+
+    $rs = $this->db->limit($perpage, $offset)->get('payment_method');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 
   public function get_data($c_code = '', $c_name = '', $term = '', $perpage = '', $offset = '')
   {
@@ -128,11 +170,11 @@ class Payment_methods_model extends CI_Model
 
 
 
-  public function is_exists($code, $old_code = '')
+  public function is_exists($code, $id = NULL)
   {
-    if($old_code != '')
+    if( ! empty($id))
     {
-      $this->db->where('code !=', $old_code);
+      $this->db->where('id !=', $id);
     }
 
     $rs = $this->db->where('code', $code)->get('payment_method');
@@ -147,11 +189,11 @@ class Payment_methods_model extends CI_Model
 
 
 
-  public function is_exists_name($name, $old_name = '')
+  public function is_exists_name($name, $id = NULL)
   {
-    if($old_name != '')
+    if( ! empty($id))
     {
-      $this->db->where('name !=', $old_name);
+      $this->db->where('id !=', $id);
     }
 
     $rs = $this->db->where('name', $name)->get('payment_method');

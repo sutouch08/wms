@@ -77,15 +77,37 @@ function saveOrder(){
   var order_code = $('#order_code').val();
 	var id_sender = $('#id_sender').val();
 	var tracking = $('#tracking').val();
+  var payment_role = $('#payment option:selected').data('role');
+  var cod_amount = parseDefault(parseFloat($('#cod-amount').val()), 0);
+
+  if(payment_role == '4' && cod_amount <= 0) {
+    swal({
+      title:"กรุณาระบุยอด COD Amount",
+      text:"การชำระเงินแบบ เก็บเงินปลายทางจำเป็นต้องระบุยอดเก็บเงิน",
+      type:"warning"
+    }, function() {
+      setTimeout(() => {
+        $('#cod-amount').focus().select();
+      }, 200)
+    });
+
+    return false;
+  }
+
+  load_in();
+
 	$.ajax({
 		url: BASE_URL + 'orders/orders/save/'+ order_code,
 		type:"POST",
     cache:false,
 		data:{
 			'id_sender' : id_sender,
-			'tracking' : tracking
+			'tracking' : tracking,
+      'cod_amount' : cod_amount
 		},
 		success:function(rs){
+      load_out();
+
 			var rs = $.trim(rs);
 			if( rs == 'success' ){
 				swal({
@@ -94,10 +116,19 @@ function saveOrder(){
           timer: 1000
         });
 				setTimeout(function(){ editOrder(order_code) }, 1200);
-			}else{
+			}
+      else {
 				swal("Error ! ", rs , "error");
 			}
-		}
+		},
+    error:function(xhr) {
+      swal({
+        title:'Error',
+        text:xhr.responseText,
+        type:'error',
+        html:true
+      })
+    }
 	});
 }
 
@@ -777,4 +808,36 @@ function validateOrder(){
     swal('เลขที่เอกสารไม่ถูกต้อง');
     return false;
   }
+}
+
+
+function submitCod() {
+  let code = $('#order_code').val();
+  let amount = parseDefault(parseFloat($('#cod-amount').val()), 0.00);
+
+  $.ajax({
+    url:BASE_URL + 'orders/orders/update_cod_amount',
+    type:'POST',
+    cache:false,
+    data:{
+      'code' : code,
+      'amount' : amount
+    },
+    success:function(rs) {
+      if(rs == 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+      }
+      else {
+        swal({
+          title:'Error!',
+          type:'error',
+          text:rs
+        });
+      }
+    }
+  })
 }

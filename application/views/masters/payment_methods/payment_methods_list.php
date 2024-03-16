@@ -16,59 +16,56 @@
 </div><!-- End Row -->
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
-<div class="row">
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>รหัส</label>
-    <input type="text" class="width-100" name="code" id="code" value="<?php echo $code; ?>" />
-  </div>
+	<div class="row">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>รหัส</label>
+			<input type="text" class="form-control input-sm search" name="code" id="code" value="<?php echo $code; ?>" />
+		</div>
 
-  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>ชื่อ</label>
-    <input type="text" class="width-100" name="name" id="name" value="<?php echo $name; ?>" />
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>ชื่อ</label>
+			<input type="text" class="form-control input-sm search" name="name" id="name" value="<?php echo $name; ?>" />
+		</div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
-    <label>เครดิต</label>
-    <select class="width-100 filter" name="term">
-			<option value="all">ทั้งหมด</option>
-			<option value="1" <?php echo is_selected('1', $term); ?>>ใช่</option>
-			<option value="0" <?php echo is_selected('0', $term); ?>>ไม่ใช่</option>
-    </select>
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>ประเภท</label>
+			<select class="form-control input-sm filter" name="role" id="role">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_payment_role($role); ?>
+			</select>
+		</div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
-    <label>ประเภท</label>
-    <select class="width-100 filter" name="role">
-    	<option value="all">ทั้งหมด</option>
-			<?php echo select_role_name($role); ?>
-    </select>
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>เครดิต</label>
+			<select class="form-control input-sm filter" name="term" id="term">
+				<option value="all">ทั้งหมด</option>
+				<option value="1" <?php echo is_selected('1', $term); ?>>เครดิต</option>
+				<option value="0" <?php echo is_selected('0', $term); ?>>ไม่ใช่เครดิต</option>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-    <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
-  </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-    <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
-  </div>
-</div>
-<input type="hidden" name="term" id="term" value="<?php echo $term; ?>" />
-<hr class="margin-top-15">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<label class="display-block not-show">buton</label>
+			<button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<label class="display-block not-show">buton</label>
+			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+		</div>
+	</div>
 </form>
+<hr class="margin-top-15">
 <?php echo $this->pagination->create_links(); ?>
-
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-bordered table-hover" style="min-width:960px;">
+		<table class="table table-striped table-bordered table-hover" style="min-width:860px;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-150 middle">รหัส</th>
 					<th class="fix-width-200 middle">ชื่อ</th>
-					<th class="fix-width-120 middle text-center">ประเภท</th>
+					<th class="fix-width-120 middle">ประเภท</th>
 					<th class="fix-width-100 middle text-center">เครติด</th>
-					<th class="fix-width-100 middle text-center">Default</th>
           <th class="fix-width-150 middle">ปรับปรุงล่าสุด</th>
 					<th class="min-width-100"></th>
 				</tr>
@@ -83,17 +80,8 @@
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo payment_role_name($rs->role); ?></td>
 						<td class="middle text-center">
-							<?php if($rs->has_term == 1) : ?>
+							<?php if($rs->has_term) : ?>
 								<i class="fa fa-check green"></i>
-							<?php else : ?>
-								<i class="fa fa-times"></i>
-							<?php endif; ?>
-						</td>
-						<td class="middle text-center">
-							<?php if($rs->is_default) : ?>
-								<i class="fa fa-check green"></i>
-							<?php else : ?>
-								<i class="fa fa-times"></i>
 							<?php endif; ?>
 						</td>
             <td class="middle"><?php echo thai_date($rs->date_upd,TRUE, '/'); ?></td>
