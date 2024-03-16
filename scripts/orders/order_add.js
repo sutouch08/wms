@@ -743,7 +743,7 @@ function add() {
         let ds = JSON.parse(rs);
 
         if(ds.status == 'success') {
-          window.location.href = BASE_URL + 'orders/orders/edit_order/'+ ds.code;
+          window.location.href = BASE_URL + 'orders/orders/edit_detail/'+ ds.code;
         }
         else {
           swal({
