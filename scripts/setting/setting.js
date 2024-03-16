@@ -315,11 +315,11 @@ function toggleWmsApi(option){
 	$('#wms-api').val(option);
 	if(option == 1){
 		$('#btn-api-on').addClass('btn-success');
-		$('#btn-api-off').removeClass('btn-danger');
+		$('#btn-api-off').removeClass('btn-primary');
 		return;
 	}else if(option == 0){
 		$('#btn-api-on').removeClass('btn-success');
-		$('#btn-api-off').addClass('btn-danger');
+		$('#btn-api-off').addClass('btn-primary');
 		return;
 	}
 }
@@ -329,14 +329,14 @@ function toggleFullMode(option) {
 	$('#wms-full-mode').val(option);
 
 	if(option == 1) {
-		$('#btn-full-off').removeClass('btn-danger');
+		$('#btn-full-off').removeClass('btn-primary');
 		$('#btn-full-on').addClass('btn-success');
 		return;
 	}
 
 	if(option == 0) {
 		$('#btn-full-on').removeClass('btn-success');
-		$('#btn-full-off').addClass('btn-danger');
+		$('#btn-full-off').addClass('btn-primary');
 		return;
 	}
 }
@@ -346,14 +346,14 @@ function toggleExportItem(option) {
 	$('#wms-export-item').val(option);
 
 	if(option == 1) {
-		$('#btn-item-off').removeClass('btn-danger');
+		$('#btn-item-off').removeClass('btn-primary');
 		$('#btn-item-on').addClass('btn-success');
 		return;
 	}
 
 	if(option == 0) {
 		$('#btn-item-on').removeClass('btn-success');
-		$('#btn-item-off').addClass('btn-danger');
+		$('#btn-item-off').addClass('btn-primary');
 		return;
 	}
 }
@@ -364,14 +364,30 @@ function toggleLogXml(option) {
 	$('#log-xml').val(option);
 
 	if(option == 1) {
-		$('#btn-xml-off').removeClass('btn-danger');
+		$('#btn-xml-off').removeClass('btn-primary');
 		$('#btn-xml-on').addClass('btn-success');
 		return;
 	}
 
 	if(option == 0) {
 		$('#btn-xml-on').removeClass('btn-success');
-		$('#btn-xml-off').addClass('btn-danger');
+		$('#btn-xml-off').addClass('btn-primary');
+		return;
+	}
+}
+
+function toggleTestMode(option) {
+	$('#wms-test').val(option);
+
+	if(option == 1) {
+		$('#btn-test-off').removeClass('btn-primary');
+		$('#btn-test-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-test-on').removeClass('btn-success');
+		$('#btn-test-off').addClass('btn-primary');
 		return;
 	}
 }

@@ -2,20 +2,24 @@
 <div class="tab-pane fade" id="WMS">
 	<?php
 		$full_on = $WMS_FULL_MODE == 1 ? 'btn-success' : '';
-		$full_off = $WMS_FULL_MODE == 0 ? 'btn-danger' : '';
+		$full_off = $WMS_FULL_MODE == 0 ? 'btn-primary' : '';
 
 		$item_on = $WMS_EXPORT_ITEMS == 1 ? 'btn-success' : '';
-		$item_off = $WMS_EXPORT_ITEMS == 0 ? 'btn-danger' : '';
+		$item_off = $WMS_EXPORT_ITEMS == 0 ? 'btn-primary' : '';
 
 		$xml_on = $LOG_XML == 1 ? 'btn-success' : '';
-		$xml_off = $LOG_XML == 0 ? 'btn-danger' : '';
+		$xml_off = $LOG_XML == 0 ? 'btn-primary' : '';
 
 		$api_on = $WMS_API == 1 ? 'btn-success' : '';
-		$api_off = $WMS_API == 0 ? 'btn-danger' : '';
+		$api_off = $WMS_API == 0 ? 'btn-primary' : '';
 
 		$ex_on = $WMS_INSTANT_EXPORT == 1 ? 'btn-success' : '';
-		$ex_off = $WMS_INSTANT_EXPORT == 0 ? 'btn-danger' : '';
+		$ex_off = $WMS_INSTANT_EXPORT == 0 ? 'btn-primary' : '';
+
+		$test_on = $WMS_TEST == 1 ? 'btn-success' : '';
+		$test_off = $WMS_TEST == 0 ? 'btn-primary' : '';
 	 ?>
+
 	<form id="wmsForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
     	<div class="col-sm-4">
@@ -142,6 +146,19 @@
 				<span class="help-block">เปิดใช้ปุ่ม export to wms บนหน้า order list(สำหรับทดสอบระบบ)</span>
       </div>
       <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+				<span class="form-control left-label">TEST MODE</span>
+			</div>
+			<div class="col-sm-8">
+				<div class="btn-group">
+					<button type="button" class="btn btn-sm <?php echo $test_on; ?>" style="width:50%;" id="btn-test-on" onClick="toggleTestMode(1)">ON</button>
+					<button type="button" class="btn btn-sm <?php echo $test_off; ?>" style="width:50%;" id="btn-test-off" onClick="toggleTestMode(0)">OFF</button>
+				</div>
+				<input type="hidden" name="WMS_TEST" id="wms-test" value="<?php echo $WMS_TEST; ?>" />
+				<span class="help-block">เปิด/ปิด การทดสอบระบบ</span>
+			</div>
+			<div class="divider-hidden"></div>
 
 			<div class="col-sm-4">
 				<span class="form-control left-label">Logs XML</span>
