@@ -27,12 +27,21 @@
     </div>
   </div>
 
-	<div class="col-lg-2 col-md-3 col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-3 col-sm-2-harf col-xs-6 padding-5">
 		<label class="display-block">อายุเอกสาร</label>
 		<select class="form-control input-sm" name="is_expired" id="is_expired">
 			<option value="all">ทั้งหมด</option>
 			<option value="1">เฉพาะที่หมดอายุ</option>
 			<option value="0">เฉพาะที่ไม่หมดอายุ</option>
+		</select>
+	</div>
+
+	<div class="col-lg-1 col-md-3 col-sm-2-harf col-xs-6 padding-5">
+		<label class="display-block">Pre-order</label>
+		<select class="form-control input-sm" name="is_preorder" id="is_preorder">
+			<option value="all">ทั้งหมด</option>
+			<option value="1">Yes</option>
+			<option value="0">No</option>
 		</select>
 	</div>
 
@@ -237,7 +246,7 @@
 
 <script id="template" type="text/x-handlebars-template">
 {{#if details}}
-	<table class="table table-striped border-1" style="min-width:2200px;">
+	<table class="table table-striped border-1" style="min-width:2300px;">
 		<thead>
 			<tr>
 				<th class="fix-width-60 text-center">#</th>
@@ -247,6 +256,7 @@
 				<th class="fix-width-100 text-right">มูลค่า</th>
 				<th class="fix-width-120">รหัสลูกค้า</th>
 				<th class="fix-width-350">ชื่อลูกค้า</th>
+				<th class="fix-width-100 text-center">Pre-order</th>
 				<th class="fix-width-100 text-center">สถานะ</th>
 				<th class="fix-width-100 text-center">หมดอายุ</th>
 				<th class="fix-width-100 text-center">วันที่แก้ไข</th>
@@ -268,6 +278,7 @@
 					<td class="middle text-right">{{total_amount}}</td>
 					<td class="middle">{{customer_code}}</td>
 					<td class="middle">{{customer_name}}</td>
+					<td class="middle text-center">{{is_preorder}}</td>
 					<td class="middle text-center">{{state_name}}</td>
 					<td class="middle text-center">{{expired}}</td>
 					<td class="middle text-center">{{date_upd}}</td>

@@ -41,7 +41,7 @@ class Orders_model extends CI_Model
     ->join('payment_method', 'orders.payment_code = payment_method.code', 'left')
     ->where('orders.code', $code)
     ->get();
-    
+
     if($rs->num_rows() == 1)
     {
       return $rs->row();
@@ -1657,6 +1657,7 @@ class Orders_model extends CI_Model
 
     return NULL;
   }
+  
 
   public function set_expire_order($code)
   {

@@ -755,8 +755,11 @@ class Orders extends PS_Controller
     $this->load->model('orders/order_payment_model');
     $this->load->helper('bank');
 		$this->load->helper('sender');
+
     $ds = array();
+
     $rs = $this->orders_model->get($code);
+
     if(!empty($rs))
     {
       $rs->channels_name = $this->channels_model->get_name($rs->channels_code);

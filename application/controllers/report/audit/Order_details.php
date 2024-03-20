@@ -125,6 +125,7 @@ class Order_details extends PS_Controller
           "all_role" => $json->allRole,
           "role" => $json->role,
           "is_expired" => $json->isExpired,
+          "is_preorder" => $json->isPreOrder,
           "all_state" => $json->allState,
           "state" => $json->state,
           "all_channels" => $json->allChannels,
@@ -154,6 +155,7 @@ class Order_details extends PS_Controller
           {
             $rs->no = number($no);
             $rs->expired = $rs->is_expired == 1 ? 'Y' : 'N';
+            $rs->is_preorder = $rs->is_pre_order == 1 ? 'Y' : 'N';
             $rs->date_add = thai_date($rs->date_add, FALSE, '/');
             $rs->date_upd = thai_date($rs->date_upd, FALSE, '/');
             $rs->total_amount = number($this->order_details_model->get_doc_total($rs->code), 2);
@@ -212,6 +214,7 @@ class Order_details extends PS_Controller
       $allPayments = $this->input->post('allPayments');
       $allState = $this->input->post('allState');
       $is_expired = $this->input->post('is_expired');
+      $is_preorder = $this->input->post('is_preorder');
       $fromDate = $this->input->post('fromDate');
       $toDate = $this->input->post('toDate');
       $role = $this->input->post('role');
@@ -226,6 +229,7 @@ class Order_details extends PS_Controller
         "all_role" => $allRole,
         "role" => $role,
         "is_expired" => $is_expired,
+        "is_preorder" => $is_preorder,
         "all_state" => $allState,
         "state" => $state,
         "all_channels" => $allChannels,
@@ -277,6 +281,7 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue("O{$row}", 'Username');
       $this->excel->getActiveSheet()->setCellValue("P{$row}", 'พนักงาน');
       $this->excel->getActiveSheet()->setCellValue("Q{$row}", 'cancel reason');
+      $this->excel->getActiveSheet()->setCellValue("R{$row}", 'Pre-order');
       $row++;
 
       //---- กำหนดความกว้างของคอลัมภ์
@@ -296,6 +301,7 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(15);
       $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(15);
       $this->excel->getActiveSheet()->getColumnDimension('Q')->setWidth(40);
+      $this->excel->getActiveSheet()->getColumnDimension('R')->setWidth(10);
 
       if( ! empty($details))
       {
@@ -346,6 +352,8 @@ class Order_details extends PS_Controller
           {
             $this->excel->getActiveSheet()->setCellValue("Q{$row}", $this->cancel_reason($rs->code));
           }
+
+          $this->excel->getActiveSheet()->setCellValue("R{$row}", $rs->is_pre_order == 1 ? 'Y' : 'N');
 
 
           $no++;

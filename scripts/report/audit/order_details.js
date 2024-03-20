@@ -122,6 +122,8 @@ function getReport() {
 
   var isExpired = $('#is_expired').val();
 
+  var isPreOrder = $('#is_preorder').val();
+
   if(!isDate(fromDate) || !isDate(toDate)){
     swal("กรุณาระบุวันที่");
     return false;
@@ -215,6 +217,7 @@ function getReport() {
     "allRole" : allRole,
     "role" : role,
     "isExpired" : isExpired,
+    "isPreOrder" : isPreOrder,
     "allState" : allState,
     "state" : state,
     "allChannels" : allChannels,
@@ -287,6 +290,8 @@ function doExport(){
   var countRole = $('.role-chk:checked').length;
 
   var isExpired = $('#is_expired').val();
+
+  var isPreOrder = $('#is_preorder').val();
 
   if(!isDate(fromDate) || !isDate(toDate)){
     swal("กรุณาระบุวันที่");
