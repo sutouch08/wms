@@ -92,7 +92,7 @@ class WT extends REST_Controller
       'rows' => $this->invoice_model->get_details_summary_group_by_item($code)
     );
 
-    $this->add_logs('WT', 'get', 'success', 'success', $json);
+    $this->add_logs('WT', 'get', 'success', 'success', $code);
     $this->add_logs('WT', 'get', 'response', 'success', json_encode($ds));
 
     $this->response(['status' => TRUE, 'message' => 'success', 'data' => $ds], 200);
