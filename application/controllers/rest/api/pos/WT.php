@@ -175,7 +175,7 @@ class WT extends REST_Controller
     {
       $log = array(
         'trans_id' => genUid(),
-        'path' => $this->path,
+        'api_path' => $this->path,
         'code' => $code,
         'action' => $action,
         'status' => $status,
