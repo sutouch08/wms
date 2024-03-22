@@ -1354,6 +1354,7 @@ class Orders_model extends CI_Model
     ->select_sum('order_details.qty', 'qty')
     ->from('order_details')
     ->join('orders', 'order_details.order_code = orders.code', 'left')
+    ->where('orders.is_pre_order', 0)
     ->where('order_details.product_code', $item_code)
 		->where('order_details.is_cancle', 0)
     ->where('order_details.is_complete', 0)
@@ -1388,11 +1389,13 @@ class Orders_model extends CI_Model
     ->select_sum('order_details.qty', 'qty')
     ->from('order_details')
     ->join('orders', 'order_details.order_code = orders.code', 'left')
+    ->where('orders.is_pre_order', 0)
     ->where('order_details.style_code', $style_code)
     ->where('order_details.is_cancle', 0)
     ->where('order_details.is_complete', 0)
     ->where('order_details.is_expired', 0)
     ->where('order_details.is_count', 1);
+
     if($warehouse !== NULL)
     {
       $this->db->where('warehouse_code', $warehouse);
@@ -1657,7 +1660,7 @@ class Orders_model extends CI_Model
 
     return NULL;
   }
-  
+
 
   public function set_expire_order($code)
   {
