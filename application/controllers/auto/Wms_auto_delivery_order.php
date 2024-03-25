@@ -85,7 +85,7 @@ class Wms_auto_delivery_order extends CI_Controller
 						{
 							$channels = $this->channels_model->get($order->channels_code);
 
-							if($channels->is_online == 1)
+							if( ! empty($channels) && $channels->is_online == 1)
 							{
 								$order->shipped_date = $data->shipped_date;
 								//--- บันทึกขาย เซ็ต state = 8  export delivery
@@ -120,7 +120,7 @@ class Wms_auto_delivery_order extends CI_Controller
                      $this->orders_model->add_tracking($arr);
                    }
                  }
-              } //--- if ! empty tracking list 
+              } //--- if ! empty tracking list
 						}
 						else
 						{
