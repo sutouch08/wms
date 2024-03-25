@@ -417,6 +417,8 @@ class Delivery_order extends PS_Controller
 
   public function view_detail($code)
   {
+    ini_set('max_execution_time', 600);
+
     $this->load->model('masters/customers_model');
     $this->load->model('inventory/qc_model');
 		$this->load->model('masters/warehouse_model');
@@ -436,7 +438,7 @@ class Delivery_order extends PS_Controller
       $this->load->model('masters/zone_model');
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
     }
-
+  
     $details = $this->delivery_order_model->get_billed_detail($code);
     $box_list = $this->qc_model->get_box_list($code);
     $ds['order'] = $order;
