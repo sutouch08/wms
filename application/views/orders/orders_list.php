@@ -174,6 +174,7 @@
 <hr class="margin-top-15 padding-5">
 <input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
 <input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
+<input type="hidden" name="search" value="1" />
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <?php $sort_date = $order_by == '' ? "" : ($order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
@@ -255,7 +256,7 @@
 <?php if($this->_SuperAdmin) : ?>
 <div >
 	<?php
-	echo "query : {$start} - {$end} &nbsp;&nbsp;&nbsp;";
+	//echo "query : {$start} - {$end} &nbsp;&nbsp;&nbsp;";
 	list($usec, $sec) = explode(' ',$start);
 	$querytime_before = ((float)$usec + (float)$sec);
 	list($usec, $sec) = explode(' ',$end);
@@ -263,7 +264,7 @@
 	$querytime = $querytime_after - $querytime_before;
 	echo "Query Time : ".round($querytime, 4)." Second";
 
-	echo "&nbsp;&nbsp;&nbsp; loop : {$loop_start} - {$loop_end} &nbsp;&nbsp;&nbsp;";
+	//echo "&nbsp;&nbsp;&nbsp; loop : {$loop_start} - {$loop_end} &nbsp;&nbsp;&nbsp;";
 	list($usec, $sec) = explode(' ',$loop_start);
 	$querytime_before = ((float)$usec + (float)$sec);
 	list($usec, $sec) = explode(' ',$loop_end);

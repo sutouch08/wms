@@ -25,18 +25,18 @@ class Invoice extends PS_Controller
     $this->load->helper('channels');
     $this->load->helper('warehouse');
     $filter = array(
-      'code'          => get_filter('code', 'ic_code', ''),
-      'customer'      => get_filter('customer', 'ic_customer', ''),
-      'user'          => get_filter('user', 'ic_user', ''),
-      'role'          => get_filter('role', 'ic_role', ''),
-      'channels'      => get_filter('channels', 'ic_channels', ''),
-      'from_date'     => get_filter('from_date', 'ic_from_date', ''),
-      'to_date'       => get_filter('to_date', 'ic_to_date', ''),
-      'order_by'      => get_filter('order_by', 'ic_order_by', ''),
-      'sort_by'       => get_filter('sort_by', 'ic_sort_by', ''),
-      'is_valid'      => get_filter('is_valid', 'ic_valid', 'all'),
-      'warehouse'     => get_filter('warehouse', 'ic_warehouse', 'all'),
-			'is_exported'   => get_filter('is_exported', 'ic_is_exported', 'all')
+      'code' => get_filter('code', 'ic_code', ''),
+      'customer' => get_filter('customer', 'ic_customer', ''),
+      'user' => get_filter('user', 'ic_user', ''),
+      'role' => get_filter('role', 'ic_role', ''),
+      'channels' => get_filter('channels', 'ic_channels', ''),
+      'from_date' => get_filter('from_date', 'ic_from_date', ''),
+      'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'order_by'   => get_filter('order_by', 'ic_order_by', ''),
+      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
+      'is_valid' => get_filter('is_valid', 'ic_valid', 'all'),
+      'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
+			'is_exported' => get_filter('is_exported', 'ic_is_exported', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -51,7 +51,7 @@ class Invoice extends PS_Controller
 		$rows     = $this->delivery_order_model->count_rows($filter, 8);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->delivery_order_model->get_data($filter, $perpage, $this->uri->segment($segment), 8);
+		$orders   = $this->delivery_order_model->get_list($filter, $perpage, $this->uri->segment($segment), 8);    
 
     $filter['orders'] = $orders;
 
@@ -104,7 +104,7 @@ class Invoice extends PS_Controller
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $details = $this->invoice_model->get_details($code); //--- รายการที่มีการบันทึกขายไป
-    
+
     if(!empty($details))
     {
       foreach($details as $rs)

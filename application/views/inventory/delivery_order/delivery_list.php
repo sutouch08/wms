@@ -120,7 +120,7 @@
           </td>
 
           <td class="pointer text-center" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo number($rs->total_amount,2); ?>
+            <?php echo ($rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total,2)); ?>
           </td>
 
           <td class="pointer text-center" onclick="goDetail('<?php echo $rs->code; ?>')">

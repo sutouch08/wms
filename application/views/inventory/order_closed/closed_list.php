@@ -131,8 +131,8 @@
             <?php echo $rs->customer_name; ?>
           </td>
 
-          <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo number($rs->total_amount,2); ?>
+          <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">						
+						<?php echo ($rs->doc_total <= 0 ? number($this->invoice_model->get_billed_amount($rs->code), 2) : number($rs->doc_total,2)); ?>
           </td>
 
           <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
@@ -142,6 +142,7 @@
           <td class="pointer text-center hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->user; ?>
           </td>
+
 					<td class="pointer text-center hide-text">
             <button type="button" class="btn btn-minier btn-success" onclick="do_export('<?php echo $rs->code; ?>')">
 							<i class="fa fa-send"></i> SAP

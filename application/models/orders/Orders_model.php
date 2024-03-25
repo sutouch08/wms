@@ -762,7 +762,7 @@ class Orders_model extends CI_Model
 				->group_end();
 			}
 		}
-
+    
     return $this->db->count_all_results('orders');
   }
 
@@ -1034,7 +1034,7 @@ class Orders_model extends CI_Model
     }
 
     $rs = $this->db->get('orders');
-    //echo $this->db->get_compiled_select();
+    // echo $this->db->get_compiled_select('orders');
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -1236,14 +1236,19 @@ class Orders_model extends CI_Model
   }
 
 
-
-
   public function get_order_total_amount($code)
   {
-    $this->db->select_sum('total_amount', 'amount');
-    $this->db->where('order_code', $code);
-    $rs = $this->db->get('order_details');
-    return $rs->row()->amount;
+    $rs = $this->db
+    ->select_sum('total_amount')
+    ->where('order_code', $code)
+    ->get('order_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->total_amount;
+    }
+
+    return 0;
   }
 
 
@@ -1254,17 +1259,29 @@ class Orders_model extends CI_Model
     ->where('reference', $code)
     ->get('order_sold');
 
-    return $rs->row()->amount;
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->amount;
+    }
+
+    return 0;
   }
 
 
 
   public function get_order_total_qty($code)
   {
-    $this->db->select_sum('qty', 'qty');
-    $this->db->where('order_code', $code);
-    $rs = $this->db->get('order_details');
-    return $rs->row()->qty;
+    $rs = $this->db
+    ->select_sum('qty', 'qty')
+    ->where('order_code', $code)
+    ->get('order_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
   }
 
 

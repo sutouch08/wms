@@ -51,7 +51,7 @@ class Delivery_order extends PS_Controller
 		$rows     = $this->delivery_order_model->count_rows($filter, 7);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->delivery_order_model->get_data($filter, $perpage, $this->uri->segment($segment), 7);
+		$orders   = $this->delivery_order_model->get_list($filter, $perpage, $this->uri->segment($segment), 7);
 
     $filter['orders'] = $orders;
 
@@ -377,7 +377,17 @@ class Delivery_order extends PS_Controller
               break;
             }
           }
+        }
 
+        if($sc === TRUE)
+        {
+          $doc_total = $this->delivery_order_model->get_billed_amount($code);
+
+          if( ! $this->orders_model->update($code, array('doc_total' => $doc_total)))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to update doc total";
+          }
         }
 
         if($sc === TRUE)
@@ -437,7 +447,7 @@ class Delivery_order extends PS_Controller
     {
       $this->load->model('masters/zone_model');
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
-    }  
+    }
 
     $details = $this->delivery_order_model->get_billed_detail($code);
     $box_list = $this->qc_model->get_box_list($code);

@@ -963,11 +963,6 @@ class Receive_transform extends PS_Controller
         $ds['totalAmount'] = $totalAmount;
       }
 
-
-
-      // $ds['zone_code'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->code) : "";
-      // $ds['zone_name'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->name) : "";
-
       $this->load->view('inventory/receive_transform/receive_transform_edit', $ds);
     }
     else
@@ -975,41 +970,6 @@ class Receive_transform extends PS_Controller
       $this->page_error();
     }
   }
-
-  // public function edit($code)
-  // {
-  //   $document = $this->receive_transform_model->get($code);
-  //
-  //   $zone_code = NULL;
-  //   $zone = NULL;
-  //
-	// 	if(!empty($document))
-	// 	{
-	// 		$ds['document'] = $document;
-  //
-	// 		if($document->is_wms)
-	// 		{
-  //       $zone_code = getConfig('WMS_ZONE');
-  //
-  //       if($zone_code != "" && $zone_code != NULL)
-  //       {
-  //         $this->load->model('masters/zone_model');
-  //         $zone = $this->zone_model->get($zone_code);
-  //       }
-  //
-	// 			$ds['details'] = ! empty($document) ? $this->receive_transform_model->get_details($code) : NULL;
-	// 		}
-  //
-  //     $ds['zone_code'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->code) : "";
-  //     $ds['zone_name'] = $document->is_wms == 1 ? (empty($zone) ? "" : $zone->name) : "";
-  //
-	//     $this->load->view('inventory/receive_transform/receive_transform_edit', $ds);
-	// 	}
-	// 	else
-	// 	{
-	// 		$this->page_error();
-	// 	}
-  // }
 
 
   public function update_header(){

@@ -20,32 +20,26 @@ class Delivery_order_model extends CI_Model
   }
 
 
-
-
   public function count_rows(array $ds = array(), $state = 7)
   {
-    $this->db->select('state')
-    ->from('orders')
-    ->join('channels', 'channels.code = orders.channels_code','left')
-    ->join('customers', 'customers.code = orders.customer_code', 'left')
-    ->where('orders.state', $state);
+    $this->db->where('state', $state);
 
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db->like('orders.code', $ds['code']);
+      $this->db->like('code', $ds['code']);
     }
 
-    if(!empty($ds['customer']))
+    if(! empty($ds['customer']))
     {
-			$this->db->group_start();
-			$this->db->like('orders.customer_code', $ds['customer']);
-      $this->db->or_like('customers.name', $ds['customer']);
-      $this->db->or_like('orders.customer_ref', $ds['customer']);
-      $this->db->group_end();
+      $this->db
+      ->group_start()
+			->like('customer_code', $ds['customer'])
+      ->or_like('customer_ref', $ds['customer'])
+      ->group_end();
     }
 
     //---- user name / display name
-    if(!empty($ds['user']))
+    if( ! empty($ds['user']))
     {
       $users = user_in($ds['user']);
       $this->db->where_in('user', $users);
@@ -57,127 +51,107 @@ class Delivery_order_model extends CI_Model
       $this->db->where('role', $ds['role']);
     }
 
-
-    if(!empty($ds['channels']))
+    if(! empty($ds['channels']))
     {
-      $this->db->where('orders.channels_code', $ds['channels']);
-    }
-
-    if(!empty($ds['warehouse']) && $ds['warehouse'] != 'all')
-    {
-      $this->db->where('orders.warehouse_code', $ds['warehouse']);
-    }
-
-    if(isset($ds['is_valid']) && $ds['is_valid'] != 2)
-    {
-      $this->db->where('orders.is_valid', $ds['is_valid']);
-    }
-
-
-		if(isset($ds['is_exported']) && $ds['is_exported'] != 'all')
-		{
-			$this->db->where('orders.is_exported', $ds['is_exported']);
-		}
-
-
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
-    {
-      $this->db->where('orders.date_add >=', from_date($ds['from_date']));
-      $this->db->where('orders.date_add <=', to_date($ds['to_date']));
-    }
-
-    $rs = $this->db->get();
-
-    return $rs->num_rows();
-  }
-
-
-
-  public function get_data(array $ds = array(), $perpage = NULL, $offset = NULL, $state = 7)
-  {
-    $total_query = "(SELECT SUM(total_amount) FROM order_details WHERE order_code = orders.code) AS total_amount";
-    $this->db->select("orders.*, channels.name AS channels_name, customers.name AS customer_name, {$total_query}")
-    ->from('orders')
-    ->join('channels', 'channels.code = orders.channels_code','left')
-    ->join('customers', 'customers.code = orders.customer_code', 'left')
-    ->where('orders.state', $state);
-
-    if(!empty($ds['code']))
-    {
-      $this->db->like('orders.code', $ds['code']);
-    }
-
-    if(!empty($ds['customer']))
-    {
-      $this->db->group_start();
-			$this->db->like('orders.customer_code', $ds['customer']);
-      $this->db->or_like('customers.name', $ds['customer']);
-      $this->db->or_like('orders.customer_ref', $ds['customer']);
-      $this->db->group_end();
-    }
-
-    //---- user name / display name
-    if(!empty($ds['user']))
-    {
-      $users = user_in($ds['user']);
-      $this->db->where_in('orders.user', $users);
-    }
-
-
-    if(!empty($ds['role']))
-    {
-      $this->db->where('orders.role', $ds['role']);
-    }
-
-    if(!empty($ds['channels']))
-    {
-      $this->db->where('orders.channels_code', $ds['channels']);
+      $this->db->where('channels_code', $ds['channels']);
     }
 
 
     if(!empty($ds['warehouse']) && $ds['warehouse'] != 'all')
     {
-      $this->db->where('orders.warehouse_code', $ds['warehouse']);
+      $this->db->where('warehouse_code', $ds['warehouse']);
     }
 
 
     if(isset($ds['is_valid']) && $ds['is_valid'] != 'all')
     {
-      $this->db->where('orders.is_valid', $ds['is_valid']);
+      $this->db->where('is_valid', $ds['is_valid']);
     }
 
 		if(isset($ds['is_exported']) && $ds['is_exported'] != 'all')
 		{
-			$this->db->where('orders.is_exported', $ds['is_exported']);
+			$this->db->where('is_exported', $ds['is_exported']);
 		}
 
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')
     {
-      $this->db->where('orders.date_add >=', from_date($ds['from_date']));
-      $this->db->where('orders.date_add <=', to_date($ds['to_date']));
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
-    if(!empty($ds['order_by']))
+    return $this->db->count_all_results('orders');
+  }
+
+
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $state = 7)
+  {
+    $this->db->where('state', $state);
+
+    if( ! empty($ds['code']))
     {
-      $order_by = "orders.{$ds['order_by']}";
-      $this->db->order_by($order_by, $ds['sort_by']);
+      $this->db->like('code', $ds['code']);
     }
-    else
+
+    if(! empty($ds['customer']))
     {
-      $this->db->order_by('orders.date_add', 'DESC');
+      $this->db
+      ->group_start()
+			->like('customer_code', $ds['customer'])
+      ->or_like('customer_ref', $ds['customer'])
+      ->group_end();
     }
 
-
-    if(!empty($perpage))
+    //---- user name / display name
+    if( ! empty($ds['user']))
     {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
+      $users = user_in($ds['user']);
+      $this->db->where_in('user', $users);
     }
 
-    $rs = $this->db->get();
 
-    return $rs->result();
+    if(!empty($ds['role']))
+    {
+      $this->db->where('role', $ds['role']);
+    }
+
+    if(! empty($ds['channels']))
+    {
+      $this->db->where('channels_code', $ds['channels']);
+    }
+
+
+    if(!empty($ds['warehouse']) && $ds['warehouse'] != 'all')
+    {
+      $this->db->where('warehouse_code', $ds['warehouse']);
+    }
+
+
+    if(isset($ds['is_valid']) && $ds['is_valid'] != 'all')
+    {
+      $this->db->where('is_valid', $ds['is_valid']);
+    }
+
+		if(isset($ds['is_exported']) && $ds['is_exported'] != 'all')
+		{
+			$this->db->where('is_exported', $ds['is_exported']);
+		}
+
+
+    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    $rs = $this->db->order_by('date_add', 'DESC')->limit($perpage, $offset)->get('orders');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 
@@ -224,32 +198,23 @@ class Delivery_order_model extends CI_Model
   }
 
 
+  public function get_billed_amount($code)
+  {
+    $rs = $this->db
+    ->select_sum('total_amount')
+    ->where('reference', $code)
+    ->get('order_sold');
+
+    return $rs->row()->total_amount;
+  }
+
+
     //------------------ สำหรับแสดงยอดที่มีการบันทึกขายไปแล้ว -----------//
     //--- รายการสั้งซื้อ รายการจัดสินค้า รายการตรวจสินค้า
     //--- เปรียบเทียบยอดที่มีการสั่งซื้อ และมีการตรวจสอนค้า
     //--- เพื่อให้ได้ยอดที่ต้องเปิดบิล บันทึกขายจริงๆ
     //--- ผลลัพธ์จะได้ยอดสั่งซื้อเป็นหลัก หากไม่มียอดตรวจ จะได้ยอดตรวจ เป็น NULL
     //--- กรณีสินค้าเป็นสินค้าที่ไม่นับสต็อกจะบันทึกตามยอดที่สั่งมา
-    // public function get_billed_detail($code)
-    // {
-    //   $qr = "SELECT o.id, o.product_code, o.product_name, o.qty AS order_qty, o.is_count, ";
-    //   $qr .= "o.price, o.discount1, o.discount2, o.discount3, ";
-    //   $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
-    //   $qr .= "(o.total_amount/o.qty) AS final_price, ";
-    //   $qr .= "(SELECT SUM(qty) FROM prepare WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS prepared, ";
-    //   $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS qc ";
-    //   $qr .= "FROM order_details AS o ";
-    //   $qr .= "WHERE o.order_code = '{$code}'";
-    //
-    //   $rs = $this->db->query($qr);
-    //   if($rs->num_rows() > 0)
-    //   {
-    //     return $rs->result();
-    //   }
-    //
-    //   return FALSE;
-    // }
-
     public function get_billed_detail($code)
     {
       $qr = "SELECT o.id, o.product_code, o.product_name, o.qty AS order_qty, o.is_count, ";

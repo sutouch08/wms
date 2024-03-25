@@ -4,7 +4,7 @@ class Invoice_model extends CI_Model
   public function __construct()
   {
     parent::__construct();
-  }  
+  }
 
   public function get_billed_detail($code)
   {
@@ -97,6 +97,16 @@ class Invoice_model extends CI_Model
     return 0;
   }
 
+
+  public function get_billed_amount($code)
+  {
+    $rs = $this->db
+    ->select_sum('total_amount')
+    ->where('reference', $code)
+    ->get('order_sold');
+
+    return $rs->row()->total_amount;
+  }
 
   //----- get sold qty from order sold
   public function get_billed_detail_qty($code)

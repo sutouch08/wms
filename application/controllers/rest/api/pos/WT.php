@@ -169,6 +169,69 @@ class WT extends REST_Controller
   } //--- end confirm
 
 
+  public function get_list_get($zone_code = NULL)
+  {
+    $sc = TRUE;
+
+    if(empty($zone_code))
+    {
+      $sc = FALSE;
+      $this->error = "Missing required parameters";
+      $this->add_logs('WT', 'get', 'error', $this->error, $zone_code);
+      $this->response(['status' => FALSE, 'message' => $this->error], 400);
+    }
+
+    if($sc === TRUE)
+    {
+      //---- check zone_code
+      $count = $this->db
+      ->from('zone AS z')
+      ->join('warehouse AS w', 'z.warehouse_code = w.code', 'left')
+      ->where('w.role', 2)
+      ->where('z.code', $zone_code)
+      ->count_all_results();
+
+      if($count != 1)
+      {
+        $sc = FALSE;
+        $this->error = "Invalid zone code Or zone not in consignment warehouse";
+        $this->add_logs('WT', 'get', 'error', $this->error, $zone_code);
+        $this->response(['status' => FALSE, 'message' => $this->error], 400);
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      $rs = $this->db
+      ->select('o.code, o.customer_code, o.zone_code, c.name AS customer_name, z.name AS zone_name')
+      ->from('orders AS o')
+      ->join('customers AS c', 'o.customer_code = c.code', 'left')
+      ->join('zone AS z', 'o.zone_code = z.code', 'left')
+      ->where('o.role', 'N')
+      ->where('o.zone_code', $zone_code)
+      ->where('o.state', 8)
+      ->where('o.status', 1)
+      ->where('o.is_valid', 0)
+      ->where('o.is_cancled', 0)
+      ->where('o.is_expired', 0)
+      ->order_by('o.code', 'DESC')
+      ->limit(100)
+      ->get();
+
+      $ds = array(
+        'status' => TRUE,
+        'message' => 'success',
+        'count' => $rs->num_rows(),
+        'data' => $rs->num_rows() > 0 ? $rs->result() : NULL
+      );
+
+      $this->add_logs('WT', 'get', 'success', 'success', $zone_code);
+      $this->add_logs('WT', 'update', 'response','success', json_encode($ds));
+      $this->response($ds, 200);
+    }
+  }
+
+
   public function add_logs($code = 'WT', $action = 'create', $status = 'error', $message = NULL, $json = NULL)
   {
     if($this->log_json)
