@@ -141,48 +141,47 @@ function zoneInit(customer_code, edit)
 
 
 function add(){
-  var manualCode = $('#manualCode').val();
-  if(manualCode == 1){
-    validateOrder();
-  }
-  else{
-    addOrder();
-  }
+  addOrder();
 }
 
 
-function addOrder(){
-  var customer_code = $('#customerCode').val();
-  var customer_name = $('#customer').val();
-  var date_add = $('#date').val();
-  var zone_code = $('#zone_code').val();
-  var zone_name = $('#zone').val();
-  var warehouse = $('#warehouse').val();
-  var gp = $('#gp').val();
+function addOrder() {
+  let h = {
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'zone_code' : $('#zone_code').val(),
+    'zone_name' : $('#zone').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'gp' : $('#gp').val(),
+    'unit' : $('#unit').val(),
+    'remark' : $('#remark').val()
+  }
 
-  if(customer_code.length == 0 || customer_name.length == 0){
+
+  if(h.customer_code.length == 0 || h.customer_name.length == 0){
     swal('ชื่อลูกค้าไม่ถูกต้อง');
     return false;
   }
 
-  if(!isDate(date_add))
+  if(!isDate(h.date_add))
   {
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
-  if(zone_code.length == 0 || zone_name.length == 0)
+  if(h.zone_code.length == 0 || h.zone_name.length == 0)
   {
     swal('โซนไม่ถูกต้อง');
     return false;
   }
 
-  if(warehouse.length == 0){
+  if(h.warehouse_code.length == 0){
     swal('กรุณาเลือกคลัง');
     return false;
   }
 
-  if(gp === "") {
+  if(h.gp === "") {
     swal({
       title:'Oops!',
       text:"กรุณากำหนด GP หากไม่มี GP ให้ระบุเป็น 0",
@@ -192,7 +191,51 @@ function addOrder(){
     return false;
   }
 
-  $('#addForm').submit();
+  load_in();
+
+  $.ajax({
+    url:HOME + 'add',
+    type:'POST',
+    cache:false,
+    data:{
+      'data' : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          window.location.href = HOME + 'edit_detail/'+ds.code;
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          })
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error',
+          html:true
+        })
+      }
+    },
+    error:function(xhr) {
+      load_out();
+      swal({
+        title:'Error!',
+        text:xhr.responseText,
+        type:'error',
+        html:true
+      })
+    }
+  })
 }
 
 
@@ -437,51 +480,55 @@ function countInput(){
 
 
 function validUpdate(){
-	var date_add = $("#date").val();
-	var customer_code = $("#customerCode").val();
-  var customer_name = $('#customer').val();
-	var zone_code = $('#zone_code').val();
-  var zone_name = $('#zone').val();
-  var warehouse = $('#warehouse').val();
+  updateOrder();
+}
 
-	//---- ตรวจสอบวันที่
-	if( ! isDate(date_add) ){
-		swal("วันที่ไม่ถูกต้อง");
-		return false;
-	}
 
-	//--- ตรวจสอบลูกค้า
-	if( customer_code.length == 0 || customer_name == "" ){
-		swal("ชื่อลูกค้าไม่ถูกต้อง");
-		return false;
-	}
+function updateOrder() {
+  let h = {
+    'code' : $('#order_code').val(),
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'zone_code' : $('#zone_code').val(),
+    'zone_name' : $('#zone').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'gp' : $('#gp').val(),
+    'remark' : $('#remark').val()
+  }
 
-  if(zone_code == '' || zone_name.length == 0)
+
+  if(h.customer_code.length == 0 || h.customer_name.length == 0){
+    swal('ชื่อลูกค้าไม่ถูกต้อง');
+    return false;
+  }
+
+  if(!isDate(h.date_add))
+  {
+    swal('วันที่ไม่ถูกต้อง');
+    return false;
+  }
+
+  if(h.zone_code.length == 0 || h.zone_name.length == 0)
   {
     swal('โซนไม่ถูกต้อง');
     return false;
   }
 
-  if(warehouse.length == 0){
+  if(h.warehouse_code.length == 0){
     swal('กรุณาเลือกคลัง');
     return false;
   }
 
-  updateOrder();
-}
+  if(h.gp === "") {
+    swal({
+      title:'Oops!',
+      text:"กรุณากำหนด GP หากไม่มี GP ให้ระบุเป็น 0",
+      type:'warning'
+    });
 
-
-
-
-
-function updateOrder(){
-	var order_code = $("#order_code").val();
-	var date_add = $("#date").val();
-	var customer_code = $("#customerCode").val();
-  var zone_code = $('#zone_code').val();
-  var gp = $('#gp').val();
-  var warehouse = $('#warehouse').val();
-	var remark = $("#remark").val();
+    return false;
+  }
 
 	load_in();
 
@@ -489,18 +536,12 @@ function updateOrder(){
 		url:HOME + 'update_order',
 		type:"POST",
 		cache:"false",
-		data:{
-      "order_code" : order_code,
-  		"date_add"	: date_add,
-  		"customer_code" : customer_code,
-      "gp" : gp,
-  		"remark" : remark,
-      "zone_code" : zone_code,
-      "warehouse" : warehouse
+		data: {
+      "data" : JSON.stringify(h)
     },
 		success: function(rs){
 			load_out();
-			var rs = $.trim(rs);
+			
 			if( rs == 'success' ){
 				swal({
           title: 'Done !',

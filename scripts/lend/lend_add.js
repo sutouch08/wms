@@ -6,12 +6,16 @@ $('#date').datepicker({
 //---- เปลี่ยนสถานะออเดอร์  เป็นบันทึกแล้ว
 function saveOrder(){
   var order_code = $('#order_code').val();
+
+  load_in();
+
 	$.ajax({
 		url: HOME + 'save/'+ order_code,
 		type:"POST",
     cache:false,
 		success:function(rs){
-			var rs = $.trim(rs);
+			load_out();
+
 			if( rs == 'success' ){
 				swal({
           title: 'Saved',
@@ -89,13 +93,8 @@ $(document).ready(function() {
 });
 
 
-function add(){
-  var manualCode = $('#manualCode').val();
-  if(manualCode == 1){
-    validateOrder();
-  }else{
-    addOrder();
-  }
+function add(){  
+  addOrder();
 }
 
 

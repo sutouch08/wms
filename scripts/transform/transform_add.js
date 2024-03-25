@@ -3,6 +3,11 @@ $('#date').datepicker({
 });
 
 
+$('#due_date').datepicker({
+  dateFormat:'dd-mm-yy'
+});
+
+
 //---- เปลี่ยนสถานะออเดอร์  เป็นบันทึกแล้ว
 function saveOrder(){
   var order_code = $('#order_code').val();
@@ -120,6 +125,25 @@ $("#zone").autocomplete({
 	}
 });
 
+$('#zoneCode').autocomplete({
+  source: BASE_URL + 'auto_complete/get_transform_zone',
+	autoFocus: true,
+	close: function(){
+		var rs = $.trim($(this).val());
+		var arr = rs.split(' | ');
+		if( arr.length == 2 ){
+			var code = arr[0];
+			var name = arr[1];
+			$(this).val(code);
+			$('#zone').val(name);
+		}
+    else {
+			$("#zone").val('');
+			$(this).val('');
+		}
+	}
+})
+
 
 $("#empName").autocomplete({
 	source: BASE_URL + 'auto_complete/get_user',
@@ -140,58 +164,62 @@ $("#empName").autocomplete({
 
 
 function add(){
-  var manualCode = $('#manualCode').val();
-
-  if(manualCode == 1){
-    validateOrder();
-  }else{
-    addOrder();
-  }
+  addOrder();
 }
 
 
-function addOrder(){
-  var customer_code = $('#customerCode').val();
-  var customer_name = $('#customer').val();
-  var date_add = $('#date').val();
-  var empName = $('#empName').val();
-  var role = $('#role').val();
-  var zoneCode = $('#zoneCode').val();
-  var zoneName = $('#zone').val();
-  var warehouse_code = $('#warehouse').val();
-  var remark = $('#remark').val();
-  var reqRemark = $('#require_remark').val() == 1 ? true : false;
+function addOrder() {
+  let h = {
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'due_date' : $('#due_date').val(),
+    'empName' :  $('#empName').val(),
+    'role' : $('#role').val(),
+    'zone_code' : $('#zoneCode').val(),
+    'zone_name' : $('#zone').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'reference' : $('#wq-ref').val(),
+    'remark' : $('#remark').val()
+  }
 
-  if(customer_code.length == 0 || customer_name.length == 0){
+  let reqRemark = $('#require_remark').val() == 1 ? true : false;
+
+  if(h.customer_code.length == 0 || h.customer_name.length == 0){
     swal('ชื่อผู้รับไม่ถูกต้อง');
     return false;
   }
 
-  if(!isDate(date_add))
+  if(!isDate(h.date_add))
   {
     swal('วันที่ไม่ถูกต้อง');
     console.log('date error');
     return false;
   }
 
-  if(empName.length == 0)
+  if(h.empName.length == 0)
   {
     swal('ชื่อผู้เบิกไม่ถูกต้อง');
     return false;
   }
 
-  if(zoneCode.length == 0 || zoneName.length == 0 )
+  if(h.zone_code.length == 0 || h.zone_name.length == 0 )
   {
     swal('โซนแปรสภาพไม่ถูกต้อง');
     return false;
   }
 
-  if(warehouse_code.length == 0){
+  if(h.warehouse_code.length == 0){
     swal('กรุณาเลือกคลัง');
     return false;
   }
 
-  if(reqRemark && remark.length < 10) {
+  if( ! isDate(h.due_date)) {
+    swal('กรุณาระบุวันที่ต้องการสินค้า');
+    return false;
+  }
+
+  if(reqRemark && h.remark.length < 10) {
     swal({
       title: 'Required',
       text: "กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร",
@@ -201,7 +229,53 @@ function addOrder(){
     return false;
   }
 
-  $('#addForm').submit();
+  load_in();
+
+  $.ajax({
+    url:HOME + 'add',
+    type:'POST',
+    cache:false,
+    data:{
+      "data" : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          window.location.href = HOME + 'edit_detail/'+ds.code;
+        }
+        else
+        {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          })
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error',
+          html:true
+        })
+      }
+    },
+    error:function(xhr) {
+      load_out();
+
+      swal({
+        title:'Error!',
+        text:xhr.responseText,
+        type:'error',
+        html:true
+      })
+    }
+  })
 }
 
 
@@ -439,63 +513,7 @@ function countInput(){
 
 
 
-function validUpdate(){
-  var customer_code = $('#customerCode').val();
-  var customer_name = $('#customer').val();
-  var date_add = $('#date').val();
-  var empName = $('#empName').val();
-  var role = $('#role').val();
-  var zoneCode = $('#zoneCode').val();
-  var zoneName = $('#zone').val();
-  var warehouse_code = $('#warehouse').val();
-  var remark = $('#remark').val().trim();
-  var reqRemark = $('#require_remark').val() == 1 ? true : false;
-
-  if(customer_code.length == 0 || customer_name.length == 0){
-    swal('ชื่อผู้รับไม่ถูกต้อง');
-    return false;
-  }
-
-  if(!isDate(date_add))
-  {
-    swal('วันที่ไม่ถูกต้อง');
-    console.log('date error');
-    return false;
-  }
-
-  if(empName.length == 0)
-  {
-    swal('ชื่อผู้เบิกไม่ถูกต้อง');
-    return false;
-  }
-
-  if(zoneCode.length == 0 || zoneName.length == 0 )
-  {
-    swal('โซนแปรสภาพไม่ถูกต้อง');
-    return false;
-  }
-
-  if(warehouse_code.length == 0){
-    swal('กรุณาเลือกคลัง');
-    return false;
-  }
-
-	//---- ตรวจสอบวันที่
-	if( ! isDate(date_add) ){
-		swal("วันที่ไม่ถูกต้อง");
-		return false;
-	}
-
-  if(reqRemark && remark.length < 10) {
-    swal({
-      title:'Required',
-      text:'กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร',
-      type:'warning'
-    });
-
-    return false;
-  }
-
+function validUpdate() {
   updateOrder();
 }
 
@@ -503,17 +521,67 @@ function validUpdate(){
 
 
 
-function updateOrder(){
-	var order_code = $("#order_code").val();
-	var date_add = $("#date").val();
-	var customer_code = $("#customerCode").val();
-  var customer_name = $("#customer").val();
-	var user_ref = $('#empName').val();
-	var remark = $("#remark").val();
-  var zoneCode = $('#zoneCode').val();
-  var zoneName = $('#zone').val();
-  var warehouse_code = $('#warehouse').val();
-  var reference = $('#wq-ref').val();
+function updateOrder() {
+  let h = {
+    'code' : $('#order_code').val(),
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'due_date' : $('#due_date').val(),
+    'empName' :  $('#empName').val(),
+    'role' : $('#role').val(),
+    'zone_code' : $('#zoneCode').val(),
+    'zone_name' : $('#zone').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'reference' : $('#wq-ref').val(),
+    'remark' : $('#remark').val()
+  }
+
+  let reqRemark = $('#require_remark').val() == 1 ? true : false;
+
+  if(h.customer_code.length == 0 || h.customer_name.length == 0){
+    swal('ชื่อผู้รับไม่ถูกต้อง');
+    return false;
+  }
+
+  if(!isDate(h.date_add))
+  {
+    swal('วันที่ไม่ถูกต้อง');
+    console.log('date error');
+    return false;
+  }
+
+  if(h.empName.length == 0)
+  {
+    swal('ชื่อผู้เบิกไม่ถูกต้อง');
+    return false;
+  }
+
+  if(h.zone_code.length == 0 || h.zone_name.length == 0 )
+  {
+    swal('โซนแปรสภาพไม่ถูกต้อง');
+    return false;
+  }
+
+  if(h.warehouse_code.length == 0){
+    swal('กรุณาเลือกคลัง');
+    return false;
+  }
+
+  if( ! isDate(h.due_date)) {
+    swal('กรุณาระบุวันที่ต้องการสินค้า');
+    return false;
+  }
+
+  if(reqRemark && h.remark.length < 10) {
+    swal({
+      title: 'Required',
+      text: "กรุณาระบุหมายเหตุอย่างน้อย 10 ตัวอักษร",
+      type:'warning'
+    });
+
+    return false;
+  }
 
 	load_in();
 
@@ -522,21 +590,14 @@ function updateOrder(){
 		type:"POST",
 		cache:"false",
 		data:{
-      "order_code" : order_code,
-  		"date_add"	: date_add,
-  		"customer_code" : customer_code,
-      "reference" : reference,
-      "user_ref" : user_ref,
-      "zone_code" : zoneCode,
-      "warehouse" : warehouse_code,
-  		"remark" : remark,
+      "data" : JSON.stringify(h)
     },
 		success: function(rs){
 			load_out();
-			var rs = $.trim(rs);
+
 			if( rs == 'success' ){
 				swal({
-          title: 'Done !',
+          title: 'Success !',
           type: 'success',
           timer: 1000
         });

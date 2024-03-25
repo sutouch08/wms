@@ -109,8 +109,8 @@ class Transform extends PS_Controller
     {
       foreach($orders as $rs)
       {
-        $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-        $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+        $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
+        $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
         $rs->state_name    = get_state_name($rs->state);
         $ds[] = $rs;
       }
@@ -134,68 +134,82 @@ class Transform extends PS_Controller
 
   public function add()
   {
+    $sc = TRUE;
+    $data = json_decode($this->input->post('data'));
 
-    if($this->input->post('customerCode'))
+    if( ! empty($data))
     {
 			$this->load->model('masters/warehouse_model');
 
       $book_code = getConfig('BOOK_CODE_TRANSFORM');
-      $date_add = db_date($this->input->post('date'));
-      if($this->input->post('code'))
-      {
-        $code = $this->input->post('code');
-      }
-      else
-      {
-        $code = $this->get_new_code($date_add);
-      }
+
+      $date_add = db_date($data->date_add);
+
+      $due_date = db_date($data->due_date);
+
+      $code = $this->get_new_code($date_add);
 
       $role = 'T'; //--- T = เบิกแปรสภาพ
-      $zone_code = $this->input->post('zoneCode');
-      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
 
-      $ds = array(
-        'code' => $code,
-        'date_add' => $date_add,
-        'role' => $role,
-        'bookcode' => $book_code,
-        'customer_code' => $this->input->post('customerCode'),
-        'reference' => get_null(trim($this->input->post('reference'))),
-        'user' => get_cookie('uname'),
-        'remark' => $this->input->post('remark'),
-        'user_ref' => $this->input->post('empName'),
-        'zone_code' => $zone_code,
-        'warehouse_code' => $wh->code,
-				'is_wms' => $wh->is_wms
-      );
+      $wh = $this->warehouse_model->get($data->warehouse_code);
 
-      if($this->orders_model->add($ds) === TRUE)
+      if( ! empty($wh))
       {
-        $this->transform_model->add($code);
-
-        $arr = array(
-          'order_code' => $code,
-          'state' => 1,
-          'update_user' => get_cookie('uname')
+        $ds = array(
+          'code' => $code,
+          'date_add' => $date_add,
+          'due_date' => $due_date,
+          'role' => $role,
+          'bookcode' => $book_code,
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'reference' => get_null(trim($data->reference)),
+          'user' => $this->_user->uname,
+          'remark' => get_null($data->remark),
+          'user_ref' => $data->empName,
+          'zone_code' => $data->zone_code,
+          'warehouse_code' => $wh->code,
+          'is_wms' => $wh->is_wms
         );
 
-        $this->order_state_model->add_state($arr);
+        if( ! $this->orders_model->add($ds))
+        {
+          $sc = FALSE;
+          $this->error = "เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+        }
+        else
+        {
+          $this->transform_model->add($code);
 
-        redirect($this->home.'/edit_detail/'.$code);
+          $arr = array(
+            'order_code' => $code,
+            'state' => 1,
+            'update_user' => $this->_user->uname
+          );
+
+          $this->order_state_model->add_state($arr);
+        }
       }
       else
       {
-        set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-        redirect($this->home.'/add_new');
+        $sc = FALSE;
+        $this->error = "Invaid warehouse code";
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูลลูกค้า กรุณาตรวจสอบ');
-      redirect($this->home.'/add_new');
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
     }
-  }
 
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL
+    );
+
+    echo json_encode($arr);
+  }
 
 
   public function edit_order($code, $approve_view = NULL)
@@ -212,8 +226,8 @@ class Transform extends PS_Controller
     $rs = $this->orders_model->get($code);
     if(!empty($rs))
     {
-      $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-      $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+      $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
+      $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
       $rs->zone_name     = $this->zone_model->get_name($rs->zone_code);
@@ -258,47 +272,56 @@ class Transform extends PS_Controller
   public function update_order()
   {
     $sc = TRUE;
-    if($this->input->post('order_code'))
+
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
 			$this->load->model('masters/warehouse_model');
-      $code = $this->input->post('order_code');
-      $customer_code = $this->input->post('customer_code');
-      $zone_code = $this->input->post('zone_code');
-      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
-      $reference = get_null(trim($this->input->post('reference')));
-      $user_ref = $this->input->post('user_ref');
-      $remark = get_null($this->input->post('remark'));
 
-      $ds = array(
-        'customer_code' => $this->input->post('customer_code'),
-        'reference' => $reference,
-        'date_add' => db_date($this->input->post('date_add')),
-        'user_ref' => $this->input->post('user_ref'),
-        'remark' => $this->input->post('remark'),
-        'status' => 0,
-        'zone_code' => $zone_code,
-        'warehouse_code' => $wh->code,
-        'remark' => $remark,
-				'id_address' => NULL,
-				'id_sender' => NULL,
-				'is_wms' => $wh->is_wms
-      );
+      $code = $data->code;
 
-      $rs = $this->orders_model->update($code, $ds);
+      $wh = $this->warehouse_model->get($data->warehouse_code);
 
-      if($rs === FALSE)
+      if( ! empty($wh))
+      {
+        $ds = array(
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'reference' => get_null($data->reference),
+          'date_add' => db_date($data->date_add),
+          'due_date' => db_date($data->due_date),
+          'user_ref' => $data->empName,
+          'remark' => get_null($data->remark),
+          'status' => 0,
+          'zone_code' => $data->zone_code,
+          'warehouse_code' => $wh->code,
+          'id_address' => NULL,
+          'id_sender' => NULL,
+          'is_wms' => $wh->is_wms
+        );
+
+        if( ! $this->orders_model->update($code, $ds))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update data";
+        }
+      }
+      else
       {
         $sc = FALSE;
-        $message = 'ปรับปรุงข้อมูลไม่สำเร็จ';
+        $this->error = "Invalid warehouse code";
       }
+
+
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบเลขที่เอกสาร';
+      $this->error = "Missing required parameter";
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

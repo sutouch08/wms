@@ -164,7 +164,7 @@ class Orders extends PS_Controller
       $filter['loop_end'] = $loopEnd;
 
       $this->pagination->initialize($init);
-      $this->load->view('orders/orders_list', $filter);      
+      $this->load->view('orders/orders_list', $filter);
     }
 
   }
@@ -274,7 +274,7 @@ class Orders extends PS_Controller
           'bookcode' => $book_code,
           'reference' => get_null($data->reference),
           'customer_code' => $customer->code,
-          // 'customer_name' => $customer->name,
+          'customer_name' => $customer->name,
           'customer_ref' => $customer_ref,
           'channels_code' => $data->channels_code,
           'payment_code' => $data->payment_code,
@@ -772,8 +772,8 @@ class Orders extends PS_Controller
     {
       $rs->channels_name = $this->channels_model->get_name($rs->channels_code);
       $rs->payment_name  = $this->payment_methods_model->get_name($rs->payment_code);
-      $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-      $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+      $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
+      $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
       $rs->has_payment   = $this->order_payment_model->is_exists($code);
@@ -853,8 +853,8 @@ class Orders extends PS_Controller
 
             $ds = array(
               'reference' => $this->input->post('reference'),
-              'customer_code' => $this->input->post('customer_code'),
-              // 'customer_name' => $customer->name,
+              'customer_code' => empty($customer) ? $this->input->post('customer_code') : $customer->code,
+              'customer_name' => empty($customer) ? NULL : $customer->name,
               'customer_ref' => $this->input->post('customer_ref'),
               'channels_code' => $this->input->post('channels_code'),
               'payment_code' => $this->input->post('payment_code'),

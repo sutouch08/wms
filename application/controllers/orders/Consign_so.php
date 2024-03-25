@@ -163,82 +163,113 @@ class Consign_so extends PS_Controller
 
   public function add_new()
   {
-
     $this->load->view('order_consign/consign_add');
   }
 
 
-
   public function add()
   {
-		$this->load->model('masters/warehouse_model');
+    $sc = TRUE;
 
-    if($this->input->post('customerCode'))
+    $this->load->model('masters/warehouse_model');
+
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
       $book_code = getConfig('BOOK_CODE_CONSIGN_SO');
-      $date_add = db_date($this->input->post('date'));
-      if($this->input->post('code'))
-      {
-        $code = $this->input->post('code');
-      }
-      else
-      {
-        $code = $this->get_new_code($date_add);
-      }
+
+      $date_add = db_date($data->date_add);
+
+      $code = $this->get_new_code($date_add);
 
       $role = 'C'; //--- C = ฝากขายเปิดใบกำกับ
-      $zone = $this->input->post('zone_code');
-      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
-			$gp = $this->input->post('gp');
-			$unit = $this->input->post('unit');
-			$gp = $unit == '%' ? $gp.'%' : $gp;
-      if(!empty($zone))
+
+      $zone = $this->zone_model->get($data->zone_code);
+
+      if( ! empty($zone))
       {
-        $ds = array(
-          'date_add' => $date_add,
-          'code' => $code,
-          'role' => $role,
-          'bookcode' => $book_code,
-          'customer_code' => $this->input->post('customerCode'),
-          'gp' => $gp,
-          'user' => get_cookie('uname'),
-          'remark' => $this->input->post('remark'),
-          'zone_code' => $zone,
-          'warehouse_code' => $wh->code,
-					'is_wms' => $wh->is_wms
-        );
-
-        if($this->orders_model->add($ds) === TRUE)
+        if( $zone->is_consignment == 1 )
         {
-          $arr = array(
-            'order_code' => $code,
-            'state' => 1,
-            'update_user' => get_cookie('uname')
-          );
+          $wh = $this->warehouse_model->get($data->warehouse_code);
 
-          $this->order_state_model->add_state($arr);
+          if( ! empty($wh))
+          {
+            $customer = $this->customers_model->get($data->customer_code);
 
-          redirect($this->home.'/edit_detail/'.$code);
+            if( ! empty($customer))
+            {
+              $gp = $data->unit == '%' ? $data->gp.'%' : $data->gp;
+
+              $ds = array(
+                'date_add' => $date_add,
+                'code' => $code,
+                'role' => $role,
+                'bookcode' => $book_code,
+                'customer_code' => $customer->code,
+                'customer_name' => $customer->name,
+                'gp' => $gp,
+                'user' => $this->_user->uname,
+                'remark' => get_null($data->remark),
+                'zone_code' => $zone->code,
+                'warehouse_code' => $wh->code,
+                'is_wms' => $wh->is_wms
+              );
+
+              if( ! $this->orders_model->add($ds))
+              {
+                $sc = FALSE;
+                $this->error = "เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+              }
+              else
+              {
+                $arr = array(
+                'order_code' => $code,
+                'state' => 1,
+                'update_user' => $this->_user->uname
+                );
+
+                $this->order_state_model->add_state($arr);
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Invalid customer code";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Invalid warehouse code";
+          }
         }
         else
         {
-          set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-          redirect($this->home.'/add_new');
+          $sc = FALSE;
+          $this->error = "โซนที่ระบุไม่ใช่โซนฝากขายเทียม";
         }
       }
       else
       {
-        set_error('ไม่พบโซนฝากขาย');
-        redirect($this->home.'/add_new');
+        $sc = FALSE;
+        $this->error = "Invalid zone code : โซนฝากขายปลายทางไม่ถูกต้อง";
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูลลูกค้า กรุณาตรวจสอบ');
-      redirect($this->home.'/add_new');
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
     }
-  }
 
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL
+    );
+
+    echo json_encode($arr);
+  }
 
 
 
@@ -249,11 +280,13 @@ class Consign_so extends PS_Controller
 		$this->load->helper('sender');
 
     $ds = array();
+
     $rs = $this->orders_model->get($code);
+
     if(!empty($rs))
     {
-      $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-      $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+      $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
+      $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
       $rs->zone_name = $this->zone_model->get_name($rs->zone_code);
@@ -314,48 +347,76 @@ class Consign_so extends PS_Controller
   {
     $sc = TRUE;
 
-    if($this->input->post('order_code'))
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
 			$this->load->model('masters/warehouse_model');
 
-      $code = $this->input->post('order_code');
-      $zone = $this->input->post('zone_code');
-      $wh = $this->warehouse_model->get($this->input->post('warehouse'));
-      if(!empty($code))
+      $code = $data->code;
+
+      if( ! empty($code))
       {
-        $ds = array(
-          'customer_code' => $this->input->post('customer_code'),
-          'gp' => $this->input->post('gp'),
-          'date_add' => db_date($this->input->post('date_add')),
-          'remark' => $this->input->post('remark'),
-          'zone_code' => $zone,
-          'warehouse_code' => $wh->code,
-					'is_wms' => $wh->is_wms,
-					'id_address' => NULL,
-					'id_sender' => NULL
-        );
+        $wh = $this->warehouse_model->get($data->warehouse_code);
 
-        $rs = $this->orders_model->update($code, $ds);
+        if( ! empty($wh))
+        {
+          $zone = $this->zone_model->get($data->zone_code);
 
-        if($rs !== TRUE)
+          if( ! empty($zone))
+          {
+            if( $zone->is_consignment)
+            {
+              $ds = array(
+                'customer_code' => $data->customer_code,
+                'customer_name' => $data->customer_name,
+                'gp' => $data->gp,
+                'date_add' => db_date($data->date_add),
+                'remark' => get_null($data->remark),
+                'zone_code' => $data->zone_code,
+                'warehouse_code' => $wh->code,
+      					'is_wms' => $wh->is_wms,
+      					'id_address' => NULL,
+      					'id_sender' => NULL
+              );
+
+              if( ! $this->orders_model->update($code, $ds))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update data";
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "โซนที่ระบุไม่ใช่โซนฝากขายเทียม";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Invlid zone code";
+          }
+        }
+        else
         {
           $sc = FALSE;
-          $message = 'ปรับปรุงข้อมูลไม่สำเร็จ';
+          $this->error = "Invalid warehouse code";
         }
       }
       else
       {
         $sc = FALSE;
-        $message = '่ไม่พบโซน';
+        $this->error = "Invalid document number";
       }
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบเลขที่เอกสาร';
+      $this->error = "Missing requiered parameter";
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

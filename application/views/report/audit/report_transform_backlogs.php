@@ -56,11 +56,12 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="result-window" style="overflow:auto;">
-		<table class="table table-bordered tableFixHead" style="min-width:1340px;">
+		<table class="table table-bordered tableFixHead" style="min-width:1440px; font-size:11px;">
 			<thead>
 				<tr class="font-size-12">
 					<th class="fix-width-40 text-center fix-header">#</th>
 					<th class="fix-width-80 text-center fix-header">วันที่</th>
+					<th class="fix-width-100 text-center fix-header">วันที่ต้องการของ</th>
 					<th class="fix-width-100 text-center fix-header">เลขที่เอกสาร</th>
 					<th class="fix-width-150 text-center fix-header">รหัสสินค้า(เบิก)</th>
 					<th class="fix-width-150 text-center fix-header">รหัสสินค้า(รับ)</th>
@@ -68,7 +69,7 @@
 					<th class="fix-width-80 text-center fix-header">เบิก</th>
 					<th class="fix-width-80 text-center fix-header">รับ</th>
 					<th class="fix-width-80 text-center fix-header">ค้างรับ</th>
-					<th class="fix-width-100 text-center fix-header">มูลค่า</th>          
+					<th class="fix-width-100 text-center fix-header">มูลค่า</th>
 					<th class="fix-width-150 text-center fix-header">ผู้เบิก(User)</th>
 					<th class="fix-width-150 text-center fix-header">ผู้ทำรายการ</th>
 				</tr>
@@ -84,7 +85,7 @@
 	{{#each this}}
 		{{#if @last}}
 			<tr class="font-size-12">
-				<td colspan="6" class="middle text-right">รวม</td>
+				<td colspan="7" class="middle text-right">รวม</td>
 				<td class="middle text-right">{{total_qty}}</td>
 				<td class="middle text-right">{{total_return}}</td>
 				<td class="middle text-right">{{total_balance}}</td>
@@ -95,6 +96,7 @@
 			<tr class="font-size-10">
 				<td class="middle text-center">{{no}}</td>
 				<td class="middle">{{date_add}}</td>
+				<td class="middle">{{due_add}}</td>
 				<td class="middle">{{order_code}}</td>
 				<td class="middle">{{original_code}}</td>
 				<td class="middle">{{product_code}}</td>

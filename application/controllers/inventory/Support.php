@@ -105,8 +105,8 @@ class Support extends PS_Controller
     {
       foreach($orders as $rs)
       {
-        $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-        $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+        $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
+        $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
         $rs->state_name    = get_state_name($rs->state);
         $ds[] = $rs;
       }
@@ -146,61 +146,76 @@ class Support extends PS_Controller
 
   public function add()
   {
-    if($this->input->post('customerCode'))
+    $sc = TRUE;
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
 			$this->load->model('masters/warehouse_model');
 
       $book_code = getConfig('BOOK_CODE_SUPPORT');
-      $date_add = db_date($this->input->post('date'));
 
-      if($this->input->post('code'))
-      {
-        $code = $this->input->post('code');
-      }
-      else
-      {
-        $code = $this->get_new_code($date_add);
-      }
+      $date_add = db_date($data->date_add);
+
+      $code = $this->get_new_code($date_add);
 
       $role = 'U'; //--- U = เบิกอภินันท์
-      $has_term = 1; //--- ถือว่าเป็นเครดิต
-			$wh = $this->warehouse_model->get($this->input->post('warehouse'));
-      $ds = array(
-				'date_add' => $date_add,
-        'code' => $code,
-        'role' => $role,
-        'bookcode' => $book_code,
-        'customer_code' => $this->input->post('customerCode'),
-        'user' => get_cookie('uname'),
-        'warehouse_code' => $wh->code,
-        'remark' => $this->input->post('remark'),
-				'is_wms' => $wh->is_wms,
-        'user_ref' => $this->input->post('empName')
-      );
 
-      if($this->orders_model->add($ds) === TRUE)
+      $has_term = 1; //--- ถือว่าเป็นเครดิต
+
+			$wh = $this->warehouse_model->get($data->warehouse_code);
+
+      if( ! empty($wh))
       {
-        $arr = array(
-          'order_code' => $code,
-          'state' => 1,
-          'update_user' => get_cookie('uname')
+        $ds = array(
+          'code' => $code,
+          'date_add' => $date_add,
+          'role' => $role,
+          'bookcode' => $book_code,
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'user' => $this->_user->uname,
+          'remark' => get_null($data->remark),
+          'user_ref' => $data->empName,
+          'warehouse_code' => $wh->code,
+          'is_wms' => $wh->is_wms
         );
 
-        $this->order_state_model->add_state($arr);
+        if( ! $this->orders_model->add($ds))
+        {
+          $sc = FALSE;
+          $this->error = "เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+        }
+        else
+        {
+          $arr = array(
+            'order_code' => $code,
+            'state' => 1,
+            'update_user' => $this->_user->uname
+          );
 
-        redirect($this->home.'/edit_detail/'.$code);
+          $this->order_state_model->add_state($arr);
+        }
       }
       else
       {
-        set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-        redirect($this->home.'/add_new');
+        $sc = FALSE;
+        $this->error = "Invaid warehouse code";
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูลลูกค้า กรุณาตรวจสอบ');
-      redirect($this->home.'/add_new');
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
     }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL
+    );
+
+    echo json_encode($arr);
   }
 
 
@@ -215,8 +230,8 @@ class Support extends PS_Controller
     $rs = $this->orders_model->get($code);
     if(!empty($rs))
     {
-      $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-      $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+      $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
+      $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
 
@@ -257,43 +272,61 @@ class Support extends PS_Controller
   {
     $sc = TRUE;
 
-    if($this->input->post('order_code'))
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
-      $code = $this->input->post('order_code');
+      $code = $data->code;
+
 			$order = $this->orders_model->get($code);
-			if(!empty($order))
+
+			if(! empty($order))
 			{
 				if($order->state > 1)
 				{
 					$ds = array(
             'remark' => $this->input->post('remark')
           );
+
+          if( ! $this->orders_model->update($code, $ds))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to update data";
+          }
 				}
 				else
 				{
 					$this->load->model('masters/warehouse_model');
-					$wh = $this->warehouse_model->get($this->input->post('warehouse'));
 
-		      $ds = array(
-		        'customer_code' => $this->input->post('customer_code'),
-		        'date_add' => db_date($this->input->post('date_add')),
-		        'user_ref' => $this->input->post('user_ref'),
-		        'warehouse_code' => $wh->code,
-						'is_wms' => $wh->is_wms,
-						'id_address' => NULL,
-						'id_sender' => NULL,
-		        'remark' => $this->input->post('remark'),
-		        'status' => 0
-		      );
+					$wh = $this->warehouse_model->get($data->warehouse_code);
+
+          if( ! empty($wh))
+          {
+            $ds = array(
+              'customer_code' => $data->customer_code,
+              'customer_name' => $data->customer_name,
+              'date_add' => db_date($data->date_add),
+              'user_ref' => $data->empName,
+              'remark' => get_null($data->remark),
+              'status' => 0,
+              'warehouse_code' => $wh->code,
+              'id_address' => NULL,
+              'id_sender' => NULL,
+              'is_wms' => $wh->is_wms
+            );
+
+            if( ! $this->orders_model->update($code, $ds))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to update data";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Invalid warehouse code";
+          }
 				}
-
-	      $rs = $this->orders_model->update($code, $ds);
-
-	      if($rs === FALSE)
-	      {
-	        $sc = FALSE;
-	        $this->error = 'ปรับปรุงข้อมูลไม่สำเร็จ';
-	      }
 			}
 			else
 			{
@@ -309,7 +342,6 @@ class Support extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
 
 
   public function edit_detail($code)

@@ -54,7 +54,7 @@
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>งานแปรสภาพ</label>
-		<select class="form-control input-sm" name="transformed">
+		<select class="form-control input-sm" name="transformed" id="transformed">
 			<option value="0">No</option>
 			<option value="1">Yes</option>
 		</select>
@@ -62,7 +62,7 @@
 
 	<div class="col-lg-2-harf col-md-4 col-sm-4 col-xs-8 padding-5">
 		<label>คลัง</label>
-    <select class="form-control input-sm" name="warehouse" id="warehouse" required>
+    <select class="form-control input-sm" name="warehouse" id="warehouse">
 			<option value="">เลือกคลัง</option>
 			<?php echo select_sell_warehouse(); ?>
 		</select>

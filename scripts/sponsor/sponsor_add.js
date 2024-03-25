@@ -3,8 +3,6 @@ $('#date').datepicker({
 });
 
 
-
-
 //---- เปลี่ยนสถานะออเดอร์  เป็นบันทึกแล้ว
 function saveOrder(){
   var order_code = $('#order_code').val();
@@ -110,50 +108,93 @@ $('#customerCode').focusout(function(){
   }
 });
 
-function add(){
-  var customer_code = $('#customerCode').val();
-  var customer_name = $('#customer').val();
-  var date_add = $('#date').val();
-  var empName = $('#empName').val();
-  var warehouse = $('#warehouse').val();
-  var manualCode = $('#manualCode').val();
+function add() {
 
-  if(customer_code.length == 0 || customer_name.length == 0){
+  let h = {
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'empName' : $('#empName').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'transformed' : $('#transformed').val(),
+    'remark' : $('#remark').val()
+  };
+
+
+
+  if(h.customer_code.length == 0 || h.customer_name.length == 0) {
     swal('ชื่อผู้รับไม่ถูกต้อง');
     return false;
   }
 
-  if(!isDate(date_add))
+  if( ! isDate(h.date_add))
   {
     swal('วันที่ไม่ถูกต้อง');
-    console.log('date error');
     return false;
   }
 
-  if(empName.length == 0)
+  if(h.empName.length == 0)
   {
     swal('ชื่อผู้เบิกไม่ถูกต้อง');
     return false;
   }
 
-  if(warehouse == ""){
+  if(h.warehouse_code == ""){
     swal('กรุณาเลือกคลัง');
     return false;
   }
 
+  load_in();
 
-  if(manualCode == 1){
-    validateOrder();
-  }
-  else
-  {
-    $('#addForm').submit();
-  }
+  $.ajax({
+    url:BASE_URL + 'orders/sponsor/add',
+    type:'POST',
+    cache:false,
+    data:{
+      'data' : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          window.location.href = BASE_URL + 'orders/sponsor/edit_detail/'+ ds.code;
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          });
+        }
+      }
+      else {
+        swal({
+          title:'Error',
+          text:rs,
+          type:'error',
+          html:true
+        })
+      }
+    },
+    error:function(xhr) {
+      load_out();
+
+      swal({
+        title:'Error!',
+        type:'error',
+        text:xhr.responseText,
+        html:true
+      });
+    }
+  });
 
 }
 
 
-function validateOrder(){
+function validateOrder() {
   var prefix = $('#prefix').val();
   var runNo = parseInt($('#runNo').val());
   let code = $('#code').val();
@@ -473,15 +514,40 @@ function validUpdate(){
 
 
 
-function updateOrder(){
-	var order_code = $("#order_code").val();
-	var date_add = $("#date").val();
-	var customer_code = $("#customerCode").val();
-  var customer_name = $("#customer").val();
-	var user_ref = $('#user_ref').val();
-  var warehouse = $('#warehouse').val();
-	var transformed = $('#transformed').val();
-	var remark = $("#remark").val();
+function updateOrder() {
+  let h = {
+    'code' : $('#order_code').val(),
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'empName' : $('#user_ref').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'transformed' : $('#transformed').val(),
+    'remark' : $('#remark').val()
+  };
+
+
+  if(h.customer_code.length == 0 || h.customer_name.length == 0) {
+    swal('ชื่อผู้รับไม่ถูกต้อง');
+    return false;
+  }
+
+  if( ! isDate(h.date_add))
+  {
+    swal('วันที่ไม่ถูกต้อง');
+    return false;
+  }
+
+  if(h.empName.length == 0)
+  {
+    swal('ชื่อผู้เบิกไม่ถูกต้อง');
+    return false;
+  }
+
+  if(h.warehouse_code == ""){
+    swal('กรุณาเลือกคลัง');
+    return false;
+  }
 
 	load_in();
 
@@ -490,17 +556,11 @@ function updateOrder(){
 		type:"POST",
 		cache:"false",
 		data:{
-      "order_code" : order_code,
-  		"date_add"	: date_add,
-  		"customer_code" : customer_code,
-      "user_ref" : user_ref,
-      "warehouse" : warehouse,
-			"transformed" : transformed,
-  		"remark" : remark,
+      "data" : JSON.stringify(h)
     },
-		success: function(rs){
+		success: function(rs) {
 			load_out();
-			var rs = $.trim(rs);
+
 			if( rs == 'success' ){
 				swal({
           title: 'Done !',

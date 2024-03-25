@@ -682,7 +682,7 @@ public function get_prepare_item_code()
   public function get_sponsor()
   {
     $sc = array();
-    $txt = convert($_REQUEST['term']);
+    $txt = $_REQUEST['term'];
     $qr = "SELECT BpCode, BpName FROM OOAT ";
     $qr .= "WHERE StartDate <= '".now()."' AND EndDate >= '".now()."' ";
 		$qr .= "AND Cancelled = 'N' ";

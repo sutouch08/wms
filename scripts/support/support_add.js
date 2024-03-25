@@ -6,12 +6,16 @@ $('#date').datepicker({
 //---- เปลี่ยนสถานะออเดอร์  เป็นบันทึกแล้ว
 function saveOrder(){
   var order_code = $('#order_code').val();
+
+  load_in();
+
 	$.ajax({
 		url: HOME + 'save/'+ order_code,
 		type:"POST",
     cache:false,
-		success:function(rs){
-			var rs = $.trim(rs);
+		success:function(rs) {
+      load_out();
+			
 			if( rs == 'success' ){
 				swal({
           title: 'Saved',
@@ -114,93 +118,91 @@ $('#customerCode').focusout(function(){
 
 
 function add(){
-  var manualCode = $('#manualCode').val();
-  if(manualCode == 1){
-    validateOrder();
-  }else{
-    addOrder();
-  }
+  addOrder();
 }
 
 
 
-function addOrder(){
-  var customer_code = $('#customerCode').val();
-  var customer_name = $('#customer').val();
-  var date_add = $('#date').val();
-  var empName = $('#empName').val();
-  var warehouse = $('#warehouse').val();
+function addOrder() {
+  let h = {
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'empName' : $('#empName').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'remark' : $('#remark').val()
+  }
 
-  if(customer_code.length == 0 || customer_name.length == 0){
+  if(h.customer_code.length == 0 || h.customer_name.length == 0){
     swal('ชื่อผู้รับไม่ถูกต้อง');
     return false;
   }
 
-  if(!isDate(date_add))
+  if(!isDate(h.date_add))
   {
     swal('วันที่ไม่ถูกต้อง');
-    console.log('date error');
     return false;
   }
 
-  if(empName.length == 0)
+  if(h.empName.length == 0)
   {
     swal('ชื่อผู้เบิกไม่ถูกต้อง');
     return false;
   }
 
-  if(warehouse.length == 0){
+  if(h.warehouse_code.length == 0){
     swal('กรุณาเลือกคลัง');
     return false;
   }
 
-  $('#addForm').submit();
-}
+  load_in();
 
+  $.ajax({
+    url:HOME + 'add',
+    type:'POST',
+    cache:false,
+    data:{
+      "data" : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
 
-function validateOrder(){
-  var prefix = $('#prefix').val();
-  var runNo = parseInt($('#runNo').val());
-  let code = $('#code').val();
-  if(code.length == 0){
-    addOrder();
-    return false;
-  }
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
 
-  let arr = code.split('-');
-
-  if(arr.length == 2){
-    if(arr[0] !== prefix){
-      swal('Prefix ต้องเป็น '+prefix);
-      return false;
-    }else if(arr[1].length != (4 + runNo)){
-      swal('Run Number ไม่ถูกต้อง');
-      return false;
-    }else{
-      $.ajax({
-        url: BASE_URL + 'orders/orders/is_exists_order/'+code,
-        type:'GET',
-        cache:false,
-        success:function(rs){
-          if(rs == 'not_exists'){
-            addOrder();
-          }else{
-            swal({
-              title:'Error!!',
-              text: rs,
-              type: 'error'
-            });
-          }
+        if(ds.status == 'success') {
+          window.location.href = HOME + 'edit_detail/'+ds.code;
         }
+        else
+        {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          })
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error',
+          html:true
+        })
+      }
+    },
+    error:function(xhr) {
+      load_out();
+
+      swal({
+        title:'Error!',
+        text:xhr.responseText,
+        type:'error',
+        html:true
       })
     }
-
-  }else{
-    swal('เลขที่เอกสารไม่ถูกต้อง');
-    return false;
-  }
+  })
 }
-
 
 var customer;
 var channels;
@@ -439,50 +441,42 @@ function countInput(){
 
 
 function validUpdate(){
-	var date_add = $("#date").val();
-	var customer_code = $("#customerCode").val();
-  var customer_name = $('#customer').val();
-	var user_ref = $("#user_ref").val();
-  var warehouse = $('#warehouse').val();
-
-	//---- ตรวจสอบวันที่
-	if( ! isDate(date_add) ){
-		swal("วันที่ไม่ถูกต้อง");
-		return false;
-	}
-
-	//--- ตรวจสอบลูกค้า
-	if( customer_code.length == 0 || customer_name == "" ){
-		swal("ชื่อลูกค้าไม่ถูกต้อง");
-		return false;
-	}
-
-  if(user_ref == ""){
-    swal('กรุณาระบุผู้เบิก[ผู้สั่งงาน]');
-    return false;
-  }
-
-  if(warehouse.length == 0)
-  {
-    swal('กรุณาเลือกคลัง');
-    return false;
-  }
-
   updateOrder();
 }
 
 
+function updateOrder() {
+  let h = {
+    'code' : $('#order_code').val(),
+    'customer_code' : $('#customerCode').val(),
+    'customer_name' : $('#customer').val(),
+    'date_add' : $('#date').val(),
+    'empName' : $('#user_ref').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'remark' : $('#remark').val()
+  }
 
+  if(h.customer_code.length == 0 || h.customer_name.length == 0){
+    swal('ชื่อผู้รับไม่ถูกต้อง');
+    return false;
+  }
 
+  if(!isDate(h.date_add))
+  {
+    swal('วันที่ไม่ถูกต้อง');
+    return false;
+  }
 
-function updateOrder(){
-	var order_code = $("#order_code").val();
-	var date_add = $("#date").val();
-	var customer_code = $("#customerCode").val();
-  var customer_name = $("#customer").val();
-	var user_ref = $('#user_ref').val();
-  var warehouse = $('#warehouse').val();
-	var remark = $("#remark").val();
+  if(h.empName.length == 0)
+  {
+    swal('ชื่อผู้เบิกไม่ถูกต้อง');
+    return false;
+  }
+
+  if(h.warehouse_code.length == 0){
+    swal('กรุณาเลือกคลัง');
+    return false;
+  }
 
 	load_in();
 
@@ -491,16 +485,11 @@ function updateOrder(){
 		type:"POST",
 		cache:"false",
 		data:{
-      "order_code" : order_code,
-  		"date_add"	: date_add,
-  		"customer_code" : customer_code,
-      "user_ref" : user_ref,
-      "warehouse" : warehouse,
-  		"remark" : remark,
+      "data" : JSON.stringify(h)
     },
 		success: function(rs){
 			load_out();
-			var rs = $.trim(rs);
+
 			if( rs == 'success' ){
 				swal({
           title: 'Done !',

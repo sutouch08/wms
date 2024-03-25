@@ -13,7 +13,7 @@ class Transform_backlogs_model extends CI_Model
 		{
 			$this->db
 			->select('od.order_code, od.original_code, od.product_code, od.sold_qty AS qty, od.receive_qty AS receive, (od.sold_qty - od.receive_qty) AS balance')
-			->select('o.date_add, o.user_ref, u.name AS user_name')
+			->select('o.date_add, o.due_date, o.user_ref, u.name AS user_name')
 			->select('pd.price')
 			->from('order_transform_detail AS od')
 			->join('orders AS o', 'od.order_code = o.code', 'left')
