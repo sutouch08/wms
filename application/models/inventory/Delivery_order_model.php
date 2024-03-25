@@ -181,6 +181,47 @@ class Delivery_order_model extends CI_Model
   }
 
 
+  public function get_sum_prepared($order_code, $product_code, $order_detail_id)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('order_code', $order_code)
+    ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $order_detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
+    ->get('prepare');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
+
+  public function get_sum_qc($order_code, $product_code, $order_detail_id)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('order_code', $order_code)
+    ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $order_detail_id)
+    ->where('order_detail_id', $order_detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
+    ->get('qc');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
 
 
     //------------------ สำหรับแสดงยอดที่มีการบันทึกขายไปแล้ว -----------//

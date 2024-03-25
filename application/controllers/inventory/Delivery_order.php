@@ -438,8 +438,30 @@ class Delivery_order extends PS_Controller
       $this->load->model('masters/zone_model');
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
     }
+
+    $details = NULL;
   
-    $details = $this->delivery_order_model->get_billed_detail($code);
+    $qr = "SELECT o.id, o.product_code, o.product_name, o.qty AS order_qty, o.is_count, ";
+    $qr .= "o.price, o.discount1, o.discount2, o.discount3, ";
+    $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
+    $qr .= "(o.total_amount/o.qty) AS final_price ";
+    $qr .= "FROM order_details AS o ";
+    $qr .= "WHERE o.order_code = '{$code}'";
+
+    $qs = $this->db->query($qr);
+
+    if($qs->num_rows() > 0)
+    {
+      $details = $qs->result();
+
+      foreach($details as $rs)
+      {
+        $rs->prepared = $this->delivery_order_model->get_sum_prepared($code, $rs->product_code, $rs->id);
+        $rs->qc = $this->delivery_order_model->get_sum_qc($code, $rs->product_code, $rs->id);
+      }
+    }
+
+    // $details = $this->delivery_order_model->get_billed_detail($code);
     $box_list = $this->qc_model->get_box_list($code);
     $ds['order'] = $order;
     $ds['details'] = $details;
