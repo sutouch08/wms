@@ -924,9 +924,9 @@ class Receive_transform extends PS_Controller
           $uncomplete_qty = $this->receive_transform_model->get_sum_uncomplete_qty($rs->order_code, $rs->product_code, $doc->code);
           $diff = $rs->sold_qty - ($rs->receive_qty + $uncomplete_qty);
           $diff = $diff < 0 ? 0 : $diff;
-  				$cost = ( ! empty($row) ? $row->price : $this->get_avg_cost($rs->product_code));
+  				$cost = empty($row[0]) ? $this->get_avg_cost($rs->product_code) : $row[0]->price;
   				$cost = $cost == 0 ? $rs->price : $cost;
-          $receive_qty = ( ! empty($row) ? round($row->qty, 2) : 0);
+          $receive_qty = empty($row[0]) ? 0 : round($row[0]->qty); //( ! empty($row) ? round($row->qty, 2) : 0);
           $amount = round($cost * $receive_qty, 2);
 
           $arr = array(
