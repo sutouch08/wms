@@ -4,27 +4,97 @@ class Invoice_model extends CI_Model
   public function __construct()
   {
     parent::__construct();
-  }
+  }  
 
   public function get_billed_detail($code)
   {
     $qr = "SELECT o.id, o.product_code, o.product_name, o.qty AS order_qty, o.is_count, ";
     $qr .= "o.price, o.discount1, o.discount2, o.discount3, ";
     $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
-    $qr .= "(o.total_amount/o.qty) AS final_price, ";
-    $qr .= "(SELECT SUM(qty) FROM prepare WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS prepared, ";
-    $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS qc, ";
-    $qr .= "(SELECT SUM(qty) FROM order_sold WHERE reference = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS sold ";
+    $qr .= "(o.total_amount/o.qty) AS final_price ";
     $qr .= "FROM order_details AS o ";
     $qr .= "WHERE o.order_code = '{$code}'";
 
-    $rs = $this->db->query($qr);
-    if($rs->num_rows() > 0)
+    $qs = $this->db->query($qr);
+
+    if($qs->num_rows() > 0)
     {
-      return $rs->result();
+      $details = $qs->result();
+
+      foreach($details as $rs)
+      {
+        $rs->prepared = $this->get_sum_prepared($code, $rs->product_code, $rs->id);
+        $rs->qc = $this->get_sum_qc($code, $rs->product_code, $rs->id);
+        $rs->sold = $this->get_sum_order_sold($code, $rs->product_code, $rs->id);
+      }
+
+      return $details;
     }
 
-    return FALSE;
+    return NULL;
+  }
+
+
+  public function get_sum_order_sold($order_code, $product_code, $order_detail_id)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('reference', $order_code)
+    ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $order_detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
+    ->get('order_sold');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
+  public function get_sum_prepared($order_code, $product_code, $order_detail_id)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('order_code', $order_code)
+    ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $order_detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
+    ->get('prepare');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
+
+  public function get_sum_qc($order_code, $product_code, $order_detail_id)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('order_code', $order_code)
+    ->where('product_code', $product_code)
+    ->group_start()
+    ->where('order_detail_id', $order_detail_id)
+    ->where('order_detail_id', $order_detail_id)
+    ->or_where('order_detail_id IS NULL', NULL, FALSE)
+    ->group_end()
+    ->get('qc');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
   }
 
 
