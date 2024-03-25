@@ -229,17 +229,24 @@
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>
 								<?php else : ?>
-									<?php echo $rs->customer_name.$cus_ref; ?>
+									<?php echo empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name; ?>
+									<?php echo $cus_ref; ?>
 								<?php endif; ?>
 							</td>
-              <td class="middle pointer text-right" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->channels_name; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->payment_name; ?></td>
+              <td class="middle pointer text-right" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php echo $rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total, 2); ?>
+							</td>
+              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php echo empty($channelsList[$rs->channels_code]) ? "" : $channelsList[$rs->channels_code]; ?>
+							</td>
+              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php echo empty($paymentList[$rs->payment_code]) ? "" : $paymentList[$rs->payment_code];  ?>
+							</td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->is_expired) : ?>
 									หมดอายุ
 								<?php else : ?>
-									<?php echo $rs->state_name; ?>
+									<?php echo get_state_name($rs->state); ?>
 								<?php endif; ?>
 							</td>
               <?php if($this->_SuperAdmin && $instant_export) : ?>
@@ -263,14 +270,6 @@
 	$querytime_after = ((float)$usec + (float)$sec);
 	$querytime = $querytime_after - $querytime_before;
 	echo "Query Time : ".round($querytime, 4)." Second";
-
-	//echo "&nbsp;&nbsp;&nbsp; loop : {$loop_start} - {$loop_end} &nbsp;&nbsp;&nbsp;";
-	list($usec, $sec) = explode(' ',$loop_start);
-	$querytime_before = ((float)$usec + (float)$sec);
-	list($usec, $sec) = explode(' ',$loop_end);
-	$querytime_after = ((float)$usec + (float)$sec);
-	$querytime = $querytime_after - $querytime_before;
-	echo "&nbsp;&nbsp;&nbsp; Loop Time : ".round($querytime, 4)." Second";
 	?>
 </div>
 <?php endif; ?>

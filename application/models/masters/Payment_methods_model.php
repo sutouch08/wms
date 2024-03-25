@@ -233,5 +233,24 @@ class Payment_methods_model extends CI_Model
     return FALSE;
   }
 
+
+  public function get_payment_array()
+  {
+    $rs = $this->db->get('payment_method');
+
+    if($rs->num_rows() > 0)
+    {
+      $arr = array();
+      foreach($rs->result() as $ds)
+      {
+        $arr[$ds->code] = $ds->name;
+      }
+
+      return $arr;
+    }
+
+    return NULL;
+  }
+
 }
 ?>

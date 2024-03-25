@@ -116,12 +116,6 @@ class Orders extends PS_Controller
     {
       //--- แสดงผลกี่รายการต่อหน้า
       $perpage = get_rows();
-      //--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-      if($perpage > 300)
-      {
-        $perpage = 20;
-      }
-
       $segment  = 4; //-- url segment
       $startTime = microtime();
       $rows     = $this->orders_model->count_rows($filter);
@@ -131,37 +125,14 @@ class Orders extends PS_Controller
       $orders = $this->orders_model->get_data($filter, $perpage, $offset);
 
       $endTime = microtime();
-      $loopStart = microtime();
-      $ds = array();
-
-      if(!empty($orders))
-      {
-        $ch = []; //-- channels name
-        $pm = []; //-- payment name
-        $cs = []; //--- customer name
-
-        foreach($orders as $rs)
-        {
-          $ch[$rs->channels_code] = empty($ch[$rs->channels_code]) ? $this->channels_model->get_name($rs->channels_code) : $ch[$rs->channels_code];
-          $pm[$rs->payment_code] = empty($pm[$rs->payment_code]) ? $this->payment_methods_model->get_name($rs->payment_code) : $pm[$rs->payment_code];
-          $cs[$rs->customer_code] = empty($cs[$rs->customer_code]) ? $this->customers_model->get_name($rs->customer_code) : $cs[$rs->customer_code];
-          $rs->channels_name = $ch[$rs->channels_code];
-          $rs->payment_name  = $pm[$rs->payment_code];
-          $rs->customer_name = $cs[$rs->customer_code];
-          $rs->total_amount  =  $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
-          $rs->state_name    = get_state_name($rs->state);
-        }
-      }
-
-      $loopEnd = microtime();
 
       $filter['orders'] = $orders; //$ds;
       $filter['state'] = $state;
+      $filter['channelsList'] = $this->channels_model->get_channels_array();
+      $filter['paymentList'] = $this->payment_methods_model->get_payment_array();
       $filter['btn'] = $button;
       $filter['start'] = $startTime;
-      $filter['end'] = $endTime;
-      $filter['loop_start']  = $loopStart;
-      $filter['loop_end'] = $loopEnd;
+      $filter['end'] = $endTime;      
 
       $this->pagination->initialize($init);
       $this->load->view('orders/orders_list', $filter);
