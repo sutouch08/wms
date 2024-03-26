@@ -84,7 +84,9 @@ class Wms_order_api
 				$order_type = !empty($channels) ? $channels->type_code : $role_type_list[$order->role];
 				$channels_code = !empty($channels) ? $order->channels_code : $role_type_list[$order->role];
 				$channels_name = !empty($channels) ? $channels->name : "";
+        $doc_total = $order->doc_total <= 0 ? $this->ci->orders_model->get_order_total_amount($order->code) : $order->doc_total;
 				$cod = $order->role === 'S' ? ($order->payment_role == 4 ? 'COD' : 'NON-COD') : 'NON-COD';
+        $cod_amount = $cod === 'COD' ? ($order->cod_amount == 0 ? $doc_total : $order->cod_amount) : 0.00;
 
 				if(!empty($details))
 				{
@@ -121,7 +123,7 @@ class Wms_order_api
             $xml .=   "<RECEIPT_PROVINCE><![CDATA[".(!empty($addr) ? $addr->province : "")."]]></RECEIPT_PROVINCE>";
             $xml .=   "<RECEIPT_POSTCODE>".(!empty($addr) ? $addr->postcode : "")."</RECEIPT_POSTCODE>";
             $xml .=   "<PAYMENT_METHOD>".$cod."</PAYMENT_METHOD>";
-            $xml .=   "<COD_AMOUNT>".round($order->cod_amount,2)."</COD_AMOUNT>";
+            $xml .=   "<COD_AMOUNT>".round($cod_amount,2)."</COD_AMOUNT>";
 						$xml .=   "<SALES_CHANNEL_CODE>".$channels_code."</SALES_CHANNEL_CODE>";
 						$xml .=   "<SALES_CHANNEL_NAME><![CDATA[".$channels_name."]]></SALES_CHANNEL_NAME>";
 						$xml .=   "<REF_NO1>".$order->reference."</REF_NO1>";
