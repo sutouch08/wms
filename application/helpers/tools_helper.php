@@ -31,14 +31,25 @@ function parsePhoneNumber($phone, $length = 10)
   return NULL;
 }
 
-function parseSubDistrict($ad)
+function parseSubDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
-		$find = [' ', 'ต.', 'ตำบล'];
-		$rep = ['', '', ''];
-		$ad = str_replace($find, $rep, $ad);
-		return substr_replace($ad, 'ตำบล', 0, 0);
+		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR 'ก.ท.ม.')
+		{
+			$find = [' ', 'แขวง'];
+			$rep = ['', ''];
+			$ad = str_replace($find, $rep, $ad);
+			return substr_replace($ad, 'แขวง', 0, 0);
+		}
+		else
+		{
+			$find = [' ', 'ต.', 'ตำบล'];
+			$rep = ['', '', ''];
+			$ad = str_replace($find, $rep, $ad);
+			return substr_replace($ad, 'ตำบล', 0, 0);
+		}
+
 	}
 
 	return NULL;
@@ -48,10 +59,21 @@ function parseDistrict($ad)
 {
 	if(! empty($ad))
 	{
-		$find = [' ', 'อ.', 'อำเภอ'];
-		$rep = ['', '', ''];
-		$ad = str_replace($find, $rep, $ad);
-		return substr_replace($ad, 'อำเภอ', 0, 0);
+		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR 'ก.ท.ม.')
+		{
+			$find = [' ', 'เขต'];
+			$rep = ['', ''];
+			$ad = str_replace($find, $rep, $ad);
+			return substr_replace($ad, 'เขต', 0, 0);
+		}
+		else
+		{
+			$find = [' ', 'อ.', 'อำเภอ'];
+			$rep = ['', '', ''];
+			$ad = str_replace($find, $rep, $ad);
+			return substr_replace($ad, 'อำเภอ', 0, 0);
+		}
+
 	}
 
 	return NULL;

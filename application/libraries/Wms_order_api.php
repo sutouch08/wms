@@ -100,8 +100,8 @@ class Wms_order_api
 					$xml .= "</HEADER_LIST>";
 					//---- End header_list section
           $spx = $sender->code == "SPX" ? TRUE : FALSE;
-          $addr->sub_district = $spx ? parseSubDistrict($addr->sub_district) : $addr->sub_district;
-          $addr->district = $spx ? parseDistrict($addr->district) : $addr->district;
+          $addr->sub_district = $spx ? parseSubDistrict($addr->sub_district, $addr->province) : $addr->sub_district;
+          $addr->district = $spx ? parseDistrict($addr->district, $addr->province) : $addr->district;
           $addr->province = $spx ? parseProvince($addr->province) : $addr->province;
           $addr->phone = $spx ? parsePhoneNumber($addr->phone, 10) : $addr->phone;
 					//--- Header section
