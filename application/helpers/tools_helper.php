@@ -13,6 +13,25 @@ function setToken($token)
 }
 
 
+function parsePhoneNumber($phone, $length = 10)
+{
+	$find = [" ", "-", "+"];
+  $rep = ["", "", ""];
+	$length = $length * -1;
+
+  if($phone != "")
+  {
+    $phone = trim($phone);
+    $phone = str_replace($find, $rep, $phone);
+    $phone = substr($phone, $length);
+
+    return $phone;
+  }
+
+  return NULL;
+}
+
+
 //---	ตัดข้อความแล้วเติม ... ข้างหลัง
 function limitText($str, $length)
 {

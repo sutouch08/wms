@@ -114,7 +114,7 @@ class Wms_order_api
 						$xml .=   "<SHIP_TO_ADDRESS1><![CDATA[".(!empty($sender) ? $sender->address1 : "")."]]></SHIP_TO_ADDRESS1>";
 						$xml .=   "<SHIP_TO_ADDRESS2><![CDATA[".(!empty($sender) ? $sender->address2 : "")."]]></SHIP_TO_ADDRESS2>";
             $xml .=   "<RECEIPT_NAME><![CDATA[".(!empty($addr) ? $addr->name : "")."]]></RECEIPT_NAME>";
-            $xml .=   "<RECEIPT_MOBILENO>".(!empty($addr) ? $addr->phone : "")."</RECEIPT_MOBILENO>";
+            $xml .=   "<RECEIPT_MOBILENO>".(!empty($addr) ? parsePhoneNumber($addr->phone, 10) : "")."</RECEIPT_MOBILENO>";
             $xml .=   "<RECEIPT_EMAIL>".(!empty($addr) ? $addr->email : "")."</RECEIPT_EMAIL>";
             $xml .=   "<RECEIPT_FULLSHIPPINGADDRESS><![CDATA[".(!empty($addr) ? $addr->address : "")."]]></RECEIPT_FULLSHIPPINGADDRESS>";
             $xml .=   "<RECEIPT_STREET></RECEIPT_STREET>";
