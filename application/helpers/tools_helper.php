@@ -55,7 +55,7 @@ function parseSubDistrict($ad, $province)
 	return NULL;
 }
 
-function parseDistrict($ad)
+function parseDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
