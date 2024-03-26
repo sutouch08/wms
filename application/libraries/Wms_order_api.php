@@ -99,7 +99,11 @@ class Wms_order_api
 					$xml .=   "<ORDER_LIST_NO>".$order->code."</ORDER_LIST_NO>";
 					$xml .= "</HEADER_LIST>";
 					//---- End header_list section
-
+          $spx = $sender->code == "SPX" ? TRUE : FALSE;
+          $addr->sub_district = $spx ? parseSubDistrict($addr->sub_district) : $addr->sub_district;
+          $addr->district = $spx ? parseDistrict($addr->district) : $addr->district;
+          $addr->province = $spx ? parseProvince($addr->province) : $addr->province;
+          $addr->phone = $spx ? parsePhoneNumber($addr->phone, 10) : $addr->phone;
 					//--- Header section
 					$xml .= "<ORDER_LIST>";
 
@@ -114,7 +118,7 @@ class Wms_order_api
 						$xml .=   "<SHIP_TO_ADDRESS1><![CDATA[".(!empty($sender) ? $sender->address1 : "")."]]></SHIP_TO_ADDRESS1>";
 						$xml .=   "<SHIP_TO_ADDRESS2><![CDATA[".(!empty($sender) ? $sender->address2 : "")."]]></SHIP_TO_ADDRESS2>";
             $xml .=   "<RECEIPT_NAME><![CDATA[".(!empty($addr) ? $addr->name : "")."]]></RECEIPT_NAME>";
-            $xml .=   "<RECEIPT_MOBILENO>".(!empty($addr) ? parsePhoneNumber($addr->phone, 10) : "")."</RECEIPT_MOBILENO>";
+            $xml .=   "<RECEIPT_MOBILENO>".(!empty($addr) ? $addr->phone : "")."</RECEIPT_MOBILENO>";
             $xml .=   "<RECEIPT_EMAIL>".(!empty($addr) ? $addr->email : "")."</RECEIPT_EMAIL>";
             $xml .=   "<RECEIPT_FULLSHIPPINGADDRESS><![CDATA[".(!empty($addr) ? $addr->address : "")."]]></RECEIPT_FULLSHIPPINGADDRESS>";
             $xml .=   "<RECEIPT_STREET></RECEIPT_STREET>";

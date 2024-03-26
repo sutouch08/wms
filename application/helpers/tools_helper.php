@@ -31,6 +31,45 @@ function parsePhoneNumber($phone, $length = 10)
   return NULL;
 }
 
+function parseSubDistrict($ad)
+{
+	if(! empty($ad))
+	{
+		$find = [' ', 'ต.', 'ตำบล'];
+		$rep = ['', '', ''];
+		$ad = str_replace($find, $rep, $ad);
+		return substr_replace($ad, 'ตำบล', 0, 0);
+	}
+
+	return NULL;
+}
+
+function parseDistrict($ad)
+{
+	if(! empty($ad))
+	{
+		$find = [' ', 'อ.', 'อำเภอ'];
+		$rep = ['', '', ''];
+		$ad = str_replace($find, $rep, $ad);
+		return substr_replace($ad, 'อำเภอ', 0, 0);
+	}
+
+	return NULL;
+}
+
+function parseProvince($ad)
+{
+	if(! empty($ad))
+	{
+		$find = [' ', 'จ.', 'จังหวัด'];
+		$rep = ['', '', ''];
+		$ad = str_replace($find, $rep, $ad);
+		return substr_replace($ad, 'จังหวัด', 0, 0);
+	}
+
+	return NULL;
+}
+
 
 //---	ตัดข้อความแล้วเติม ... ข้างหลัง
 function limitText($str, $length)
