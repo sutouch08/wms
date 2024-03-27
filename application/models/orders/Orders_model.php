@@ -534,24 +534,12 @@ class Orders_model extends CI_Model
     //--- รหัส/ชื่อ ลูกค้า
     if( ! empty($ds['customer']))
     {
-      $customer = $this->customer_in($ds['customer']);
-
-      if( ! empty($customer))
-      {
-        $this->db
-        ->group_start()
-        ->where_in('customer_code', $customer)
-        ->or_like('customer_ref', $ds['customer'])
-        ->group_end();
-      }
-      else
-      {
-        $this->db
-        ->group_start()
-        ->where('customer_code', 'NULL')
-        ->or_like('customer_ref', $ds['customer'])
-        ->group_end();
-      }
+      $this->db
+      ->group_start()
+      ->like('customer_code', $ds['customer'])
+      ->or_like('customer_name', $ds['customer'])
+      ->or_like('customer_ref', $ds['customer'])
+      ->group_end();
     }
 
     //---- user name / display name
@@ -762,7 +750,7 @@ class Orders_model extends CI_Model
 				->group_end();
 			}
 		}
-    
+
     return $this->db->count_all_results('orders');
   }
 
@@ -788,24 +776,12 @@ class Orders_model extends CI_Model
     //--- รหัส/ชื่อ ลูกค้า
     if( ! empty($ds['customer']))
     {
-      $customer = $this->customer_in($ds['customer']);
-
-      if( ! empty($customer))
-      {
-        $this->db
-        ->group_start()
-        ->where_in('customer_code', $customer)
-        ->or_like('customer_ref', $ds['customer'])
-        ->group_end();
-      }
-      else
-      {
-        $this->db
-        ->group_start()
-        ->where('customer_code', 'NULL')
-        ->or_like('customer_ref', $ds['customer'])
-        ->group_end();
-      }
+      $this->db
+      ->group_start()
+      ->like('customer_code', $ds['customer'])
+      ->or_like('customer_name', $ds['customer'])
+      ->or_like('customer_ref', $ds['customer'])
+      ->group_end();
     }
 
     //---- user name / display name

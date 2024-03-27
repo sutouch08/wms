@@ -34,7 +34,7 @@ class Delivery_order_model extends CI_Model
       $this->db
       ->group_start()
 			->like('customer_code', $ds['customer'])
-      ->or_like('customer_name', $ds['customer_name'])
+      ->or_like('customer_name', $ds['customer'])
       ->or_like('customer_ref', $ds['customer'])
       ->group_end();
     }
@@ -99,7 +99,7 @@ class Delivery_order_model extends CI_Model
       $this->db
       ->group_start()
 			->like('customer_code', $ds['customer'])
-      ->or_like('customer_name', $ds['customer_name'])
+      ->or_like('customer_name', $ds['customer'])
       ->or_like('customer_ref', $ds['customer'])
       ->group_end();
     }
