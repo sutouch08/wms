@@ -263,6 +263,13 @@ class Import_order extends CI_Controller
 
               if(empty($order_code) OR ($order_code != $orderCode))
               {
+                if( ! empty($orderCode))
+                {
+                  $doc_total = $this->orders_model->get_order_total_amount($orderCode);
+
+                  $this->orders_model->update($orderCode, array('doc_total' => $doc_total));
+                }
+
 								if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
 								{
 									if(!$this->wms_order_api->export_order($orderCode))
