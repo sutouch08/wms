@@ -161,7 +161,7 @@ class Delivery extends REST_Controller
 											'tracking_no' => $rs->tracking_number,
 											'courier_code' => $ds->courier_code,
 											'courier_name' => $ds->courier_name,
-											'qty' => empty($ds->qty) ? 1 : $ds->qty
+											'qty' => empty($rs->qty) ? 1 : $rs->qty
 										);
 
 										if( ! $this->wms_temp_order_model->add_tracking($arr))
