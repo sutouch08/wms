@@ -193,7 +193,9 @@ class Import_order extends CI_Controller
 								'V' => 'Remark',
 								'W' => 'Carrier',
 								'X' => 'Warehouse code',
-								'Y' => 'Country'
+								'Y' => 'Country',
+                'Z' => 'Customer code',
+                'AA' => 'COD amount'
               );
 
               foreach($headCol as $col => $field)
@@ -355,15 +357,14 @@ class Import_order extends CI_Controller
                 //---	ช่องทางการขาย
                 $channels_code = $channels->code;
 
-              	// //---	วันที่เอกสาร
-              	// $date = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
-                // $date_add = db_date($date_add, TRUE);
-
                 //--- ค่าจัดส่ง
                 $shipping_fee = empty($rs['Q']) ? 0.00 : $rs['Q'];
 
                 //--- ค่าบริการอื่นๆ
                 $service_fee = 0; //empty($rs['R']) ? 0.00 : $rs['R'];
+
+                // //---	Cod amount
+                $cod_amount = $payment_code == 'COD' ? (empty($rs['AA']) ? 0.00 : $rs['AA']) : 0.00;
 
 								//--- กำหนดรหัสคลังมาหรือไม่ ถ้าไม่กำหนดมาให้ใช้ค่าตามที่ config ไว้
 								$xWh = empty($rs['X']) ? NULL : $this->warehouse_model->get(trim($rs['X']));
@@ -388,6 +389,7 @@ class Import_order extends CI_Controller
                     'is_term' => $payment->has_term,
                     'shipping_code' => $shipping_code,
                     'shipping_fee' => 0,
+                    'cod_amount' => $cod_amount,
                     'status' => 1,
                     'date_add' => $date_add,
                     'warehouse_code' => (!empty($xWh) ? $xWh->code : $warehouse_code),
