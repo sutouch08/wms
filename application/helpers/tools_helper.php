@@ -35,7 +35,7 @@ function parseSubDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
-		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR 'ก.ท.ม.')
+		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.')
 		{
 			$find = [' ', 'แขวง'];
 			$rep = ['', ''];
@@ -59,7 +59,7 @@ function parseDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
-		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR 'ก.ท.ม.')
+		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.')
 		{
 			$find = [' ', 'เขต'];
 			$rep = ['', ''];
