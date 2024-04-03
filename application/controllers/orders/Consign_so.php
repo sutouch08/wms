@@ -305,6 +305,7 @@ class Consign_so extends PS_Controller
 		$ship_to = $this->address_model->get_ship_to_address($rs->customer_code);
     $approve_logs = $this->approve_logs_model->get($code);
     $details = $this->orders_model->get_order_details($code);
+    $tracking = $this->orders_model->get_order_tracking($code);
 
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $approve_logs;
@@ -312,6 +313,7 @@ class Consign_so extends PS_Controller
     $ds['order'] = $rs;
     $ds['details'] = $details;
 		$ds['addr']  = $ship_to;
+    $ds['tracking'] = $tracking;
 		$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
     $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
     $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
