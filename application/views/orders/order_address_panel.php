@@ -25,7 +25,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
-			<div class="col-lg-6 col-lg-offset-6 col-md-6 col-md-offset-6 col-sm-6 col-sm-offset-6 col-xs-12 padding-5 bottom-btn" id="rc-div" style="z-index:100;">
+			<div class="col-lg-6 col-lg-offset-6 col-md-6 col-md-offset-6 col-sm-6 col-sm-offset-6 col-xs-12 padding-5 bottom-btn" id="rc-div" style="z-index:1;">
 				<?php if($order->is_wms && $order->wms_export == 1) : ?>
 					<?php if($order->state == 9 && $order->is_cancled == 1) : ?>
 						<button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="print_wms_return_request()">พิมพ์ RC-WO</button>
