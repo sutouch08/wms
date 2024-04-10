@@ -113,6 +113,23 @@ $hide = $order->status == 1 ? 'hide' : '';
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">Add</button>
   </div>
 </div>
+<?php if($order->role == 'S') : ?>
+  <?php $disabled = $order->state < 3 ? '' : 'disabled'; ?>
+  <div class="divider"> </div>
+  <div class="row">
+    <div class="col-lg-8-harf col-md-7-harf col-sm-6-harf">&nbsp;</div>
+    <div class="col-lg-2-harf col-md-3 col-sm-4 col-xs-8 margin-top-5 padding-5 margin-bottom-5">
+      <div class="input-group">
+        <span class="input-group-addon">COD Amount</span>
+        <input type="number" class="form-control input-sm text-center" id="cod-amount" name="cod-amount" value="<?php echo $order->cod_amount; ?>" <?php echo $disabled; ?>/>
+      </div>
+    </div>
+
+    <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5" style="padding-top:5px;">
+      <button type="button" class="btn btn-xs btn-primary btn-block" onclick="submitCod()" <?php echo $disabled; ?>>บันทึก</button>
+    </div>
+  </div>
+<?php endif; ?>
 
 <hr class="margin-top-15 margin-bottom-0 visible-lg" />
 <!--- Category Menu ---------------------------------->

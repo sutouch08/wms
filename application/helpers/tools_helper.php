@@ -35,7 +35,7 @@ function parseSubDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
-		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.')
+		if($province === 'จังหวัดกรุงเทพมหานคร' OR $province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.')
 		{
 			$find = [' ', 'แขวง'];
 			$rep = ['', ''];
@@ -59,7 +59,7 @@ function parseDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
-		if($province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.')
+		if($province === 'จังหวัดกรุงเทพมหานคร' OR $province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.' )
 		{
 			$find = [' ', 'เขต'];
 			$rep = ['', ''];
@@ -83,10 +83,17 @@ function parseProvince($ad)
 {
 	if(! empty($ad))
 	{
-		$find = [' ', 'จ.', 'จังหวัด'];
-		$rep = ['', '', ''];
+		$find = [' ', 'จ.', 'จังหวัด', '.'];
+		$rep = ['', '', '', '.'];
 		$ad = str_replace($find, $rep, $ad);
-		return substr_replace($ad, 'จังหวัด', 0, 0);
+		$ad = substr_replace($ad, 'จังหวัด', 0, 0);
+
+		if($ad == 'จังหวัดกรุงเทพ' OR $ad == 'จังหวัดกรุงเทพฯ' OR $ad == 'จังหวัดกทม')
+		{
+			$ad = 'จังหวัดกรุงเทพมหานคร';
+		}
+
+		return $ad;
 	}
 
 	return NULL;

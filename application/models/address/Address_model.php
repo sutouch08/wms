@@ -187,6 +187,47 @@ class Address_model extends CI_Model
     return $rs->row()->address_code + 1;
   }
 
+
+  public function is_valid_sub_district($sub_district)
+  {
+    $count = $this->db->where('tumbon', $sub_district)->count_all_results('address_info');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+
+  public function is_valid_district($district)
+  {
+    $count = $this->db->where('amphur', $district)->count_all_results('address_info');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+  public function is_valid_province($province)
+  {
+    $count = $this->db->where('province', $province)->count_all_results('address_info');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+  public function is_valid_postcode($postcode)
+  {
+    $count = $this->db->where('zipcode', $postcode)->count_all_results('address_info');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+  public function is_valid_full_address($sub_district, $district, $province, $postcode)
+  {
+    $count = $this->db
+    ->where('tumbon', $sub_district)
+    ->where('amphur', $district)
+    ->where('province', $province)
+    ->where('zipcode', $postcode)
+    ->count_all_results('address_info');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
 } //--- end class
 
  ?>

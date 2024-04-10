@@ -578,6 +578,9 @@ function reloadAddressTable()
 
 function saveAddress()
 {
+	$('.r').removeClass('has-error');
+	$('#error-msg').text('');
+
 	var customer_code = $('#customerCode').val();
 	var code 			= $('#customer_ref').val();
 	var name			= $("#Fname").val();
@@ -585,47 +588,60 @@ function saveAddress()
 	var subdistrict = $('#sub_district').val();
 	var district  = $('#district').val();
 	var province  = $('#province').val();
+	var postcode = $('#postcode').val();
+	var phone = $('#phone').val();
 	var country = $('#country').val() == "" ? "Thailand" : $('#country').val();
 	var email			= $("#email").val();
 	var alias 		= $("#alias").val();
 
 
 	if( name == '' ){
-		swal('กรุณาระบุชื่อผู้รับ');
+		$('#Fname').addClass('has-error');
+		$('#error-msg').text('กรุณาระบุชื่อผู้รับ');
 		return false;
 	}
 
 	if( addr.length == 0 ){
-		swal('กรุณาระบุที่อยู่');
+		$('#address1').addClass('has-error');
+		$('#error-msg').text('กรุณาระบุที่อยู่');
 		return false;
 	}
 
 	if(subdistrict.length == 0){
-		swal('กรุณาระบุตำบล');
+		$('#sub_district').addClass('has-error');
+		$('#error-msg').text('กรุณาระบุตำบล');
 		return false;
 	}
 
 
 	if(district.length == 0){
-		swal('กรุณาระบุอำเภอ');
+		$('#district').addClass('has-error');
+		$('#error-msg').text('กรุณาระบุอำเภอ');
 		return false;
 	}
 
 	if(province.length == 0){
-		swal('กรุณาระบุจังหวัด');
+		$('#province').addClass('has-error');
+		$('#error-msg').text('กรุณาระบุจังหวัด');
 		return false;
 	}
 
+	if(postcode.length == 0) {
+		$('#postcode').addClass('has-error');
+		$('#error-msg').text('กรุณาระบุรหัสไปรษณีย์');
+		return false;
+	}
 
-	if( alias == '' ){
+	if(phone.length < 9 || phone.length > 10) {
+		$('#phone').addClass('has-error');
+		$('#error-msg').text('เบอร์โทรต้องมีความยาว 9-10 ตัว');
+		return false;
+	}
+
+	if( alias == '' ) {
 		swal('กรุณาตั้งชื่อให้ที่อยู่');
 		return false;
 	}
-
-	// if( email != '' && ! validEmail(email) ){
-	// 	swal("อีเมล์ไม่ถูกต้องกรุณาตรวจสอบ");
-	// 	return false;
-	// }
 
 	var ds = [];
 
@@ -643,7 +659,7 @@ function saveAddress()
 	ds.push( {"name" : "email", "value" : $("#email").val() } );
 	ds.push( {"name" : "alias", "value" : $("#alias").val() } );
 
-	$("#addressModal").modal('hide');
+	//$("#addressModal").modal('hide');
 
 	load_in();
 	$.ajax({
@@ -651,19 +667,61 @@ function saveAddress()
 		type:"POST",
 		cache:"false",
 		data: ds,
-		success: function(rs){
+		success: function(rs) {
 			load_out();
-			var rs = $.trim(rs);
-			if(rs === 'success'){
-				reloadAddressTable();
-				clearAddressField();
-			}else{
+
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+
+				if(ds.status == 'success') {
+					$("#addressModal").modal('hide');
+					reloadAddressTable();
+					clearAddressField();
+				}
+				else {
+					let msg = "";
+					let ms = ds.message;
+					console.log(ds);
+					console.log(ms);
+					if(ms.sub_district != "" && ms.sub_district != null) {
+						$('#sub_district').addClass('has-error');
+						msg = msg + ms.sub_district + " ";
+					}
+
+					if(ms.district != "" && ms.district != null) {
+						$('#district').addClass('has-error');
+						msg = msg + ms.district + " ";
+					}
+
+					if(ms.province != "" && ms.province != null) {
+						$('#province').addClass('has-error');
+						msg = msg + ms.province + " ";
+					}
+
+					if(ms.postcode != "" && ms.postcode != null) {
+						$('#postcode').addClass('has-error');
+						msg = msg + ms.postcode + " ";
+					}
+
+					if(ms.phone != "" && ms.phone != null) {
+						$('#phone').addClass('has-error');
+						msg = msg + ms.phone + " ";
+					}
+
+					if(ms.address != "" && ms.address != null) {
+						msg = msg + ms.address;
+					}
+
+					$('#error-msg').text(msg);
+				}
+			}
+			else {
 				swal({
-					title:'ข้อผิดพลาด',
+					title:'Error!',
 					text:rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
-				$("#addressModal").modal('show');
 			}
 		}
 	});

@@ -132,7 +132,7 @@ class Orders extends PS_Controller
       $filter['paymentList'] = $this->payment_methods_model->get_payment_array();
       $filter['btn'] = $button;
       $filter['start'] = $startTime;
-      $filter['end'] = $endTime;      
+      $filter['end'] = $endTime;
 
       $this->pagination->initialize($init);
       $this->load->view('orders/orders_list', $filter);
@@ -2117,6 +2117,7 @@ class Orders extends PS_Controller
 
   public function save_address()
   {
+    $this->load->model('address/address_model');
     $sc = TRUE;
 		$customer_code = trim($this->input->post('customer_code'));
 		$cus_ref = trim($this->input->post('customer_ref'));
@@ -2125,66 +2126,127 @@ class Orders extends PS_Controller
     {
       $this->load->model('address/address_model');
       $id = $this->input->post('id_address');
+      $err = [
+        'district' => NULL,
+        'sub_district' =>  NULL,
+        'province' => NULL,
+        'postcode' => NULL,
+        'phone' => NULL,
+        'address' => NULL
+      ];
 
-      if(!empty($id))
+      $province = parseProvince($this->input->post('province'));
+      $sub_district = parseSubDistrict($this->input->post('sub_district'), $province);
+      $district = parseDistrict($this->input->post('district'), $province);
+      $phone = parsePhoneNumber($this->input->post('phone'));
+      $postcode = $this->input->post('postcode');
+
+      //--- validate with table address_info
+      if( ! $this->address_model->is_valid_sub_district($sub_district))
       {
-        $arr = array(
-          'code' => $cus_ref,
-          'customer_code' => $customer_code,
-          'name' => trim($this->input->post('name')),
-          'address' => trim($this->input->post('address')),
-          'sub_district' => trim($this->input->post('sub_district')),
-          'district' => trim($this->input->post('district')),
-          'province' => trim($this->input->post('province')),
-          'postcode' => trim($this->input->post('postcode')),
-					'country' => trim($this->input->post('country')),
-          'phone' => trim($this->input->post('phone')),
-          'email' => trim($this->input->post('email')),
-          'alias' => trim($this->input->post('alias'))
-        );
-
-        if(! $this->address_model->update_shipping_address($id, $arr))
-        {
-          $sc = FALSE;
-          $this->error = 'แก้ไขที่อยู่ไม่สำเร็จ';
-        }
-
+        $sc = FALSE;
+        $err['sub_district'] = "ตำบลไม่ถูกต้อง ";
       }
-      else
+
+      if( ! $this->address_model->is_valid_district($district))
       {
-        $arr = array(
-          'address_code' => '0000', //$this->address_model->get_new_code($this->input->post('customer_ref')),
-          'code' => $cus_ref,
-          'customer_code' => $customer_code,
-          'name' => trim($this->input->post('name')),
-          'address' => trim($this->input->post('address')),
-          'sub_district' => trim($this->input->post('sub_district')),
-          'district' => trim($this->input->post('district')),
-          'province' => trim($this->input->post('province')),
-          'postcode' => trim($this->input->post('postcode')),
-					'country' => trim($this->input->post('country')),
-          'phone' => trim($this->input->post('phone')),
-          'email' => trim($this->input->post('email')),
-          'alias' => trim($this->input->post('alias'))
-        );
+        $sc = FALSE;
+        $err['district'] = "อำเภอไม่ถูกต้อง ";
+      }
 
-        $rs = $this->address_model->add_shipping_address($arr);
+      if( ! $this->address_model->is_valid_province($province))
+      {
+        $sc = FALSE;
+        $err['province'] = "จังหวัดไม่ถูกต้อง ";
+      }
 
-        if($rs === FALSE)
+      if( ! $this->address_model->is_valid_postcode($postcode))
+      {
+        $sc = FALSE;
+        $err['postcode'] = "รหัสไปรษณีย์ไม่ถูกต้อง ";
+      }
+
+      if($sc === TRUE)
+      {
+        if( ! $this->address_model->is_valid_full_address($sub_district, $district, $province, $postcode))
         {
           $sc = FALSE;
-          $this->error = 'เพิ่มที่อยู่ไม่สำเร็จ';
+          $err['address'] = "ตำบล อำเภอ จังหวัด หรือ รหัสไปรษณีย์ ไม่สอดคล้องกัน";
         }
+      }
 
+      if(strlen($phone) < 9 OR strlen($phone) > 10)
+      {
+        $sc = FALSE;
+        $err['phone'] = "เบอร์โทรศัพท์ไม่ถูกต้อง";
+      }
+
+      if($sc === TRUE)
+      {
+        if(! empty($id))
+        {
+          $arr = array(
+            'code' => $cus_ref,
+            'customer_code' => $customer_code,
+            'name' => trim($this->input->post('name')),
+            'address' => trim($this->input->post('address')),
+            'sub_district' => $sub_district,
+            'district' => $district,
+            'province' => $province,
+            'postcode' => $postcode,
+            'country' => trim($this->input->post('country')),
+            'phone' => $phone,
+            'email' => trim($this->input->post('email')),
+            'alias' => trim($this->input->post('alias'))
+          );
+
+          if(! $this->address_model->update_shipping_address($id, $arr))
+          {
+            $sc = FALSE;
+            $err['address'] = 'แก้ไขที่อยู่ไม่สำเร็จ';
+          }
+
+        }
+        else
+        {
+          $arr = array(
+            'address_code' => '0000', //$this->address_model->get_new_code($this->input->post('customer_ref')),
+            'code' => $cus_ref,
+            'customer_code' => $customer_code,
+            'name' => trim($this->input->post('name')),
+            'address' => trim($this->input->post('address')),
+            'sub_district' => $sub_district,
+            'district' => $district,
+            'province' => $province,
+            'postcode' => $postcode,
+            'country' => trim($this->input->post('country')),
+            'phone' => $phone,
+            'email' => trim($this->input->post('email')),
+            'alias' => trim($this->input->post('alias'))
+          );
+
+          $rs = $this->address_model->add_shipping_address($arr);
+
+          if($rs === FALSE)
+          {
+            $sc = FALSE;
+            $err['address'] = 'เพิ่มที่อยู่ไม่สำเร็จ';
+          }
+        }
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = 'Missing required parameter : customer code';
+      $err['address'] = 'Missing required parameter : customer code';
     }
 
-    echo $sc === TRUE ? 'success' : $this->error;
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $err
+    );
+
+    echo json_encode($arr);
   }
 
 
