@@ -36,7 +36,7 @@ class WT extends REST_Controller
   }
 
   //--- for POS
-	public function get_get($code = NULL)
+	public function get_get($code = NULL, $test = FALSE)
 	{
     $sc = TRUE;
 
@@ -72,6 +72,19 @@ class WT extends REST_Controller
       $this->error = "Invalid document status : document not shipping";
       $this->add_logs('WT', 'get', 'error', $this->error, $code);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
+    }
+
+    if($test === TRUE)
+    {
+      echo $this->mc
+      ->where('U_ECOMNO', $code)
+      ->group_start()
+      ->where_in('F_Sap', array('N', 'D'))
+      ->or_where('F_Sap IS NULL', NULL, FALSE)
+      ->group_end()
+      ->get_compiled_select('DFOWTR');
+
+      exit();
     }
 
     $draft = $this->transfer_model->get_transfer_draft($code);
