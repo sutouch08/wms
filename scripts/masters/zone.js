@@ -22,79 +22,44 @@ function getEdit(code){
   window.location.href = HOME + '/edit/'+code;
 }
 
-$('#uname').autocomplete({
-  source: BASE_URL + 'auto_complete/get_active_user_by_uname',
-  autoFocus:true,
-  select:function(event, ui) {
-    $('#dname').val(ui.item.dname);
-    $('#user_id').val(ui.item.id);
-  }
-});
-
-$('#uname').focusout(function() {
-  if($(this).val() == "") {
-    $('#dname').val("");
-    $('#user_id').val("");
-  }
-});
-
-
-function saveUser() {
+function saveUpdate() {
   let code = $('#zone_code').val();
   let user_id = $('#user_id').val();
-  let uname = $('#uname').val();
-  let dname = $('#dname').val();
-
-  if(user_id == "" && (uname.length > 0 || dname.length > 0)) {
-    swal({
-      title: "Warning",
-      text: "Invalid Username",
-      text:'warning'
-    });
-
-    return false;
-  }
-
-  if((uname.length == 0 && dname.length != 0) || (uname.length != 0 && dname.length == 0)) {
-    swal({
-      title: "Warning",
-      text: "Invalid Username",
-      text:'warning'
-    });
-
-    return false;
-  }
-
-  if(uname.length == 0 && dname.length == 0) {
-    user_id = 0;
-  }
+  let pos_api = $('#pos-api').val();
 
   $.ajax({
-    url:HOME + '/update_owner',
+    url:HOME + '/update',
     type:'POST',
     cache:false,
-    data: {
+    data:{
       'zone_code' : code,
-      'user_id' : user_id
+      'user_id' : user_id,
+      'pos_api' : pos_api
     },
     success:function(rs) {
-      if(rs === 'success') {
+      if(rs == 'success') {
         swal({
           title:'Success',
           type:'success',
           timer:1000
         });
+
+        $('#user_id').attr('disabled', 'disabled');
+        $('#pos-api').attr('disabled', 'disabled');
+        $('#btn-u-update').addClass('hide');
+        $('#btn-u-edit').removeClass('hide');
       }
       else {
         swal({
           title:'Error!',
           text:rs,
           type:'error'
-        });
+        })
       }
     }
-  });
+  })
 }
+
 
 
 $("#empName").autocomplete({
@@ -404,8 +369,9 @@ function exportFilter(){
 }
 
 
-function uEdit() {
-  $('#uname').removeAttr('disabled').focus();
+function editZone() {
+  $('#user_id').removeAttr('disabled').focus();
+  $('#pos-api').removeAttr('disabled');
   $('#btn-u-edit').addClass('hide');
   $('#btn-u-update').removeClass('hide');
 }

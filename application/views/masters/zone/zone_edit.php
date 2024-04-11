@@ -27,19 +27,25 @@
 		<input type="text" class="form-control input-sm" value="<?php echo $ds->warehouse_name; ?>" readonly disabled />
 	</div>
 
-	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-4 padding-5">
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>เจ้าของโซน</label>
-		<input type="text" class="form-control input-sm" id="uname" value="<?php echo $ds->uname; ?>" <?php echo (empty($ds->uname) ? "" : "disabled"); ?>/>
-		<input type="hidden" id="user_id" value="<?php echo $ds->user_id; ?>" />
+		<select class="width-100" id="user_id" disabled>
+			<option value="">ไม่มีเจ้าของ</option>
+			<?php echo select_user_id($ds->user_id); ?>
+		</select>
 	</div>
-	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-5 padding-5">
-		<label class="not-show">xx</label>
-		<input type="text" class="form-control input-sm" id="dname" value="<?php echo $ds->display_name; ?>" disabled/>
+
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-4 padding-5">
+		<label>POS API</label>
+		<select class="form-control input-sm" id="pos-api" disabled>
+			<option value="0" <?php echo is_selected('0', $ds->is_pos_api); ?>>No</option>
+			<option value="1" <?php echo is_selected('1', $ds->is_pos_api); ?>>Yes</option>
+		</select>
 	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">x</label>
-		<button type="button" class="btn btn-xs btn-success btn-block <?php echo (empty($ds->uname) ? "" : "hide"); ?>" id="btn-u-update" onclick="saveUser()">Save</button>
-		<button type="button" class="btn btn-xs btn-warning btn-block <?php echo (empty($ds->uname) ? "hide" : ""); ?>" id="btn-u-edit" onclick="uEdit()">Edit</button>
+		<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-u-update" onclick="saveUpdate()">Save</button>
+		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-u-edit" onclick="editZone()">Edit</button>
 	</div>
 </div>
 <hr class="margin-top-10 margin-bottom-15">
@@ -150,4 +156,7 @@
 <input type="hidden" id="customer_code" value="" >
 <input type="hidden" id="zone_code" value="<?php echo $ds->code; ?>">
 <script src="<?php echo base_url(); ?>scripts/masters/zone.js?v=<?php echo date('Ymd'); ?>"></script>
+<script>
+	$('#user_id').select2();
+</script>
 <?php $this->load->view('include/footer'); ?>

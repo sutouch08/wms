@@ -24,7 +24,8 @@ class Zone extends PS_Controller
       'uname' => get_filter('uname', 'z_uname', ''),
       'warehouse' => get_filter('warehouse', 'z_warehouse', ''),
       'customer' => get_filter('customer', 'z_customer', ''),
-      'active' => get_filter('active', 'z_active', 'all')
+      'active' => get_filter('active', 'z_active', 'all'),
+      'is_pos_api' => get_filter('is_pos_api', 'z_pos_api', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -82,19 +83,24 @@ class Zone extends PS_Controller
 
 
 
-  public function update_owner()
+  public function update()
   {
     $sc = TRUE;
+
     if($this->input->post('zone_code'))
     {
       $zone_code = $this->input->post('zone_code');
       $user_id = get_null($this->input->post('user_id'));
+      $pos_api = $this->input->post('pos_api') == 1 ? 1 : 0;
 
       $zone = $this->zone_model->get($zone_code);
 
       if( ! empty($zone))
       {
-        $arr = array('user_id' => $user_id);
+        $arr = array(
+          'user_id' => $user_id,
+          'is_pos_api' => $pos_api
+        );
 
         if( ! $this->zone_model->update($zone->id, $arr))
         {
@@ -517,7 +523,7 @@ class Zone extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('z_code', 'z_uname', 'z_customer', 'z_warehouse', 'z_active');
+    $filter = array('z_code', 'z_uname', 'z_customer', 'z_warehouse', 'z_active', 'z_pos_api');
     clear_filter($filter);
   }
 

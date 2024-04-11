@@ -109,5 +109,39 @@ function user_in($txt)
 }
 
 
+function select_user_id($user_id = NULL)
+{
+  $sc = "";
+  $ci =& get_instance();
+  $list = $ci->user_model->get_all();
+
+  if( ! empty($list))
+  {
+    foreach($list as $rs)
+    {
+      $sc .= '<option value="'.$rs->id.'" data-uname="'.$rs->uname.'" data-uid="'.$rs->uid.'" '.is_selected($rs->id, $user_id).'>'.$rs->uname.' : '.$rs->name.'</option>';
+    }
+  }
+
+  return $sc;
+}
+
+function select_uname($uname = NULL)
+{
+  $sc = "";
+  $ci =& get_instance();
+  $list = $ci->user_model->get_all();
+
+  if( ! empty($list))
+  {
+    foreach($list as $rs)
+    {
+      $sc .= '<option value="'.$rs->uname.'" data-id="'.$rs->id.'" data-uid="'.$rs->uid.'" '.is_selected($rs->uname, $uname).'>'.$rs->name.'</option>';
+    }
+  }
+
+  return $sc;
+}
+
 
  ?>

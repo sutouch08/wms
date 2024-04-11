@@ -225,6 +225,11 @@ class Zone_model extends CI_Model
       $this->db->where('zone.warehouse_code', $ds['warehouse']);
     }
 
+    if(isset($ds['is_pos_api']) && $ds['is_pos_api'] != 'all')
+    {
+      $this->db->where('zone.is_pos_api', $ds['is_pos_api']);
+    }
+
     if(isset($ds['active']) && $ds['active'] != 'all')
     {
       $this->db->where('zone.active', $ds['active']);
@@ -240,13 +245,13 @@ class Zone_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = NULL, $offset = NULL)
   {
     //--- if search for customer
-    if(!empty($ds['customer']))
+    if(! empty($ds['customer']))
     {
       return $this->get_list_customer($ds);
     }
 
     $this->db
-    ->select('zone.code AS code, zone.name AS name, zone.warehouse_code')
+    ->select('zone.code AS code, zone.name AS name, zone.warehouse_code, zone.is_pos_api')
     ->select('zone.old_code, zone.active')
     ->select('warehouse.name AS warehouse_name, user.uname, user.name AS display_name')
     ->from('zone')
@@ -276,6 +281,11 @@ class Zone_model extends CI_Model
       $this->db->where('zone.warehouse_code', $ds['warehouse']);
     }
 
+    if(isset($ds['is_pos_api']) && $ds['is_pos_api'] != 'all')
+    {
+      $this->db->where('zone.is_pos_api', $ds['is_pos_api']);
+    }
+    
     if(isset($ds['active']) && $ds['active'] != 'all')
     {
       $this->db->where('zone.active', $ds['active']);
@@ -409,7 +419,7 @@ class Zone_model extends CI_Model
   public function get($code)
   {
     $rs = $this->db
-    ->select('zone.id, zone.code, zone.name, zone.warehouse_code, zone.user_id')
+    ->select('zone.id, zone.code, zone.name, zone.warehouse_code, zone.user_id, zone.is_pos_api')
     ->select('warehouse.name AS warehouse_name, warehouse.role, warehouse_role.name AS role_name, warehouse.is_consignment')
     ->select('user.uname, user.name AS display_name')
     ->from('zone')

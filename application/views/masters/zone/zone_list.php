@@ -6,6 +6,9 @@
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
   	<p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-info" onclick="syncData()"><i class="fa fa-refresh"></i> Sync</button>
+			<button type="button" class="btn btn-xs btn-purple" onclick="exportFilter()">
+				<i class="fa fa-file-excel-o"></i> Export
+			</button>
     </p>
   </div>
 </div><!-- End Row -->
@@ -36,6 +39,15 @@
   </div>
 
 	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
+    <label>POS API</label>
+    <select class="form-control input-sm filter" name="is_pos_api" id="is_pos_api" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_pos_api); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $is_pos_api); ?>>No</option>
+		</select>
+  </div>
+
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
     <label>Status</label>
     <select class="form-control input-sm filter" name="active" id="active" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -53,13 +65,6 @@
     <label class="display-block not-show">buton</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>
-	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
-    <label class="display-block not-show">buton</label>
-		<button type="button" class="btn btn-xs btn-purple btn-block" onclick="exportFilter()">
-			<i class="fa fa-file-excel-o"></i> Export
-		</button>
-  </div>
-
 </div>
 <hr class="margin-top-15">
 </form>
@@ -77,14 +82,15 @@
 		<table class="table table-striped table-hover border-1" style="min-width:900px;">
 			<thead>
 				<tr>
-					<th class="fix-width-40 middle text-center">ลำดับ</th>
-					<th class="fix-width-150 middle">รหัสโซน</th>
-					<th class="min-width-200 middle">ชื่อโซน</th>
-					<th class="fix-width-200 middle">คลังสินค้า</th>
-					<th class="fix-width-100 middle">เจ้าของโซน</th>
-					<th class="fix-width-60 middle text-center">สถานะ</th>
-					<th class="fix-width-60 middle text-center">ลูกค้า</th>
-					<th class="fix-width-100 middle text-center">รหัสเก่า</th>
+					<th class="fix-width-40 middle text-center">#</th>
+					<th class="fix-width-150 middle">Code</th>
+					<th class="min-width-200 middle">Name</th>
+					<th class="fix-width-200 middle">Warehosue</th>
+					<th class="fix-width-100 middle">Owner</th>
+					<th class="fix-width-60 middle">POS API</th>
+					<th class="fix-width-60 middle text-center">Status</th>
+					<th class="fix-width-60 middle text-center">Customer</th>
+					<th class="fix-width-100 middle text-center">Old code</th>
 					<th class="fix-width-100"></th>
 				</tr>
 			</thead>
@@ -98,6 +104,7 @@
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->warehouse_name; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
+						<td class="middle"><?php echo is_active($rs->is_pos_api); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
 						<td class="middle text-center"><?php echo number($rs->customer_count); ?></td>
 						<td class="middle text-center"><?php echo $rs->old_code; ?></td>
@@ -118,7 +125,7 @@
 				<?php endforeach; ?>
 			<?php else : ?>
 				<tr>
-					<td colspan="7" class="text-center">--- No zone ---</td>
+					<td colspan="8" class="text-center">--- No zone ---</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>
