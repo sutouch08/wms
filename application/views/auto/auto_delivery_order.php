@@ -1,7 +1,7 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
   <div class="col-lg-6 col-md-6 col-sm-8 col-xs-8 padding-5">
-    <h3 class="title"><?php echo $this->title; ?></h3>
+    <h3 class="title">ออเดอร์ รอส่ง <?php echo $count; ?> จากทั้งหมด <?php echo number($all); ?></h3>
   </div>
   <div class="col-lg-6 col-md-6 col-sm-4 col-xs-4 padding-5">
     <p class="pull-right top-p">
