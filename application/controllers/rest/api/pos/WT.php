@@ -77,13 +77,15 @@ class WT extends REST_Controller
 
     if($test != FALSE)
     {
-      echo $this->mc
+      $rs = $this->mc
       ->where('U_ECOMNO', $code)
       ->group_start()
       ->where_in('F_Sap', array('N', 'D'))
       ->or_where('F_Sap IS NULL', NULL, FALSE)
       ->group_end()
-      ->get_compiled_select('DFOWTR');
+      ->get('DFOWTR');
+
+      print_r($rs);
 
       // if($rs->num_rows() > 0)
       // {
@@ -93,9 +95,9 @@ class WT extends REST_Controller
       // {
       //   echo "nodata";
       // }
-      //
-      // $draft = $this->transfer_model->get_transfer_draft($code);
 
+      // $draft = $this->transfer_model->get_transfer_draft($code);
+      //
       // print_r($draft);
       exit();
     }
