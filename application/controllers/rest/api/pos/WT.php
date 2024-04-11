@@ -74,7 +74,7 @@ class WT extends REST_Controller
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
 
-    if($test === TRUE)
+    if($test != FALSE)
     {
       echo $this->mc
       ->where('U_ECOMNO', $code)
