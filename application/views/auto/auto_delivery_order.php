@@ -79,7 +79,7 @@ function do_export(no){
   if(finished == false) {
     if(code != null && code != "" && code != undefined) {
       $.ajax({
-        url:BASE_URL + 'inventory/delivery_order/manual_export/'+code,
+        url:BASE_URL + 'auto/auto_delivery_order/send_to_sap/'+code,
         type:'POST',
         cache:false,
         success:function(rs){
