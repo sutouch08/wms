@@ -124,6 +124,23 @@ class Zone extends PS_Controller
   }
 
 
+  public function update_pos_api()
+  {
+    $sc = TRUE;
+    $id = $this->input->post('id');
+    $is_pos_api = $this->input->post('is_api') == 1 ? 1 : 0;
+
+    $arr = array('is_pos_api' => $is_pos_api);
+
+    if( ! $this->zone_model->update($id, $arr))
+    {
+      $sc = FALSE;
+      $this->error = "Update failed";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
 
   public function delete($code)
   {

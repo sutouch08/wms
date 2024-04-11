@@ -30,6 +30,7 @@ class Zone_model extends CI_Model
   }
 
 
+
   //--- add new customer to zone
   public function add_customer(array $ds = array())
   {
@@ -181,6 +182,11 @@ class Zone_model extends CI_Model
       $this->db->where('z.warehouse_code', $ds['warehouse']);
     }
 
+    if(isset($ds['is_pos_api']) && $ds['is_pos_api'] != 'all')
+    {
+      $this->db->where('z.is_pos_api', $ds['is_pos_api']);
+    }
+
     if(isset($ds['active']) && $ds['active'] != 'all')
     {
       $this->db->where('z.active', $ds['active']);
@@ -251,7 +257,7 @@ class Zone_model extends CI_Model
     }
 
     $this->db
-    ->select('zone.code AS code, zone.name AS name, zone.warehouse_code, zone.is_pos_api')
+    ->select('zone.id, zone.code AS code, zone.name AS name, zone.warehouse_code, zone.is_pos_api')
     ->select('zone.old_code, zone.active')
     ->select('warehouse.name AS warehouse_name, user.uname, user.name AS display_name')
     ->from('zone')
@@ -285,7 +291,7 @@ class Zone_model extends CI_Model
     {
       $this->db->where('zone.is_pos_api', $ds['is_pos_api']);
     }
-    
+
     if(isset($ds['active']) && $ds['active'] != 'all')
     {
       $this->db->where('zone.active', $ds['active']);
@@ -315,7 +321,7 @@ class Zone_model extends CI_Model
   private function get_list_customer(array $ds = array(), $perpage = NULL, $offset = NULL)
   {
     $this->db
-    ->select('zone.code AS code, zone.name AS name, warehouse.name AS warehouse_name, zone.old_code, zone.active')
+    ->select('zone.id, zone.code AS code, zone.name AS name, warehouse.name AS warehouse_name, zone.old_code, zone.active, zone.is_pos_api')
     ->select('customers.code AS customer_code, customers.name AS customer_name')
     ->select('user.uname, user.name AS display_name')
     ->from('zone_customer')
@@ -354,6 +360,11 @@ class Zone_model extends CI_Model
     if(!empty($ds['warehouse']))
     {
       $this->db->where('zone.warehouse_code', $ds['warehouse']);
+    }
+
+    if(isset($ds['is_pos_api']) && $ds['is_pos_api'] != 'all')
+    {
+      $this->db->where('zone.is_pos_api', $ds['is_pos_api']);
     }
 
     $this->db->group_by('zone.code');

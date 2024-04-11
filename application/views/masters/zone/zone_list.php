@@ -104,7 +104,16 @@
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->warehouse_name; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
-						<td class="middle"><?php echo is_active($rs->is_pos_api); ?></td>
+						<td class="middle">
+							<?php if($this->_SuperAdmin) : ?>
+								<span class="pointer" id="pos-api-label-<?php echo $rs->id; ?>" onclick="togglePosApi(<?php echo $rs->id; ?>)">
+									<?php echo $rs->is_pos_api ? 'Yes' : 'No'; ?>
+								</span>
+								<input type="hidden" id="is-api-<?php echo $rs->id; ?>" value="<?php echo $rs->is_pos_api; ?>" />
+							<?php else : ?>
+								<?php echo $rs->is_pos_api ? 'Yes' : 'No'; ?>
+							<?php endif; ?>
+						</td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
 						<td class="middle text-center"><?php echo number($rs->customer_count); ?></td>
 						<td class="middle text-center"><?php echo $rs->old_code; ?></td>

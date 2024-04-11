@@ -22,6 +22,41 @@ function getEdit(code){
   window.location.href = HOME + '/edit/'+code;
 }
 
+
+function togglePosApi(id) {
+  let is_api = $('#is-api-'+id).val();
+
+  is_api = is_api == '1' ? '0' : '1';
+
+  $.ajax({
+    url:HOME + '/update_pos_api/',
+    type:'POST',
+    cache:false,
+    data:{
+      'id' : id,
+      'is_api' : is_api
+    },
+    success:function(rs) {
+      if(rs == 'success') {
+        $('#is-api-'+id).val(is_api);
+        if(is_api == '1') {
+          $('#pos-api-label-'+id).text('Yes');
+        }
+        else {
+          $('#pos-api-label-'+id).html('No');
+        }
+      }
+      else {
+        swal({
+          title:'Failed !',
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
+
 function saveUpdate() {
   let code = $('#zone_code').val();
   let user_id = $('#user_id').val();
