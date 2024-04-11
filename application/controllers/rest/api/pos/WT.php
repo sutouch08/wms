@@ -74,16 +74,12 @@ class WT extends REST_Controller
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
 
+
     if($test != FALSE)
     {
-      echo $this->mc
-      ->where('U_ECOMNO', $code)
-      ->group_start()
-      ->where_in('F_Sap', array('N', 'D'))
-      ->or_where('F_Sap IS NULL', NULL, FALSE)
-      ->group_end()
-      ->get_compiled_select('DFOWTR');
+      $draft = $this->transfer_model->get_transfer_draft($code);
 
+      print_r($draft);
       exit();
     }
 
