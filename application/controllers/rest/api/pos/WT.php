@@ -77,6 +77,19 @@ class WT extends REST_Controller
 
     if($test != FALSE)
     {
+      $rs = $this->mc
+      ->where('U_ECOMNO', $code)
+      ->group_start()
+      ->where_in('F_Sap', array('N', 'D'))
+      ->or_where('F_Sap IS NULL', NULL, FALSE)
+      ->group_end()
+      ->get('DFOWTR');
+
+      if($rs->num_rows() > 0)
+      {
+        print_r($rs->row());
+      }
+
       $draft = $this->transfer_model->get_transfer_draft($code);
 
       print_r($draft);
