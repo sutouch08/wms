@@ -89,6 +89,10 @@ class WT extends REST_Controller
       {
         print_r($rs->row());
       }
+      else
+      {
+        echo "nodata";
+      }
 
       $draft = $this->transfer_model->get_transfer_draft($code);
 
