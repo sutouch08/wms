@@ -73,7 +73,7 @@ class WT extends REST_Controller
       $this->add_logs('WT', 'get', 'error', $this->error, $code);
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
-    
+
     $draft = $this->transfer_model->get_transfer_draft($code);
 
     if( empty($draft))
@@ -138,7 +138,7 @@ class WT extends REST_Controller
 
       $this->db->trans_begin();
 
-      if( ! $this->orders_model->valid_transfer_draft($code))
+      if( ! $this->orders_model->valid_transfer_draft($ds->code))
       {
         $sc = FALSE;
         $this->error = "Failed to update confirm status";
