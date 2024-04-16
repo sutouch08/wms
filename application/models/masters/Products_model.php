@@ -183,7 +183,7 @@ class Products_model extends CI_Model
         }
       }
 
-      if( ! empty($ds['color_group']))
+      if( isset($ds['color_group']) && $ds['color_group'] != 'all')
       {
         $this->db->where('product_color.id_group', $ds['color_group']);
       }
@@ -308,7 +308,7 @@ class Products_model extends CI_Model
         }
       }
 
-      if( ! empty($ds['color_group']))
+      if(isset($ds['color_group']) && $ds['color_group'] != 'all')
       {
         $this->db->where('product_color.id_group', $ds['color_group']);
       }

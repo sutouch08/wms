@@ -18,6 +18,7 @@ class Find_stock extends PS_Controller
     $this->load->model('masters/product_type_model');
     $this->load->model('masters/product_style_model');
     $this->load->model('masters/product_brand_model');
+    $this->load->model('masters/product_collection_model');
     $this->load->model('masters/product_category_model');
     $this->load->model('masters/product_color_model');
     $this->load->model('masters/product_size_model');
@@ -28,6 +29,7 @@ class Find_stock extends PS_Controller
     //---- load helper
     $this->load->helper('product_tab');
     $this->load->helper('product_brand');
+    $this->load->helper('product_collection');
     $this->load->helper('product_kind');
     $this->load->helper('product_type');
     $this->load->helper('product_group');
@@ -47,20 +49,21 @@ class Find_stock extends PS_Controller
       'operater' => get_filter('operater', 'operater', ''),
       'price' => get_filter('price', 'price', ''),
       'warehouse' => get_filter('warehouse', 'warehouse', ''),
-      'color_group' => get_filter('color_group', 'color_group' ,''),
-      'group' => get_filter('group', 'group', ''),
-      'sub_group' => get_filter('sub_group', 'sub_group', ''),
-      'category'  => get_filter('category', 'category', ''),
-      'kind'  => get_filter('kind', 'kind', ''),
-      'type'  => get_filter('type', 'type', ''),
-      'brand' => get_filter('brand', 'brand', ''),
-      'year'  => get_filter('year', 'year', '')
+      'color_group' => get_filter('color_group', 'color_group' ,'all'),
+      'group' => get_filter('group', 'group', 'all'),
+      'sub_group' => get_filter('sub_group', 'sub_group', 'all'),
+      'category'  => get_filter('category', 'category', 'all'),
+      'kind'  => get_filter('kind', 'kind', 'all'),
+      'type'  => get_filter('type', 'type', 'all'),
+      'brand' => get_filter('brand', 'brand', 'all'),
+      'collection' => get_filter('collection', 'collection', 'all'),
+      'year'  => get_filter('year', 'year', 'all')
     );
 
     $i = 0;
     foreach($filter AS $rx)
     {
-      if(!empty($rx))
+      if( ! empty($rx) && $rx != 'all')
       {
         $i++;
       }
@@ -68,21 +71,25 @@ class Find_stock extends PS_Controller
 
 
 		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = 1000;
+		$perpage = 200;
 
 		$segment  = 4; //-- url segment
-		$rows     = 0;
+		$rows = 0;
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 
 		$products = $i > 1 ? $this->products_model->get_list($filter, $perpage, $this->uri->segment($segment)) : NULL;
-    $ds       = array();
+
     $data = array();
-    if(!empty($products))
+
+    $sysBin = getConfig('SYSTEM_BIN_LOCATION');
+
+    if( ! empty($products))
     {
       $warehouse = get_null($filter['warehouse']);
+
       foreach($products as $rs)
       {
-        $sell_stock = $this->stock_model->get_sell_stock($rs->code, $warehouse, NULL);
+        $sell_stock = $this->stock_model->get_sell_stock($rs->code, $warehouse, NULL, $sysBin);
 
         if($sell_stock > 0)
         {
@@ -96,7 +103,6 @@ class Find_stock extends PS_Controller
             $data[] = $rs;
             $rows++;
           }
-
         }
       }
     }
@@ -124,6 +130,7 @@ class Find_stock extends PS_Controller
       'kind',
       'type',
       'brand',
+      'collection',
       'year');
     clear_filter($filter);
 	}

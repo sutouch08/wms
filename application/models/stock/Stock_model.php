@@ -104,8 +104,10 @@ class stock_model extends CI_Model
 
 
   //---- ยอดรวมสินค้าในคลังที่สั่งได้ ยอดในโซน
-  public function get_sell_stock($item, $warehouse = NULL, $zone = NULL)
+  public function get_sell_stock($item, $warehouse = NULL, $zone = NULL, $sysBin = NULL)
   {
+    $sysBin = $sysBin === NULL ? getConfig('SYSTEM_BIN_LOCATION') : $sysBin;
+
     $this->ms
     ->select_sum('OnHandQty', 'qty')
     ->from('OIBQ')
@@ -114,7 +116,7 @@ class stock_model extends CI_Model
     ->where('OIBQ.ItemCode', $item)
     ->where('OWHS.U_MAIN', 'Y');
 
-		if(getConfig('SYSTEM_BIN_LOCATION') == 0)
+		if( $sysBin == 0)
 		{
 			$this->ms->where('OBIN.SysBin', 'N');
 		}
