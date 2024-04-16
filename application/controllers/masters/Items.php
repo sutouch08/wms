@@ -28,6 +28,7 @@ class Items extends PS_Controller
     $this->load->model('masters/product_type_model');
     $this->load->model('masters/product_style_model');
     $this->load->model('masters/product_brand_model');
+    $this->load->model('masters/product_collection_model');
     $this->load->model('masters/product_category_model');
     $this->load->model('masters/product_color_model');
     $this->load->model('masters/product_size_model');
@@ -39,6 +40,7 @@ class Items extends PS_Controller
     $this->load->helper('product_brand');
     $this->load->helper('product_tab');
     $this->load->helper('product_kind');
+    $this->load->helper('product_collection');
     $this->load->helper('product_type');
     $this->load->helper('product_group');
     $this->load->helper('product_category');
@@ -58,13 +60,14 @@ class Items extends PS_Controller
       'barcode'   => get_filter('barcode', 'item_barcode', ''),
       'color'     => get_filter('color', 'color' ,''),
       'size'      => get_filter('size', 'size', ''),
-      'group'     => get_filter('group', 'group', ''),
-      'sub_group' => get_filter('sub_group', 'sub_group', ''),
-      'category'  => get_filter('category', 'category', ''),
-      'kind'      => get_filter('kind', 'kind', ''),
-      'type'      => get_filter('type', 'type', ''),
-      'brand'     => get_filter('brand', 'brand', ''),
-      'year'      => get_filter('year', 'year', ''),
+      'group'     => get_filter('group', 'group', 'all'),
+      'sub_group' => get_filter('sub_group', 'sub_group', 'all'),
+      'category'  => get_filter('category', 'category', 'all'),
+      'kind'      => get_filter('kind', 'kind', 'all'),
+      'type'      => get_filter('type', 'type', 'all'),
+      'brand'     => get_filter('brand', 'brand', 'all'),
+      'collection' => get_filter('collection', 'collection', 'all'),
+      'year'      => get_filter('year', 'year', 'all'),
       'active' => get_filter('active', 'active', 'all')
     );
 
@@ -87,10 +90,13 @@ class Items extends PS_Controller
       foreach($products as $rs)
       {
         $rs->group   = $this->product_group_model->get_name($rs->group_code);
+        $rs->main_group = $this->product_main_group_model->get_name($rs->main_group_code);
+        $rs->sub_group = $this->product_sub_group_model->get_name($rs->sub_group_code);
         $rs->kind    = $this->product_kind_model->get_name($rs->kind_code);
         $rs->type    = $this->product_type_model->get_name($rs->type_code);
         $rs->category  = $this->product_category_model->get_name($rs->category_code);
         $rs->brand   = $this->product_brand_model->get_name($rs->brand_code);
+        $rs->collection = $this->product_collection_model->get_name($rs->collection_code);
       }
     }
 
@@ -158,14 +164,13 @@ class Items extends PS_Controller
                 'K' => 'Kind',
                 'L' => 'Type',
                 'M' => 'Brand',
-                'N' => 'Year',
-                'O' => 'Cost',
-                'P' => 'Price',
-                'Q' => 'Unit',
-                'R' => 'CountStock',
-                'S' => 'IsAPI'
-                // 'T' => 'OldModel',
-                // 'U' => 'OldCode'
+                'N' => 'Collection',
+                'O' => 'Year',
+                'P' => 'Cost',
+                'Q' => 'Price',
+                'R' => 'Unit',
+                'S' => 'CountStock',
+                'T' => 'IsAPI'
               );
 
               foreach($headCol as $col => $field)
@@ -205,7 +210,8 @@ class Items extends PS_Controller
               $kind_code = get_null(trim($rs['K']));
               $type_code = get_null(trim($rs['L']));
               $brand_code = get_null(trim($rs['M']));
-              $year = empty($rs['N']) ? '0000' : trim($rs['N']);
+              $collection_code = get_null(trim($rs['N']));
+              $year = empty($rs['O']) ? '0000' : trim($rs['O']);
 
               if(!empty($color_code) && ! $this->product_color_model->is_exists($color_code))
               {
@@ -252,6 +258,11 @@ class Items extends PS_Controller
                 $sc = FALSE;
                 $this->error = "Brand : {$brand_code} does not exists";
               }
+              else if(! empty($collection_code) && ! $this->product_collection_model->is_exists($collection_code))
+              {
+                $sc = FALSE;
+                $this->error = "Collection : {$collection_code} does not exists";
+              }
 
               if($sc === FALSE)
               {
@@ -272,13 +283,14 @@ class Items extends PS_Controller
                     'kind_code' => $kind_code,
                     'type_code' => $type_code,
                     'brand_code' => $brand_code,
+                    'collection_code' => $collection_code,
                     'year' => $year,
-                    'cost' => round(trim($rs['O']), 2),
-                    'price' => round(trim($rs['P']), 2),
-                    'unit_code' => trim($rs['Q']),
-                    'count_stock' => trim($rs['R']) === 'N' ? 0:1,
-                    'is_api' => trim($rs['S']) === 'N' ? 0 : 1,
-                    'update_user' => get_cookie('uname'),
+                    'cost' => round(trim($rs['P']), 2),
+                    'price' => round(trim($rs['Q']), 2),
+                    'unit_code' => trim($rs['R']),
+                    'count_stock' => trim($rs['S']) === 'N' ? 0:1,
+                    'is_api' => trim($rs['T']) === 'N' ? 0 : 1,
+                    'update_user' => $this->_user->uname,
                     'old_code' => $old_style
                   );
 
@@ -307,13 +319,14 @@ class Items extends PS_Controller
                 'kind_code' => get_null(trim($rs['K'])),
                 'type_code' => get_null(trim($rs['L'])),
                 'brand_code' => get_null(trim($rs['M'])),
-                'year' => trim($rs['N']),
-                'cost' => round(trim($rs['O']), 2),
-                'price' => round(trim($rs['P']), 2),
-                'unit_code' => empty(trim($rs['Q'])) ? 'PCS' : trim($rs['Q']),
-                'count_stock' => trim($rs['R']) === 'N' ? 0:1,
-                'is_api' => trim($rs['S']) === 'N' ? 0 : 1,
-                'update_user' => get_cookie('uname'),
+                'collection_code' => get_null(trim($rs['N'])),
+                'year' => trim($rs['O']),
+                'cost' => round(trim($rs['P']), 2),
+                'price' => round(trim($rs['Q']), 2),
+                'unit_code' => empty(trim($rs['R'])) ? 'PCS' : trim($rs['R']),
+                'count_stock' => trim($rs['S']) === 'N' ? 0:1,
+                'is_api' => trim($rs['T']) === 'N' ? 0 : 1,
+                'update_user' => $this->_user->uname,
                 'old_style' => $old_style,
                 'old_code' => $old_code
               );
@@ -355,163 +368,100 @@ class Items extends PS_Controller
 
   public function add()
   {
-    if($this->input->post('code'))
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
     {
-      $code = $this->input->post('code');
+      $code = trim($ds->code);
+
       if($this->products_model->is_exists($code))
       {
-        set_error($code.' '.'already_exists');
+        $sc = FALSE;
+        $this->error = "{$code} already exists";
       }
-      else
+
+      if($sc === TRUE)
       {
-        $count = $this->input->post('count_stock');
-        $sell = $this->input->post('can_sell');
-        $api = $this->input->post('is_api');
-        $active = $this->input->post('active');
-        $user = get_cookie('uname');
+        $user = $this->_user->uname;
 
         $arr = array(
-          'code' => trim($this->input->post('code')),
-          'name' => trim($this->input->post('name')),
-          'barcode' => get_null(trim($this->input->post('barcode'))),
-          'style_code' => trim($this->input->post('style')),
-          'color_code' => get_null($this->input->post('color')),
-          'size_code' => get_null($this->input->post('size')),
-          'group_code' => get_null($this->input->post('group_code')),
-					'main_group_code' => get_null($this->input->post('main_group_code')),
-          'sub_group_code' => get_null($this->input->post('sub_group_code')),
-          'category_code' => get_null($this->input->post('category_code')),
-          'kind_code' => get_null($this->input->post('kind_code')),
-          'type_code' => get_null($this->input->post('type_code')),
-          'brand_code' => get_null($this->input->post('brand_code')),
-          'year' => $this->input->post('year'),
-          'cost' => round($this->input->post('cost'), 2),
-          'price' => round($this->input->post('price'), 2),
-          'unit_code' => $this->input->post('unit_code'),
-          'count_stock' => empty($count) ? 0 : 1,
-          'can_sell' => empty($sell) ? 0 : 1,
-          'active' => empty($active) ? 0 : 1,
-          'is_api' => empty($api) ? 0 : 1,
+          'code' => $code,
+          'name' => trim($ds->name),
+          'barcode' => get_null(trim($ds->barcode)),
+          'style_code' => trim($ds->style),
+          'color_code' => get_null($ds->color),
+          'size_code' => get_null($ds->size),
+          'group_code' => get_null($ds->group_code),
+					'main_group_code' => get_null($ds->main_group_code),
+          'sub_group_code' => get_null($ds->sub_group_code),
+          'category_code' => get_null($ds->category_code),
+          'kind_code' => get_null($ds->kind_code),
+          'type_code' => get_null($ds->type_code),
+          'brand_code' => get_null($ds->brand_code),
+          'collection_code' => get_null($ds->collection_code),
+          'year' => $ds->year,
+          'cost' => round($ds->cost, 2),
+          'price' => round($ds->price, 2),
+          'unit_code' => $ds->unit_code,
+          'count_stock' => $ds->count_stock == 0 ? 0 : 1,
+          'can_sell' => $ds->can_sell == 0 ? 0 : 1,
+          'active' => $ds->active == 0 ? 0 : 1,
+          'is_api' => $ds->is_api == 0 ? 0 : 1,
           'update_user' => $user,
-          'old_style' => get_null($this->input->post('old_style')),
-          'old_code' => get_null($this->input->post('old_code'))
+          'old_style' => get_null($ds->old_style),
+          'old_code' => get_null($ds->old_code)
         );
 
-        if($this->products_model->add($arr))
+        if( ! $this->products_model->add($arr))
         {
-          set_message('insert success');
-          $this->do_export($code);
+          $sc = FALSE;
+          $this->error = "Failed to add new item";
         }
         else
         {
-          set_error('insert fail');
+          $this->do_export($code);
         }
       }
     }
     else
     {
-      set_error('no data found');
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
     }
 
-    redirect($this->home.'/add_new');
-  }
-
-
-  public function add_duplicate()
-  {
-    if($this->input->post('code'))
-    {
-      $code = $this->input->post('code');
-      if($this->products_model->is_exists($code))
-      {
-        set_error($code.' already_exists');
-      }
-      else
-      {
-        $count = $this->input->post('count_stock');
-        $sell = $this->input->post('can_sell');
-        $api = $this->input->post('is_api');
-        $active = $this->input->post('active');
-        $user = get_cookie('uname');
-
-        $arr = array(
-          'code' => trim($this->input->post('code')),
-          'name' => trim($this->input->post('name')),
-          'barcode' => get_null(trim($this->input->post('barcode'))),
-          'style_code' => trim($this->input->post('style')),
-          'color_code' => get_null($this->input->post('color')),
-          'size_code' => get_null($this->input->post('size')),
-          'group_code' => get_null($this->input->post('group_code')),
-					'main_group_code' => get_null($this->input->post('main_group_code')),
-          'sub_group_code' => get_null($this->input->post('sub_group_code')),
-          'category_code' => get_null($this->input->post('category_code')),
-          'kind_code' => get_null($this->input->post('kind_code')),
-          'type_code' => get_null($this->input->post('type_code')),
-          'brand_code' => get_null($this->input->post('brand_code')),
-          'year' => $this->input->post('year'),
-          'cost' => round($this->input->post('cost'), 2),
-          'price' => round($this->input->post('price'), 2),
-          'unit_code' => $this->input->post('unit_code'),
-          'count_stock' => empty($count) ? 0 : 1,
-          'can_sell' => empty($sell) ? 0 : 1,
-          'active' => empty($active) ? 0 : 1,
-          'is_api' => empty($api) ? 0 : 1,
-          'update_user' => $user,
-          'old_style' => get_null($this->input->post('old_style')),
-          'old_code' => get_null($this->input->post('old_code'))
-        );
-
-        if($this->products_model->add($arr))
-        {
-          set_message('insert success');
-          $this->do_export($code);
-        }
-        else
-        {
-          set_error('insert failed');
-        }
-      }
-    }
-    else
-    {
-      set_error('no data found');
-    }
-
-    redirect($this->home);
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
 
-
-  public function edit()
+  public function edit($id)
   {
-		$code = $this->input->post('itemCode');
+    $item = $this->products_model->get_by_id($id);
 
-    $item = $this->products_model->get($code);
-    if(!empty($item))
+    if(! empty($item))
     {
       $this->load->view('masters/product_items/items_edit_view', $item);
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
-      redirect($this->home);
+      $this->page_error();
     }
   }
 
 
 
-  public function duplicate($code)
+  public function duplicate($id)
   {
-    $item = $this->products_model->get($code);
-    if(!empty($item))
+    $item = $this->products_model->get_by_id($id);
+
+    if( ! empty($item))
     {
       $this->load->view('masters/product_items/items_duplicate_view', $item);
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
-      redirect($this->home);
+      $this->page_error();
     }
   }
 
@@ -521,47 +471,48 @@ class Items extends PS_Controller
 		$sc = TRUE;
 		$ds = json_decode($this->input->post('data'));
 
-		if(!empty($ds))
+		if(! empty($ds))
 		{
 			$code = $ds->code;
+
+      $arr = array(
+        'name' => trim($ds->name),
+        'barcode' => get_null(trim($ds->barcode)),
+        'style_code' => trim($ds->style),
+        'color_code' => get_null($ds->color),
+        'size_code' => get_null($ds->size),
+        'group_code' => get_null($ds->group_code),
+  			'main_group_code' => get_null($ds->main_group_code),
+        'sub_group_code' => get_null($ds->sub_group_code),
+        'category_code' => get_null($ds->category_code),
+        'kind_code' => get_null($ds->kind_code),
+        'type_code' => get_null($ds->type_code),
+        'brand_code' => get_null($ds->brand_code),
+        'collection_code' => get_null($ds->collection_code),
+        'year' => $ds->year,
+        'cost' => round($ds->cost, 2),
+        'price' => round($ds->price, 2),
+        'unit_code' => $ds->unit_code,
+        'count_stock' => empty($ds->count_stock) ? 0 : 1,
+        'can_sell' => empty($ds->can_sell) ? 0 : 1,
+        'active' => empty($ds->active) ? 0 : 1,
+        'is_api' => empty($ds->is_api) ? 0 : 1,
+        'update_user' => $this->_user->uname,
+        'old_style' => get_null($ds->old_style),
+        'old_code' => get_null($ds->old_code)
+      );
+
+      if(! $this->products_model->update($code, $arr))
+      {
+  			$sc = FALSE;
+  			$this->error = "Update failed";
+      }
 		}
 		else
 		{
 			$sc = FALSE;
 			$this->error = "Missing form data";
 		}
-
-    $arr = array(
-      'name' => $ds->name,
-      'barcode' => get_null(trim($ds->barcode)),
-      'style_code' => trim($ds->style),
-      'color_code' => get_null($ds->color),
-      'size_code' => get_null($ds->size),
-      'group_code' => get_null($ds->group_code),
-			'main_group_code' => get_null($ds->main_group_code),
-      'sub_group_code' => get_null($ds->sub_group_code),
-      'category_code' => get_null($ds->category_code),
-      'kind_code' => get_null($ds->kind_code),
-      'type_code' => get_null($ds->type_code),
-      'brand_code' => get_null($ds->brand_code),
-      'year' => $ds->year,
-      'cost' => round($ds->cost, 2),
-      'price' => round($ds->price, 2),
-      'unit_code' => $ds->unit_code,
-      'count_stock' => empty($ds->count_stock) ? 0 : 1,
-      'can_sell' => empty($ds->can_sell) ? 0 : 1,
-      'active' => empty($ds->active) ? 0 : 1,
-      'is_api' => empty($ds->is_api) ? 0 : 1,
-      'update_user' => $this->_user->uname,
-      'old_style' => get_null($ds->old_style),
-      'old_code' => get_null($ds->old_code)
-    );
-
-    if(! $this->products_model->update($code, $arr))
-    {
-			$sc = FALSE;
-			$this->error = "Update failed";
-    }
 
 		if($sc === TRUE)
 		{
@@ -638,31 +589,32 @@ class Items extends PS_Controller
   public function delete_item()
   {
     $sc = TRUE;
-    $item = $this->input->get('code');
+    $id = $this->input->get('id');
+    $item = $this->products_model->get_by_id($id);
 
-    if($item != '')
+    if( ! empty($item))
     {
-      if(! $this->products_model->has_transection($item))
+      if(! $this->products_model->has_transection($item->code))
       {
-        if(! $this->products_model->delete_item($item))
+        if(! $this->products_model->delete_item_by_id($id))
         {
           $sc = FALSE;
-          $message = "ลบรายการไม่สำเร็จ";
+          $this->error = "ลบรายการไม่สำเร็จ";
         }
       }
       else
       {
         $sc = FALSE;
-        $message = "ไม่สามารถลบ {$item} ได้ เนื่องจากสินค้ามี Transcetion เกิดขึ้นแล้ว";
+        $this->error = "ไม่สามารถลบ {$item->code} ได้ เนื่องจากสินค้ามี Transcetion เกิดขึ้นแล้ว";
       }
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบข้อมูล';
+      $this->error = "Missing required parameter";
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -814,19 +766,21 @@ class Items extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue('E1', 'Color');
       $this->excel->getActiveSheet()->setCellValue('F1', 'Size');
       $this->excel->getActiveSheet()->setCellValue('G1', 'Group');
-      $this->excel->getActiveSheet()->setCellValue('H1', 'SubGroup');
-      $this->excel->getActiveSheet()->setCellValue('I1', 'Category');
-      $this->excel->getActiveSheet()->setCellValue('J1', 'Kind');
-      $this->excel->getActiveSheet()->setCellValue('K1', 'Type');
-      $this->excel->getActiveSheet()->setCellValue('L1', 'Brand');
-      $this->excel->getActiveSheet()->setCellValue('M1', 'Year');
-      $this->excel->getActiveSheet()->setCellValue('N1', 'Cost');
-      $this->excel->getActiveSheet()->setCellValue('O1', 'Price');
-      $this->excel->getActiveSheet()->setCellValue('P1', 'Unit');
-      $this->excel->getActiveSheet()->setCellValue('Q1', 'CountStock');
-      $this->excel->getActiveSheet()->setCellValue('R1', 'IsAPI');
-      $this->excel->getActiveSheet()->setCellValue('S1', 'OldModel');
-      $this->excel->getActiveSheet()->setCellValue('T1', 'OldCode');
+      $this->excel->getActiveSheet()->setCellValue('H1', 'MainGroup');
+      $this->excel->getActiveSheet()->setCellValue('I1', 'SubGroup');
+      $this->excel->getActiveSheet()->setCellValue('J1', 'Category');
+      $this->excel->getActiveSheet()->setCellValue('K1', 'Kind');
+      $this->excel->getActiveSheet()->setCellValue('L1', 'Type');
+      $this->excel->getActiveSheet()->setCellValue('M1', 'Brand');
+      $this->excel->getActiveSheet()->setCellValue('N1', 'Collection');
+      $this->excel->getActiveSheet()->setCellValue('O1', 'Year');
+      $this->excel->getActiveSheet()->setCellValue('P1', 'Cost');
+      $this->excel->getActiveSheet()->setCellValue('Q1', 'Price');
+      $this->excel->getActiveSheet()->setCellValue('R1', 'Unit');
+      $this->excel->getActiveSheet()->setCellValue('S1', 'CountStock');
+      $this->excel->getActiveSheet()->setCellValue('T1', 'IsAPI');
+      $this->excel->getActiveSheet()->setCellValue('U1', 'OldModel');
+      $this->excel->getActiveSheet()->setCellValue('V1', 'OldCode');
 
 
       setToken($token);
@@ -840,7 +794,7 @@ class Items extends PS_Controller
 
   public function clear_filter()
 	{
-    $filter = array('item_code','item_name','item_barcode','color', 'size','group','sub_group','category','kind','type','brand','year', 'active');
+    $filter = array('item_code','item_name','item_barcode','color', 'size','group','sub_group','category','kind','type','brand', 'collection','year', 'active');
     clear_filter($filter);
 	}
 }

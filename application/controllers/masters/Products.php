@@ -20,6 +20,7 @@ class Products extends PS_Controller
     $this->load->model('masters/product_main_group_model');
     $this->load->model('masters/product_sub_group_model');
     $this->load->model('masters/product_kind_model');
+    $this->load->model('masters/product_collection_model');
     $this->load->model('masters/product_type_model');
     $this->load->model('masters/product_style_model');
     $this->load->model('masters/product_brand_model');
@@ -33,6 +34,7 @@ class Products extends PS_Controller
     $this->load->helper('product_brand');
     $this->load->helper('product_tab');
     $this->load->helper('product_kind');
+    $this->load->helper('product_collection');
     $this->load->helper('product_type');
     $this->load->helper('product_group');
 		$this->load->helper('product_main_group');
@@ -61,6 +63,7 @@ class Products extends PS_Controller
       'kind' => get_filter('kind', 'pd_kind', 'all'),
       'type' => get_filter('type', 'pd_type', 'all'),
       'brand' => get_filter('brand', 'pd_brand', 'all'),
+      'collection' => get_filter('collection', 'pd_collection', 'all'),
       'year' => get_filter('year', 'pd_year', 'all'),
       'sell' => get_filter('sell', 'pd_sell', 'all'),
       'active' => get_filter('active', 'pd_active', 'all')
@@ -102,6 +105,7 @@ class Products extends PS_Controller
           $product->type    = $this->product_type_model->get_name($rs->type_code);
           $product->category  = $this->product_category_model->get_name($rs->category_code);
           $product->brand   = $this->product_brand_model->get_name($rs->brand_code);
+          $product->collection = $this->product_collection_model->get_name($rs->collection_code);
           $product->year    = $rs->year;
           $product->sell    = $rs->can_sell;
           $product->active  = $rs->active;
@@ -136,6 +140,7 @@ class Products extends PS_Controller
       'kind' => $this->input->post('export_kind'),
       'type' => $this->input->post('export_type'),
       'brand' => $this->input->post('export_brand'),
+      'collection' => $this->input->post('export_collection'),
       'year' => $this->input->post('export_year'),
       'sell' => $this->input->post('export_sell'),
       'active' => $this->input->post('export_active')
@@ -143,7 +148,7 @@ class Products extends PS_Controller
 
     $header = array(
       'Code', 'Name', 'Barcode', 'Model', 'Color', 'Size', 'Group', 'MainGroup',
-      'SubGroup', 'Category', 'Kind', 'Type', 'Brand', 'Year','Cost','Price',
+      'SubGroup', 'Category', 'Kind', 'Type', 'Brand', 'Collection', 'Year','Cost','Price',
       'Unit', 'CountStock', 'IsAPI', 'OldModel', 'OldCode', 'IsActive', 'Sell'
     );
 
@@ -166,10 +171,30 @@ class Products extends PS_Controller
         $is_sell = $rs->can_sell == 1 ? 'Y' : 'N';
 
         $arr = array(
-          $rs->code, $rs->name, $rs->barcode, $rs->style_code, $rs->color_code, $rs->size_code,
-          $rs->group_code, $rs->main_group_code, $rs->sub_group_code, $rs->category_code,
-          $rs->kind_code, $rs->type_code, $rs->brand_code, $rs->year, $rs->cost,
-          $rs->price, $rs->unit_code, $count_stock, $is_api, $rs->old_style, $rs->old_code, $is_active, $is_sell
+          $rs->code,
+          $rs->name,
+          $rs->barcode,
+          $rs->style_code,
+          $rs->color_code,
+          $rs->size_code,
+          $rs->group_code,
+          $rs->main_group_code,
+          $rs->sub_group_code,
+          $rs->category_code,
+          $rs->kind_code,
+          $rs->type_code,
+          $rs->brand_code,
+          $rs->collection_code,
+          $rs->year,
+          $rs->cost,
+          $rs->price,
+          $rs->unit_code,
+          $count_stock,
+          $is_api,
+          $rs->old_style,
+          $rs->old_code,
+          $is_active,
+          $is_sell
         );
 
         fputcsv($f, $arr, $delimiter);
@@ -216,6 +241,7 @@ class Products extends PS_Controller
       $category = get_null($this->input->post('category_code'));
       $kind     = get_null($this->input->post('kind_code'));
       $type     = get_null($this->input->post('type_code'));
+      $collection = get_null($this->input->post('collection_code'));
       $old_code = NULL; //get_null($this->input->post('old_style'));
       //$old_code = empty($old_code) ? $code : $old_code;
       $brand    = get_null($this->input->post('brand_code'));
@@ -239,6 +265,7 @@ class Products extends PS_Controller
         'kind_code' => $kind,
         'type_code' => $type,
         'brand_code' => $brand,
+        'collection_code' => $collection,
         'year' => $year,
         'cost' => $cost,
         'price' => $price,
@@ -400,6 +427,7 @@ class Products extends PS_Controller
       $category = $this->input->post('category_code');
       $kind = $this->input->post('kind_code');
       $type = $this->input->post('type_code');
+      $collection = $this->input->post('collection_code');
       $year = $this->input->post('year');
       $count = $this->input->post('count_stock');
       $sell = $this->input->post('can_sell');
@@ -421,6 +449,7 @@ class Products extends PS_Controller
         'kind_code' => get_null($kind),
         'type_code' => get_null($type),
         'brand_code' => get_null($brand),
+        'collection_code' => get_null($collection),
         'year' => $year,
         'cost' => ($cost === NULL ? 0.00 : $cost),
         'price' => ($price === NULL ? 0.00 : $price),
@@ -449,7 +478,8 @@ class Products extends PS_Controller
 
         //----
         $items = $this->products_model->get_style_items($code);
-        if(!empty($items))
+
+        if( ! empty($items))
         {
           $ds = array(
             'group_code' => get_null($group),
@@ -459,6 +489,7 @@ class Products extends PS_Controller
             'kind_code' => get_null($kind),
             'type_code' => get_null($type),
             'brand_code' => get_null($brand),
+            'collection_code' => get_null($collection),
             'year' => $year,
             'unit_code' => $unit,
             'count_stock' => ($count === NULL ? 0 : 1),
@@ -806,6 +837,7 @@ class Products extends PS_Controller
           'kind_code' => $ds->kind_code,
           'type_code' => $ds->type_code,
           'brand_code' => $ds->brand_code,
+          'collection_code' => $ds->collection_code,
           'year' => $ds->year,
           'cost' => (isset($cost[$size]) ? $cost[$size] :$ds->cost),
           'price' => (isset($price[$size]) ? $price[$size] : $ds->price),
@@ -862,6 +894,7 @@ class Products extends PS_Controller
         'kind_code' => $ds->kind_code,
         'type_code' => $ds->type_code,
         'brand_code' => $ds->brand_code,
+        'collection_code' => $ds->collection_code,
         'year' => $ds->year,
         'cost' => $ds->cost,
         'price' => $ds->price,
@@ -908,6 +941,7 @@ class Products extends PS_Controller
         'kind_code' => $ds->kind_code,
         'type_code' => $ds->type_code,
         'brand_code' => $ds->brand_code,
+        'collection_code' => $ds->collection_code,
         'year' => $ds->year,
         'cost' => (isset($cost[$size]) ? $cost[$size] :$ds->cost),
         'price' => (isset($price[$size]) ? $price[$size] : $ds->price),
@@ -1056,8 +1090,10 @@ class Products extends PS_Controller
 
 
   //--- ดึง items และรูปภาพ เพื่อทำการเชื่อมโยงรูปภาพ
-  public function get_image_items($style)
+  public function get_image_items()
   {
+    $style = trim($this->input->post('style_code'));
+
     $sc = 'noimage';
     //---- จำนวนรายการสินค้า ทั้งหมด
     $items = $this->products_model->get_style_items($style);
@@ -1104,8 +1140,10 @@ class Products extends PS_Controller
   			{
   				$sc .= '<td class="fix-width-80">
                     <label style="width:100%; text-align:center;">
-                      <input type="radio" class="ace"
-                      name="items['.$item->code.']"
+                      <input type="radio" class="ace chk-items"
+                      name="items['.$item->id.']"
+                      data-item="'.$item->code.'"
+                      data-imageid="'.$id.'"
                       value="'.$id.'" '.is_checked( $id, $this->product_image_model->get_id_image($item->code) ).' />
                       <span class="lbl" style="font-size:9px; color:grey;"><br/>'.$item->color_code.'-'.$item->size_code.'</span>
                     </label>
@@ -1128,31 +1166,28 @@ class Products extends PS_Controller
 
   public function mapping_image()
   {
-    $style = $this->input->post('styleCode');
-    if($style)
+    $sc = TRUE;
+    $items = json_decode($this->input->post('items'));
+
+    if( ! empty($items))
     {
-      $items = $this->input->post('items');
-      if(!empty($items))
+      foreach($items as $rs)
       {
-        foreach($items as $code => $id_image)
-        {
-          $arr = array(
-            'code' => $code,
-            'id_image' => $id_image
-          );
+        $arr = array(
+          'code' => $rs->product_code,
+          'id_image' => $rs->image_id
+        );
 
-          $this->product_image_model->update_product_image($arr);
-        }
-
-        set_message('Done');
-      }
-      else
-      {
-        set_error('No data found');
+        $this->product_image_model->update_product_imag($arr);
       }
     }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
+    }
 
-    redirect($this->home.'/edit/'.$style.'/itemTab');
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -1418,6 +1453,7 @@ class Products extends PS_Controller
       'pd_kind',
       'pd_type',
       'pd_brand',
+      'pd_collection',
       'pd_year',
       'pd_sell',
       'pd_active'

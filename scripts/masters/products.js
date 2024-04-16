@@ -63,6 +63,7 @@ function export_filter(){
   let kind = $('#kind').val();
   let type = $('#type').val();
   let brand = $('#brand').val();
+  let collection = $('#collection').val();
   let year = $('#year').val();
   let sell = $('#sell').val();
   let active = $('#active').val();
@@ -78,6 +79,7 @@ function export_filter(){
   $('#export_kind').val(kind);
   $('#export_type').val(type);
   $('#export_brand').val(brand);
+  $('#export_collection').val(collection);
   $('#export_year').val(year);
   $('#export_sell').val(sell);
   $('#export_active').val(active);

@@ -183,13 +183,12 @@ class Products_model extends CI_Model
         }
       }
 
-
-      if(!empty($ds['color_group']))
+      if( ! empty($ds['color_group']))
       {
         $this->db->where('product_color.id_group', $ds['color_group']);
       }
 
-      if(!empty($ds['size']))
+      if( ! empty($ds['size']))
       {
         if($ds['size'] === 'NULL')
         {
@@ -201,37 +200,56 @@ class Products_model extends CI_Model
         }
       }
 
-      if(!empty($ds['group']))
+      if( ! empty($ds['price']))
+      {
+        $operater = !empty($ds['operater']) ? $ds['operater'] : 'less_than';
+
+        if($operater === 'more_than')
+        {
+          $this->db->where('products.price >=', $ds['price'], FALSE);
+        }
+        else
+        {
+          $this->db->where('products.price <=', $ds['price'], FALSE);
+        }
+      }
+
+      if(isset($ds['group']) && $ds['group'] != 'all')
       {
         $this->db->where('group_code', $ds['group']);
       }
 
-      if(!empty($ds['sub_group']))
+      if(isset($ds['sub_group']) && $ds['sub_group'] != 'all')
       {
         $this->db->where('sub_group_code', $ds['sub_group']);
       }
 
-      if(!empty($ds['category']))
+      if(isset($ds['category']) && $ds['category'] != 'all')
       {
         $this->db->where('category_code', $ds['category']);
       }
 
-      if(!empty($ds['kind']))
+      if(isset($ds['kind']) && $ds['kind'] != 'all')
       {
         $this->db->where('kind_code', $ds['kind']);
       }
 
-      if(!empty($ds['type']))
+      if(isset($ds['type']) && $ds['type'] != 'all')
       {
         $this->db->where('type_code', $ds['type']);
       }
 
-      if(!empty($ds['brand']))
+      if(isset($ds['brand']) && $ds['brand'] != 'all')
       {
         $this->db->where('brand_code', $ds['brand']);
       }
 
-      if(!empty($ds['year']))
+      if(isset($ds['collection']) && $ds['collection'] != 'all')
+      {
+        $this->db->where('collection_code', $ds['collection']);
+      }
+
+      if(isset($ds['year']) && $ds['year'] != 'all')
       {
         $this->db->where('year', $ds['year']);
       }
@@ -290,12 +308,12 @@ class Products_model extends CI_Model
         }
       }
 
-      if(!empty($ds['color_group']))
+      if( ! empty($ds['color_group']))
       {
         $this->db->where('product_color.id_group', $ds['color_group']);
       }
 
-      if(!empty($ds['size']))
+      if( ! empty($ds['size']))
       {
         if($ds['size'] === 'NULL')
         {
@@ -307,7 +325,7 @@ class Products_model extends CI_Model
         }
       }
 
-      if(!empty($ds['price']))
+      if( ! empty($ds['price']))
       {
         $operater = !empty($ds['operater']) ? $ds['operater'] : 'less_than';
 
@@ -321,39 +339,42 @@ class Products_model extends CI_Model
         }
       }
 
-
-
-      if(!empty($ds['group']))
+      if(isset($ds['group']) && $ds['group'] != 'all')
       {
         $this->db->where('group_code', $ds['group']);
       }
 
-      if(!empty($ds['sub_group']))
+      if(isset($ds['sub_group']) && $ds['sub_group'] != 'all')
       {
         $this->db->where('sub_group_code', $ds['sub_group']);
       }
 
-      if(!empty($ds['category']))
+      if(isset($ds['category']) && $ds['category'] != 'all')
       {
         $this->db->where('category_code', $ds['category']);
       }
 
-      if(!empty($ds['kind']))
+      if(isset($ds['kind']) && $ds['kind'] != 'all')
       {
         $this->db->where('kind_code', $ds['kind']);
       }
 
-      if(!empty($ds['type']))
+      if(isset($ds['type']) && $ds['type'] != 'all')
       {
         $this->db->where('type_code', $ds['type']);
       }
 
-      if(!empty($ds['brand']))
+      if(isset($ds['brand']) && $ds['brand'] != 'all')
       {
         $this->db->where('brand_code', $ds['brand']);
       }
 
-      if(!empty($ds['year']))
+      if(isset($ds['collection']) && $ds['collection'] != 'all')
+      {
+        $this->db->where('collection_code', $ds['collection']);
+      }
+
+      if(isset($ds['year']) && $ds['year'] != 'all')
       {
         $this->db->where('year', $ds['year']);
       }
@@ -636,10 +657,28 @@ class Products_model extends CI_Model
   }
 
 
+  public function delete_item_by_id($id)
+  {
+    return $this->db->where('id', $id)->delete('products');
+  }
+
+
 
   public function get($code)
   {
     $rs = $this->db->where('code', $code)->or_where('old_code', $code)->get('products');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+  public function get_by_id($id)
+  {
+    $rs = $this->db->where('id', $id)->get('products');
 
     if($rs->num_rows() == 1)
     {

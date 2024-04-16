@@ -18,17 +18,17 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>รหัส</label>
     <input type="text" class="width-100" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ชื่อ</label>
     <input type="text" class="width-100" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>กลุ่ม</label>
     <select class="form-control" name="group" id="group" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -37,7 +37,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>กลุ่มหลัก</label>
 		<select class="form-control" name="main_group" id="main_group" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -46,7 +46,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>กลุ่มย่อย</label>
 		<select class="form-control" name="sub_group" id="sub_group" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -55,7 +55,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>หมวดหมู่</label>
 		<select class="form-control" name="category" id="category" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -64,7 +64,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ประเภท</label>
 		<select class="form-control" name="kind" id="kind" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -73,7 +73,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ชนิด</label>
 		<select class="form-control" name="type" id="type" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -82,12 +82,21 @@
 		</select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ยี่ห้อ</label>
 		<select class="form-control" name="brand" id="brand" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="NULL" <?php echo is_selected('NULL', $brand); ?>>ไม่ระบุ</option>
 			<?php echo select_product_brand($brand); ?>
+		</select>
+  </div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>คอลเล็คชั่น</label>
+		<select class="form-control" name="collection" id="collection" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="NULL" <?php echo is_selected('NULL', $collection); ?>>ไม่ระบุ</option>
+			<?php echo select_all_collection($collection); ?>
 		</select>
   </div>
 
@@ -140,6 +149,7 @@
 	<input type="hidden" name="export_kind" id="export_kind">
 	<input type="hidden" name="export_type" id="export_type">
 	<input type="hidden" name="export_brand" id="export_brand">
+	<input type="hidden" name="export_collection" id="export_collection">
 	<input type="hidden" name="export_year" id="export_year">
 	<input type="hidden" name="export_sell" id="export_sell">
 	<input type="hidden" name="export_active" id="export_active">
@@ -148,7 +158,7 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-bordered table-hover" style="min-width:1950px;">
+		<table class="table table-striped table-bordered table-hover" style="min-width:2100px;">
 			<thead>
 				<tr>
 					<th class="fix-width-50 middle text-center">#</th>
@@ -163,6 +173,7 @@
 					<th class="fix-width-150 middle text-center">ประเภท</th>
 					<th class="fix-width-150 middle text-center">ชนิด</th>
 					<th class="fix-width-150 middle text-center">ยี่ห้อ</th>
+					<th class="fix-width-150 middle text-center">คอลเล็คชั่น</th>
 					<th class="fix-width-80 middle text-center">ปี</th>
 					<th class="fix-width-50 middle text-center">ขาย</th>
 					<th class="fix-width-60 middle text-center">Active</th>
@@ -202,6 +213,7 @@
 						<td class="middle text-center"><?php echo $rs->kind; ?></td>
 						<td class="middle text-center"><?php echo $rs->type; ?></td>
 						<td class="middle text-center"><?php echo $rs->brand; ?></td>
+						<td class="middle text-center"><?php echo $rs->collection; ?></td>
 						<td class="middle text-center"><?php echo $rs->year; ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->sell); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>

@@ -128,6 +128,16 @@
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="type-error"></div>
 	</div>
 
+	<div class="form-group">
+		<label class="col-sm-3 control-label no-padding-right">คอเล็คชั่น</label>
+		<div class="col-xs-12 col-sm-3">
+			<select name="collection_code" id="collection_code" class="form-control">
+				<option value="">กรุณาเลือก</option>
+			<?php echo select_active_collection(); ?>
+			</select>
+		</div>
+		<div class="help-block col-xs-12 col-sm-reset inline red" id="collection-error"></div>
+	</div>
 
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ปีสินค้า</label>

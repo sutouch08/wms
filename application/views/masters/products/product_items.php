@@ -169,29 +169,27 @@
 </div>
 
 
-<form id="mappingForm" method="post" action="<?php echo $this->home; ?>/mapping_image">
-	<input type="hidden" name="styleCode" value="<?php echo $style->code; ?>" />
-  <div class="modal fade" id="imageMappingTable" tabindex="-1" role="dialog" aria-labelledby="mapping" aria-hidden="true" data-bakdrop="static">
-    <div class="modal-dialog" style="width:90vw;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">จับคู่รูปภาพกับสินค้า</h4>
-        </div>
-        <div class="modal-body">
-          <div class="row" style="padding-left:10px; padding-right:10px;">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0" id="mappingBody" style="max-width:90vw; max-height:70vh; overflow:auto;">
+<div class="modal fade" id="imageMappingTable" tabindex="-1" role="dialog" aria-labelledby="mapping" aria-hidden="true" data-bakdrop="static">
+  <div class="modal-dialog" style="width:90vw;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">จับคู่รูปภาพกับสินค้า</h4>
+        <input type="hidden" name="styleCode" id="style-code" value="<?php echo $style->code; ?>" />
+      </div>
+      <div class="modal-body">
+        <div class="row" style="padding-left:10px; padding-right:10px;">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0" id="mappingBody" style="max-width:90vw; max-height:70vh; overflow:auto;">
 
-            </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">ปิด</button>
-          <button type="submit" class="btn btn-sm btn-primary">ดำเนินการ</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">ปิด</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="doMapping()">ดำเนินการ</button>
       </div>
     </div>
   </div>
-</form>
+</div>
 
 
 <div class="modal fade" id="barcodeOption" tabindex="-1" role="dialog" aria-labelledby="bcGen" aria-hidden="true">

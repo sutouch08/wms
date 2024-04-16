@@ -209,6 +209,18 @@ class Product_style_model extends CI_Model
         }
       }
 
+      if(isset($ds['collection']) && $ds['collection'] != 'all')
+      {
+        if($ds['collection'] == 'NULL')
+        {
+          $this->db->where('collection_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('collection_code', $ds['collection']);
+        }
+      }
+
       if($ds['year'] != 'all')
       {
         $this->db->where('year', $ds['year']);
@@ -378,6 +390,18 @@ class Product_style_model extends CI_Model
         else
         {
           $this->db->where('brand_code', $ds['brand']);
+        }
+      }
+
+      if(isset($ds['collection']) && $ds['collection'] != 'all')
+      {
+        if($ds['collection'] == 'NULL')
+        {
+          $this->db->where('collection_code IS NULL', NULL, FALSE);
+        }
+        else
+        {
+          $this->db->where('collection_code', $ds['collection']);
         }
       }
 

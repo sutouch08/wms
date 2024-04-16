@@ -29,7 +29,7 @@
 </div><!--/ col-sm-9  -->
 </div><!--/ row  -->
 
-<script src="<?php echo base_url(); ?>scripts/masters/products.js"></script>
-<script src="<?php echo base_url(); ?>scripts/masters/product_info.js"></script>
-<script src="<?php echo base_url(); ?>scripts/code_validate.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/products.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/product_info.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/code_validate.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

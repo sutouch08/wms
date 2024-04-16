@@ -116,9 +116,12 @@ function setImages()
 	var style	= $("#style").val();
 	load_in();
 	$.ajax({
-		url: BASE_URL + 'masters/products/get_image_items/'+style,
+		url: BASE_URL + 'masters/products/get_image_items',
 		type:"POST",
     cache:"false",
+    data:{
+      'style_code' : style
+    },
 		success: function(rs){
 			load_out();
 			var rs = $.trim(rs);
@@ -130,6 +133,59 @@ function setImages()
 			}
 		}
 	});
+}
+
+
+function doMapping() {
+  let items = [];
+
+  $('.chk-items:checked').each(function() {
+    let item = {
+      'product_code' : $(this).data('item'),
+      'image_id' : $(this).data('imageid')
+    }
+
+    items.push(item);
+  })
+
+  if(items.length > 0) {
+    $('#imageMappingTable').modal('hide');
+
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'masters/products/mapping_image/',
+      type:'POST',
+      cache:false,
+      data:{        
+        'items' : JSON.stringify(items)
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs === 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:rs,
+            type:'error'
+          }, function() {
+            $('#imageMappingTable').modal('show');
+          })
+        }
+      }
+    })
+  }
 }
 
 
