@@ -329,6 +329,7 @@ class Consign_tr extends PS_Controller
     $approve_logs = $this->approve_logs_model->get($code);
     $details = $this->orders_model->get_order_details($code);
 		$ship_to = $this->address_model->get_ship_to_address($rs->customer_code);
+      $tracking = $this->orders_model->get_order_tracking($code);
 
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $approve_logs;
@@ -336,6 +337,7 @@ class Consign_tr extends PS_Controller
     $ds['order'] = $rs;
     $ds['details'] = $details;
 		$ds['addr']  = $ship_to;
+    $ds['tracking'] = $tracking;
     $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
     $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
     $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -432,7 +434,7 @@ class Consign_tr extends PS_Controller
     echo $sc === TRUE ? 'success' : $this->error;
   }
 
-  
+
   public function save($code)
   {
     $sc = TRUE;
