@@ -645,6 +645,7 @@ function saveAddress()
 
 	var ds = [];
 
+	ds.push( {"name" : "id_sender", "value" : $("#id_sender").val() } );
 	ds.push( {"name" : "id_address", "value" : $("#id_address").val() } );
 	ds.push( {"name" : "customer_code", "value" : $("#customerCode").val() });
 	ds.push( {"name" : "customer_ref", "value" : $("#customer_ref").val() } );
@@ -657,9 +658,7 @@ function saveAddress()
 	ds.push( {"name" : "country", "value" : country});
 	ds.push( {"name" : "phone", "value" : $("#phone").val() } );
 	ds.push( {"name" : "email", "value" : $("#email").val() } );
-	ds.push( {"name" : "alias", "value" : $("#alias").val() } );
-
-	//$("#addressModal").modal('hide');
+	ds.push( {"name" : "alias", "value" : $("#alias").val() } );	
 
 	load_in();
 	$.ajax({

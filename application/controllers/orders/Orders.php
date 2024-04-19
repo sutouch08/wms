@@ -2121,6 +2121,7 @@ class Orders extends PS_Controller
     $sc = TRUE;
 		$customer_code = trim($this->input->post('customer_code'));
 		$cus_ref = trim($this->input->post('customer_ref'));
+    $is_spx = $this->input->post('id_sender') == 148 ? TRUE : FALSE;
 
     if(!empty($customer_code) OR !empty($cus_ref))
     {
@@ -2135,50 +2136,59 @@ class Orders extends PS_Controller
         'address' => NULL
       ];
 
-      $province = parseProvince($this->input->post('province'));
-      $sub_district = parseSubDistrict($this->input->post('sub_district'), $province);
-      $district = parseDistrict($this->input->post('district'), $province);
-      $phone = parsePhoneNumber($this->input->post('phone'));
+      $province = $this->input->post('province');
+      $sub_district = $this->input->post('sub_district');
+      $district = $this->input->post('district');
+      $phone = $this->input->post('phone');
       $postcode = $this->input->post('postcode');
 
-      //--- validate with table address_info
-      if( ! $this->address_model->is_valid_sub_district($sub_district))
+      if($is_spx)
       {
-        $sc = FALSE;
-        $err['sub_district'] = "ตำบลไม่ถูกต้อง ";
-      }
+        $province = parseProvince($province);
+        $sub_district = parseSubDistrict($sub_district, $province);
+        $district = parseDistrict($district, $province);
+        $phone = parsePhoneNumber($phone);
+        $postcode = $postcode;
 
-      if( ! $this->address_model->is_valid_district($district))
-      {
-        $sc = FALSE;
-        $err['district'] = "อำเภอไม่ถูกต้อง ";
-      }
-
-      if( ! $this->address_model->is_valid_province($province))
-      {
-        $sc = FALSE;
-        $err['province'] = "จังหวัดไม่ถูกต้อง ";
-      }
-
-      if( ! $this->address_model->is_valid_postcode($postcode))
-      {
-        $sc = FALSE;
-        $err['postcode'] = "รหัสไปรษณีย์ไม่ถูกต้อง ";
-      }
-
-      if($sc === TRUE)
-      {
-        if( ! $this->address_model->is_valid_full_address($sub_district, $district, $province, $postcode))
+        //--- validate with table address_info
+        if( ! $this->address_model->is_valid_sub_district($sub_district))
         {
           $sc = FALSE;
-          $err['address'] = "ตำบล อำเภอ จังหวัด หรือ รหัสไปรษณีย์ ไม่สอดคล้องกัน";
+          $err['sub_district'] = "ตำบลไม่ถูกต้อง ";
         }
-      }
 
-      if(strlen($phone) < 9 OR strlen($phone) > 10)
-      {
-        $sc = FALSE;
-        $err['phone'] = "เบอร์โทรศัพท์ไม่ถูกต้อง";
+        if( ! $this->address_model->is_valid_district($district))
+        {
+          $sc = FALSE;
+          $err['district'] = "อำเภอไม่ถูกต้อง ";
+        }
+
+        if( ! $this->address_model->is_valid_province($province))
+        {
+          $sc = FALSE;
+          $err['province'] = "จังหวัดไม่ถูกต้อง ";
+        }
+
+        if( ! $this->address_model->is_valid_postcode($postcode))
+        {
+          $sc = FALSE;
+          $err['postcode'] = "รหัสไปรษณีย์ไม่ถูกต้อง ";
+        }
+
+        if($sc === TRUE)
+        {
+          if( ! $this->address_model->is_valid_full_address($sub_district, $district, $province, $postcode))
+          {
+            $sc = FALSE;
+            $err['address'] = "ตำบล อำเภอ จังหวัด หรือ รหัสไปรษณีย์ ไม่สอดคล้องกัน";
+          }
+        }
+
+        if(strlen($phone) < 9 OR strlen($phone) > 10)
+        {
+          $sc = FALSE;
+          $err['phone'] = "เบอร์โทรศัพท์ไม่ถูกต้อง";
+        }
       }
 
       if($sc === TRUE)
@@ -2210,7 +2220,7 @@ class Orders extends PS_Controller
         else
         {
           $arr = array(
-            'address_code' => '0000', //$this->address_model->get_new_code($this->input->post('customer_ref')),
+            'address_code' => '0000',
             'code' => $cus_ref,
             'customer_code' => $customer_code,
             'name' => trim($this->input->post('name')),
@@ -3693,7 +3703,7 @@ class Orders extends PS_Controller
             $cs = $this->orders_model->update_detail($id, $arr);
           }	//--- end if detail
         } //--- End if value
-        
+
         $total_amount = $this->orders_model->get_order_total_amount($code);
         $this->orders_model->update($code, ['doc_total' => $total_amount, 'status' => 0]);
 
