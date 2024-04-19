@@ -11,14 +11,14 @@
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		    <?php if($doc->status == 1) : ?>
 		      <button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-					<?php if($this->pm->can_edit) : ?>
+					<?php if($this->pm->can_edit && ($doc->is_wms = 0 OR $doc->api = 0)) : ?>
 						<button type="button" class="btn btn-sm btn-danger" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
 					<?php endif; ?>
 		    <?php endif; ?>
 		    <?php if(($doc->status == -1 OR $doc->status == 0) && $this->pm->can_add OR $this->pm->can_edit) : ?>
 
 		      <?php if(($doc->status == -1 OR $doc->status == 0) && $barcode === TRUE) : ?>
-		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseKeyboard()">คีย์มือ</button>
+		        <!-- <button type="button" class="btn btn-sm btn-primary" onclick="goUseKeyboard()">คีย์มือ</button> -->
 		      <?php endif; ?>
 
 
@@ -46,9 +46,6 @@
 		$this->load->view('transfer/transfer_detail');
 	}
 ?>
-
-<input type="hidden" name="from_zone_code" id="from_zone_code" value="" />
-<input type="hidden" name="to_zone_code" id="to_zone_code" value="" />
 
 <?php else : ?>
 <?php $this->load->view('deny_page'); ?>

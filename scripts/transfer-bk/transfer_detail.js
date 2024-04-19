@@ -66,127 +66,60 @@ function sendToWms() {
 	})
 }
 
-function removeTemp(id, item_code) {
-	swal({
-		title:'คุณแน่ใจ ?',
-		text:'ต้องการลบ '+item_code+' หรือไม่ ?',
-		type:'warning',
-		showCancelButton:true,
-		confirmButtonColor:'#d15b47',
-		confirmButtonText:'Yes',
-		cancelButtonText:'No',
-		closeOnConfirm:true
+function deleteMoveItem(id, item_code)
+{
+	var code = $('#transfer_code').val();
+
+  swal({
+		title: 'คุณแน่ใจ ?',
+		text: 'ต้องการลบ '+ item_code +' หรือไม่ ?',
+		type: 'warning',
+		showCancelButton: true,
+		comfirmButtonColor: '#DD6855',
+		confirmButtonText: 'ใช่ ฉันต้องการ',
+		cancelButtonText: 'ไม่ใช่',
+		closeOnConfirm: true
 	}, function() {
 		load_in();
 
-		setTimeout(() => {
-			$.ajax({
-				url:HOME + 'delete_temp',
-				type:'POST',
-				cache:false,
-				data:{
-					'id' : id
-				},
-				success:function(rs) {
-					load_out();
-
-					if(rs === 'success') {
+		$.ajax({
+			url:HOME + 'delete_detail',
+			type:"POST",
+      cache:"false",
+			data:{
+				'code' : code,
+				'id' : id
+			},
+			success: function(rs) {
+				load_out();
+				var rs = $.trim(rs);
+				if( rs == 'success' ) {
+					setTimeout(() => {
 						swal({
 							title:'Success',
-							type:'success',
-							timer:1000
+							text: 'ดำเนินการเรียบร้อยแล้ว',
+							type: 'success',
+							timer: 1000
 						});
 
-						$('#row-temp-'+id).remove();
-						reIndex('tmp-no');
-					}
-					else {
+						$('#row-'+id).remove();
+						reIndex();
+						reCal();
+					}, 200);
+
+				}
+				else {
+					setTimeout(() => {
 						swal({
 							title:'Error!',
-							text:rs,
+							text: rs,
 							type:'error'
 						});
-					}
+					}, 200);
 				}
-			})
-		}, 200);
-	})
-}
-
-
-function checkAll(el) {
-	if(el.is(':checked')) {
-		$('.chk').prop('checked', true);
-	}
-	else {
-		$('.chk').prop('checked', false);
-	}
-}
-
-
-function removeChecked() {
-	let code = $('#transfer_code').val();
-	let ids = [];
-
-	if($('.chk:checked').length) {
-		$('.chk:checked').each(function() {
-			ids.push($(this).val());
+			}
 		});
-
-		if(ids.length > 0) {
-			swal({
-				title: 'คุณแน่ใจ ?',
-				text: 'ต้องการลบ '+ ids.length +' รายการที่เลือก หรือไม่ ?',
-				type: 'warning',
-				showCancelButton: true,
-				comfirmButtonColor: '#DD6855',
-				confirmButtonText: 'ใช่ ฉันต้องการ',
-				cancelButtonText: 'ไม่ใช่',
-				closeOnConfirm: true
-			},
-			function() {
-				load_in();
-
-				setTimeout(() => {
-					$.ajax({
-						url:HOME + 'delete_detail',
-						type:'POST',
-						cache:false,
-						data:{
-							'transfer_code' : code,
-							'ids' : JSON.stringify(ids)
-						},
-						success:function(rs) {
-							load_out();
-
-							if(rs == 'success') {
-								swal({
-									title:'Success',
-									type:'success',
-									timer:1000
-								});
-
-								$('.chk:checked').each(function() {
-									let id = $(this).val();
-									$('#row-'+id).remove();
-								});
-
-								reIndex();
-								reCal();
-							}
-							else {
-								swal({
-									title:'Error!',
-									text:rs,
-									type:'error'
-								});
-							}
-						}
-					})
-				}, 200);
-			});
-		}
-	}
+	});
 }
 
 
@@ -207,7 +140,6 @@ function reCal(){
 //------------  ตาราง transfer_detail
 function getTransferTable(){
 	var code	= $("#transfer_code").val();
-
 	$.ajax({
 		url: HOME + 'get_transfer_table/'+ code,
 		type:"GET",
@@ -263,7 +195,6 @@ function addToTransfer(){
 
 	//--- โซนปลายทาง
 	var to_zone = $('#to_zone_code').val();
-
 	if(to_zone.length == 0)
 	{
 		swal('โซนปลายทางไม่ถูกต้อง');
@@ -272,7 +203,6 @@ function addToTransfer(){
 
 	//---	จำนวนช่องที่มีการป้อนตัวเลขเพื่อย้ายสินค้าออก
 	var count  = countInput();
-
 	if(count == 0)
 	{
 		swal('ข้อผิดพลาด !', 'กรุณาระบุจำนวนในรายการที่ต้องการย้าย อย่างน้อย 1 รายการ', 'warning');
@@ -293,7 +223,7 @@ function addToTransfer(){
 	    let qty = parseDefault(parseInt($(this).val()),0);
 
 			if(qty > 0) {
-				let pd_code  = $(this).data('sku'); //$(this).attr('id')
+				let pd_code  = $(this).attr('id')
 				items.push({"item_code" : pd_code, "qty" : qty});
 			}
     });
@@ -323,7 +253,6 @@ function addToTransfer(){
 
 						setTimeout( function(){
 							showTransferTable();
-							recalZoneQty();
 						}, 1200);
 
 					}else{
@@ -340,29 +269,6 @@ function addToTransfer(){
 		swal('ข้อผิดพลาด !', 'กรุณาระบุจำนวนในรายการที่ต้องการย้าย อย่างน้อย 1 รายการ', 'warning');
 
 	}
-}
-
-function recalZoneQty() {
-	$('.input-qty').each(function() {
-		if($(this).val() != 0) {
-			let no = $(this).data('no');
-			let limit = parseDefault(parseFloat($(this).data('limit')), 0);
-			let qty = parseDefault(parseFloat($(this).val()), 0);
-
-			if(qty > 0 && limit > 0) {
-				let nQty = limit - qty;
-
-				$('#qty-label-'+no).text(addCommas(nQty));
-				$(this).data('limit', nQty);
-				$(this).val('');
-
-				if(nQty <= 0) {
-					$('#zone-row-'+no).remove();
-					reIndex('zone-no');
-				}
-			}
-		}
-	})
 }
 
 
@@ -382,6 +288,8 @@ function clearAll(){
 }
 
 
+
+
 //----- นับจำนวน ช่องที่มีการใส่ตัวเลข
 function countInput(){
 	var count = 0;
@@ -389,4 +297,139 @@ function countInput(){
         count += ($(this).val() == "" ? 0 : 1 );
     });
 	return count;
+}
+
+
+function accept() {
+	let canAccept = $('#can-accept').val() == 1 ? true : false;
+	let code = $('#transfer_code').val();
+
+	if(canAccept) {
+		$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
+		$('#accept-modal').modal('show');
+	}
+	else {
+
+		swal({
+			title:'Acception',
+			text:'ยินยอมให้โอนสินค้าเข้าโซนของคุณใช่หรือไม่ ?',
+			type:'info',
+			showCancelButton:true,
+			confirmButtonColor:'#87B87F',
+			confirmButtonText:'ยืนยัน',
+			cancelButtonText:'ยกเลิก',
+			closeOnConfirm:true
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url:HOME + 'accept_zone',
+				type:'POST',
+				cache:false,
+				data: {
+					'code' : code
+				},
+				success:function(rs) {
+					load_out();
+					if(isJson(rs))
+					{
+						let ds = JSON.parse(rs);
+						if(ds.status === 'success') {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							setTimeout(() => {
+								window.location.reload();
+							}, 1200);
+						}
+						else if(ds.status === 'warning') {
+
+							swal({
+								title:'Warning',
+								text:ds.message,
+								type:'warning'
+							}, () => {
+								setTimeout(() => {
+									window.location.reload();
+								}, 500);
+							});
+						}
+						else {
+							swal({
+								title:'Error!',
+								text: rs,
+								type:'error'
+							});
+						}
+					}
+				}
+			})
+		})
+	}
+}
+
+
+function acceptConfirm() {
+	let code = $('#transfer_code').val();
+	let note = $.trim($('#accept-note').val());
+
+	if(note.length < 10) {
+		$('#accept-error').text('กรุณาระบุหมายเหตุอย่างนี้อย 10 ตัวอักษร');
+		return false;
+	}
+	else {
+		$('#accept-error').text('');
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'accept_confirm',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"accept_remark" : note
+		},
+		success:function(rs) {
+			load_out();
+			if(isJson(rs))
+			{
+				let ds = JSON.parse(rs);
+				if(ds.status === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(() => {
+						window.location.reload();
+					}, 1200);
+				}
+				else if(ds.status === 'warning') {
+
+					swal({
+						title:'Warning',
+						text:ds.message,
+						type:'warning'
+					}, () => {
+						setTimeout(() => {
+							window.location.reload();
+						}, 500);
+					});
+				}
+				else {
+					swal({
+						title:'Error!',
+						text: rs,
+						type:'error'
+					});
+				}
+			}
+		}
+	});
 }

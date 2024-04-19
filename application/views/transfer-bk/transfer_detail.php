@@ -1,5 +1,10 @@
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<?php if($this->_SuperAdmin) : ?>
+			<button type="button" class="btn btn-sm btn-primary btn-100 pull-right margin-left-5" style="z-index:1; margin-top:-5px;" onclick="getStockSap('<?php echo $doc->code; ?>')">เปรียบเทียบสต็อก</button>
+			<button type="button" class="btn btn-sm btn-info btn-100 pull-right margin-left-5" style="z-index:1; margin-top:-5px;" onclick="updateStock('<?php echo $doc->code; ?>')">ปรับยอดโอนตาม SAP</button>
+		<?php endif; ?>
+		<button type="button" class="btn btn-sm btn-danger btn-100 pull-right" style="z-index:1; margin-top:-5px;" onclick="removeChecked()">ลบรายการ</button>
 		<div class="tabbable">
 			<ul class="nav nav-tabs" id="myTab">
 				<li class="active"><a data-toggle="tab" href="#transfer-table" aria-expanded="true">รายการโอนย้าย</a></li>
@@ -8,9 +13,6 @@
 
 			<div class="tab-content" style="padding:0px;">
 				<div id="transfer-table" class="tab-pane fade active in" style="max-height:600px; overflow:auto;">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" style="padding-top:10px; padding-bottom:10px; border-top:solid 1px #ddd; background-color:#f8f8f8;">
-						<button type="button" class="btn btn-sm btn-danger btn-100 pull-right" style="z-index:1; margin-top:-5px;" onclick="removeChecked()">ลบรายการ</button>
-					</div>
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0 table-responsive">
 						<table class="table table-bordered" style="margin-bottom:0px; min-width:1000px;">
 							<thead>
@@ -27,6 +29,9 @@
 									<th class="fix-width-200">ต้นทาง</th>
 									<th class="fix-width-200">ปลายทาง</th>
 									<th class="fix-width-100 text-center">จำนวน</th>
+								<?php if($this->_SuperAdmin) : ?>
+									<th class="fix-width-100 text-center">SAP</th>
+								<?php endif; ?>
 								</tr>
 							</thead>
 
@@ -71,6 +76,11 @@
 											<td class="middle text-center qty">
 												<?php echo number($rs->qty); ?>
 											</td>
+										<?php if($this->_SuperAdmin) : ?>
+											<td class="middle text-center">
+												<input type="number" class="form-control input-sm text-right sap-stock" id="sap-stock-<?php echo $rs->id; ?>" value="<?php echo $rs->wms_qty; ?>" />
+											</td>
+										<?php endif; ?>
 										</tr>
 										<?php			$no++;			?>
 										<?php     $total_qty += $rs->qty; ?>
@@ -81,7 +91,7 @@
 									</tr>
 								<?php	else : ?>
 									<tr>
-										<td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
+										<td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
 									</tr>
 								<?php	endif; ?>
 							</tbody>
@@ -90,16 +100,21 @@
 					</div>
 				</div> <!-- Tab-pane -->
 
-				<div id="zone-table" class="tab-pane fade" style="overflow:auto;">
+				<div id="zone-table" class="tab-pane fade" style="max-height:600px; overflow:auto;">
 					<div class="divider-hidden"></div>
 
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-6 padding-5">
-					    <label>โซนต้นทาง</label>
+						<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
+					    <label>ต้นทาง</label>
 					    <input type="text" class="form-control input-sm" id="from-zone" placeholder="ค้นหาชื่อโซน" autofocus />
 					  </div>
 
-					  <div class="col-lg-2-harf col-md-3 col-sm-4 col-xs-6 padding-5">
+					  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
+					    <label>ปลายทาง</label>
+					    <input type="text" class="form-control input-sm" id="to-zone" placeholder="ค้นหาชื่อโซน" />
+					  </div>
+
+					  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
 					    <label>รหัสสินค้า</label>
 					    <input type="text" class="form-control input-sm" id="item-code" placeholder="กรองด้วยรหัสสินค้า" />
 					  </div>
@@ -108,38 +123,44 @@
 					    <label class="display-block not-show">ok</label>
 					    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductInZone()">แสดงสินค้า</button>
 					  </div>
-
-						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-6 padding-5">
-					    <label>โซนปลายทาง</label>
-					    <input type="text" class="form-control input-sm" id="to-zone" placeholder="ค้นหาชื่อโซน" />
-					  </div>
 					</div>
 
 					<div class="divider-hidden"></div>
 
 					<form id="productForm">
-						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" style="padding-top:10px; padding-bottom: 10px; border-top:solid 1px #ddd; border-bottom: solid 1px #ddd; background-color:#f8f8f8;">
-							<button type="button" class="btn btn-sm btn-info" onclick="selectAll()">เลือกทั้งหมด</button>
-							<button type="button" class="btn btn-sm btn-warning" onclick="clearAll()">เคลียร์</button>
-							<button type="button" class="btn btn-sm btn-primary pull-right" onclick="addToTransfer()">ย้ายรายการที่เลือก</button>
-						</div>
+			    	<table class="table table-striped table-bordered" style="margin-bottom:0px;">
+			      	<thead>
+								<tr>
+									<th colspan="5" class="text-center">
+										<h4 class="title" id="zoneName"></h4>
+									</th>
+								</tr>
+			        	<tr>
+			          	<th colspan="5">
+										<div class="col-sm-6">
+			              	<button type="button" class="btn btn-sm btn-info" onclick="selectAll()">เลือกทั้งหมด</button>
+											<button type="button" class="btn btn-sm btn-warning" onclick="clearAll()">เคลียร์</button>
+			              </div>
+			              <div class="col-sm-6">
+			                <p class="pull-right top-p">
+			                  <button type="button" class="btn btn-sm btn-primary" onclick="addToTransfer()">ย้ายรายการที่เลือก</button>
+			                </p>
+			              </div>
+			            </th>
+			          </tr>
 
-						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="min-width:100px; max-height:600px; overflow:auto; padding-left:0; padding-right:0;">
-							<table class="table table-striped table-bordered tableFixHead" style="margin-bottom:0px;">
-								<thead>
-									<tr>
-										<th class="fix-width-40 text-center fix-header">ลำดับ</th>
-										<th class="fix-width-200 fix-header">รหัส</th>
-										<th class="min-width-200 fix-header">สินค้า</th>
-										<th class="fix-width-100 text-center fix-header">จำนวน</th>
-										<th class="fix-width-100 text-center fix-header">ย้ายออก</th>
-									</tr>
-								</thead>
+								<tr>
+									<th class="fix-width-40 text-center">ลำดับ</th>
+									<th class="fix-width-200">รหัส</th>
+									<th class="min-width-200">สินค้า</th>
+									<th class="fix-width-100 text-center">จำนวน</th>
+									<th class="fix-width-100 text-center">ย้ายออก</th>
+								</tr>
+			          </thead>
 
-								<tbody id="zone-list"> </tbody>
+			          <tbody id="zone-list"> </tbody>
 
-							</table>
-						</div>
+			        </table>
 			      </form>
 				</div> <!-- Tab-pane -->
 			</div> <!-- Tab content -->
@@ -151,7 +172,7 @@
 {{#each this}}
 	{{#if nodata}}
 		<tr>
-			<td colspan="5" class="text-center">
+			<td colspan="6" class="text-center">
 				<h4>ไม่พบสินค้าในโซน</h4>
 			</td>
 		</tr>
@@ -175,13 +196,14 @@
 {{#each this}}
 	{{#if nodata}}
 	<tr>
-		<td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
+		<td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
 	</tr>
 	{{else}}
 		{{#if @last}}
 			<tr>
 				<td colspan="6" class="text-right"><strong>รวม</strong></td>
 				<td class="middle text-center" id="total">{{ total }}</td>
+				<td></td>
 			</tr>
 		{{else}}
 		<tr class="font-size-12" id="row-{{id}}">

@@ -125,6 +125,7 @@ function reloadAddressTable()
 
 function saveAddress()
 {
+	var id_sender = $('#id_sender').val();
 	var code 			= $('#customers_code').val();
 	var cus_ref   = $('#cus_ref').val();
 	var name			= $("#Fname").val();
@@ -185,6 +186,7 @@ function saveAddress()
 
 	var ds = [];
 
+	ds.push( {"name" : "id_sender", "value" : $('#id_sender').val() } );
 	ds.push( {"name" : "id_address", "value" : $("#id_address").val() } );
 	ds.push( {"name" : "customer_ref", "value" : cus_ref } );
 	ds.push( {"name" : "customer_code", "value" : code});

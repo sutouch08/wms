@@ -143,5 +143,32 @@ function select_uname($uname = NULL)
   return $sc;
 }
 
+function select_user($uname = NULL)
+{
+	$ds = '';
+	$ci =& get_instance();
+	$ci->load->model('users/user_model');
+	$option = $ci->user_model->get_all();
+
+	if( ! empty($option))
+	{
+		foreach($option as $rs)
+		{
+			$ds .= '<option value="'.$rs->uname.'" '.is_selected($rs->uname, $uname).'>'.$rs->name.'</option>';
+		}
+	}
+
+	return $ds;
+}
+
+
+function display_name($uname)
+{
+  $ci =& get_instance();
+  $ci->load->model('users/user_model');
+  $name = $ci->user_model->get_name($uname);
+
+  return $name;
+}
 
  ?>

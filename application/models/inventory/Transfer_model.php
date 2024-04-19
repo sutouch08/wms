@@ -256,6 +256,17 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_transfer($code)
+  {
+    $rs = $this->db->where('code', $code)->get('transfer');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+  }
+
+
   public function get($code)
   {
     $rs = $this->db
@@ -537,6 +548,11 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function delete_rows(array $ds = array())
+  {
+    return $this->db->where_in('id', $ds)->delete('transfer_detail');
+  }
+
 
   public function is_exists($code, $old_code = NULL)
   {
@@ -607,31 +623,19 @@ class Transfer_model extends CI_Model
       $this->db->like('tr.code', $ds['code']);
     }
 
-    if( ! empty($ds['from_warehouse']))
+    if( ! empty($ds['from_warehouse']) && $ds['from_warehouse'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('tr.from_warehouse', $ds['from_warehouse'])
-      ->or_like('fwh.name', $ds['from_warehouse'])
-      ->group_end();
+      $this->db->where('tr.from_warehouse', $ds['from_warehouse']);
     }
 
-    if(!empty($ds['to_warehouse']))
+    if( ! empty($ds['to_warehouse']) && $ds['to_warehouse'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('tr.to_warehouse', $ds['to_warehouse'])
-      ->or_like('twh.name', $ds['to_warehouse'])
-      ->group_end();
+      $this->db->where('tr.to_warehouse', $ds['to_warehouse']);
     }
 
-    if(!empty($ds['user']))
+    if( ! empty($ds['user']) && $ds['user'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('u.uname', $ds['user'])
-      ->or_like('u.name', $ds['user'])
-      ->group_end();
+      $this->db->where('u.uname', $ds['user']);
     }
 
     if($ds['status'] != 'all')
@@ -716,31 +720,19 @@ class Transfer_model extends CI_Model
       $this->db->like('tr.code', $ds['code']);
     }
 
-    if( ! empty($ds['from_warehouse']))
+    if( ! empty($ds['from_warehouse']) && $ds['from_warehouse'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('tr.from_warehouse', $ds['from_warehouse'])
-      ->or_like('fwh.name', $ds['from_warehouse'])
-      ->group_end();
+      $this->db->where('tr.from_warehouse', $ds['from_warehouse']);
     }
 
-    if(!empty($ds['to_warehouse']))
+    if( ! empty($ds['to_warehouse']) && $ds['to_warehouse'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('tr.to_warehouse', $ds['to_warehouse'])
-      ->or_like('twh.name', $ds['to_warehouse'])
-      ->group_end();
+      $this->db->where('tr.to_warehouse', $ds['to_warehouse']);
     }
 
-    if(!empty($ds['user']))
+    if( ! empty($ds['user']) && $ds['user'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('u.uname', $ds['user'])
-      ->or_like('u.name', $ds['user'])
-      ->group_end();
+      $this->db->where('u.uname', $ds['user']);
     }
 
     if($ds['status'] != 'all')

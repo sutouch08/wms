@@ -412,53 +412,7 @@ function unSave(){
 	});
 }
 
-$('#fromWhsCode').autocomplete({
-  source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
-  autoFocus:true,
-  close:function() {
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    if(arr.length == 2)
-    {
-      code = arr[0];
-      name = arr[1];
-      $(this).val(code);
-      $('#from_warehouse_code').val(code);
-      $('#from_warehouse').val(name);
-      $('#to_warehouse_code').focus();
-    }
-    else
-    {
-      $(this).val('');
-      $('#from_warehouse_code').val('');
-      $('#from_warehouse').val('');
-    }
-  }
-});
 
-$('#toWhsCode').autocomplete({
-  source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
-  autoFocus:true,
-  close:function() {
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    if(arr.length == 2)
-    {
-      code = arr[0];
-      name = arr[1];
-      $(this).val(code);
-      $('#to_warehouse_code').val(code);
-      $('#to_warehouse').val(name);
-      $('#remark').focus();
-    }
-    else
-    {
-      $(this).val('');
-      $('#to_warehouse_code').val('');
-      $('#to_warehouse').val('');
-    }
-  }
-});
 
 $('#from_warehouse_code').autocomplete({
   source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
@@ -472,7 +426,6 @@ $('#from_warehouse_code').autocomplete({
       name = arr[1];
       $('#from_warehouse_code').val(code);
       $('#from_warehouse').val(name);
-      $('#to_warehouse_code').focus();
     }
     else
     {
@@ -495,7 +448,6 @@ $('#to_warehouse_code').autocomplete({
       name = arr[1];
       $('#to_warehouse_code').val(code);
       $('#to_warehouse').val(name);
-      $('#remark').focus();
     }
     else
     {
@@ -520,7 +472,6 @@ $('#from_warehouse').autocomplete({
       name = arr[1];
       $('#from_warehouse_code').val(code);
       $(this).val(name);
-      $('#to_warehouse_code').focus();
     }
     else
     {
@@ -543,7 +494,6 @@ $('#to_warehouse').autocomplete({
       name = arr[1];
       $('#to_warehouse_code').val(code);
       $(this).val(name);
-      $('#remark').focus();
     }
     else
     {

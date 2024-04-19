@@ -1,9 +1,27 @@
+window.addEventListener('load', () => {
+	zoneBarcodeInit();
+});
+
+
+$('#item-code').keyup((e) => {
+	if(e.keyCode == 13) {
+		getProductInZone();
+	}
+});
+
 
 //-------  ดึงรายการสินค้าในโซน
 function getProductInZone(){
-	var zone_code  = $("#from_zone_code").val();
-	var transfer_code = $('#transfer_code').val();
+	let zone_code  = $("#from_zone_code").val();
+	let transfer_code = $('#transfer_code').val();
+	let item_code = $.trim($('#item-code').val());
+
 	if( zone_code.length > 0 ) {
+			if(item_code.length == 0) {
+				swal("กรุณาระบุสินค้า หากต้องการทั้งหมดใส่ *");
+				return false;
+			}
+
 		load_in();
 		$.ajax({
 			url: HOME + 'get_product_in_zone',
@@ -11,7 +29,8 @@ function getProductInZone(){
       cache:"false",
       data:{
 				'transfer_code' : transfer_code,
-        'zone_code' : zone_code
+        'zone_code' : zone_code,
+				'item_code' : item_code
       },
 			success: function(rs){
 				load_out();
@@ -21,9 +40,11 @@ function getProductInZone(){
 					var data		= $.parseJSON(rs);
 					var output	= $("#zone-list");
 					render(source, data, output);
-					$("#transfer-table").addClass('hide');
-					$("#zone-table").removeClass('hide');
+
+					// $("#transfer-table").addClass('hide');
+					// $("#zone-table").removeClass('hide');
 					inputQtyInit();
+					$('#myTab a[href="#zone-table"]').tab('show');
 				}
 				else {
 					swal({
@@ -105,80 +126,18 @@ function to_zone_init(){
 
 
 //------- สลับไปแสดงหน้า transfer_detail
-function showTransferTable(){
-	getTransferTable();
-	hideZoneTable();
-	hideTempTable();
-	showControl();
-	hideMoveIn();
-	hideMoveOut();
-	$("#transfer-table").removeClass('hide');
+async function showTransferTable(){
+	await getTransferTable();
+	$('#myTab a[href="#transfer-table"]').tab('show');
 }
 
 
 
-function hideTransferTable(){
-	$("#transfer-table").addClass('hide');
+
+async function showTempTable(){
+	await getTempTable();
+	$('#myTab a[href="temp-table"]').tab('show');
 }
-
-
-function showMoveIn(){
-	$(".moveIn-zone").removeClass('hide');
-}
-
-
-function hideMoveIn(){
-	$(".moveIn-zone").addClass('hide');
-}
-
-
-function showMoveOut(){
-	$(".moveOut-zone").removeClass('hide');
-}
-
-
-
-function hideMoveOut(){
-	$(".moveOut-zone").addClass('hide');
-}
-
-
-
-function showControl(){
-	$(".control-btn").removeClass('hide');
-}
-
-
-function hideControl(){
-	$(".control-btn").addClass('hide');
-}
-
-
-function showTempTable(){
-	getTempTable();
-	hideTransferTable();
-	hideZoneTable();
-	$("#temp-table").removeClass('hide');
-}
-
-
-
-function hideTempTable(){
-	$("#temp-table").addClass('hide');
-}
-
-
-
-function showZoneTable(){
-	$("#zone-table").removeClass('hide');
-}
-
-
-
-function hideZoneTable(){
-	$("#zone-table").addClass('hide');
-}
-
 
 
 function inputQtyInit(){
@@ -198,44 +157,11 @@ function inputQtyInit(){
 
 
 
-
-
-function getMoveIn(){
-	$(".moveIn-zone").removeClass('hide');
-	$('#barcode-hr').removeClass('hide');
-
-	$(".moveOut-zone").addClass('hide');
-	$(".control-btn").addClass('hide');
-
-	hideTransferTable();
-	getTempTable();
-	showTempTable();
-	$("#toZone-barcode").focus();
-}
-
-
-
-//---	เปลี่ยนโซนปลายทาง
-function newToZone(){
-	$('#toZone-barcode').removeAttr('disabled');
-	$('#btn-new-to-zone').attr('disabled','disabled');
-	$('#zoneName-label').text('');
-	$("#to_zone_code").val("");
-	$("#toZone-barcode").val("");
-	$("#zone-table").addClass('hide');
-	$("#toZone-barcode").focus();
-}
-
-
-
-
-
 //---	ดึงข้อมูลสินค้าในโซนต้นทาง
 function getZoneTo(){
-
 	var barcode = $("#toZone-barcode").val();
 
-	if( barcode.length > 0 ){
+	if( barcode.length > 0 ) {
 		//---	คลังปลายทาง
 		var warehouse_code = $("#to_warehouse_code").val();
 
@@ -258,39 +184,39 @@ function getZoneTo(){
 
 					//---	update id โซนปลายทาง
 					$("#to_zone_code").val(ds.code);
+					$('#from_zone_code').val('');
 
 					//---	update ชื่อโซน
 					$("#zoneName-label").val(ds.name);
 
 					//---	disabled ช่องยิงบาร์โค้ดโซน
 					$("#toZone-barcode").attr('disabled', 'disabled');
+					$('#fromZone-barcode').val('');
+					$('#fromZone-barcode').attr('disabled', 'disabled');
 
 					//--- active new zone button
-					$('#btn-new-to-zone').removeAttr('disabled');
+					$('#btn-new-zone').removeAttr('disabled');
 
-					$('#qty-to').removeAttr('disabled');
+					$('#qty-temp').removeAttr('disabled');
 
-					$('#barcode-item-to').removeAttr('disabled');
+					$('#barcode-item-temp').removeAttr('disabled');
 
-					$('#barcode-item-to').focus();
+					$('#barcode-item-temp').focus();
 
-					showTempTable();
-
-				}else{
+				}
+				else {
 
 					swal("ข้อผิดพลาด", rs, "error");
 
 					//---	ลบไอดีโซนปลายทาง
 					$("#to_zone_code").val("");
+					$('#from_zone_code').val('');
 
 					//---	ไม่แสดงชื่อโซน
 					$('#zoneName-label').val('');
 
 					//--- disabled new zone buton
-					$('#btn-new-to-zone').attr('disabled');
-
-					//--- ซ่อนตารางสินค้าในโซน
-					$("#zone-table").addClass('hide');
+					$('#btn-new-zone').attr('disabled');
 
 					beep();
 				}
@@ -303,75 +229,34 @@ function getZoneTo(){
 
 
 $("#toZone-barcode").keyup(function(e) {
-    if( e.keyCode == 13 ){
-		getZoneTo();
-		setTimeout(function(){ $("#barcode-item-to").focus(); }, 500);
+	if( e.keyCode == 13 ){
+		setTimeout(() => {
+			getZoneTo();
+		}, 200);
 	}
 });
 
 
-
-$("#barcode-item-to").keyup(function(e) {
-    if( e.keyCode == 13 ){
-
+$('#barcode-item-temp').keyup(function(e){
+	if(e.keyCode === 13) {
 		//---	บาร์โค้ดสินค้าที่ยิงมา
-		var barcode = $(this).val();
+		let barcode = $(this).val();
 
-		//---	ไอดีโซนปลายทาง
-		var zone_code	= $("#to_zone_code").val();
+		if(barcode.length) {
 
-		//---	ไอดีเอกสาร
-		var transfer_code = $("#transfer_code").val();
+			let from_zone = $('#from_zone_code').val();
+			let to_zone = $('#to_zone_code').val();
+			let transfer_code = $("#transfer_code").val();
 
-		if( zone_code.length == 0 ){
-			swal("กรุณาระบุโซนปลายทาง");
-			return false;
-		}
-
-		var qty = parseInt($("#qty-to").val());
-
-		var curQty	= parseInt($("#qty-"+barcode).val());
-
-		$(this).val('');
-
-		if( isNaN(curQty) ){
-			swal("สินค้าไม่ถูกต้อง");
-			return false;
-		}
-
-
-
-		if( qty != '' && qty != 0 ){
-			if( qty <= curQty ){
-				$.ajax({
-					url: HOME + 'move_to_zone', //"controller/transferController.php?moveBarcodeToZone",
-					type:"POST",
-					cache:"false",
-					data:{
-						"transfer_code" : transfer_code,
-						"zone_code" : zone_code,
-						"qty" : qty,
-						"barcode" : barcode
-					},
-					success: function(rs){
-						var rs = $.trim(rs);
-						if( rs == 'success'){
-							curQty = curQty - qty;
-							if(curQty == 0 ){
-								getTempTable();
-							}else{
-								$("#qty-label-"+barcode).text(curQty);
-								$("#qty-"+barcode).val(curQty);
-							}
-							$("#qty-to").val(1);
-							$("#barcode-item-to").focus();
-						}else{
-							swal("ข้อผิดพลาด", rs, "error");
-						}
-					}
-				});
-			}else{
-				swal("จำนวนในโซนไม่เพียงพอ");
+			if(from_zone.length > 0 && to_zone.length == 0) {
+				addToTemp(transfer_code, barcode, from_zone);
+			}
+			else if(to_zone.length > 0 && from_zone.length == 0) {
+				moveToZone(transfer_code, barcode, to_zone);
+			}
+			else {
+				swal("กรุณาระบุโซน");
+				return false;
 			}
 		}
 	}
@@ -379,37 +264,19 @@ $("#barcode-item-to").keyup(function(e) {
 
 
 
+function newZone() {
+	$('#from_zone_code').val('');
+	$('#fromZone-barcode').val('');
+	$('#to_zone_code').val('');
+	$('#toZone-barcode').val('');
+	$('#zoneName-label').val('');
 
-
-
-//-------	เปิดกล่องควบคุมสำหรับยิงบาร์โค้ดโซนต้นทาง
-function getMoveOut(){
-
-	$(".moveIn-zone").addClass('hide');
-	$(".control-btn").addClass('hide');
-	$("#moveIn-input").addClass('hide');
-	$("#transfer-table").addClass('hide');
-
-	$('#barcode-hr').removeClass('hide');
-	$(".moveOut-zone").removeClass('hide');
-	$("#zone-table").removeClass('hide');
-	$("#fromZone-barcode").focus();
-}
-
-
-
-//---	เปลี่ยนโซนต้นทาง
-function newFromZone(){
-	$("#from_zone_code").val("");
-	$("#fromZone-barcode").val("");
-	$("#zone-table").addClass('hide');
 	$('#fromZone-barcode').removeAttr('disabled');
-	$('#btn-new-zone').attr('disabled', 'disabled');
-	$('#qty-from').attr('disabled', 'disabled');
-	$('#barcode-item-from').attr('disabled', 'disabled');
-	$("#fromZone-barcode").focus();
+	$('#toZone-barcode').removeAttr('disabled');
+	$('#qty-temp').attr('disabled', 'disabled');
+	$('#barcode-item-temp').attr('disabled', 'disabled');
+	$('#fromZone-barcode').focus();
 }
-
 
 
 
@@ -418,7 +285,7 @@ function getZoneFrom(){
 
 	var barcode = $("#fromZone-barcode").val();
 
-	if( barcode.length > 0 ){
+	if( barcode.length > 0 ) {
 		//---	คลังต้นทาง
 		var warehouse_code = $("#from_warehouse_code").val();
 
@@ -441,30 +308,30 @@ function getZoneFrom(){
 
 					//---	update id โซนต้นทาง
 					$("#from_zone_code").val(ds.code);
+					$('#to_zone_code').val('');
 
 					//---	update ชื่อโซน
-					$("#zoneName").text(ds.name);
+					$("#zoneName-label").val(ds.name);
 
 
 					$("#fromZone-barcode").attr('disabled', 'disabled');
+					$('#toZone-barcode').val('');
+					$('#toZone-barcode').attr('disabled', 'disabled');
 					$('#btn-new-zone').removeAttr('disabled');
-					$('#qty-from').removeAttr('disabled');
-					$('#barcode-item-from').removeAttr('disabled');
-					$('#barcode-item-from').focus();
+					$('#qty-temp').val(1).removeAttr('disabled');
+					$('#barcode-item-temp').removeAttr('disabled');
+					$('#barcode-item-temp').focus();
 
-					//---	แสดงรายการสินค้าในโซน
-					getProductInZone();
-
-				}else{
+				}
+				else {
 					swal("ข้อผิดพลาด", rs, "error");
 
 					//---	ลบไอดีโซนต้นทาง
 					$("#from_zone_code").val("");
+					$('#to_zone_code').val('');
 
 					//---	ไม่แสดงชื่อโซน
 					$('#zoneName').val('');
-
-					$("#zone-table").addClass('hide');
 
 					beep();
 				}
@@ -477,88 +344,238 @@ function getZoneFrom(){
 
 $("#fromZone-barcode").keyup(function(e) {
     if( e.keyCode == 13 ){
-		getZoneFrom();
-		setTimeout(function(){ $("#barcode-item-from").focus(); }, 500);
+			setTimeout(() => {
+				getZoneFrom();
+			}, 200);
 	}
 });
 
+function zoneBarcodeInit() {
+	let fromWhsCode = $('#from_warehouse_code').val();
+	let toWhsCode = $('#to_warehouse_code').val();
+	let fromTarget = HOME + 'get_transfer_zone/'+fromWhsCode;
+	let toTarget = HOME + 'get_transfer_zone/'+toWhsCode;
 
-//------------------------------------- ยิงบาร์โค้ดสินค้า
+	$('#fromZone-barcode').autocomplete({
+		source:fromTarget,
+		autoFocus:true,
+		close:function() {
+			let zone = $(this).val().split(' | ');
 
-$("#barcode-item-from").keyup(function(e) {
-  if( e.keyCode == 13 ){
-		//---	โซนต้นทาง
-		var zone_code	= $("#from_zone_code").val();
-
-		//---	ID เอกสาร
-		var transfer_code = $("#transfer_code").val();
-
-		//---	ตรวจสอบว่ายิงบาร์โค้ดโซนมาแล้วหรือยัง
-		if( zone_code.length == 0 ){
-			swal("กรุณาระบุโซนปลายทาง");
-			return false;
-		}
-
-		//---	จำนวนที่ป้อนมา
-		var qty = parseInt($("#qty-from").val());
-
-		//---	บาร์โค้ดสินค้า
-		var barcode = $(this).val();
-
-		//---	จำนวนที่เพิ่มไปแล้ว
-		var curQty	= parseInt($("#qty_"+barcode).val());
-
-		//---	เคลียร์ช่องให้พร้อมยิงตัวต่อไป
-		$(this).val('');
-
-		//---	เมื่อมีการใส่จำนวนมาตามปกติ
-		if( qty != '' && qty != 0 ){
-
-			//---	ถ้าจำนวนที่ใส่มา น้อยกว่าหรือเท่ากับ จำนวนที่มีอยู่
-			//---	หรือ โซนนี้สามารถติดลบได้และติ๊กว่าให้ติดลบได้
-			//---	หากโซนนี้ไม่สามารถติดลบได้ ถึงจะติ๊กให้ติดลบได้ก็ไม่สามารถให้ติดลบได้
-			if( qty <= curQty ){
-				//---	เพิ่มรายการเข้า temp
-				$.ajax({
-					url: HOME + 'add_to_temp',
-					type:"POST",
-					cache:"false",
-					data:{
-						"transfer_code" : transfer_code,
-						"from_zone" : zone_code,
-						"qty" : qty,
-						"barcode" : barcode,
-					},
-					success: function(rs){
-
-						var rs = $.trim(rs);
-
-						if( rs == 'success'){
-
-							//--- ลดยอดสินค้าคงเหลือในโซนบนหน้าเว็บ (ในฐานข้อมูลถูกลดแล้ว)
-							curQty = curQty - qty;
-
-							//---	แสดงผลยอดสินค้าคงเหลือในโซน
-							$("#qty-label_"+barcode).text(curQty);
-
-							//---	ปรับยอดคงเหลือในโซน สำหรับใช้ตรวจสอบการยิงครั้งต่อไป
-							$("#qty_"+barcode).val(curQty);
-
-							//---	reset จำนวนเป็น 1
-							$("#qty-from").val(1);
-
-							//---	focus ที่ช่องยิงบาร์โค้ด รอการยิงต่อไป
-							$("#barcode-item-from").focus();
-
-						}else{
-
-							swal("ข้อผิดพลาด", rs, "error");
-						}
-					}
-				});
-			}else{
-				swal("จำนวนในโซนไม่เพียงพอ");
+			if(zone.length == 2) {
+				$(this).val(zone[0]);
+			}
+			else {
+				$(this).val('');
 			}
 		}
+	});
+
+
+	$('#toZone-barcode').autocomplete({
+		source:toTarget,
+		autoFocus:true,
+		close:function() {
+			let zone = $(this).val().split(' | ');
+
+			if(zone.length == 2) {
+				$(this).val(zone[0]);
+			}
+			else {
+				$(this).val('');
+			}
+		}
+	})
+}
+
+
+function addToTemp(transfer_code, barcode, zone_code) {
+	//---	จำนวนที่ป้อนมา
+	var qty = parseInt($("#qty-temp").val());
+
+	//---	เมื่อมีการใส่จำนวนมาตามปกติ
+	if( qty != '' && qty != 0 ){
+		$.ajax({
+			url: HOME + 'add_to_temp',
+			type:"POST",
+			cache:"false",
+			data:{
+				"transfer_code" : transfer_code,
+				"from_zone" : zone_code,
+				"qty" : qty,
+				"barcode" : barcode,
+			},
+			success: function(rs) {
+
+				if(isJson(rs)) {
+					let ds = JSON.parse(rs);
+
+					if(ds.status == 'success') {
+
+						if(ds.row.id) {
+							let id = ds.row.id;
+
+							if($('#row-temp-'+id).length) {
+								let source = $('#tempUpdateTemplate').html();
+								let output = $('#row-temp-'+id);
+
+								render(source, ds.row, output);
+							}
+							else {
+								let source = $('#tempRowTemplate').html();
+								let output = $('#temp-list');
+
+								render_prepend(source, ds.row, output);
+							}
+						}
+
+						$('#qty-temp').val(1);
+						$('#barcode-item-temp').val('');
+						$('#barcode-item-temp').focus();
+					}
+					else {
+						swal({
+							title:'Error!',
+							text:ds.message,
+							type:'error',
+							html:true
+						});
+					}
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error',
+						html:true
+					});
+				}
+			}
+		});
 	}
-});
+}
+
+
+function moveToZone(transfer_code, barcode, zone_code) {
+	//---	จำนวนที่ป้อนมา
+	var qty = parseInt($("#qty-temp").val());
+
+	//---	เมื่อมีการใส่จำนวนมาตามปกติ
+	if( qty != '' && qty != 0 ){
+		$.ajax({
+			url: HOME + 'move_to_zone',
+			type:"POST",
+			cache:"false",
+			data:{
+				"transfer_code" : transfer_code,
+				"zone_code" : zone_code,
+				"qty" : qty,
+				"barcode" : barcode,
+			},
+			success: function(rs) {
+				if(isJson(rs)) {
+					let ds = JSON.parse(rs);
+
+					if(ds.status == 'success') {
+
+						let temp = ds.temp_result;
+						let trans = ds.trans_result;
+
+						if(temp.length) {
+							temp.forEach(function(row) {
+								let id = row.id;
+
+								if(row.qty == '0') {
+									$('#row-temp-'+id).remove();
+									reIndex('tmp-no');
+								}
+								else {
+									let source = $('#tempUpdateTemplate').html();
+									let output = $('#row-temp-'+id);
+
+									render(source, row, output);
+								}
+							});
+						}
+
+						$('#qty-temp').val(1);
+						$('#barcode-item-temp').val('');
+						$('#barcode-item-temp').focus();
+					}
+					else {
+						swal({
+							title:'Error!',
+							text:ds.message,
+							type:'error',
+							html:true
+						});
+					}
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error',
+						html:true
+					});
+				}
+			}
+		});
+	}
+}
+
+
+function getStockSap(code) {
+	load_in();
+
+	$.ajax({
+		url:HOME + 'get_stock_from_sap',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+
+			if(rs == 'success') {
+				window.location.reload();
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}
+
+
+function updateStock(code) {
+	load_in();
+
+	$.ajax({
+		url:HOME + 'update_stock_from_sap',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+
+			if(rs == 'success') {
+				window.location.reload();
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}

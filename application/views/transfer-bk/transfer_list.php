@@ -22,28 +22,19 @@
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>คลังต้นทาง</label>
-		<select class="width-100 filter" name="from_warehouse" id="from-warehouse">
-			<option value="all">ทั้งหมด</option>
-			<?php echo select_warehouse($from_warehouse); ?>
-    </select>
+    <input type="text" class="form-control input-sm search" name="from_warehouse" value="<?php echo $from_warehouse; ?>" />
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>คลังปลายทาง</label>
-		<select class="width-100 filter" name="to_warehouse" id="to-warehouse">
-			<option value="all">ทั้งหมด</option>
-			<?php echo select_warehouse($to_warehouse); ?>
-    </select>
+    <input type="text" class="form-control input-sm search" name="to_warehouse" value="<?php echo $to_warehouse; ?>" />
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>พนักงาน</label>
-		<select class="width-100 filter" name="user" id="user">
-			<option value="all">ทั้งหมด</option>
-			<?php echo select_user($user); ?>
-		</select>
+		<input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
 	</div>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
@@ -115,6 +106,10 @@
 		</select>
 	</div>
 
+
+
+
+
   <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
@@ -142,18 +137,17 @@
 		</p>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1200px;">
+		<table class="table table-striped border-1" style="min-width:1060px;">
 			<thead>
 				<tr>
 					<th class="fix-width-100 middle"></th>
 					<th class="fix-width-50 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
-					<th class="fix-width-80 middle">SAP NO</th>
-					<th class="fix-width-200 middle">ต้นทาง</th>
-					<th class="fix-width-200 middle">ปลายทาง</th>
+					<th class="min-width-200 middle">ต้นทาง</th>
+					<th class="min-width-200 middle">ปลายทาง</th>
 					<th class="fix-width-40 middle text-center">สถานะ</th>
-					<th class="fix-width-40 middle text-center">อนุมัติ</th>
+					<th class="fix-width-60 middle text-center">อนุมัติ</th>
 					<th class="fix-width-40 middle text-center">WMS</th>
 					<th class="fix-width-150 middle">พนักงาน</th>
 				</tr>
@@ -164,7 +158,7 @@
           <?php foreach($docs as $rs) : ?>
 						<?php $color = $rs->valid == 0 ? 'color:red;' : 'color:black;'; ?>
             <tr id="row-<?php echo $rs->code; ?>" style="<?php echo $color; ?> <?php echo statusBackgroundColor($rs->is_expire, $rs->status); ?>">
-							<td class="middle">
+							<td class="middle text-right">
 								<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
 								<?php if(($rs->status == -1 OR $rs->status == 0 )&& $rs->is_expire == 0 && $this->pm->can_edit) : ?>
 									<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
@@ -176,7 +170,6 @@
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle"><?php echo $rs->code; ?></td>
-							<td class="middle"><?php echo $rs->inv_code; ?></td>
               <td class="middle"><?php echo $rs->from_warehouse_name; ?></td>
               <td class="middle"><?php echo $rs->to_warehouse_name; ?></td>
               <td class="middle text-center">
@@ -201,7 +194,7 @@
 									<?php if($rs->status == 1 && $rs->is_export == 0) : ?>
 										<span class="red">NE</span>
 									<?php endif; ?>
-									<?php if($rs->status == 1 && $rs->valid == 0) : ?>
+									<?php if($rs->status == 1 && $rs->is_wms == 1 && $rs->valid == 0) : ?>
 										<span class="red">NC</span>
 									<?php endif; ?>
 								<?php endif; ?>
@@ -234,10 +227,6 @@
 
 <script src="<?php echo base_url(); ?>scripts/transfer/transfer.js?v=<?php echo date('Ymd'); ?>"></script>
 <script>
-$('#from-warehouse').select2();
-$('#to-warehouse').select2();
-$('#user').select2();
-
 function sendToSAP(code)
 {
 	load_in();

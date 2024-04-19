@@ -54,18 +54,20 @@
     <label>ต้นทาง</label>
     <input type="text" class="form-control input-sm" id="from-zone" placeholder="ค้นหาชื่อโซน" autofocus />
   </div>
+
+  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
+    <label>ปลายทาง</label>
+    <input type="text" class="form-control input-sm" id="to-zone" placeholder="ค้นหาชื่อโซน" />
+  </div>
+
   <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
     <label>รหัสสินค้า</label>
     <input type="text" class="form-control input-sm" id="item-code" placeholder="กรองด้วยรหัสสินค้า" />
   </div>
+
   <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">ok</label>
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductInZone()">แสดงสินค้า</button>
-  </div>
-  
-  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
-    <label>ปลายทาง</label>
-    <input type="text" class="form-control input-sm" id="to-zone" placeholder="ค้นหาชื่อโซน" />
   </div>
 </div>
 <?php endif; ?>

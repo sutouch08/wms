@@ -20,6 +20,7 @@ class Transfer extends PS_Controller
     $this->load->model('masters/warehouse_model');
     $this->load->model('masters/zone_model');
     $this->load->model('stock/stock_model');
+    $this->load->helper('warehouse');
 
 		$this->isAPI = is_true(getConfig('WMS_API'));
   }
@@ -29,17 +30,17 @@ class Transfer extends PS_Controller
   {
     $filter = array(
       'code' => get_filter('code', 'tr_code', ''),
-      'from_warehouse' => get_filter('from_warehouse', 'tr_from_warehouse', ''),
-      'user' => get_filter('user', 'tr_user', ''),
-      'to_warehouse' => get_filter('to_warehouse', 'tr_to_warehouse', ''),
-      'from_date' => get_filter('fromDate', 'tr_fromDate', ''),
-      'to_date' => get_filter('toDate', 'tr_toDate', ''),
+      'from_warehouse' => get_filter('from_warehouse', 'tr_from_warehouse', 'all'),
+      'to_warehouse' => get_filter('to_warehouse', 'tr_to_warehouse', 'all'),
+      'user' => get_filter('user', 'tr_user', 'all'),
       'status' => get_filter('status', 'tr_status', 'all'),
       'is_approve' => get_filter('is_approve', 'tr_is_approve', 'all'),
 			'api' => get_filter('api', 'tr_api', 'all'),
       'valid' => get_filter('valid', 'tr_valid', 'all'),
       'sap' => get_filter('sap', 'tr_sap', 'all'),
-      'must_accept' => get_filter('must_accept', 'tr_must_accept', 'all')
+      'must_accept' => get_filter('must_accept', 'tr_must_accept', 'all'),
+      'from_date' => get_filter('fromDate', 'tr_fromDate', ''),
+      'to_date' => get_filter('toDate', 'tr_toDate', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -1657,9 +1658,11 @@ class Transfer extends PS_Controller
     {
       $no = 1;
       $total_qty = 0;
+
       foreach($details as $rs)
       {
         $btn_delete = '';
+
         if($this->pm->can_add OR $this->pm->can_edit && $rs->valid == 0)
         {
           $btn_delete .= '<button type="button" class="btn btn-minier btn-danger" ';
@@ -1671,7 +1674,8 @@ class Transfer extends PS_Controller
           'id' => $rs->id,
           'no' => $no,
           'barcode' => $rs->barcode,
-          'products' => $rs->product_code,
+          'product_code' => $rs->product_code,
+          'product_name' => $rs->product_name,
           'from_zone' => $this->zone_model->get_name($rs->from_zone),
           'to_zone' => $this->zone_model->get_name($rs->to_zone),
           'qty' => number($rs->qty),
@@ -1720,13 +1724,12 @@ class Transfer extends PS_Controller
   }
 
 
-
   public function get_product_in_zone()
   {
     ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
     ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
-    
+
     $sc = TRUE;
     $ds = array();
 
@@ -1736,11 +1739,15 @@ class Transfer extends PS_Controller
 
       $zone_code = $this->input->get('zone_code');
       $transfer_code = $this->input->get('transfer_code');
-      $stock = $this->stock_model->get_all_stock_in_zone($zone_code);
+      $product_code = get_null(trim($this->input->get('item_code')));
+      $product_code = $product_code == '*' ? NULL : $product_code;
+
+      $stock = $this->stock_model->get_all_stock_in_zone($zone_code, $product_code);
 
       if( ! empty($stock))
       {
         $no = 1;
+
         foreach($stock as $rs)
         {
           //--- จำนวนที่อยู่ใน temp
@@ -1754,8 +1761,9 @@ class Transfer extends PS_Controller
           {
             $arr = array(
               'no' => $no,
-              'barcode' => $this->products_model->get_barcode($rs->product_code),
-              'products' => $rs->product_code,
+              // 'barcode' => $this->products_model->get_barcode($rs->product_code),
+              'product_code' => $rs->product_code,
+              'product_name' => $rs->product_name,
               'qty' => $qty
             );
 
@@ -1811,38 +1819,39 @@ class Transfer extends PS_Controller
   {
     $sc = TRUE;
 
-    $code = $this->input->post('code');
-    $id = $this->input->post('id');
+    $code = $this->input->post('transfer_code');
+    $ids = json_decode($this->input->post('ids'));
 
-    $this->db->trans_begin();
-
-    if($this->transfer_model->drop_detail($id))
+    if( ! empty($ids))
     {
-      $must_accept = $this->transfer_model->must_accept($code) ? 1 : 0;
+      $doc = $this->transfer_model->get_transfer($code);
 
-      $arr = array(
-        'must_accept' => $must_accept
-      );
-
-      if( ! $this->transfer_model->update($code, $arr))
+      if( ! empty($doc))
+      {
+        if($doc->status < 1)
+        {
+          if( ! $this->transfer_model->delete_rows($ids))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to delete items";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid document status";
+        }
+      }
+      else
       {
         $sc = FALSE;
-        $this->error = "Update Acception Status Failed";
+        $this->error = "Invalid document number";
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = "Delete Failed";
-    }
-
-    if( $sc === TRUE)
-    {
-      $this->db->trans_commit();
-    }
-    else
-    {
-      $this->db->trans_rollback();
+      $this->error = "Missing required parameter";
     }
 
     $this->_response($sc);
