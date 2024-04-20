@@ -40,6 +40,10 @@ class WT extends REST_Controller
 	{
     $sc = TRUE;
 
+    $json = file_get_contents("php://input");
+		$ds = json_decode($json);
+    $force = empty($ds) ? FALSE : ($ds->force ? TRUE : FALSE);
+
     if(empty($code))
     {
       $sc = FALSE;
@@ -74,14 +78,17 @@ class WT extends REST_Controller
       $this->response(['status' => FALSE, 'message' => $this->error], 200);
     }
 
-    $draft = $this->transfer_model->get_transfer_draft($code);
-
-    if( empty($draft))
+    if( ! $force)
     {
-      $sc = FALSE;
-      $this->error = "The document was not found in the temp transfer draft.";
-      $this->add_logs('WT', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+      $draft = $this->transfer_model->get_transfer_draft($code);
+
+      if( empty($draft))
+      {
+        $sc = FALSE;
+        $this->error = "The document was not found in the temp transfer draft.";
+        $this->add_logs('WT', 'get', 'error', $this->error, $code);
+        $this->response(['status' => FALSE, 'message' => $this->error], 200);
+      }      
     }
 
     $ds = array(
