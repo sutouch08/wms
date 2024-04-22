@@ -17,12 +17,17 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+    <label>เลขที่ WX</label>
+    <input type="text" class="form-control input-sm search" name="wx_code"  value="<?php echo $wx_code; ?>" />
+  </div>
+
+  <div class="col-lg-2-harf col-md-2 col-sm-3-harf col-xs-6 padding-5">
     <label>คลังต้นทาง</label>
 		<select class="width-100 filter" name="from_warehouse" id="from-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -30,7 +35,7 @@
     </select>
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-2 col-sm-3-harf col-xs-6 padding-5">
     <label>คลังปลายทาง</label>
 		<select class="width-100 filter" name="to_warehouse" id="to-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -46,7 +51,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -60,7 +65,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>การอนุมัติ</label>
     <select class="form-control input-sm" name="is_approve" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -71,7 +76,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>การยืนยัน</label>
 		<select class="form-control input-sm" name="must_accept" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -80,8 +85,8 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
-		<label>WMS Interface</label>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+		<label>WMS</label>
 		<select class="form-control input-sm" name="api" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $api); ?>>ปกติ</option>
@@ -89,8 +94,8 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
-		<label>ยอดรับ WMS</label>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+		<label>ยอดรับ</label>
 		<select class="form-control input-sm" name="valid" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $valid); ?>>ยอดตรงกัน</option>

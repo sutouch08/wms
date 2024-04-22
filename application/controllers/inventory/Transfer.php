@@ -30,6 +30,7 @@ class Transfer extends PS_Controller
   {
     $filter = array(
       'code' => get_filter('code', 'tr_code', ''),
+      'wx_code' => get_filter('wx_code', 'wx_code', ''),
       'from_warehouse' => get_filter('from_warehouse', 'tr_from_warehouse', 'all'),
       'to_warehouse' => get_filter('to_warehouse', 'tr_to_warehouse', 'all'),
       'user' => get_filter('user', 'tr_user', 'all'),
@@ -2053,6 +2054,7 @@ class Transfer extends PS_Controller
   {
     $filter = array(
       'tr_code',
+      'wx_code',
       'tr_from_warehouse',
       'tr_user',
       'tr_to_warehouse',

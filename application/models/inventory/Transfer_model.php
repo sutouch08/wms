@@ -623,6 +623,11 @@ class Transfer_model extends CI_Model
       $this->db->like('tr.code', $ds['code']);
     }
 
+    if( ! empty($ds['wx_code']))
+    {
+      $this->db->like('tr.wx_code', $ds['wx_code']);
+    }
+
     if( ! empty($ds['from_warehouse']) && $ds['from_warehouse'] != 'all')
     {
       $this->db->where('tr.from_warehouse', $ds['from_warehouse']);
@@ -718,6 +723,11 @@ class Transfer_model extends CI_Model
     if(!empty($ds['code']))
     {
       $this->db->like('tr.code', $ds['code']);
+    }
+
+    if( ! empty($ds['wx_code']))
+    {
+      $this->db->like('tr.wx_code', $ds['wx_code']);
     }
 
     if( ! empty($ds['from_warehouse']) && $ds['from_warehouse'] != 'all')
