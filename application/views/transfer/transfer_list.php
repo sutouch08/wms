@@ -147,7 +147,7 @@
 		</p>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1300px;">
+		<table class="table table-striped border-1" style="min-width:1320px;">
 			<thead>
 				<tr>
 					<th class="fix-width-100 middle"></th>
@@ -155,7 +155,7 @@
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
 					<th class="fix-width-80 middle">SAP NO</th>
-					<th class="fix-width-100 middle">เลขที่ WX</th>
+					<th class="fix-width-120 middle">เลขที่ WX</th>
 					<th class="fix-width-200 middle">ต้นทาง</th>
 					<th class="fix-width-200 middle">ปลายทาง</th>
 					<th class="fix-width-40 middle text-center">สถานะ</th>
