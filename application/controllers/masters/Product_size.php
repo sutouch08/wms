@@ -18,132 +18,115 @@ class Product_size extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'size_code', '');
-		$name = get_filter('name', 'size_name', '');
-
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_filter('set_rows', 'rows', 20);
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = get_filter('rows', 'rows', 300);
-		}
-
-		$segment = 4; //-- url segment
-		$rows = $this->product_size_model->count_rows($code, $name);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$size = $this->product_size_model->get_data($code, $name, $perpage, $this->uri->segment($segment));
-
-    $data = array();
-
-    if(!empty($size))
-    {
-      foreach($size as $rs)
-      {
-        $arr = new stdClass();
-        $arr->code = $rs->code;
-        $arr->name = $rs->name;
-        $arr->position = $rs->position;
-        $arr->menber = $this->product_size_model->count_members($rs->code);
-
-        $data[] = $arr;
-      }
-    }
-
-
-    $ds = array(
-      'code' => $code,
-      'name' => $name,
-			'data' => $data
+    $filter = array(
+      'code' => get_filter('code', 'size_code', ''),
+      'name' => get_filter('name', 'size_name', '')
     );
 
-		$this->pagination->initialize($init);
-    $this->load->view('masters/product_size/product_size_view', $ds);
+		//--- แสดงผลกี่รายการต่อหน้า
+		$perpage = get_rows();
+
+		$segment = 4; //-- url segment
+
+    if($this->input->post('search'))
+    {
+      redirect($this->home);
+    }
+    else
+    {
+      $rows = $this->product_size_model->count_rows($filter);
+      //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+      $init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+      $size = $this->product_size_model->get_list($filter, $perpage, $this->uri->segment($segment));
+
+      if( ! empty($size))
+      {
+        foreach($size as $rs)
+        {
+          $rs->menber = $this->product_size_model->count_members($rs->code);
+        }
+      }
+
+
+      $filter['data'] = $size;
+
+  		$this->pagination->initialize($init);
+      $this->load->view('masters/product_size/product_size_list', $filter);
+    }
   }
 
 
   public function add_new()
   {
-    $data['code'] = $this->session->flashdata('code');
-    $data['name'] = $this->session->flashdata('name');
-    $data['position'] = $this->session->flashdata('position');
-    $this->title = 'เพิ่ม ไซส์';
-    $this->load->view('masters/product_size/product_size_add_view', $data);
+    if($this->pm->can_add)
+    {
+      $this->load->view('masters/product_size/product_size_add_view');
+    }
+    else
+    {
+      $this->deny_page();
+    }
   }
 
 
   public function add()
   {
+    $sc = TRUE;
     $code = $this->input->post('code');
-    if($code !== '' && $code !== NULL)
+    $name = $this->input->post('name');
+    $pos = $this->input->post('position');
+
+    if($code != '' && $code != NULL)
     {
-      $sc = TRUE;
-      $name = $this->input->post('name');
-      $pos = $this->input->post('position') ? $this->input->post('position') : 1;
-      $ds = array(
-        'code' => $code,
-        'name' => $name,
-        'position' => $pos
-      );
-
-      if($this->product_size_model->is_exists($code) === TRUE)
+      if($this->product_size_model->is_exists($code))
       {
         $sc = FALSE;
-        set_error("'".$code."' มีในระบบแล้ว");
-      }
-
-      if($this->product_size_model->is_exists_name($name) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$name."' มีในระบบแล้ว");
+        $this->error = "'{$code}' มีในระบบแล้ว";
       }
 
       if($sc === TRUE)
       {
-        if($this->product_size_model->add($ds))
-        {
-          //-- export to sap
-          $this->export_to_sap($code, $code);
-
-          set_message('เพิ่มข้อมูลเรียบร้อยแล้ว');
-        }
-        else
+        if($this->product_size_model->is_exists_name($name))
         {
           $sc = FALSE;
-          set_error('เพิ่มข้อมูลไม่สำเร็จ');
+          $this->error = "'{$name}' มีในระบบแล้ว";
         }
-      }
 
+        if($sc === TRUE)
+        {
+          $ds = array(
+            'code' => $code,
+            'name' => $name,
+            'position' => $pos
+          );
 
-      if($sc === FALSE)
-      {
-        $this->session->set_flashdata('code', $code);
-        $this->session->set_flashdata('name', $name);
-        $this->session->set_flashdata('position', $pos);
+          if( ! $this->product_size_model->add($ds))
+          {
+            $sc = FALSE;
+            $this->error = "เพิ่มข้อมูลไม่สำเร็จ";
+          }
+          else
+          {
+            $this->export_to_sap($code, $code);
+          }
+        }
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
+      $sc = FALSE;
+      $this->error = "Insert failed : Missing required parameter";
     }
 
-    redirect($this->home.'/add_new');
+    $this->_response($sc);
   }
 
 
 
-  public function edit($code)
+  public function edit($id)
   {
-    $this->title = 'แก้ไข ไซส์';
-    $rs = $this->product_size_model->get($code);
-    $data = array(
-      'code' => $rs->code,
-      'name' => $rs->name,
-      'position' => $rs->position
-    );
-
-    $this->load->view('masters/product_size/product_size_edit_view', $data);
+    $rs = $this->product_size_model->get_by_id($id);
+    $this->load->view('masters/product_size/product_size_edit_view', $rs);
   }
 
 
@@ -151,89 +134,106 @@ class Product_size extends PS_Controller
   public function update()
   {
     $sc = TRUE;
+    $id = $this->input->post('id');
     $code = $this->input->post('code');
-    if($code !== '')
+    $name = trim($this->input->post('name'));
+    $pos = $this->input->post('position');
+
+    if( ! empty($id) && $code != '' && $name != '')
     {
-      $old_code = $this->input->post('product_size_code');
-      $old_name = $this->input->post('product_size_name');
-      $name = $this->input->post('name');
-      $pos = $this->input->post('position');
+      $size = $this->product_size_model->get_by_id($id);
 
-      $ds = array(
-        'code' => $code,
-        'name' => $name,
-        'position' => $pos
-      );
-
-      if($sc === TRUE && $this->product_size_model->is_exists($code, $old_code) === TRUE)
+      if( ! empty($size))
       {
-        $sc = FALSE;
-        set_error("'".$code."' มีอยู่ในระบบแล้ว โปรดใช้รหัสอื่น");
-      }
-
-      if($sc === TRUE && $this->product_size_model->is_exists_name($name, $old_name) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$name."' มีอยู่ในระบบแล้ว โปรดใช้ชื่ออื่น");
-      }
-
-      if($sc === TRUE)
-      {
-        if($this->product_size_model->update($old_code, $ds) === TRUE)
-        {
-          //--- expor to sap
-          $this->export_to_sap($code, $old_code);
-
-          set_message('ปรับปรุงข้อมูลเรียบร้อยแล้ว');
-        }
-        else
+        if($this->product_size_model->is_exists_name($name, $id))
         {
           $sc = FALSE;
-          set_error('ปรับปรุงข้อมูลไม่สำเร็จ');
+          $this->error = "'{$name}' มีในระบบแล้ว โปรดใช้ชื่ออื่น";
+        }
+
+        if($sc === TRUE)
+        {
+          $ds = array(
+            'name' => $name,
+            'position' => $pos,
+            'user' => $this->_user->uname,
+            'date_upd' => now()
+          );
+
+          if($this->product_size_model->update_by_id($id, $ds))
+          {
+            //--- expor to sap
+            $this->export_to_sap($code);
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = 'ปรับปรุงข้อมูลไม่สำเร็จ';
+          }
         }
       }
-
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid size id";
+      }
     }
     else
     {
       $sc = FALSE;
-      set_error('ไม่พบข้อมูล');
+      $this->error = 'Update failed : Missing required parameter';
     }
 
-    if($sc === FALSE)
-    {
-      $code = $this->input->post('product_size_code');
-    }
-
-    redirect($this->home.'/edit/'.$code);
+    $this->_response($sc);
   }
 
 
 
-  public function delete($code)
+  public function delete()
   {
-    if($code != '')
+    $sc = TRUE;
+    $id = $this->input->post('id');
+
+    if($this->pm->can_delete)
     {
-      if($this->product_size_model->delete($code))
+      $rs = $this->product_size_model->get_by_id($id);
+
+      if( ! empty($rs))
       {
-        set_message('ลบข้อมูลเรียบร้อยแล้ว');
+        $member = $this->product_size_model->count_members($rs->code);
+
+        if($member == 0)
+        {
+          if( ! $this->product_size_model->delete($id))
+          {
+            $sc = FALSE;
+            set_error('delete');
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('transection');
+        }
       }
       else
       {
-        set_error('ลบข้อมูลไม่สำเร็จ');
+        $sc = FALSE;
+        $this->error = "Invalid size id";
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
+      $sc = FALSE;
+      set_error('permission');
     }
 
-    redirect($this->home);
+    $this->_response($sc);
   }
 
 
 
-  public function export_to_sap($code, $old_code)
+  public function export_to_sap($code, $old_code = NULL)
   {
     $rs = $this->product_size_model->get($code);
     if(!empty($rs))
@@ -253,14 +253,11 @@ class Product_size extends PS_Controller
         {
           $arr['OLDCODE'] = $old_code;
         }
-
-        //return $this->product_size_model->update_sap_size($old_code, $arr);
       }
       else
       {
         $arr['Flag'] = 'A';
 
-        //return $this->product_size_model->add_sap_size($arr);
       }
 
       return $this->product_size_model->add_sap_size($arr);
@@ -278,23 +275,6 @@ class Product_size extends PS_Controller
 		echo 'done';
 	}
 
-
-
-  public function export_api()
-  {
-    $code = $this->input->post('code');
-
-    if(!empty($code))
-    {
-      $this->load->library('api');
-      $rs = json_decode($this->api->create_size($code), TRUE);
-      if(count($rs) === 1){
-        echo $rs['message'];
-      }else{
-        echo 'success';
-      }
-    }
-  }
 
 }//--- end class
  ?>
