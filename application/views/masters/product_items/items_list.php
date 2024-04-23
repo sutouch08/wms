@@ -163,7 +163,7 @@
 				<?php foreach($data as $rs) : ?>
 					<tr id="row-<?php echo $no; ?>" class="font-size-12">
 						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-info" onclick="sendToWms('<?php echo $rs->id; ?>')"><i class="fa fa-send"></i></button>
+							<button type="button" class="btn btn-minier btn-info" onclick="sendToWms('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
 							<?php if($this->pm->can_add) : ?>
 								<button type="button" class="btn btn-minier btn-primary" onclick="duplicate('<?php echo $rs->id; ?>')">
 									<i class="fa fa-copy"></i>
