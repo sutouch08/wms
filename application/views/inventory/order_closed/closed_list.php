@@ -63,6 +63,7 @@
       <option value="all">ทั้งหมด</option>
       <option value="1" <?php echo is_selected($is_exported, '1'); ?>>ส่งแล้ว</option>
 			<option value="0" <?php echo is_selected($is_exported, '0'); ?>>ยังไม่ส่ง</option>
+			<option value="3" <?php echo is_selected($is_exported, '3'); ?>>ส่งออกไม่สำเร็จ</option>
     </select>
   </div>
 
@@ -131,7 +132,7 @@
             <?php echo $rs->customer_name; ?>
           </td>
 
-          <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">						
+          <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
 						<?php echo ($rs->doc_total <= 0 ? number($this->invoice_model->get_billed_amount($rs->code), 2) : number($rs->doc_total,2)); ?>
           </td>
 
