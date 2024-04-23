@@ -71,6 +71,11 @@ class Delivery_order_model extends CI_Model
 
 		if(isset($ds['is_exported']) && $ds['is_exported'] != 'all')
 		{
+      if($ds['is_exported'] == '3')
+      {
+        $this->db->where('inv_code IS NULL');
+      }
+      
 			$this->db->where('is_exported', $ds['is_exported']);
 		}
 
@@ -136,6 +141,11 @@ class Delivery_order_model extends CI_Model
 
 		if(isset($ds['is_exported']) && $ds['is_exported'] != 'all')
 		{
+      if($ds['is_exported'] == '3')
+      {
+        $this->db->where('inv_code IS NULL');
+      }
+
 			$this->db->where('is_exported', $ds['is_exported']);
 		}
 
