@@ -75,7 +75,7 @@
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(4) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr>
+					<tr id="row-<?php echo $rs->id; ?>">
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
@@ -92,12 +92,12 @@
 						</td>
 						<td class="text-right">
 							<?php if($this->pm->can_edit) : ?>
-								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">
+								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->id; ?>')">
 									<i class="fa fa-pencil"></i>
 								</button>
 							<?php endif; ?>
 							<?php if($this->pm->can_delete) : ?>
-								<button type="button" class="btn btn-mini btn-danger" onclick="getDelete('<?php echo $rs->code; ?>', '<?php echo $rs->name; ?>')">
+								<button type="button" class="btn btn-mini btn-danger" onclick="getDelete('<?php echo $rs->id; ?>', '<?php echo $rs->name; ?>')">
 									<i class="fa fa-trash"></i>
 								</button>
 							<?php endif; ?>
@@ -111,6 +111,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/masters/product_color.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/product_color.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

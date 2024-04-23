@@ -77,71 +77,67 @@ class Product_color extends PS_Controller
 
   public function add_new()
   {
-    $data['code'] = $this->session->flashdata('code');
-    $data['name'] = $this->session->flashdata('name');
-    $data['id_group'] = $this->session->flashdata('id_group');
-    $this->title = 'เพิ่ม สีสินค้า';
-    $this->load->view('masters/product_color/product_color_add_view', $data);
+    $this->load->view('masters/product_color/product_color_add_view');
   }
 
 
   public function add()
   {
-    if($this->input->post('code'))
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $name = trim($this->input->post('name'));
+    $group_id = $this->input->post('group');
+
+    if( ! empty($code) && ! empty($name))
     {
-      $sc = TRUE;
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
-      $id_group = get_null($this->input->post('color_group'));
       $ds = array(
         'code' => $code,
         'name' => $name,
-        'id_group' => $id_group
+        'id_group' => $group_id
       );
 
-      if($this->product_color_model->is_exists($code) === TRUE)
+      if($this->product_color_model->is_exists($code))
       {
         $sc = FALSE;
-        set_error("'".$code."' มีในระบบแล้ว");
+        $this->error = "'{$code}' มีในระบบแล้ว";
       }
-
-
 
       if($sc === TRUE)
       {
-        if($this->product_color_model->add($ds) === TRUE)
-        {
-          //---- export to sap
-          $this->export_to_sap($code, $code);
-          set_message('เพิ่มข้อมูลเรียบร้อยแล้ว');
-        }
-        else
+        if($this->product_color_model->is_exists_name($name))
         {
           $sc = FALSE;
-          set_error('เพิ่มข้อมูลไม่สำเร็จ');
+          $this->error = "'{$name}' มีในระบบแล้ว";
         }
-      }
 
-      if($sc === FALSE)
-      {
-        $this->session->set_flashdata('code', $code);
-        $this->session->set_flashdata('name', $name);
+        if($sc === TRUE)
+        {
+          if( ! $this->product_color_model->add($ds))
+          {
+            $sc = FALSE;
+            set_error('insert');
+          }
+          else
+          {
+            $this->export_to_sap($code);
+          }
+        }
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
+      $sc = FALSE;
+      set_error('required');
     }
 
-    redirect($this->home.'/add_new');
+    $this->_response($sc);
   }
 
 
 
-  public function edit($code)
+  public function edit($id)
   {
-    $this->title = 'แก้ไข สีสินค้า';
-    $data = $this->product_color_model->get($code);
+    $data = $this->product_color_model->get_by_id($id);
     $this->load->view('masters/product_color/product_color_edit_view', $data);
   }
 
@@ -151,82 +147,101 @@ class Product_color extends PS_Controller
   {
     $sc = TRUE;
 
+    $id = $this->input->post('id');
+    $code = $this->input->post('code');
+    $name = $this->input->post('name');
+    $group_id = $this->input->post('group');
+
     if($this->input->post('code'))
     {
-      $old_code = $this->input->post('product_color_code');
-      $old_name = $this->input->post('product_color_name');
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
-      $id_group = get_null($this->input->post('color_group'));
+      $color = $this->product_color_model->get_by_id($id);
 
-      $ds = array(
-        'code' => $code,
-        'name' => $name,
-        'id_group' => $id_group
-      );
-
-      if($this->product_color_model->is_exists($code, $old_code) === TRUE)
+      if( ! empty($color))
       {
-        $sc = FALSE;
-        set_error("'".$code."' มีอยู่ในระบบแล้ว โปรดใช้รหัสอื่น");
-      }
-
-      if($sc === TRUE)
-      {
-        if($this->product_color_model->update($old_code, $ds) === TRUE)
+        if( ! $this->product_color_model->is_exists_name($name, $id))
         {
-          //--- export to sap
-          $this->export_to_sap($code, $old_code);
-          set_message('ปรับปรุงข้อมูลเรียบร้อยแล้ว');
+          $arr = array(
+            'name' => $name,
+            'id_group' => $group_id
+          );
+
+          if( ! $this->product_color_model->update_by_id($id, $arr))
+          {
+            $sc = FALSE;
+            set_error('update');
+          }
+          else
+          {
+            $this->export_to_sap($code);
+          }
         }
         else
         {
           $sc = FALSE;
-          set_error('ปรับปรุงข้อมูลไม่สำเร็จ');
+          $this->error = "'{$name}' มีในระบบแล้ว";
         }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid color id";
       }
 
     }
     else
     {
       $sc = FALSE;
-      set_error('ไม่พบข้อมูล');
+      set_error('required');
     }
 
-    if($sc === FALSE)
-    {
-      $code = $this->input->post('product_color_code');
-    }
-
-    redirect($this->home.'/edit/'.$code);
+    $this->_response($sc);
   }
 
 
-
-  public function delete($code)
+  public function delete()
   {
-    if($code != '')
+    $sc = TRUE;
+    $id = $this->input->post('id');
+
+    $color = $this->product_color_model->get_by_id($id);
+
+    if( ! empty($color))
     {
-      if($this->product_color_model->delete($code))
+      if($this->pm->can_delete)
       {
-        set_message('ลบข้อมูลเรียบร้อยแล้ว');
+        $member = $this->product_color_model->count_members($color->code);
+
+        if($member == 0)
+        {
+          if( ! $this->product_color_model->delete_by_id($id))
+          {
+            $sc = FALSE;
+            set_error('delete');
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('transection');
+        }
       }
       else
       {
-        set_error('ลบข้อมูลไม่สำเร็จ');
+        $sc = FALSE;
+        set_error('permission');
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
+      $sc = FALSE;
+      set_error('required');
     }
 
-    redirect($this->home);
+    $this->_response($sc);
   }
 
 
-
-  public function export_to_sap($code, $old_code)
+  public function export_to_sap($code, $old_code = NULL)
   {
     $rs = $this->product_color_model->get($code);
     if(!empty($rs))
@@ -245,14 +260,10 @@ class Product_color extends PS_Controller
         {
           $arr['OLDCODE'] = $old_code;
         }
-
-        //return $this->product_color_model->update_sap_color($old_code, $arr);
       }
       else
       {
         $arr['Flag'] = 'A';
-
-        //return $this->product_color_model->add_sap_color($arr);
       }
 
       return $this->product_color_model->add_sap_color($arr);
@@ -261,23 +272,6 @@ class Product_color extends PS_Controller
     return FALSE;
   }
 
-
-
-  public function export_api()
-  {
-    $code = $this->input->post('code');
-
-    if(!empty($code))
-    {
-      $this->load->library('api');
-      $rs = json_decode($this->api->create_color($code), TRUE);
-      if(count($rs) === 1){
-        echo $rs['message'];
-      }else{
-        echo 'success';
-      }
-    }
-  }
 
   public function clear_filter()
 	{

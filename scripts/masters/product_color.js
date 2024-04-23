@@ -23,7 +23,7 @@ function clearFilter(){
 }
 
 
-function getDelete(code, name){
+function getDelete(id, name){
   swal({
     title:'Are sure ?',
     text:'ต้องการลบ ' + name + ' หรือไม่ ?',
@@ -32,9 +32,40 @@ function getDelete(code, name){
 		confirmButtonColor: '#FA5858',
 		confirmButtonText: 'ใช่, ฉันต้องการลบ',
 		cancelButtonText: 'ยกเลิก',
-		closeOnConfirm: false
+		closeOnConfirm: true
   },function(){
-    window.location.href = BASE_URL + 'masters/product_color/delete/' + code;
+    setTimeout(() => {
+      load_in();
+
+      $.ajax({
+        url:BASE_URL + 'masters/product_color/delete',
+        type:'POST',
+        cache:false,
+        data:{
+          'id' : id
+        },
+        success:function(rs) {
+          load_out();
+
+          if(rs === 'success') {
+            swal({
+              title:'Success',
+              type:'success',
+              timer:1000
+            });
+
+            $('#row-'+id).remove();
+          }
+          else {
+            swal({
+              title:'Error!',
+              text:rs,
+              type:'error'
+            });
+          }
+        }
+      })
+    }, 200);
   })
 }
 
@@ -63,31 +94,117 @@ function getSearch(){
 }
 
 
-function export_api(){
-  var code = $('#color_code').val();
+function add() {
+  $('.r').removeClass('has-error');
+  $('.e').text('');
+
+  let code = $('#code').val();
+  let name = $('#name').val();
+  let group = $('#color_group').val();
+
+  if(code.length == 0) {
+    $('#code-error').text('required');
+    $('#code').addClass('has-error');
+    return false;
+  }
+
+  if(name.length == 0) {
+    $('#name-error').text('required');
+    $('#name').addClass('has-error');
+    return false;
+  }
+
+  if(group == "") {
+    $('#group-error').text('required');
+    $('#color_group').addClass('has-error');
+    return false;
+  }
+
   load_in();
+
   $.ajax({
-    url:BASE_URL + 'masters/product_color/export_api',
+    url:BASE_URL + 'masters/product_color/add',
     type:'POST',
     cache:false,
-    data:{
-      'code' : code
+    data: {
+      'code' : code,
+      'name' : name,
+      'group' : group
     },
-    success:function(rs){
+    success:function(rs) {
       load_out();
-      if(rs === 'success'){
+
+      if(rs == 'success') {
         swal({
           title:'Success',
-          text:'Color exported successful',
           type:'success',
           timer:1000
-        })
-      }else{
+        });
+
+        setTimeout(() => {
+          addNew();
+        }, 1200);
+      }
+      else {
         swal({
-          title:'Error',
+          title:'Error!',
           text:rs,
           type:'error'
+        })
+      }
+    }
+  })
+}
+
+
+function update(id) {
+  $('.r').removeClass('has-error');
+  $('.e').text('');
+
+  let code = $('#code').val();
+  let name = $('#name').val();
+  let group = $('#color_group').val();
+
+  if(name.length == 0) {
+    $('#name-error').text('required');
+    $('#name').addClass('has-error');
+    return false;
+  }
+
+  if(group == "") {
+    $('#group-error').text('required');
+    $('#color_group').addClass('has-error');
+    return false;
+  }
+
+  load_in();
+
+  $.ajax({
+    url:BASE_URL + 'masters/product_color/update',
+    type:'POST',
+    cache:false,
+    data: {
+      'id' : id,
+      'code' : code,
+      'name' : name,
+      'group' : group
+    },
+    success:function(rs) {
+      load_out();
+
+      if(rs == 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
         });
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        })
       }
     }
   })

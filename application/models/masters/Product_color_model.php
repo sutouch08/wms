@@ -1,6 +1,8 @@
 <?php
 class Product_color_model extends CI_Model
 {
+  private $tb = "product_color";
+
   public function __construct()
   {
     parent::__construct();
@@ -11,7 +13,7 @@ class Product_color_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return  $this->db->insert('product_color', $ds);
+      return  $this->db->insert($this->tb, $ds);
     }
 
     return FALSE;
@@ -24,7 +26,18 @@ class Product_color_model extends CI_Model
     if(!empty($ds))
     {
       $this->db->where('code', $code);
-      return $this->db->update('product_color', $ds);
+      return $this->db->update($this->tb, $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function update_by_id($id, array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('id', $id)->update($this->tb, $ds);
     }
 
     return FALSE;
@@ -33,7 +46,12 @@ class Product_color_model extends CI_Model
 
   public function delete($code)
   {
-    return $this->db->where('code', $code)->delete('product_color');
+    return $this->db->where('code', $code)->delete($this->tb);
+  }
+
+  public function delete_by_id($id)
+  {
+    return $this->db->where('id', $id)->delete($this->tb);
   }
 
 
@@ -66,7 +84,7 @@ class Product_color_model extends CI_Model
       }
     }
 
-    return $this->db->count_all_results('product_color');
+    return $this->db->count_all_results($this->tb);
   }
 
 
@@ -74,7 +92,7 @@ class Product_color_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('product_color');
+    $rs = $this->db->where('code', $code)->get($this->tb);
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -84,6 +102,18 @@ class Product_color_model extends CI_Model
   }
 
 
+  public function get_by_id($id)
+  {
+    $rs = $this->db->where('id', $id)->get($this->tb);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
 
   public function get_name($code)
   {
@@ -92,7 +122,7 @@ class Product_color_model extends CI_Model
       return $code;
     }
 
-    $rs = $this->db->select('name')->where('code', $code)->get('product_color');
+    $rs = $this->db->select('name')->where('code', $code)->get($this->tb);
     if($rs->num_rows() === 1)
     {
       return $rs->row()->name;
@@ -100,7 +130,6 @@ class Product_color_model extends CI_Model
 
     return NULL;
   }
-
 
 
 
@@ -153,54 +182,42 @@ class Product_color_model extends CI_Model
 
 
 
-  public function is_exists($code, $old_code = '')
+  public function is_exists($code, $id = NULL)
   {
-    if($old_code != '')
+    if( ! empty($id))
     {
-      $this->db->where('code !=', $old_code);
+      $this->db->where('id !=', $id);
     }
 
-    $rs = $this->db->where('code', $code)->get('product_color');
+    $count = $this->db->where('code', $code)->count_all_results($this->tb);
 
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $count > 0 ? TRUE : FALSE;
   }
 
 
 
-  public function is_exists_name($name, $old_name = '')
+  public function is_exists_name($name, $id = NULL)
   {
-    if($old_name != '')
+    if( ! empty($id))
     {
-      $this->db->where('name !=', $old_name);
+      $this->db->where('id !=', $id);
     }
 
-    $rs = $this->db->where('name', $name)->get('product_color');
+    $count = $this->db->where('name', $name)->count_all_results($this->tb);
 
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $count > 0 ? TRUE : FALSE;
   }
 
 
 
   public function set_active($code, $active)
   {
-    return $this->db->set('active', $active)->where('code', $code)->update('product_color');
+    return $this->db->set('active', $active)->where('code', $code)->update($this->tb);
   }
 
   public function count_members($code)
   {
-    $this->db->select('active')->where('color_code', $code);
-    $rs = $this->db->get('products');
-    return $rs->num_rows();
+    return $this->db->where('color_code', $code)->count_all_results('products');
   }
 
 
