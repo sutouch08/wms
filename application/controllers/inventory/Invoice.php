@@ -36,7 +36,8 @@ class Invoice extends PS_Controller
       'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
       'is_valid' => get_filter('is_valid', 'ic_valid', 'all'),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
-			'is_exported' => get_filter('is_exported', 'ic_is_exported', 'all')
+			'is_exported' => get_filter('is_exported', 'ic_is_exported', 'all'),
+      'sap_status' => get_filter('sap_status', 'ic_sap_status', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -51,7 +52,7 @@ class Invoice extends PS_Controller
 		$rows     = $this->delivery_order_model->count_rows($filter, 8);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->delivery_order_model->get_list($filter, $perpage, $this->uri->segment($segment), 8);    
+		$orders   = $this->delivery_order_model->get_list($filter, $perpage, $this->uri->segment($segment), 8);
 
     $filter['orders'] = $orders;
 
@@ -135,7 +136,8 @@ class Invoice extends PS_Controller
       'ic_sort_by',
       'ic_valid',
       'ic_warehouse',
-			'ic_is_exported'
+			'ic_is_exported',
+      'ic_sap_status'
     );
     clear_filter($filter);
   }

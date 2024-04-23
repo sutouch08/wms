@@ -67,6 +67,15 @@
     </select>
   </div>
 
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+    <label>SAP</label>
+		<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
+      <option value="all">ทั้งหมด</option>
+      <option value="Y" <?php echo is_selected($sap_status, 'Y'); ?>>เข้าแล้ว</option>
+			<option value="N" <?php echo is_selected($sap_status, 'N'); ?>>ยังไม่เข้า</option>			
+    </select>
+  </div>
+
 	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
@@ -95,17 +104,18 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:900px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:990px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">ลำดับ</th>
-          <th style="min-width:100px;" class="width-8 sorting <?php echo $sort_date; ?> text-center" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-          <th class="width-20 sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
-          <th class="">ลูกค้า/ผู้รับ/ผู้เบิก</th>
-          <th class="width-10 text-center">ยอดเงิน</th>
-          <th class="width-10 text-center">รูปแบบ</th>
-          <th class="width-10 text-center">พนักงาน</th>
-					<th class="width-10 text-center"></th>
+          <th class="fix-width-40 text-center">ลำดับ</th>
+          <th class="fix-width-100 text-center">วันที่</th>
+          <th class="fix-width-150">เลขที่เอกสาร</th>
+					<th class="fix-width-100">SAP NO</th>
+          <th class="min-width-200">ลูกค้า/ผู้รับ/ผู้เบิก</th>
+          <th class="fix-width-100 text-right">ยอดเงิน</th>
+          <th class="fix-width-100 text-center">รูปแบบ</th>
+          <th class="fix-width-150 text-center">พนักงาน</th>
+					<th class="fix-width-50 text-center"></th>
         </tr>
       </thead>
       <tbody>
@@ -126,6 +136,10 @@
           <td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->code; ?>
             <?php echo ($rs->reference != '' ? ' ['.$rs->reference.']' : ''); ?>
+          </td>
+
+					<td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
+            <?php echo $rs->inv_code; ?>
           </td>
 
           <td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
@@ -155,7 +169,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="9" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>

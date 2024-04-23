@@ -75,9 +75,23 @@ class Delivery_order_model extends CI_Model
       {
         $this->db->where('inv_code IS NULL');
       }
-      
+
 			$this->db->where('is_exported', $ds['is_exported']);
 		}
+
+
+    if(isset($ds['sap_status']) && $ds['sap_status'] != 'all')
+    {
+      if($ds['sap_status'] == 'Y')
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+
+      if($ds['sap_status'] == 'N')
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+    }
 
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')
@@ -148,6 +162,19 @@ class Delivery_order_model extends CI_Model
 
 			$this->db->where('is_exported', $ds['is_exported']);
 		}
+
+    if(isset($ds['sap_status']) && $ds['sap_status'] != 'all')
+    {
+      if($ds['sap_status'] == 'Y')
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+
+      if($ds['sap_status'] == 'N')
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+    }
 
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')
