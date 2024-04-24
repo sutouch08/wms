@@ -632,11 +632,11 @@ function saveAddress()
 		return false;
 	}
 
-	if(phone.length < 9 || phone.length > 10) {
-		$('#phone').addClass('has-error');
-		$('#error-msg').text('เบอร์โทรต้องมีความยาว 9-10 ตัว');
-		return false;
-	}
+	// if(phone.length < 1 || phone.length > 15) {
+	// 	$('#phone').addClass('has-error');
+	// 	$('#error-msg').text('เบอร์โทรต้องมีความยาว 9-10 ตัว');
+	// 	return false;
+	// }
 
 	if( alias == '' ) {
 		swal('กรุณาตั้งชื่อให้ที่อยู่');
@@ -658,7 +658,7 @@ function saveAddress()
 	ds.push( {"name" : "country", "value" : country});
 	ds.push( {"name" : "phone", "value" : $("#phone").val() } );
 	ds.push( {"name" : "email", "value" : $("#email").val() } );
-	ds.push( {"name" : "alias", "value" : $("#alias").val() } );	
+	ds.push( {"name" : "alias", "value" : $("#alias").val() } );
 
 	load_in();
 	$.ajax({
