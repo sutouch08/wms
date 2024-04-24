@@ -185,7 +185,7 @@ class Sales_channels_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValueExplicit('D'.$row, $rs->reference, PHPExcel_Cell_DataType::TYPE_STRING);
 
         //--- เลขที่จัดส่ง
-        $tracking = empty($rs->shipping_code) ? $rs->tracking_no : $rs->shipping_code;
+        $tracking = empty($rs->tracking_no) ? $rs->shipping_code : $rs->tracking_no;
         $this->excel->getActiveSheet()->setCellValueExplicit('E'.$row, $tracking, PHPExcel_Cell_DataType::TYPE_STRING);
 
         //--- ชือผู้รับสินค้า
