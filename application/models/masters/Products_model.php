@@ -1081,6 +1081,7 @@ class Products_model extends CI_Model
 		->select('pg.name AS group_name, pu.name AS sub_group_name')
 		->select('pc.name AS category_name, pk.name AS kind_name')
 		->select('pt.name AS type_name, br.name AS brand_name')
+    ->select('cl.name AS collection_name')
 		->from('products AS pd')
 		->join('product_color AS co', 'pd.color_code = co.code', 'left')
 		->join('product_size AS si', 'pd.size_code = si.code', 'left')
@@ -1090,6 +1091,7 @@ class Products_model extends CI_Model
 		->join('product_kind AS pk', 'pd.kind_code = pk.code', 'left')
 		->join('product_type AS pt', 'pd.type_code = pt.code', 'left')
 		->join('product_brand AS br', 'pd.brand_code = br.code', 'left')
+    ->join('product_collection AS cl', 'pd.collection_code = cl.code', 'left')
 		->where('pd.code', $code)
 		->get();
 
