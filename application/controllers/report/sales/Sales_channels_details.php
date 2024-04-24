@@ -109,6 +109,7 @@ class Sales_channels_details extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('T5', 'ค่าจัดส่ง');
     $this->excel->getActiveSheet()->setCellValue('U5', 'ค่าบริการ');
     $this->excel->getActiveSheet()->setCellValue('V5', 'สถานะ');
+    $this->excel->getActiveSheet()->setCellValue('W5', 'ขนส่ง');
 
     //---- กำหนดความกว้างของคอลัมภ์
     $this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
@@ -128,6 +129,7 @@ class Sales_channels_details extends PS_Controller
     $this->excel->getActiveSheet()->getColumnDimension('T')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('U')->setWidth(15);
     $this->excel->getActiveSheet()->getColumnDimension('V')->setWidth(15);
+    $this->excel->getActiveSheet()->getColumnDimension('W')->setWidth(15);
 
     $row = 6;
 
@@ -183,7 +185,8 @@ class Sales_channels_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValueExplicit('D'.$row, $rs->reference, PHPExcel_Cell_DataType::TYPE_STRING);
 
         //--- เลขที่จัดส่ง
-        $this->excel->getActiveSheet()->setCellValueExplicit('E'.$row, $rs->shipping_code, PHPExcel_Cell_DataType::TYPE_STRING);
+        $tracking = empty($rs->shipping_code) ? $rs->tracking_no : $rs->shipping_code;
+        $this->excel->getActiveSheet()->setCellValueExplicit('E'.$row, $tracking, PHPExcel_Cell_DataType::TYPE_STRING);
 
         //--- ชือผู้รับสินค้า
         $this->excel->getActiveSheet()->setCellValue('F'.$row, $adr->name);
@@ -234,6 +237,9 @@ class Sales_channels_details extends PS_Controller
 
         //--- สถานะออเดอร์
         $this->excel->getActiveSheet()->setCellValue('V'.$row, $rs->state);
+
+        //--- ขนส่ง
+        $this->excel->getActiveSheet()->setCellValue('W'.$row, $rs->sender);
 
         $no++;
         $row++;
