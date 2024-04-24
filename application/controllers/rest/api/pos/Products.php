@@ -195,7 +195,8 @@ class Products extends REST_Controller
       'product_main_group',
       'product_sub_group',
       'product_kind',
-      'product_type'
+      'product_type',
+      'product_collection'
     );
 
     if( ! empty($prop))
