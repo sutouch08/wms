@@ -21,9 +21,13 @@ class Auto_send_tracking extends CI_Controller
 
       if( ! empty($list))
       {
+        echo "<pre>";
+        print_r($list);
+        echo "</pre>";
         foreach($list as $rs)
         {
           $tracking = $this->orders_model->get_order_tracking($rs->code);
+          print_r($tracking);
 
           $ds = array();
 
@@ -41,19 +45,21 @@ class Auto_send_tracking extends CI_Controller
               'tracking' => $ds
             );
 
-            $result = $this->api->create_shipment($rs->reference, $arr);
-            echo $result;
+            print_r($arr);
 
-            if($result === TRUE || $result == 'true')
-            {
-              $this->add_logs(['status' => 'success']);
-              $this->orders_model->update($rs->code, ['send_tracking' => 1]);
-            }
-            else
-            {
-              $this->add_logs(['status' => 'failed', 'message' => $result]);
-              $this->orders_model->update($rs->code, ['send_tracking' => 3, 'send_tracking_error' => $result]);              
-            }
+            // $result = $this->api->create_shipment($rs->reference, $arr);
+            // echo $result;
+            //
+            // if($result === TRUE || $result == 'true')
+            // {
+            //   $this->add_logs(['status' => 'success']);
+            //   $this->orders_model->update($rs->code, ['send_tracking' => 1]);
+            // }
+            // else
+            // {
+            //   $this->add_logs(['status' => 'failed', 'message' => $result]);
+            //   $this->orders_model->update($rs->code, ['send_tracking' => 3, 'send_tracking_error' => $result]);
+            // }
           }
         }
       }
