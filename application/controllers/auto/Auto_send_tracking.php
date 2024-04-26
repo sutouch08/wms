@@ -42,6 +42,7 @@ class Auto_send_tracking extends CI_Controller
             );
 
             $result = $this->api->create_shipment($rs->reference, $arr);
+            echo $result;
 
             if($result === TRUE)
             {
