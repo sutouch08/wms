@@ -12,7 +12,7 @@ class Auto_send_tracking extends CI_Controller
 
   public function index()
   {
-    $limit = 2;
+    $limit = 10;
     $id_sender = getConfig('SPX_ID');
 
     if( ! empty($id_sender))
