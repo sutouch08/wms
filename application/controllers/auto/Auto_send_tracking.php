@@ -44,36 +44,15 @@ class Auto_send_tracking extends CI_Controller
             $result = $this->api->create_shipment($rs->reference, $arr);
             echo $result;
 
-            if($result === TRUE)
+            if($result === TRUE || $result == 'true')
             {
               $this->add_logs(['status' => 'success']);
+              $this->orders_model->update($rs->code, ['send_tracking' => 1]);
             }
             else
             {
-              if($result == FALSE)
-              {
-                $this->add_logs(['status' => 'failed', 'message' => 'false']);
-              }
-              else
-              {
-                $json = json_decode($result);
-
-                if( ! empty($json))
-                {
-                  if( ! empty($json->message))
-                  {
-                    $this->add_logs(['status' => 'failed', 'message' => $json->message]);
-                  }
-                  else
-                  {
-                    $this->add_logs(['status' => 'failed', 'message' => 'unknow response']);
-                  }
-                }
-                else
-                {
-                  $this->add_logs(['status' => 'failed', 'message' => 'unknow response']);
-                }
-              }
+              $this->add_logs(['status' => 'failed', 'message' => $result]);
+              $this->orders_model->update($rs->code, ['send_tracking' => 3, 'send_tracking_error' => $result]);              
             }
           }
         }
