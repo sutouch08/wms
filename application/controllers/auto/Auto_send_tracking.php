@@ -12,7 +12,10 @@ class Auto_send_tracking extends CI_Controller
 
   public function index()
   {
-    $limit = 100;
+    ini_set('memory_limit','512M');
+    ini_set('max_execution_time', 600);
+
+    $limit = 10;
     $id_sender = getConfig('SPX_ID');
 
     if( ! empty($id_sender))
@@ -21,25 +24,22 @@ class Auto_send_tracking extends CI_Controller
 
       if( ! empty($list))
       {
-        echo "<pre>";
-        print_r($list);
-        echo "</pre>";
         foreach($list as $rs)
         {
           $tracking = $this->orders_model->get_order_tracking($rs->code);
-          print_r($tracking);
-
           $ds = array();
 
           if( ! empty($tracking))
           {
             foreach($tracking as $tk)
             {
+              echo "{$rs->code} : {$tk->tracking_no} <br/>";
               array_push($ds, ['track_no' => $tk->tracking_no]);
             }
           }
           else
           {
+            echo "No tracking on : {$rs->code} <br/>";
             $this->orders_model->update($rs->code, ['send_tracking' => 1]);
           }
 
@@ -49,9 +49,8 @@ class Auto_send_tracking extends CI_Controller
               'tracking' => $ds
             );
 
-            print_r($arr);
-
             $result = $this->api->create_shipment($rs->reference, $arr);
+            
             echo $result;
 
             if($result === TRUE || $result == 'true')
@@ -69,6 +68,7 @@ class Auto_send_tracking extends CI_Controller
       }
       else
       {
+        echo "no data to send <br/>";
         $this->add_logs(['status' => 'OK', 'message' => "no data to send"]);
       }
     }
