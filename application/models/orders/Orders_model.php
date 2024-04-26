@@ -1728,6 +1728,7 @@ class Orders_model extends CI_Model
     ->where('send_tracking IS NULL', NULL, FALSE)
     ->where('state', 8)
     ->where('reference IS NOT NULL')
+    ->where('date_add >=', '2024-04-01 00:00:00')
     ->order_by('code', 'ASC')
     ->limit($limit)
     ->get('orders');
