@@ -2,31 +2,44 @@
 class Api
 {
   private $web_url;
-  private $userData = array('username' => 'user', 'password' => 'W@rr1X$p0rt');
-  private $token_url;
   private $token;
   protected $ci;
 
   public function __construct()
   {
-    $this->token = getConfig('WEB_API_ACCESS_TOKEN');
+    $this->token = getConfig('WEB_API_TOKEN');
     $this->web_url = getConfig('WEB_API_HOST');
-    // $this->token_url = "{$this->web_url}integration/admin/token";
-    // $this->get_token();
   }
 
-  private function get_token()
+  public function create_shipment($code, array $ds = array())
   {
-    // $ch = curl_init($this->token_url);
-    // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-    // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->userData));
-    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    // curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Content-Lenght: " . strlen(json_encode($this->userData))));
-    //
-    // $this->token = trim(curl_exec($ch), '""');
-    //$this->token = 'xekjymeqd2i15ozg3kytfcsseb7s1uj9';
+    if( ! empty($ds))
+    {
+      $token = $this->token;
+      $url = $this->web_url."eol/order/{$code}/ship";
 
+      $setHeaders = array("Content-Type:application/json","Authorization:Bearer {$token}");
+	    $apiUrl = str_replace(" ","%20",$url);
+	    $method = 'POST';
+
+      $data_string = json_encode($ds);
+
+      $ch = curl_init();
+	    curl_setopt($ch, CURLOPT_URL, $apiUrl);
+	    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+	    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	    curl_setopt($ch, CURLOPT_HTTPHEADER, $setHeaders);
+	    $result = curl_exec($ch);
+	    curl_close($ch);
+
+      return $result();
+    }
+
+    return FALSE;
   }
+
 
   public function update_web_stock(array $ds = array())
   {
@@ -53,7 +66,7 @@ class Api
 	    curl_close($ch);
 	    return $result;
 		}
-    
+
   }
 
 

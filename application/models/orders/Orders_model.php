@@ -1716,6 +1716,29 @@ class Orders_model extends CI_Model
 
     return FALSE;
   }
+
+
+  public function getUnsendTrackingList($id_sender, $limit = 100)
+  {
+    $rs = $this->db
+    ->select('code, reference')
+    ->where('role', 'S')
+    ->where('channels_code', 'WRX12')
+    ->where('id_sender', $id_sender)
+    ->where('send_tracking IS NULL', NULL, FALSE)
+    ->where('state', 8)
+    ->where('reference IS NOT NULL')
+    ->order_by('code', 'ASC')
+    ->limit($limit)
+    ->get('orders');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 } //--- End class
 
 
