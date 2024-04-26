@@ -29,7 +29,7 @@ class Auto_send_tracking extends CI_Controller
 
           if( ! empty($tracking))
           {
-            foreach($traking as $tk)
+            foreach($tracking as $tk)
             {
               array_push($ds, ['track_no' => $tk->tracking_no]);
             }
