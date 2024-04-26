@@ -24,9 +24,12 @@ class Auto_send_tracking extends CI_Controller
 
       if( ! empty($list))
       {
+        echo "found ".count($list)." orders <br/>";
+
         foreach($list as $rs)
         {
           $tracking = $this->orders_model->get_order_tracking($rs->code);
+
           $ds = array();
 
           if( ! empty($tracking))
@@ -51,7 +54,7 @@ class Auto_send_tracking extends CI_Controller
 
             $result = $this->api->create_shipment($rs->reference, $arr);
 
-            echo $result;
+            echo "Result : ". (($result == TRUE OR $result == 'true') ? 'Success' : 'Faild')."<br/>";
 
             if($result === TRUE || $result == 'true')
             {
@@ -65,7 +68,7 @@ class Auto_send_tracking extends CI_Controller
             }
           }
 
-          echo "----------------------------<br/>";
+          echo "END ------------------------------------------------------------ END<br/>";
         }
       }
       else
@@ -182,6 +185,29 @@ class Auto_send_tracking extends CI_Controller
     }
 
     return FALSE;
+  }
+
+  public function getUnsendTrackingList($id_sender, $limit = 100)
+  {
+    $rs = $this->db
+    ->select('code, reference')
+    ->where('role', 'S')
+    ->where('channels_code', 'WRX12')
+    ->where('id_sender', $id_sender)
+    ->where('send_tracking IS NULL', NULL, FALSE)
+    ->where('state', 8)
+    ->where('reference IS NOT NULL')
+    ->where('date_add >=', '2024-04-01 00:00:00')
+    ->order_by('code', 'ASC')
+    ->limit($limit)
+    ->get('orders');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 } //-- end class

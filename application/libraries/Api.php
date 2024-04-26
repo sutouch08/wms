@@ -23,7 +23,8 @@ class Api
 	    $method = 'POST';
 
       $data_string = json_encode($ds);
-      echo $data_string ."<br/>";
+      echo "Json : <br/>";
+      echo "<pre>".$data_string ."</pre>";
 
       $ch = curl_init();
 	    curl_setopt($ch, CURLOPT_URL, $apiUrl);
