@@ -20,7 +20,7 @@ class Auto_send_tracking extends CI_Controller
 
     if( ! empty($id_sender))
     {
-      $list = $this->orders_model->getUnsendTrackingList($id_sender, $limit);
+      $list = $this->getUnsendTrackingList($id_sender, $limit);
 
       if( ! empty($list))
       {
