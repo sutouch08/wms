@@ -2,90 +2,98 @@
 class Auto_send_tracking extends CI_Controller
 {
 	public $error;
+	public $isApi = FALSE;
 
   public function __construct()
   {
     parent::__construct();
     $this->load->model('orders/orders_model');
     $this->load->library('api');
+		$this->isApi = getConfig('WEB_API') == 1 ? TRUE : FALSE;
   }
 
   public function index()
   {
-    ini_set('memory_limit','512M');
-    ini_set('max_execution_time', 600);
+		if($this->isApi)
+		{
+			ini_set('memory_limit','512M');
+			ini_set('max_execution_time', 600);
 
-    $limit = 10;
-    $id_sender = getConfig('SPX_ID');
+			$id_sender = getConfig('SPX_ID');
 
-    if( ! empty($id_sender))
-    {
-      $list = $this->getUnsendTrackingList($id_sender, $limit);
+			if( ! empty($id_sender))
+			{
+				$limit = getConfig('WEB_TRACKING_PER_ROUND');
+				$limit = $limit > 0 ? $limit : 10;
+				$start_date = from_date(getConfig('WEB_TRACKING_BEGIN'));
 
-      if( ! empty($list))
-      {
-        echo "found ".count($list)." orders <br/>";
+				$list = $this->getUnsendTrackingList($id_sender, $limit, $start_date);
 
-        foreach($list as $rs)
-        {
-          $tracking = $this->orders_model->get_order_tracking($rs->code);
+				if( ! empty($list))
+				{
+					echo "found ".count($list)." orders <br/>";
 
-          $ds = array();
+					foreach($list as $rs)
+					{
+						$tracking = $this->orders_model->get_order_tracking($rs->code);
 
-          if( ! empty($tracking))
-          {
-            foreach($tracking as $tk)
-            {
-              echo "{$rs->code} : {$tk->tracking_no} <br/>";
-              array_push($ds, ['track_no' => $tk->tracking_no]);
-            }
-          }
-          else
-          {
-            echo "No tracking on : {$rs->code} <br/>";
-            $this->orders_model->update($rs->code, ['send_tracking' => 1]);
-          }
+						$ds = array();
 
-          if(count($ds) > 0)
-          {
-            $arr = array(
-              'tracking' => $ds
-            );
+						if( ! empty($tracking))
+						{
+							foreach($tracking as $tk)
+							{
+								echo "{$rs->code} : {$tk->tracking_no} <br/>";
+								array_push($ds, ['track_no' => $tk->tracking_no]);
+							}
+						}
+						else
+						{
+							echo "No tracking on : {$rs->code} <br/>";
+							$this->orders_model->update($rs->code, ['send_tracking' => 1]);
+						}
 
-            $result = $this->api->create_shipment($rs->reference, $arr);
+						if(count($ds) > 0)
+						{
+							$arr = array(
+								'tracking' => $ds
+							);
 
-            echo "Result : ". (($result == TRUE OR $result == 'true') ? 'Success' : 'Faild')."<br/>";
+							$result = $this->api->create_shipment($rs->reference, $arr);
 
-            if($result === TRUE || $result == 'true')
-            {
-              $this->add_logs(['status' => 'success']);
-              $this->orders_model->update($rs->code, ['send_tracking' => 1]);
-            }
-            else
-            {
-              $this->add_logs(['status' => 'failed', 'message' => $result]);
-              $this->orders_model->update($rs->code, ['send_tracking' => 3, 'send_tracking_error' => $result]);
-            }
-          }
+							echo "Result : ". (($result === TRUE) ? 'Success' : 'Faild')."<br/>";
 
-          echo "END ------------------------------------------------------------ END<br/>";
-        }
-      }
-      else
-      {
-        echo "no data to send <br/>";
-        $this->add_logs(['status' => 'OK', 'message' => "no data to send"]);
-      }
-    }
-    else
-    {
-      $arr = array(
-        'status' => 'failed',
-        'message' => 'No SPX ID'
-      );
+							if($result === TRUE)
+							{
+								$this->add_logs(['status' => 'success']);
+								$this->orders_model->update($rs->code, ['send_tracking' => 1, 'send_tracking_error' => NULL]);
+							}
+							else
+							{
+								$this->add_logs(['status' => 'failed', 'message' => $result]);
+								$this->orders_model->update($rs->code, ['send_tracking' => 3, 'send_tracking_error' => $result]);
+							}
+						}
 
-      $this->add_logs($arr);
-    }
+						echo "END ------------------------------------------------------------ END<br/>";
+					}
+				}
+				else
+				{
+					echo "no data to send <br/>";
+					$this->add_logs(['status' => 'OK', 'message' => "no data to send"]);
+				}
+			}
+			else
+			{
+				$arr = array(
+				'status' => 'failed',
+				'message' => 'No SPX ID'
+				);
+
+				$this->add_logs($arr);
+			}
+		}
   }
 
 
@@ -187,8 +195,10 @@ class Auto_send_tracking extends CI_Controller
     return FALSE;
   }
 
-  public function getUnsendTrackingList($id_sender, $limit = 100)
+  public function getUnsendTrackingList($id_sender, $limit = 100, $start_date = NULL)
   {
+		$date = empty($start_date) ? from_date(now()) : from_date($start_date);
+
     $rs = $this->db
     ->select('code, reference')
     ->where('role', 'S')
@@ -197,7 +207,7 @@ class Auto_send_tracking extends CI_Controller
     ->where('send_tracking IS NULL', NULL, FALSE)
     ->where('state', 8)
     ->where('reference IS NOT NULL')
-    ->where('date_add >=', '2024-04-01 00:00:00')
+    ->where('date_add >=', $date)
     ->order_by('code', 'ASC')
     ->limit($limit)
     ->get('orders');

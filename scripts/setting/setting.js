@@ -95,12 +95,26 @@ function toggleNotiBars(option)
 function toggleWebApi(option){
 	$('#web-api').val(option);
 	if(option == 1){
-		$('#btn-api-yes').addClass('btn-success');
-		$('#btn-api-no').removeClass('btn-danger');
+		$('#btn-web-api-on').addClass('btn-primary');
+		$('#btn-web-api-off').removeClass('btn-primary');
 		return;
 	}else if(option == 0){
-		$('#btn-api-yes').removeClass('btn-success');
-		$('#btn-api-no').addClass('btn-danger');
+		$('#btn-web-api-on').removeClass('btn-primary');
+		$('#btn-web-api-off').addClass('btn-primary');
+		return;
+	}
+}
+
+//--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
+function togglePosApi(option){
+	$('#pos-api').val(option);
+	if(option == 1){
+		$('#btn-pos-api-on').addClass('btn-primary');
+		$('#btn-pos-api-off').removeClass('btn-primary');
+		return;
+	}else if(option == 0){
+		$('#btn-pos-api-on').removeClass('btn-primary');
+		$('#btn-pos-api-off').addClass('btn-primary');
 		return;
 	}
 }
@@ -660,4 +674,8 @@ $('#chatbot-warehouse').autocomplete({
 			$(this).val(arr[0]);
 		}
 	}
+})
+
+$('#web-tracking-date').datepicker({
+	dateFormat:'yy-mm-dd'
 })

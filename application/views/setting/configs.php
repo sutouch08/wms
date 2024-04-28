@@ -19,6 +19,7 @@
 	<li class="li-block"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
 	<li class="li-block"><a href="#WMS" data-toggle="tab">ข้อมูล WMS</a></li>
 	<li class="li-block"><a href="#chatbot" data-toggle="tab">ข้อมูล CHATBOT</a></li>
+	<li class="li-block"><a href="#web" data-toggle="tab">ข้อมูล Web</a></li>
 
 </ul>
 </div>
@@ -50,6 +51,8 @@
 <?php $this->load->view('setting/setting_wms'); ?>
 
 <?php $this->load->view('setting/setting_chatbot'); ?>
+
+<?php $this->load->view('setting/setting_web'); ?>
 
 
 </div>
