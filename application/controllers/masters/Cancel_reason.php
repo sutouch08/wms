@@ -252,47 +252,9 @@ class Cancel_reason extends PS_Controller
   }
 
 
-  public function toggle_online()
-  {
-    $sc = TRUE;
-    $code = $this->input->post('code');
-    if(!empty($code))
-    {
-      $current = $this->input->post('is_online');
-
-      $option = empty($current) ? 1 : 0;
-      $arr = array(
-        'is_online' => $option
-      );
-
-      if($this->pm->can_add OR $this->pm->can_edit)
-      {
-        if(! $this->cancel_reason_model->update($code, $arr))
-        {
-          $sc = FALSE;
-          $this->error = "Update failed";
-        }
-      }
-      else
-      {
-        $sc = FALSE;
-        $this->error = "No Permission";
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "Channels Code not found";
-    }
-
-    echo $sc === TRUE ? $option : $this->error;
-  }
-
-
   public function clear_filter()
 	{
-		clear_filter(array('channels_code', 'channels_name'));
-    echo 'done';
+		return clear_filter(array('cancel_name', 'cancel_active'));    
 	}
 
 }//--- end class
