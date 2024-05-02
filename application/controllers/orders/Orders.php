@@ -2554,6 +2554,7 @@ class Orders extends PS_Controller
       $code = $this->input->post('order_code');
       $state = $this->input->post('state');
       $order = $this->orders_model->get($code);
+      $reason_id = $this->input->post('reason_id');
 			$reason = $this->input->post('cancle_reason');
 
       if(! empty($order))
@@ -2663,7 +2664,7 @@ class Orders extends PS_Controller
             }
             else if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason, $reason_id) )
               {
                 $sc = FALSE;
               }
@@ -2674,7 +2675,7 @@ class Orders extends PS_Controller
           {
             if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason, $reason_id) )
               {
                 $sc = FALSE;
               }
@@ -2993,7 +2994,7 @@ class Orders extends PS_Controller
   }
 
 
-  public function cancle_order($code, $role, $state, $is_wms = 0, $wms_export = 0, $cancle_reason = NULL)
+  public function cancle_order($code, $role, $state, $is_wms = 0, $wms_export = 0, $cancle_reason = NULL, $reason_id = NULL)
   {
     $this->load->model('inventory/prepare_model');
     $this->load->model('inventory/qc_model');
@@ -3013,6 +3014,7 @@ class Orders extends PS_Controller
 			//----- add reason to table order_cancle_reason
 			$reason = array(
 				'code' => $code,
+        'reason_id' => $reason_id,
 				'reason' => $cancle_reason,
 				'user' => $this->_user->uname
 			);

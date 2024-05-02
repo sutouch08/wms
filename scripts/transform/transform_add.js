@@ -627,6 +627,7 @@ function changeState(){
 		var trackingNo = $('#trackingNo').val();
 		var tracking = $('#tracking').val();
 		var is_wms = $('#is_wms').val();
+    var reason_id = $('#reason-id').val();
 		var cancle_reason = $.trim($('#cancle-reason').val());
 
 		if(is_wms) {
@@ -653,9 +654,8 @@ function changeState(){
 			}
 		}
 
-    if(state == 9 && cancle_reason.length < 10) {
-      $('#cancle-reason').removeClass('has-error');
-			$('#cancle-modal').modal('show');
+    if(state == 9 && (reason_id == '' || cancle_reason.length < 10)) {
+			showCancleModal();
 			return false;
 		}
 
@@ -671,6 +671,7 @@ function changeState(){
 							"id_address" : id_address,
 							"id_sender" : id_sender,
 							"tracking" : tracking,
+              "reason_id" : reason_id,
 							"cancle_reason" : cancle_reason
             },
             success:function(rs){
@@ -711,30 +712,6 @@ function changeState(){
     }
 }
 
-
-function doCancle() {
-  let reason = $.trim($('#cancle-reason').val());
-
-	if( reason.length < 10) {
-		$('#cancle-reason').addClass('has-error').focus();
-		return false;
-	}
-
-	$('#cancle-modal').modal('hide');
-
-	return changeState();
-}
-
-
-
-$('#cancle-modal').on('shown.bs.modal', function() {
-	$('#cancle-reason').focus();
-});
-
-
-function showReason() {
-	$('#cancle-reason-modal').modal('show');
-}
 
 
 function setNotExpire(option){

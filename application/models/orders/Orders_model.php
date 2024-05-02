@@ -53,7 +53,12 @@ class Orders_model extends CI_Model
 
 	public function get_cancle_reason($code)
 	{
-		$rs = $this->db->where('code', $code)->get('order_cancle_reason');
+		$rs = $this->db
+    ->select('c.*, g.name AS reason_group')
+    ->from('order_cancle_reason AS c')
+    ->join('cancel_reason AS g', 'c.reason_id = g.id', 'left')
+    ->where('c.code', $code)
+    ->get();
 
 		if($rs->num_rows() > 0)
 		{

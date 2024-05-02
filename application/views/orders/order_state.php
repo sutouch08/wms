@@ -114,51 +114,32 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 <?php endif; ?>
 </div>
 
-
-<div class="modal fade" id="cancle-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="max-width:95%; margin-left:auto; margin-right:auto;">
-   <div class="modal-content">
-       <div class="modal-header">
-       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-       <h4 class="modal-title">เหตุผลในการยกเลิก</h4>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <input type="text" class="form-control input-sm" id="cancle-reason" maxlength="100" placeholder="กรุณาระบุเหตุผลในการยกเลิกอย่างน้อย 10 ตัวอักษร"/>
-            <input type="hidden" id="cancle-code" value="" />
-          </div>
-        </div>
-       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-info" onclick="doCancle()">Submit</button>
-      </div>
-   </div>
- </div>
-</div>
+<?php $this->load->view('order_cancle_modal'); ?>
 
 <div class="modal fade" id="cancle-reason-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="max-width:800px;">
+ <div class="modal-dialog" style="width:800px; max-width:95vw;">
    <div class="modal-content">
        <div class="modal-header">
        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
        <h4 class="modal-title">เหตุผลในการยกเลิก</h4>
       </div>
-      <div class="modal-body" style="border-top:solid 1px #CCC; padding:13px; padding-top:0px;">
+      <div class="modal-body" style="border-top:solid 1px #CCC; padding-top:10px;">
         <div class="row">
-          <div class="col-sm-12 no-padding">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
             <table class="table table-bordered">
 							<thead>
 	            	<tr>
-	            		<th class="width-60">เหตุผล</th>
-									<th class="width-20">User</th>
-									<th class="width-20">วันที่ยกเลิก</th>
+	            		<th class="width-35">เหตุผลในการยกเลิก</th>
+                  <th class="width-35">คำอธิบาย</th>
+									<th class="width-15">User</th>
+									<th class="width-15">วันที่ยกเลิก</th>
 	            	</tr>
 							</thead>
 							<tbody>
-							<?php if(!empty($cancle_reason)) : ?>
+							<?php if( ! empty($cancle_reason)) : ?>
 								<?php foreach($cancle_reason as $reason) : ?>
 									<tr>
+                    <td><?php echo $reason->reason_group; ?></td>
 										<td><?php echo $reason->reason; ?></td>
 										<td><?php echo $this->user_model->get_name($reason->user); ?></td>
 										<td><?php echo thai_date($reason->cancle_date, TRUE); ?></td>
@@ -171,9 +152,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
             </table>
           </div>
         </div>
-
        </div>
-
    </div>
  </div>
 </div>
