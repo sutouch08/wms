@@ -12,7 +12,7 @@ class Auto_send_tracking extends CI_Controller
 		$this->isApi = getConfig('WEB_API') == 1 ? TRUE : FALSE;
   }
 
-  public function index()
+  public function index($show = 0)
   {
 		if($this->isApi)
 		{
@@ -31,7 +31,10 @@ class Auto_send_tracking extends CI_Controller
 
 				if( ! empty($list))
 				{
-					echo "found ".count($list)." orders <br/>";
+					if($show == 1)
+					{
+						echo "found ".count($list)." orders <br/>";
+					}
 
 					foreach($list as $rs)
 					{
@@ -43,13 +46,21 @@ class Auto_send_tracking extends CI_Controller
 						{
 							foreach($tracking as $tk)
 							{
-								echo "{$rs->code} : {$tk->tracking_no} <br/>";
+								if($show = 1)
+								{
+									echo "{$rs->code} : {$tk->tracking_no} <br/>";
+								}
+
 								array_push($ds, ['track_no' => $tk->tracking_no]);
 							}
 						}
 						else
 						{
-							echo "No tracking on : {$rs->code} <br/>";
+							if($show == 1)
+							{
+								echo "No tracking on : {$rs->code} <br/>";
+							}
+
 							$this->orders_model->update($rs->code, ['send_tracking' => 1]);
 						}
 
@@ -61,7 +72,10 @@ class Auto_send_tracking extends CI_Controller
 
 							$result = $this->api->create_shipment($rs->reference, $arr);
 
-							echo "Result : ". (($result === TRUE) ? 'Success' : 'Faild')."<br/>";
+							if($show == 1)
+							{
+								echo "Result : ". (($result === TRUE) ? 'Success' : 'Faild')."<br/>";
+							}
 
 							if($result === TRUE)
 							{
@@ -75,12 +89,19 @@ class Auto_send_tracking extends CI_Controller
 							}
 						}
 
-						echo "END ------------------------------------------------------------ END<br/>";
+						if($show == 1)
+						{
+							echo "END ------------------------------------------------------------ END<br/>";
+						}
 					}
 				}
 				else
 				{
-					echo "no data to send <br/>";
+					if($show == 1)
+					{
+						echo "no data to send <br/>";
+					}
+					
 					$this->add_logs(['status' => 'OK', 'message' => "no data to send"]);
 				}
 			}
