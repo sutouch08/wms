@@ -74,10 +74,10 @@ class Auto_send_tracking extends CI_Controller
 
 							if($show == 1)
 							{
-								echo "Result : ". (($result === TRUE) ? 'Success' : 'Faild')."<br/>";
+								echo "Result : ". (($result === TRUE) ? 'Success' : 'Failed')."<br/>";
 							}
 
-							if($result === TRUE)
+							if($result === TRUE OR $result == 'true')
 							{
 								$this->add_logs(['status' => 'success']);
 								$this->orders_model->update($rs->code, ['send_tracking' => 1, 'send_tracking_error' => NULL]);
@@ -116,7 +116,7 @@ class Auto_send_tracking extends CI_Controller
 			}
 		}
   }
-	
+
 
   public function add_logs(array $ds = array())
   {
