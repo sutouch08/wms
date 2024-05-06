@@ -8,8 +8,8 @@
     </div>
 		<div class="col-sm-6">
 			<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
-				<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
+        <button type="button" class="btn btn-sm btn-success btn-report" id="btn-report" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
+				<button type="button" class="btn btn-sm btn-primary btn-report" id="btn-export" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
 			</p>
 		</div>
 </div><!-- End Row -->
@@ -25,11 +25,11 @@
   </div>
   <div class="col-sm-2 padding-5">
     <label class="display-block not-show">start</label>
-    <input type="text" class="form-control input-sm text-center" id="pdFrom" name="pdFrom" disabled>
+    <input type="text" class="form-control input-sm text-center e" id="pdFrom" name="pdFrom" disabled>
   </div>
   <div class="col-sm-2 padding-5">
     <label class="display-block not-show">End</label>
-    <input type="text" class="form-control input-sm text-center" id="pdTo" name="pdTo" disabled>
+    <input type="text" class="form-control input-sm text-center e" id="pdTo" name="pdTo" disabled>
   </div>
   <div class="col-sm-2 padding-5">
     <label class="display-block">คลัง</label>
@@ -132,5 +132,32 @@
   </table>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/report/inventory/sell_stock.js"></script>
+<!--  Add New Address Modal  --------->
+<div class="modal fade" id="progressModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" style="width:400px; max-width:90vw;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title-site text-center" >รายงานสินค้าคงเหลือหักยอดจอง</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row" style="margin-left:0; margin-right:0;">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h4 class="text-center" id="txt-label">Waiting...</h4>
+          </div>
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="progress pos-rel progress-striped hide" style="background-color:#CCC;" id="txt-percent" data-percent="0%">
+        			<div class="progress-bar progress-bar-primary" id="progress-bar" style="width: 0%;"></div>
+        		</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-xs btn-default btn-100" onclick="cancel_and_close()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="<?php echo base_url(); ?>scripts/report/inventory/sell_stock.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>assets/js/xlsx.full.min.js"></script>
 <?php $this->load->view('include/footer'); ?>

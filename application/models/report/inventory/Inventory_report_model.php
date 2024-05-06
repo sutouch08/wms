@@ -6,15 +6,45 @@ class Inventory_report_model extends CI_Model
     parent::__construct();
   }
 
+
+  public function getStock($option, $limit = 100, $offset = 0)
+  {
+    $this->ms
+    ->select('OITW.ItemCode')
+    ->select_sum('OITW.OnHand')
+    ->from('OITW')
+    ->join('OITM', 'OITW.ItemCode = OITM.ItemCode', 'left')
+    ->where('OITW.OnHand >', 0, FALSE);
+
+    if($option->allProduct == 0 && ! empty($option->pdFrom) && ! empty($option->pdTo))
+    {
+      $this->ms->where('OITM.U_MODEL >=', $option->pdFrom)->where('OITM.U_MODEL <=', $option->pdTo);
+    }
+
+    if($option->allWhouse == 0 && ! empty($option->whsList))
+    {
+      $this->ms->where_in('OITW.WhsCode', $option->whsList);
+    }
+
+    $rs = $this->ms->group_by('OITW.ItemCode')->order_by('OITW.ItemCode', 'ASC')->limit($limit, $offset)->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_current_stock_balance($allProduct, $pdFrom, $pdTo, $allWhouse, $warehouse)
   {
     $this->ms
-    ->select('OITM.ItemCode AS product_code')
-    ->select_sum('OIBQ.OnHandQty', 'qty')
-    ->from('OIBQ')
-    ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
-    ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry','left')
-    ->where('OIBQ.OnHandQty !=', 0, FALSE);
+    ->select('OITW.ItemCode AS product_code')
+    ->select_sum('OITW.OnHand', 'qty')
+    ->from('OITW')
+    ->join('OITM', 'OITW.ItemCode = OITM.ItemCode', 'left')
+    ->where('OITW.OnHand >', 0, FALSE);
 
     if($allProduct == 0 && !empty($pdFrom) && !empty($pdTo))
     {
@@ -23,11 +53,11 @@ class Inventory_report_model extends CI_Model
 
     if($allWhouse == 0 && !empty($warehouse))
     {
-      $this->ms->where_in('OIBQ.WhsCode', $warehouse);
+      $this->ms->where_in('OITW.WhsCode', $warehouse);
     }
 
-    $this->ms->group_by('OITM.ItemCode');
-    $this->ms->order_by('OITM.ItemCode', 'ASC');
+    $this->ms->group_by('OITW.ItemCode');
+    $this->ms->order_by('OITW.ItemCode', 'ASC');
     $rs = $this->ms->get();
 
     if($rs->num_rows() > 0)
@@ -60,7 +90,7 @@ class Inventory_report_model extends CI_Model
 
     if($rs->num_rows() == 1)
     {
-      return $rs->row()->qty;
+      return empty($rs->row()->qty) ? 0 : $rs->row()->qty;
     }
 
     return 0;
