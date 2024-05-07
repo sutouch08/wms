@@ -29,7 +29,15 @@
 		<input type="text" class="form-control input-sm edit" name="to_warehouse" id="to_warehouse" value="<?php echo $doc->to_warehouse_name; ?>" required disabled/>
   </div>
 
-	<div class="col-lg-11 col-md-10-harf col-sm-10-harf col-xs-8 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm edit" name="api" id="api" disabled>
+			<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
+			<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
+		</select>
+	</div>
+
+	<div class="col-lg-10 col-md-9 col-sm-8-harf col-xs-8 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>
