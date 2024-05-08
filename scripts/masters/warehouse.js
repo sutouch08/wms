@@ -106,6 +106,20 @@ function togglePrepare(option)
 }
 
 
+function toggleLend(option)
+{
+  $('#lend').val(option);
+  if(option == 1){
+    $('#btn-lend-yes').addClass('btn-success');
+    $('#btn-lend-no').removeClass('btn-danger');
+  }
+  else
+  {
+    $('#btn-lend-yes').removeClass('btn-success');
+    $('#btn-lend-no').addClass('btn-danger');
+  }
+}
+
 function toggleAuz(option)
 {
   $('#auz').val(option);
@@ -176,6 +190,7 @@ function exportFilter(){
   let is_consignment = $('#is_consignment').val();
   let sell = $('#sell').val();
   let prepare = $('#prepare').val();
+  let lend = $('#lend').val();
   let active = $('#active').val();
   let auz = $('#auz').val();
 
@@ -185,6 +200,7 @@ function exportFilter(){
   $('#export-is-consignment').val(is_consignment);
   $('#export-sell').val(sell);
   $('#export-prepare').val(prepare);
+  $('#export-lend').val(lend);
   $('#export-active').val(active);
   $('#export-auz').val(auz);
 

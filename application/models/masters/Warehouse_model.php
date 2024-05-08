@@ -114,6 +114,11 @@ class Warehouse_model extends CI_Model
       $this->db->where('prepare', $ds['prepare']);
     }
 
+    if( isset($ds['lend']) && $ds['lend'] != 'all')
+    {
+      $this->db->where('lend', $ds['lend']);
+    }
+
     if( isset($ds['auz']) && $ds['auz'] != 'all')
     {
       $this->db->where('auz', $ds['auz']);
@@ -174,6 +179,11 @@ class Warehouse_model extends CI_Model
       $this->db->where('warehouse.prepare', $ds['prepare']);
     }
 
+    if( isset($ds['lend']) && $ds['lend'] != 'all')
+    {
+      $this->db->where('warehouse.lend', $ds['lend']);
+    }
+
     if( isset($ds['auz']) && $ds['auz'] != 'all')
     {
       $this->db->where('warehouse.auz', $ds['auz']);
@@ -209,7 +219,7 @@ class Warehouse_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -223,7 +233,20 @@ class Warehouse_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
+  }
+
+  //--- เอาเฉพาะคลังที่สามารถยืมสินค้าได้
+  public function get_lend_warehouse_list()
+  {
+    $rs = $this->db->where('active', 1)->where('lend', 1)->get('warehouse');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
   public function get_all_warehouse_list()
@@ -235,7 +258,7 @@ class Warehouse_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

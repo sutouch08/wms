@@ -26,6 +26,7 @@ class Warehouse extends PS_Controller
       'active' => get_filter('active', 'wh_active', 'all'),
       'sell' => get_filter('sell', 'wh_sell', 'all'),
       'prepare' => get_filter('prepare', 'wh_prepare', 'all'),
+      'lend' => get_filter('lend', 'wh_lend', 'all'),
       'auz' => get_filter('auz', 'wh_auz', 'all')
     );
 
@@ -81,16 +82,20 @@ class Warehouse extends PS_Controller
       if($this->input->post('code'))
       {
         $code = $this->input->post('code');
+
+        $active = $this->input->post('active');
+
         $arr = array(
           'role' => $this->input->post('role'),
           'sell' => $this->input->post('sell'),
           'prepare' => $this->input->post('prepare'),
+          'lend' => $this->input->post('lend'),
           'auz' => $this->input->post('auz'),
           'active' => $this->input->post('active'),
           'is_consignment' => get_null($this->input->post('is_consignment')),
           'update_user' => get_cookie('uname')
         );
-
+      
         if($this->warehouse_model->update($code, $arr))
         {
           set_message("Update Successfull");
@@ -249,6 +254,7 @@ class Warehouse extends PS_Controller
       'is_consignment' => get_filter('whIsConsignment', 'is_consignment', 'all'),
       'active' => get_filter('whActive', 'wh_active', 'all'),
       'sell' => get_filter('whSell', 'wh_sell', 'all'),
+      'lend' => get_filter('whLend', 'wh_lend', 'all'),
       'prepare' => get_filter('whPrepare', 'wh_prepare', 'all'),
       'auz' => get_filter('whAuz', 'wh_auz', 'all')
     );
@@ -328,7 +334,7 @@ class Warehouse extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('wh_code', 'wh_name', 'wh_role', 'is_consignment', 'wh_active', 'wh_sell', 'wh_prepare', 'wh_auz');
+    $filter = array('wh_code', 'wh_name', 'wh_role', 'is_consignment', 'wh_active', 'wh_sell', 'wh_prepare', 'wh_auz', 'wh_lend');
     clear_filter($filter);
   }
 

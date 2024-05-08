@@ -109,5 +109,5 @@
 
 
 
-<script src="<?php echo base_url(); ?>scripts/report/audit/report_lend_backlogs.js"></script>
+<script src="<?php echo base_url(); ?>scripts/report/audit/report_lend_backlogs.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

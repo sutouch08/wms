@@ -22,12 +22,12 @@
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ชื่อ</label>
     <input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>ประเภท</label>
     <select class="form-control input-sm filter" name="role" id="role" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -72,6 +72,15 @@
   </div>
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label>ยืม</label>
+    <select class="form-control input-sm filter" name="lend" id="lend" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $lend); ?>>YES</option>
+			<option value="0" <?php echo is_selected('0', $lend); ?>>NO</option>
+		</select>
+  </div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>ติดลบ</label>
     <select class="form-control input-sm filter" name="auz" id="auz" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -100,6 +109,7 @@
 	<input type="hidden" name="whIsConsignment" id="export-is-consignment">
 	<input type="hidden" name="whSell" id="export-sell">
 	<input type="hidden" name="whPrepare" id="export-prepare">
+	<input type="hidden" name="whLend" id="export-lend">
 	<input type="hidden" name="whActive" id="export-active">
 	<input type="hidden" name="whAuz" id="export-auz">
 	<input type="hidden" name="token" id="token" value="<?php echo genUid(); ?>">
@@ -108,9 +118,10 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-hover border-1" style="min-width:1000px;">
+		<table class="table table-hover border-1" style="min-width:1060px;">
 			<thead>
 				<tr style="font-size:11px;">
+					<th class="fix-width-100 middle"></th>
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle">รหัสคลัง</th>
 					<th class="min-width-250 middle">ชื่อคลัง</th>
@@ -118,12 +129,12 @@
 					<th class="fix-width-80 middle text-center">โซน</th>
 					<th class="fix-width-60 middle text-center">ขาย</th>
 					<th class="fix-width-60 middle text-center">จัด</th>
+					<th class="fix-width-60 middle text-center">ยืม</th>
 					<th class="fix-width-60 middle text-center">ติดลบ</th>
 					<th class="fix-width-60 middle text-center">ใช้งาน</th>
 					<th class="fix-width-60 middle text-center">ฝาขายเทียม</th>
 					<th class="fix-width-120 middle text-right">มูลค่าสูงสุด</th>
 					<th class="fix-width-100 middle text-center">แก้ไข</th>
-					<th class="fix-width-100 middle"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -131,18 +142,6 @@
 				<?php $no = $this->uri->segment($this->segment) + 1; ?>
 				<?php foreach($list as $rs) : ?>
 					<tr style="font-size:11px;" id="row-<?php echo $rs->code; ?>">
-						<td class="middle text-center no"><?php echo $no; ?></td>
-						<td class="middle"><?php echo $rs->code; ?></td>
-						<td class="middle"><?php echo $rs->name; ?></td>
-						<td class="middle"><?php echo $rs->role_name; ?></td>
-						<td class="middle text-center"><?php echo number($rs->zone_count); ?></td>
-						<td class="middle text-center"><?php echo is_active($rs->sell); ?></td>
-						<td class="middle text-center"><?php echo is_active($rs->prepare); ?></td>
-						<td class="middle text-center"><?php echo is_active($rs->auz); ?></td>
-						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
-						<td class="middle text-center"><?php echo is_active($rs->is_consignment); ?></td>
-						<td class="middle text-right"><?php echo number($rs->limit_amount, 2); ?></td>
-						<td class="middle text-center"><?php echo $rs->update_user; ?></td>
 						<td class="text-right">
 							<?php if($this->pm->can_edit) : ?>
 								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">
@@ -155,6 +154,19 @@
 								</button>
 							<?php endif; ?>
 						</td>
+						<td class="middle text-center no"><?php echo $no; ?></td>
+						<td class="middle"><?php echo $rs->code; ?></td>
+						<td class="middle"><?php echo $rs->name; ?></td>
+						<td class="middle"><?php echo $rs->role_name; ?></td>
+						<td class="middle text-center"><?php echo number($rs->zone_count); ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->sell); ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->prepare); ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->lend); ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->auz); ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->is_consignment); ?></td>
+						<td class="middle text-right"><?php echo number($rs->limit_amount, 2); ?></td>
+						<td class="middle text-center"><?php echo $rs->update_user; ?></td>
 					</tr>
 					<?php $no++; ?>
 				<?php endforeach; ?>

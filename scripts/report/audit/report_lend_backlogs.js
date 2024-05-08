@@ -132,11 +132,6 @@ function getReport() {
 	var fromDate = $('#fromDate').val();
 	var toDate = $('#toDate').val();
 
-	if(!isDate(fromDate) || !isDate(toDate)) {
-		swal("วันที่ไม่ถูกต้อง");
-		return false;
-	}
-
 	if(allEmp == 0 && empId == "") {
 		swal("กรุณาระบุผู้ยืม");
 		return false;
@@ -203,12 +198,7 @@ function doExport() {
 	var pdFrom = $("#pdFrom").val();
 	var pdTo = $('#pdTo').val();
 	var fromDate = $('#fromDate').val();
-	var toDate = $('#toDate').val();
-
-	if(!isDate(fromDate) || !isDate(toDate)) {
-		swal("วันที่ไม่ถูกต้อง");
-		return false;
-	}
+	var toDate = $('#toDate').val();	
 
 	if(allEmp == 0 && empId == "") {
 		swal("กรุณาระบุผู้ยืม");

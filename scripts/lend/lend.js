@@ -149,7 +149,7 @@ function change_state(){
 	let tracking = $('#tracking').val();
 	var is_wms = $('#is_wms').val();
 
-	if(is_wms) {
+	if(is_wms == 1) {
 		if(state == 3 && id_address == "") {
 			swal("กรุณาระบุที่อยู่จัดส่ง");
 			return false;

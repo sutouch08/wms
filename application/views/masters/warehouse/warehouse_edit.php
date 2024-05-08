@@ -4,9 +4,13 @@
 	$sell_no = $ds->sell == 0 ? 'btn-danger' : '';
 	$prepare_yes = $ds->prepare == 1 ? 'btn-success' : '';
 	$prepare_no = $ds->prepare == 0 ? 'btn-danger' : '';
+	$lend_yes = $ds->lend == 1 ? 'btn-success' : '';
+	$lend_no = $ds->lend == 0 ? 'btn-danger' : '';
 	$auz_yes = $ds->auz == 1 ? 'btn-success' : '';
 	$auz_no = $ds->auz == 0 ? 'btn-danger' : '';
 	$btn_active = $ds->active == 1 ? 'btn-success' : 'btn-danger';
+	$active_yes = $ds->active == 1 ? 'btn-success' : '';
+	$active_no = $ds->active == 0 ? 'btn-danger' : '';
 	$cm_yes = $ds->is_consignment == 1 ? 'btn-success' : '';
 	$cm_no = empty($ds->is_consignment) ? 'btn-danger' : '';
  ?>
@@ -56,7 +60,7 @@
 			<input type="text" class="form-control input-sm" value="<?php echo number($ds->limit_amount, 2); ?>" disabled />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline" >
-			มูลค่ารวม(ทุน)ของสินค้าที่อนุญาติให้มีได้ในคลังนี้ หากไม่ต้องการจำกัดมูลค่า ให้กำหนดเป็น 0.00 
+			มูลค่ารวม(ทุน)ของสินค้าที่อนุญาติให้มีได้ในคลังนี้ หากไม่ต้องการจำกัดมูลค่า ให้กำหนดเป็น 0.00
 		</div>
   </div>
 
@@ -92,6 +96,16 @@
   </div>
 
 	<div class="form-group">
+ 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้ยืม</label>
+ 	 <div class="col-xs-12 col-sm-2">
+ 		<div class="btn-group width-100">
+ 			<button type="button" class="btn btn-sm width-50 <?php echo $lend_yes; ?>" id="btn-lend-yes" onclick="toggleLend(1)">ใช่</button>
+			<button type="button" class="btn btn-sm width-50 <?php echo $lend_no; ?>" id="btn-lend-no" onclick="toggleLend(0)">ไม่ใช่</button>
+ 		</div>
+ 	 </div>
+  </div>
+
+	<div class="form-group">
  	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้ติดลบ</label>
  	 <div class="col-xs-12 col-sm-2">
  		<div class="btn-group width-100">
@@ -104,9 +118,17 @@
 	<div class="form-group">
  	 <label class="col-sm-3 control-label no-padding-right">สถานะ</label>
  	 <div class="col-xs-12 col-sm-2">
+		<?php if($this->_SuperAdmin) : ?>
+			<div class="btn-group width-100">
+				<button type="button" class="btn btn-sm width-50 <?php echo $active_yes; ?>" id="btn-active-yes" onclick="toggleActive(1)">Active</button>
+				<button type="button" class="btn btn-sm width-50 <?php echo $active_no; ?>" id="btn-active-no" onclick="toggleActive(0)">Inactive</button>
+			</div>
+		<?php else : ?>
 		 <button type="button" class="btn btn-sm <?php echo $btn_active; ?>" style="width:100px;" disabled>
 			 <?php echo $ds->active == 1 ? 'Active' : 'Inactive'; ?>
 		 </button>
+	 <?php endif; ?>
+		 <input type="hidden" name="active" id="active" value="<?php echo $ds->active; ?>" />
  	 </div>
   </div>
 
@@ -129,6 +151,7 @@
 	<input type="hidden" name="code" value="<?php echo $ds->code; ?>">
 	<input type="hidden" name="sell" id="sell" value="<?php echo $ds->sell; ?>">
 	<input type="hidden" name="prepare" id="prepare" value="<?php echo $ds->prepare; ?>">
+	<input type="hidden" name="lend" id="lend" value="<?php echo $ds->lend; ?>">
 	<input type="hidden" name="auz" id="auz" value="<?php echo $ds->auz; ?>">
 	<!--
 	<input type="hidden" name="active" id="active" value="<?php echo $ds->active; ?>">

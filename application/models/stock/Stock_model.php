@@ -113,20 +113,24 @@ class stock_model extends CI_Model
     ->from('OIBQ')
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->join('OWHS', 'OWHS.WhsCode = OBIN.WhsCode', 'left')
-    ->where('OIBQ.ItemCode', $item)
-    ->where('OWHS.U_MAIN', 'Y');
+    ->where('OIBQ.ItemCode', $item);
+    // ->where('OWHS.U_MAIN', 'Y');
 
 		if( $sysBin == 0)
 		{
 			$this->ms->where('OBIN.SysBin', 'N');
 		}
 
-    if(! empty($warehouse))
+    if( ! empty($warehouse))
     {
       $this->ms->where('OWHS.WhsCode', $warehouse);
     }
+    else
+    {
+      $this->ms->where('OWHS.U_MAIN', 'Y');
+    }
 
-    if(! empty($zone))
+    if( ! empty($zone))
     {
       $this->ms->where('OBIN.BinCode', $zone);
     }
@@ -182,7 +186,6 @@ class stock_model extends CI_Model
     ->from('OIBQ')
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->join('OWHS', 'OWHS.WhsCode = OBIN.WhsCode', 'left')
-    ->where('OWHS.U_MAIN', 'Y')
     ->where('ItemCode', $item);
 
 		if(getConfig('SYSTEM_BIN_LOCATION') == 0)
@@ -193,6 +196,10 @@ class stock_model extends CI_Model
     if($warehouse !== NULL)
     {
       $this->ms->where('OWHS.WhsCode', $warehouse);
+    }
+    else
+    {
+      $ths->ms->where('OWHS.U_MAIN', 'Y');
     }
 
     $rs = $this->ms->get();

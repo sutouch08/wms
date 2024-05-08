@@ -28,8 +28,10 @@ class Lend_backlogs extends PS_Controller
 		$allPd = $this->input->get('allProduct');
 		$pdFrom = $this->input->get('pdFrom');
 		$pdTo = $this->input->get('pdTo');
-		$fromDate = from_date($this->input->get('fromDate'));
-		$toDate = to_date($this->input->get('toDate'));
+    $from_date = $this->input->get('fromDate');
+    $to_date = $this->input->get('toDate');
+		$fromDate = empty($from_date) ? '2021-01-01' : $from_date;
+		$toDate = empty($to_date) ? now() : $to_date;
 
 		$arr = array(
 			'allEmp' => $allEmp,
@@ -111,8 +113,10 @@ class Lend_backlogs extends PS_Controller
 		$allPd = $this->input->post('allProduct');
 		$pdFrom = $this->input->post('pdFrom');
 		$pdTo = $this->input->post('pdTo');
-		$fromDate = from_date($this->input->post('fromDate'));
-		$toDate = to_date($this->input->post('toDate'));
+    $from_date = $this->input->post('fromDate');
+    $to_date = $this->input->post('toDate');
+		$fromDate = empty($from_date) ? '2021-01-01' : $from_date;
+		$toDate = empty($to_date) ? now() : $to_date;
 		$token = $this->input->post('token');
 
 		//---  Report title

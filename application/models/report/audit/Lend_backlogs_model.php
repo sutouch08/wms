@@ -19,8 +19,8 @@ class Lend_backlogs_model extends CI_Model
 			->join('orders AS ol', 'od.order_code = ol.code', 'left')
 			->join('products AS pd', 'od.product_code = pd.code', 'left')
 			->join('user AS u', 'ol.user = u.uname', 'left')
-			->where('ol.date_add >=', $ds['from_date'])
-			->where('ol.date_add <=', $ds['to_date'])
+			->where('ol.date_add >=', from_date($ds['from_date']))
+			->where('ol.date_add <=', to_date($ds['to_date']))
 			->where('od.receive < od.qty',FALSE,FALSE);
 
 			if($ds['allEmp'] != 1 && !empty($ds['empId'])) {
