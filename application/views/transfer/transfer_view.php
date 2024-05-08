@@ -36,7 +36,7 @@
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="accept()"><i class="fa fa-check-circle"></i> ยืนยันการรับสินค้า</button>
 				<?php endif; ?>
 		    <?php if($doc->status == 1) : ?>
-					<?php if($doc->is_wms == 0) : ?>
+					<?php if($doc->is_wms == 0 OR $this->_SuperAdmin) : ?>
 					<button type="button" class="btn btn-xs btn-danger top-btn" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
 					<?php endif; ?>
 		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
@@ -71,7 +71,7 @@
 		}
 	}
 	else
-	{	
+	{
 		if($doc->status == 3)
 		{
 			$this->load->view('on_process_watermark');
