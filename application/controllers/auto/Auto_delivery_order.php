@@ -30,13 +30,10 @@ class Auto_delivery_order extends CI_Controller
     $all = $this->db->where('status !=', 1)->count_all_results('auto_send_to_sap_order');
     $rs = $this->db->where('status !=', 1)->limit(100)->get('auto_send_to_sap_order');
 
-    if($rs->num_rows() > 0)
-    {
-      $ds['count'] = $rs->num_rows();
-      $ds['all'] = $all;
-      $ds['data'] = $rs->result();
-    }
-
+    $ds['count'] = $rs->num_rows();
+    $ds['all'] = $all;
+    $ds['data'] = $rs->result();
+    
     $this->load->view('auto/auto_delivery_order', $ds);
   }
 
