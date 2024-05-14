@@ -872,6 +872,14 @@ class Orders extends PS_Controller
                     $this->orders_model->update_detail($detail->id, $arr);
                   }
                 }
+
+                $doc_total = $this->orders_model->get_order_total_amount($code);
+                $arr = array(
+                  'doc_total' => $doc_total,
+                  'status' => 0
+                );
+
+                $this->orders_model->update($code, $arr);
               }
             }
             else
