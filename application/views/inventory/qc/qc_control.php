@@ -1,12 +1,16 @@
 <!--  Control -->
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>บาร์โค้ดกล่อง</label>
     <input type="text" class="form-control input-sm text-center zone" id="barcode-box" autofocus <?php echo $disActive; ?> />
   </div>
+  <div class="col-lg-1 col-md-1 col-sm-1-้harf col-xs-6 padding-5">
+    <label class="display-block not-show">change</label>
+    <button type="button" class="btn btn-xs btn-info btn-block item" id="btn-change-box" onclick="confirmSaveBeforeChangeBox()" disabled >เปลี่ยน</button>
+</div>
 
-  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 hide">
-    <label>Qty</label>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3">
+    <label>จำนวน</label>
     <input type="number" class="form-control input-sm text-center" id="qc-qty" value="1" />
   </div>
   <div class="col-sm-2 padding-5">
@@ -16,17 +20,6 @@
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">submit</label>
     <button type="button" class="btn btn-xs btn-default btn-block item" id="btn-submit" onclick="qcProduct()" disabled>ตกลง</button>
-  </div>
-  <div class="col-sm-2 ">
-    <label class="display-block not-show">change box</label>
-    <button
-      type="button"
-      class="btn btn-xs btn-info btn-block item"
-      id="btn-change-box"
-      onclick="confirmSaveBeforeChangeBox()"
-      disabled >
-      <i class="fa fa-refresh"></i> เปลี่ยนกล่อง
-    </button>
   </div>
 
   <div class="col-sm-2">

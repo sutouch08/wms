@@ -177,14 +177,18 @@ $("#barcode-item").keyup(function(e){
 
 function qcProduct() {
   let input_barcode = $("#barcode-item").val();
+  let iqty = parseDefault(parseInt($('#qc-qty').val()), 1);
+
   $('#barcode-item').val('');
+
   if(input_barcode.length) {
     let barcode = md5(input_barcode); //--- id กับ barcode คือตัวเดียวกัน
     let id = barcode;
 
     if($('.'+barcode).length == 1) {
       let pdCode = $('.'+barcode).data('code');
-      let qty = parseInt($("."+barcode).val());
+      let pqty = parseDefault(parseInt($("."+barcode).val()), 1);
+      let qty = iqty * pqty;
 
       //--- จำนวนที่จัดมา
       let prepared = parseInt( removeCommas( $("#prepared-"+id).text() ) );
@@ -233,6 +237,7 @@ function qcProduct() {
           showCloseButton();
         }
 
+        $('#qc-qty').val(1);
       }
       else
       {
