@@ -72,6 +72,20 @@ class Temp_receive_po extends PS_Controller
 	}
 
 
+  public function set_temp_to_success($docEntry)
+  {
+    $sc = TRUE;
+
+    if( ! $this->temp_receive_po_model->setStatus($docEntry, 'Y'))
+    {
+      $sc = FALSE;
+      $this->error = "Failed to change status";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
   public function clear_filter()
   {
     $filter = array(

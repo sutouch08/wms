@@ -161,6 +161,13 @@ class Temp_receive_po_model extends CI_Model
 
 		return FALSE;
 	}
+
+  public function setStatus($docEntry, $status = 'Y')
+  {
+    return $this->mc->set('F_Sap', 'Y')->where('DocEntry', $docEntry)->update('OPDN');
+  }
+
+  
 } //--- end model
 
 ?>

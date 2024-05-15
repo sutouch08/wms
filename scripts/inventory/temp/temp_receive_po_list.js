@@ -84,3 +84,45 @@ function removeTemp(docEntry, code) {
 		});
 	});
 }
+
+function setSuccess(docEntry, code) {
+	swal({
+		title: 'คุณแน่ใจ ?',
+		text: 'ต้องการเปลี่ยนสถาน '+code+' เป็น สำเร็จ หรือไม่?',
+		type: 'warning',
+		showCancelButton: true,
+		comfirmButtonColor: '#DD6855',
+		confirmButtonText: 'ใช่ ฉันต้องการ',
+		cancelButtonText: 'ไม่ใช่',
+		closeOnConfirm: true
+	}, function(){
+		$.ajax({
+			url:HOME + 'set_temp_to_success/'+docEntry,
+			type:"POST",
+      cache:"false",
+			success: function(rs){
+				var rs = $.trim(rs);
+				if( rs == 'success' ) {
+          setTimeout(() => {
+            swal({
+              title:'Success',
+              type: 'success',
+              timer: 1000
+            });
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 1200);
+          }, 100);
+
+
+				}
+        else {
+          setTimeout(() => {
+            swal("ข้อผิดพลาด", rs, "error");
+          }, 200);
+				}
+			}
+		});
+	});
+}

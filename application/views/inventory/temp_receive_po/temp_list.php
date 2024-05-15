@@ -118,9 +118,12 @@
             ?>
           </td>
 					<td class="text-right">
-						<button type="button" class="btn btn-minier btn-primary" onclick="get_detail(<?php echo $rs->DocEntry; ?>)"><i class="fa fa-eye"></i></button>
+						<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)"><i class="fa fa-eye"></i></button>
 						<?php if($rs->F_Sap != 'Y') : ?>
 							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')"><i class="fa fa-trash"></i></button>
+							<?php if($this->_SuperAdmin) : ?>
+								<button type="button" class="btn btn-minier btn-primary" onclick="setSuccess(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">Y</button>
+							<?php endif; ?>
 						<?php endif; ?>
 					</td>
         </tr>
