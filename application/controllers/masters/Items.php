@@ -8,6 +8,8 @@ class Items extends PS_Controller
 	public $title = 'เพิ่ม/แก้ไข รายการสินค้า';
   public $error = '';
 	public $wms;
+  public $wmsApi = FALSE;
+  public $sokoApi = FALSE;
 
   public function __construct()
   {
@@ -17,7 +19,10 @@ class Items extends PS_Controller
 		//--- load database
 		$this->wms = $this->load->database('wms', TRUE);
 		$this->load->library('wms_product_api');
-		$this->wms_export_item = getConfig('WMS_EXPORT_ITEMS');
+    $this->load->library('soko_product_api');
+
+    $this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
 
     //--- load model
     $this->load->model('masters/products_model');
@@ -390,8 +395,8 @@ class Items extends PS_Controller
           'name' => trim($ds->name),
           'barcode' => get_null(trim($ds->barcode)),
           'style_code' => trim($ds->style),
-          'color_code' => get_null($ds->color),
-          'size_code' => get_null($ds->size),
+          'color_code' => get_null($ds->color_code),
+          'size_code' => get_null($ds->size_code),
           'group_code' => get_null($ds->group_code),
 					'main_group_code' => get_null($ds->main_group_code),
           'sub_group_code' => get_null($ds->sub_group_code),
@@ -421,6 +426,14 @@ class Items extends PS_Controller
         else
         {
           $this->do_export($code);
+
+          if($this->sokoApi)
+          {
+            if( ! empty($ds->barcode))
+            {
+              $this->soko_product_api->create_item($ds->code, $ds);
+            }
+          }
         }
       }
     }
@@ -479,8 +492,8 @@ class Items extends PS_Controller
         'name' => trim($ds->name),
         'barcode' => get_null(trim($ds->barcode)),
         'style_code' => trim($ds->style),
-        'color_code' => get_null($ds->color),
-        'size_code' => get_null($ds->size),
+        'color_code' => get_null($ds->color_code),
+        'size_code' => get_null($ds->size_code),
         'group_code' => get_null($ds->group_code),
   			'main_group_code' => get_null($ds->main_group_code),
         'sub_group_code' => get_null($ds->sub_group_code),
@@ -517,6 +530,14 @@ class Items extends PS_Controller
 		if($sc === TRUE)
 		{
 			$this->do_export($code);
+
+      if($this->sokoApi)
+      {
+        if( ! empty($ds->barcode))
+        {
+          $this->soko_product_api->update_item($ds->code, $ds);
+        }
+      }
 		}
 
 		echo $sc === TRUE ? 'success' : $this->error;
@@ -624,34 +645,94 @@ class Items extends PS_Controller
 	{
 		$sc = TRUE;
 		$code = trim($this->input->post('code'));
-		if(!empty($code))
-		{
-			$item = $this->products_model->get($code);
-			if(!empty($item))
-			{
-				$export = $this->wms_product_api->export_item($item->code, $item);
 
-				if(!$export)
-				{
-					$sc = FALSE;
-					$this->error = "Error: ".$this->wms_product_api->error;
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Item not found";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Missing required parameter : code";
-		}
+    if($this->wmsApi)
+    {
+      if( ! empty($code))
+      {
+        $item = $this->products_model->get($code);
+
+        if( ! empty($item))
+        {
+          if( ! $this->wms_product_api->export_item($item->code, $item))
+          {
+            $sc = FALSE;
+            $this->error = "Error: ".$this->wms_product_api->error;
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Item not found";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Missing required parameter : code";
+      }
+    }
+
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
+
+  public function send_to_soko()
+	{
+		$sc = TRUE;
+
+		$code = trim($this->input->post('code'));
+
+    if($this->sokoApi)
+    {
+      if( ! empty($code))
+      {
+        $item = $this->products_model->get($code);
+
+        if( ! empty($item))
+        {
+          if( ! empty($item->barcode))
+          {
+            if(empty($item->soko_code))
+            {
+              if( ! $this->soko_product_api->create_item($item->code, $item))
+              {
+                $sc = FALSE;
+                $this->error = "Error: ".$this->soko_product_api->error;
+              }
+            }
+            else
+            {
+              if( ! $this->soko_product_api->update_item($item->code, $item))
+              {
+                $sc = FALSE;
+                $this->error = "Error : ".$this->soko_product_api->error;
+              }
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Barcode not found !";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Item not found";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Missing required parameter : code";
+      }
+    }
+
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 
@@ -713,10 +794,10 @@ class Items extends PS_Controller
 
 		if($this->products_model->add_item($ds))
 		{
-			if($this->wms_export_item)
-			{
-				$this->wms_product_api->export_item($item->code, $item);
-			}
+      if($this->wmsApi)
+      {
+        $this->wms_product_api->export_item($item->code, $item);
+      }
 		}
 		else
 		{

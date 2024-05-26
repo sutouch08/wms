@@ -18,6 +18,7 @@
 	<li class="li-block"><a href="#bookcode" data-toggle="tab">เล่มเอกสาร</a></li>
 	<li class="li-block"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
 	<li class="li-block"><a href="#WMS" data-toggle="tab">ข้อมูล WMS</a></li>
+	<li class="li-block"><a href="#sokojung" data-toggle="tab">ข้อมูล SOKOJUNG</a></li>
 	<li class="li-block"><a href="#chatbot" data-toggle="tab">ข้อมูล CHATBOT</a></li>
 	<li class="li-block"><a href="#web" data-toggle="tab">ข้อมูล Web</a></li>
 
@@ -49,6 +50,8 @@
 <?php $this->load->view('setting/setting_inventory'); ?>
 
 <?php $this->load->view('setting/setting_wms'); ?>
+
+<?php $this->load->view('setting/setting_sokojung'); ?>
 
 <?php $this->load->view('setting/setting_chatbot'); ?>
 

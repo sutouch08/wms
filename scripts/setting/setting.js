@@ -514,8 +514,11 @@ $('#wms-warehouse').autocomplete({
 
 $(document).ready(function(){
 	wms_warehouse = $('#wms-warehouse').val();
+	sokojung_warehouse = $('#sokojung-warehouse').val();
 	set_wms_warehouse(wms_warehouse);
+	set_sokojung_warehouse(sokojung_warehouse)
 });
+
 
 function set_wms_warehouse(wms_wh_code) {
 	$('#wms-zone').autocomplete({
@@ -535,7 +538,7 @@ function set_wms_warehouse(wms_wh_code) {
 	})
 }
 
-
+//=====================================  CHATBOT ==============================================//
 //--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
 function toggleChatbotApi(option){
 	$('#chatbot-api').val(option);
@@ -679,3 +682,107 @@ $('#chatbot-warehouse').autocomplete({
 $('#web-tracking-date').datepicker({
 	dateFormat:'yy-mm-dd'
 })
+
+
+//================================================== SOKOJUNG ==========================//
+
+//--- เปิด/ปิด SOKOJUNG API
+function toggleSokojungApi(option){
+	$('#sokojung-api').val(option);
+	if(option == 1){
+		$('#btn-sokojung-api-on').addClass('btn-success');
+		$('#btn-sokojung-api-off').removeClass('btn-primary');
+		return;
+	}else if(option == 0){
+		$('#btn-sokojung-api-on').removeClass('btn-success');
+		$('#btn-sokojung-api-off').addClass('btn-primary');
+		return;
+	}
+}
+
+$('#sokojung-warehouse').autocomplete({
+	source: BASE_URL + 'auto_complete/get_warehouse_by_role/1',
+	autoFocus:true,
+	close:function(){
+		let rs = $(this).val();
+		let arr = rs.split(' | ');
+
+		if(arr[0] === 'not found'){
+			$(this).val('');
+		}else{
+			$(this).val(arr[0]);
+			set_sokojung_warehouse(arr[0]);
+		}
+	}
+})
+
+
+function set_sokojung_warehouse(wh_code) {
+	$('#sokojung-zone').autocomplete({
+		source: BASE_URL + 'auto_complete/get_zone_code_and_name/'+ wh_code,
+		autoFocus:true,
+		close:function() {
+			let rs = $(this).val();
+			let arr = rs.split(' | ');
+
+			if(arr[0] === 'ไม่พบรายการ') {
+				$(this).val('');
+			}
+			else {
+				$(this).val(arr[0]);
+			}
+		}
+	})
+}
+
+
+function toggleSokojungSyncStock(option) {
+
+	$('#sync-sokojung-stock').val(option);
+
+	if(option == 1) {
+		$('#btn-soko-stock-off').removeClass('btn-danger');
+		$('#btn-soko-stock-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-soko-stock-on').removeClass('btn-success');
+		$('#btn-soko-stock-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
+function toggleSokojungLogJson(option) {
+
+	$('#sokojung-log-json').val(option);
+
+	if(option == 1) {
+		$('#btn-soko-log-off').removeClass('btn-danger');
+		$('#btn-soko-log-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-soko-log-on').removeClass('btn-success');
+		$('#btn-soko-log-off').addClass('btn-danger');
+		return;
+	}
+}
+
+function toggleSokojungTest(option) {
+	$('#sokojung-test').val(option);
+
+	if(option == 1) {
+		$('#btn-soko-test-off').removeClass('btn-primary');
+		$('#btn-soko-test-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-soko-test-on').removeClass('btn-success');
+		$('#btn-soko-test-off').addClass('btn-primary');
+		return;
+	}
+}

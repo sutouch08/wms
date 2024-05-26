@@ -29,8 +29,8 @@ function add() {
 	data.name = $('#name').val().trim(); // required
 	data.style = $('#style').val().trim(); // required
 	data.old_style = $('#old_style').val().trim();
-	data.color = $('#color').val().trim(); // required
-	data.size = $('#size').val().trim(); // required
+	data.color_code = $('#color').val().trim(); // required
+	data.size_code = $('#size').val().trim(); // required
 	data.barcode = $('#barcode').val().trim();
 	data.cost = parseDefault(parseFloat($('#cost').val()), 0);
 	data.price = parseDefault(parseFloat($('#price').val()), 0);
@@ -64,12 +64,12 @@ function add() {
 		error++;
 	}
 
-	if(data.color.length === 0) {
+	if(data.color_code.length === 0) {
 		set_error($('#color'), $('#color-error'), "required");
 		error++;
 	}
 
-	if(data.size.length === 0) {
+	if(data.size_code.length === 0) {
 		set_error($('#size'), $('#size-error'), "required");
 		error++;
 	}
@@ -145,8 +145,8 @@ function update() {
 	data.name = $('#name').val().trim(); // required
 	data.style = $('#style').val().trim(); // required
 	data.old_style = $('#old_style').val().trim();
-	data.color = $('#color').val().trim(); // required
-	data.size = $('#size').val().trim(); // required
+	data.color_code = $('#color').val().trim(); // required
+	data.size_code = $('#size').val().trim(); // required
 	data.barcode = $('#barcode').val().trim();
 	data.cost = parseDefault(parseFloat($('#cost').val()), 0);
 	data.price = parseDefault(parseFloat($('#price').val()), 0);
@@ -175,12 +175,12 @@ function update() {
 		error++;
 	}
 
-	if(data.color.length === 0) {
+	if(data.color_code.length === 0) {
 		set_error($('#color'), $('#color-error'), "required");
 		error++;
 	}
 
-	if(data.size.length === 0) {
+	if(data.size_code.length === 0) {
 		set_error($('#size'), $('#size-error'), "required");
 		error++;
 	}
@@ -256,8 +256,8 @@ function addDuplicate() {
 	data.name = $('#name').val().trim(); // required
 	data.style = $('#style').val().trim(); // required
 	data.old_style = $('#old_style').val().trim();
-	data.color = $('#color').val().trim(); // required
-	data.size = $('#size').val().trim(); // required
+	data.color_code = $('#color').val().trim(); // required
+	data.size_code = $('#size').val().trim(); // required
 	data.barcode = $('#barcode').val().trim();
 	data.cost = parseDefault(parseFloat($('#cost').val()), 0);
 	data.price = parseDefault(parseFloat($('#price').val()), 0);
@@ -296,12 +296,12 @@ function addDuplicate() {
 		error++;
 	}
 
-	if(data.color.length === 0) {
+	if(data.color_code.length === 0) {
 		set_error($('#color'), $('#color-error'), "required");
 		error++;
 	}
 
-	if(data.size.length === 0) {
+	if(data.size_code.length === 0) {
 		set_error($('#size'), $('#size-error'), "required");
 		error++;
 	}
@@ -474,6 +474,36 @@ function sendToWms(code) {
 	load_in();
 	$.ajax({
 		url:BASE_URL + 'masters/items/send_to_wms',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}
+
+
+function sendToSoko(code) {
+	load_in();
+	$.ajax({
+		url:BASE_URL + 'masters/items/send_to_soko',
 		type:'POST',
 		cache:false,
 		data:{

@@ -92,7 +92,7 @@ function export_filter(){
 }
 
 
-function getDelete(code){
+function getDelete(code, name, no){
   swal({
     title:'Are sure ?',
     text:'ต้องการลบ ' + code + ' หรือไม่ ?',
@@ -116,7 +116,7 @@ function getDelete(code){
             timer:1000
           });
 
-          $('#row-'+code).remove();
+          $('#row-' + no).remove();
         }else{
           swal({
             title:'Error!',
@@ -163,10 +163,66 @@ function doExport(code){
 }
 
 
+function sendToSap(code){
+  load_in();
+  $.ajax({
+    url:BASE_URL + 'masters/products/export_products/'+code,
+    type:'POST',
+    cache:false,
+    success:function(rs){
+      load_out();
+      if(rs === 'success'){
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+      }else{
+        swal({
+          title:'Error',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  })
+}
+
+
 function sendToWms(code) {
 	load_in();
 	$.ajax({
 		url:BASE_URL + 'masters/products/send_to_wms',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}
+
+
+function sendToSoko(code) {
+	load_in();
+	$.ajax({
+		url:BASE_URL + 'masters/products/send_to_soko',
 		type:'POST',
 		cache:false,
 		data:{

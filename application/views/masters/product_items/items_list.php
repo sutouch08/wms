@@ -131,11 +131,11 @@
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive" style="min-height:400px; overflow:auto;">
 		<table class="table table-striped table-bordered table-hover" style="min-width:2250px;">
 			<thead>
 				<tr>
-					<th style="width:130px;"></th>
+					<th class="fix-width-100 text-center"></th>
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-150 middle text-center">บาร์โค้ด</th>
 					<th class="fix-width-200 middle text-center">รหัส</th>
@@ -162,23 +162,43 @@
 				<?php $no = $this->uri->segment(4) + 1; ?>
 				<?php foreach($data as $rs) : ?>
 					<tr id="row-<?php echo $no; ?>" class="font-size-12">
-						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-info" onclick="sendToWms('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
-							<?php if($this->pm->can_add) : ?>
-								<button type="button" class="btn btn-minier btn-primary" onclick="duplicate('<?php echo $rs->id; ?>')">
-									<i class="fa fa-copy"></i>
+						<td class="middle text-center">
+							<div class="btn-group">
+								<button data-toggle="dropdown" class="btn btn-sm btn-primary btn-white dropdown-toggle" aria-expanded="false">
+									Action
+									<i class="ace-icon fa fa-angle-down icon-on-right"></i>
 								</button>
-							<?php endif; ?>
-							<?php if($this->pm->can_edit) : ?>
-								<button type="button" class="btn btn-minier btn-warning" onclick="getEdit('<?php echo $rs->id; ?>')">
-									<i class="fa fa-pencil"></i>
-								</button>
-							<?php endif; ?>
-							<?php if($this->pm->can_delete) : ?>
-								<button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>', <?php echo $no; ?>)">
-									<i class="fa fa-trash"></i>
-								</button>
-							<?php endif; ?>
+
+								<ul class="dropdown-menu">
+									<?php if($this->wmsApi) : ?>
+										<li>
+											<a href="javascript:sendToWms('<?php echo $rs->code; ?>')"><i class="fa fa-send green"></i> Send To WMS</a>
+										</li>
+									<?php endif; ?>
+									<?php if($this->sokoApi) : ?>
+										<li>
+											<a href="javascript:sendToSoko('<?php echo $rs->code; ?>')"><i class="fa fa-send blue"></i> Send To Soko Jung</a>
+										</li>
+									<?php endif; ?>
+									<?php if($this->pm->can_add) : ?>
+										<li>
+											<a href="javascript:duplicate('<?php echo $rs->id; ?>')"><i class="fa fa-copy purple"></i> Duplicate</a>
+										</li>
+									<?php endif; ?>
+
+									<?php if($this->pm->can_edit) : ?>
+										<li>
+											<a href="javascript:getEdit('<?php echo $rs->id; ?>')"><i class="fa fa-pencil orange"></i> Edit</a>
+										</li>
+									<?php endif; ?>
+
+									<?php if($this->pm->can_delete) : ?>
+										<li>
+											<a href="javascript:getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>', <?php echo $no; ?>)"><i class="fa fa-trash red"></i> Delete</a>
+										</li>
+									<?php endif; ?>
+								</ul>
+							</div>
 						</td>
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->barcode; ?></td>

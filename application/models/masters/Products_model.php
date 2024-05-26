@@ -666,7 +666,7 @@ class Products_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->or_where('old_code', $code)->get('products');
+    $rs = $this->db->where('code', $code)->get('products');
 
     if($rs->num_rows() == 1)
     {

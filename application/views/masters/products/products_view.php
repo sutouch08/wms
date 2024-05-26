@@ -157,50 +157,70 @@
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-bordered table-hover" style="min-width:2100px;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="max-height:900px; min-height:400px; overflow:auto;">
+		<table class="table table-striped table-bordered table-hover tableFixHead" style="min-width:2100px;">
 			<thead>
 				<tr>
-					<th class="fix-width-50 middle text-center">#</th>
-					<th class="fix-width-120"></th>
-					<th class="fix-width-60 middle text-center">รูปภาพ</th>
-					<th class="min-width-200 middle text-center">รหัส</th>
-					<th class="fix-width-80 middle text-center">ราคา</th>
-					<th class="fix-width-150 middle text-center">กลุ่ม</th>
-					<th class="fix-width-150 middle text-center">กลุ่มหลัก</th>
-					<th class="fix-width-150 middle text-center">กลุ่มย่อย</th>
-					<th class="fix-width-150 middle text-center">หมวดหมู่</th>
-					<th class="fix-width-150 middle text-center">ประเภท</th>
-					<th class="fix-width-150 middle text-center">ชนิด</th>
-					<th class="fix-width-150 middle text-center">ยี่ห้อ</th>
-					<th class="fix-width-150 middle text-center">คอลเล็คชั่น</th>
-					<th class="fix-width-80 middle text-center">ปี</th>
-					<th class="fix-width-50 middle text-center">ขาย</th>
-					<th class="fix-width-60 middle text-center">Active</th>
-					<th class="fix-width-200 middle text-center">รหัสเก่า</th>
+					<th class="fix-width-100 fix-header"></th>
+					<th class="fix-width-50 middle text-center fix-header">#</th>
+					<th class="fix-width-60 middle text-center fix-header">รูปภาพ</th>
+					<th class="min-width-200 middle text-center fix-header">รหัส</th>
+					<th class="fix-width-80 middle text-center fix-header">ราคา</th>
+					<th class="fix-width-150 middle text-center fix-header">กลุ่ม</th>
+					<th class="fix-width-150 middle text-center fix-header">กลุ่มหลัก</th>
+					<th class="fix-width-150 middle text-center fix-header">กลุ่มย่อย</th>
+					<th class="fix-width-150 middle text-center fix-header">หมวดหมู่</th>
+					<th class="fix-width-150 middle text-center fix-header">ประเภท</th>
+					<th class="fix-width-150 middle text-center fix-header">ชนิด</th>
+					<th class="fix-width-150 middle text-center fix-header">ยี่ห้อ</th>
+					<th class="fix-width-150 middle text-center fix-header">คอลเล็คชั่น</th>
+					<th class="fix-width-80 middle text-center fix-header">ปี</th>
+					<th class="fix-width-50 middle text-center fix-header">ขาย</th>
+					<th class="fix-width-60 middle text-center fix-header">Active</th>
+					<th class="fix-width-200 middle text-center fix-header">รหัสเก่า</th>
 				</tr>
 			</thead>
 			<tbody>
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(4) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr id="row-<?php echo $rs->code; ?>">
-						<td class="middle text-center"><?php echo number($no); ?></td>
-						<td class="middle">
-							<button type="button" class="btn btn-mini btn-info" onclick="sendToWms('<?php echo $rs->code; ?>')">
-								<i class="fa fa-send"></i>
-							</button>
-							<?php if($this->pm->can_edit) : ?>
-								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">
-									<i class="fa fa-pencil"></i>
+					<tr id="row-<?php echo $no; ?>">
+						<td class="middle text-center">
+							<div class="btn-group">
+								<button data-toggle="dropdown" class="btn btn-sm btn-primary btn-white dropdown-toggle" aria-expanded="false">
+									Action
+									<i class="ace-icon fa fa-angle-down icon-on-right"></i>
 								</button>
-							<?php endif; ?>
-							<?php if($this->pm->can_delete) : ?>
-								<button type="button" class="btn btn-mini btn-danger" onclick="getDelete('<?php echo $rs->code; ?>', '<?php echo $rs->name; ?>')">
-									<i class="fa fa-trash"></i>
-								</button>
-							<?php endif; ?>
+
+								<ul class="dropdown-menu">
+									<li>
+										<a href="javascript:sendToSap('<?php echo $rs->code; ?>')"><i class="fa fa-send green"></i> Send To SAP</a>
+									</li>
+									<?php if($this->wmsApi) : ?>
+										<li>
+											<a href="javascript:sendToWms('<?php echo $rs->code; ?>')"><i class="fa fa-send purple"></i> Send To WMS</a>
+										</li>
+									<?php endif; ?>
+									<?php if($this->sokoApi) : ?>
+										<li>
+											<a href="javascript:sendToSoko('<?php echo $rs->code; ?>')"><i class="fa fa-send blue"></i> Send To Soko Jung</a>
+										</li>
+									<?php endif; ?>
+									<?php if($this->pm->can_edit) : ?>
+										<li>
+											<a href="javascript:getEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil orange"></i> Edit</a>
+										</li>
+									<?php endif; ?>
+
+									<?php if($this->pm->can_delete) : ?>
+										<li>
+											<a href="javascript:getDelete('<?php echo $rs->code; ?>', '<?php echo $rs->name; ?>', <?php echo $no; ?>)"><i class="fa fa-trash red"></i> Delete</a>
+										</li>
+									<?php endif; ?>
+								</ul>
+							</div>
 						</td>
+						<td class="middle text-center"><?php echo number($no); ?></td>
 						<td class="middle text-center">
 							<img src="<?php echo get_cover_image($rs->code, 'mini'); ?>" width="50" />
 						</td>
