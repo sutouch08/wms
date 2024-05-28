@@ -28,7 +28,7 @@ class Soko_product_api
     {
       $ds = array(
         'sku' => $item->code,
-        'number' => $item->code,
+        'number' => $item->old_code,
         'barcode' => $item->barcode,
         'name' => $item->name,
         'item_color' => $item->color_code,
@@ -37,8 +37,8 @@ class Soko_product_api
         'height' => "",
         'length' => "",
         'weight' => "",
-        'cost' => $item->cost,
-        'selling_price' => $item->price,
+        'cost' => round($item->cost, 2),
+        'selling_price' => round($item->price, 2),
         'description' => "",
         'ean' => ""
       );
@@ -70,27 +70,27 @@ class Soko_product_api
 
       if( ! empty($res))
       {
-        if(empty($res->item_code))
-        {
-          $sc = FALSE;
-          $this->error = $res->message;
-          $res->status = 'failed';
-        }
-        else
-        {
-          $res->status = 'success';
-          $this->ci->products_model->update($item->code, ['soko_code' => $res->item_code]);
-        }
-
-        // if($res->status != 'success' && empty($res->item_code))
+        // if(empty($res->item_code))
         // {
         //   $sc = FALSE;
         //   $this->error = $res->message;
+        //   $res->status = 'failed';
         // }
         // else
         // {
+        //   $res->status = 'success';
         //   $this->ci->products_model->update($item->code, ['soko_code' => $res->item_code]);
         // }
+
+        if($res->status != 'success' && empty($res->item_code))
+        {
+          $sc = FALSE;
+          $this->error = $res->message;
+        }
+        else
+        {
+          $this->ci->products_model->update($item->code, ['soko_code' => $res->item_code]);
+        }
 
         if($this->log_json)
         {
@@ -158,7 +158,7 @@ class Soko_product_api
     {
       $ds = array(
         'sku' => $item->code,
-        'number' => $item->code,
+        'number' => $item->old_code,
         'barcode' => $item->barcode,
         'name' => $item->name,
         'item_color' => $item->color_code,
@@ -167,8 +167,8 @@ class Soko_product_api
         'height' => "",
         'length' => "",
         'weight' => "",
-        'cost' => $item->cost,
-        'selling_price' => $item->price,
+        'cost' => round($item->cost, 2),
+        'selling_price' => round($item->price, 2),
         'description' => "",
         'ean' => ""
       );
@@ -201,18 +201,18 @@ class Soko_product_api
 
       if( ! empty($res))
       {
-        if(empty($res->item_code))
-        {
-          $sc = FALSE;
-          $this->error = $res->message;
-          $res->status == 'failed';
-        }
-
-        // if($res->status != 'success')
+        // if(empty($res->item_code))
         // {
         //   $sc = FALSE;
         //   $this->error = $res->message;
+        //   $res->status == 'failed';
         // }
+
+        if($res->status != 'success')
+        {
+          $sc = FALSE;
+          $this->error = $res->message;
+        }
 
         if($this->log_json)
         {
