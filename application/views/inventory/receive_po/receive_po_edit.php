@@ -37,7 +37,12 @@
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>ช่องทางการรับ</label>
 		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
-			<option value="1" <?php echo is_selected('1', $document->is_wms); ?>>WMS</option>
+			<?php if($this->wmsApi OR $document->is_wms == 1) : ?>
+			<option value="1" <?php echo is_selected('1', $document->is_wms); ?>>Pioneer</option>
+			<?php endif; ?>
+			<?php if($this->sokoApi OR $document->is_wms == 2) : ?>
+			<option value="2" <?php echo is_selected('2', $document->is_wms); ?>>SOKOCHAN</option>
+			<?php endif; ?>
 			<option value="0" <?php echo is_selected('0', $document->is_wms); ?>>Warrix</option>
 		</select>
 	</div>

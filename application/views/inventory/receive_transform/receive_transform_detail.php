@@ -27,8 +27,11 @@
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-xs btn-success top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
-			<?php if($this->isAPI && $doc->status == 3 && $doc->is_wms == 1) : ?>
-				<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+			<?php if($this->wmsApi && $doc->status == 3 && $doc->is_wms == 1) : ?>
+				<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to Pioneer</button>
+			<?php endif; ?>
+			<?php if($this->sokoApi && $doc->status == 3 && $doc->is_wms == 2) : ?>
+				<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to SOKOCHAN</button>
 			<?php endif; ?>
 			<?php if($this->pm->can_delete && $doc->status != 2 && ($doc->status == 0 OR $doc->status == 1 OR $this->_SuperAdmin)) : ?>
         <button type="button" class="btn btn-xs btn-danger top-btn" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-exclamation-triangle"></i> ยกเลิก</button>
@@ -69,7 +72,8 @@
 		<label>ช่องทางการรับ</label>
 		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
 			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
-			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</option>
+			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Poineer</option>
+			<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
 		</select>
 	</div>
 

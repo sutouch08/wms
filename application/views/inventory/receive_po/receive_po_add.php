@@ -37,7 +37,12 @@
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 			<label>ช่องทางการรับ</label>
 			<select class="form-control input-sm" name="is_wms" id="is_wms">
-				<option value="1">WMS</option>
+				<?php if($this->wmsApi) : ?>
+				<option value="1">Pioneer</option>
+				<?php endif; ?>
+				<?php if($this->sokoApi) : ?>
+				<option value="2">SOKOCHAN</option>
+				<?php endif; ?>
 				<option value="0">Warrix</option>
 			</select>
 		</div>

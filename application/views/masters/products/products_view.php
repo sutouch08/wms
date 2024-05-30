@@ -203,7 +203,7 @@
 									<?php endif; ?>
 									<?php if($this->sokoApi) : ?>
 										<li>
-											<a href="javascript:sendToSoko('<?php echo $rs->code; ?>')"><i class="fa fa-send blue"></i> Send To Soko Jung</a>
+											<a href="javascript:sendToSoko('<?php echo $rs->code; ?>')"><i class="fa fa-send blue"></i> Send To Soko</a>
 										</li>
 									<?php endif; ?>
 									<?php if($this->pm->can_edit) : ?>

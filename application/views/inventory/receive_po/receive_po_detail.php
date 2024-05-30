@@ -22,8 +22,11 @@
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-xs btn-success btn-top" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
-			<?php if($this->isAPI && $doc->is_wms == 1 && $doc->status == 3) : ?>
+			<?php if($this->wmsApi && $doc->is_wms == 1 && $doc->status == 3) : ?>
 			<button type="button" class="btn btn-xs btn-success btn-top" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+			<?php endif; ?>
+			<?php if($this->sokoApi && $doc->is_wms == 2 && $doc->status == 3) : ?>
+			<button type="button" class="btn btn-xs btn-success btn-top" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to Soko</button>
 			<?php endif; ?>
 			<?php if($doc->status == 4 && ($doc->user_id = $this->_user->id OR $canAccept)) : ?>
 				<button type="button" class="btn btn-xs btn-success btn-top" onclick="accept()"><i class="fa fa-check-circle"></i> ยืนยันการรับสินค้า</button>
@@ -71,7 +74,8 @@
 	<div class="col-lg-1-harf col-md-1-harf col-sm-3 col-xs-6 padding-5">
 		<label>ช่องทางการรับ</label>
 		<select class="form-control input-sm" disabled>
-			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</option>
+			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</option>
+			<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
 			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
 		</select>
 	</div>

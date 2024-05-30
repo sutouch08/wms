@@ -95,78 +95,78 @@ function receiveProduct(no){
 	}
 }
 
-function save_wms() {
-	var is_wms = $('#is_wms').val();
-	if(is_wms) {
-		var code = $('#receive_code').val();
-		var order_code = $.trim($('#order_code').val());
-		var invoice = $.trim($('#invoice').val());
-
-		//--- ตรวจสอบความถูกต้องของข้อมูล
-		if(code == '' || code == undefined){
-			swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครับ ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
-			return false;
-		}
-
-		//--- ใบสั่งซื้อถูกต้องหรือไม่
-		if(order_code == ''){
-			swal('กรุณาระบุใบเบิกแปรสภาพ');
-			return false;
-		}
-
-		//--- ตรวจสอบใบส่งของ (ต้องระบุ)
-		if(invoice.length == 0){
-			swal('กรุณาระบุใบส่งสินค้า');
-			return false;
-		}
-
-		load_in();
-
-		$.ajax({
-			url:HOME + 'save_wms',
-			type:'POST',
-			cache:false,
-			data:{
-				'code' : code,
-				'order_code' : order_code,
-				'invoice' : invoice
-			},
-			success:function(rs) {
-				load_out();
-				var rs = $.trim(rs);
-				if(rs == 'success') {
-					swal({
-						title:'Success',
-						type:'success',
-						timer:1000
-					});
-
-					setTimeout(function() {
-						viewDetail(code);
-					}, 1200);
-				}
-				else {
-					swal({
-						title:'Error!',
-						text:rs,
-						type:'error',
-						html:true
-					})
-				}
-			},
-			error:function(xhr, status, error) {
-				load_out();
-				swal({
-					title:'Error',
-					text:xhr.responseText,
-					type:'error',
-					html:true
-				});
-			}
-		})
-
-	}
-}
+// function save_wms() {
+// 	var is_wms = $('#is_wms').val();
+// 	if(is_wms) {
+// 		var code = $('#receive_code').val();
+// 		var order_code = $.trim($('#order_code').val());
+// 		var invoice = $.trim($('#invoice').val());
+//
+// 		//--- ตรวจสอบความถูกต้องของข้อมูล
+// 		if(code == '' || code == undefined){
+// 			swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครับ ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
+// 			return false;
+// 		}
+//
+// 		//--- ใบสั่งซื้อถูกต้องหรือไม่
+// 		if(order_code == ''){
+// 			swal('กรุณาระบุใบเบิกแปรสภาพ');
+// 			return false;
+// 		}
+//
+// 		//--- ตรวจสอบใบส่งของ (ต้องระบุ)
+// 		if(invoice.length == 0){
+// 			swal('กรุณาระบุใบส่งสินค้า');
+// 			return false;
+// 		}
+//
+// 		load_in();
+//
+// 		$.ajax({
+// 			url:HOME + 'save_wms',
+// 			type:'POST',
+// 			cache:false,
+// 			data:{
+// 				'code' : code,
+// 				'order_code' : order_code,
+// 				'invoice' : invoice
+// 			},
+// 			success:function(rs) {
+// 				load_out();
+// 				var rs = $.trim(rs);
+// 				if(rs == 'success') {
+// 					swal({
+// 						title:'Success',
+// 						type:'success',
+// 						timer:1000
+// 					});
+//
+// 					setTimeout(function() {
+// 						viewDetail(code);
+// 					}, 1200);
+// 				}
+// 				else {
+// 					swal({
+// 						title:'Error!',
+// 						text:rs,
+// 						type:'error',
+// 						html:true
+// 					})
+// 				}
+// 			},
+// 			error:function(xhr, status, error) {
+// 				load_out();
+// 				swal({
+// 					title:'Error',
+// 					text:xhr.responseText,
+// 					type:'error',
+// 					html:true
+// 				});
+// 			}
+// 		})
+//
+// 	}
+// }
 
 function save() {
 
@@ -199,20 +199,20 @@ function save() {
 
 
 	//--- ใบสั่งซื้อถูกต้องหรือไม่
-	if(order_code == ''){
+	if(order_code == '') {
 		swal('กรุณาระบุใบเบิกแปรสภาพ');
 		return false;
 	}
 
 	//--- ตรวจสอบใบส่งของ (ต้องระบุ)
-	if(invoice.length == 0){
+	if(invoice.length == 0) {
 		swal('กรุณาระบุใบส่งสินค้า');
 		return false;
 	}
 
 	if(is_wms == 0) {
 		//--- มีรายการในใบสั่งซื้อหรือไม่
-		if(count = 0){
+		if(count = 0) {
 			swal('Error!', 'ไม่พบรายการรับเข้า','error');
 			return false;
 		}
@@ -273,27 +273,50 @@ function save() {
 		success: function(rs) {
 			load_out();
 
-			rs = $.trim(rs);
-			if(rs == 'success') {
-				swal({
-					title:'Success',
-					text:'บันทึกรายการเรียบร้อยแล้ว',
-					type:'success',
-					timer:1000
-				});
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
 
-				setTimeout(function(){
-					viewDetail(code);
-				}, 1200);
+				if(ds.status == 'success') {
+					//--- export error
+					if(ds.ex == 1) {
+						swal({
+							title:'ข้อผิดพลาด',
+							text:ds.message,
+							type:'info'
+						}, function() {
+							viewDetail(code);
+						});
+					}
+					else {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(function(){
+							viewDetail(code);
+						}, 1200);
+					}
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:ds.message,
+						type:'error'
+					});
+				}
 			}
-			else
-			{
-				swal("ข้อผิดพลาด !", rs, "error");
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				})
 			}
 		}
 	});
-
-
 }	//--- end save
 
 
@@ -635,13 +658,7 @@ $("#zoneName").autocomplete({
 });
 
 
-
-
-
 $("#dateAdd").datepicker({ dateFormat: 'dd-mm-yy'});
-
-
-
 
 
 
@@ -783,25 +800,50 @@ function acceptConfirm() {
 		success:function(rs) {
 			load_out();
 
-			if(rs === 'success') {
-				swal({
-					title:'Success',
-					type:'success',
-					timer:1000
-				});
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
 
-				setTimeout(() => {
-					window.location.reload();
-				}, 1200);
+				if(ds.status == 'success') {
+					//--- if export error
+					if(ds.ex == 1) {
+						swal({
+							title:'Infomation',
+							text:ds.message,
+							type:'info'
+						}, function() {
+							viewDetail(code);
+						})
+					}
+					else {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							viewDetail(code);
+						}, 1200);
+					}
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:ds.message,
+						type:'error',
+						html:true
+					});
+				}
 			}
-			else {
+			else
+			{
 				swal({
 					title:'Error!',
 					text: rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
 			}
 		}
 	});
-
 }

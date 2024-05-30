@@ -11,6 +11,8 @@ class Receive_transform extends PS_Controller
   public $error;
 	public $wms;
 	public $isAPI;
+  public $wmsApi;
+  public $sokoApi;
   public $required_remark = TRUE; //--- บังคับใส่หมายเหตุ
 
   public function __construct()
@@ -21,6 +23,8 @@ class Receive_transform extends PS_Controller
     $this->load->model('inventory/transform_model');
 
 		$this->isAPI = is_true(getConfig('WMS_API'));
+    $this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
   }
 
 
@@ -144,15 +148,19 @@ class Receive_transform extends PS_Controller
     $code = $this->input->post('code');
     $remark = trim($this->input->post('accept_remark'));
 
+    $ex = 0;
+
     if( ! empty($code))
     {
       $doc = $this->receive_transform_model->get($code);
+
       if( ! empty($doc))
       {
         if( $doc->status == 4)
         {
-          $status = $this->isAPI === TRUE && $doc->is_wms == 1 ? 3 : 1;
-          $ship_date = $this->isAPI === TRUE && $doc->is_wms == 1 ? NULL : now();
+          $status = $doc->is_wms == 0 ? 1 : ($doc->is_wms == 1 && $this->wmsApi ? 3 : ($doc->is_wms == 2 && $this->sokoApi ? 3 : 1));
+          $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+          $ship_date = $doc->is_wms == 0 ? $date_add : ($doc->is_wms == 1 && $this->wmsApi ? NULL :($doc->is_wms == 2 && $this->sokoApi ? NULL : $date_add));
           $arr = array(
             "status" => $status,
             "shipped_date" => $ship_date,
@@ -161,6 +169,8 @@ class Receive_transform extends PS_Controller
             "accept_on" => now(),
             "accept_remark" => $remark
           );
+
+          $details = $this->receive_transform_model->get_details($code);
 
           $this->db->trans_begin();
 
@@ -172,19 +182,19 @@ class Receive_transform extends PS_Controller
 
           if($sc === TRUE)
           {
-            $details = $this->receive_transform_model->get_details($code);
 
-            if(! empty($details))
+            if($doc->is_wms == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
             {
-              foreach($details as $rs)
-              {
-                if($sc === FALSE)
-                {
-                  break;
-                }
 
-                if($this->isAPI === FALSE OR $doc->is_wms == 0)
+              if(! empty($details))
+              {
+                foreach($details as $rs)
                 {
+                  if($sc === FALSE)
+                  {
+                    break;
+                  }
+
                   $arr = array(
                     'receive_qty' => $rs->qty
                   );
@@ -204,7 +214,7 @@ class Receive_transform extends PS_Controller
                       'zone_code' => $doc->zone_code,
                       'product_code' => $rs->product_code,
                       'move_in' => $rs->qty,
-                      'date_add' => db_date($doc->date_add, TRUE)
+                      'date_add' => db_date($shipped_date, TRUE)
                     );
 
                     if($this->movement_model->add($arr) === FALSE)
@@ -219,14 +229,14 @@ class Receive_transform extends PS_Controller
                   {
                     $this->update_transform_receive_qty($doc->order_code, $rs->product_code, $rs->qty);
                   }
-                }
-              } //--- end foreach
-            }
-            else
-            {
-              $sc = FALSE;
-              $this->error = "No items in document";
-            }
+                } //--- end foreach
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "No items in document";
+              }
+            } //--- if is_wms == 0
           }
 
           if($sc === TRUE)
@@ -240,29 +250,49 @@ class Receive_transform extends PS_Controller
 
           if($sc === TRUE)
           {
-            if($this->isAPI === TRUE && $doc->is_wms == 1)
-            {
-              $this->wms = $this->load->database('wms', TRUE);
-              $this->load->library('wms_receive_api');
-
-              $ex = $this->wms_receive_api->export_receive_transform($doc, $doc->order_code, $doc->invoice_code, $details);
-
-              if(!$ex)
-              {
-                $sc = FALSE;
-                $thiis->error = "บันทึกข้อมูลสำเร็จแต่ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>{$this->wms_receive_api->error}";
-              }
-            }
-            else
+            if($doc->is_wms == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
             {
               if($this->transform_model->is_complete($doc->order_code) === TRUE)
               {
                 $this->transform_model->close_transform($doc->order_code);
               }
 
-              $this->export_receive($code);
+              //---- send to SAP Temp
+              $this->load->library('export');
+
+              if(! $this->export->export_receive_transform($doc->code))
+              {
+                $ex = 1; //--- export error
+                $this->error = trim($this->export->error);
+              }
             }
-          }
+            else
+            {
+              if($doc->is_wms == 1 && $this->wmsApi)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                $this->load->library('wms_receive_api');
+
+                if( ! $this->wms_receive_api->export_receive_transform($doc, $doc->order_code, $doc->invoice, $details))
+                {
+                  $ex = 1;
+                  $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_receive_api->error}";
+                }
+              }
+
+              if($doc->is_wms == 2 && $this->sokoApi)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                $this->load->library('soko_receive_api');
+
+                if( ! $this->soko_receive_api->create_receive_transform($doc, $doc->order_code, $doc->invoice, $details))
+                {
+                  $ex = 1;
+                  $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_receive_api->error}";
+                }
+              }
+            }
+          } //--- end export
         }
         else
         {
@@ -282,7 +312,13 @@ class Receive_transform extends PS_Controller
       $this->error = "Missing required parameter";
     }
 
-    echo $sc === TRUE ? 'success' : $this->error;
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'ex' => $ex
+    );
+
+    json_encode($arr);
   }
 
 
@@ -319,43 +355,124 @@ class Receive_transform extends PS_Controller
 	public function send_to_wms($code)
 	{
 		$sc = TRUE;
-		$doc = $this->receive_transform_model->get($code);
-		if(!empty($doc))
-		{
-			if($doc->status == 3)
-			{
-				$details = $this->receive_transform_model->get_details($code);
 
-				if(!empty($details))
-				{
-					$this->wms = $this->load->database('wms', TRUE);
-					$this->load->library('wms_receive_api');
+    if($this->wmsApi)
+    {
+      $doc = $this->receive_transform_model->get($code);
 
-					$ex = $this->wms_receive_api->export_receive_transform($doc, $doc->order_code, $doc->invoice_code, $details);
+      if(!empty($doc))
+      {
+        if($doc->status == 3)
+        {
+          if($doc->is_wms == 1)
+          {
+            $details = $this->receive_transform_model->get_details($code);
 
-					if(!$ex)
-					{
-						$sc = FALSE;
-						$thiis->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>{$this->wms_receive_api->error}";
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "No items in document";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid document status";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Invalid document code";
-		}
+            if( ! empty($details))
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              $this->load->library('wms_receive_api');
+
+              $ex = $this->wms_receive_api->export_receive_transform($doc, $doc->order_code, $doc->invoice_code, $details);
+
+              if(!$ex)
+              {
+                $sc = FALSE;
+                $thiis->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>{$this->wms_receive_api->error}";
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "No items in document";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Invalid Fulfillment API";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid document status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid document code";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "API is not enabled";
+    }
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+  public function send_to_soko($code)
+	{
+		$sc = TRUE;
+
+    if($this->sokoApi)
+    {
+      $doc = $this->receive_transform_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 3)
+        {
+          if($doc->is_wms == 2)
+          {
+            $details = $this->receive_transform_model->get_details($code);
+
+            if( ! empty($details))
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              $this->load->library('soko_receive_api');
+
+              $ex = $this->soko_receive_api->create_receive_transform($doc, $doc->order_code, $doc->invoice_code, $details);
+
+              if( ! $ex)
+              {
+                $sc = FALSE;
+                $this->error = "ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/>{$this->soko_receive_api->error}";
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "No items in document";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Invalid Fulfillment API";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid document status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid document code";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Api is not enabled";
+    }
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
@@ -364,6 +481,7 @@ class Receive_transform extends PS_Controller
   public function save()
   {
     $sc = TRUE;
+    $ex = 0;
     $data = json_decode($this->input->post('data'));
 
     if(! empty($data))
@@ -376,194 +494,218 @@ class Receive_transform extends PS_Controller
       $code = $data->receive_code;
       $doc = $this->receive_transform_model->get($code);
 
+      $wmsZone = getConfig('WMS_ZONE');
+      $sokoZone = getConfig('SOKOJUNG_ZONE');
+
 			if(!empty($doc))
 			{
 				$zone = $this->zone_model->get($data->zone_code);
-				$warehouse = $this->warehouse_model->get($zone->warehouse_code);
 
 				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
-				if($doc->is_wms == 1 && $warehouse->is_wms == 0)
-				{
-					$sc = FALSE;
-					$this->error = "เอกสารต้องรับเข้าที่ WMS";
-				}
+        if($doc->is_wms == 1 && $zone->code != $wmsZone)
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารต้องรับเข้าที่โซน {$wmsZone}";
+        }
 
-				if($doc->is_wms == 0 && $warehouse->is_wms == 1)
-				{
-					$sc = FALSE;
-					$this->error = "เอกสารต้องรับเข้าที่ WARRIX";
-				}
+        if($doc->is_wms == 2 && $zone->code != $sokoZone)
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารต้องรับเข้าที่โซน {$sokoZone}";
+        }
 
-	      $warehouse_code = $warehouse->code;
-        $must_accept = (empty($zone->user_id) ? FALSE : TRUE);
-	      $receive = $data->items;
+        if($doc->is_wms == 0 && ($zone->code == $wmsZone OR $zone->code == $sokoZone))
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารต้องรับเข้าที่โซนของ WARRIX";
+        }
 
-	      $arr = array(
-	        'order_code' => $data->order_code,
-	        'invoice_code' => $data->invoice,
-	        'zone_code' => $data->zone_code,
-	        'warehouse_code' => $warehouse_code,
-	        'update_user' => $this->_user->uname,
-          'must_accept' => $must_accept ? 1 : 0,
-          'is_accept' => 0,
-          'accept_by' => NULL,
-          'accept_on' => NULL
-	      );
+        if($sc === TRUE)
+        {
+          $zone_code = $zone->code;
+          $warehouse_code = $zone->warehouse_code;
+          $must_accept = (empty($zone->user_id) ? FALSE : TRUE);
+  	      $receive = $data->items;
 
-	      $this->db->trans_begin();
+  	      $arr = array(
+  	        'order_code' => $data->order_code,
+  	        'invoice_code' => $data->invoice,
+  	        'zone_code' => $zone_code,
+  	        'warehouse_code' => $warehouse_code,
+  	        'update_user' => $this->_user->uname,
+            'must_accept' => $must_accept ? 1 : 0,
+            'status' => $must_accept ? 4 : ($doc->is_wms == 0 ? 1 : ($doc->is_wms == 1 && $this->wmsApi ? 3 : ($doc->is_wms == 2 && $this->sokoApi ? 3 : 1))),
+            'shipped_date' => $must_accept ? NULL : ($doc->is_wms == 0 ? $date_add : ($doc->is_wms == 1 && $this->wmsApi ? NULL : ($doc->is_wms == 2 && $this->sokoApi ? NULL : $date_add))),
+            'is_accept' => 0,
+            'accept_by' => NULL,
+            'accept_on' => NULL
+  	      );
 
-	      if($this->receive_transform_model->update($code, $arr) === FALSE)
-	      {
-	        $sc = FALSE;
-	        $this->error = 'Update Document Failed';
-	      }
+  	      $this->db->trans_begin();
 
-	      //--- If update success
-	      if($sc === TRUE)
-	      {
-	        if( ! empty($receive))
-	        {
-	          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
-	          $this->receive_transform_model->drop_details($code);
+  	      if($this->receive_transform_model->update($code, $arr) === FALSE)
+  	      {
+  	        $sc = FALSE;
+  	        $this->error = 'Update Document Failed';
+  	      }
 
-						$details = array();
+  	      //--- If update success
+  	      if($sc === TRUE)
+  	      {
+  	        if( ! empty($receive))
+  	        {
+  	          //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
+  	          $this->receive_transform_model->drop_details($code);
 
-	          foreach($receive as $rs)
-	          {
-							if($sc === FALSE)
-							{
-								break;
-							}
+  						$details = array();
 
-	            if($rs->qty > 0)
-	            {
-	              $pd = $this->products_model->get($rs->product_code);
+  	          foreach($receive as $rs)
+  	          {
+  							if($sc === FALSE)
+  							{
+  								break;
+  							}
 
-								if( ! empty($pd))
-								{
-									$cost = $rs->price == 0 ? $pd->cost : $rs->price;
+  	            if($rs->qty > 0)
+  	            {
+  	              $pd = $this->products_model->get($rs->product_code);
 
-									if($this->isAPI && $doc->is_wms)
-									{
-										$de = new stdClass;
-										$de->receive_code = $code;
-										$de->style_code = $pd->style_code;
-										$de->product_code = $pd->code;
-										$de->product_name = $pd->name;
-										$de->unit_code = $pd->unit_code;
-										$de->price = $rs->cost;
-										$de->qty = $rs->qty;
-										$de->amount = $rs->qty * $cost;
+  								if( ! empty($pd))
+  								{
+  									$cost = $rs->price == 0 ? $pd->cost : $rs->price;
 
-										$details[] = $de;
-									}
+  									if($must_accept === FALSE && $doc->is_wms != 0 && ($this->wmsApi OR $this->sokoApi))
+  									{
+  										$de = new stdClass;
+  										$de->receive_code = $code;
+  										$de->style_code = $pd->style_code;
+  										$de->product_code = $pd->code;
+  										$de->product_name = $pd->name;
+  										$de->unit_code = $pd->unit_code;
+  										$de->price = $cost;
+  										$de->qty = $rs->qty;
+  										$de->amount = $rs->qty * $cost;
 
-		              $ds = array(
-		                'receive_code' => $code,
-		                'style_code' => $pd->style_code,
-		                'product_code' => $pd->code,
-		                'product_name' => $pd->name,
-		                'price' => $cost,
-		                'qty' => $rs->qty,
-                    'receive_qty' => $must_accept === TRUE ? 0 : (($this->isAPI === FALSE OR $doc->is_wms == 0) ? $rs->qty : 0),
-		                'amount' => $rs->qty * $cost
-		              );
+  										$details[] = $de;
+  									}
 
-		              if($this->receive_transform_model->add_detail($ds) === FALSE)
-		              {
-		                $sc = FALSE;
-		                $this->error = 'Add Receive Row Fail';
-		                break;
-		              }
+  		              $ds = array(
+  		                'receive_code' => $code,
+  		                'style_code' => $pd->style_code,
+  		                'product_code' => $pd->code,
+  		                'product_name' => $pd->name,
+  		                'price' => $cost,
+  		                'qty' => $rs->qty,
+                      'receive_qty' => $must_accept === TRUE ? 0 : ($doc->is_wms == 1 && $this->wmsApi ? 0 : ($doc->is_wms == 2 && $this->sokoApi ? 0 : $rs->qty)),
+  		                'amount' => $rs->qty * $cost
+  		              );
 
-		              if($sc === TRUE && $must_accept === FALSE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
-		              {
-		                $ds = array(
-		                  'reference' => $code,
-		                  'warehouse_code' => $warehouse_code,
-		                  'zone_code' => $data->zone_code,
-		                  'product_code' => $pd->code,
-		                  'move_in' => $rs->qty,
-		                  'date_add' => db_date($date_add, TRUE)
-		                );
+  		              if($this->receive_transform_model->add_detail($ds) === FALSE)
+  		              {
+  		                $sc = FALSE;
+  		                $this->error = 'Add Receive Row Fail';
+  		                break;
+  		              }
 
-		                if($this->movement_model->add($ds) === FALSE)
-		                {
-		                  $sc = FALSE;
-		                  $this->error = 'บันทึก movement ไม่สำเร็จ';
-		                }
-		              }
+                    if($sc === TRUE)
+                    {
+                      if($must_accept === FALSE && ($doc->is_wms == 0 OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
+                      {
+                        $ds = array(
+                          'reference' => $code,
+                          'warehouse_code' => $warehouse_code,
+                          'zone_code' => $zone_code,
+                          'product_code' => $pd->code,
+                          'move_in' => $rs->qty,
+                          'date_add' => db_date($date_add, TRUE)
+                        );
 
+                        if( ! $this->movement_model->add($ds))
+                        {
+                          $sc = FALSE;
+                          $this->error = 'บันทึก movement ไม่สำเร็จ';
+                        }
 
-		              //--- update receive_qty in order_transform_detail
-		              if($sc === TRUE && $must_accept === FALSE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
-		              {
-		                $this->update_transform_receive_qty($data->order_code, $pd->code, $rs->qty);
-		              }
-								}
-								else
-								{
-									$sc = FALSE;
-									$this->error = "ไม่พบรหัสสินค้า : {$rs->product_code}";
-								}
+                        //--- update receive_qty in order_transform_detail
+                        if($sc === TRUE)
+                        {
+                          $this->update_transform_receive_qty($data->order_code, $pd->code, $rs->qty);
+                        }
+                      }
+                    }
+  								}
+  								else
+  								{
+  									$sc = FALSE;
+  									$this->error = "ไม่พบรหัสสินค้า : {$rs->product_code}";
+  								}
 
-	            }//--- end if qty > 0
-	          } //--- end foreach
+  	            }//--- end if qty > 0
+  	          } //--- end foreach
 
-            if($must_accept)
-            {
-              $arr = array(
-                'status' => 4 //-- must accept = 1 status = 4 รอเจ้าของโซนกดรับ
-              );
-
-              $this->receive_transform_model->update($code, $arr);
-            }
-            else
-            {
-              if($this->isAPI === TRUE && $doc->is_wms == 1)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-                $this->load->library('wms_receive_api');
-
-                $rs = $this->wms_receive_api->export_receive_transform($doc, $data->order_code, $data->invoice, $details);
-              }
-
+              //--- หากไม่ต้องกดรับ
               if($sc === TRUE)
               {
-                if($this->isAPI === TRUE && $doc->is_wms == 1)
+                if( ! $must_accept)
                 {
-                  $this->receive_transform_model->set_status($code, 3);
-                }
-                else
-                {
-                  $arr = array(
-                    'shipped_date' => now(),
-                    'status' => 1
-                  );
-
-                  $this->receive_transform_model->update($code, $arr);
-
-                  if($this->transform_model->is_complete($data->order_code) === TRUE)
+                  if($doc->is_wms == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
                   {
-                    $this->transform_model->close_transform($data->order_code);
+                    if($this->transform_model->is_complete($doc->order_code) === TRUE)
+                    {
+                      $this->transform_model->close_transform($data->order_code);
+                    }
+
+                    //---- send to SAP Temp
+                    $this->load->library('export');
+
+                    if(! $this->export->export_receive_transform($code))
+                    {
+                      $ex = 1; //--- export error
+                      $this->error = trim($this->export->error);
+                    }
+                  }
+                  else
+                  {
+                    if($doc->is_wms == 1 && $this->wmsApi)
+                    {
+                      $this->wms = $this->load->database('wms', TRUE);
+                      $this->load->library('wms_receive_api');
+
+                      if( ! $this->wms_receive_api->export_receive_transform($doc, $data->order_code, $data->invoice, $details))
+                      {
+                        $ex = 1;
+                        $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_receive_api->error}";
+                      }
+                    }
+
+                    if($doc->is_wms == 2 && $this->sokoApi)
+                    {
+                      $this->wms = $this->load->database('wms', TRUE);
+                      $this->load->library('soko_receive_api');
+
+                      if( ! $this->soko_receive_api->create_receive_transform($doc, $data->order_code, $data->invoice, $details))
+                      {
+                        $ex = 1;
+                        $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_receive_api->error}";
+                      }
+                    }
                   }
                 }
               }
-            }
+  	        } //--- end if !empty($receive)
 
-	        } //--- end if !empty($receive)
+  	      } //--- if $sc === TRUE
 
-	      } //--- if $sc === TRUE
-
-	      if($sc === TRUE)
-				{
-					$this->db->trans_commit();
-				}
-				else
-				{
-					$this->db->trans_rollback();
-				}
+  	      if($sc === TRUE)
+  				{
+  					$this->db->trans_commit();
+  				}
+  				else
+  				{
+  					$this->db->trans_rollback();
+  				}
+        }
 			}
 			else
 			{
@@ -577,12 +719,13 @@ class Receive_transform extends PS_Controller
       $this->error = 'ไม่พบข้อมูล';
     }
 
-    if($sc === TRUE && $must_accept == FALSE && ($this->isAPI === FALSE OR $doc->is_wms == 0))
-    {
-      $this->export_receive($code);
-    }
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'ex' => $ex
+    );
 
-    echo $sc === TRUE ? 'success' : $this->error;
+    echo json_encode($arr);
   }
 
 
@@ -715,6 +858,23 @@ class Receive_transform extends PS_Controller
                       $this->error = "Drop Temp data failed";
                     }
                   }
+                }
+              }
+            }
+
+            if($sc === TRUE && $doc->status == 3)
+            {
+              if($doc->is_wms == 2 && ! empty($doc->soko_code) && $this->sokoApi)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                $this->load->library('soko_receive_api');
+
+                $ex = $this->soko_receive_api->cancel_receive_transform($doc);
+
+                if( ! $ex)
+                {
+                  $sc = FALSE;
+                  $this->error = "ยกเลิกเอกสารที่ SOKOCHAN ไม่สำเร็จ กรุณาติดต่อเจ้าหน้าที่ <br/>{$this->soko_receive_api->error}";
                 }
               }
             }
@@ -904,6 +1064,21 @@ class Receive_transform extends PS_Controller
         'doc' => $doc,
         'details' => array(),
       );
+
+      $zone_code = $doc->is_wms == 1 ? getConfig('WMS_ZONE') : ($doc->is_wms == 2 ? getConfig('SOKOJUNG_ZONE') : $doc->zone_code);
+      $zone_name = "";
+      $zone = NULL;
+
+      if($zone_code != "" && $zone_code != NULL)
+      {
+        $this->load->model('masters/zone_model');
+        $zone = $this->zone_model->get($zone_code);
+        $zone_code = empty($zone) ? "" : $zone->code;
+        $zone_name = empty($zone) ? "" : $zone->name;
+      }
+
+      $doc->zone_code = $zone_code;
+      $doc->zone_name = $zone_name;
 
       $details = $this->receive_transform_model->get_transform_details($doc->order_code);
 

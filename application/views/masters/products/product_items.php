@@ -30,7 +30,7 @@
 		<button type="button" class="btn btn-sm btn-purple top-btn" onclick="downloadBarcode('<?php echo $style->code; ?>')">Download Barcode</button>
 		<button type="button" class="btn btn-sm btn-info top-btn" onclick="doExport('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป SAP </button>
     <button type="button" class="btn btn-sm btn-info top-btn" onclick="sendToWms('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป WMS </button>
-    <button type="button" class="btn btn-sm btn-info top-btn" onclick="sendToSoko('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป SOKO JUNG </button>
+    <button type="button" class="btn btn-sm btn-info top-btn" onclick="sendToSoko('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป SOKO </button>
 
 		<button type="button" class="btn btn-sm btn-yellow top-btn hide" onclick="checkOldCode('<?php echo $style->code; ?>','<?php echo $style->old_code; ?>')">
 			Generate รหัสเก่า

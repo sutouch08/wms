@@ -70,26 +70,41 @@ class Soko_product_api
 
       if( ! empty($res))
       {
-        // if(empty($res->item_code))
-        // {
-        //   $sc = FALSE;
-        //   $this->error = $res->message;
-        //   $res->status = 'failed';
-        // }
-        // else
-        // {
-        //   $res->status = 'success';
-        //   $this->ci->products_model->update($item->code, ['soko_code' => $res->item_code]);
-        // }
-
-        if($res->status != 'success' && empty($res->item_code))
+        if(empty($res->error))
         {
-          $sc = FALSE;
-          $this->error = $res->message;
+          if(empty($res->status))
+          {
+            if(empty($res->item_code))
+            {
+              $sc = FALSE;
+              $this->error = $res->message;
+              $res->status = 'failed';
+            }
+            else
+            {
+              $res->status = 'success';
+              $this->ci->products_model->update($item->code, ['soko_code' => $res->item_code]);
+            }
+          }
+          else
+          {
+            if($res->status != 'success' && empty($res->item_code))
+            {
+              $sc = FALSE;
+              $this->error = $res->message;
+            }
+            else
+            {
+              $this->ci->products_model->update($item->code, ['soko_code' => $res->item_code]);
+            }
+          }
         }
         else
         {
-          $this->ci->products_model->update($item->code, ['soko_code' => $res->item_code]);
+          $sc = FALSE;
+          $res->status = "failed";
+          $res->message = $res->error;
+          $this->error = $response;
         }
 
         if($this->log_json)

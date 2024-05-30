@@ -89,7 +89,7 @@ $('#cancle-modal').on('shown.bs.modal', function() {
 function addNew()
 {
   let date_add = $('#dateAdd').val();
-	let is_wms = $('#is_wms').val() == 1 ? 1 : 0;
+	let is_wms = $('#is_wms').val();
   let remark = $.trim($('#remark').val());
 	let reqRemark = $('#required_remark').val();
 
@@ -241,6 +241,45 @@ function sendToWms() {
 	load_in();
 	$.ajax({
 		url:HOME + 'send_to_wms/'+code,
+		type:'POST',
+		cache:false,
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			});
+		}
+	});
+}
+
+
+function sendToSoko() {
+	var code = $('#receive_code').val();
+	load_in();
+	$.ajax({
+		url:HOME + 'send_to_soko/'+code,
 		type:'POST',
 		cache:false,
 		success:function(rs) {

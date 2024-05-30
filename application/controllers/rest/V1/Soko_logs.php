@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Soko_logs extends PS_Controller
 {
-	public $title = 'SOKO JUNG Interface Logs';
+	public $title = 'SOKO Interface Logs';
 	public $menu_code = 'SOKOLOG';
 	public $menu_group_code = 'SOKOJUNG';
   public $menu_sub_group_code = '';
@@ -37,7 +37,7 @@ class Soko_logs extends PS_Controller
 		{
 			//--- แสดงผลกี่รายการต่อหน้า
 			$perpage = get_rows();
-			
+
 			$segment  = 5; //-- url segment
 			$rows     = $this->soko_api_logs_model->count_rows($filter);
 			//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
