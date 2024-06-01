@@ -61,7 +61,7 @@
         <span class="form-control left-label">รหัสคลัง SOKOJUNG</span>
       </div>
       <div class="col-sm-8">
-        <input type="text" class="form-control input-sm input-large" id="sokojung-warehouse" name="SOKOJUNG_WAREHOUSE_CODE" value="<?php echo $SOKOJUNG_WAREHOUSE; ?>" />
+        <input type="text" class="form-control input-sm input-large" id="sokojung-warehouse" name="SOKOJUNG_WAREHOUSE" value="<?php echo $SOKOJUNG_WAREHOUSE; ?>" />
       </div>
       <div class="divider-hidden"></div>
 

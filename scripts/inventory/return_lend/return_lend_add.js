@@ -1,58 +1,3 @@
-function getValidate() {
-	var isManual = $('#manualCode').length;
-	if(isManual === 1) {
-		var prefix = $('#prefix').val();
-	  var runNo = parseInt($('#runNo').val());
-	}
-
-	var code = $('#code').val();
-
-	if(code.length == 0){
-	   save();
-	   return false;
-	}
-
-	let arr = code.split('-');
-
-	if(arr.length == 2){
-	  if(arr[0] !== prefix){
-	    swal('Prefix ต้องเป็น '+prefix);
-	    return false;
-	  }else if(arr[1].length != (4 + runNo)){
-	    swal('Run Number ไม่ถูกต้อง');
-	    return false;
-	  }else{
-	    addOrder();
-		}
-
-	}else{
-	  swal('เลขที่เอกสารไม่ถูกต้อง');
-	  return false;
-	}
-}
-
-
-function addOrder() {
-	var code = $('#code').val();
-	$.ajax({
-		url: HOME + 'is_exists/'+code,
-		type:'GET',
-		cache:false,
-		success:function(rs){
-			if(rs == 'not_exists'){
-				save();
-			}else{
-				swal({
-					title:'Error!!',
-					text: rs,
-					type: 'error'
-				});
-			}
-		}
-	})
-}
-
-
 function save()
 {
 	var error = 0;
@@ -361,6 +306,49 @@ function sendToWms() {
 }
 
 
+function sendToSoko() {
+	var code = $('#code').val();
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'send_to_soko/'+code,
+		type:'POST',
+		cache:false,
+		success:function(rs) {
+			load_out();
+
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'succcess',
+					timer:1000
+				});
+			}
+			else
+			{
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+
+			swal({
+				title:'Error!',
+				text:xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+}
+
+
 function accept() {
 	$('#accept-modal').on('shown.bs.modal', () => $('#accept-note').focus());
 	$('#accept-modal').modal('show');
@@ -426,5 +414,4 @@ function acceptConfirm() {
 			}
 		}
 	});
-
 }

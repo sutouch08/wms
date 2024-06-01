@@ -11,7 +11,7 @@
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 <?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
-				<button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
+				<button type="button" class="btn btn-sm btn-success" id="btn-save" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
 <?php endif; ?>
 <?php if($doc->status == 1 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-sm btn-primary" id="btn-approve" onclick="approve()"><i class="fa fa-save"></i> อนุมัติ</button>
@@ -32,7 +32,7 @@
   </div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>เลขที่บิล[SAP]</label>
-		<input type="number" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
+		<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
 	</div>
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>รหัสลูกค้า</label>
@@ -42,6 +42,27 @@
 		<label>ชื่อลูกค้า</label>
 		<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
 	</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>การรับ</label>
+		<select class="form-control input-sm edit" name="is_wms" id="is_wms" onchange="updateZone()" disabled>
+			<option value="">เลือก</option>
+			<?php if($this->wmsApi OR $doc->is_wms == 1) : ?>
+				<option value="1" data-zonecode="<?php echo $wms_zone_code; ?>" data-zonename="<?php echo $wms_zone_name; ?>" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</optoin>
+			<?php endif; ?>
+			<?php if($this->sokoApi OR $doc->is_wms == 2) : ?>
+				<option value="2" data-zonecode="<?php echo $soko_zone_code; ?>" data-zonename="<?php echo $soko_zone_name; ?>" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
+			<?php endif; ?>
+				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
+			</select>
+		</div>
+
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+			<label>Interface</label>
+			<select class="form-control input-sm edit" name="api" id="api" disabled>
+				<option value="1" <?php echo is_selected('1', $doc->api); ?>>ส่ง</option>
+				<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
+			</select>
+		</div>
 	<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-4 padding-5">
 		<label>รหัสโซน</label>
 		<input type="text" class="form-control input-sm text-center edit" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" disabled />
@@ -51,21 +72,6 @@
 		<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-		<label>การรับ</label>
-		<select class="form-control input-sm edit" name="is_wms" id="is_wms" disabled>
-			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>WMS</optoin>
-			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
-		</select>
-	</div>
-
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-		<label>Interface</label>
-		<select class="form-control input-sm edit" name="api" id="api" disabled>
-			<option value="1" <?php echo is_selected('1', $doc->api); ?>>ส่ง</option>
-			<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
-		</select>
-	</div>
 
   <div class="col-lg-10-harf col-md-10-harf col-sm-10-harf col-xs-9 padding-5">
   	<label>หมายเหตุ</label>
@@ -138,8 +144,16 @@
 			<td class="middle">
 				<input type="number"
 					class="form-control input-sm text-right input-qty"
-					name="qty[<?php echo $no; ?>]"
-					id="qty_<?php echo $no; ?>"
+					id="qty-<?php echo $no; ?>"
+					data-no="<?php echo $no; ?>"
+					data-id="<?php echo $rs->id; ?>"
+					data-pdcode="<?php echo $rs->product_code; ?>"
+					data-pdname="<?php echo $rs->product_name; ?>"
+					data-invoice="<?php echo $rs->invoice_code; ?>"
+					data-order="<?php echo $rs->order_code; ?>"
+					data-sold="<?php echo round($rs->sold_qty); ?>"
+					data-price="<?php echo $rs->price; ?>"
+					data-discount="<?php echo $rs->discount_percent; ?>"
 					value="<?php echo $rs->qty; ?>"
 					onkeyup="recalRow($(this), <?php echo $no; ?>)"
 				/>
@@ -152,11 +166,6 @@
 					<i class="fa fa-trash"></i>
 				</button>
 			</td>
-			<input type="hidden" name="item[<?php echo $no; ?>]" id="item_<?php echo $no; ?>" value="<?php echo $rs->product_code; ?>"/>
-			<input type="hidden" name="sold_qty[<?php echo $no; ?>]" id="inv_qty_<?php echo $no; ?>" value="<?php echo round($rs->sold_qty); ?>"/>
-			<input type="hidden" class="input-price" name="price[<?php echo $no; ?>]" id="price_<?php echo $no; ?>" value="<?php echo $rs->price; ?>" />
-			<input type="hidden" name="discount[<?php echo $no; ?>]" id="discount_<?php echo $no; ?>" value="<?php echo $rs->discount_percent; ?>" />
-			<input type="hidden" name="order[<?php echo $no; ?>]" id="order_<?php echo $no; ?>" value="<?php echo $rs->order_code; ?>" />
 		</tr>
 <?php
 		$no++;

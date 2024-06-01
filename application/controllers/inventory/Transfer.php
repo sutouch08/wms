@@ -10,6 +10,8 @@ class Transfer extends PS_Controller
   public $filter;
   public $error;
 	public $isAPI;
+  public $wmsApi;
+  public $sokoApi;
   public $require_remark = 1;
 
   public function __construct()
@@ -23,6 +25,9 @@ class Transfer extends PS_Controller
     $this->load->helper('warehouse');
 
 		$this->isAPI = is_true(getConfig('WMS_API'));
+    $this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
+
   }
 
 
@@ -102,67 +107,89 @@ class Transfer extends PS_Controller
 
   public function add()
   {
+    $sc = TRUE;
+
     if($this->input->post())
     {
-      $sc = TRUE;
       $date_add = db_date($this->input->post('date'), TRUE);
-      $from_warehouse = $this->input->post('from_warehouse_code');
-      $to_warehouse = $this->input->post('to_warehouse_code');
+      $fWh = $this->input->post('from_warehouse_code');
+      $tWh = $this->input->post('to_warehouse_code');
+      $is_wms = $this->input->post('is_wms');
 			$wx_code = get_null(trim($this->input->post('wx_code')));
       $remark = $this->input->post('remark');
       $bookcode = getConfig('BOOK_CODE_TRANSFER');
-      $isManual = getConfig('MANUAL_DOC_CODE');
+      $wmsWh = getConfig('WMS_WAREHOUSE');
+      $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
 
 			$api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
 
-			$fromWh = $this->warehouse_model->get($from_warehouse);
-			$toWh = $this->warehouse_model->get($to_warehouse);
+      $isSoko = $fWh == $sokoWh ? TRUE : ($tWh == $sokoWh ? TRUE : FALSE);
+      $isWms = $fWh == $wmsWh ? TRUE : ($tWh == $wmsWh ? TRUE : FALSE);
 
-			$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
-
-			//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-			$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
-
-      if($isManual == 1 && $this->input->post('code'))
-      {
-        $code = $this->input->post('code');
-      }
-      else
-      {
-        $code = $this->get_new_code($date_add);
-      }
-
-      if( ! empty($code))
-      {
-        $must_approve = getConfig('STRICT_TRANSFER') == 1 ? 1 : 0;
-
-        $ds = array(
-          'code' => $code,
-          'bookcode' => $bookcode,
-          'from_warehouse' => $from_warehouse,
-          'to_warehouse' => $to_warehouse,
-          'remark' => trim($remark),
-          'user' => $this->_user->uname,
-          'date_add' => $date_add,
-          'is_wms' => $is_wms,
-          'direction' => $direction,
-          'api' => $api,
-          'wx_code' => $wx_code,
-          'must_approve' => $must_approve
-        );
-
-        if( ! $this->transfer_model->add($ds))
-        {
-          $sc = FALSE;
-          $this->error = 'เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
-        }
-      }
-      else
+      if($is_wms == 0 && ($isSoko OR $isWms))
       {
         $sc = FALSE;
-        $this->error = "Invalid Document Number";
+        $this->error = "เอกสารต้องดำเนินการที่ Warrix แต่ไม่ได้เลือกคลังในฝั่งของ Warrix";
       }
 
+      if($sc === TRUE)
+      {
+        if($is_wms == 1 && ! $isWms)
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารต้องดำเนินการที่ Pioneer แต่ไม่ได้เลือกคลังในฝั่งของ Pioneer";
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        if($is_wms == 2 && ! $isSoko)
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารต้องดำเนินการที่ SOKOCHAN แต่ไม่ได้เลือกคลังในฝั่งของ SOKOCHAN";
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+        $direction = 0;  //--- Wrx to Wrx
+        $direction = $is_wms == 1 && $fWh == $wmsWh ? 2 : ($is_wms == 1 && $tWh == $wmsWh ? 1 : $direction);
+        $direction = $is_wms == 2 && $fWh == $sokoWh ? 2 : ($is_wms == 2 && $tWh == $sokoWh ? 1 : $direction);
+
+        $code = $this->get_new_code($date_add);
+
+        if( ! empty($code))
+        {
+          $must_approve = getConfig('STRICT_TRANSFER') == 1 ? 1 : 0;
+
+          $ds = array(
+            'code' => $code,
+            'bookcode' => $bookcode,
+            'from_warehouse' => $fWh,
+            'to_warehouse' => $tWh,
+            'remark' => trim($remark),
+            'user' => $this->_user->uname,
+            'date_add' => $date_add,
+            'is_wms' => $is_wms,
+            'direction' => $direction,
+            'api' => $api,
+            'wx_code' => $wx_code,
+            'must_approve' => $must_approve
+          );
+
+          if( ! $this->transfer_model->add($ds))
+          {
+            $sc = FALSE;
+            $this->error = 'เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Document Number";
+        }
+      }
     }
     else
     {
@@ -245,42 +272,74 @@ class Transfer extends PS_Controller
 
   public function update($code)
   {
-		$fromWh = $this->warehouse_model->get($this->input->post('from_warehouse'));
-		$toWh = $this->warehouse_model->get($this->input->post('to_warehouse'));
+    $sc = TRUE;
 
-		$is_wms = $fromWh->is_wms == 1 ? 1 : ($toWh->is_wms == 1 ? 1 : 0);
-		$api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
+    $fWh = $this->input->post('from_warehouse');
+		$tWh = $this->input->post('to_warehouse');
+    $api = $this->input->post('api'); //--- 1 = ส่งข้อมูลไป wms ตามหลักการ 0 = ไม่ส่งข้อมูลไป WMS
+    $is_wms = $this->input->post('is_wms');
 		$wx_code = get_null(trim($this->input->post('wx_code')));
 
-		//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-		$direction = $toWh->is_wms == 1 ? 1 :($fromWh->is_wms == 1 ? 2 : 0);
+    $wmsWh = getConfig('WMS_WAREHOUSE');
+    $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
 
+    $isSoko = $fWh == $sokoWh ? TRUE : ($tWh == $sokoWh ? TRUE : FALSE);
+    $isWms = $fWh == $wmsWh ? TRUE : ($tWh == $wmsWh ? TRUE : FALSE);
 
-    $must_approve = getConfig('STRICT_TRANSFER') == 1 ? 1 : 0;
-
-    $arr = array(
-      'date_add' => db_date($this->input->post('date_add'), TRUE),
-      'from_warehouse' => $fromWh->code,
-      'to_warehouse' => $toWh->code,
-      'remark' => get_null(trim($this->input->post('remark'))),
-			'is_wms' => $is_wms,
-			'direction' => $direction,
-			'api' => $api,
-			'wx_code' => $wx_code,
-      'must_approve' => $must_approve,
-      'update_user' => $this->_user->uname
-    );
-
-    $rs = $this->transfer_model->update($code, $arr);
-
-    if($rs)
+    if($is_wms == 0 && ($isSoko OR $isWms))
     {
-      echo 'success';
+      $sc = FALSE;
+      $this->error = "เอกสารต้องดำเนินการที่ Warrix แต่ไม่ได้เลือกคลังในฝั่งของ Warrix";
     }
-    else
+
+    if($sc === TRUE)
     {
-      echo 'ปรับปรุงข้อมูลไม่สำเร็จ';
+      if($is_wms == 1 && ! $isWms)
+      {
+        $sc = FALSE;
+        $this->error = "เอกสารต้องดำเนินการที่ Pioneer แต่ไม่ได้เลือกคลังในฝั่งของ Pioneer";
+      }
     }
+
+    if($sc === TRUE)
+    {
+      if($is_wms == 2 && ! $isSoko)
+      {
+        $sc = FALSE;
+        $this->error = "เอกสารต้องดำเนินการที่ SOKOCHAN แต่ไม่ได้เลือกคลังในฝั่งของ SOKOCHAN";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+      $direction = 0;  //--- Wrx to Wrx
+      $direction = $is_wms == 1 && $fWh == $wmsWh ? 2 : ($is_wms == 1 && $tWh == $wmsWh ? 1 : $direction);
+      $direction = $is_wms == 2 && $fWh == $sokoWh ? 2 : ($is_wms == 2 && $tWh == $sokoWh ? 1 : $direction);
+
+      $must_approve = getConfig('STRICT_TRANSFER') == 1 ? 1 : 0;
+
+      $arr = array(
+        'date_add' => db_date($this->input->post('date_add'), TRUE),
+        'from_warehouse' => $fWh,
+        'to_warehouse' => $tWh,
+        'remark' => get_null(trim($this->input->post('remark'))),
+        'is_wms' => $is_wms,
+        'direction' => $direction,
+        'api' => $api,
+        'wx_code' => $wx_code,
+        'must_approve' => $must_approve,
+        'update_user' => $this->_user->uname
+      );
+
+      if( ! $this->transfer_model->update($code, $arr))
+      {
+        $sc = FALSE;
+        $this->error = "ปรับปรุงรายการไม่สำเร็จ";
+      }
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -307,7 +366,7 @@ class Transfer extends PS_Controller
     $ex = 1;
 		$doc = $this->transfer_model->get($code);
 
-		if(!empty($doc))
+		if( ! empty($doc))
 		{
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
@@ -350,19 +409,7 @@ class Transfer extends PS_Controller
             }
             else
             {
-              if($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api == 1)
-              {
-                $arr = array(
-                  'status' => 3
-                );
-
-                if( ! $this->transfer_model->update($code, $arr))
-                {
-                  $sc = FALSE;
-                  $this->error = "Update Status Failed";
-                }
-              }
-              else
+              if($doc->is_wms == 0 OR $doc->api == 0 OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
               {
                 //--- movement
                 $this->load->model('inventory/movement_model');
@@ -423,8 +470,23 @@ class Transfer extends PS_Controller
                   }
                 }
               }
-            }
-          }
+              else
+              {
+                if($doc->is_wms != 0 && $doc->api == 1 && (($doc->is_wms == 1 && $this->wmsApi) OR ($doc->is_wms == 2 && $this->sokoApi)))
+                {
+                  $arr = array(
+                    'status' => 3
+                  );
+
+                  if( ! $this->transfer_model->update($code, $arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Update Status Failed";
+                  }
+                }
+              } //--- is_wms == 0
+            } //--- must accept
+          } //--- must approve
 
           if($sc === TRUE)
           {
@@ -440,7 +502,7 @@ class Transfer extends PS_Controller
             if($doc->must_approve == 0 && $doc->must_accept == 0)
             {
               //--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-              if($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api == 1)
+              if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
               {
                 $this->wms = $this->load->database('wms', TRUE);
 
@@ -453,7 +515,7 @@ class Transfer extends PS_Controller
                   {
                     $sc = FALSE;
                     $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
                   }
                 }
 
@@ -465,13 +527,46 @@ class Transfer extends PS_Controller
                   {
                     $sc = FALSE;
                     $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
                   }
                 }
               }
-              else
+
+
+              //--- ถ้าต้อง process ที่ soko chan แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป
+              if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
               {
-                $this->transfer_model->update($code, array('shipped_date' => now())); //--- update transferd date
+                $this->wms = $this->load->database('wms', TRUE);
+
+                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                if($doc->direction == 1)
+                {
+                  $this->load->library('soko_receive_api');
+
+                  if(! $this->soko_receive_api->create_transfer($doc, $details))
+                  {
+                    $sc = FALSE;
+                    $ex = 0;
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_receive_api->error}";
+                  }
+                }
+
+                if($doc->direction == 2)
+                {
+                  $this->load->library('soko_order_api');
+
+                  if( ! $this->soko_order_api->create_transfer_order($doc, $details))
+                  {
+                    $sc = FALSE;
+                    $ex = 0;
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_order_api->error}";
+                  }
+                }
+              }
+
+              if($doc->is_wms == 0 OR $doc->api == 0 OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
+              {
+                $this->transfer_model->update($code, array('shipped_date' => $date_add)); //--- update transferd date
 
                 if( ! $this->do_export($code))
                 {
@@ -522,13 +617,15 @@ class Transfer extends PS_Controller
     {
       $doc = $this->transfer_model->get($code);
 
-      if(!empty($doc))
+      if( ! empty($doc))
       {
         $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
-        $is_wms = ($this->isAPI && $doc->is_wms == 1 && $doc->api == 1) ? TRUE : FALSE;
+
+        $is_wms = $doc->is_wms == 0  OR $doc->api == 0 ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
 
         if($doc->status == 0 && ($doc->is_approve == 0 OR $doc->is_approve == 3))
         {
+
           $this->db->trans_begin();
 
           $arr = array(
@@ -543,6 +640,7 @@ class Transfer extends PS_Controller
           }
 
           $this->load->model('approve_logs_model');
+
           $this->approve_logs_model->add($code, 1, $this->_user->uname);
 
 
@@ -631,7 +729,19 @@ class Transfer extends PS_Controller
           {
             if( ! empty($details))
             {
-              if($is_wms == TRUE)
+              if($doc->is_wms == 0 OR $doc->api == 0 OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
+              {
+                $this->transfer_model->update($code, array('shipped_date' => $date_add));
+
+                if( ! $this->do_export($code))
+                {
+                  $sc = FALSE;
+                  $ex = 0;
+                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ";
+                }
+              }
+
+              if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
               {
                 $this->wms = $this->load->database('wms', TRUE);
                 //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
@@ -655,19 +765,37 @@ class Transfer extends PS_Controller
                   {
                     $sc = FALSE;
                     $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
                   }
                 }
               }
-              else
-              {
-                $this->transfer_model->update($code, array('shipped_date' => now()));
 
-                if( ! $this->do_export($code))
+              if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                if($doc->direction == 1)
                 {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ";
+                  $this->load->library('soko_receive_api');
+
+                  if( ! $this->soko_receive_api->create_transfer($doc, $details))
+                  {
+                    $sc = FALSE;
+                    $ex = 0;
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_receive_api->error}";
+                  }
+                }
+
+                if($doc->direction == 2)
+                {
+                  $this->load->library('soko_order_api');
+
+                  if( ! $this->soko_order_api->create_transfer_order($doc, $details))
+                  {
+                    $sc = FALSE;
+                    $ex = 0;
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_order_api->error}";
+                  }
                 }
               }
             }
@@ -775,7 +903,9 @@ class Transfer extends PS_Controller
 
     if( ! empty($doc))
     {
-      $is_wms = ($this->isAPI == TRUE && $doc->is_wms == 1 && $doc->api == 1) ? TRUE : FALSE;
+      $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
+      $is_wms = $doc->is_wms == 0 OR $doc->api == 0 ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
 
       if($doc->status == 4)
       {
@@ -813,8 +943,6 @@ class Transfer extends PS_Controller
 
               if( ! empty($details))
               {
-                $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
-
                 foreach($details as $rs)
                 {
                   if($sc === FALSE) { break; }
@@ -875,7 +1003,19 @@ class Transfer extends PS_Controller
 
           if($sc === TRUE)
           {
-            if($is_wms === TRUE)
+            if($is_wms === FALSE)
+            {
+              $this->transfer_model->update($code, array('shipped_date' => $date_add));
+
+              if(! $this->do_export($code))
+              {
+                $sc = FALSE;
+                $ex = 0;
+                $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ";
+              }
+            }
+
+            if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
             {
               $this->wms = $this->load->database('wms', TRUE);
               //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
@@ -887,7 +1027,7 @@ class Transfer extends PS_Controller
                 {
                   $sc = FALSE;
                   $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
                 }
               }
 
@@ -902,18 +1042,36 @@ class Transfer extends PS_Controller
                   $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
                 }
               }
-            }
-            else
-            {
-              $this->transfer_model->update($code, array('shipped_date' => now()));
+            } //--- is wms == 1
 
-              if(! $this->do_export($code))
+            if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+              if($doc->direction == 1)
               {
-                $sc = FALSE;
-                $ex = 0;
-                $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ";
+                $this->load->library('soko_receive_api');
+
+                if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                {
+                  $sc = FALSE;
+                  $ex = 0;
+                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                }
               }
-            }
+
+              if($doc->direction == 2)
+              {
+                $this->load->library('soko_order_api');
+
+                if( ! $this->wms_order_api->create_transfer_order($doc, $details))
+                {
+                  $sc = FALSE;
+                  $ex = 0;
+                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                }
+              }
+            } //--- is wms == 2
           }
         }
         else
@@ -949,11 +1107,13 @@ class Transfer extends PS_Controller
     $ex = 1;
     $code = $this->input->post('code');
     $doc = $this->transfer_model->get($code);
-    $is_wms = ($this->isAPI === TRUE && $doc->is_wms == 1 && $doc->api ==1) ? TRUE : FALSE;
+    $is_wms = $is_wms = $doc->is_wms == 0 OR $doc->api == 0 ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
     $is_accept_all = FALSE;
 
     if( ! empty($doc))
     {
+      $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
       if($doc->status == 4)
       {
         $my_zone = $this->transfer_model->get_my_zone($code, $this->_user->id);
@@ -997,8 +1157,6 @@ class Transfer extends PS_Controller
 
                 if( ! empty($details))
                 {
-                  $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
-
                   foreach($details as $rs)
                   {
                     if($sc === FALSE) { break; }
@@ -1061,7 +1219,19 @@ class Transfer extends PS_Controller
 
           if($sc === TRUE && $is_accept_all === TRUE)
           {
-            if($is_wms === TRUE)
+            if($is_wms === FALSE)
+            {
+              $this->transfer_model->update($code, array('shipped_date' => $date_add));
+
+              if(! $this->do_export($code))
+              {
+                $sc = FALSE;
+                $ex = 0;
+                $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ";
+              }
+            }
+
+            if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
             {
               $this->wms = $this->load->database('wms', TRUE);
               //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
@@ -1073,7 +1243,7 @@ class Transfer extends PS_Controller
                 {
                   $sc = FALSE;
                   $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
                 }
               }
 
@@ -1088,18 +1258,36 @@ class Transfer extends PS_Controller
                   $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
                 }
               }
-            }
-            else
-            {
-              $this->transfer_model->update($code, array('shipped_date' => now()));
+            } //--- is wms == 1
 
-              if(! $this->do_export($code))
+            if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+              if($doc->direction == 1)
               {
-                $sc = FALSE;
-                $ex = 0;
-                $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ";
+                $this->load->library('soko_receive_api');
+
+                if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                {
+                  $sc = FALSE;
+                  $ex = 0;
+                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                }
               }
-            }
+
+              if($doc->direction == 2)
+              {
+                $this->load->library('soko_order_api');
+
+                if( ! $this->wms_order_api->create_transfer_order($doc, $details))
+                {
+                  $sc = FALSE;
+                  $ex = 0;
+                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                }
+              }
+            } //--- is wms == 2
           }
         }
         else
@@ -1142,85 +1330,177 @@ class Transfer extends PS_Controller
   }
 
 
-	public function send_to_wms($code)
+	public function send_to_soko($code)
   {
     $sc = TRUE;
 
-		$doc = $this->transfer_model->get($code);
+    if($this->sokoApi)
+    {
+      $doc = $this->transfer_model->get($code);
 
-		if( ! empty($doc))
-		{
-			if($doc->status == -1)
-			{
-				$sc = FALSE;
-				$this->error = "Invalid Document status";
-			}
+      if( ! empty($doc))
+      {
+        if($doc->status == -1)
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Document status";
+        }
 
-      if($doc->must_approve == 1 && $doc->is_approve = 0)
+        if($doc->must_approve == 1 && $doc->is_approve = 0)
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Approve Status";
+        }
+
+        if($sc === TRUE)
+        {
+          $details = $this->transfer_model->get_details($code);
+
+          if(!empty($details))
+          {
+            if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+              if($doc->direction == 1)
+              {
+                $this->load->library('soko_receive_api');
+
+                if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                {
+                  $sc = FALSE;
+                  $ex = 0;
+                  $this->error = "่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_receive_api->error}";
+                }
+              }
+
+              if($doc->direction == 2)
+              {
+                $this->load->library('soko_order_api');
+
+                if( ! $this->wms_order_api->create_transfer_order($doc, $details))
+                {
+                  $sc = FALSE;
+                  $ex = 0;
+                  $this->error = "ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_order_api->error}";
+                }
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Invalid fulfillment API";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "ไม่พบรายการโอนย้าย";
+          }
+        }
+      }
+      else
       {
         $sc = FALSE;
-        $this->error = "Invalid Approve Status";
+        $this->error = "เลขที่เอกสารไม่ถูกต้อง";
       }
-
-      if($sc === TRUE)
-			{
-				$details = $this->transfer_model->get_details($code);
-
-				if(!empty($details))
-				{
-					//--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-					if($doc->is_wms == 1 && $doc->api == 1)
-					{
-						$this->wms = $this->load->database('wms', TRUE);
-						//---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-						if($doc->direction == 1)
-						{
-							$this->load->library('wms_receive_api');
-
-							$rs = $this->wms_receive_api->export_transfer($doc, $details);
-
-							if(! $rs)
-							{
-								$sc = FALSE;
-								$this->error = "Error! - ".$this->wms_receive_api->error;
-							}
-						}
-
-						if($doc->direction == 2)
-						{
-							$this->load->library('wms_order_api');
-
-							$rs = $this->wms_order_api->export_transfer_order($doc, $details);
-
-							if(! $rs)
-							{
-								$sc = FALSE;
-								$this->error = "Error! - ".$this->wms_order_api->error;
-							}
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "Document must process at Warrix";
-					} //-- end if is_wms
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "ไม่พบรายการโอนย้าย";
-				}
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "เลขที่เอกสารไม่ถูกต้อง";
-		}
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "API is not enabled";
+    }
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
 
+
+  public function send_to_wms($code)
+  {
+    $sc = TRUE;
+
+    if($this->wmsApi)
+    {
+      $doc = $this->transfer_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == -1)
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Document status";
+        }
+
+        if($doc->must_approve == 1 && $doc->is_approve = 0)
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Approve Status";
+        }
+
+        if($sc === TRUE)
+        {
+          $details = $this->transfer_model->get_details($code);
+
+          if( ! empty($details))
+          {
+            //--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
+            if($doc->is_wms == 1 && $doc->api == 1)
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+              if($doc->direction == 1)
+              {
+                $this->load->library('wms_receive_api');
+
+                $rs = $this->wms_receive_api->export_transfer($doc, $details);
+
+                if(! $rs)
+                {
+                  $sc = FALSE;
+                  $this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_receive_api->error}";
+                }
+              }
+
+              if($doc->direction == 2)
+              {
+                $this->load->library('wms_order_api');
+
+                $rs = $this->wms_order_api->export_transfer_order($doc, $details);
+
+                if(! $rs)
+                {
+                  $sc = FALSE;
+                  $$this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_order_api->error}";
+                }
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Document must process at Warrix";
+            } //-- end if is_wms
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "ไม่พบรายการโอนย้าย";
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "เลขที่เอกสารไม่ถูกต้อง";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "API is not enabled";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
 
 
   public function unsave_transfer($code)

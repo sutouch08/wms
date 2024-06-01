@@ -29,8 +29,22 @@
 		<input type="text" class="form-control input-sm edit" name="to_warehouse" id="to_warehouse" value="<?php echo $doc->to_warehouse_name; ?>" disabled/>
   </div>
 
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>การดำเนินการ</label>
+		<select class="form-control input-sm edit h" name="is_wms" id="is_wms" disabled>
+			<option value="">เลือก</option>
+			<?php if($this->wmsApi OR $doc->is_wms == 1) : ?>
+				<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>PIONEER</option>
+			<?php endif; ?>
+			<?php if($this->sokoApi OR $doc->is_wms == 2) : ?>
+				<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
+			<?php endif; ?>
+			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>WARRIX</option>
+		</select>
+	</div>
+
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-		<label>WMS</label>
+		<label>Interface</label>
 		<select class="form-control input-sm edit" name="api" id="api" disabled>
 			<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
 			<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
@@ -55,7 +69,7 @@
 		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled >
 	</div>
 
-  <div class="col-lg-7-harf col-md-7-harf col-sm-10 col-xs-12 padding-5">
+  <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>

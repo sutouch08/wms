@@ -1,62 +1,13 @@
-function add() {
-  var isManual = $('#manualCode').length;
-  if(isManual === 1) {
-    getValidate();
-  }
-  else {
-    addTransfer();
-  }
-}
-
-
-function getValidate() {
-  var prefix = $('#prefix').val();
-  var runNo = parseInt($('#runNo').val());
-  let code = $('#code').val();
-  if(code.length == 0) {
-    addTransfer();
-    return false;
-  }
-
-  let arr = code.split('-');
-
-  if(arr.length == 2){
-    if(arr[0] !== prefix){
-      swal('Prefix ต้องเป็น '+prefix);
-      return false;
-    }else if(arr[1].length != (4 + runNo)){
-      swal('Run Number ไม่ถูกต้อง');
-      return false;
-    }else{
-      $.ajax({
-        url: BASE_URL + 'inventory/transfer/is_exists/'+code,
-        type:'GET',
-        cache:false,
-        success:function(rs){
-          if(rs == 'not_exists'){
-            addTransfer();
-          }else{
-            swal({
-              title:'Error!!',
-              text: rs,
-              type: 'error'
-            });
-          }
-        }
-      })
-    }
-
-  }
-  else {
-    swal('เลขที่เอกสารไม่ถูกต้อง');
-    return false;
-  }
-}
-
-
-
+var click = 0;
 //--- เพิ่มเอกสารโอนคลังใหม่
 function addTransfer() {
+  if(click > 0) {
+    return false;
+  }
+
+  click = 1;
+
+  $('.h').removeClass('has-error');
 
   var code = $('#code').val();
 
@@ -70,6 +21,7 @@ function addTransfer() {
   //--- คลังปลายทาง
   var to_warehouse = $('#to_warehouse').val();
   var to_warehouse_code = $('#to_warehouse_code').val();
+  var is_wms = $('#is_wms').val();
   var api = $('#api').val();
   var wx_code = $('#wx_code').val();
 
@@ -81,24 +33,40 @@ function addTransfer() {
   if( ! isDate(date_add))
   {
     swal('วันที่ไม่ถูกต้อง');
+    $('#date').addClass('has-error');
+    click = 0;
     return false;
   }
 
   //--- ตรวจสอบคลังต้นทาง
   if(from_warehouse.length == 0 || from_warehouse_code == ''){
     swal('คลังต้นทางไม่ถูกต้อง');
+    $('.f').addClass('has-error');
+    click = 0;
     return false;
   }
 
   //--- ตรวจสอบคลังปลายทาง
   if(to_warehouse_code == '' || to_warehouse.length == 0){
     swal('คลังปลายทางไม่ถูกต้อง');
+    $('.t').addClass('has-error');
+    click = 0;
     return false;
   }
 
   //--- ตรวจสอบว่าเป็นคนละคลังกันหรือไม่ (ต้องเป็นคนละคลังกัน)
   if( from_warehouse_code == to_warehouse_code) {
     swal('คลังต้นทางต้องไม่ตรงกับคลังปลายทาง');
+    $('.f').addClass('has-error');
+    $('.t').addClass('has-error');
+    click = 0;
+    return false;
+  }
+
+  if( is_wms == "") {
+    swal('กรุณาเลือกการดำเนินการ');
+    $('#is_wms').addClass('has-error');
+    click = 0;
     return false;
   }
 
@@ -109,6 +77,8 @@ function addTransfer() {
       type:'warning'
     });
 
+    $('#remark').addClass('has-error');
+    click = 0;
     return false;
   }
 
@@ -123,6 +93,7 @@ function addTransfer() {
       'date' : date_add,
       'from_warehouse_code' : from_warehouse_code,
       'to_warehouse_code' : to_warehouse_code,
+      'is_wms' : is_wms,
       'api' : api,
       'wx_code' : wx_code,
       'remark' : remark
@@ -158,7 +129,9 @@ function addTransfer() {
 
 
 //--- update เอกสาร
-function update(){
+function update() {
+  $('.h').removeClass('has-error');
+
   //--- ไอดีเอกสาร สำหรับส่งไปอ้างอิงการแก้ไข
   var code = $('#transfer_code').val();
 
@@ -171,6 +144,7 @@ function update(){
   //--  วันที่เอกสาร
   var date_add = $('#date').val();
 
+  var is_wms = $('#is_wms').val();
   //--- หมายเหตุ
   var remark = $('#remark').val();
 
@@ -183,24 +157,35 @@ function update(){
   //--- ตรวจสอบวันที่
   if( ! isDate(date_add)){
     swal('วันที่ไม่ถูกต้อง');
+    $('#date').addClass('has-error');
     return false;
   }
 
   //--- ตรวจสอบคลังต้นทาง
   if(from_warehouse == ''){
     swal('กรุณาเลือกคลังต้นทาง');
+    $('.f').addClass('has-error');
     return false;
   }
 
   //--- ตรวจสอบคลังปลายทาง
   if(to_warehouse == ''){
     swal('กรุณาเลือกคลังปลายทาง');
+    $('.t').addClass('has-error');
     return false;
   }
 
   //--- ตรวจสอบว่าเป็นคนละคลังกันหรือไม่ (ต้องเป็นคนละคลังกัน)
   if( from_warehouse == to_warehouse){
     swal('คลังต้นทางต้องไม่ตรงกับคลังปลายทาง');
+    $('.f').addClass('has-error');
+    $('.t').addClass('has-error');
+    return false;
+  }
+
+  if(is_wms == '') {
+    swal("กรุณาเลือกการดำเนินการ");
+    $('#is_wms').addClass('has-error');
     return false;
   }
 
@@ -243,6 +228,7 @@ function do_update(code, date_add, from_warehouse, to_warehouse, remark)
 {
 	var api = $('#api').val();
 	var wx_code = $('#wx_code').val();
+  var is_wms = $('#is_wms').val();
 
   load_in();
   //--- ถ้าไม่มีอะไรผิดพลาด ส่งข้อมูไป update
@@ -254,6 +240,7 @@ function do_update(code, date_add, from_warehouse, to_warehouse, remark)
       'date_add' : date_add,
       'from_warehouse' : from_warehouse,
       'to_warehouse' : to_warehouse,
+      'is_wms' : is_wms,
       'remark' : remark,
 			'api' : api,
 			'wx_code' : wx_code
