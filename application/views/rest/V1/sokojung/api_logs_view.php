@@ -78,7 +78,7 @@
 				<tr>
 					<th class="fix-width-40 middle text-center">#</th>
 					<th class="fix-width-150 middle">วันที่</th>
-					<th class="fix-width-150 middle">เลขที่/รหัส</th>
+					<th class="fix-width-200 middle">เลขที่/รหัส</th>
 					<th class="fix-width-80 middle text-center">Type</th>
 					<th class="fix-width-80 middle text-center">Action</th>
 					<th class="fix-width-80 middle text-center">Status</th>
