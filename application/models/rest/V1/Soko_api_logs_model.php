@@ -55,7 +55,7 @@ class Soko_api_logs_model extends CI_Model
 
 		if(! empty($ds['type']) && $ds['type'] !== 'all')
 		{
-			$this->wms->whter('type', $ds['type']);
+			$this->wms->where('type', $ds['type']);
 		}
 
 		if(isset($ds['action']) && $ds['action'] != 'all')
@@ -97,7 +97,7 @@ class Soko_api_logs_model extends CI_Model
 
 		if(! empty($ds['type']) && $ds['type'] !== 'all')
 		{
-			$this->wms->whter('type', $ds['type']);
+			$this->wms->where('type', $ds['type']);
 		}
 
 		if(isset($ds['action']) && $ds['action'] != 'all')
