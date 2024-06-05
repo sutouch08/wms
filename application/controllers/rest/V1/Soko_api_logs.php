@@ -23,8 +23,8 @@ class Soko_api_logs extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'logs_code', ''),
       'status' => get_filter('status', 'logs_status', 'all'),
-			'trans_no' => get_filter('trans_no', 'logs_trans_no', ''),
-      'message' => get_filter('message', 'logs_message', ''),
+			'type' => get_filter('type', 'logs_type', 'all'),
+			'action' => get_filter('action', 'logs_action', 'all'),
 			'from_date' => get_filter('from_date', 'from_date', ''),
 			'to_date' => get_filter('to_date', 'to_date', '')
     );
@@ -39,27 +39,34 @@ class Soko_api_logs extends PS_Controller
 			$perpage = get_rows();
 
 			$segment  = 5; //-- url segment
-			$rows     = $this->soko_api_logs_model->count_rows($filter);
+			$rows     = $this->soko_api_logs_model->count_api_rows($filter);
 			//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 			$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-			$logs   = $this->soko_api_logs_model->get_list($filter, $perpage, $this->uri->segment($segment));
+			$logs   = $this->soko_api_logs_model->get_api_list($filter, $perpage, $this->uri->segment($segment));
 
 			$filter['logs'] = $logs;
 
 			$this->pagination->initialize($init);
-			$this->load->view('rest/V1/sokojung/logs_view', $filter);
+			$this->load->view('rest/V1/sokojung/api_logs_view', $filter);
 		}
 
   }
 
+
+	public function view_detail($id)
+	{
+		$ds = $this->soko_api_logs_model->get_api_logs($id);
+
+		$this->load->view('rest/V1/sokojung/api_logs_detail', $ds);
+	}
 
 	public function clear_filter()
 	{
 		$filter = array(
 			'logs_code',
 			'logs_status',
-			'logs_trans_no',
-			'logs_message',
+			'logs_type',
+			'logs_action',
 			'from_date',
 			'to_date'
 		);
