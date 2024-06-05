@@ -132,6 +132,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -153,6 +154,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -170,6 +172,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'create',
@@ -275,6 +278,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -296,6 +300,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -313,6 +318,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'cancel',
@@ -451,6 +457,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -472,6 +479,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -489,6 +497,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'create',
@@ -592,6 +601,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -613,6 +623,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -630,6 +641,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'cancel',
@@ -770,6 +782,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -791,6 +804,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -808,6 +822,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'create',
@@ -912,6 +927,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -933,6 +949,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -950,6 +967,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'cancel',
@@ -1089,6 +1107,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -1110,6 +1129,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -1127,6 +1147,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'create',
@@ -1231,6 +1252,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -1252,6 +1274,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -1269,6 +1292,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'cancel',
@@ -1408,6 +1432,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -1429,6 +1454,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'create',
@@ -1446,6 +1472,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'create',
@@ -1550,6 +1577,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -1571,6 +1599,7 @@ class Soko_receive_api
           {
             $logs = array(
               'trans_id' => genUid(),
+              'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
@@ -1588,6 +1617,7 @@ class Soko_receive_api
       {
         $logs = array(
           'trans_id' => genUid(),
+          'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
           'action' => 'cancel',

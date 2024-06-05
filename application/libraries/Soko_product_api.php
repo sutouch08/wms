@@ -111,6 +111,7 @@ class Soko_product_api
         {
           $logs = array(
             'trans_id' => genUid(),
+            'type' => 'products',
             'api_path' => $api_path,
             'code' => $item->code,
             'action' => 'create',
@@ -132,6 +133,7 @@ class Soko_product_api
         {
           $logs = array(
             'trans_id' => genUid(),
+            'type' => 'products',
             'api_path' => $api_path,
             'code' => $item->code,
             'action' => 'create',
@@ -216,13 +218,6 @@ class Soko_product_api
 
       if( ! empty($res))
       {
-        // if(empty($res->item_code))
-        // {
-        //   $sc = FALSE;
-        //   $this->error = $res->message;
-        //   $res->status == 'failed';
-        // }
-
         if($res->status != 'success')
         {
           $sc = FALSE;
@@ -233,6 +228,7 @@ class Soko_product_api
         {
           $logs = array(
             'trans_id' => genUid(),
+            'type' => 'products',
             'api_path' => $api_path,
             'code' => $item->code,
             'action' => 'create',
@@ -254,6 +250,7 @@ class Soko_product_api
         {
           $logs = array(
             'trans_id' => genUid(),
+            'type' => 'products',
             'api_path' => $api_path,
             'code' => $item->code,
             'action' => 'create',

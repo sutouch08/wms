@@ -199,7 +199,7 @@ class stock_model extends CI_Model
     }
     else
     {
-      $ths->ms->where('OWHS.U_MAIN', 'Y');
+      $this->ms->where('OWHS.U_MAIN', 'Y');
     }
 
     $rs = $this->ms->get();

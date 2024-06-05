@@ -51,7 +51,7 @@ class Import_order extends CI_Controller
 		$config = array(   // initial config for upload class
 			"allowed_types" => "xlsx",
 			"upload_path" => $path,
-			"file_name"	=> "import_order",
+			"file_name"	=> "import_order-".date('YmdHis'),
 			"max_size" => 5120,
 			"overwrite" => TRUE
 			);
