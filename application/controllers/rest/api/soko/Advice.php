@@ -43,7 +43,8 @@ class Advice extends REST_Controller
 				$logs = array(
 					'trans_id' => genUid(),
 					'api_path' => $this->api_path,
-					'code' => 'WR',
+					'type' =>NULL,
+					'code' => NULL,
 					'action' => 'update',
 					'status' => 'failed',
 					'message' => 'empty data',
@@ -171,7 +172,8 @@ class Advice extends REST_Controller
 				$logs = array(
 					'trans_id' => genUid(),
 					'api_path' => $this->api_path,
-					'code' => 'WR',
+					'type' => $ds->type,
+					'code' => $ds->order_number,
 					'action' => 'update',
 					'status' => 'success',
 					'message' => 'success',
@@ -196,7 +198,8 @@ class Advice extends REST_Controller
 				$logs = array(
 					'trans_id' => genUid(),
 					'api_path' => $this->api_path,
-					'code' => 'WR',
+					'type' => $ds->type,
+					'code' => $ds->order_number,
 					'action' => 'update',
 					'status' => 'failed',
 					'message' => $this->error,

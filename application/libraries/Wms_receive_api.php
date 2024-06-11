@@ -679,7 +679,7 @@ class Wms_receive_api
 				$xml .=   "<SUPPLIER_NAME><![CDATA[{$this->sup_name}]]></SUPPLIER_NAME>";
 				$xml .=   "<SUPPLIER_ADDRESS1></SUPPLIER_ADDRESS1>";
 				$xml .=   "<SUPPLIER_ADDRESS2></SUPPLIER_ADDRESS2>";
-				$xml .=   "<REF_NO1></REF_NO1>";
+				$xml .=   "<REF_NO1>{$doc->pallet_no}</REF_NO1>";
 				$xml .=   "<REF_NO2></REF_NO2>";
 				$xml .=   "<REMARK><![CDATA[".$doc->remark."]]></REMARK>";
 				$xml .= "</ORDER>";
