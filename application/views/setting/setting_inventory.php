@@ -16,6 +16,8 @@
 <?php $strict_transfer_no = is_true($STRICT_TRANSFER) ? '' : 'btn-success'; ?>
 <?php $eom_yes = is_true($TRANSFER_EXPIRE_EOM) ? 'btn-success' : ''; ?>
 <?php $eom_no = is_true($TRANSFER_EXPIRE_EOM) ? '' : 'btn-success'; ?>
+<?php $imp_yes = is_true($ALLOW_IMPORT_TRANSFER) ? 'btn-success' : ''; ?>
+<?php $imp_no = is_true($ALLOW_IMPORT_TRANSFER) ? '' : 'btn-success'; ?>
 
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
@@ -190,6 +192,19 @@
       <div class="col-sm-9">
         <input type="number" class="form-control input-sm input-small text-center" name="TRANSFER_EXPIRATION"  value="<?php echo $TRANSFER_EXPIRATION; ?>" />
 				<span class="help-block">เอกสารจะหมดอายุภายในจำนวนวันที่กำหนด กำหนดเป็น 0 หากไม่ต้องการใช้งาน</span>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-3">
+        <span class="form-control left-label">นำเข้ารายการโอนสินค้า</span>
+      </div>
+      <div class="col-sm-9">
+				<div class="btn-group input-medium">
+        	<button type="button" class="btn btn-sm <?php echo $imp_yes; ?>" style="width:50%;" id="btn-imp-yes" onClick="toggleTransferImport(1)">เปิด</button>
+          <button type="button" class="btn btn-sm <?php echo $imp_no; ?>" style="width:50%;" id="btn-imp-no" onClick="toggleTransferImport(0)">ปิด</button>
+        </div>
+        <span class="help-block">เปิด/ปิด การอนุญาติให้ นำเข้ารายการโอนสินค้าเข้าเอกสารโอนสินค้าระหว่างคลัง</span>
+        <input type="hidden" name="ALLOW_IMPORT_TRANSFER" id="transfer-imp" value="<?php echo $ALLOW_IMPORT_TRANSFER; ?>" />
       </div>
       <div class="divider-hidden"></div>
 

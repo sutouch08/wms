@@ -206,6 +206,23 @@ function toggleTransfer(option)
 }
 
 
+function toggleTransferImport(option)
+{
+	$('#transfer-imp').val(option);
+
+	if(option == 1){
+		$('#btn-imp-yes').addClass('btn-success');
+		$('#btn-imp-no').removeClass('btn-success');
+		return;
+	}
+	if(option == 0){
+		$('#btn-imp-yes').removeClass('btn-success');
+		$('#btn-imp-no').addClass('btn-success');
+		return;
+	}
+}
+
+
 function toggleControlCredit(option)
 {
 	$('#control-credit').val(option);
