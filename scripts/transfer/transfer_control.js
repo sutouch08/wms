@@ -579,3 +579,96 @@ function updateStock(code) {
 		}
 	})
 }
+
+
+function getUploadFile(){
+  $('#upload-modal').modal('show');
+}
+
+
+function getFile(){
+  $('#uploadFile').click();
+}
+
+
+$("#uploadFile").change(function(){
+	if($(this).val() != '')
+	{
+		var file 		= this.files[0];
+		var name		= file.name;
+		var type 		= file.type;
+		var size		= file.size;
+
+		if( size > 5000000 )
+		{
+			swal("ขนาดไฟล์ใหญ่เกินไป", "ไฟล์แนบต้องมีขนาดไม่เกิน 5 MB", "error");
+			$(this).val('');
+			return false;
+		}
+		//readURL(this);
+    $('#show-file-name').text(name);
+	}
+});
+
+
+	function uploadfile()
+	{
+		let code = $('#transfer_code').val();
+
+    $('#upload-modal').modal('hide');
+
+		var file	= $("#uploadFile")[0].files[0];
+		var fd = new FormData();
+		fd.append('transfer_code', code);
+		fd.append('uploadFile', $('input[type=file]')[0].files[0]);
+
+		if( file !== '')
+		{
+			load_in();
+			$.ajax({
+				url:HOME + 'import_data',
+				type:"POST",
+        cache:"false",
+        data: fd,
+        processData:false,
+        contentType: false,
+				success: function(rs) {
+					load_out();
+
+					if(rs == 'success') {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							window.location.reload();
+						})
+					}
+					else {
+						swal({
+							title:'Error!',
+							text:rs,
+							type:'error',
+							html:true
+						});
+					}
+				},
+				error:function(xhr) {
+					load_out();
+
+					swal({
+						title:'Error!',
+						text:xhr.responseText,
+						type:'error',
+						html:true
+					})
+				}
+			});
+		}
+	}
+
+	function getTemplate(){
+		window.location.href = HOME + 'get_template_file';
+	}

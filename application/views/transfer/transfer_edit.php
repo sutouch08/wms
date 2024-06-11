@@ -27,7 +27,11 @@
 		      <?php endif; ?>
 
 					<?php if(($doc->status == -1 OR $doc->status == 0) && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
-		      <button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
+						<?php if(getConfig('ALLOW_IMPORT_TRANSFER')) : ?>
+							<button type="button" class="btn btn-sm btn-primary" onclick="getUploadFile()"><i class="fa fa-file-excel-o"></i> Import Excel</button>
+							<button type="button" class="btn btn-sm btn-purple" onclick="getTemplate()"><i class="fa fa-download"></i> ไฟล์ Template</button>
+						<?php endif; ?>
+		      	<button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
 					<?php endif; ?>
 		    <?php endif; ?>
       </p>
@@ -49,6 +53,34 @@
 
 <input type="hidden" name="from_zone_code" id="from_zone_code" value="" />
 <input type="hidden" name="to_zone_code" id="to_zone_code" value="" />
+
+<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog" style="width:500px;">
+	 <div class="modal-content">
+			 <div class="modal-header">
+			 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			 <h4 class="modal-title">Import File</h4>
+			</div>
+			<div class="modal-body">
+				<form id="upload-form" name="upload-form" method="post" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-sm-9">
+						<button type="button" class="btn btn-sm btn-primary btn-block" id="show-file-name" onclick="getFile()">กรุณาเลือกไฟล์ Excel</button>
+					</div>
+
+					<div class="col-sm-3">
+						<button type="button" class="btn btn-sm btn-info" onclick="uploadfile()"><i class="fa fa-cloud-upload"></i> นำเข้า</button>
+					</div>
+				</div>
+				<input type="file" class="hide" name="uploadFile" id="uploadFile" accept=".xlsx" />
+				</form>
+			 </div>
+			<div class="modal-footer">
+
+			</div>
+	 </div>
+ </div>
+</div>
 
 <?php else : ?>
 <?php $this->load->view('deny_page'); ?>

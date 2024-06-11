@@ -8,7 +8,7 @@ class Transfer extends PS_Controller
   public $menu_sub_group_code = 'TRANSFER';
 	public $title = 'โอนสินค้าระหว่างคลัง';
   public $filter;
-  public $error;
+  public $error = "";
 	public $isAPI;
   public $wmsApi;
   public $sokoApi;
@@ -36,6 +36,7 @@ class Transfer extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'tr_code', ''),
       'wx_code' => get_filter('wx_code', 'wx_code', ''),
+      'pallet_no' => get_filter('pallet_no', 'pallet_no', ''),
       'from_warehouse' => get_filter('from_warehouse', 'tr_from_warehouse', 'all'),
       'to_warehouse' => get_filter('to_warehouse', 'tr_to_warehouse', 'all'),
       'user' => get_filter('user', 'tr_user', 'all'),
@@ -70,7 +71,302 @@ class Transfer extends PS_Controller
     $this->load->view('transfer/transfer_list', $filter);
   }
 
+  public function import_data()
+	{
+    $sc = TRUE;
 
+    $code = $this->input->post('transfer_code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->transfer_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == -1 OR $doc->status == 0)
+        {
+          $uid = genUid();
+          $import = 0;
+          $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
+        	$path = $this->config->item('upload_path').'transfer/';
+          $file	= 'uploadFile';
+          $Ymd = date('Ymd');
+      		$config = array(   // initial config for upload class
+      			"allowed_types" => "xlsx",
+      			"upload_path" => $path,
+      			"file_name"	=> "Transfer-import-{$Ymd}-{$uid}",
+      			"max_size" => 5120,
+      			"overwrite" => TRUE
+      		);
+
+      		$this->load->library("upload", $config);
+
+      		if(! $this->upload->do_upload($file))
+          {
+            $sc = FALSE;
+            $this->error = $this->upload->display_errors();
+      		}
+          else
+          {
+            ini_set('max_execution_time', 1200);
+            $this->load->library('excel');
+            $info = $this->upload->data();
+            /// read file
+      			$excel = PHPExcel_IOFactory::load($info['full_path']);
+      			//get only the Cell Collection
+            $cs	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
+
+            $count = count($cs);
+            $limit = intval(getConfig('IMPORT_ROWS_LIMIT')) + 1;
+            $must_accept = 0;
+            $paleetNo = NULL;
+
+            if($count > $limit)
+            {
+              $sc = FALSE;
+              $this->error = "Import data exceeds limit rows : allow {$limit} rows";
+            }
+            else
+            {
+              $i = 1;
+
+              foreach($cs as $rs)
+              {
+                if($sc === FALSE)
+                {
+                  break;
+                }
+
+                if($i == 1)
+                {
+                  if(trim($rs['A']) != 'ProductCode')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column A should be 'ProductCode'";
+                  }
+
+                  if(trim($rs['B']) != 'FromBinCode')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column B should be 'FromBinCode'";
+                  }
+
+                  if(trim($rs['C']) != 'ToBinCode')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column C should be 'ToBinCode'";
+                  }
+
+                  if(trim($rs['D']) != 'Qty')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column C should be 'Qty'";
+                  }
+
+                  $i++;
+                }
+                else
+                {
+                  if($i === 2)
+                  {
+                    //--- check binCode to match with header warehouse
+                    $fromZone = $this->zone_model->get($rs['B']);
+                    $toZone = $this->zone_model->get($rs['C']);
+
+                    $must_accept = empty($toZone) ? 0 : (empty($toZone->user_id) ? 0 : 1);
+                    $palletNo = empty($rs['E']) ? NULL : trim($rs['E']);
+
+                    if(empty($fromZone) OR empty($toZone))
+                    {
+                      $sc = FALSE;
+                      if(empty($fromZone))
+                      {
+                        $this->error .= "FromBinCode '{$rs['B']}' is not valid bin code".PHP_EOL;
+                      }
+
+                      if(empty($toZone))
+                      {
+                        $this->error .= "ToBinCode '{$rs['C']}' is not valid bin code".PHP_EOL;
+                      }
+                    }
+                    else
+                    {
+                      if($fromZone->warehouse_code != $doc->from_warehouse)
+                      {
+                        $sc = FALSE;
+                        $this->error .= "FromBinCode '{$rs['B']}' not match document warehouse".PHP_EOL;
+                      }
+
+                      if($toZone->warehouse_code != $doc->to_warehouse)
+                      {
+                        $sc = FALSE;
+                        $this->error .= "ToBinCode '{$rs['C']}' not match document warehouse".PHP_EOL;
+                      }
+                    }
+
+                    $i++;
+                    break;
+                  }
+                }
+
+                if($i > 2)
+                {
+                  break;
+                }
+              }
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_begin();
+            //--- drop current details
+            if( $this->transfer_model->drop_all_detail($code))
+            {
+              //--- update transfer header to match import file
+              $arr = array(
+                'is_import' => 1,
+                'import_id' => $uid,
+                'import_user' => $this->_user->uname,
+                'pallet_no' => $palletNo
+              );
+
+              if( ! $this->transfer_model->update($code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update transfer header";
+              }
+
+              //--- import items rows
+              if($sc === TRUE)
+              {
+                $this->load->model('masters/products_model');
+                $i = 1;
+
+                foreach($cs as $rs)
+                {
+                  if($sc === FALSE)
+                  {
+                    break;
+                  }
+
+                  //---
+                  if($i == 1)
+                  {
+                    //--- skip first row
+                    $i++;
+                  }
+                  else
+                  {
+                    //--- skip empty rows
+                    if( ! empty($rs['A']) && ! empty($rs['B']) && ! empty($rs['C']) && ! empty($rs['D']))
+                    {
+                      $qty = $rs['D'];
+
+                      if($qty > 0)
+                      {
+                        $pd = $this->products_model->get(trim($rs['A']));
+
+                        if( ! empty($pd))
+                        {
+                          $arr = array(
+                            'transfer_code' => $code,
+                            'product_code' => $pd->code,
+                            'product_name' => $pd->name,
+                            'from_zone' => trim($rs['B']),
+                            'to_zone' => trim($rs['C']),
+                            'qty' => $qty,
+                            'must_accept' => $must_accept,
+                            'is_import' => 1,
+                            'import_id' => $uid,
+                            'pallet_no' => $palletNo
+                          );
+
+                          if( ! $this->transfer_model->add_detail($arr))
+                          {
+                            $sc = FALSE;
+                            $this->error = "Failed to insert item row @ Line {$i} : {$pd->code}";
+                          }
+                        }
+                        else
+                        {
+                          $sc = FALSE;
+                          $this->error = "Invaild ProductCode or ProductCode not found : {$rs['A']}";
+                        }
+                      }
+                      else
+                      {
+                        $sc = FALSE;
+                        $this->error = "Qty cannot be empty";
+                      }//--- if(qty > 0)
+                    } //--- if( ! empty($rs['A']) && ! empty($rs['B']) && ! empty($rs['C']) && ! empty($rs['D']))
+                    $i++;
+                  } //--- if(i == 1)
+                } //--- foreach
+              }//--- $sc = TRUE
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete previous items";
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+          } //--- $sc === TRUE
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid document status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid document number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+	}
+
+
+  public function get_template_file()
+  {
+    $path = $this->config->item('upload_path').'transfer/';
+    $file_name = $path."import_transfer_template.xlsx";
+
+    if(file_exists($file_name))
+    {
+      header('Content-Description: File Transfer');
+      header('Content-Type:Application/octet-stream');
+      header('Cache-Control: no-cache, must-revalidate');
+      header('Expires: 0');
+      header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
+      header('Content-Length: '.filesize($file_name));
+      header('Pragma: public');
+
+      flush();
+      readfile($file_name);
+      die();
+    }
+    else
+    {
+      echo "File Not Found";
+    }
+  }
 
   public function view_detail($code)
   {
