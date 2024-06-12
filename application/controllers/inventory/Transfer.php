@@ -1201,7 +1201,7 @@ class Transfer extends PS_Controller
     {
       $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
-      $is_wms = $doc->is_wms == 0 OR $doc->api == 0 ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
+      $is_wms = ($doc->is_wms == 0 OR $doc->api == 0) ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
 
       if($doc->status == 4)
       {
