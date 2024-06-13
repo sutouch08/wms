@@ -705,7 +705,7 @@ class Transfer extends PS_Controller
             }
             else
             {
-              if($doc->is_wms == 0 OR $doc->api == 0 OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
+              if(($doc->is_wms == 0 OR $doc->api == 0) OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
               {
                 //--- movement
                 $this->load->model('inventory/movement_model');
@@ -860,7 +860,7 @@ class Transfer extends PS_Controller
                 }
               }
 
-              if($doc->is_wms == 0 OR $doc->api == 0 OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
+              if(($doc->is_wms == 0 OR $doc->api == 0) OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
               {
                 $this->transfer_model->update($code, array('shipped_date' => $date_add)); //--- update transferd date
 
@@ -917,7 +917,7 @@ class Transfer extends PS_Controller
       {
         $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
 
-        $is_wms = $doc->is_wms == 0  OR $doc->api == 0 ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
+        $is_wms = ($doc->is_wms == 0  OR $doc->api == 0) ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
 
         if($doc->status == 0 && ($doc->is_approve == 0 OR $doc->is_approve == 3))
         {
@@ -1025,7 +1025,7 @@ class Transfer extends PS_Controller
           {
             if( ! empty($details))
             {
-              if($doc->is_wms == 0 OR $doc->api == 0 OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
+              if(($doc->is_wms == 0 OR $doc->api == 0) OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
               {
                 $this->transfer_model->update($code, array('shipped_date' => $date_add));
 
@@ -1403,7 +1403,7 @@ class Transfer extends PS_Controller
     $ex = 1;
     $code = $this->input->post('code');
     $doc = $this->transfer_model->get($code);
-    $is_wms = $is_wms = $doc->is_wms == 0 OR $doc->api == 0 ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
+    $is_wms = ($doc->is_wms == 0 OR $doc->api == 0) ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
     $is_accept_all = FALSE;
 
     if( ! empty($doc))
