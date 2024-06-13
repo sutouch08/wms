@@ -113,6 +113,8 @@ function addTransfer() {
             type:'error'
           });
         }
+
+        click = 0;
       }
       else {
         swal({
@@ -120,6 +122,8 @@ function addTransfer() {
           text:rs,
           type:'error'
         });
+
+        click = 0;
       }
     }
   });
