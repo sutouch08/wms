@@ -142,9 +142,8 @@ class Soko_auto_receive extends CI_Controller
 		$code = $data->code;
 		$order = $this->receive_po_model->get($code);
 
-		if(!empty($order))
+		if( ! empty($order))
 		{
-			
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
 			if($order->status == 1)
@@ -285,6 +284,7 @@ class Soko_auto_receive extends CI_Controller
 		}
 		else
 		{
+      $sc = FALSE;
 			$this->soko_temp_receive_model->update_status($code, 3, "Order not found");
 		}//--- end if !empty($order)
 
