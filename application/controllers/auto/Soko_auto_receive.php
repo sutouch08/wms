@@ -285,6 +285,7 @@ class Soko_auto_receive extends CI_Controller
 		else
 		{
       $sc = FALSE;
+      $this->error = "Order Not found";
 			$this->soko_temp_receive_model->update_status($code, 3, "Order not found");
 		}//--- end if !empty($order)
 
