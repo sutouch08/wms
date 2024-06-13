@@ -136,6 +136,7 @@ class Soko_auto_receive extends CI_Controller
 
 	private function receive_po($data)
 	{
+    $sc = TRUE;
 		$this->load->model('inventory/receive_po_model');
 
 		$code = $data->code;
@@ -143,8 +144,7 @@ class Soko_auto_receive extends CI_Controller
 
 		if(!empty($order))
 		{
-			$sc = TRUE;
-
+			
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
 			if($order->status == 1)
