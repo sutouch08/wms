@@ -146,7 +146,7 @@
 						<button type="button" class="btn btn-minier btn-info" title="Details" onclick="getDetails(<?php echo $rs->id; ?>)">
 							<i class="fa fa-eye"></i>
 						</button>
-					<?php if($this->_SuperAdmin && $rs->status != 1) : ?>
+					<?php if($rs->status != 1) : ?>
 						<?php if($rs->status != 2) : ?>
 						<button type="button" class="btn btn-minier btn-warning" id="close-btn-<?php echo $rs->id; ?>" title="Close" onclick="closeOrder(<?php echo $rs->id;?>, '<?php echo $rs->code; ?>')">
 							<i class="fa fa-times"></i>
