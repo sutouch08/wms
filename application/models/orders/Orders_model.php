@@ -152,7 +152,7 @@ class Orders_model extends CI_Model
     ->select('id')
     ->where('order_code', $order_code)
     ->where('product_code', $item_code)
-    ->get('order_detaills');
+    ->get('order_details');
 
     if($rs->num_rows() > 0)
     {
