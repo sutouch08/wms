@@ -318,7 +318,7 @@ class Receive_transform extends PS_Controller
       'ex' => $ex
     );
 
-    json_encode($arr);
+    echo json_encode($arr);
   }
 
 
