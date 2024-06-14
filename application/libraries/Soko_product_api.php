@@ -218,10 +218,20 @@ class Soko_product_api
 
       if( ! empty($res))
       {
-        if($res->status != 'success')
+        if(empty($res->error))
+        {
+          if($res->status != 'success')
+          {
+            $sc = FALSE;
+            $this->error = $res->message;
+          }
+        }
+        else
         {
           $sc = FALSE;
-          $this->error = $res->message;
+          $res->status = "failed";
+          $res->message = $res->error;
+          $this->error = $response;
         }
 
         if($this->log_json)
