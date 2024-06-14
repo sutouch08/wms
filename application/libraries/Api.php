@@ -16,15 +16,13 @@ class Api
     if( ! empty($ds))
     {
       $token = $this->token;
-      $url = $this->web_url."eol/order/{$code}/ship";
+      $url = "https://bof.warrix.co.th/eol/order/{$code}/ship";
 
       $setHeaders = array("Content-Type:application/json","Authorization:Bearer {$token}");
 	    $apiUrl = str_replace(" ","%20",$url);
 	    $method = 'POST';
 
       $data_string = json_encode($ds);
-      // echo "Json : <br/>";
-      // echo "<pre>".$data_string ."</pre>";
 
       $ch = curl_init();
 	    curl_setopt($ch, CURLOPT_URL, $apiUrl);
@@ -70,9 +68,6 @@ class Api
 		}
 
   }
-
-
-
 
 
   public function update_order_status($order_id, $current_state, $status)
