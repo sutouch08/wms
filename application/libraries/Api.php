@@ -16,7 +16,7 @@ class Api
     if( ! empty($ds))
     {
       $token = $this->token;
-      $url = "https://bof.warrix.co.th/eol/order/{$code}/ship";
+      $url = "https://bof.warrix.co.th/rest/V1/eol/order/{$code}/ship";
 
       $setHeaders = array("Content-Type:application/json","Authorization:Bearer {$token}");
 	    $apiUrl = str_replace(" ","%20",$url);
