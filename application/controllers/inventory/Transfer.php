@@ -1829,6 +1829,7 @@ class Transfer extends PS_Controller
         'status' => -1,
         'is_approve' => 0
       );
+
       $this->transfer_model->update($code, $arr);
       $this->transfer_model->valid_all_detail($code, 0);
       $this->movement_model->drop_movement($code);

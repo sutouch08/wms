@@ -1,47 +1,49 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
-    	<h3 class="title" >
-        <?php echo $this->title; ?>
-      </h3>
+	<div class="col-lg-4 col-md-4 col-sm-4 hidden-xs padding-5">
+    <h3 class="title" ><?php echo $this->title; ?></h3>
 	</div>
-    <div class="col-sm-6">
-      <p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-  <?php if($doc->is_approve == 1) : ?>
-		<?php if($doc->status == 1) : ?>
-			<button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-		<?php endif; ?>
-		<?php if($doc->status == 3) : ?>
-			<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
-		<?php endif; ?>
-	<?php endif; ?>
+	<div class="col-xs-12 visible-xs padding-5">
+		<h3 class="title-xs"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+			<?php if($doc->is_approve == 1) : ?>
+				<?php if($doc->status == 1) : ?>
+					<button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+				<?php endif; ?>
+				<?php if($doc->status == 3) : ?>
+					<?php if(($doc->is_wms == 1 && $this->wmsApi && $doc->is_api) OR ($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)) : ?>
+						<button type="button" class="btn btn-sm btn-success" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+					<?php endif; ?>
+				<?php endif; ?>
+			<?php endif; ?>
 
-	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_edit) : ?>
+			<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_edit) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="unsave()">ยกเลิกการบันทึก</button>
-	<?php endif; ?>
-	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
+			<?php endif; ?>
+			<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
-	<?php endif; ?>
-	<?php if($this->pm->can_delete && $doc->status != 2) : ?>
+			<?php endif; ?>
+			<?php if($this->pm->can_delete && $doc->status != 2) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
-	<?php endif; ?>
+			<?php endif; ?>
 
-	<?php if($doc->status == 2 && $this->_SuperAdmin) : ?>
-			<button type="button" class="btn btn-sm btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ดึงสถานะกลับมาแก้ไข</button>
-	<?php endif; ?>
+			<?php if($doc->status == 2 && $this->_SuperAdmin) : ?>
+				<button type="button" class="btn btn-sm btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ดึงสถานะกลับมาแก้ไข</button>
+			<?php endif; ?>
 
-	<?php if($doc->status != 0) : ?>
+			<?php if($doc->status != 0) : ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
 				<?php if($doc->status != 2) : ?>
-				<button type="button" class="btn btn-sm btn-info" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+					<button type="button" class="btn btn-sm btn-info" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+				<?php endif; ?>
 			<?php endif; ?>
-	<?php endif; ?>
-      </p>
-    </div>
+		</p>
+	</div>
 </div>
 <hr />
-
 
 <div class="row">
     <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
@@ -81,8 +83,14 @@
 		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 			<label>รับที่</label>
 			<select class="form-control input-sm" disabled>
-				<option value="1" <?php echo is_selected("1", $doc->is_wms); ?>>Pioneer</option>
-				<option value="0" <?php echo is_selected("0", $doc->is_wms); ?>>Warrix</option>
+				<option value="">เลือก</option>
+				<?php if($this->wmsApi OR $doc->is_wms == 1) : ?>
+					<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>PIONEER</option>
+				<?php endif; ?>
+				<?php if($this->sokoApi OR $doc->is_wms == 2) : ?>
+					<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
+				<?php endif; ?>
+				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>WARRIX</option>
 			</select>
 		</div>
 		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">

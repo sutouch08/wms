@@ -7,17 +7,6 @@ function toggleCheckAll(el) {
 }
 
 
-function toggleInterface() {
-	var wms = $('#is_wms').val();
-	if(wms == "1") {
-		$('#is_api').val(1);
-	}
-	else {
-		$('#is_api').val(0);
-	}
-}
-
-
 function deleteChecked(){
 	var count = $('.chk:checked').length;
 	if(count > 0){
@@ -394,6 +383,7 @@ function addNew()
 	}
 
 	load_in();
+
 	$.ajax({
 		url: HOME + 'add',
 		type:'POST',
@@ -497,7 +487,8 @@ $('#zone').autocomplete({
 	close:function(){
 		var arr = $(this).val().split(' | ');
 		if(arr.length == 2){
-			$(this).val(arr[1]);
+			name = arr[1] == '' ? arr[0] : arr[1];
+			$(this).val(name);
 			$('#zone_code').val(arr[0]);
 		}else{
 			$(this).val('');

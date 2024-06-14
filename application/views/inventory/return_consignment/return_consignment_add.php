@@ -40,8 +40,13 @@
 		</div>
 		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 			<label>รับที่</label>
-			<select class="form-control input-sm" name="is_wms" id="is_wms" onchange="toggleInterface()">
+			<select class="form-control input-sm" name="is_wms" id="is_wms">
+				<?php if($this->wmsApi) : ?>
 				<option value="1">Pioneer</option>
+				<?php endif; ?>
+				<?php if($this->sokoApi) : ?>
+				<option value="2">SOKOCHAN</option>
+				<?php endif; ?>
 				<option value="0">Warrix</option>
 			</select>
 		</div>
