@@ -166,7 +166,7 @@ class Soko_product_api
   }
 
 
-  //---- create item
+  //---- update item
   public function update_item($item_code, $item = NULL)
   {
     $sc = TRUE;
@@ -190,8 +190,8 @@ class Soko_product_api
         'ean' => ""
       );
 
-      $api_path = $this->url."products";
-      $url = $api_path."?sku=".$item->code;
+      $api_path = $this->url."products/".$item->soko_code;
+      $url = $api_path;
 
       $method = "PUT";
 
