@@ -597,6 +597,14 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function is_exists_pallet($palletNo)
+  {
+    $count = $this->db->where('status !=', 2)->where('pallet_no', $palletNo)->count_all_results('transfer');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+
   public function set_status($code, $status)
   {
     return $this->db->set('status', $status)->where('code', $code)->update('transfer');

@@ -176,6 +176,15 @@ class Transfer extends PS_Controller
                     $must_accept = empty($toZone) ? 0 : (empty($toZone->user_id) ? 0 : 1);
                     $palletNo = empty($rs['E']) ? NULL : trim($rs['E']);
 
+                    if( ! empty($palletNo))
+                    {
+                      if($this->transfer_model->is_exists_pallet($palletNo))
+                      {
+                        $sc = FALSE;
+                        $this->error = "Pallet No {$palletNo} already exists";
+                      }
+                    }
+
                     if(empty($fromZone) OR empty($toZone))
                     {
                       $sc = FALSE;
