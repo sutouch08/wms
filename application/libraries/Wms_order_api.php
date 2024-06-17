@@ -291,7 +291,7 @@ class Wms_order_api
 					$xml .=   "<COD_AMOUNT>0.00</COD_AMOUNT>";
 					$xml .=   "<SALES_CHANNEL_CODE></SALES_CHANNEL_CODE>";
 					$xml .=   "<SALES_CHANNEL_NAME></SALES_CHANNEL_NAME>";
-					$xml .=   "<REF_NO1></REF_NO1>";
+					$xml .=   "<REF_NO1>{$order->pallet_no}</REF_NO1>";
 					$xml .=   "<REF_NO2></REF_NO2>";
 					$xml .=   "<TRANSFORMED_ITEMS>NO</TRANSFORMED_ITEMS>";
 					$xml .=   "<REMARK><![CDATA[".$order->remark."]]></REMARK>";
