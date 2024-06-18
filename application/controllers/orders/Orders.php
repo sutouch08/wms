@@ -334,158 +334,166 @@ class Orders extends PS_Controller
 
           if( $qty > 0 && !empty($item))
           {
-            $qty = ceil($qty);
-
-            //---- ยอดสินค้าที่่สั่งได้
-            $sumStock = $this->get_sell_stock($item->code, $order->warehouse_code);
-
-
-            //--- ถ้ามีสต็อกมากว่าที่สั่ง หรือ เป็นสินค้าไม่นับสต็อก
-            if( $sumStock >= $qty OR $item->count_stock == 0 OR $auz == 1)
+            if($item->can_sell == 1 && $item->active == 1)
             {
-              //---- ถ้ายังไม่มีรายการในออเดอร์
-              //--- อาจจะได้มากกกว่า 1 บรรทัด แต่จะเอามาแค่บรรทัดเดียว
-              $detail = $this->orders_model->get_exists_detail($order_code, $item->code, $item->price);
+              $qty = ceil($qty);
 
-              if(empty($detail))
+              //---- ยอดสินค้าที่่สั่งได้
+              $sumStock = $this->get_sell_stock($item->code, $order->warehouse_code);
+
+
+              //--- ถ้ามีสต็อกมากว่าที่สั่ง หรือ เป็นสินค้าไม่นับสต็อก
+              if( $sumStock >= $qty OR $item->count_stock == 0 OR $auz == 1)
               {
-                //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
-                $discount = array(
+                //---- ถ้ายังไม่มีรายการในออเดอร์
+                //--- อาจจะได้มากกกว่า 1 บรรทัด แต่จะเอามาแค่บรรทัดเดียว
+                $detail = $this->orders_model->get_exists_detail($order_code, $item->code, $item->price);
+
+                if(empty($detail))
+                {
+                  //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
+                  $discount = array(
+                    'amount' => 0,
+                    'id_rule' => NULL,
+                    'discLabel1' => 0,
+                    'discLabel2' => 0,
+                    'discLabel3' => 0
+                  );
+
+                  if($order->role == 'S')
+                  {
+                    $discount = $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add, $order->code);
+                  }
+
+                  if($order->role == 'C' OR $order->role == 'N')
+                  {
+                    $gp = $order->gp;
+                    //------ คำนวณส่วนลดใหม่
+                    $step = explode('+', $gp);
+                    $discAmount = 0;
+                    $discLabel = array(0, 0, 0);
+                    $price = $item->price;
+                    $i = 0;
+                    foreach($step as $discText)
+                    {
+                      if($i < 3) //--- limit ไว้แค่ 3 เสต็ป
+                      {
+                        $disc = explode('%', $discText);
+                        $disc[0] = floatval(trim($disc[0])); //--- ตัดช่องว่างออก
+                        $amount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
+                        $discLabel[$i] = count($disc) == 1 ? $disc[0] : $disc[0].'%';
+                        $discAmount += $amount;
+                        $price -= $amount;
+                      }
+
+                      $i++;
+                    }
+
+                    $total_discount = $qty * $discAmount; //---- ส่วนลดรวม
+                    //$total_amount = ( $qty * $price ) - $total_discount; //--- ยอดรวมสุดท้าย
+                    $discount['amount'] = $total_discount;
+                    $discount['discLabel1'] = $discLabel[0];
+                    $discount['discLabel2'] = $discLabel[1];
+                    $discount['discLabel3'] = $discLabel[2];
+                  }
+
+                  $arr = array(
+                  "order_code"	=> $order_code,
+                  "style_code"		=> $item->style_code,
+                  "product_code"	=> $item->code,
+                  "product_name"	=> addslashes($item->name),
+                  "cost"  => $item->cost,
+                  "price"	=> $item->price,
+                  "qty"		=> $qty,
+                  "discount1"	=> $discount['discLabel1'],
+                  "discount2" => $discount['discLabel2'],
+                  "discount3" => $discount['discLabel3'],
+                  "discount_amount" => $discount['amount'],
+                  "total_amount"	=> ($item->price * $qty) - $discount['amount'],
+                  "id_rule"	=> get_null($discount['id_rule']),
+                  "is_count" => $item->count_stock
+                  );
+
+                  if( $this->orders_model->add_detail($arr) === FALSE )
+                  {
+                    $sc = FALSE;
+                    $this->error = "Error : Insert fail";
+                    $err++;
+                  }
+                  else
+                  {
+                    //---- update chatbot stock
+                    if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                    {
+                      if($order->warehouse_code == $chatbot_warehouse_code)
+                      {
+                        $sync_stock[] = $item->code;
+                      }
+                    }
+                  }
+
+                }
+                else  //--- ถ้ามีรายการในออเดอร์อยู่แล้ว
+                {
+                  $qty			= $qty + $detail->qty;
+
+                  $discount = array(
                   'amount' => 0,
                   'id_rule' => NULL,
                   'discLabel1' => 0,
                   'discLabel2' => 0,
                   'discLabel3' => 0
-                );
+                  );
 
-                if($order->role == 'S')
-                {
-                  $discount = $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add, $order->code);
-                }
-
-                if($order->role == 'C' OR $order->role == 'N')
-                {
-                  $gp = $order->gp;
-                  //------ คำนวณส่วนลดใหม่
-                  $step = explode('+', $gp);
-                  $discAmount = 0;
-                  $discLabel = array(0, 0, 0);
-                  $price = $item->price;
-                  $i = 0;
-                  foreach($step as $discText)
+                  //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
+                  if($order->role == 'S')
                   {
-                    if($i < 3) //--- limit ไว้แค่ 3 เสต็ป
-                    {
-                      $disc = explode('%', $discText);
-                      $disc[0] = floatval(trim($disc[0])); //--- ตัดช่องว่างออก
-                      $amount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
-                      $discLabel[$i] = count($disc) == 1 ? $disc[0] : $disc[0].'%';
-                      $discAmount += $amount;
-                      $price -= $amount;
-                    }
-
-                    $i++;
+                    $discount 	= $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add, $order->code);
                   }
 
-                  $total_discount = $qty * $discAmount; //---- ส่วนลดรวม
-                  //$total_amount = ( $qty * $price ) - $total_discount; //--- ยอดรวมสุดท้าย
-                  $discount['amount'] = $total_discount;
-                  $discount['discLabel1'] = $discLabel[0];
-                  $discount['discLabel2'] = $discLabel[1];
-                  $discount['discLabel3'] = $discLabel[2];
-                }
+                  $arr = array(
+                  "qty"		=> $qty,
+                  "discount1"	=> $discount['discLabel1'],
+                  "discount2" => $discount['discLabel2'],
+                  "discount3" => $discount['discLabel3'],
+                  "discount_amount" => $discount['amount'],
+                  "total_amount"	=> ($item->price * $qty) - $discount['amount'],
+                  "id_rule"	=> get_null($discount['id_rule']),
+                  "valid" => 0
+                  );
 
-                $arr = array(
-                "order_code"	=> $order_code,
-                "style_code"		=> $item->style_code,
-                "product_code"	=> $item->code,
-                "product_name"	=> addslashes($item->name),
-                "cost"  => $item->cost,
-                "price"	=> $item->price,
-                "qty"		=> $qty,
-                "discount1"	=> $discount['discLabel1'],
-                "discount2" => $discount['discLabel2'],
-                "discount3" => $discount['discLabel3'],
-                "discount_amount" => $discount['amount'],
-                "total_amount"	=> ($item->price * $qty) - $discount['amount'],
-                "id_rule"	=> get_null($discount['id_rule']),
-                "is_count" => $item->count_stock
-                );
-
-                if( $this->orders_model->add_detail($arr) === FALSE )
-                {
-                  $sc = FALSE;
-                  $this->error = "Error : Insert fail";
-                  $err++;
-                }
-                else
-                {
-                  //---- update chatbot stock
-                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                  if( $this->orders_model->update_detail($detail->id, $arr) === FALSE )
                   {
-                    if($order->warehouse_code == $chatbot_warehouse_code)
+                    $sc = FALSE;
+                    $this->error = "Error : Update Fail";
+                    $err++;
+                  }
+                  else
+                  {
+                    //---- update chatbot stock
+                    if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
                     {
-                      $sync_stock[] = $item->code;
+                      if($order->warehouse_code == $chatbot_warehouse_code)
+                      {
+                        $sync_stock[] = $item->code;
+                      }
                     }
                   }
-                }
 
+                }	//--- end if isExistsDetail
               }
-              else  //--- ถ้ามีรายการในออเดอร์อยู่แล้ว
+              else 	// if getStock
               {
-                $qty			= $qty + $detail->qty;
-
-                $discount = array(
-                'amount' => 0,
-                'id_rule' => NULL,
-                'discLabel1' => 0,
-                'discLabel2' => 0,
-                'discLabel3' => 0
-                );
-
-                //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
-                if($order->role == 'S')
-                {
-                  $discount 	= $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add, $order->code);
-                }
-
-                $arr = array(
-                "qty"		=> $qty,
-                "discount1"	=> $discount['discLabel1'],
-                "discount2" => $discount['discLabel2'],
-                "discount3" => $discount['discLabel3'],
-                "discount_amount" => $discount['amount'],
-                "total_amount"	=> ($item->price * $qty) - $discount['amount'],
-                "id_rule"	=> get_null($discount['id_rule']),
-                "valid" => 0
-                );
-
-                if( $this->orders_model->update_detail($detail->id, $arr) === FALSE )
-                {
-                  $sc = FALSE;
-                  $this->error = "Error : Update Fail";
-                  $err++;
-                }
-                else
-                {
-                  //---- update chatbot stock
-                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
-                  {
-                    if($order->warehouse_code == $chatbot_warehouse_code)
-                    {
-                      $sync_stock[] = $item->code;
-                    }
-                  }
-                }
-
-              }	//--- end if isExistsDetail
+                $sc = FALSE;
+                $this->error = "Error : สินค้าไม่เพียงพอ : {$item->code}";
+                $err++;
+              } 	//--- if getStock
             }
-            else 	// if getStock
+            else
             {
               $sc = FALSE;
-              $this->error = "Error : สินค้าไม่เพียงพอ : {$item->code}";
-              $err++;
-            } 	//--- if getStock
+              $this->error = $item->active == 1 ? "ไม่อนุญาติให้ขายหรือเบิกสินค้านี้" : "สินค้าถูกปิดการใช้งาน";              
+            }
           }	//--- if qty > 0
         } //--- end foreach
 
