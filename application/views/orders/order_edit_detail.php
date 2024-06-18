@@ -5,6 +5,42 @@ $edit = $this->pm->can_edit;
 $delete = $this->pm->can_delete;
 $hide = $order->status == 1 ? 'hide' : '';
  ?>
+ <style>
+ .tableFixHead {
+ 	table-layout: fixed;
+ 	min-width: 100%;
+ 	margin-bottom: 0;
+ }
+
+ .tableFixHead thead th {
+ 	position: sticky;
+ 	top: -1px;
+ 	background-color: #f2f2f2;
+ 	font-size: 12px;
+ }
+
+ .fix-header {
+   z-index: 50;
+   background-color: white;
+   outline: solid 1px #dddddd;
+ }
+
+ @media (min-width: 768px) {
+   .fix-size {
+     left: 0;
+     position: sticky;
+     background-color: #eee !important;
+   }
+
+
+   td[scope=row] {
+     background-color: white;
+     border: 0 !important;
+     outline: solid 1px #dddddd;
+   }
+ }
+
+ </style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-3 padding-5">
     	<h4 class="title"><?php echo $this->title; ?></h4>
@@ -163,10 +199,9 @@ $hide = $order->status == 1 ? 'hide' : '';
 
 <?php $this->load->view('orders/order_detail');  ?>
 
-
 <form id="orderForm">
 <div class="modal fade" id="orderGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" id="modal" style="max-width:95%;">
+	<div class="modal-dialog" id="modal" style="max-width:95vw;">
 		<div class="modal-content">
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -175,7 +210,7 @@ $hide = $order->status == 1 ? 'hide' : '';
 			 </div>
 			 <div class="modal-body">
          <div class="row">
-           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="modalBody">
+           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="height:60vh; padding:0; overflow:auto;" id="modalBody">
 
            </div>
          </div>

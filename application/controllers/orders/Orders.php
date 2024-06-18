@@ -30,6 +30,9 @@ class Orders extends PS_Controller
     $this->load->model('masters/products_model');
     $this->load->model('orders/discount_model');
 
+    //--- เฉพาะกิจ
+    $this->load->model('inventory/transfer_model');
+
     $this->load->helper('order');
     $this->load->helper('channels');
     $this->load->helper('payment_method');
@@ -492,7 +495,7 @@ class Orders extends PS_Controller
             else
             {
               $sc = FALSE;
-              $this->error = $item->active == 1 ? "ไม่อนุญาติให้ขายหรือเบิกสินค้านี้" : "สินค้าถูกปิดการใช้งาน";              
+              $this->error = $item->active == 1 ? "ไม่อนุญาติให้ขายหรือเบิกสินค้านี้" : "สินค้าถูกปิดการใช้งาน";
             }
           }	//--- if qty > 0
         } //--- end foreach
@@ -1385,7 +1388,7 @@ class Orders extends PS_Controller
 					}
 					else
 					{
-            $tbs = '<table class="table table-bordered border-1" style="min-width:'.$tableWidth.'px;">';
+            $tbs = '<table class="table table-bordered border-1 tableFixHead" style="min-width:'.$tableWidth.'px;">';
             $tbe = '</table>';
 						$ds = array(
 							'status' => 'success',
@@ -1600,7 +1603,7 @@ class Orders extends PS_Controller
 		{
       $bg_color = '';
 			$sc 	.= '<tr style="font-size:12px; '.$bg_color.'">';
-			$sc 	.= '<td class="text-center middle"><strong>'.$size_code.'</strong></td>';
+			$sc 	.= '<td class="text-center middle fix-size" scope="row"><strong>'.$size_code.'</strong></td>';
 
 			foreach( $colors as $color_code => $color )
 			{
@@ -1685,12 +1688,18 @@ class Orders extends PS_Controller
 
   public function gridHeader(array $colors)
   {
-    $sc = '<tr class="font-size-12"><td style="width:80px;">&nbsp;</td>';
+    $sc = '<thead>';
+    $sc .= '<tr class="font-size-12">';
+    $sc .= '<th class="fix-width-80 fix-size fix-header" style="z-index:100">&nbsp;</th>';
+
     foreach( $colors as $code => $name )
     {
-      $sc .= '<td class="text-center middle" style="width:80px; white-space:normal;">'.$code . '<br/>'. $name.'</td>';
+      $sc .= '<th class="text-center middle fix-header" style="width:80px; white-space:normal;">'.$code . '<br/>'. $name.'</th>';
     }
+
     $sc .= '</tr>';
+    $sc .= '</thead>';
+
     return $sc;
   }
 
@@ -1849,10 +1858,17 @@ class Orders extends PS_Controller
 
   public function get_sell_stock($item_code, $warehouse = NULL, $zone = NULL)
   {
+    $transfer_stock = $warehouse == 'AFG-0010' ? $this->transfer_model->get_uncomplete_transfer_qty($item_code, $warehouse) : 0;
     $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
     $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
-    $availableStock = $sell_stock - $reserv_stock;
+    $availableStock = $sell_stock - $reserv_stock - $transfer_stock;
 		return $availableStock < 0 ? 0 : $availableStock;
+
+    // //---- Orignal
+    // $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
+    // $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
+    // $availableStock = $sell_stock - $reserv_stock;
+		// return $availableStock < 0 ? 0 : $availableStock;
   }
 
 

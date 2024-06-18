@@ -6,6 +6,24 @@ class Transfer_model extends CI_Model
     parent::__construct();
   }
 
+  //--- เฉพาะกิจ
+  public function get_uncomplete_transfer_qty($item_code, $warehouse)
+  {
+    $rs = $this->db
+    ->select_sum('td.qty')
+    ->from('transfer_detail AS td')
+    ->join('transfer AS tr', 'td.transfer_code = tr.code', 'left')
+    ->where('td.product_code', $item_code)
+    ->where('tr.from_warehouse', $warehouse)
+    ->where('tr.is_wms', 1)
+    ->where('tr.pallet_no IS NOT NULL', NULL, FALSE)
+    ->where('tr.inv_code IS NULL', NULL, FALSE)
+    ->where('tr.is_expire', 0)
+    ->where_not_in('tr.status', ['1', '2'])
+    ->get();
+
+    return empty($rs->row()->qty) ? 0 : $rs->row()->qty;
+  }
 
 
   public function get_sap_transfer_doc($code)
