@@ -79,6 +79,7 @@ class Soko_order_api
 				$channels = $order->role === 'S' ? $this->ci->channels_model->get($order->channels_code) : NULL;
 				$channels_code = !empty($channels) ? $order->channels_code : $role_type_list[$order->role];
 				$channels_name = !empty($channels) ? $channels->name : "";
+        $isOnline = ! empty($channels) ? $channels->is_online : 0;
         $doc_total = $order->doc_total <= 0 ? $this->ci->orders_model->get_order_total_amount($order->code) : $order->doc_total;
 				$cod = $order->role === 'S' ? ($order->payment_role == 4 ? 'COD' : 'NON-COD') : 'NON-COD';
         $cod_amount = $cod === 'COD' ? ($order->cod_amount == 0 ? $doc_total : $order->cod_amount) : 0.00;
@@ -99,8 +100,9 @@ class Soko_order_api
             'special_order' => "",
             'shipping' => (!empty($sender) ? $sender->code : ""),
             'tracking_no' => $order->shipping_code,
-            'print_bill' => FALSE,
+            'print_bill' => $isOnline ? 0 : 1,
             'order_type' => $this->type,
+            'order_mode' => $isOnline,
             'customer' => [
               'code' => empty($addr->code) ? $order->customer_code : $addr->code,
               'name' => $addr->name,
