@@ -578,7 +578,12 @@ function changeState(){
                     }, 1500);
 
                 }else{
-                    swal("Error !", rs, "error");
+                    swal({
+                      title:"Error!",
+                      text:rs,
+                      type:'error',
+                      html:true
+                    });
                 }
             }
         });

@@ -1,4 +1,11 @@
 <?php
+function is_api($is_wms = 0, $wmsApi = FALSE, $sokoApi = FALSE)
+{
+	$is_api = $is_wms == 0 ? FALSE : ($is_wms == 1 && $wmsApi ? TRUE : ($is_wms == 2 && $sokoApi ? TRUE : FALSE));
+
+	return $is_api;
+}
+
 function setToken($token)
 {
 	$CI =& get_instance();

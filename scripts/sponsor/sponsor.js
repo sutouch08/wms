@@ -61,7 +61,7 @@ function approve()
   var order_code = $('#order_code').val();
 	var is_wms = $('#is_wms').val();
 
-	if(is_wms == 1) {
+	if(is_wms) {
 		var id_address = $('#address_id').val();
 		var id_sender = $('#id_sender').val();
 
@@ -149,7 +149,7 @@ function change_state(){
 	var tracking = $('#tracking').val();
 	var is_wms = $('#is_wms').val();
 
-	if(is_wms == 1) {
+	if(is_wms) {
 
 		if(id_address == "") {
 			swal("กรุณาระบุที่อยู่จัดส่ง");

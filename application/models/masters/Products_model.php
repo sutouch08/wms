@@ -704,11 +704,11 @@ class Products_model extends CI_Model
 
   public function get_with_old_code($code)
   {
-    //$rs = $this->db->where('code', $code)->or_where('old_code', $code)->get('products');
     $rs = $this->db->where('code', $code)->or_where('old_code', $code)->get('products');
+
     if($rs->num_rows() > 0)
     {
-      return $rs->num_rows() == 1 ? $rs->row() : $rs->result();
+      return $rs->row(); //$rs->num_rows() == 1 ? $rs->row() : $rs->result();
     }
 
 

@@ -12,11 +12,15 @@ $('#due_date').datepicker({
 function saveOrder(){
   var order_code = $('#order_code').val();
   if(validateTransformProducts()){
+    load_in();
+
     $.ajax({
   		url: HOME + 'save/'+ order_code,
   		type:"POST",
       cache:false,
-  		success:function(rs){
+  		success:function(rs) {
+        load_out();
+
   			var rs = $.trim(rs);
   			if( rs == 'success' ){
   				swal({
@@ -29,12 +33,14 @@ function saveOrder(){
             editOrder(order_code)
           }, 1200);
 
-  			}else{
+  			}
+        else {
   				swal("Error ! ", rs , "error");
   			}
   		}
   	});
-  }else{
+  }
+  else {
 		swal('warning !', 'กรุณากำหนดสินค้าแปรสภาพให้ครบถ้วน', 'warning');
 	}
 

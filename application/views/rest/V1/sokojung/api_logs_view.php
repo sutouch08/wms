@@ -35,6 +35,14 @@
 			<option value="WR" <?php echo is_selected('WR', $type); ?>>WR</option>
 			<option value="WW" <?php echo is_selected('WW', $type); ?>>WW</option>
 			<option value="RC" <?php echo is_selected('RC', $type); ?>>RC</option>
+			<option value="WO" <?php echo is_selected('WO', $type); ?>>WO</option>
+			<option value="WC" <?php echo is_selected('WC', $type); ?>>WC</option>
+			<option value="WT" <?php echo is_selected('WT', $type); ?>>WT</option>
+			<option value="WU" <?php echo is_selected('WU', $type); ?>>WU</option>
+			<option value="WS" <?php echo is_selected('WS', $type); ?>>WS</option>
+			<option value="WL" <?php echo is_selected('WL', $type); ?>>WL</option>
+			<option value="WQ" <?php echo is_selected('WQ', $type); ?>>WQ</option>
+			<option value="WV" <?php echo is_selected('WV', $type); ?>>WV</option>
 		</select>
   </div>
 

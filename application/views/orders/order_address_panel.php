@@ -26,7 +26,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
 			<div class="col-lg-6 col-lg-offset-6 col-md-6 col-md-offset-6 col-sm-6 col-sm-offset-6 col-xs-12 padding-5 bottom-btn" id="rc-div" style="z-index:1;">
-				<?php if($order->is_wms && $order->wms_export == 1) : ?>
+				<?php if($order->is_wms != 0 && $order->wms_export == 1) : ?>
 					<?php if($order->state == 9 && $order->is_cancled == 1) : ?>
 						<button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="print_wms_return_request()">พิมพ์ RC-WO</button>
 					<?php endif; ?>
@@ -85,7 +85,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                     <td><?php echo $rs->address." ". $rs->sub_district." ".$rs->district." ".$rs->province." ". $rs->postcode; ?></td>
                     <td><?php echo $rs->phone; ?></td>
                     <td align="right">
-									<?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR ($order->is_wms == 1 && $order->wms_export != 1)) : ?>
+									<?php if(( ! $order->is_wms) OR ($order->is_wms && $order->state < 3) OR ($order->is_wms && $order->wms_export != 1)) : ?>
 										<?php $func = "onClick='setAddress({$rs->id})'"; ?>
 									<?php else : ?>
 										<?php $func = ""; ?>
@@ -104,7 +104,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 												<i class="fa fa-print"></i>
 											</button>
                       <button type="button" class="btn btn-minier btn-warning" onClick="editAddress(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>
-                      <button type="button" class="btn btn-minier btn-danger" onClick="removeAddress(<?php echo $rs->id; ?>)"><i class="fa fa-trash"></i></button>										
+                      <button type="button" class="btn btn-minier btn-danger" onClick="removeAddress(<?php echo $rs->id; ?>)"><i class="fa fa-trash"></i></button>
                     </td>
                   </tr>
 
@@ -134,7 +134,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                 </select>
               </div>
               <div class="col-lg-2 col-md-3 col-sm-3 col-xs-3 padding-5">
-                <?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->id_sender == NULL) : ?>
+                <?php if(($order->is_wms == 0) OR ($order->is_wms != 0 && $order->state < 3) OR $order->id_sender == NULL) : ?>
                 <button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
                 <?php endif; ?>
               </div>

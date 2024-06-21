@@ -92,6 +92,7 @@ function approve()
   	}
 
   	load_in();
+
     $.ajax({
       url:BASE_URL + 'orders/orders/do_approve/'+order_code,
       type:'POST',

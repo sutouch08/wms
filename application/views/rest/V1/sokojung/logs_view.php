@@ -52,16 +52,16 @@
 <hr class="margin-top-15 padding-5"/>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5">
-		<table class="table table-striped border-1">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<table class="table table-striped border-1" style="min-width:700px;">
 			<thead>
 				<tr>
-					<th class="width-5 middle text-center">#</th>
-					<th class="width-20 middle">วันที่</th>
-					<th class="width-15 middle">เลขที่/รหัส</th>
-					<th class="width-10 middle text-center">สถานะ</th>
-					<th class="middle">Message</th>
-					<th class="width-10 middle">List No</th>
+					<th class="fix-width-40 middle text-center">#</th>
+					<th class="fix-width-150 middle">วันที่</th>
+					<th class="fix-width-150 middle">เลขที่/รหัส</th>
+					<th class="fix-width-60 middle text-center">สถานะ</th>
+					<th class="min-width-100 middle">Message</th>
+					<th class="fix-width-150 middle">List No</th>
 				</tr>
 			</thead>
 			<tbody>

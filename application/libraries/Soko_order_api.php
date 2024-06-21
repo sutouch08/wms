@@ -39,13 +39,10 @@ class Soko_order_api
 			'U' => 'WU',
 			'C' => 'WC',
 			'N' => 'WT',
-			'Q' => 'WQ',
-			'T' => 'WV',
+			'Q' => 'WV',
+			'T' => 'WQ',
 			'L' => 'WL'
 		);
-
-		$xml = "";
-
 
     $order = $this->ci->orders_model->get($code);
 
@@ -77,102 +74,195 @@ class Soko_order_api
 
 			if($sc === TRUE)
 			{
+        $this->type = $role_type_list[$order->role];
 				$details = $this->ci->orders_model->get_only_count_stock_details($code);
 				$channels = $order->role === 'S' ? $this->ci->channels_model->get($order->channels_code) : NULL;
-				$order_type = !empty($channels) ? $channels->type_code : $role_type_list[$order->role];
 				$channels_code = !empty($channels) ? $order->channels_code : $role_type_list[$order->role];
 				$channels_name = !empty($channels) ? $channels->name : "";
         $doc_total = $order->doc_total <= 0 ? $this->ci->orders_model->get_order_total_amount($order->code) : $order->doc_total;
 				$cod = $order->role === 'S' ? ($order->payment_role == 4 ? 'COD' : 'NON-COD') : 'NON-COD';
         $cod_amount = $cod === 'COD' ? ($order->cod_amount == 0 ? $doc_total : $order->cod_amount) : 0.00;
 
-				if(!empty($details))
+        $spx = $sender->code == "SPX" ? TRUE : FALSE;
+        $addr->province = $spx ? parseProvince($addr->province) : $addr->province;
+        $addr->sub_district = $spx ? parseSubDistrict($addr->sub_district, $addr->province) : $addr->sub_district;
+        $addr->district = $spx ? parseDistrict($addr->district, $addr->province) : $addr->district;
+        $addr->phone = $spx ? parsePhoneNumber($addr->phone, 10) : $addr->phone;
+
+				if( ! empty($details))
 				{
-					$xml .= "<WOB>";
+          $ds = array(
+            'external_id' => $order->code,
+            'order_number' => $order->reference,
+            'comment' => $order->remark,
+            'stores' => 1,
+            'special_order' => "",
+            'shipping' => (!empty($sender) ? $sender->code : ""),
+            'tracking_no' => $order->shipping_code,
+            'print_bill' => FALSE,
+            'order_type' => $this->type,
+            'customer' => [
+              'code' => empty($addr->code) ? $order->customer_code : $addr->code,
+              'name' => $addr->name,
+              'address' => $addr->address,
+              'sub_district' => $addr->sub_district,
+              'district' => $addr->district,
+              'province' => $addr->province,
+              'postal_code' => $addr->postcode,
+              'mobile_no' => $addr->phone,
+              'phone_no' => "",
+              'email' => $addr->email
+              ],
+            'payment' => [
+              'shipping_fee_original' => 0,
+              'shipping_fee_discount_platform' => 0,
+              'shipping_fee_discount_seller' => 0,
+              'shipping_fee' => 0,
+              'voucher_seller' => 0,
+              'voucher_amount' => 0,
+              'price' => round($cod_amount, 2),
+              'cod_amount' => round($cod_amount, 2)
+              ],
+            'order_items' => []
+          );
 
-					//--- Header_list section
-					$xml .= "<HEADER_LIST>";
-					$xml .=   "<WH_NO>".$this->WH_NO."</WH_NO>";
-					$xml .=   "<CUST_CODE>".$this->CUS_CODE."</CUST_CODE>";
-					$xml .=   "<ORDER_LIST_NO>".$order->code."</ORDER_LIST_NO>";
-					$xml .= "</HEADER_LIST>";
-					//---- End header_list section
-          $spx = $sender->code == "SPX" ? TRUE : FALSE;
-          $addr->province = $spx ? parseProvince($addr->province) : $addr->province;
-          $addr->sub_district = $spx ? parseSubDistrict($addr->sub_district, $addr->province) : $addr->sub_district;
-          $addr->district = $spx ? parseDistrict($addr->district, $addr->province) : $addr->district;
-          $addr->phone = $spx ? parsePhoneNumber($addr->phone, 10) : $addr->phone;
-					//--- Header section
-					$xml .= "<ORDER_LIST>";
+          foreach($details as $rs)
+          {
+            if($rs->is_count)
+            {
+              $item = [
+                'item_sku' => $rs->product_code,
+                'item_code' => "",
+                'marketplace_sku' => "",
+                'item_qty' => round($rs->qty, 2),
+                'item_name' => $rs->product_name,
+                'selling_price' => round($rs->price, 2),
+                'paid_price' => round($rs->price, 2),
+                'voucher_platform' => 0,
+                'voucher_seller' => 0
+              ];
 
-						//--- Order Start
-						$xml .= "<ORDER>";
-						$xml .=  "<HEADER>";
-						$xml .=   "<ORDER_NO>".$order->code."</ORDER_NO>";
-						$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
-						$xml .=   "<SHIPMENT_DATE>".date('Y/m/d', strtotime($order->date_add))."</SHIPMENT_DATE>";
-						$xml .=   "<SHIP_TO_CODE>".(!empty($sender) ? $sender->code : "")."</SHIP_TO_CODE>";
-						$xml .=   "<SHIP_TO_NAME><![CDATA[".(!empty($sender) ? $sender->name : "")."]]></SHIP_TO_NAME>";
-						$xml .=   "<SHIP_TO_ADDRESS1><![CDATA[".(!empty($sender) ? $sender->address1 : "")."]]></SHIP_TO_ADDRESS1>";
-						$xml .=   "<SHIP_TO_ADDRESS2><![CDATA[".(!empty($sender) ? $sender->address2 : "")."]]></SHIP_TO_ADDRESS2>";
-            $xml .=   "<RECEIPT_NAME><![CDATA[".(!empty($addr) ? $addr->name : "")."]]></RECEIPT_NAME>";
-            $xml .=   "<RECEIPT_MOBILENO>".(!empty($addr) ? $addr->phone : "")."</RECEIPT_MOBILENO>";
-            $xml .=   "<RECEIPT_EMAIL>".(!empty($addr) ? $addr->email : "")."</RECEIPT_EMAIL>";
-            $xml .=   "<RECEIPT_FULLSHIPPINGADDRESS><![CDATA[".(!empty($addr) ? $addr->address : "")."]]></RECEIPT_FULLSHIPPINGADDRESS>";
-            $xml .=   "<RECEIPT_STREET></RECEIPT_STREET>";
-            $xml .=   "<RECEIPT_SUBDISTRICT><![CDATA[".(!empty($addr) ? $addr->sub_district : "")."]]></RECEIPT_SUBDISTRICT>";
-            $xml .=   "<RECEIPT_DISTRICT><![CDATA[".(!empty($addr) ? $addr->district : "")."]]></RECEIPT_DISTRICT>";
-            $xml .=   "<RECEIPT_PROVINCE><![CDATA[".(!empty($addr) ? $addr->province : "")."]]></RECEIPT_PROVINCE>";
-            $xml .=   "<RECEIPT_POSTCODE>".(!empty($addr) ? $addr->postcode : "")."</RECEIPT_POSTCODE>";
-            $xml .=   "<PAYMENT_METHOD>".$cod."</PAYMENT_METHOD>";
-            $xml .=   "<COD_AMOUNT>".round($cod_amount,2)."</COD_AMOUNT>";
-						$xml .=   "<SALES_CHANNEL_CODE>".$channels_code."</SALES_CHANNEL_CODE>";
-						$xml .=   "<SALES_CHANNEL_NAME><![CDATA[".$channels_name."]]></SALES_CHANNEL_NAME>";
-						$xml .=   "<REF_NO1>".$order->reference."</REF_NO1>";
-						$xml .=   "<REF_NO2>".$order->shipping_code."</REF_NO2>";
-						$xml .=   "<TRANSFORMED_ITEMS>".($order->transformed == 1 ? "Yes" : "No")."</TRANSFORMED_ITEMS>";
-						$xml .=   "<REMARK><![CDATA[".$order->remark."]]></REMARK>";
-            $xml .=   "<INSURANCE_COLLECTION>YES</INSURANCE_COLLECTION>";
-						$xml .=  "</HEADER>";
+              array_push($ds['order_items'], $item);
+            }
+          }
 
-						//--- Item start
-						$xml .= "<ITEMS>";
+          $api_path = $this->url."orders";
+          $url = $api_path;
+          $method = "POST";
 
-						foreach($details as $rs)
-						{
-							if($rs->is_count)
-							{
-								$xml .= "<ITEM>";
-							  $xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-								$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
-								$xml .= "<VARIANT></VARIANT>";
-								$xml .= "<LOT_NO></LOT_NO>";
-								$xml .= "<SERIAL_NO></SERIAL_NO>";
-								$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
-								$xml .= "<UOM>".$rs->unit_code."</UOM>";
-                $xml .= "<UNITPRICE_INCLUDE_VAT>".round($rs->price, 2)."</UNITPRICE_INCLUDE_VAT>";
-                $xml .= "<DISCOUNT_AMOUNT>".(round(($rs->discount_amount/$rs->qty), 2))."</DISCOUNT_AMOUNT>";
-                $xml .= "<TOTAL_WITH_DISCOUNT>".(round($rs->total_amount, 2))."</TOTAL_WITH_DISCOUNT>";
-								$xml .= "</ITEM>";
-							}
+          $headers = array(
+            "Content-Type: application/json",
+            "Authorization: Basic {$this->key}"
+          );
 
-						}
+          $json = json_encode($ds);
 
-						$xml .= "</ITEMS>";
-					$xml .= "</ORDER>";
-					$xml .= "</ORDER_LIST>";
-					//--- End header section
-					$xml .= "</WOB>";
+          if( ! $this->test)
+          {
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-					if($this->log_xml)
-					{
-						$arr = array(
-							'order_code' => $code,
-							'xml_text' => $xml
-						);
+            $response = curl_exec($curl);
 
-						$this->ci->wms_error_logs_model->log_xml($arr);
-					}
+            curl_close($curl);
+
+            $res = json_decode($response);
+
+            if( ! empty($res))
+            {
+              if(empty($res->error))
+              {
+                if($res->status != 'success' && empty($res->id))
+                {
+                  $sc = FALSE;
+                  $this->error = $res->message;
+
+                  $arr = array(
+                    'wms_export' => 3,
+                    'wms_export_error' => $res->message
+                  );
+
+                  $this->ci->orders_model->update($code, $arr);
+                }
+                else
+                {
+                  $arr = array(
+                    'wms_export' => 1,
+                    'wms_export_error' => NULL
+                  );
+
+                  $this->ci->orders_model->update($code, $arr);
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $res->status = "failed";
+                $res->message = $res->error;
+                $this->error = $response;
+              }
+
+              if($this->log_json)
+              {
+                $logs = array(
+                  'trans_id' => genUid(),
+                  'type' => $this->type,
+                  'api_path' => $api_path,
+                  'code' => $order->code,
+                  'action' => 'create',
+                  'status' => $res->status == 'success' ? 'success' : 'failed',
+                  'message' => $res->message,
+                  'request_json' => $json,
+                  'response_json' => $response
+                );
+
+                $this->ci->soko_api_logs_model->add_api_logs($logs);
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "No response";
+
+              if($this->log_json)
+              {
+                $logs = array(
+                  'trans_id' => genUid(),
+                  'type' => $this->type,
+                  'api_path' => $api_path,
+                  'code' => $order->code,
+                  'action' => 'create',
+                  'status' => 'failed',
+                  'message' => 'No response',
+                  'request_json' => $json,
+                  'response_json' => NULL
+                );
+
+                $this->ci->soko_api_logs_model->add_api_logs($logs);
+              }
+            }
+          }
+          else
+          {
+            $logs = array(
+              'trans_id' => genUid(),
+              'type' => $this->type,
+              'api_path' => $api_path,
+              'code' => $order->code,
+              'action' => 'create',
+              'status' => 'test',
+              'message' => 'Test api',
+              'request_json' => $json,
+              'response_json' => NULL
+            );
+
+            $this->ci->soko_api_logs_model->add_api_logs($logs);
+          }
 				}
 				else
 				{
@@ -187,214 +277,225 @@ class Soko_order_api
 			$this->error = "เลขที่ออเดอร์ไม่ถูกต้อง";
 		}
 
-		if( ! $this->test)
+    if($sc === TRUE)
 		{
-      if($sc === TRUE && !empty($xml))
-      {
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $this->url);
-        curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
-
-        $response = curl_exec($ch);
-
-        curl_close($ch);
-
-
-        $res = json_decode(json_encode(simplexml_load_string($response)));
-
-
-        if(!empty($res))
-        {
-
-          if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
-          {
-            $sc = FALSE;
-            $this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
-
-          }
-        }
-        else
-        {
-          $sc = FALSE;
-          $this->error = "No response";
-        }
-      }
-		}
-
-		if($sc === TRUE)
-		{
-			$this->ci->wms_error_logs_model->add($order->code, 'S', NULL, $this->type);
+			$this->ci->soko_api_logs_model->add($code, 'S', NULL, $this->type);
 		}
 		else
 		{
-
-			$this->ci->wms_error_logs_model->add($code, 'E', $this->error, $this->type);
+			$this->ci->soko_api_logs_model->add($code, 'E', $this->error, $this->type);
 		}
 
 		return $sc;
   }
 
 
-
-	//---- export
-  public function create_transfer_order($doc, $details)
+  //---- export
+  public function create_transfer_order($order, $details)
   {
-    $this->ci->load->model('inventory/transfer_model');
-    
-		$sc = TRUE;
+    $code = $order->code;
 
-		$order_type = "WW";
+    $sc = TRUE;
 
-		if( ! empty($order))
-		{
+    $this->type = "WW";
 
-			if( ! empty($details))
-			{
-				$xml .= "<WOB>";
-
-				//--- Header_list section
-				$xml .= "<HEADER_LIST>";
-				$xml .=   "<WH_NO>".$this->WH_NO."</WH_NO>";
-				$xml .=   "<CUST_CODE>".$this->CUS_CODE."</CUST_CODE>";
-				$xml .=   "<ORDER_LIST_NO>".$order->code."</ORDER_LIST_NO>";
-				$xml .= "</HEADER_LIST>";
-				//---- End header_list section
-
-				//--- Header section
-				$xml .= "<ORDER_LIST>";
-
-					//--- Order Start
-					$xml .= "<ORDER>";
-					$xml .=  "<HEADER>";
-					$xml .=   "<ORDER_NO>".$order->code."</ORDER_NO>";
-					$xml .=   "<ORDER_TYPE>".$order_type."</ORDER_TYPE>";
-					$xml .=   "<SHIPMENT_DATE>".date('Y/m/d', strtotime($order->date_add))."</SHIPMENT_DATE>";
-					$xml .=   "<SHIP_TO_CODE>WARRIX</SHIP_TO_CODE>";
-					$xml .=   "<SHIP_TO_NAME></SHIP_TO_NAME>";
-					$xml .=   "<SHIP_TO_ADDRESS1></SHIP_TO_ADDRESS1>";
-					$xml .=   "<SHIP_TO_ADDRESS2></SHIP_TO_ADDRESS2>";
-					$xml .=   "<RECEIPT_NAME></RECEIPT_NAME>";
-					$xml .=   "<RECEIPT_MOBILENO></RECEIPT_MOBILENO>";
-					$xml .=   "<RECEIPT_EMAIL></RECEIPT_EMAIL>";
-					$xml .=   "<RECEIPT_FULLSHIPPINGADDRESS></RECEIPT_FULLSHIPPINGADDRESS>";
-					$xml .=   "<RECEIPT_STREET></RECEIPT_STREET>";
-					$xml .=   "<RECEIPT_SUBDISTRICT></RECEIPT_SUBDISTRICT>";
-					$xml .=   "<RECEIPT_DISTRICT></RECEIPT_DISTRICT>";
-					$xml .=   "<RECEIPT_PROVINCE></RECEIPT_PROVINCE>";
-					$xml .=   "<RECEIPT_POSTCODE></RECEIPT_POSTCODE>";
-					$xml .=   "<PAYMENT_METHOD>NON-COD</PAYMENT_METHOD>";
-					$xml .=   "<COD_AMOUNT>0.00</COD_AMOUNT>";
-					$xml .=   "<SALES_CHANNEL_CODE></SALES_CHANNEL_CODE>";
-					$xml .=   "<SALES_CHANNEL_NAME></SALES_CHANNEL_NAME>";
-					$xml .=   "<REF_NO1></REF_NO1>";
-					$xml .=   "<REF_NO2></REF_NO2>";
-					$xml .=   "<TRANSFORMED_ITEMS>NO</TRANSFORMED_ITEMS>";
-					$xml .=   "<REMARK><![CDATA[".$order->remark."]]></REMARK>";
-					$xml .=  "</HEADER>";
-
-					//--- Item start
-					$xml .= "<ITEMS>";
-
-					foreach($details as $rs)
-					{
-						$xml .= "<ITEM>";
-						$xml .= "<ITEM_NO>".$rs->product_code."</ITEM_NO>";
-						$xml .= "<ITEM_DESC><![CDATA[".$rs->product_name."]]></ITEM_DESC>";
-						$xml .= "<VARIANT></VARIANT>";
-						$xml .= "<LOT_NO></LOT_NO>";
-						$xml .= "<SERIAL_NO></SERIAL_NO>";
-						$xml .= "<QUANTITY>".round($rs->qty,2)."</QUANTITY>";
-						$xml .= "<UOM>".$rs->unit_code."</UOM>";
-						$xml .= "<UNITPRICE_INCLUDE_VAT>0.00</UNITPRICE_INCLUDE_VAT>";
-						$xml .= "<DISCOUNT_AMOUNT>0.00</DISCOUNT_AMOUNT>";
-						$xml .= "<TOTAL_WITH_DISCOUNT>0.00</TOTAL_WITH_DISCOUNT>";
-						$xml .= "</ITEM>";
-					}
-
-					$xml .= "</ITEMS>";
-				$xml .= "</ORDER>";
-				$xml .= "</ORDER_LIST>";
-				//--- End header section
-				$xml .= "</WOB>";
-
-				if($this->log_xml)
-				{
-					$arr = array(
-						'order_code' => $order->code,
-						'xml_text' => $xml
-					);
-
-					$this->ci->wms_error_logs_model->log_xml($arr);
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Transfer items not found";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Empty order data";
-		}
-
-		if( ! $this->test)
+    if(!empty($order))
     {
-      if($sc === TRUE && !empty($xml))
+      if( ! empty($details))
       {
-        $ch = curl_init();
+        $ds = array(
+          'external_id' => $order->code,
+          'order_number' => $order->code,
+          'comment' => "",
+          'stores' => 1,
+          'special_order' => "",
+          'shipping' => "",
+          'tracking_no' => "",
+          'print_bill' => FALSE,
+          'order_type' => $this->type,
+          'customer' => array(
+            'code' => "xxx",
+            'name' => "xx",
+            'address' => "xx",
+            'sub_district' => "xx",
+            'district' => "xx",
+            'province' => "xx",
+            'postal_code' => "xx",
+            'mobile_no' => "xx",
+            'phone_no' => "xx",
+            'email' => "xx"
+          ),
+          'payment' => array(
+            'shipping_fee_original' => 0,
+            'shipping_fee_discount_platform' => 0,
+            'shipping_fee_discount_seller' => 0,
+            'shipping_fee' => 0,
+            'voucher_seller' => 0,
+            'voucher_amount' => 0,
+            'price' => 0,
+            'cod_amount' => 0
+          ),
+          'order_items' => array()
+        );
 
-        curl_setopt($ch, CURLOPT_URL, $this->url);
-        curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
-
-        $response = curl_exec($ch);
-
-        curl_close($ch);
-
-
-        $res = json_decode(json_encode(simplexml_load_string($response)));
-
-
-        if(!empty($res))
+        foreach($details as $rs)
         {
+          $item = array(
+            'item_sku' => $rs->product_code,
+            'item_code' => "",
+            'marketplace_sku' => "",
+            'item_qty' => round($rs->qty, 2),
+            'item_name' => $rs->product_name,
+            'selling_price' => 0,
+            'paid_price' => 0,
+            'voucher_platform' => 0,
+            'voucher_seller' => 0
+          );
 
-          if($res->SERVICE_RESULT->RESULT_STAUS != 'SUCCESS')
+          array_push($ds['order_items'], $item);
+        }
+
+        $api_path = $this->url."orders";
+        $url = $api_path;
+        $method = "POST";
+
+        $headers = array(
+        "Content-Type: application/json",
+        "Authorization: Basic {$this->key}"
+        );
+
+        $json = json_encode($ds);
+
+        if( ! $this->test)
+        {
+          $curl = curl_init();
+          curl_setopt($curl, CURLOPT_URL, $url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+          curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+          $response = curl_exec($curl);
+
+          curl_close($curl);
+
+          $res = json_decode($response);
+
+          if( ! empty($res))
+          {
+            if(empty($res->error))
+            {
+              if($res->status != 'success' && empty($res->id))
+              {
+                $sc = FALSE;
+                $this->error = $res->message;
+
+                $arr = array(
+                'wms_export' => 3,
+                'wms_export_error' => $res->message
+                );
+
+                $this->ci->orders_model->update($code, $arr);
+              }
+              else
+              {
+                $arr = array(
+                'wms_export' => 1,
+                'wms_export_error' => NULL
+                );
+
+                $this->ci->orders_model->update($code, $arr);
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $res->status = "failed";
+              $res->message = $res->error;
+              $this->error = $response;
+            }
+
+            if($this->log_json)
+            {
+              $logs = array(
+              'trans_id' => genUid(),
+              'type' => $this->type,
+              'api_path' => $api_path,
+              'code' => $order->code,
+              'action' => 'create',
+              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'message' => $res->message,
+              'request_json' => $json,
+              'response_json' => $response
+              );
+
+              $this->ci->soko_api_logs_model->add_api_logs($logs);
+            }
+          }
+          else
           {
             $sc = FALSE;
-            $this->error = $res->SERVICE_RESULT->ERROR_CODE.' : '.$res->SERVICE_RESULT->ERROR_MESSAGE;
+            $this->error = "No response";
+
+            if($this->log_json)
+            {
+              $logs = array(
+              'trans_id' => genUid(),
+              'type' => $this->type,
+              'api_path' => $api_path,
+              'code' => $order->code,
+              'action' => 'create',
+              'status' => 'failed',
+              'message' => 'No response',
+              'request_json' => $json,
+              'response_json' => NULL
+              );
+
+              $this->ci->soko_api_logs_model->add_api_logs($logs);
+            }
           }
         }
         else
         {
-          $sc = FALSE;
-          $this->error = "No response";
+          $logs = array(
+          'trans_id' => genUid(),
+          'type' => $this->type,
+          'api_path' => $api_path,
+          'code' => $order->code,
+          'action' => 'create',
+          'status' => 'test',
+          'message' => 'Test api',
+          'request_json' => $json,
+          'response_json' => NULL
+          );
+
+          $this->ci->soko_api_logs_model->add_api_logs($logs);
         }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบรายการสินค้าในออเดอร์";
       }
     }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "เลขที่ออเดอร์ไม่ถูกต้อง";
+    }
 
+    if($sc === TRUE)
+    {
+      $this->ci->soko_api_logs_model->add($order->code, 'S', NULL, $this->type);
+    }
+    else
+    {
+      $this->ci->soko_api_logs_model->add($code, 'E', $this->error, $this->type);
+    }
 
-		if($sc === TRUE)
-		{
-			$this->ci->wms_error_logs_model->add($order->code, 'S', NULL, $this->type);
-		}
-		else
-		{
-			$this->ci->wms_error_logs_model->add($order->code, 'E', $this->error, $this->type);
-		}
-
-		return $sc;
-  }
-
+    return $sc;
+  } //--- end function
 
 
 	public function get_type_code($channels_code)

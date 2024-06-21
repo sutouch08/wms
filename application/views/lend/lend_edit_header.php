@@ -45,7 +45,7 @@
 				<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 					<label class="display-block not-show">แก้ไข</label>
 					<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"><i class="fa fa-pencil"></i> แก้ไข</i></button>
-					<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="validUpdate()"><i class="fa fa-save"></i> บันทึก</i></button>
+					<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="updateOrder()"><i class="fa fa-save"></i> บันทึก</i></button>
 				</div>
 			<?php endif; ?>
 	<?php else : ?>

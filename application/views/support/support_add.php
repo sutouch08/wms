@@ -74,7 +74,7 @@
 <hr class="margin-top-15 padding-5">
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/support/support.js"></script>
-<script src="<?php echo base_url(); ?>scripts/support/support_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/support/support.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/support/support_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

@@ -64,7 +64,7 @@ function approve()
   var order_code = $('#order_code').val();
 	var is_wms = $('#is_wms').val();
 
-	if(is_wms == 1) {
+	if(is_wms) {
 		var id_address = $('#address_id').val();
 		var id_sender = $('#id_sender').val();
 
@@ -140,7 +140,7 @@ function unapprove()
 }
 
 
-function change_state(){
+function change_state() {
 	var order_code = $("#order_code").val();
 	var state = 3;
 	var id_address = $('#address_id').val();
@@ -149,7 +149,7 @@ function change_state(){
 	let tracking = $('#tracking').val();
 	var is_wms = $('#is_wms').val();
 
-	if(is_wms == 1) {
+	if(is_wms) {
 		if(state == 3 && id_address == "") {
 			swal("กรุณาระบุที่อยู่จัดส่ง");
 			return false;

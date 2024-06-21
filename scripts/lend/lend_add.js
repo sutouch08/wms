@@ -98,94 +98,97 @@ function add(){
 }
 
 
+function addOrder() {
+  let h = {
+    'date_add' : $('#date').val(),
+    'user_ref' : $('#user_ref').val(),
+    'empID' : $('#empID').val(),
+    'empName' :  $('#empName').val(),
+    'role' : $('#role').val(),
+    'zone_code' : $('#zone_code').val(),
+    'zone_name' : $('#zone').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'remark' : $('#remark').val()
+  }
 
-function addOrder(){
-  var empID = $('#empID').val();
-  var empName = $('#empName').val();
-  var date_add = $('#date').val();
-  var zone_code = $('#zone_code').val();
-  var zone_name = $('#zone').val();
-  var warehouse = $('#warehouse').val();
-  var user_ref = $('#user_ref').val();
-
-  if(!isDate(date_add))
+  if(!isDate(h.date_add))
   {
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
 
-  if(empID == "" || empName.length == 0){
+  if(h.empID == "" || h.empName.length == 0){
     swal('ชื่อผู้รับไม่ถูกต้อง');
     return false;
   }
 
-  if(zone_code.length == 0 || zone_name.length == 0)
+  if(h.zone_code.length == 0 || h.zone_name.length == 0)
   {
     swal("โซนไม่ถูกต้อง");
     return false;
   }
 
 
-  if(empName.length == 0)
+  if(h.empName.length == 0)
   {
     swal('ชื่อผู้เบิกไม่ถูกต้อง');
     return false;
   }
 
 
-  if(warehouse == ""){
+  if(h.warehouse == ""){
     swal('กรุณาระบุคลัง');
     return false;
   }
 
+  load_in();
 
-  $('#addForm').submit();
-}
+  $.ajax({
+    url:HOME + 'add',
+    type:'POST',
+    cache:false,
+    data:{
+      "data" : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
 
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
 
-
-function validateOrder(){
-  var prefix = $('#prefix').val();
-  var runNo = parseInt($('#runNo').val());
-  let code = $('#code').val();
-  if(code.length == 0){
-    addOrder();
-    return false;
-  }
-
-  let arr = code.split('-');
-
-  if(arr.length == 2){
-    if(arr[0] !== prefix){
-      swal('Prefix ต้องเป็น '+prefix);
-      return false;
-    }else if(arr[1].length != (4 + runNo)){
-      swal('Run Number ไม่ถูกต้อง');
-      return false;
-    }else{
-      $.ajax({
-        url: BASE_URL + 'orders/orders/is_exists_order/'+code,
-        type:'GET',
-        cache:false,
-        success:function(rs){
-          if(rs == 'not_exists'){
-            addOrder();
-          }else{
-            swal({
-              title:'Error!!',
-              text: rs,
-              type: 'error'
-            });
-          }
+        if(ds.status == 'success') {
+          window.location.href = HOME + 'edit_detail/'+ds.code;
         }
+        else
+        {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error'
+          })
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error',
+          html:true
+        })
+      }
+    },
+    error:function(xhr) {
+      load_out();
+
+      swal({
+        title:'Error!',
+        text:xhr.responseText,
+        type:'error',
+        html:true
       })
     }
-
-  }else{
-    swal('เลขที่เอกสารไม่ถูกต้อง');
-    return false;
-  }
+  })
 }
 
 var customer;
@@ -422,93 +425,95 @@ function countInput(){
 
 
 
-function validUpdate(){
-	var date_add = $("#date").val();
-	var empID = $("#empID").val();
-  var empName = $('#empName').val();
-	var user_ref = $("#user_ref").val();
-  var zone_code = $('#zone_code').val();
-  var zone_name = $('#zone').val();
-
-	//---- ตรวจสอบวันที่
-	if( ! isDate(date_add) ){
-		swal("วันที่ไม่ถูกต้อง");
-		return false;
-	}
-
-	//--- ตรวจสอบลูกค้า
-	if( empName.length == 0 || empID == "" ){
-		swal("ชื่อผู้เบิกไม่ถูกต้อง");
-		return false;
-	}
-
-  if(user_ref == ""){
-    swal('กรุณาระบุผู้เบิก[ผู้สั่งงาน]');
-    return false;
+function updateOrder() {
+  let h = {
+    'code' : $('#order_code').val(),
+    'date_add' : $('#date').val(),
+    'user_ref' : $('#user_ref').val(),
+    'empID' : $('#empID').val(),
+    'empName' :  $('#empName').val(),
+    'role' : $('#role').val(),
+    'zone_code' : $('#zone_code').val(),
+    'zone_name' : $('#zone').val(),
+    'warehouse_code' : $('#warehouse').val(),
+    'remark' : $('#remark').val()
   }
 
-  if(zone_code == '' || zone_name.length == 0)
+  if(!isDate(h.date_add))
   {
-    swal('โซนไม่ถูกต้อง');
+    swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
-  updateOrder();
-}
+
+  if(h.empID == "" || h.empName.length == 0){
+    swal('ชื่อผู้รับไม่ถูกต้อง');
+    return false;
+  }
+
+  if(h.zone_code.length == 0 || h.zone_name.length == 0)
+  {
+    swal("โซนไม่ถูกต้อง");
+    return false;
+  }
 
 
+  if(h.empName.length == 0)
+  {
+    swal('ชื่อผู้เบิกไม่ถูกต้อง');
+    return false;
+  }
 
 
-
-function updateOrder(){
-	var order_code = $("#order_code").val();
-	var date_add = $("#date").val();
-	var empID = $("#empID").val();
-  var empName = $("#empName").val();
-	var user_ref = $('#user_ref').val();
-	var remark = $("#remark").val();
-  var zone_code = $('#zone_code').val();
-  var warehouse = $('#warehouse').val();
+  if(h.warehouse == ""){
+    swal('กรุณาระบุคลัง');
+    return false;
+  }
 
 	load_in();
 
-	$.ajax({
-		url:HOME + 'update_order',
-		type:"POST",
-		cache:"false",
-		data:{
-      "order_code" : order_code,
-  		"date_add"	: date_add,
-  		"empID" : empID,
-      "empName" : empName,
-      "user_ref" : user_ref,
-  		"remark" : remark,
-      "zone_code" : zone_code,
-      "warehouse" : warehouse
+  $.ajax({
+    url:HOME + 'update_order',
+    type:'POST',
+    cache:false,
+    data:{
+      "data" : JSON.stringify(h)
     },
-		success: function(rs){
-			load_out();
-			var rs = $.trim(rs);
-			if( rs == 'success' ){
-				swal({
-          title: 'Done !',
-          type: 'success',
-          timer: 1000
+    success:function(rs) {
+      load_out();
+
+      if(rs == 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
         });
 
-				setTimeout(function(){
+        setTimeout(() => {
           window.location.reload();
         }, 1200);
-
-			}else{
-				swal({
-          title: "Error!",
-          text: rs,
-          type: 'error'
+      }
+      else
+      {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error',
+          html:true
         });
-			}
-		}
-	});
+      }
+    },
+    error:function(xhr) {
+      load_out();
+
+      swal({
+        title:'Error!',
+        text:xhr.responseText,
+        type:'error',
+        html:true
+      })
+    }
+  });
 }
 
 

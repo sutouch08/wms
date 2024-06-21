@@ -8,7 +8,8 @@ class Support extends PS_Controller
   public $menu_sub_group_code = 'REQUEST';
 	public $title = 'เบิกอภินันท์';
   public $filter;
-	public $isAPI;
+	public $wmsApi;
+  public $sokoApi;
 
   public function __construct()
   {
@@ -30,7 +31,8 @@ class Support extends PS_Controller
     $this->load->helper('product_images');
     $this->load->helper('warehouse');
 
-		$this->isAPI = is_true(getConfig('WMS_API'));
+		$this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
   }
 
 
@@ -153,6 +155,9 @@ class Support extends PS_Controller
     {
 			$this->load->model('masters/warehouse_model');
 
+      $wmsWh = getConfig('WMS_WAREHOUSE');
+      $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
+
       $book_code = getConfig('BOOK_CODE_SUPPORT');
 
       $date_add = db_date($data->date_add);
@@ -167,6 +172,11 @@ class Support extends PS_Controller
 
       if( ! empty($wh))
       {
+        $isSoko = $wh->code == $sokoWh ? TRUE : FALSE;
+        $isWms = $wh->code == $wmsWh ? TRUE : FALSE;
+
+        $is_wms = $isWms ? 1 : ($isSoko ? 2 : 0);
+
         $ds = array(
           'code' => $code,
           'date_add' => $date_add,
@@ -178,7 +188,7 @@ class Support extends PS_Controller
           'remark' => get_null($data->remark),
           'user_ref' => $data->empName,
           'warehouse_code' => $wh->code,
-          'is_wms' => $wh->is_wms
+          'is_wms' => $is_wms
         );
 
         if( ! $this->orders_model->add($ds))
@@ -257,6 +267,7 @@ class Support extends PS_Controller
           $ds['allowEditDisc'] = FALSE; //getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
           $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
           $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
+          $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
           $this->load->view('support/support_edit', $ds);
     }
     else
@@ -298,10 +309,18 @@ class Support extends PS_Controller
 				{
 					$this->load->model('masters/warehouse_model');
 
+          $wmsWh = getConfig('WMS_WAREHOUSE');
+          $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
+
 					$wh = $this->warehouse_model->get($data->warehouse_code);
 
           if( ! empty($wh))
           {
+            $isSoko = $wh->code == $sokoWh ? TRUE : FALSE;
+            $isWms = $wh->code == $wmsWh ? TRUE : FALSE;
+
+            $is_wms = $isWms ? 1 : ($isSoko ? 2 : 0);
+
             $ds = array(
               'customer_code' => $data->customer_code,
               'customer_name' => $data->customer_name,
@@ -312,7 +331,7 @@ class Support extends PS_Controller
               'warehouse_code' => $wh->code,
               'id_address' => NULL,
               'id_sender' => NULL,
-              'is_wms' => $wh->is_wms
+              'is_wms' => $is_wms
             );
 
             if( ! $this->orders_model->update($code, $ds))

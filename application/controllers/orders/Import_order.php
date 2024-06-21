@@ -3,9 +3,11 @@ class Import_order extends CI_Controller
 {
   public $ms;
   public $mc;
-	public $isAPI = FALSE;
 	public $wms;
   public $_user;
+  public $sokoApi;
+  public $wmsApi;
+  public $isAPI;
 	public $sync_chatbot_stock = FALSE;
 
 
@@ -34,7 +36,8 @@ class Import_order extends CI_Controller
 
     $this->load->library('excel');
 
-		$this->isAPI = is_true(getConfig('WMS_API'));
+    $this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
 
   }
 
@@ -58,6 +61,7 @@ class Import_order extends CI_Controller
 
 			$this->load->library("upload", $config);
 			$this->load->library("wms_order_api");
+      $this->load->library("soko_order_api");
 
 			if(! $this->upload->do_upload($file))
       {
@@ -114,13 +118,16 @@ class Import_order extends CI_Controller
           $role = 'S';
 
 					//--- คลังสินค้า
+          $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
+          $wmsWh = getConfig('WMS_WAREHOUSE');
 					$warehouse_code = getConfig('WEB_SITE_WAREHOUSE_CODE');
           $chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
           $this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE; //--- sync stock chatbot
 					$sync_items = array(); //--- ไว้เก็บรหัสสินค้าที่จะต้อง sync ตอนแรกอาจจะมีรหัสซ้ำ แต่จะทำให้ไม่ซ้ำก่อนแล้วค่อยไปดึงสต็อกแล้วใส่ไว้ใน sync_stock อีกที
-					$wh = $this->warehouse_model->get($warehouse_code);
+					//$wh = $this->warehouse_model->get($warehouse_code);
 
-					$is_wms = empty($wh) ? 0 : $wh->is_wms;
+					$is_wms = $warehouse_code == $sokoWh ? 2 : ($warehouse_code == $wmsWh ? 1 : 0);
+          $this->isAPI = $this->is_api($is_wms);
 
           //---- กำหนดช่องทางขายสำหรับเว็บไซต์ เพราะมีลูกค้าแยกตามช่องทางการชำระเงินอีกที
           //---- เลยต้องกำหนดลูกค้าแยกตามช่องทางการชำระเงินต่างๆ สำหรับเว็บไซต์เท่านั้น
@@ -157,6 +164,7 @@ class Import_order extends CI_Controller
 					$is_exists = FALSE;
 					$hold = NULL;
           $isWMS = 0;
+
           foreach($ds as $rs)
           {
             //--- ถ้าพบ Error ให้ออกจากลูปทันที
@@ -272,9 +280,9 @@ class Import_order extends CI_Controller
                   $this->orders_model->update($orderCode, array('doc_total' => $doc_total));
                 }
 
-								if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
+								if($isWMS == 1 && $this->wmsApi && !empty($orderCode) && $hold === FALSE)
 								{
-									if(!$this->wms_order_api->export_order($orderCode))
+									if( ! $this->wms_order_api->export_order($orderCode))
 									{
 										$arr = array(
 											'wms_export' => 3,
@@ -293,6 +301,11 @@ class Import_order extends CI_Controller
 										$this->orders_model->update($orderCode, $arr);
 									}
 								}
+
+                if($isWMS == 2 && $this->sokoApi && ! empty($orderCode) && $hold === FALSE)
+                {
+                  $this->soko_order_api->export_order($orderCode);
+                }
 
 								if(empty($order_code))
 								{
@@ -367,11 +380,14 @@ class Import_order extends CI_Controller
                 $cod_amount = $payment_code == 'COD' ? (empty($rs['AA']) ? 0.00 : $rs['AA']) : 0.00;
 
 								//--- กำหนดรหัสคลังมาหรือไม่ ถ้าไม่กำหนดมาให้ใช้ค่าตามที่ config ไว้
-								$xWh = empty($rs['X']) ? NULL : $this->warehouse_model->get(trim($rs['X']));
+								//$xWh = empty($rs['X']) ? NULL : $this->warehouse_model->get(trim($rs['X']));
+                $WhsCode = empty($rs['X']) ? $warehouse_code : $rs['X'];
 
                 //---- กรณียังไม่มีออเดอร์
                 if($is_exists === FALSE)
                 {
+                  $isWMS = ($WhsCode == $sokoWh && $this->sokoApi) ? 2 : (($WhsCode == $wmsWh && $this->wmsApi) ? 1 : 0);
+
                   //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
                   $ds = array(
                     'code' => $order_code,
@@ -392,11 +408,11 @@ class Import_order extends CI_Controller
                     'cod_amount' => $cod_amount,
                     'status' => 1,
                     'date_add' => $date_add,
-                    'warehouse_code' => (!empty($xWh) ? $xWh->code : $warehouse_code),
+                    'warehouse_code' => $WhsCode, //(!empty($xWh) ? $xWh->code : $warehouse_code),
                     'user' => $this->_user->uname,
                     'is_import' => 1,
 										'remark' => $remark,
-										'is_wms' => (!empty($xWh) ? $xWh->is_wms : $is_wms),
+										'is_wms' => $isWMS, //(!empty($xWh) ? $xWh->is_wms : $is_wms),
 										'id_sender' => empty($rs['W']) ? NULL : $this->sender_model->get_id($rs['W'])
                   );
 
@@ -405,7 +421,6 @@ class Import_order extends CI_Controller
                   {
 										$orderCode = $order_code;
 										$hold = $state === 3 ? FALSE : TRUE;
-                    $isWMS = (!empty($xWh) ? $xWh->is_wms : $is_wms);
 
                     $arr = array(
                       'order_code' => $order_code,
@@ -675,7 +690,9 @@ class Import_order extends CI_Controller
             $this->orders_model->update($orderCode, array('doc_total' => $doc_total));
           }
 
-					if($this->isAPI && $isWMS == 1 && !empty($orderCode) && $hold === FALSE)
+
+
+					if($isWMS == 1 && $this->wmsApi && !empty($orderCode) && $hold === FALSE)
 					{
 						if(!$this->wms_order_api->export_order($orderCode))
 						{
@@ -695,6 +712,11 @@ class Import_order extends CI_Controller
 
 							$this->orders_model->update($orderCode, $arr);
 						}
+					}
+
+          if($isWMS == 2 && $this->sokoApi && ! empty($orderCode) && $hold === FALSE)
+					{
+            $this->soko_order_api->export_order($orderCode);
 					}
 
 					//--- sync chatbot stock
@@ -734,6 +756,14 @@ class Import_order extends CI_Controller
       $this->load->library('chatbot_api');
       $this->chatbot_api->sync_stock($ds);
     }
+  }
+
+
+  private function is_api($is_wms = 0)
+  {
+    $is_api = $is_wms == 0 ? FALSE : ($is_wms == 1 && $this->wmsApi ? TRUE : ($is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
+
+    return $is_api;
   }
 
 

@@ -38,14 +38,14 @@
 				<?php if($order->status == 0 && $order->is_expired == 0) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="saveOrder()">บันทึก</button>
 				<?php endif; ?>
-				<?php if($this->isAPI && $order->is_wms && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
+				<?php if($is_api && $order->is_wms != 0 && $order->is_api == 0 && $order->status == 1 && $order->is_expired == 0 && $order->state == 3) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWMS()">Send to WMS</button>
 				<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
 <hr/>
-<?php if($this->isAPI && $order->is_wms && $order->state >= 3 && $order->wms_export != 1) : ?>
+<?php if($is_api && $order->is_wms != 0 && $order->is_api == 0 && $order->state >= 3 && $order->wms_export != 1) : ?>
 <?php 	$this->load->view('wms_error_watermark'); ?>
 <?php endif; ?>
 <?php $this->load->view('orders/order_edit_header'); ?>

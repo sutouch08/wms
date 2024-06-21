@@ -16,7 +16,7 @@
 				<?php endif;?>
         <button type="button" class="btn btn-xs btn-success btn-100" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
       <?php endif; ?>
-			<?php if($this->isAPI) : ?>
+			<?php if($this->sokoApi OR $this->wmsApi) : ?>
 				<button type="button" class="btn btn-xs btn-primary btn-100" onclick="sendOrdersToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 			<?php endif; ?>
       </p>
@@ -184,7 +184,7 @@
 		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1280px; margin-bottom:20px;">
 			<thead>
 				<tr>
-			<?php if($this->isAPI) : ?>
+			<?php if($this->sokoApi OR $this->wmsApi) : ?>
 					<th class="fix-width-40 middle text-center fix-header">
 						<label>
 							<input type="checkbox" class="ace" id="chk-all" />
@@ -212,9 +212,9 @@
 						<?php $ref = empty($rs->reference) ? '' :' ['.$rs->reference.']'; ?>
 						<?php $cus_ref = empty($rs->customer_ref) ? '' : ' ['.$rs->customer_ref.']'; ?>
             <tr id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
-					<?php if($this->isAPI) : ?>
+					<?php if($this->sokoApi OR $this->wmsApi) : ?>
 							<td class="middle text-center">
-								<?php if($rs->state == 3 && $rs->is_wms == 1 && $rs->wms_export != 1) : ?>
+								<?php if($rs->state == 3 && $rs->is_wms != 0 && $rs->wms_export != 1) : ?>
 									<label>
 										<input type="checkbox" class="ace chk-wms" data-code="<?php echo $rs->code; ?>"/>
 										<span class="lbl"></span>

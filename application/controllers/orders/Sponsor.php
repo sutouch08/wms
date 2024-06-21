@@ -10,6 +10,8 @@ class Sponsor extends PS_Controller
   public $filter;
   public $error;
 	public $isAPI;
+  public $sokoApi;
+  public $wmsApi;
 
   public function __construct()
   {
@@ -32,6 +34,8 @@ class Sponsor extends PS_Controller
     $this->load->helper('warehouse');
 
 		$this->isAPI = is_true(getConfig('WMS_API'));
+    $this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
   }
 
 
@@ -155,6 +159,9 @@ class Sponsor extends PS_Controller
 
     if( ! empty($data))
     {
+
+      $wmsWh = getConfig('WMS_WAREHOUSE');
+      $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
       $book_code = getConfig('BOOK_CODE_SPONSOR');
       $date_add = db_date($data->date_add);
       $code = $this->get_new_code($date_add);
@@ -168,6 +175,11 @@ class Sponsor extends PS_Controller
       {
         if( ! empty($wh))
         {
+          $isSoko = $wh->code == $sokoWh ? TRUE : FALSE;
+          $isWms = $wh->code == $wmsWh ? TRUE : FALSE;
+
+          $is_wms = $isWms ? 1 : ($isSoko ? 2 : 0);
+
           $ds = array(
             'date_add' => $date_add,
             'code' => $code,
@@ -179,7 +191,7 @@ class Sponsor extends PS_Controller
             'remark' => get_null($data->remark),
             'user_ref' => $data->empName,
             'warehouse_code' => $wh->code,
-    				'is_wms' => $wh->is_wms,
+    				'is_wms' => $is_wms,
     				'transformed' => $data->transformed == 1 ? 1 : 0
           );
 
@@ -256,6 +268,8 @@ class Sponsor extends PS_Controller
 
       $details = $this->orders_model->get_order_details($code);
 			$ship_to = $this->address_model->get_ship_to_address($rs->customer_code);
+      $is_api = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
+
 
       $ds['state'] = $ost;
       $ds['approve_view'] = $approve_view;
@@ -267,6 +281,7 @@ class Sponsor extends PS_Controller
       $ds['allowEditDisc'] = FALSE; //getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
       $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
       $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
+      $ds['is_api'] = $is_api;
       $this->load->view('sponsor/sponsor_edit', $ds);
     }
     else
@@ -300,9 +315,15 @@ class Sponsor extends PS_Controller
         else
         {
 					$wh = $this->warehouse_model->get($data->warehouse_code);
+          $wmsWh = getConfig('WMS_WAREHOUSE');
+          $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
 
           if( ! empty($wh))
           {
+            $isSoko = $wh->code == $sokoWh ? TRUE : FALSE;
+            $isWms = $wh->code == $wmsWh ? TRUE : FALSE;
+
+            $is_wms = $isWms ? 1 : ($isSoko ? 2 : 0);
             $customer = $this->customers_model->get($data->customer_code);
 
             if( ! empty($customer))
@@ -317,7 +338,7 @@ class Sponsor extends PS_Controller
                 'status' => 0,
     						'id_address' => NULL,
     						'id_sender' => NULL,
-    						'is_wms' => $wh->is_wms,
+    						'is_wms' => $is_wms,
     						'transformed' => $data->transformed
               );
             }

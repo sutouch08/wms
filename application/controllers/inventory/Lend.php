@@ -9,7 +9,8 @@ class Lend extends PS_Controller
 	public $title = 'เบิกยืมสินค้า';
   public $filter;
   public $error;
-	public $isAPI;
+	public $wmsApi;
+  public $sokoApi;
 
   public function __construct()
   {
@@ -31,7 +32,8 @@ class Lend extends PS_Controller
     $this->load->helper('product_images');
     $this->load->helper('warehouse');
 
-		$this->isAPI = is_true(getConfig('WMS_API'));
+		$this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
   }
 
 
@@ -131,66 +133,87 @@ class Lend extends PS_Controller
 
   public function add()
   {
-    if($this->input->post('empID'))
+    $sc = TRUE;
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
 			$this->load->model('masters/warehouse_model');
 
       $book_code = getConfig('BOOK_CODE_LEND');
-      $date_add = db_date($this->input->post('date'));
 
-      if($this->input->post('code'))
-      {
-        $code = $this->input->post('code');
-      }
-      else
-      {
-        $code = $this->get_new_code($date_add);
-      }
+      $wmsWh = getConfig('WMS_WAREHOUSE');
+      $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
+
+      $date_add = db_date($data->date_add);
+      $code = $this->get_new_code($date_add);
 
       $role = 'L'; //--- L = ยืมสินค้า
+
       $has_term = 1; //--- ถือว่าเป็นเครดิต
-      $zone = $this->zone_model->get($this->input->post('zone_code'));
-			$wh = $this->warehouse_model->get($this->input->post('warehouse'));
 
-      $ds = array(
-        'date_add' => $date_add,
-        'code' => $code,
-        'role' => $role,
-        'bookcode' => $book_code,
-        'customer_code' => NULL,
-        'user' => get_cookie('uname'),
-        'user_ref' => $this->input->post('user_ref'),
-        'remark' => $this->input->post('remark'),
-        'empID' => $this->input->post('empID'),
-        'empName' => $this->input->post('empName'),
-        'zone_code' => $zone->code, //---- zone ที่จะโอนสินค้าไปเก็บ
-        'warehouse_code' => $wh->code, //--- คลังที่จะจัดสินค้าออก
-				'is_wms' => $wh->is_wms
-      );
+      $zone = $this->zone_model->get($data->zone_code);
 
-      if($this->orders_model->add($ds) === TRUE)
+			$wh = $this->warehouse_model->get($data->warehouse_code);
+
+      if( ! empty($wh))
       {
-        $arr = array(
-          'order_code' => $code,
-          'state' => 1,
-          'update_user' => get_cookie('uname')
+        $isSoko = $wh->code == $sokoWh ? TRUE : FALSE;
+        $isWms = $wh->code == $wmsWh ? TRUE : FALSE;
+
+        $is_wms = $isWms ? 1 : ($isSoko ? 2 : 0);
+
+        $ds = array(
+          'date_add' => $date_add,
+          'code' => $code,
+          'role' => $role,
+          'bookcode' => $book_code,
+          'customer_code' => NULL,
+          'user' => $this->_user->uname,
+          'user_ref' => $data->user_ref,
+          'remark' => get_null($data->remark),
+          'empID' => $data->empID,
+          'empName' => $data->empName,
+          'zone_code' => $zone->code, //---- zone ที่จะโอนสินค้าไปเก็บ
+          'warehouse_code' => $wh->code, //--- คลังที่จะจัดสินค้าออก
+  				'is_wms' => $is_wms
         );
 
-        $this->order_state_model->add_state($arr);
+        if($this->orders_model->add($ds))
+        {
+          $arr = array(
+            'order_code' => $code,
+            'state' => 1,
+            'update_user' => get_cookie('uname')
+          );
 
-        redirect($this->home.'/edit_detail/'.$code);
+          $this->order_state_model->add_state($arr);
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+        }
       }
       else
       {
-        set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-        redirect($this->home.'/add_new');
+        $sc = FALSE;
+        $this->error = "Invalid Warehouse code";
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูลลูกค้า กรุณาตรวจสอบ');
-      redirect($this->home.'/add_new');
+      $sc = FALSE;
+      $this->error = "Missing required parameter";
     }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL
+    );
+
+    echo json_encode($arr);
   }
 
 
@@ -229,6 +252,7 @@ class Lend extends PS_Controller
 		$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
+    $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
     $this->load->view('lend/lend_edit', $ds);
   }
 
@@ -237,45 +261,64 @@ class Lend extends PS_Controller
   public function update_order()
   {
     $sc = TRUE;
+    $data = json_decode($this->input->post('data'));
 
-    if($this->input->post('order_code'))
+    if( ! empty($data))
     {
-      $code = $this->input->post('order_code');
+      $code = $data->code;
       $order = $this->orders_model->get($code);
-      if(!empty($order))
+
+      if( ! empty($order))
       {
         if($order->state > 1)
         {
           $ds = array(
-            'remark' => trim($this->input->post('remark'))
+            'remark' => get_null(trim($data->remark))
           );
         }
         else
         {
 					$this->load->model('masters/warehouse_model');
-					$wh = $this->warehouse_model->get($this->input->post('warehouse'));
+					$wh = $this->warehouse_model->get($data->warehouse_code);
 
-          $ds = array(
-            'empID' => $this->input->post('empID'),
-            'empName' => $this->input->post('empName'),
-            'date_add' => db_date($this->input->post('date_add')),
-            'user_ref' => $this->input->post('user_ref'),
-            'zone_code' => $this->input->post('zone_code'),
-            'remark' => $this->input->post('remark'),
-            'warehouse_code' => $wh->code,
-						'is_wms' => $wh->is_wms,
-						'id_address' => NULL,
-						'id_sender' => NULL,
-            'status' => 0
-          );
+          if( ! empty($wh))
+          {
+            $wmsWh = getConfig('WMS_WAREHOUSE');
+            $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
+            $isSoko = $wh->code == $sokoWh ? TRUE : FALSE;
+            $isWms = $wh->code == $wmsWh ? TRUE : FALSE;
+
+            $is_wms = $isWms ? 1 : ($isSoko ? 2 : 0);
+
+            $ds = array(
+              'empID' => $data->empID,
+              'empName' => $data->empName,
+              'date_add' => db_date($data->date_add),
+              'user_ref' => $data->user_ref,
+              'zone_code' => $data->zone_code,
+              'remark' => get_null(trim($data->remark)),
+              'warehouse_code' => $wh->code,
+  						'is_wms' => $is_wms,
+  						'id_address' => NULL,
+  						'id_sender' => NULL,
+              'status' => 0
+            );
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Invalid Warehouse code";
+          }
         }
 
-        if(! $this->orders_model->update($code, $ds))
+        if($sc === TRUE)
         {
-          $sc = FALSE;
-          $this->error = "ปรับปรุงข้อมูลไม่สำเร็จ";
+          if(! $this->orders_model->update($code, $ds))
+          {
+            $sc = FALSE;
+            $this->error = "ปรับปรุงข้อมูลไม่สำเร็จ";
+          }
         }
-
       }
       else
       {
@@ -286,7 +329,7 @@ class Lend extends PS_Controller
     else
     {
       $sc = FALSE;
-      $this->error = 'ไม่พบเลขที่เอกสาร';
+      set_error('required');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;

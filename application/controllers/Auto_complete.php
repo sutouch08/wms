@@ -1038,23 +1038,22 @@ public function get_prepare_item_code()
   public function get_warehouse_code_and_name()
   {
     $txt = $_REQUEST['term'];
+
     $sc  = array();
-    $qr  = "SELECT WhsCode, WhsName FROM OWHS ";
 
-    if($txt != '*')
-    {
-      $qr .= "WHERE WhsCode LIKE N'%{$txt}%' OR WhsName LIKE N'%{$txt}%' ";
-    }
-
-    $qr .= "ORDER BY WhsCode ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
-
-    $rs = $this->ms->query($qr);
+    $rs = $this->db
+    ->select('code, name')
+    ->like('code', $txt)
+    ->or_like('name', $txt)
+    ->order_by('code', 'ASC')
+    ->limit(20)
+    ->get('warehouse');
 
     if($rs->num_rows() > 0)
     {
       foreach($rs->result() as $wh)
       {
-        $sc[] = $wh->WhsCode.' | '.$wh->WhsName;
+        $sc[] = $wh->code.' | '.$wh->name;
       }
     }
     else
@@ -1064,6 +1063,36 @@ public function get_prepare_item_code()
 
     echo json_encode($sc);
   }
+
+  // public function get_warehouse_code_and_name()
+  // {
+  //   $txt = $_REQUEST['term'];
+  //   $sc  = array();
+  //   $qr  = "SELECT WhsCode, WhsName FROM OWHS ";
+  //
+  //   if($txt != '*')
+  //   {
+  //     $qr .= "WHERE WhsCode LIKE N'%{$txt}%' OR WhsName LIKE N'%{$txt}%' ";
+  //   }
+  //
+  //   $qr .= "ORDER BY WhsCode ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
+  //
+  //   $rs = $this->ms->query($qr);
+  //
+  //   if($rs->num_rows() > 0)
+  //   {
+  //     foreach($rs->result() as $wh)
+  //     {
+  //       $sc[] = $wh->WhsCode.' | '.$wh->WhsName;
+  //     }
+  //   }
+  //   else
+  //   {
+  //     $sc[] = 'not found';
+  //   }
+  //
+  //   echo json_encode($sc);
+  // }
 
 
   public function get_color_code_and_name()
