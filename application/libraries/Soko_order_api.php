@@ -515,5 +515,12 @@ class Soko_order_api
 	}
 
 
+  public function get_order_status($code)
+  {    
+    $sc = FALSE;
+    $this->error = "SOKO Status API Does Not Exist";
+
+    return $sc;
+  }
 }
 ?>

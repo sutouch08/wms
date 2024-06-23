@@ -15,6 +15,8 @@ class Orders extends PS_Controller
 	public $logs; //--- logs database;
   public $sync_chatbot_stock = FALSE;
   public $log_delete = TRUE;
+  public $soko_user = 'api@sokochan';
+  public $wms_user = 'api@wms';
 
   public function __construct()
   {
@@ -4022,6 +4024,144 @@ class Orders extends PS_Controller
   }
 
 
+  public function update_wms_status()
+	{
+		$sc = TRUE;
+		$code = $this->input->get('code');
+
+		$order = $this->orders_model->get($code);
+
+		if(!empty($order))
+		{
+      $is_api = $this->is_api($order->is_wms);
+
+      //---- export to fulfillment
+      if($is_api && $order->is_wms != 0)
+      {
+        $this->wms = $this->load->database('wms', TRUE);
+
+        if($order->is_wms == 1)
+        {
+          $this->load->library('wms_order_status_api');
+
+          $rs = $this->wms_order_status_api->get_wms_status($code);
+
+      		if( ! empty($rs))
+      		{
+      			if($rs->SERVICE_RESULT->RESULT_STAUS === 'SUCCESS')
+      			{
+      				$status = $rs->SERVICE_RESULT->RESULT_DETAIL->ORDERS->ORDER->ORDER_STATUS;
+      				$state = $status == "CANCELED" ? 23 : ($status == "SHIPPED" ? 22 : ($status == "PACKED" ? 21 : ($status == "PACKING" ? 20 : ($status == "IN PROGRESS" ? 19 : 0))));
+
+      				if($state == 22)
+      				{
+      					$date = $rs->SERVICE_RESULT->RESULT_DETAIL->ORDERS->ORDER->SHIPMENT_DATETIME;
+      					$date = !empty($date) ? str_replace("/","-", $date ) : $date;
+      					$date_upd = date('Y-m-d H:i:s', strtotime($date));
+      				}
+      				else
+      				{
+      					$date_upd = date('Y-m-d H:i:s');
+      				}
+
+      				if(!empty($state))
+      				{
+      					if(!$this->order_state_model->is_exists_state($code, $state))
+      					{
+      						$arr = array(
+      							'order_code' => $code,
+      							'state' => $state,
+      							'update_user' => $this->wms_user,
+      							'date_upd' => $date_upd
+      						);
+
+      						$this->order_state_model->add_wms_state($arr);
+      					}
+      					else
+      					{
+      						$sc = FALSE;
+      						$this->error = "สถานะไม่มีการเปลี่ยนแปลง";
+      					}
+      				}
+      				else
+      				{
+      					$sc = FALSE;
+      					$this->error = "{$stats} : ไม่พบสถานะเอกสาร";
+      				}
+      			}
+      			else
+      			{
+      				$sc = FALSE;
+      				$this->error = $rs->SERVICE_RESULT->ERROR_CODE.' : '.$rs->SERVICE_RESULT->ERROR_MESSAGE;
+      			}
+      		}
+      		else
+      		{
+      			$sc = FALSE;
+      			$this->error = "No response";
+      		}
+        } //--- if($order->is_wms == 1)
+
+        //---- export to soko
+        if($order->is_wms == 2)
+        {
+          $this->load->library('soko_order_api');
+
+          $rs = $this->soko_order_api->get_order_status($code);
+
+          if( ! empty($rs))
+          {
+            if($rs->status == 'success')
+            {
+              $stateList = soko_state_list_array();
+
+              if( ! empty($stateList[$rs->order_status]))
+              {
+                $state = $stateList[$data->order_status];
+
+                $arr = array(
+                  'order_code' => $order->code,
+                  'state' => $state,
+                  'update_user' => $this->soko_user,
+                  'date_upd' => now()
+                );
+
+                if( ! $this->order_state_model->add_wms_state($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to update order status";
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "Invalid order status";
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = $rs->message;
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = $this->soko_order_api->error;
+          }
+        } //--- if($order->is_wms == 2)
+      } //--- export fulfillment
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
 	public function send_to_wms()
 	{
 		$sc = TRUE;
@@ -4095,6 +4235,8 @@ class Orders extends PS_Controller
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
+
+
 
   public function send_multiple_orders_to_wms()
 	{

@@ -238,38 +238,85 @@ function show_tracking() {
   $('#tracking-modal').modal('show');
 }
 
-
 function update_wms_status() {
-	const order_code = $("#order_code").val();
-	if(order_code !== "" && order_code !== undefined) {
-		load_in();
-		$.ajax({
-			url:BASE_URL + "rest/V1/wms_order_status/update_wms_status",
-			type:"GET",
-			cache:false,
-			data:{
-				"order_code" : order_code
-			},
-			success:function(rs) {
-				load_out();
-				if(rs === "success") {
-					swal({
-						title:"Success",
-						type:"success",
-						timer:1000
-					});
+  const code = $('#order_code').val();
 
-					setTimeout(function(){
-						window.location.reload();
-					}, 1200);
-				}
-				else {
-					swal(rs);
-				}
-			}
-		})
-	}
+  if(code != '' && code !== undefined) {
+    load_in();
+    $.ajax({
+      url:BASE_URL + 'orders/orders/update_wms_status',
+      type:'GET',
+      cache:false,
+      data:{
+        'code' : code
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs == 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:rs,
+            type:'error'
+          })
+        }
+      },
+      error:function(xhr) {
+        load_out();
+
+        swal({
+          title:'Error!',
+          text:xhr.responseText,
+          type:'error',
+          html:true
+        });
+      }
+    })
+  }
 }
+
+// function update_wms_status() {
+// 	const order_code = $("#order_code").val();
+// 	if(order_code !== "" && order_code !== undefined) {
+// 		load_in();
+// 		$.ajax({
+// 			url:BASE_URL + "rest/V1/wms_order_status/update_wms_status",
+// 			type:"GET",
+// 			cache:false,
+// 			data:{
+// 				"order_code" : order_code
+// 			},
+// 			success:function(rs) {
+// 				load_out();
+// 				if(rs === "success") {
+// 					swal({
+// 						title:"Success",
+// 						type:"success",
+// 						timer:1000
+// 					});
+//
+// 					setTimeout(function(){
+// 						window.location.reload();
+// 					}, 1200);
+// 				}
+// 				else {
+// 					swal(rs);
+// 				}
+// 			}
+// 		})
+// 	}
+// }
 
 
 

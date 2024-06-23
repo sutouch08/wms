@@ -478,6 +478,162 @@ class Orders extends REST_Controller
     } //--- create_post
 
 
+  public function update_status_put()
+  {
+    $sc = TRUE;
+    //--- Get raw post data
+    $json = file_get_contents("php://input");
+
+    $data = json_decode($json);
+
+    $this->api_path."/update_status";
+
+    if(empty($data))
+    {
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'Update',
+          'status' => 'failed',
+          'message' => 'empty data',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'empty data'
+      );
+
+      $this->response($arr, 400);
+    }
+
+    if(! property_exists($data, 'order_number') OR $data->order_number == '')
+    {
+      $this->error = 'order_number is required';
+      $this->soko_api_logs_model->add("", "E", $this->error, "");
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'Update',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    if(! property_exists($data, 'order_status') OR empty($data->order_status))
+    {
+      $this->error = 'order_status is required';
+      $this->soko_api_logs_model->add("", "E", $this->error, "");
+
+      $arr = array(
+      'status' => FALSE,
+      'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $this->api_path,
+        'type' =>'ORDER',
+        'code' => NULL,
+        'action' => 'Update',
+        'status' => 'failed',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $order = $this->orders_model->get($data->order_number);
+
+    if( ! empty($order))
+    {
+      $stateList = array(
+        'Pending' => 30,
+        'Processing' => 31,
+        'Processed' => 32,
+        'Picked' => 33,
+        'Packed' => 34,
+        'Shipped' => 35,
+        'Cancelled' => 36,
+        'pending' => 30,
+        'processing' => 31,
+        'processed' => 32,
+        'picked' => 33,
+        'packed' => 34,
+        'shipped' => 35,
+        'cancelled' => 36
+      );
+
+      if( ! empty($stateList[$data->order_status]))
+      {
+        $state = $stateList[$data->order_status];
+
+        $arr = array(
+          'order_code' => $order->code,
+          'state' => $state,
+          'update_user' => $this->user,
+          'date_upd' => now()
+        );
+
+        if( ! $this->order_state_model->add_wms_state($arr))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update order status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid order status";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Order number does not exist";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : FALSE,
+      'message' => $sc === TRUE ? 'Order status updated' : NULL,
+      'error' => $sc === TRUE ? NULL : $this->error
+    );
+
+    $this->response($arr, 200);
+  }
+
 
   public function get_new_code($date)
   {
