@@ -604,7 +604,7 @@ class Orders extends REST_Controller
           'order_code' => $order->code,
           'state' => $state,
           'update_user' => $this->user,
-          'date_upd' => now()
+          'date_upd' => date('Y-m-d H:i:s', strtotime($data->update_time))
         );
 
         if( ! $this->order_state_model->add_wms_state($arr))
