@@ -517,10 +517,28 @@ class Soko_order_api
 
   public function get_order_status($code)
   {    
-    $sc = FALSE;
-    $this->error = "SOKO Status API Does Not Exist";
+    $api_path = $this->url."orders/@".$code;
+    $url = $api_path;
+    $method = "GET";
 
-    return $sc;
+    $headers = array(
+      "Authorization: Basic {$this->key}"
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+
+    $res = json_decode($response);
+
+    return $res;
   }
 }
 ?>

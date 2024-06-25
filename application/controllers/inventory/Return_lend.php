@@ -9,8 +9,8 @@ class Return_lend extends PS_Controller
   public $filter;
   public $error;
 	public $wms;
-  public $wmsApi = FALSE;
-  public $sokoApi = FALSE;
+  public $wmsApi;
+  public $sokoApi;
   public $required_remark = 1;
 
   public function __construct()

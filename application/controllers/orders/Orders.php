@@ -3505,7 +3505,6 @@ class Orders extends PS_Controller
 				if($sc === TRUE)
 				{
 					//--- check status wms is shipped ?
-
 					//---- cancle
 					$is_wms = 0; //--- ทำเหมือนว่าไม่เป็นออเดอร์ที่ warrix
 					$wms_export = 0; //--- ทำเหมือนว่าไม่ได้ส่งไป wms
@@ -3518,7 +3517,7 @@ class Orders extends PS_Controller
 							'state' => 9,
 							'is_cancled' => 1,
 							'cancle_date' => now(),
-							'date_upd' => get_cookie('uname')
+							'update_user' => $this->_user->uname
 						);
 
 						if(!$this->orders_model->update($code, $arr))
@@ -3532,7 +3531,7 @@ class Orders extends PS_Controller
 							$arr = array(
 								'order_code' => $code,
 								'state' => 9,
-								'update_user' => get_cookie('uname')
+								'update_user' => $this->_user->uname
 							);
 
 							if(! $this->order_state_model->add_state($arr) )
@@ -3547,38 +3546,65 @@ class Orders extends PS_Controller
 
 					if($rs === TRUE)
 					{
-						//-- Send data to WMS
-						$this->wms = $this->load->database('wms', TRUE);
-						$this->load->model('rest/V1/wms_temp_order_model');
-						$this->load->library('wms_receive_api');
+            if(is_api($order->is_wms, $this->wmsApi, $this->sokoApi))
+            {
+              $this->wms = $this->load->database('wms', TRUE);
 
-						//$details = $this->orders_model->get_order_details($code);
-						$details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
+              //--- if Pioneer
+              if($order->is_wms == 1)
+              {
+                $this->load->model('rest/V1/wms_temp_order_model');
+                $this->load->library('wms_receive_api');
 
-						if(!empty($details))
-						{
-							foreach($details as $rs)
-							{
-								$item = $this->products_model->get($rs->product_code);
-								$rs->product_name = $item->name;
-								$rs->unit_code = $item->unit_code;
-								$rs->is_count = $item->count_stock;
-							}
+                $details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
 
-							$ex = $this->wms_receive_api->export_return_request($order, $details);
+                if( ! empty($details))
+                {
+                  foreach($details as $rs)
+                  {
+                    $item = $this->products_model->get($rs->product_code);
+                    $rs->product_name = $item->name;
+                    $rs->unit_code = $item->unit_code;
+                    $rs->is_count = $item->count_stock;
+                  }
 
-							if(! $ex)
-							{
-								$sc = FALSE;
-								$this->error = $this->wms_receive_api->error;
-							}
-						}
-						else
-						{
-							$sc = FALSE;
-							$this->error = "ไม่พบรายการสินค้าที่ต้องรับคืน";
-						}
+                  if(! $this->wms_receive_api->export_return_request($order, $details))
+                  {
+                    $sc = FALSE;
+                    $this->error = $this->wms_receive_api->error;
+                  }
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "ไม่พบรายการสินค้าที่ต้องรับคืน";
+                }
+              } //--- if wms = 1
 
+              //--- if Sokochan
+              if($order->is_wms = 2)
+              {
+                $this->load->model('rest/V1/soko_temp_order_model');
+                $this->load->library('soko_receive_api');
+
+                //--- get grn from table
+                $details = $this->soko_temp_order_model->get_details_by_code($code);
+
+                if( ! empty($details))
+                {
+                  if( ! $this->soko_receive_api->create_return_cancel($order, $details))
+                  {
+                    $sc = FALSE;
+                    $this->error = $this->soko_receive_api->error;
+                  }
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "ไม่พบรายการที่ต้องรับคืน";
+                }
+              } //--- if wms = 2
+            } //--- if is_api
 					}
 					else
 					{
@@ -3609,51 +3635,71 @@ class Orders extends PS_Controller
 		$code = $this->input->post('order_code');
 
 		$order = $this->orders_model->get($code);
+
 		if(!empty($order))
 		{
 			if($order->state == 9)
 			{
-				//-- Send data to WMS
-				$this->wms = $this->load->database('wms', TRUE);
-				$this->load->model('rest/V1/wms_temp_order_model');
-				$this->load->library('wms_receive_api');
+        if(is_api($order->is_wms, $this->wmsApi, $this->sokoApi))
+        {
+          $this->wms = $this->load->database('wms', TRUE);
 
-				// $details = $this->orders_model->get_order_details($code);
-				$details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
+          //--- if Pioneer
+          if($order->is_wms == 1)
+          {
+            $this->load->model('rest/V1/wms_temp_order_model');
+            $this->load->library('wms_receive_api');
 
-				if(!empty($details))
-				{
-					foreach($details as $rs)
-					{
-						$item = $this->products_model->get($rs->product_code);
-						$rs->product_name = $item->name;
-						$rs->unit_code = $item->unit_code;
-						$rs->is_count = $item->count_stock;
-					}
+            $details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
 
-					$ex = $this->wms_receive_api->export_return_request($order, $details);
+            if( ! empty($details))
+            {
+              foreach($details as $rs)
+              {
+                $item = $this->products_model->get($rs->product_code);
+                $rs->product_name = $item->name;
+                $rs->unit_code = $item->unit_code;
+                $rs->is_count = $item->count_stock;
+              }
 
-					if(! $ex)
-					{
-						$sc = FALSE;
-						$this->error = $this->wms_receive_api->error;
-					}
+              if(! $this->wms_receive_api->export_return_request($order, $details))
+              {
+                $sc = FALSE;
+                $this->error = $this->wms_receive_api->error;
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "ไม่พบรายการสินค้าที่ต้องรับคืน";
+            }
+          } //--- if wms = 1
 
-					if($ex && $order->is_cancled == 0)
-					{
-						$arr = array(
-							'is_cancled' => 1
-						);
+          //--- if Sokochan
+          if($order->is_wms = 2)
+          {
+            $this->load->model('rest/V1/soko_temp_order_model');
+            $this->load->library('soko_receive_api');
 
-						$this->orders_model->update($order->code, $arr);
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "ไม่พบรายการสินค้าที่ต้องรับคืน";
-				}
-			}
+            //--- get grn from table
+            $details = $this->soko_temp_order_model->get_details_by_code($code);
+
+            if( ! empty($details))
+            {
+              if( ! $this->soko_receive_api->create_return_cancel($order, $details))
+              {
+                $sc = FALSE;
+                $this->error = $this->soko_receive_api->error;
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "ไม่พบรายการที่ต้องรับคืน";
+            }
+          } //--- if wms = 2
+        } //--- if is_api
+			} //--- if state = 9
 		}
 		else
 		{
@@ -4219,10 +4265,16 @@ class Orders extends PS_Controller
         {
           $this->load->library('soko_order_api');
 
-          if( ! $this->soko_order_api->export_order($code))
+          $res = $this->soko_order_api->get_order_status($code);
+
+          if( ! $res)
           {
             $sc = FALSE;
             $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (".$this->soko_order_api->error.")";
+          }
+          else
+          {
+            echo $res;
           }
         } //--- if($order->is_wms == 2)
       } //--- export fulfillment

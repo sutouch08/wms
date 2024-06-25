@@ -286,44 +286,11 @@ function update_wms_status() {
   }
 }
 
-// function update_wms_status() {
-// 	const order_code = $("#order_code").val();
-// 	if(order_code !== "" && order_code !== undefined) {
-// 		load_in();
-// 		$.ajax({
-// 			url:BASE_URL + "rest/V1/wms_order_status/update_wms_status",
-// 			type:"GET",
-// 			cache:false,
-// 			data:{
-// 				"order_code" : order_code
-// 			},
-// 			success:function(rs) {
-// 				load_out();
-// 				if(rs === "success") {
-// 					swal({
-// 						title:"Success",
-// 						type:"success",
-// 						timer:1000
-// 					});
-//
-// 					setTimeout(function(){
-// 						window.location.reload();
-// 					}, 1200);
-// 				}
-// 				else {
-// 					swal(rs);
-// 				}
-// 			}
-// 		})
-// 	}
-// }
-
-
 
 function cancle_shipped_order() {
 	swal({
 		title: "ยกเลิกออเดอร์ ?",
-		text: "ออเดอร์นี้ถูกจัดส่งแล้ว หากคุณต้องการยกเลิกคุณต้องประสานงานกับคลัง Pioneer เพื่อรับสินค้ากลับเข้าคลังด้วย <br/> ต้องการยกเลิกหรือไม่ ?",
+		text: "ออเดอร์นี้ถูกจัดส่งแล้ว หากคุณต้องการยกเลิกคุณต้องประสานงานกับคลัง เพื่อรับสินค้ากลับเข้าคลังด้วย <br/> ต้องการยกเลิกหรือไม่ ?",
 		type: "warning",
 		showCancelButton: true,
 		confirmButtonColor: "#DD6B55",
@@ -373,9 +340,23 @@ function cancle_order_shipped() {
 					}, 1200);
 				}
 				else {
-					swal(rs);
+					swal({
+            title:'Error!',
+            text:rs,
+            type:'error',
+            html:true
+          })
 				}
-			}
+			},
+      error:function(xhr) {
+        load_out();
+        swal({
+          title:'Error!',
+          text:xhr.responseText,
+          type:'error',
+          html:true
+        })
+      }
 		})
 	}
 }
