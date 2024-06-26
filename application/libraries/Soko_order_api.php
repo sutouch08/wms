@@ -98,6 +98,7 @@ class Soko_order_api
             'comment' => $order->remark,
             'stores' => 1,
             'special_order' => "",
+            'channel' => $channels_code,
             'shipping' => (!empty($sender) ? $sender->code : ""),
             'tracking_no' => $order->shipping_code,
             'print_bill' => $isOnline ? 0 : 1,
@@ -516,7 +517,7 @@ class Soko_order_api
 
 
   public function get_order_status($code)
-  {    
+  {
     $api_path = $this->url."orders/@".$code;
     $url = $api_path;
     $method = "GET";
