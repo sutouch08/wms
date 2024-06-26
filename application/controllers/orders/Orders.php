@@ -4271,11 +4271,7 @@ class Orders extends PS_Controller
           {
             $sc = FALSE;
             $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (".$this->soko_order_api->error.")";
-          }
-          else
-          {
-            echo $res;
-          }
+          }          
         } //--- if($order->is_wms == 2)
       } //--- export fulfillment
 		}
