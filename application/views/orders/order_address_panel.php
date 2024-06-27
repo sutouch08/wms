@@ -135,8 +135,8 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
               </div>
               <div class="col-lg-2 col-md-3 col-sm-3 col-xs-3 padding-5">
                 <?php if(($order->is_wms == 0) OR ($order->is_wms != 0 && $order->state < 3) OR $order->id_sender == NULL) : ?>
-                <button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
                 <?php endif; ?>
+                <button type="button" class="btn btn-xs btn-success btn-block" onclick="setSender()">บันทึก</button>
               </div>
             </div>
           </div>
@@ -152,8 +152,8 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
               </div>
               <div class="col-lg-2 col-md-3 col-sm-3 col-xs-3 padding-5">
                 <?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->shipping_code == NULL) : ?>
-                <button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
                 <?php endif; ?>
+                <button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
               </div>
             </div>
           </div>
