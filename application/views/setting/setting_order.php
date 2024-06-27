@@ -17,7 +17,6 @@ $btn_credit_no  = $CONTROL_CREDIT == 0 ? 'btn-danger' : '';
 $btn_show_stock_yes = $SHOW_SUM_STOCK == 1 ? 'btn-success' : '';
 $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 ?>
-<div class="tab-pane fade" id="order">
 <form id="orderForm" method="post" action="<?php echo $this->home; ?>/update_config">
 	<div class="row">
 		<div class="col-sm-3"><span class="form-control left-label">อายุของออเดอร์ ( วัน )</span></div>
@@ -180,4 +179,3 @@ $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 		<div class="divider-hidden"></div>
   </div>
 </form>
-</div><!--- Tab-pane --->

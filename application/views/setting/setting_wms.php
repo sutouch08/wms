@@ -1,5 +1,3 @@
-
-<div class="tab-pane fade" id="WMS">
 	<?php
 		$full_on = $WMS_FULL_MODE == 1 ? 'btn-success' : '';
 		$full_off = $WMS_FULL_MODE == 0 ? 'btn-primary' : '';
@@ -184,4 +182,3 @@
 
   	</div><!--/ row -->
   </form>
-</div>

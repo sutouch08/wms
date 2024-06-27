@@ -1,4 +1,4 @@
-<div class="tab-pane fade" id="system">
+
 <?php
     $open     = $CLOSE_SYSTEM == 0 ? 'btn-success' : '';
     $close    = $CLOSE_SYSTEM == 1 ? 'btn-danger' : '';
@@ -6,6 +6,8 @@
 
     $manual_code_yes = $MANUAL_DOC_CODE == 1 ? 'btn-success' : '';
     $manual_code_no = $MANUAL_DOC_CODE == 0 ? 'btn-danger' : '';
+    $uat_on = $IS_UAT == 1 ? 'btn-primary' : '';
+    $uat_off = $IS_UAT == 0 ? 'btn-success' : '';
 
 ?>
 
@@ -21,6 +23,17 @@
         </div>
         <span class="help-block">กรณีปิดระบบจะไม่สามารถเข้าใช้งานระบบได้ในทุกส่วน โปรดใช้ความระมัดระวังในการกำหนดค่านี้</span>
       	<input type="hidden" name="CLOSE_SYSTEM" id="closed" value="<?php echo $CLOSE_SYSTEM; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+      <div class="col-sm-3"><span class="form-control left-label">Environment</span></div>
+      <div class="col-sm-9">
+        <div class="btn-group input-medium">
+          <button type="button" class="btn btn-sm <?php echo $uat_on; ?>" style="width:50%;" id="btn-uat-on" onClick="toggleUat(1)">UAT</button>
+          <button type="button" class="btn btn-sm <?php echo $uat_off; ?>" style="width:50%;" id="btn-uat-off" onClick="toggleUat(0)">PROD</button>
+        </div>
+        <span class="help-block">เปิดการป้อนเลขที่เอกสารด้วยมือ หากปิดระบบจะรับเลขที่เอกสารให้อัตโนมัติ</span>
+        <input type="hidden" name="IS_UAT" id="is-uat" value="<?php echo $IS_UAT; ?>" />
       </div>
       <div class="divider-hidden"></div>
 
@@ -49,7 +62,7 @@
       <span class="help-block">กำหนดประเภทวันที่ที่ใช้ในการบันทึกขายและตัดสต็อกในระบบ SAP</span>
     </div>
     <div class="divider-hidden"></div>
-        
+
       <div class="col-sm-9 col-sm-offset-3">
         <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
       	<button type="button" class="btn btn-sm btn-success" onClick="updateConfig('systemForm')"><i class="fa fa-save"></i> บันทึก</button>
@@ -59,4 +72,3 @@
 
     </div><!--/row-->
   </form>
-</div><!--/ tab pane -->

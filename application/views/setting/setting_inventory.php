@@ -19,7 +19,6 @@
 <?php $imp_yes = is_true($ALLOW_IMPORT_TRANSFER) ? 'btn-success' : ''; ?>
 <?php $imp_no = is_true($ALLOW_IMPORT_TRANSFER) ? '' : 'btn-success'; ?>
 
-<div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
 			<div class="col-sm-3">
@@ -222,4 +221,3 @@
 
   	</div><!--/ row -->
   </form>
-</div>

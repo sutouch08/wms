@@ -25,6 +25,18 @@ function updateConfig(formName)
 	});
 }
 
+function changeURL(tab)
+{
+	var url = BASE_URL + 'setting/configs/index/'+ tab;
+	var stObj = { stage: 'stage' };
+	window.history.pushState(stObj, 'configs', url);
+
+  if( a !== undefined )
+  {
+    $('#'+tab+'-a').click();
+  }
+}
+
 
 
 function openSystem()
@@ -70,6 +82,25 @@ function toggleManualCode(option)
 		return;
 	}
 }
+
+
+function toggleUat(option)
+{
+	$('#is-uat').val(option);
+
+	if(option == 1){
+		$('#btn-uat-on').addClass('btn-primary');
+		$('#btn-uat-off').removeClass('btn-success');
+		return;
+	}
+
+	if(option == 0){
+		$('#btn-uat-on').removeClass('btn-primary');
+		$('#btn-uat-off').addClass('btn-success');
+		return;
+	}
+}
+
 
 
 

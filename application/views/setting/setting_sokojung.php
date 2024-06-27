@@ -1,5 +1,3 @@
-
-<div class="tab-pane fade" id="sokojung">
 	<?php
 		$sokojung_api_on = $SOKOJUNG_API == 1 ? 'btn-success' : '';
 		$sokojung_api_off = $SOKOJUNG_API == 0 ? 'btn-danger' : '';
@@ -124,4 +122,3 @@
 
   	</div><!--/ row -->
   </form>
-</div>

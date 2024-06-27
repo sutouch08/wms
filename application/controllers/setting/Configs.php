@@ -19,7 +19,7 @@ class Configs extends PS_Controller
 
 
 
-  public function index()
+  public function index($tab = 'general')
   {
     $groups = $this->config_model->get_group();
     $ps = get_permission('SCSYSC');
@@ -38,6 +38,7 @@ class Configs extends PS_Controller
     }
 
     $ds['cando'] = $cando;
+    $ds['tab'] = $tab;
 
     $this->load->view('setting/configs', $ds);
   }

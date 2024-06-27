@@ -8,55 +8,88 @@
 
 <div class="row">
 <div class="col-sm-2 padding-right-0" style="padding-top:15px;">
+	<?php
+	$tab1 = $tab == 'general' ? 'active in' : '';
+	$tab2 = $tab == 'company' ? 'active in' : '';
+	$tab3 = $tab == 'system' ? 'active in' : '';
+	$tab4 = $tab == 'inventory' ? 'active in' : '';
+	$tab5 = $tab == 'order' ? 'active in' : '';
+	$tab6 = $tab == 'document' ? 'active in' : '';
+	$tab7 = $tab == 'bookcode' ? 'active in' : '';
+	$tab8 = $tab == 'SAP' ? 'active in' : '';
+	$tab9 = $tab == 'WMS' ? 'active in' : '';
+	$tab10 = $tab == 'sokojung' ? 'active in' : '';
+	$tab11 = $tab == 'chatbot' ? 'active in' : '';
+	$tab12 = $tab == 'web' ? 'active in' : '';
+
+	?>
 <ul id="myTab1" class="setting-tabs">
-  <li class="li-block active"><a href="#general" data-toggle="tab">ทั่วไป</a></li>
-	<li class="li-block"><a href="#company" data-toggle="tab">ข้อมูลบริษัท</a></li>
-	<li class="li-block"><a href="#system" data-toggle="tab">ระบบ</a></li>
-	<li class="li-block"><a href="#inventory" data-toggle="tab">คลังสินค้า</a></li>
-  <li class="li-block"><a href="#order" data-toggle="tab">ออเดอร์</a></li>
-  <li class="li-block"><a href="#document" data-toggle="tab">เลขที่เอกสาร</a></li>
-	<li class="li-block"><a href="#bookcode" data-toggle="tab">เล่มเอกสาร</a></li>
-	<li class="li-block"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
-	<li class="li-block"><a href="#WMS" data-toggle="tab">ข้อมูล WMS</a></li>
-	<li class="li-block"><a href="#sokojung" data-toggle="tab">ข้อมูล SOKOJUNG</a></li>
-	<li class="li-block"><a href="#chatbot" data-toggle="tab">ข้อมูล CHATBOT</a></li>
-	<li class="li-block"><a href="#web" data-toggle="tab">ข้อมูล Web</a></li>
+  <li class="li-block <?php echo $tab1; ?>" onclick="changeURL('general')"><a href="#general" data-toggle="tab">ทั่วไป</a></li>
+	<li class="li-block <?php echo $tab2; ?>" onclick="changeURL('company')"><a href="#company" data-toggle="tab">ข้อมูลบริษัท</a></li>
+	<li class="li-block <?php echo $tab3; ?>" onclick="changeURL('system')"><a href="#system" data-toggle="tab">ระบบ</a></li>
+	<li class="li-block <?php echo $tab4; ?>" onclick="changeURL('inventory')"><a href="#inventory" data-toggle="tab">คลังสินค้า</a></li>
+  <li class="li-block <?php echo $tab5; ?>" onclick="changeURL('order')"><a href="#order" data-toggle="tab">ออเดอร์</a></li>
+  <li class="li-block <?php echo $tab6; ?>" onclick="changeURL('document')"><a href="#document" data-toggle="tab">เลขที่เอกสาร</a></li>
+	<li class="li-block <?php echo $tab7; ?>" onclick="changeURL('bookcode')"><a href="#bookcode" data-toggle="tab">เล่มเอกสาร</a></li>
+	<li class="li-block <?php echo $tab8; ?>" onclick="changeURL('SAP')"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
+	<li class="li-block <?php echo $tab9; ?>" onclick="changeURL('WMS')"><a href="#WMS" data-toggle="tab">ข้อมูล WMS</a></li>
+	<li class="li-block <?php echo $tab10; ?>" onclick="changeURL('sokojung')"><a href="#sokojung" data-toggle="tab">ข้อมูล SOKOJUNG</a></li>
+	<li class="li-block <?php echo $tab11; ?>" onclick="changeURL('chatbot')"><a href="#chatbot" data-toggle="tab">ข้อมูล CHATBOT</a></li>
+	<li class="li-block <?php echo $tab12; ?>" onclick="changeURL('web')"><a href="#web" data-toggle="tab">ข้อมูล Web</a></li>
 
 </ul>
 </div>
 <div class="col-sm-10" style="padding-top:15px; border-left:solid 1px #ccc; min-height:600px; max-height:1500px;">
 <div class="tab-content" style="border:0px;">
 <!---  ตั้งค่าทั่วไป  ----------------------------------------------------->
-<?php $this->load->view('setting/setting_general'); ?>
+<div class="tab-pane fade <?php echo $tab1; ?>" id="general">
+	<?php $this->load->view('setting/setting_general'); ?>
+</div>
 
 <!---  ตั้งค่าบริษัท  ------------------------------------------------------>
+<div class="tab-pane fade <?php echo $tab2; ?>" id="company">
 <?php $this->load->view('setting/setting_company'); ?>
-
+</div>
 <!---  ตั้งค่าระบบ  ----------------------------------------------------->
-<?php
-		$this->load->view('setting/setting_system');
- ?>
-
+<div class="tab-pane fade <?php echo $tab3; ?>" id="system">
+<?php	$this->load->view('setting/setting_system'); ?>
+</div>
+<div class="tab-pane fade <?php echo $tab4; ?>" id="inventory">
+	<?php $this->load->view('setting/setting_inventory'); ?>
+</div>
 <!---  ตั้งค่าออเดอร์  --------------------------------------------------->
+<div class="tab-pane fade <?php echo $tab5; ?>" id="order">
 <?php $this->load->view('setting/setting_order'); ?>
-
+</div>
 <!---  ตั้งค่าเอกสาร  --------------------------------------------------->
+<div class="tab-pane fade <?php echo $tab6; ?>" id="document">
 <?php $this->load->view('setting/setting_document'); ?>
+</div>
 
+<div class="tab-pane fade <?php echo $tab7; ?>" id="bookcode">
 <?php $this->load->view('setting/setting_bookcode'); ?>
+</div>
 
+<div class="tab-pane fade <?php echo $tab8; ?>" id="SAP">
 <?php $this->load->view('setting/setting_sap'); ?>
+</div>
 
-<?php $this->load->view('setting/setting_inventory'); ?>
 
+<div class="tab-pane fade <?php echo $tab9; ?>" id="WMS">
 <?php $this->load->view('setting/setting_wms'); ?>
+</div>
 
+<div class="tab-pane fade <?php echo $tab10; ?>" id="sokojung">
 <?php $this->load->view('setting/setting_sokojung'); ?>
+</div>
 
+<div class="tab-pane fade <?php echo $tab11; ?>" id="chatbot">
 <?php $this->load->view('setting/setting_chatbot'); ?>
+</div>
 
+<div class="tab-pane fade <?php echo $tab12; ?>" id="web">
 <?php $this->load->view('setting/setting_web'); ?>
-
+</div>
 
 </div>
 </div><!--/ col-sm-9  -->

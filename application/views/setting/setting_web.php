@@ -1,5 +1,3 @@
-
-<div class="tab-pane fade" id="web">
 	<?php
 		$web_api_on = $WEB_API == 1 ? 'btn-primary' : '';
 		$web_api_off = $WEB_API == 0 ? 'btn-primary' : '';
@@ -78,4 +76,3 @@
 
   	</div><!--/ row -->
   </form>
-</div>

@@ -1,5 +1,4 @@
 
-<div class="tab-pane fade active in" id="general">
 	<?php
 	    $noti_yes = $NOTI_BAR == 1 ? 'btn-success' : '';
 	    $noti_no  = $NOTI_BAR == 0 ? 'btn-danger' : '';
@@ -25,4 +24,3 @@
       <div class="divider-hidden"></div>
     </div><!--/row-->
   </form>
-</div>

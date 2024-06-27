@@ -1,5 +1,3 @@
-
-<div class="tab-pane fade" id="chatbot">
 	<?php
 		$chatbot_api_on = $CHATBOT_API == 1 ? 'btn-success' : '';
 		$chatbot_api_off = $CHATBOT_API == 0 ? 'btn-danger' : '';
@@ -101,4 +99,3 @@
 
   	</div><!--/ row -->
   </form>
-</div>

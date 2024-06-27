@@ -1,4 +1,4 @@
-<div class="tab-pane fade" id="document">
+
 	<form id="documentForm" method="post" action="<?php echo $this->home; ?>/update_config">
     <div class="row">
     	<div class="col-sm-3">
@@ -161,4 +161,3 @@
 
     </div><!--/ row -->
   </form>
-</div>

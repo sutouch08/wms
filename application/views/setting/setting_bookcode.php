@@ -1,4 +1,3 @@
-<div class="tab-pane fade" id="bookcode">
 	<form id="bookcodeForm" method="post" action="<?php echo $this->home; ?>/update_config">
     <div class="row">
     	<div class="col-sm-3"><span class="form-control left-label">ขายสินค้า</span></div>
@@ -146,4 +145,3 @@
 
     </div><!--/ row -->
   </form>
-</div>
