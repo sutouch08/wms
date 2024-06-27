@@ -2611,6 +2611,7 @@ class Orders extends PS_Controller
       $order = $this->orders_model->get($code);
       $reason_id = $this->input->post('reason_id');
 			$reason = $this->input->post('cancle_reason');
+      $uat = is_true(getConfig('IS_UAT'));
 
       if(! empty($order))
       {
@@ -2623,57 +2624,58 @@ class Orders extends PS_Controller
 					exit;
 				}
 
-        //---- ถ้าเป็น wms ก่อนยกเลิกให้เช็คก่อนว่ามีออเดอร์เข้ามาที่ SAP แล้วหรือยัง ถ้ายังไม่มียกเลิกได้
-        if($is_api && $order->is_wms != 0 && $order->wms_export == 1 && $state == 9)
+        if( ! $uat)
         {
-					if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
-	        {
-	          $sap = $this->orders_model->get_sap_doc_num($order->code);
-						if(!empty($sap))
-						{
-							echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
-							exit;
-						}
-	        }
+          //---- ถ้าเป็น wms ก่อนยกเลิกให้เช็คก่อนว่ามีออเดอร์เข้ามาที่ SAP แล้วหรือยัง ถ้ายังไม่มียกเลิกได้
+          if($is_api && $order->is_wms != 0 && $order->wms_export == 1 && $state == 9)
+          {
+            if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
+            {
+              $sap = $this->orders_model->get_sap_doc_num($order->code);
+              if(!empty($sap))
+              {
+                echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
+                exit;
+              }
+            }
 
 
-					//---
-	        if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
-	        {
-						$this->load->model('inventory/transfer_model');
-						$sap = $this->transfer_model->get_sap_transfer_doc($code);
-						if(! empty($sap))
-						{
-							echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
-							exit;
-						}
-	        }
+            //---
+            if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
+            {
+              $this->load->model('inventory/transfer_model');
+              $sap = $this->transfer_model->get_sap_transfer_doc($code);
+              if(! empty($sap))
+              {
+                echo "ไม่สามารถยกเลิกได้เนื่องจากออเดอร์ถูกจัดส่งแล้ว";
+                exit;
+              }
+            }
 
-        } //--- end if isAPI
+          } //--- end if isAPI
 
+          if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
+          {
+            $sap = $this->orders_model->get_sap_doc_num($order->code);
+            if(!empty($sap))
+            {
+              echo 'กรุณายกเลิกใบส่งสินค้า SAP ก่อนย้อนสถานะ';
+              exit;
+            }
+          }
 
-        if($order->role == 'S' OR $order->role == 'C' OR $order->role == 'P' OR $order->role == 'U')
-        {
-          $sap = $this->orders_model->get_sap_doc_num($order->code);
-					if(!empty($sap))
-					{
-						echo 'กรุณายกเลิกใบส่งสินค้า SAP ก่อนย้อนสถานะ';
-						exit;
-					}
-        }
+          if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
+          {
+            $this->load->model('inventory/transfer_model');
+            $sap = $this->transfer_model->get_sap_transfer_doc($code);
+            if(! empty($sap))
+            {
+              echo "กรุณายกเลิกใบโอนสินค้าใน SAP ก่อนย้อนสถานะ";
+              exit;
+            }
+          }
 
-
-				if($order->role == 'T' OR $order->role == 'L' OR $order->role == 'Q' OR $order->role == 'N')
-				{
-					$this->load->model('inventory/transfer_model');
-					$sap = $this->transfer_model->get_sap_transfer_doc($code);
-					if(! empty($sap))
-					{
-						echo "กรุณายกเลิกใบโอนสินค้าใน SAP ก่อนย้อนสถานะ";
-						exit;
-					}
-				}
-
+        } //--- end if uat
 
         //--- ถ้าเป็นเบิกแปรสภาพ จะมีการผูกสินค้าไว้
         if($order->role == 'T')
