@@ -4160,10 +4160,11 @@ class Orders extends PS_Controller
             if($rs->status == 'success')
             {
               $stateList = soko_state_list_array();
+              $status = $rs->data->status;
 
-              if( ! empty($stateList[$rs->order_status]))
+              if( ! empty($stateList[$status]))
               {
-                $state = $stateList[$data->order_status];
+                $state = $stateList[$status];
 
                 $arr = array(
                   'order_code' => $order->code,
