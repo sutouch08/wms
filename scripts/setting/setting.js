@@ -29,12 +29,7 @@ function changeURL(tab)
 {
 	var url = BASE_URL + 'setting/configs/index/'+ tab;
 	var stObj = { stage: 'stage' };
-	window.history.pushState(stObj, 'configs', url);
-
-  if( a !== undefined )
-  {
-    $('#'+tab+'-a').click();
-  }
+	window.history.pushState(stObj, 'configs', url);  
 }
 
 
