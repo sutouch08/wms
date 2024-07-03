@@ -109,7 +109,7 @@ class Return_order extends PS_Controller
                 $disc_amount = $discount == 0 ? 0 : $rs->qty * ($price * ($discount * 0.01));
                 $amount = ($rs->qty * $price) - $disc_amount;
 
-                $receive_qty = $doc->is_wms == 0 ? $rs->qty : ($doc->is_wms == 1 && $this->wmsApi ? 0 : ($doc->is_wms == 2 && $this->sokoApi ? 0 : $rs->qty));
+                $receive_qty = $doc->is_wms == 0 ? $rs->qty : ($doc->api == 0 ? $rs->qty :($doc->is_wms == 1 && $this->wmsApi ? 0 : ($doc->is_wms == 2 && $this->sokoApi ? 0 : $rs->qty)));
 
                 $arr = array(
                   'return_code' => $code,
