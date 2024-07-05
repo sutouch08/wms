@@ -45,13 +45,22 @@
       </div>
   </div>
 
-  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" id="status" onchange="getSearch()">
       <option value="all" <?php echo is_selected($status, 'all'); ?>>ทั้งหมด</option>
       <option value="0" <?php echo is_selected($status, '0'); ?>>ยังไม่บันทึก</option>
       <option value="1" <?php echo is_selected($status, 1); ?>>บันทึกแล้ว</option>
       <option value="2" <?php echo is_selected($status, 2); ?>>ยกเลิก</option>
+    </select>
+  </div>
+
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label>API</label>
+    <select class="form-control input-sm" name="is_api" id="is_api" onchange="getSearch()">
+      <option value="all" <?php echo is_selected($is_api, 'all'); ?>>ทั้งหมด</option>
+      <option value="0" <?php echo is_selected($is_api, '0'); ?>>No</option>
+      <option value="1" <?php echo is_selected($is_api, '1'); ?>>Yes</option>      
     </select>
   </div>
 

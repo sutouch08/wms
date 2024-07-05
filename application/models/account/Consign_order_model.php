@@ -318,6 +318,11 @@ class Consign_order_model extends CI_Model
       ->group_end();
     }
 
+    if( isset($ds['is_api']) && $ds['is_api'] != 'all')
+    {
+      $this->db->where('is_api', $ds['is_api']);
+    }
+
     $this->db->order_by('date_add', 'DESC');
 
     if(!empty($perpage))
@@ -382,6 +387,11 @@ class Consign_order_model extends CI_Model
       ->like('zone_code', $ds['zone'])
       ->or_like('zone_name', $ds['zone'])
       ->group_end();
+    }
+
+    if( isset($ds['is_api']) && $ds['is_api'] != 'all')
+    {
+      $this->db->where('is_api', $ds['is_api']);
     }
 
     return $this->db->count_all_results('consign_order');

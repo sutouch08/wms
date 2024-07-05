@@ -30,7 +30,8 @@ class Consign_order extends PS_Controller
       'from_date' => get_filter('from_date', 'consign_from_date', ''),
       'to_date' => get_filter('to_date', 'consign_to_date', ''),
       'status' => get_filter('status', 'consign_status', 'all'),
-      'ref_code' => get_filter('ref_code', 'consign_ref_code', '')
+      'ref_code' => get_filter('ref_code', 'consign_ref_code', ''),
+      'is_api' => get_filter('is_api', 'consign_is_api', 'all')
     );
 
     //--- แสดงผลกี่รายการต่อหน้า
@@ -1490,7 +1491,8 @@ class Consign_order extends PS_Controller
       'consign_from_date',
       'consign_to_date',
       'consign_status',
-      'consign_ref_code'
+      'consign_ref_code',
+      'consign_is_api'
     );
     clear_filter($filter);
   }
