@@ -921,9 +921,10 @@ class Soko_auto_receive extends CI_Controller
 		$code = $data->code;
 		$order = $this->transfer_model->get($code);
 		$valid = 1;
+    $sc = TRUE;
+    
 		if(!empty($order))
 		{
-			$sc = TRUE;
 
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
 
