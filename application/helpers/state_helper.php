@@ -69,6 +69,7 @@ function state_color($state, $is_saved = 1, $is_expired = 0)
 
     return $color[$state];
   }
+}
 
 
   function soko_state_list_array()
