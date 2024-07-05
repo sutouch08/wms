@@ -71,28 +71,27 @@ function state_color($state, $is_saved = 1, $is_expired = 0)
   }
 }
 
+function soko_state_list_array()
+{
+  $stateList = array(
+    'Pending' => 30,
+    'Processing' => 31,
+    'Processed' => 32,
+    'Picked' => 33,
+    'Packed' => 34,
+    'Shipped' => 35,
+    'Cancelled' => 36,
+    'pending' => 30,
+    'processing' => 31,
+    'processed' => 32,
+    'picked' => 33,
+    'packed' => 34,
+    'shipped' => 35,
+    'cancelled' => 36
+  );
 
-  function soko_state_list_array()
-  {
-    $stateList = array(
-      'Pending' => 30,
-      'Processing' => 31,
-      'Processed' => 32,
-      'Picked' => 33,
-      'Packed' => 34,
-      'Shipped' => 35,
-      'Cancelled' => 36,
-      'pending' => 30,
-      'processing' => 31,
-      'processed' => 32,
-      'picked' => 33,
-      'packed' => 34,
-      'shipped' => 35,
-      'cancelled' => 36
-    );
-
-    return $stateList;
-  }
+  return $stateList;
 }
+
 
 ?>
