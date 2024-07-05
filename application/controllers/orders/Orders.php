@@ -4075,8 +4075,6 @@ class Orders extends PS_Controller
   public function update_wms_status()
 	{
 		$sc = TRUE;
-    $this->load->helper('state');
-    
 		$code = $this->input->get('code');
 
 		$order = $this->orders_model->get($code);
@@ -4163,6 +4161,7 @@ class Orders extends PS_Controller
           {
             if($rs->status == 'success')
             {
+              $this->load->helper('state');
               $stateList = soko_state_list_array();
               $status = $rs->data->status;
 
