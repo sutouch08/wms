@@ -120,7 +120,7 @@ class Soko_auto_delivery extends CI_Controller
 						else
 						{
 							$sc = FALSE;
-							$this->wms_order_import_logs_model->add($order->code, 'E', "No Items In Order List");
+
 							$this->soko_temp_order_model->update_status($data->code, 3, "Order not found");
 						}
 					}
@@ -128,8 +128,7 @@ class Soko_auto_delivery extends CI_Controller
 				}
 				else  //--- end if !empty($order)
 				{
-					$this->soko_temp_order_model->update_status($data->code, 3, "Order not found");
-					$this->wms_order_import_logs_model->add($data->code, 'E', "Order not found");
+					$this->soko_temp_order_model->update_status($data->code, 3, "Order not found");					
 				}//--- end if !empty($order)
 
 			} //-- end foreach $list as $data
