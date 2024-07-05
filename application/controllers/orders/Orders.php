@@ -4075,6 +4075,8 @@ class Orders extends PS_Controller
   public function update_wms_status()
 	{
 		$sc = TRUE;
+    $this->load->helper('state');
+    
 		$code = $this->input->get('code');
 
 		$order = $this->orders_model->get($code);
