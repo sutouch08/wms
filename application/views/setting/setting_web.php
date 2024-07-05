@@ -65,6 +65,30 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="col-sm-4">
+        <span class="form-control left-label">POS API WM Create Status</span>
+      </div>
+      <div class="col-sm-8">
+				<select class="form-control input-sm input-medium" name="POS_API_WM_CREATE_STATUS">
+					<option value="0" <?php echo is_selected('0', $POS_API_WM_CREATE_STATUS); ?>>Pending</option>
+					<option value="1" <?php echo is_selected('1', $POS_API_WM_CREATE_STATUS); ?>>Saved</option>
+				</select>
+				<span class="help-block">กำหนดสถานะเอกสาร WM เมื่อสร้างเอกสารบน IX สำเร็จ</span>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+        <span class="form-control left-label">POS API SM Create Status</span>
+      </div>
+      <div class="col-sm-8">
+				<select class="form-control input-sm input-medium" name="POS_API_CN_CREATE_STATUS">
+					<option value="0" <?php echo is_selected('0', $POS_API_CN_CREATE_STATUS); ?>>Pending</option>
+					<option value="1" <?php echo is_selected('1', $POS_API_CN_CREATE_STATUS); ?>>Saved</option>
+				</select>
+				<span class="help-block">กำหนดสถานะเอกสาร SM เมื่อสร้างเอกสารบน IX สำเร็จ</span>
+      </div>
+      <div class="divider-hidden"></div>
+
 			<div class="col-sm-8 col-sm-offset-4">
 				<?php if($this->pm->can_add OR $this->pm->can_edit) : ?> <?php //if($this->_SuperAdmin) : ?>
         <button type="button" class="btn btn-sm btn-success input-small" onClick="updateConfig('webForm')">

@@ -11,12 +11,14 @@ class CN extends REST_Controller
   public $logs;
   public $log_json = FALSE;
   public $api = FALSE;
+  public $create_status;
   private $path = "/rest/api/pos/CN/";
 
   public function __construct()
   {
     parent::__construct();
     $this->api = is_true(getConfig('POS_API'));
+    $this->create_status = getConfig('POS_API_CN_CREATE_STATUS') == 1 ? 1 : 0;
 
     if($this->api)
     {
@@ -157,10 +159,10 @@ class CN extends REST_Controller
         'date_add' => $date_add,
         'shipped_date' => $date_add,
         'user' => $this->user,
-        'status' => 1,
-        'is_complete' => 1, //-- no need to send to wms so set complete tot 1 for not waiting for wms interface
-        'is_approve' => 1,
-        'approver' => $this->user,
+        'status' => $this->create_status,
+        'is_complete' => 1, //-- no need to send to wms so set complete to 1 for not waiting for wms interface
+        'is_approve' => $this->create_status == 1 ? 1 : 0,
+        'approver' => $this->create_status == 1 ? $this->user : NULL,
         'pos_ref' => $data->pos_ref,
         'bill_code' => $data->bill_code,
         'is_pos_api' => 1
@@ -210,7 +212,7 @@ class CN extends REST_Controller
             $this->error = "Faild to add item : {$item->code}, {$rs->bill_code}";
           }
 
-          if($sc === TRUE)
+          if($sc === TRUE && $this->create_status == 1)
           {
             //--- update movement
             $arr = array(
@@ -240,7 +242,7 @@ class CN extends REST_Controller
           $this->db->trans_rollback();
         }
 
-        if($sc === TRUE)
+        if($sc === TRUE && $this->create_status == 1)
         {
           $this->load->library('export');
           $this->export->export_return($code);

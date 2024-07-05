@@ -11,12 +11,14 @@ class WM extends REST_Controller
   public $logs;
   public $log_json = FALSE;
   public $api = FALSE;
+  public $create_status;
   private $path = "/rest/api/pos/WM/";
 
   public function __construct()
   {
     parent::__construct();
     $this->api = is_true(getConfig('POS_API'));
+    $this->create_status = getConfig('POS_API_WM_CREATE_STATUS') == 1 ? 1 : 0;
 
     if($this->api)
     {
@@ -161,7 +163,7 @@ class WM extends REST_Controller
         'date_add' => $date_add,
         'shipped_date' => $date_add,
         'user' => $this->user,
-        'status' => 1,
+        'status' => $this->create_status,
         'pos_ref' => $data->pos_ref,
         'is_api' => 1
       );
@@ -197,7 +199,7 @@ class WM extends REST_Controller
             'discount' => $rs->discount_label, //-- discount label per item
             'discount_amount' => $rs->discount_amount * $rs->qty,
             'amount' => $rs->line_total,
-            'status' => 1,
+            'status' => $this->create_status,
             'pos_ref' => $data->pos_ref,
             'bill_ref' => $rs->bill_ref,
             'input_type' => 4
@@ -211,7 +213,7 @@ class WM extends REST_Controller
             $this->error = "Faild to add item : {$item->code}, {$rs->bill_ref}";
           }
 
-          if($sc === TRUE)
+          if($sc === TRUE && $this->create_status == 1)
           {
             $final_price = $rs->line_total/$rs->qty;
 
@@ -282,7 +284,7 @@ class WM extends REST_Controller
           $this->db->trans_rollback();
         }
 
-        if($sc === TRUE)
+        if($sc === TRUE && $this->create_status == 1)
         {
           $this->load->library('export');
           $this->export->export_consign_order($code);
