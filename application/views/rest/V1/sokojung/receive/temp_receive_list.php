@@ -7,7 +7,7 @@
     </div>
 		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-5">
 			<p class="pull-right top-p">
-				<?php if($this->_SuperAdmin) : ?>
+				<?php if($this->_SuperAdmin OR is_true(getConfig('IS_UAT'))) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="process()">Process</button>
 				<?php endif; ?>
 			</p>
