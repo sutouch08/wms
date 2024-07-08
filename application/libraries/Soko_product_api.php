@@ -37,7 +37,7 @@ class Soko_product_api
         'height' => "",
         'length' => "",
         'weight' => "",
-        'cost' => round($item->cost, 2),
+        'cost' => 0.00,
         'selling_price' => round($item->price, 2),
         'description' => "",
         'ean' => ""
@@ -184,7 +184,7 @@ class Soko_product_api
         'height' => "",
         'length' => "",
         'weight' => "",
-        'cost' => round($item->cost, 2),
+        'cost' => 0.00,
         'selling_price' => round($item->price, 2),
         'description' => "",
         'ean' => ""
