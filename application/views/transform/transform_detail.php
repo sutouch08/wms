@@ -110,7 +110,7 @@
 <!---  End Order Detail --->
 
 <div class="modal fade" id="transform-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" style="width:500px;">
+	<div class="modal-dialog" style="width:500px; max-width:95vw;">
 		<div class="modal-content">
   		<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -122,21 +122,17 @@
 			 </div>
 			 <div class="modal-body">
 				 <div class="row">
-				 	<div class="col-sm-3">
+				 	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
 				 		<label>จำนวน</label>
 						<input type="text" class="form-control input-sm text-center" id="trans-qty" value="" />
 						<span class="help-block red not-show" id="qty-error">error</span>
 				 	</div>
-					<div class="col-sm-9">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
 						<label>สินค้าแปรสภาพ</label>
 						<input type="text" class="form-control input-sm" id="trans-product" value="" />
 						<span class="help-block red not-show" id="product-error">error</span>
 					</div>
-					<div class="col-sm-12">
-
-					</div>
 				 </div>
-
 			 </div>
 			 <div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>

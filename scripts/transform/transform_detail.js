@@ -160,7 +160,8 @@ function addTransformProduct(id, original_product){
 
 	$('#detail-qty').val(available_qty);
 
-	$('#transform_product').val('');
+	$('#transform_product').val(original_product);
+	$('#trans-product').val(original_product);
 
 	$('#original_product').val(original_product);
 
