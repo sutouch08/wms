@@ -227,7 +227,13 @@ class Warehouse_model extends CI_Model
   //--- เอาเฉพาะคลังซื้อขาย
   public function get_sell_warehouse_list()
   {
-    $rs = $this->db->where('role', 1)->where('active', 1)->where('sell', 1)->get('warehouse');
+    $rs = $this->db
+    ->where('role', 1)
+    ->where('active', 1)
+    ->where('sell', 1)
+    ->order_by('position', 'ASC')
+    ->get('warehouse');
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -239,7 +245,11 @@ class Warehouse_model extends CI_Model
   //--- เอาเฉพาะคลังที่สามารถยืมสินค้าได้
   public function get_lend_warehouse_list()
   {
-    $rs = $this->db->where('active', 1)->where('lend', 1)->get('warehouse');
+    $rs = $this->db
+    ->where('active', 1)
+    ->where('lend', 1)
+    ->order_by('position', 'ASC')
+    ->get('warehouse');
 
     if($rs->num_rows() > 0)
     {
@@ -251,7 +261,10 @@ class Warehouse_model extends CI_Model
 
   public function get_all_warehouse_list()
   {
-    $rs = $this->db->where('active', 1)->order_by('code', 'ASC')->get('warehouse');
+    $rs = $this->db
+    ->where('active', 1)
+    ->order_by('code', 'ASC')
+    ->get('warehouse');
 
     if($rs->num_rows() > 0)
     {
