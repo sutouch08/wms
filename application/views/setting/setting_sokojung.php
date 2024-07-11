@@ -43,7 +43,7 @@
         <span class="form-control left-label">Sokojung api password</span>
       </div>
       <div class="col-sm-8">
-        <input type="text" class="form-control input-sm input-xxlarge" name="SOKOJUNG_API_PASSWORD" value="<?php echo $SOKOJUNG_API_PASSWORD; ?>" />
+        <input type="password" class="form-control input-sm input-xxlarge" name="SOKOJUNG_API_PASSWORD" value="<?php echo $SOKOJUNG_API_PASSWORD; ?>" />
       </div>
       <div class="divider-hidden"></div>
 
