@@ -224,20 +224,20 @@ class Import_order extends CI_Controller
             else if(!empty($rs['A']))
             {
 							//--- check ref_code
-							if($ref_code != $rs['I'])
+							if($ref_code != trim($rs['I']))
 							{
 								//--- check ref_code exists
 	              $date = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
 	              $date_add = db_date($date, TRUE);
 
 	              //---- order code from web site
-	              $ref_code = $rs['I'];
+	              $ref_code = trim($rs['I']);
 
 	              //--- shipping Number
-	              $shipping_code = $rs['T'];
+	              $shipping_code = trim($rs['T']);
 
 	              //---- กำหนดช่องทางการขายเป็นรหัส
-	              $channels = $this->channels_model->get($rs['L']);
+	              $channels = $this->channels_model->get(trim($rs['L']));
 
 
 	              //--- หากไม่ระบุช่องทางขายมา หรือ ช่องทางขายไม่ถูกต้องใช้ default
@@ -247,7 +247,7 @@ class Import_order extends CI_Controller
 	              }
 
 	              //--- กำหนดช่องทางการชำระเงิน
-	              $payment = $this->payment_methods_model->get($rs['K']);
+	              $payment = $this->payment_methods_model->get(trim($rs['K']));
 
 	              if(empty($payment))
 	              {
@@ -255,7 +255,7 @@ class Import_order extends CI_Controller
 	              }
 
 								//-- remark
-								$remark = $rs['V'];
+								$remark = get_null(trim($rs['V']));
 
 								$order_code  = $this->orders_model->get_active_order_code_by_reference($ref_code);
 
@@ -380,8 +380,8 @@ class Import_order extends CI_Controller
                 $cod_amount = $payment_code == 'COD' ? (empty($rs['AA']) ? 0.00 : $rs['AA']) : 0.00;
 
 								//--- กำหนดรหัสคลังมาหรือไม่ ถ้าไม่กำหนดมาให้ใช้ค่าตามที่ config ไว้
-								//$xWh = empty($rs['X']) ? NULL : $this->warehouse_model->get(trim($rs['X']));
-                $WhsCode = empty($rs['X']) ? $warehouse_code : $rs['X'];
+                $xWh = trim($rs['X']);
+                $WhsCode = empty($xWh) ? $warehouse_code : $xWh;
 
                 //---- กรณียังไม่มีออเดอร์
                 if($is_exists === FALSE)
@@ -408,12 +408,12 @@ class Import_order extends CI_Controller
                     'cod_amount' => $cod_amount,
                     'status' => 1,
                     'date_add' => $date_add,
-                    'warehouse_code' => $WhsCode, //(!empty($xWh) ? $xWh->code : $warehouse_code),
+                    'warehouse_code' => $WhsCode,
                     'user' => $this->_user->uname,
                     'is_import' => 1,
 										'remark' => $remark,
-										'is_wms' => $isWMS, //(!empty($xWh) ? $xWh->is_wms : $is_wms),
-										'id_sender' => empty($rs['W']) ? NULL : $this->sender_model->get_id($rs['W'])
+										'is_wms' => $isWMS,
+										'id_sender' => empty(trim($rs['W'])) ? NULL : $this->sender_model->get_id(trim($rs['W']))
                   );
 
                   //--- เพิ่มเอกสาร
@@ -515,7 +515,7 @@ class Import_order extends CI_Controller
 
 
               //--- ส่วนลด (รวม)
-              $discount_amount = empty($rs['P']) ? 0.00 : str_replace(',', '', $rs['P']);
+              $discount_amount = empty(trim($rs['P'])) ? 0.00 : str_replace(',', '', trim($rs['P']));
 
               //--- ส่วนลด (ต่อชิ้น)
               $discount = $discount_amount > 0 ? ($discount_amount / $qty) : 0;
