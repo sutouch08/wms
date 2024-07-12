@@ -42,7 +42,7 @@ function parseSubDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
-		if($province === 'จังหวัดกรุงเทพมหานคร' OR $province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.')
+		if(isBangkok($province))
 		{
 			$find = [' ', 'แขวง'];
 			$rep = ['', ''];
@@ -62,11 +62,12 @@ function parseSubDistrict($ad, $province)
 	return NULL;
 }
 
+
 function parseDistrict($ad, $province)
 {
 	if(! empty($ad))
 	{
-		if($province === 'จังหวัดกรุงเทพมหานคร' OR $province === 'กรุงเทพ' OR $province == 'กรุงเทพมหานคร' OR $province == 'กทม' OR $province == 'กทม.' OR $province == 'ก.ท.ม.' )
+		if(isBangkok($province))
 		{
 			$find = [' ', 'เขต'];
 			$rep = ['', ''];
@@ -80,22 +81,22 @@ function parseDistrict($ad, $province)
 			$ad = str_replace($find, $rep, $ad);
 			return substr_replace($ad, 'อำเภอ', 0, 0);
 		}
-
 	}
 
 	return NULL;
 }
+
 
 function parseProvince($ad)
 {
 	if(! empty($ad))
 	{
 		$find = [' ', 'จ.', 'จังหวัด', '.'];
-		$rep = ['', '', '', '.'];
+		$rep = ['', '', '', ''];
 		$ad = str_replace($find, $rep, $ad);
 		$ad = substr_replace($ad, 'จังหวัด', 0, 0);
 
-		if($ad == 'จังหวัดกรุงเทพ' OR $ad == 'จังหวัดกรุงเทพฯ' OR $ad == 'จังหวัดกทม')
+		if(isBangkok($ad))
 		{
 			$ad = 'จังหวัดกรุงเทพมหานคร';
 		}
@@ -106,6 +107,37 @@ function parseProvince($ad)
 	return NULL;
 }
 
+
+function isBangkok($province)
+{
+	$list = array(
+		'จังหวัดกรุงเทพมหานคร',
+		'จังหวัดกรุงเทพ',
+		'จังหวัดกรุงเทพฯ',
+		'จ.กรุงเทพมหานคร',
+		'จ.กรุงเทพ',
+		'จ.กรุงเทพฯ',
+		'กรุงเทพ',
+		'กรุงเทพฯ',
+		'กรุงเทพมหานคร',
+		'กทม',
+		'กทม.',
+		'ก.ท.ม.'
+	);
+
+	if( ! empty($province))
+	{
+		foreach($list as $val)
+		{
+			if($province == $val)
+			{
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
 
 //---	ตัดข้อความแล้วเติม ... ข้างหลัง
 function limitText($str, $length)
