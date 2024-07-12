@@ -3111,12 +3111,12 @@ class Orders extends PS_Controller
 
         if($is_wms == 2)
         {
-          $this->load->library('soko_order_cancel_api');
+          $this->load->library('soko_order_api');
 
-          if( ! $this->soko_order_cancel_api->send_data($code, $reason))
+          if( ! $this->soko_order_api->cancel($code, $role))
           {
             $sc = FALSE;
-            $this->error = "ยกเลิกเอกสารในระบบ Sokochan ไม่สำเร็จ <br/> {$this->sokok_order_cancel_api->error}";
+            $this->error = "ยกเลิกเอกสารในระบบ Sokochan ไม่สำเร็จ <br/> {$this->soko_order_api->error}";
           }
         }
 			}
@@ -4160,7 +4160,7 @@ class Orders extends PS_Controller
           if( ! empty($rs))
           {
             if($rs->status == 'success')
-            {              
+            {
               $stateList = soko_state_list_array();
               $status = $rs->data->status;
 
