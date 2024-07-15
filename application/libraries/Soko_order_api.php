@@ -151,9 +151,11 @@ class Soko_order_api
             }
           }
 
-          $api_path = $this->url."orders";
+          $isUpdate = $order->wms_export == 1 ? TRUE : FALSE;
+
+          $api_path = $isUpdate ? $this->url."orders" : $this->url."orders/{$order->code}";
           $url = $api_path;
-          $method = "POST";
+          $method = $isUpdate ? "PUT" : "POST";
 
           $headers = array(
             "Content-Type: application/json",
@@ -182,13 +184,13 @@ class Soko_order_api
             {
               if(empty($res->error))
               {
-                if($res->status != 'success' && empty($res->id))
+                if($res->status != 'success')
                 {
                   $sc = FALSE;
                   $this->error = $res->message;
 
                   $arr = array(
-                    'wms_export' => 3,
+                    'wms_export' => $isUpdate ? 1 : 3,
                     'wms_export_error' => $res->message
                   );
 
