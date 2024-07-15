@@ -90,6 +90,8 @@ class Soko_order_api
         $addr->district = $spx ? parseDistrict($addr->district, $addr->province) : $addr->district;
         $addr->phone = $spx ? parsePhoneNumber($addr->phone, 10) : $addr->phone;
 
+        $printBill = $order->role == 'S' ? $isOnline ? 0 : (($order->role == 'P' OR $order->role == 'C') ? 1 : 0);
+
 				if( ! empty($details))
 				{
           $ds = array(
@@ -101,9 +103,9 @@ class Soko_order_api
             'channel' => empty($channels) ?  "UE" : $order->channels_code,
             'shipping' => (!empty($sender) ? $sender->code : ""),
             'tracking_no' => $order->shipping_code,
-            'print_bill' => $isOnline ? 0 : 1,
+            'print_bill' => $printBill,
             'order_type' => $this->type,
-            'order_mode' => $isOnline,
+            'order_mode' => $isOnline ? 1 : 0,
             'customer' => [
               'code' => empty($addr->code) ? $order->customer_code : $addr->code,
               'name' => $addr->name,
@@ -312,10 +314,12 @@ class Soko_order_api
           'comment' => "",
           'stores' => 1,
           'special_order' => "",
+          'channel' => "UE",
           'shipping' => "",
           'tracking_no' => "",
-          'print_bill' => FALSE,
+          'print_bill' => 0,
           'order_type' => $this->type,
+          'order_mode' => 0,
           'customer' => array(
             'code' => "xxx",
             'name' => "xx",
