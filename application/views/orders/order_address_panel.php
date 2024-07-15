@@ -151,7 +151,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                 <input type="hidden" id="trackingNo" value="<?php echo $order->shipping_code; ?>">
               </div>
               <div class="col-lg-2 col-md-3 col-sm-3 col-xs-3 padding-5">
-                <?php if(($order->is_wms == 0) OR ($order->is_wms == 1 && $order->state < 3) OR $order->shipping_code == NULL) : ?>
+                <?php if(($order->is_wms == 0) OR ($order->is_wms != 0 && $order->state < 3) OR $order->shipping_code == NULL) : ?>
                 <?php endif; ?>
                 <button type="button" class="btn btn-xs btn-success btn-block" onclick="update_tracking()">บันทึก</button>
               </div>

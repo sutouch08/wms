@@ -90,7 +90,7 @@ class Soko_order_api
         $addr->district = $spx ? parseDistrict($addr->district, $addr->province) : $addr->district;
         $addr->phone = $spx ? parsePhoneNumber($addr->phone, 10) : $addr->phone;
 
-        $printBill = $order->role == 'S' ? $isOnline ? 0 : (($order->role == 'P' OR $order->role == 'C') ? 1 : 0);
+        $printBill = $order->role == 'S' ? ($isOnline ? 0 : 1) :(($order->role == 'P' OR $order->role == 'C') ? 1 : 0);
 
 				if( ! empty($details))
 				{
