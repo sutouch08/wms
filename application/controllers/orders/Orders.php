@@ -3653,7 +3653,7 @@ class Orders extends PS_Controller
             $this->load->library('wms_receive_api');
 
             $details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
-
+            print_r($details);
             if( ! empty($details))
             {
               foreach($details as $rs)
