@@ -1,16 +1,8 @@
 <?php $this->load->view('include/header'); ?>
-<?php $manual_code = getConfig('MANUAL_DOC_CODE');  ?>
-<?php if($manual_code == 1) :?>
-	<input type="hidden" id="manualCode" value="<?php echo $manual_code; ?>">
-	<input type="hidden" id="prefix" value="<?php echo getConfig('PREFIX_RECEIVE_PO'); ?>">
-	<input type="hidden" id="runNo" value="<?php echo getConfig('RUN_DIGIT_RECEIVE_PO'); ?>">
-<?php endif; ?>
 <input type="hidden" id="required_remark" value="<?php echo $this->required_remark; ?>" />
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
-    <h3 class="title" >
-      <?php echo $this->title; ?>
-    </h3>
+    <h3 class="title" ><?php echo $this->title; ?></h3>
 	</div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-5">
     <p class="pull-right top-p">
@@ -22,21 +14,26 @@
 
 <form id="addForm" action="<?php echo $this->home.'/add'; ?>" method="post">
 <div class="row">
-    <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     	<label>เลขที่เอกสาร</label>
-			<?php if($manual_code == 1) : ?>
-				<input type="text" class="form-control input-sm" name="code" id="code" value="" required />
-			<?php else : ?>
-				<input type="text" class="form-control input-sm" value="" disabled />
-			<?php endif; ?>
+			<input type="text" class="form-control input-sm" value="" disabled />
     </div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-    	<label>วันที่</label>
-      <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" readonly/>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    	<label>วันที่เอกสาร</label>
+      <input type="text" class="form-control input-sm text-center e" id="doc-date" value="<?php echo date('d-m-Y'); ?>" readonly/>
     </div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    	<label>วันที่สินค้าเข้า</label>
+      <input type="text" class="form-control input-sm text-center e" id="due-date" value="" />
+    </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    	<label>Posting date</label>
+      <input type="text" class="form-control input-sm text-center e" id="posting-date" value="" />
+    </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 			<label>ช่องทางการรับ</label>
-			<select class="form-control input-sm" name="is_wms" id="is_wms">
+			<select class="form-control input-sm e" name="is_wms" id="is_wms">
+				<option value="">เลือก</option>
 				<?php if($this->wmsApi) : ?>
 				<option value="1">Pioneer</option>
 				<?php endif; ?>
@@ -46,18 +43,14 @@
 				<option value="0">Warrix</option>
 			</select>
 		</div>
-    <div class="col-lg-6-harf col-md-6 col-sm-5 col-xs-8 padding-5">
+    <div class="col-lg-6-harf col-md-10-harf col-sm-10-harf col-xs-8 padding-5">
     	<label>หมายเหตุ</label>
-        <input type="text" class="form-control input-sm" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
+        <input type="text" class="form-control input-sm e" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
     </div>
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 			<label class="display-block not-show">save</label>
 			<?php if($this->pm->can_add) : ?>
-				<?php if($manual_code == 1) : ?>
-							<button type="button" class="btn btn-xs btn-success btn-block" onclick="validateOrder()"><i class="fa fa-plus"></i> เพิ่ม</button>
-				<?php else : ?>
-							<button type="button" class="btn btn-xs btn-success btn-block" onclick="addNew()"><i class="fa fa-plus"></i> เพิ่ม</button>
-				<?php endif; ?>
+				<button type="button" class="btn btn-xs btn-success btn-block" onclick="addNew()"><i class="fa fa-plus"></i> เพิ่ม</button>
 			<?php	endif; ?>
 		</div>
 </div>

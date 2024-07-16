@@ -8,24 +8,42 @@ function getSample(){
 }
 
 function editHeader(){
-	$('.header-box').removeAttr('disabled');
+	$('.e').removeAttr('disabled');
 	$('#btn-edit').addClass('hide');
 	$('#btn-update').removeClass('hide');
 }
 
 
 function updateHeader() {
-	var code = $('#receive_code').val();
-	var date_add = $('#dateAdd').val();
-	var remark = $('#remark').val();
-	var is_wms = $('#is_wms').val();
+	$('.e').removeClass('has-error');
 
-	if(!isDate(date_add)){
+	let code = $('#receive_code').val();
+	let date_add = $('#doc-date').val();
+	let due_date = $('#due-date').val();
+	let posting_date = $('#posting-date').val();
+	let is_wms = $('#is_wms').val();
+	let remark = $('#remark').val();
+
+	if( ! isDate(date_add)) {
+		$('#doc-date').addClass('has-error');
 		swal('วันที่ไม่ถูกต้อง');
 		return false;
 	}
 
+	if( ! isDate(due_date)) {
+		$('#due-date').addClass('has-error');
+		swal("กรุณาระบุวันที่สินค้าเข้า");
+		return false;
+	}
+
+	if( is_wms === "") {
+		$('#is_wms').addClass('has-error');
+		swal("กรุณาเลือกช่องทางการรับ");
+		return false;
+	}
+
 	load_in();
+
 	$.ajax({
 		url:HOME + 'update_header',
 		type:'POST',
@@ -33,6 +51,8 @@ function updateHeader() {
 		data:{
 			'code' : code,
 			'date_add' : date_add,
+			'due_date' : due_date,
+			'posting_date' : posting_date,
 			'remark' : remark,
 			'is_wms' : is_wms
 		},
@@ -46,7 +66,7 @@ function updateHeader() {
 					timer:1000
 				});
 
-				$('.header-box').attr('disabled', 'disabled');
+				$('.e').attr('disabled', 'disabled');
 				$('#btn-update').addClass('hide');
 				$('#btn-edit').removeClass('hide');
 			}else{
@@ -854,7 +874,9 @@ $("#zone_code").autocomplete({
 });
 
 
-$("#dateAdd").datepicker({ dateFormat: 'dd-mm-yy'});
+$("#doc-date").datepicker({ dateFormat: 'dd-mm-yy'});
+$("#due-date").datepicker({ dateFormat: 'dd-mm-yy'});
+$("#posting-date").datepicker({ dateFormat: 'dd-mm-yy'});
 
 
 function checkBarcode() {

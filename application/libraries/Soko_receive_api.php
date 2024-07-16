@@ -32,7 +32,7 @@ class Soko_receive_api
 
 		$ds = array(
       'external_id' => $doc->code,
-      'expect_date' => date('Y-m-d'),
+      'expect_date' => $doc->due_date,
       'information_number' => $invoice,
       'ix_status' => "",
       'type' => $this->type,

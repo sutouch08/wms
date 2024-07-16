@@ -40,51 +40,55 @@
 <hr class="padding-5" />
 
 <div class="row">
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
   	<label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
-    <label>วันที่</label>
-    <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add); ?>" disabled />
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>Doc date</label>
+    <input type="text" class="form-control input-sm text-center e" id="doc-date" value="<?php echo thai_date($doc->date_add); ?>" disabled />
   </div>
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
-    <label>รหัสผู้จำหน่าย</label>
-    <input type="text" class="form-control input-sm" value="<?php echo $doc->vendor_code; ?>" disabled />
-  </div>
-  <div class="col-lg-6 col-md-5-harf col-sm-6 col-xs-8 padding-5">
-  	<label>ผู้จำหน่าย</label>
-    <input type="text" class="form-control input-sm" value="<?php echo $doc->vendor_name; ?>" disabled />
-  </div>
-
-	<div class="col-lg-1-harf col-md-1-harf col-sm-3 col-xs-6 padding-5">
-    <label>ใบสั่งซื้อ</label>
-    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->po_code; ?>" disabled />
-  </div>
-
-  <div class="col-lg-1-harf col-md-1-harf col-sm-3 col-xs-6 padding-5">
-  	<label>ใบส่งสินค้า</label>
-    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->invoice_code; ?>" disabled/>
-  </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-3 col-xs-6 padding-5">
-    <label>ใบขออนุมัติ</label>
-    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->request_code; ?>" disabled />
-  </div>
-
-	<div class="col-lg-1-harf col-md-1-harf col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Due date</label>
+		<input type="text" class="form-control input-sm text-center e" id="due-date" value="<?php echo empty($doc->due_date) ? NULL : thai_date($doc->due_date); ?>" disabled/>
+	</div>
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Post date</label>
+		<input type="text" class="form-control input-sm text-center e" id="posting-date" value="<?php echo empty($doc->shipped_date) ? NULL : thai_date($doc->shipped_date); ?>" disabled/>
+	</div>
+	<div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
 		<label>ช่องทางการรับ</label>
 		<select class="form-control input-sm" disabled>
+			<option value="">ไม่ระบุ</option>
 			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</option>
 			<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
 			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
 		</select>
 	</div>
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>รหัสผู้จำหน่าย</label>
+    <input type="text" class="form-control input-sm" value="<?php echo $doc->vendor_code; ?>" disabled />
+  </div>
+  <div class="col-lg-4-harf col-md-8 col-sm-8 col-xs-12 padding-5">
+  	<label>ผู้จำหน่าย</label>
+    <input type="text" class="form-control input-sm" value="<?php echo $doc->vendor_name; ?>" disabled />
+  </div>
 
-  <div class="col-lg-2 col-md-2 col-sm-3 col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>ใบสั่งซื้อ</label>
+    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->po_code; ?>" disabled />
+  </div>
+
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  	<label>ใบส่งสินค้า</label>
+    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->invoice_code; ?>" disabled/>
+  </div>
+
+  <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4 padding-5">
     <label>รหัสโซน</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->zone_code; ?>" disabled />
   </div>
-  <div class="col-lg-5-harf col-md-5-harf col-sm-7 col-xs-8 padding-5">
+  <div class="col-lg-5-harf col-md-7 col-sm-7 col-xs-8 padding-5">
   	<label>ชื่อโซน</label>
     <input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled/>
   </div>
@@ -93,7 +97,7 @@
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->user; ?>" disabled/>
 	</div>
 	<?php if($doc->status == 2) : ?>
-		<div class="col-lg-5 col-md-5 col-sm-5 col-xs-8 padding-5">
+		<div class="col-lg-6-harf col-md-5 col-sm-5 col-xs-8 padding-5">
 			<label>หมายเหตุ</label>
 			<input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
 		</div>
@@ -102,7 +106,7 @@
 			<input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled />
 		</div>
 	<?php else : ?>
-  <div class="col-lg-9 col-md-9 col-sm-10 col-xs-4 padding-5">
+  <div class="col-lg-10-harf col-md-9 col-sm-8 col-xs-4 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
 	</div>

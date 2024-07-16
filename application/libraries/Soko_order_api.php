@@ -187,13 +187,25 @@ class Soko_order_api
               {
                 if($res->status != 'success')
                 {
-                  $sc = FALSE;
-                  $this->error = $res->message;
+                  $dup_msg = "external_id is duplicated in the order";
 
-                  $arr = array(
-                    'wms_export' => $isUpdate ? 1 : 3,
-                    'wms_export_error' => $res->message
-                  );
+                  if($res->message == $dup_msg)
+                  {
+                    $arr = array(
+                      'wms_export' => 1,
+                      'wms_export_error' => $res->message
+                    );
+                  }
+                  else
+                  {
+                    $sc = FALSE;
+                    $this->error = $res->message;
+
+                    $arr = array(
+                      'wms_export' => $isUpdate ? 1 : 3,
+                      'wms_export_error' => $res->message
+                    );                   
+                  }
 
                   $this->ci->orders_model->update($code, $arr);
                 }

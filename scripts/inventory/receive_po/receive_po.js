@@ -88,23 +88,36 @@ $('#cancle-modal').on('shown.bs.modal', function() {
 
 function addNew()
 {
-  let date_add = $('#dateAdd').val();
+	$('.e').removeClass('has-error');
+
+  let date_add = $('#doc-date').val();
+	let due_date = $('#due-date').val();
+	let posting_date = $('#posting-date').val();
 	let is_wms = $('#is_wms').val();
   let remark = $.trim($('#remark').val());
 	let reqRemark = $('#required_remark').val();
 
-  if(!isDate(date_add)) {
+  if( ! isDate(date_add)) {
+		$('#doc-date').addClass('has-error');
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
-	if(reqRemark == 1 && remark.length < 10) {
-		swal({
-			title:'ข้อผิดพลาด',
-			text:'กรุณาใส่หมายเหตุ (ความยาวอย่างน้อย 10 ตัวอักษร)',
-			type:'warning'
-		});
+	if( ! isDate(due_date)) {
+		$('#due-date').addClass('has-error');
+		swal('กรุณาระบุวันที่สินค้าเข้า');
+		return false;
+	}
 
+	if( is_wms === "") {
+		$('#is_wms').addClass('has-error');
+		swal('กรุณาเลือกช่องทางการรับ');
+		return false;
+	}
+
+	if(reqRemark == 1 && remark.length < 5) {
+		$('#remark').addClass('has-error');
+		swal('กรุณาใส่หมายเหตุ');
 		return false;
 	}
 
@@ -116,6 +129,8 @@ function addNew()
 		cache:false,
 		data: {
 			'date_add' : date_add,
+			'due_date' : due_date,
+			'posting_date' : posting_date,
 			'is_wms' : is_wms,
 			'remark' : remark
 		},

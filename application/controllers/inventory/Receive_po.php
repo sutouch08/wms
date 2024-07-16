@@ -832,7 +832,7 @@ class Receive_po extends PS_Controller
               {
                 $sc = FALSE;
                 $this->error = "ส่งข้อมูลไป soko chan ไม่สำเร็จ <br/>{$this->soko_receive_api->error}";
-              }              
+              }
             }
             else
             {
@@ -1157,11 +1157,11 @@ class Receive_po extends PS_Controller
   public function edit($code)
   {
 		$this->load->helper('currency');
-    $document = $this->receive_po_model->get($code);
-    $ds['document'] = $document;
+    $doc = $this->receive_po_model->get($code);
+    $ds['doc'] = $doc;
     $ds['is_strict'] = getConfig('STRICT_RECEIVE_PO');
     $ds['allow_over_po'] = getConfig('ALLOW_RECEIVE_OVER_PO');
-    $zone_code = $document->is_wms == 1 ? getConfig('WMS_ZONE') : ($document->is_wms == 2 ? getConfig('SOKOJUNG_ZONE') : "");
+    $zone_code = $doc->is_wms == 1 ? getConfig('WMS_ZONE') : ($doc->is_wms == 2 ? getConfig('SOKOJUNG_ZONE') : "");
     $zone_name = "";
     $zone = NULL;
 
@@ -1227,6 +1227,8 @@ class Receive_po extends PS_Controller
   {
     $sc = TRUE;
     $date_add = db_date($this->input->post('date_add'), TRUE);
+    $due_date = $this->input->post('due_date');
+    $posting_date = $this->input->post('posting_date');
     $is_wms = $this->input->post('is_wms');
     $remark = trim($this->input->post('remark'));
 
@@ -1243,6 +1245,8 @@ class Receive_po extends PS_Controller
         'invoice_code' => NULL,
         'remark' => get_null($remark),
         'date_add' => $date_add,
+        'due_date' => empty($due_date) ? $date_add : db_date($due_date),
+        'shipped_date' => empty($posting_date) ? NULL : db_date($posting_date, TRUE),
         'user' => $this->_user->uname,
 				'is_wms' => $is_wms
       );
@@ -1275,6 +1279,8 @@ class Receive_po extends PS_Controller
     $sc = TRUE;
     $code = $this->input->post('code');
     $date = db_date($this->input->post('date_add'), TRUE);
+    $due_date = $this->input->post('due_date');
+    $posting_date = $this->input->post('posting_date');
     $remark = get_null(trim($this->input->post('remark')));
 		$is_wms = $this->input->post('is_wms');
 
@@ -1288,6 +1294,8 @@ class Receive_po extends PS_Controller
         {
           $arr = array(
             'date_add' => $date,
+            'due_date' => empty($due_date) ? $date : db_date($due_date),
+            'shipped_date' => empty($posting_date) ? NULL : db_date($posting_date, TRUE),
             'remark' => $remark,
 						'is_wms' => $is_wms
           );

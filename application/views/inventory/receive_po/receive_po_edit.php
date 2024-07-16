@@ -1,6 +1,6 @@
 <?php $this->load->view('include/header'); ?>
 <script src="<?php echo base_url(); ?>assets/js/xlsx.full.min.js"></script>
-<?php if($document->status == 0) : ?>
+<?php if($doc->status == 0) : ?>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -11,8 +11,8 @@
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <p class="pull-right top-p text-right">
 			<button type="button" class="btn btn-xs btn-warning top-btn" onclick="leave()"><i class="fa fa-arrow-left"></i> กลับ</button>
-			<?php if($this->pm->can_edit && $document->status == 0) : ?>
-        <button type="button" class="btn btn-xs btn-danger top-btn" onclick="goDelete('<?php echo $document->code; ?>')"><i class="fa fa-exclamation-triangle"></i> ยกเลิก</button>
+			<?php if($this->pm->can_edit && $doc->status == 0) : ?>
+        <button type="button" class="btn btn-xs btn-danger top-btn" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-exclamation-triangle"></i> ยกเลิก</button>
       <?php endif; ?>
 			<button type="button" class="btn btn-xs btn-purple top-btn" onclick="getSample()"><i class="fa fa-download"></i> ไฟล์ตัวอย่าง</button>
     <?php if($this->pm->can_add) : ?>
@@ -26,32 +26,41 @@
 <hr />
 
 <div class="row">
-  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
   	<label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm text-center" value="<?php echo $document->code; ?>" disabled />
+    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-    <label>วันที่</label>
-    <input type="text" class="form-control input-sm text-center header-box" name="date_add" id="dateAdd" value="<?php echo thai_date($document->date_add); ?>" disabled />
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>วันที่เอกสาร</label>
+    <input type="text" class="form-control input-sm text-center e" id="doc-date" value="<?php echo thai_date($doc->date_add); ?>" disabled />
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>วันที่สินค้าเข้า</label>
+		<input type="text" class="form-control input-sm text-center e" id="due-date" value="<?php echo empty($doc->due_date) ? NULL : thai_date($doc->due_date); ?>" disabled/>
+	</div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Posting date</label>
+		<input type="text" class="form-control input-sm text-center e" id="posting-date" value="<?php echo empty($doc->shipped_date) ? NULL : thai_date($doc->shipped_date); ?>" disabled/>
+	</div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>ช่องทางการรับ</label>
-		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
-			<?php if($this->wmsApi OR $document->is_wms == 1) : ?>
-			<option value="1" <?php echo is_selected('1', $document->is_wms); ?>>Pioneer</option>
+		<select class="form-control input-sm e" name="is_wms" id="is_wms" disabled>
+			<option value="">เลือก</option>
+			<?php if($this->wmsApi OR $doc->is_wms == 1) : ?>
+			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</option>
 			<?php endif; ?>
-			<?php if($this->sokoApi OR $document->is_wms == 2) : ?>
-			<option value="2" <?php echo is_selected('2', $document->is_wms); ?>>SOKOCHAN</option>
+			<?php if($this->sokoApi OR $doc->is_wms == 2) : ?>
+			<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
 			<?php endif; ?>
-			<option value="0" <?php echo is_selected('0', $document->is_wms); ?>>Warrix</option>
+			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
 		</select>
 	</div>
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
+	<div class="col-lg-10-harf col-md-10-harf col-sm-10-harf col-xs-8 padding-5">
 		<label>หมายเหตุ</label>
-		<input type="text" class="form-control input-sm header-box" name="remark" id="remark" value="<?php echo $document->remark; ?>" disabled />
+		<input type="text" class="form-control input-sm e" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled />
 	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-<?php if($this->pm->can_edit && $document->status == 0) : ?>
+<?php if($this->pm->can_edit && $doc->status == 0) : ?>
 		<label class="display-block not-show">edit</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">
 			<i class="fa fa-pencil"></i> แก้ไข
@@ -145,7 +154,7 @@
     	<label class="display-block not-show">ok</label>
         <button type="button" class="btn btn-xs btn-primary btn-block" onclick="checkBarcode()"><i class="fa fa-check"></i> ตกลง</button>
   </div>
-    <input type="hidden" name="receive_code" id="receive_code" value="<?php echo $document->code; ?>" />
+    <input type="hidden" name="receive_code" id="receive_code" value="<?php echo $doc->code; ?>" />
     <input type="hidden" name="approver" id="approver" value="" />
 		<input type="hidden" id="allow_over_po" value="<?php echo $allow_over_po; ?>">
 		<input type="hidden" id="is_strict_request" value="<?php echo $is_strict; ?>" />
@@ -341,7 +350,7 @@
 
 
 <?php else : ?>
-  <?php redirect($this->home.'/view_detail/'.$document->code); ?>
+  <?php redirect($this->home.'/view_detail/'.$doc->code); ?>
 <?php endif; ?>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
