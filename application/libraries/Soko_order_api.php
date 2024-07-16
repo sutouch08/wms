@@ -154,7 +154,7 @@ class Soko_order_api
           $isUpdate = $order->wms_export == 1 ? TRUE : FALSE;
           $action = $isUpdate ? 'update' : 'create';
 
-          $api_path = $isUpdate ? $this->url."orders/{$order->code}" : $this->url."orders";
+          $api_path = $isUpdate ? $this->url."orders/@{$order->code}" : $this->url."orders";
           $url = $api_path;
           $method = $isUpdate ? "PUT" : "POST";
 
@@ -204,7 +204,7 @@ class Soko_order_api
                     $arr = array(
                       'wms_export' => $isUpdate ? 1 : 3,
                       'wms_export_error' => $res->message
-                    );                   
+                    );
                   }
 
                   $this->ci->orders_model->update($code, $arr);
