@@ -3653,7 +3653,7 @@ class Orders extends PS_Controller
             $this->load->library('wms_receive_api');
 
             $details = $this->wms_temp_order_model->get_details_by_code($code); //--- เอามาจาก wms temp delivery
-            
+
             if( ! empty($details))
             {
               foreach($details as $rs)
@@ -3678,7 +3678,7 @@ class Orders extends PS_Controller
           } //--- if wms = 1
 
           //--- if Sokochan
-          if($order->is_wms = 2)
+          if($order->is_wms == 2)
           {
             $this->load->model('rest/V1/soko_temp_order_model');
             $this->load->library('soko_receive_api');
