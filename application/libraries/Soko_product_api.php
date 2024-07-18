@@ -190,7 +190,7 @@ class Soko_product_api
         'ean' => ""
       );
 
-      $api_path = $this->url."products/".$item->soko_code;
+      $api_path = $this->url."products/@".$item->soko_code;
       $url = $api_path;
 
       $method = "PUT";
