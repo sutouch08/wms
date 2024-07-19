@@ -413,6 +413,18 @@ class Receive_po_model extends CI_Model
       }
     }
 
+    if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
+		{
+      if($ds['wms_export'] == '0')
+      {
+        $this->db->where('wms_export IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('wms_export', $ds['wms_export']);
+      }
+		}
+    
     if($ds['must_accept'] != 'all')
     {
       $this->db->where('r.must_accept', $ds['must_accept']);
@@ -506,6 +518,18 @@ class Receive_po_model extends CI_Model
         $this->db->where('r.is_expire', 0)->where('status', $ds['status']);
       }
     }
+
+    if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
+		{
+      if($ds['wms_export'] == '0')
+      {
+        $this->db->where('wms_export IS NULL', NULL, FALSE);
+      }
+      else
+      {
+        $this->db->where('wms_export', $ds['wms_export']);
+      }
+		}
 
     if($ds['must_accept'] != 'all')
     {

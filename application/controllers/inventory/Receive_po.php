@@ -42,6 +42,7 @@ class Receive_po extends PS_Controller
       'to_date' => get_filter('to_date', 'receive_to_date', ''),
       'status' => get_filter('status', 'receive_status', 'all'),
 			'is_wms' => get_filter('is_wms', 'receive_is_wms', 'all'),
+      'wms_export' => get_filter('wms_export', 'receive_wms_export', 'all'),
       'sap' => get_filter('sap', 'receive_sap', 'all'),
       'must_accept' => get_filter('must_accept', 'receive_must_accept', 'all')
     );
@@ -1391,6 +1392,7 @@ class Receive_po extends PS_Controller
       'receive_status',
       'receive_sap',
 			'receive_is_wms',
+      'receive_wms_export',
       'receive_user',
       'receive_must_accept'
     );

@@ -59,9 +59,10 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
+      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
-			$method = empty($doc->soko_code) ? "POST" : "PUT";
+			$method = $isUpdate ? "PUT" : "POST";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -96,7 +97,14 @@ class Soko_receive_api
               {
                 $res->status = 'success';
                 $res->message = $response;
-                $this->ci->receive_po_model->update($doc->code, ['soko_code' => $res->id]);
+
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_status' => 1,
+                  'wms_export_error' => NULL
+                );
+
+                $this->ci->receive_po_model->update($doc->code, $arr);
               }
               else
               {
@@ -104,6 +112,13 @@ class Soko_receive_api
                 $this->error = $response;
                 $res->status = 'failed';
                 $res->message = $response;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->receive_po_model->update($doc->code, $arr);
               }
             }
             else
@@ -112,20 +127,39 @@ class Soko_receive_api
               {
                 $sc = FALSE;
                 $this->error = $res->message;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->receive_po_model->update($doc->code, $arr);
               }
               else
               {
-                $this->ci->receive_po_model->update($doc->code, ['soko_code' => $res->id]);
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_status' => 1,
+                  'wms_export_error' => NULL
+                );
+
+                $this->ci->receive_po_model->update($doc->code, $arr);
               }
             }
           }
-
           else
           {
             $sc = FALSE;
             $res->status = "failed";
             $res->message = $res->error;
             $this->error = $response;
+
+            $arr = array(
+              'wms_status' => $isUpdate ? 1 : 3,
+              'wms_export_error' => $res->message
+            );
+
+            $this->ci->receive_po_model->update($doc->code, $arr);
           }
 
           if($this->log_json)
@@ -135,7 +169,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -157,7 +191,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -175,7 +209,7 @@ class Soko_receive_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
-          'action' => empty($doc->soko_code) ? "create" : "update",
+          'action' => $isUpdate ? "update" : "create",
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
@@ -385,9 +419,10 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
+      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
-      $method = empty($doc->soko_code) ? "POST" : "PUT";
+			$method = $isUpdate ? "PUT" : "POST";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -422,7 +457,13 @@ class Soko_receive_api
               {
                 $res->status = 'success';
                 $res->message = $response;
-                $this->ci->receive_transform_model->update($doc->code, ['soko_code' => $res->id]);
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->receive_transform_model->update($doc->code, $arr);
               }
               else
               {
@@ -430,6 +471,13 @@ class Soko_receive_api
                 $this->error = $response;
                 $res->status = 'failed';
                 $res->message = $response;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->receive_transform_model->update($doc->code, $arr);
               }
             }
             else
@@ -438,10 +486,23 @@ class Soko_receive_api
               {
                 $sc = FALSE;
                 $this->error = $res->message;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->receive_transform_model->update($doc->code, $arr);
               }
               else
               {
-                $this->ci->receive_transform_model->update($doc->code, ['soko_code' => $res->id]);
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => 1,
+                  'wms_export_error' => NULL
+                );
+
+                $this->ci->receive_transform_model->update($doc->code, $arr);
               }
             }
           }
@@ -451,6 +512,13 @@ class Soko_receive_api
             $res->status = "failed";
             $res->message = $res->error;
             $this->error = $response;
+
+            $arr = array(
+              'wms_export' => $isUpdate ? 1 : 3,
+              'wms_export_error' => $res->message
+            );
+
+            $this->ci->receive_transform_model->update($doc->code, $arr);
           }
 
           if($this->log_json)
@@ -460,7 +528,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -482,7 +550,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -500,7 +568,7 @@ class Soko_receive_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
-          'action' => empty($doc->soko_code) ? "create" : "update",
+          'action' => $isUpdate ? "update" : "create",
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
@@ -710,9 +778,10 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
+      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
-      $method = empty($doc->soko_code) ? "POST" : "PUT";
+			$method = $isUpdate ? "PUT" : "POST";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -747,7 +816,14 @@ class Soko_receive_api
               {
                 $res->status = 'success';
                 $res->message = $response;
-                $this->ci->return_order_model->update($doc->code, ['soko_code' => $res->id]);
+
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_order_model->update($doc->code, $arr);
               }
               else
               {
@@ -755,6 +831,13 @@ class Soko_receive_api
                 $this->error = $response;
                 $res->status = 'failed';
                 $res->message = $response;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_order_model->update($doc->code, $arr);
               }
             }
             else
@@ -763,10 +846,23 @@ class Soko_receive_api
               {
                 $sc = FALSE;
                 $this->error = $res->message;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_order_model->update($doc->code, $arr);
               }
               else
               {
-                $this->ci->return_order_model->update($doc->code, ['soko_code' => $res->id]);
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => 1,
+                  'wms_export_error' => NULL
+                );
+
+                $this->ci->return_order_model->update($doc->code, $arr);
               }
             }
           }
@@ -776,6 +872,13 @@ class Soko_receive_api
             $res->status = "failed";
             $res->message = $res->error;
             $this->error = $response;
+
+            $arr = array(
+              'wms_export' => $isUpdate ? 1 : 3,
+              'wms_export_error' => $res->message
+            );
+
+            $this->ci->return_order_model->update($doc->code, $arr);
           }
 
           if($this->log_json)
@@ -785,7 +888,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -807,7 +910,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -825,7 +928,7 @@ class Soko_receive_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
-          'action' => empty($doc->soko_code) ? "create" : "update",
+          'action' => $isUpdate ? "update" : "create",
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
@@ -1035,9 +1138,10 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
+      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
-      $method = empty($doc->soko_code) ? "POST" : "PUT";
+			$method = $isUpdate ? "PUT" : "POST";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1072,7 +1176,14 @@ class Soko_receive_api
               {
                 $res->status = 'success';
                 $res->message = $response;
-                $this->ci->return_lend_model->update($doc->code, ['soko_code' => $res->id]);
+
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_lend_model->update($doc->code, $arr);
               }
               else
               {
@@ -1080,6 +1191,13 @@ class Soko_receive_api
                 $this->error = $response;
                 $res->status = 'failed';
                 $res->message = $response;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_lend_model->update($doc->code, $arr);
               }
             }
             else
@@ -1088,10 +1206,23 @@ class Soko_receive_api
               {
                 $sc = FALSE;
                 $this->error = $res->message;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_lend_model->update($doc->code, $arr);
               }
               else
               {
-                $this->ci->return_lend_model->update($doc->code, ['soko_code' => $res->id]);
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => 1,
+                  'wms_export_error' => NULL
+                );
+
+                $this->ci->return_lend_model->update($doc->code, $arr);
               }
             }
           }
@@ -1101,6 +1232,13 @@ class Soko_receive_api
             $res->status = "failed";
             $res->message = $res->error;
             $this->error = $response;
+
+            $arr = array(
+              'wms_export' => $isUpdate ? 1 : 3,
+              'wms_export_error' => $res->message
+            );
+
+            $this->ci->return_lend_model->update($doc->code, $arr);
           }
 
           if($this->log_json)
@@ -1110,7 +1248,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -1132,7 +1270,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -1150,7 +1288,7 @@ class Soko_receive_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
-          'action' => empty($doc->soko_code) ? "create" : "update",
+          'action' => $isUpdate ? "update" : "create",
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
@@ -1360,9 +1498,10 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
+      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
-      $method = empty($doc->soko_code) ? "POST" : "PUT";
+			$method = $isUpdate ? "PUT" : "POST";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1397,7 +1536,14 @@ class Soko_receive_api
               {
                 $res->status = 'success';
                 $res->message = $response;
-                $this->ci->transfer_model->update($doc->code, ['soko_code' => $res->id]);
+
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->transfer_model->update($doc->code, $arr);
               }
               else
               {
@@ -1405,6 +1551,13 @@ class Soko_receive_api
                 $this->error = $response;
                 $res->status = 'failed';
                 $res->message = $response;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->transfer_model->update($doc->code, $arr);
               }
             }
             else
@@ -1413,10 +1566,23 @@ class Soko_receive_api
               {
                 $sc = FALSE;
                 $this->error = $res->message;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->transfer_model->update($doc->code, $arr);
               }
               else
               {
-                $this->ci->transfer_model->update($doc->code, ['soko_code' => $res->id]);
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => 1,
+                  'wms_export_error' => NULL
+                );
+
+                $this->ci->transfer_model->update($doc->code, $arr);
               }
             }
           }
@@ -1426,6 +1592,13 @@ class Soko_receive_api
             $res->status = "failed";
             $res->message = $res->error;
             $this->error = $response;
+
+            $arr = array(
+              'wms_export' => $isUpdate ? 1 : 3,
+              'wms_export_error' => $res->message
+            );
+
+            $this->ci->transfer_model->update($doc->code, $arr);
           }
 
           if($this->log_json)
@@ -1435,7 +1608,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -1457,7 +1630,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -1475,7 +1648,7 @@ class Soko_receive_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
-          'action' => empty($doc->soko_code) ? "create" : "update",
+          'action' => $isUpdate ? "update" : "create",
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
@@ -1686,9 +1859,10 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
+      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
-      $method = empty($doc->soko_code) ? "POST" : "PUT";
+      $method = $isUpdate ? "PUT" : "POST";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1723,7 +1897,14 @@ class Soko_receive_api
               {
                 $res->status = 'success';
                 $res->message = $response;
-                $this->ci->return_consignment_model->update($doc->code, ['soko_code' => $res->id]);
+
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_consignment_model->update($doc->code, $arr);
               }
               else
               {
@@ -1731,6 +1912,13 @@ class Soko_receive_api
                 $this->error = $response;
                 $res->status = 'failed';
                 $res->message = $response;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_consignment_model->update($doc->code, $arr);
               }
             }
             else
@@ -1739,10 +1927,23 @@ class Soko_receive_api
               {
                 $sc = FALSE;
                 $this->error = $res->message;
+
+                $arr = array(
+                  'wms_export' => $isUpdate ? 1 : 3,
+                  'wms_export_error' => $res->message
+                );
+
+                $this->ci->return_consignment_model->update($doc->code, $arr);
               }
               else
               {
-                $this->ci->return_consignment_model->update($doc->code, ['soko_code' => $res->id]);
+                $arr = array(
+                  'soko_code' => $res->id,
+                  'wms_export' => 1,
+                  'wms_export_error' => NULL
+                );
+
+                $this->ci->return_consignment_model->update($doc->code, $arr);
               }
             }
           }
@@ -1752,6 +1953,13 @@ class Soko_receive_api
             $res->status = "failed";
             $res->message = $res->error;
             $this->error = $response;
+
+            $arr = array(            
+              'wms_export' => $isUpdate ? 1 : 3,
+              'wms_export_error' => $res->message
+            );
+
+            $this->ci->return_consignment_model->update($doc->code, $arr);
           }
 
           if($this->log_json)
@@ -1761,7 +1969,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -1783,7 +1991,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $doc->code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -1801,7 +2009,7 @@ class Soko_receive_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $doc->code,
-          'action' => empty($doc->soko_code) ? "create" : "update",
+          'action' => $isUpdate ? "update" : "create",
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
@@ -2078,7 +2286,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -2100,7 +2308,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $code,
-              'action' => empty($doc->soko_code) ? "create" : "update",
+              'action' => $isUpdate ? "update" : "create",
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -2118,7 +2326,7 @@ class Soko_receive_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $code,
-          'action' => empty($doc->soko_code) ? "create" : "update",
+          'action' => $isUpdate ? "update" : "create",
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
