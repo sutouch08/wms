@@ -61,7 +61,7 @@ class Soko_receive_api
 
       $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-			$method = emtpy($doc->soko_code) ? "POST" : "PUT";
+			$method = empty($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -387,7 +387,7 @@ class Soko_receive_api
 
       $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
+      $method = empty($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -712,7 +712,7 @@ class Soko_receive_api
 
       $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
+      $method = empty($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1037,7 +1037,7 @@ class Soko_receive_api
 
       $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
+      $method = empty($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1362,7 +1362,7 @@ class Soko_receive_api
 
       $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
+      $method = empty($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1688,7 +1688,7 @@ class Soko_receive_api
 
       $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
+      $method = empty($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
