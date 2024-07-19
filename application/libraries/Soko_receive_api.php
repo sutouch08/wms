@@ -123,7 +123,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -293,7 +293,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -482,7 +482,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -650,7 +650,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -842,7 +842,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -1011,7 +1011,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -1202,7 +1202,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -1371,7 +1371,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -1562,7 +1562,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -1731,7 +1731,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -1923,7 +1923,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -2092,7 +2092,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
@@ -2264,7 +2264,7 @@ class Soko_receive_api
             }
             else
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->status != 'Success' && empty($res->id))
               {
                 $sc = FALSE;
                 $this->error = $res->message;
