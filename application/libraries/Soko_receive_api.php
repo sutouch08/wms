@@ -59,9 +59,9 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = $this->url."advices";
+      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-			$method = "POST";
+			$method = emtpy($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -385,9 +385,9 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = $this->url."advices";
+      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-			$method = "POST";
+      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -710,9 +710,9 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = $this->url."advices";
+      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-			$method = "POST";
+      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1035,9 +1035,9 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = $this->url."advices";
+      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-			$method = "POST";
+      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1360,9 +1360,9 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = $this->url."advices";
+      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-			$method = "POST";
+      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -1686,9 +1686,9 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = $this->url."advices";
+      $api_path = empty($doc->soko_code) ? $this->url."advices" : $this->url."advices/{$doc->soko_code}";
       $url = $api_path;
-			$method = "POST";
+      $method = emtpy($doc->soko_code) ? "POST" : "PUT";
 
 			$headers = array(
 				"Content-Type: application/json",
