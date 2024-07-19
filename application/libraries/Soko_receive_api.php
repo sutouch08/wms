@@ -59,7 +59,7 @@ class Soko_receive_api
 				}
 			}
 
-      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
       $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
 			$method = $isUpdate ? "PUT" : "POST";
@@ -419,7 +419,7 @@ class Soko_receive_api
 				}
 			}
 
-      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
       $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
 			$method = $isUpdate ? "PUT" : "POST";
@@ -778,7 +778,7 @@ class Soko_receive_api
 				}
 			}
 
-      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
       $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
 			$method = $isUpdate ? "PUT" : "POST";
@@ -1138,7 +1138,7 @@ class Soko_receive_api
 				}
 			}
 
-      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
       $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
 			$method = $isUpdate ? "PUT" : "POST";
@@ -1498,7 +1498,7 @@ class Soko_receive_api
 				}
 			}
 
-      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
       $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
 			$method = $isUpdate ? "PUT" : "POST";
@@ -1859,7 +1859,7 @@ class Soko_receive_api
 				}
 			}
 
-      $isUpdate = empty($doc->soko_api) ? FALSE : TRUE;
+      $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
       $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
       $method = $isUpdate ? "PUT" : "POST";
@@ -1954,7 +1954,7 @@ class Soko_receive_api
             $res->message = $res->error;
             $this->error = $response;
 
-            $arr = array(            
+            $arr = array(
               'wms_export' => $isUpdate ? 1 : 3,
               'wms_export_error' => $res->message
             );
