@@ -170,7 +170,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => $isUpdate ? "update" : "create",
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
               'response_json' => $response
@@ -316,7 +316,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => NULL,
               'response_json' => $response
@@ -529,7 +529,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => $isUpdate ? "update" : "create",
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
               'response_json' => $response
@@ -673,7 +673,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => NULL,
               'response_json' => $response
@@ -889,7 +889,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => $isUpdate ? "update" : "create",
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
               'response_json' => $response
@@ -1034,7 +1034,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => NULL,
               'response_json' => $response
@@ -1249,7 +1249,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => $isUpdate ? "update" : "create",
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
               'response_json' => $response
@@ -1394,7 +1394,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => NULL,
               'response_json' => $response
@@ -1609,7 +1609,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => $isUpdate ? "update" : "create",
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
               'response_json' => $response
@@ -1754,7 +1754,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => NULL,
               'response_json' => $response
@@ -1970,7 +1970,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => $isUpdate ? "update" : "create",
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
               'response_json' => $response
@@ -2115,7 +2115,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $doc->code,
               'action' => 'cancel',
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => NULL,
               'response_json' => $response
@@ -2287,7 +2287,7 @@ class Soko_receive_api
               'api_path' => $api_path,
               'code' => $code,
               'action' => $isUpdate ? "update" : "create",
-              'status' => $res->status == 'success' ? 'success' : 'failed',
+              'status' => ($res->status == 'success' OR $res == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
               'response_json' => $response
