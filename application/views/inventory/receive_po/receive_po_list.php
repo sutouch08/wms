@@ -125,20 +125,21 @@
     </p>
   </div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1" style="min-width:1230px;">
+		<table class="table table-striped table-hover border-1" style="min-width:1380px;">
 			<thead>
 				<tr>
-					<th class="fix-width-100"></th>
+					<th class=""></th>
 					<th class="fix-width-40 middle text-center">สถานะ</th>
 					<th class="fix-width-40 middle text-center">#</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
+					<th class="fix-width-100 middle text-center">กำหนดรับ</th>
 					<th class="fix-width-150 middle">เลขที่เอกสาร</th>
 					<th class="fix-width-80 middle">การรับ</th>
 					<th class="fix-width-150 middle">ใบส่งสินค้า</th>
 					<th class="fix-width-100 middle">ใบสั่งซื้อ</th>
 					<th class="fix-width-250 middle">ผู้จำหน่าย</th>
 					<th class="fix-width-100 middle text-center">จำนวน</th>
-					<th class="min-width-100 middle text-center">พนักงาน</th>
+					<th class="min-width-150 middle">พนักงาน</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -170,10 +171,14 @@
 									<?php if($rs->status == 4) : ?>
 										<span class="orange"><strong>WC</strong></span>
 									<?php endif; ?>
+									<?php if($rs->status == 1) : ?>
+										<span class="green"><strong>OK</strong></span>
+									<?php endif; ?>
 								<?php endif; ?>
 							</td>
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE, '/'); ?></td>
+							<td class="middle text-center"><?php echo thai_date($rs->due_date, FALSE, '/'); ?></td>
               <td class="middle">
 								<?php echo $rs->code; ?> <?php echo ( ! empty($rs->soko_code) ? "[{$rs->soko_code}]" : ""); ?>
 								<?php if($rs->wms_export == 3) : ?>
@@ -187,7 +192,7 @@
               <td class="middle"><?php echo $rs->po_code; ?></td>
               <td class="middle"><?php echo $rs->vendor_name; ?></td>
               <td class="middle text-center"><?php echo number($rs->qty); ?></td>
-							<td class="middle text-center">
+							<td class="middle">
                 <?php echo $rs->display_name; ?>
               </td>
             </tr>

@@ -120,7 +120,7 @@
 
 
 <script>
-	var HOME = "<?php echo current_url(); ?>";
+	var HOME = "<?php echo $this->home."/"; ?>";
 
 	function goBack() {
 		window.location.href = HOME;

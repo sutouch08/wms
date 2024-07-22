@@ -992,9 +992,7 @@ class Return_order extends PS_Controller
       ->where('CardCode', $customer_code);
     }
 
-    $this->ms
-		->where('CANCELED', 'N')
-		->where('DocStatus', 'O');
+    $this->ms->where('CANCELED', 'N');
 
 		if($txt != '*')
 		{
