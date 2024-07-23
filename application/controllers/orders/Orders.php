@@ -2849,7 +2849,7 @@ class Orders extends PS_Controller
               if( ! $this->soko_order_api->export_order($code))
               {
                 $sc = FALSE;
-                $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (".$this->soko_order_api->error.")";
+                $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (SOKOCHAN Error : ".$this->soko_order_api->error.")";
               }
             } //--- if($order->is_wms == 2)
 					} //--- export fulfillment
@@ -3116,7 +3116,7 @@ class Orders extends PS_Controller
           if( ! $this->soko_order_api->cancel($code, $role))
           {
             $sc = FALSE;
-            $this->error = "ยกเลิกเอกสารในระบบ Sokochan ไม่สำเร็จ <br/> {$this->soko_order_api->error}";
+            $this->error = "ยกเลิกเอกสารในระบบ Sokochan ไม่สำเร็จ <br/> (SOKOCHAN Error : {$this->soko_order_api->error})";
           }
         }
 			}
@@ -4184,7 +4184,7 @@ class Orders extends PS_Controller
               else
               {
                 $sc = FALSE;
-                $this->error = "Invalid order status";
+                $this->error = "SOKOCHAN Error : Invalid order status {$status}";
               }
             }
             else
@@ -4196,7 +4196,7 @@ class Orders extends PS_Controller
           else
           {
             $sc = FALSE;
-            $this->error = $this->soko_order_api->error;
+            $this->error = "SOKOCHAN Error : ".$this->soko_order_api->error;
           }
         } //--- if($order->is_wms == 2)
       } //--- export fulfillment
@@ -4273,7 +4273,7 @@ class Orders extends PS_Controller
           if( ! $res)
           {
             $sc = FALSE;
-            $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (".$this->soko_order_api->error.")";
+            $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (SOKOCHAN Error : ".$this->soko_order_api->error.")";
           }
         } //--- if($order->is_wms == 2)
       } //--- export fulfillment
@@ -4365,7 +4365,7 @@ class Orders extends PS_Controller
               {
                 $sc = FALSE;
                 $errCount++;
-                $errCode[] = ['code' => $code, 'message' => $this->soko_order_api->error];
+                $errCode[] = ['code' => $code, 'message' => "SOKOCHAN Error : ".$this->soko_order_api->error];
               }
             }
           }

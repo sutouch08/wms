@@ -408,7 +408,8 @@ function acceptConfirm() {
 					swal({
 						title:'Error!',
 						text: rs,
-						type:'error'
+						type:'error',
+						html:true
 					});
 				}
 			}

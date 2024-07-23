@@ -73,7 +73,8 @@ function updateHeader() {
 				swal({
 					title:'Error!',
 					text: rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
 			}
 		}
@@ -1178,7 +1179,8 @@ $("#uploadFile").change(function(){
 						swal({
 							title:'Warning',
 							text:ds.message,
-							type:'warning'
+							type:'warning',
+							html:true
 						}, () => {
 							window.location.reload();
 						});
@@ -1187,7 +1189,8 @@ $("#uploadFile").change(function(){
 						swal({
 							title:'Error!',
 							text: rs,
-							type:'error'
+							type:'error',
+							html:true
 						});
 					}
 				}

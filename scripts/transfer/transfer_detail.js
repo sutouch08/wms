@@ -19,7 +19,8 @@ function doExport()
 				swal({
 					title:'Error!',
 					text:rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
 			}
 		}
@@ -104,7 +105,8 @@ function removeTemp(id, item_code) {
 						swal({
 							title:'Error!',
 							text:rs,
-							type:'error'
+							type:'error',
+							html:true
 						});
 					}
 				}
@@ -441,7 +443,8 @@ function accept() {
 							swal({
 								title:'Warning',
 								text:ds.message,
-								type:'warning'
+								type:'warning',
+								html:true
 							}, () => {
 								setTimeout(() => {
 									window.location.reload();
@@ -452,7 +455,8 @@ function accept() {
 							swal({
 								title:'Error!',
 								text: rs,
-								type:'error'
+								type:'error',
+								html:true
 							});
 						}
 					}
@@ -506,7 +510,8 @@ function acceptConfirm() {
 					swal({
 						title:'Warning',
 						text:ds.message,
-						type:'warning'
+						type:'warning',
+						html:true
 					}, () => {
 						setTimeout(() => {
 							window.location.reload();
@@ -517,7 +522,8 @@ function acceptConfirm() {
 					swal({
 						title:'Error!',
 						text: rs,
-						type:'error'
+						type:'error',
+						html:true
 					});
 				}
 			}

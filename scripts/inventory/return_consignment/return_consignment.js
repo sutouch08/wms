@@ -57,7 +57,8 @@ function cancle_return(code)
 					swal({
 						title:"Error!",
 						text:rs,
-						type:'error'
+						type:'error',
+						html:true
 					});
 				}, 200);
 			}
@@ -115,7 +116,8 @@ function pullBack(code) {
 				swal({
 					title:'Error!',
 					text:rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
 			}
 		}

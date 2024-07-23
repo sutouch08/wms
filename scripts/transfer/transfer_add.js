@@ -110,7 +110,8 @@ function addTransfer() {
           swal({
             title:'Error!',
             text:ds.message,
-            type:'error'
+            type:'error',
+            html:true
           });
         }
 
@@ -120,7 +121,8 @@ function addTransfer() {
         swal({
           title:'Error!',
           text:rs,
-          type:'error'
+          type:'error',
+          html:true
         });
 
         click = 0;
@@ -339,7 +341,8 @@ function saveTransfer(code)
           swal({
             title:'Warning',
             text:ds.message,
-            type:'warning'
+            type:'warning',
+            html:true
           }, () => {
             goDetail(code);
           });
@@ -348,7 +351,8 @@ function saveTransfer(code)
           swal({
             title:'Error!',
             text:ds.message,
-            type:'error'
+            type:'error',
+            html:true
           });
         }
       }
@@ -356,7 +360,8 @@ function saveTransfer(code)
         swal({
           title:'Error!',
           text:rs,
-          type:'error'
+          type:'error',
+          html:true
         });
       }
     }

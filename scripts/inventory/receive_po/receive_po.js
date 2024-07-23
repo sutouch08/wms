@@ -56,8 +56,14 @@ function cancle_received(code)
 					window.location.reload();
 				}, 1200);
 
-			}else{
-				swal("Error !", rs, "error");
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
 			}
 		}
 	});
@@ -146,7 +152,8 @@ function addNew()
 					swal({
 						title:'Error!',
 						text:ds.message,
-						type:'error'
+						type:'error',
+						html:true
 					});
 				}
 			}
@@ -154,7 +161,8 @@ function addNew()
 				swal({
 					title:'Error!',
 					text:rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
 			}
 		}
@@ -243,7 +251,8 @@ function doExport(){
 				swal({
 					title:'Errow!',
 					text: rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
 			}
 		}

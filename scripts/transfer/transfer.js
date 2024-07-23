@@ -113,7 +113,8 @@ function doApprove() {
               swal({
                 title:'Warning',
                 text:ds.message,
-                type:'warning'
+                type:'warning',
+                html:true
               }, () => {
                 window.location.reload();
               });
@@ -124,7 +125,8 @@ function doApprove() {
               swal({
                 title:'Error!',
                 text:ds.message,
-                type:'error'
+                type:'error',
+                html:true
               });
             }, 200);
           }
@@ -134,7 +136,8 @@ function doApprove() {
             swal({
               title:'Error!',
               text:rs,
-              type:'error'
+              type:'error',
+              html:true
             });
           }, 200);
         }

@@ -852,7 +852,7 @@ class Transfer extends PS_Controller
                   {
                     $sc = FALSE;
                     $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_receive_api->error}";
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error : {$this->soko_receive_api->error})";
                   }
                 }
 
@@ -864,7 +864,7 @@ class Transfer extends PS_Controller
                   {
                     $sc = FALSE;
                     $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_order_api->error}";
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error : {$this->soko_order_api->error})";
                   }
                 }
               }
@@ -1099,7 +1099,7 @@ class Transfer extends PS_Controller
                   {
                     $sc = FALSE;
                     $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_order_api->error}";
+                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error : {$this->soko_order_api->error})";
                   }
                 }
               }

@@ -107,7 +107,8 @@ function save()
 					swal({
 						title:"Error!",
 						text:rs.responseText,
-						type:'error'
+						type:'error',
+						html:true
 					});
 				}
 				else {
@@ -145,7 +146,8 @@ function approve(){
 			swal({
 				title:'Error',
 				text:rs,
-				type:'error'
+				type:'error',
+				html:true
 			})
 		}
 	});
@@ -177,7 +179,8 @@ function doExport(){
 				swal({
 					title:"Error!",
 					text:rs,
-					type:'error'
+					type:'error',
+					html:true
 				})
 			}
 		}
@@ -311,7 +314,8 @@ function updateHeader(){
 				swal({
 					title:'Error!!',
 					text:rs,
-					type:'error'
+					type:'error',
+					html:true
 				});
 			}
 		}

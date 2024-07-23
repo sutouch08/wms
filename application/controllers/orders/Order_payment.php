@@ -208,7 +208,7 @@ class Order_payment extends PS_Controller
             if( ! $this->soko_order_api->export_order($order->code))
             {
               $sc = FALSE;
-              $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (".$this->soko_order_api->error.")";
+              $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (SOKOCHAN Error : ".$this->soko_order_api->error.")";
             }
           } //--- if($order->is_wms == 2)
         }

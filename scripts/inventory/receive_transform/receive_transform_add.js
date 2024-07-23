@@ -61,7 +61,8 @@ function updateHeader(){
 				swal({
 					title:'Error',
 					text:rs,
-					type:'error'
+					type:'error',
+					html:true
 				})
 			}
 		}
@@ -95,78 +96,6 @@ function receiveProduct(no){
 	}
 }
 
-// function save_wms() {
-// 	var is_wms = $('#is_wms').val();
-// 	if(is_wms) {
-// 		var code = $('#receive_code').val();
-// 		var order_code = $.trim($('#order_code').val());
-// 		var invoice = $.trim($('#invoice').val());
-//
-// 		//--- ตรวจสอบความถูกต้องของข้อมูล
-// 		if(code == '' || code == undefined){
-// 			swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครับ ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
-// 			return false;
-// 		}
-//
-// 		//--- ใบสั่งซื้อถูกต้องหรือไม่
-// 		if(order_code == ''){
-// 			swal('กรุณาระบุใบเบิกแปรสภาพ');
-// 			return false;
-// 		}
-//
-// 		//--- ตรวจสอบใบส่งของ (ต้องระบุ)
-// 		if(invoice.length == 0){
-// 			swal('กรุณาระบุใบส่งสินค้า');
-// 			return false;
-// 		}
-//
-// 		load_in();
-//
-// 		$.ajax({
-// 			url:HOME + 'save_wms',
-// 			type:'POST',
-// 			cache:false,
-// 			data:{
-// 				'code' : code,
-// 				'order_code' : order_code,
-// 				'invoice' : invoice
-// 			},
-// 			success:function(rs) {
-// 				load_out();
-// 				var rs = $.trim(rs);
-// 				if(rs == 'success') {
-// 					swal({
-// 						title:'Success',
-// 						type:'success',
-// 						timer:1000
-// 					});
-//
-// 					setTimeout(function() {
-// 						viewDetail(code);
-// 					}, 1200);
-// 				}
-// 				else {
-// 					swal({
-// 						title:'Error!',
-// 						text:rs,
-// 						type:'error',
-// 						html:true
-// 					})
-// 				}
-// 			},
-// 			error:function(xhr, status, error) {
-// 				load_out();
-// 				swal({
-// 					title:'Error',
-// 					text:xhr.responseText,
-// 					type:'error',
-// 					html:true
-// 				});
-// 			}
-// 		})
-//
-// 	}
-// }
 
 function save() {
 
@@ -303,7 +232,8 @@ function save() {
 					swal({
 						title:'Error!',
 						text:ds.message,
-						type:'error'
+						type:'error',
+						html:true
 					});
 				}
 			}
@@ -510,7 +440,8 @@ function rollbackStatus() {
 						swal({
 							title:'Error!',
 							text:rs,
-							type:'error'
+							type:'error',
+							html:true
 						});
 					}, 200);
 				}
