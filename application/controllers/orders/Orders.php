@@ -4190,7 +4190,7 @@ class Orders extends PS_Controller
             else
             {
               $sc = FALSE;
-              $this->error = $rs->message;
+              $this->error = "SOKOCHAN Error : ".$rs->message;
             }
           }
           else
