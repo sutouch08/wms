@@ -41,7 +41,7 @@
 					<?php endif; ?>
 		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 		    <?php endif; ?>
-				<?php if($this->isAPI && $doc->is_wms == 1 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
+				<?php if($doc->is_wms != 0 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
 				<?php endif; ?>
 				<?php if($doc->status == 0 && $doc->must_approve == 1 && $doc->is_approve == 0 && ($this->pm->can_approve OR $this->_SuperAdmin)) : ?>
