@@ -314,7 +314,7 @@ class Soko_order_api
   public function create_transfer_order($order, $details)
   {
     $this->ci->load->model('orders/orders_model');
-    
+
     $code = $order->code;
 
     $sc = TRUE;
@@ -344,7 +344,7 @@ class Soko_order_api
             'sub_district' => "xx",
             'district' => "xx",
             'province' => "xx",
-            'postal_code' => "xx",
+            'postal_code' => "10110",
             'mobile_no' => "xx",
             'phone_no' => "xx",
             'email' => "xx"
