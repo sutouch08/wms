@@ -328,11 +328,11 @@ class Soko_order_api
         $ds = array(
           'external_id' => $order->code,
           'order_number' => $order->code,
-          'comment' => "",
+          'comment' => $order->remark,
           'stores' => 1,
           'special_order' => "",
           'channel' => "UE",
-          'shipping' => "",
+          'shipping' => "WARRIX",
           'tracking_no' => "",
           'print_bill' => 0,
           'order_type' => $this->type,
