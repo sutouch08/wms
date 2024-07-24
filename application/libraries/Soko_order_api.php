@@ -314,6 +314,7 @@ class Soko_order_api
   public function create_transfer_order($order, $details)
   {
     $this->ci->load->model('orders/orders_model');
+    $this->ci->load->model('inventory/transfer_model');
 
     $code = $order->code;
 
@@ -379,9 +380,11 @@ class Soko_order_api
           array_push($ds['order_items'], $item);
         }
 
-        $api_path = $this->url."orders";
+        $isUpdate = $order->wms_export == 1 ? TRUE : FALSE;
+        $action = $isUpdate ? 'update' : 'create';
+        $api_path = $isUpdate ? $this->url."orders/@{$order->code}" : $this->url."orders";
         $url = $api_path;
-        $method = "POST";
+        $method = $isUpdate ? "PUT" : "POST";
 
         $headers = array(
         "Content-Type: application/json",
@@ -420,7 +423,7 @@ class Soko_order_api
                 'wms_export_error' => $res->message
                 );
 
-                $this->ci->orders_model->update($code, $arr);
+                $this->ci->transfer_model->update($code, $arr);
               }
               else
               {
@@ -429,7 +432,7 @@ class Soko_order_api
                 'wms_export_error' => NULL
                 );
 
-                $this->ci->orders_model->update($code, $arr);
+                $this->ci->transfer_model->update($code, $arr);
               }
             }
             else
@@ -447,7 +450,7 @@ class Soko_order_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $order->code,
-              'action' => 'create',
+              'action' => $action,
               'status' => $res->status == 'success' ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -469,7 +472,7 @@ class Soko_order_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $order->code,
-              'action' => 'create',
+              'action' => $action,
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
@@ -487,7 +490,7 @@ class Soko_order_api
           'type' => $this->type,
           'api_path' => $api_path,
           'code' => $order->code,
-          'action' => 'create',
+          'action' => $action,
           'status' => 'test',
           'message' => 'Test api',
           'request_json' => $json,
