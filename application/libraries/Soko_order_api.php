@@ -313,6 +313,8 @@ class Soko_order_api
   //---- export
   public function create_transfer_order($order, $details)
   {
+    $this->ci->load->model('orders/orders_model');
+    
     $code = $order->code;
 
     $sc = TRUE;
