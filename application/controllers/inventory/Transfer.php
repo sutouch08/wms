@@ -1634,66 +1634,66 @@ class Transfer extends PS_Controller
     return FALSE;
   }
 
-
-	public function send_to_soko($code)
-  {
-    $sc = TRUE;
-
-    if($this->sokoApi)
-    {
-      $doc = $this->transfer_model->get($code);
-
-      if( ! empty($doc))
-      {
-        if($doc->status == -1)
-        {
-          $sc = FALSE;
-          $this->error = "Invalid Document status";
-        }
-
-        if($doc->must_approve == 1 && $doc->is_approve = 0)
-        {
-          $sc = FALSE;
-          $this->error = "Invalid Approve Status";
-        }
-
-        if($sc === TRUE)
-        {
-          $details = $this->transfer_model->get_details($code);
-
-          if(!empty($details))
-          {
-            if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
-            {
-
-            }
-            else
-            {
-              $sc = FALSE;
-              $this->error = "Invalid fulfillment API";
-            }
-          }
-          else
-          {
-            $sc = FALSE;
-            $this->error = "ไม่พบรายการโอนย้าย";
-          }
-        }
-      }
-      else
-      {
-        $sc = FALSE;
-        $this->error = "เลขที่เอกสารไม่ถูกต้อง";
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "API is not enabled";
-    }
-
-    echo $sc === TRUE ? 'success' : $this->error;
-  }
+  // 
+	// public function send_to_soko($code)
+  // {
+  //   $sc = TRUE;
+  //
+  //   if($this->sokoApi)
+  //   {
+  //     $doc = $this->transfer_model->get($code);
+  //
+  //     if( ! empty($doc))
+  //     {
+  //       if($doc->status == -1)
+  //       {
+  //         $sc = FALSE;
+  //         $this->error = "Invalid Document status";
+  //       }
+  //
+  //       if($doc->must_approve == 1 && $doc->is_approve = 0)
+  //       {
+  //         $sc = FALSE;
+  //         $this->error = "Invalid Approve Status";
+  //       }
+  //
+  //       if($sc === TRUE)
+  //       {
+  //         $details = $this->transfer_model->get_details($code);
+  //
+  //         if(!empty($details))
+  //         {
+  //           if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
+  //           {
+  //
+  //           }
+  //           else
+  //           {
+  //             $sc = FALSE;
+  //             $this->error = "Invalid fulfillment API";
+  //           }
+  //         }
+  //         else
+  //         {
+  //           $sc = FALSE;
+  //           $this->error = "ไม่พบรายการโอนย้าย";
+  //         }
+  //       }
+  //     }
+  //     else
+  //     {
+  //       $sc = FALSE;
+  //       $this->error = "เลขที่เอกสารไม่ถูกต้อง";
+  //     }
+  //   }
+  //   else
+  //   {
+  //     $sc = FALSE;
+  //     $this->error = "API is not enabled";
+  //   }
+  //
+  //   echo $sc === TRUE ? 'success' : $this->error;
+  // }
 
   public function send_to_wms($code)
   {
@@ -1770,7 +1770,7 @@ class Transfer extends PS_Controller
               {
                 $this->load->library('soko_receive_api');
 
-                if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                if( ! $this->soko_receive_api->create_transfer($doc, $details))
                 {
                   $sc = FALSE;
                   $ex = 0;
@@ -1782,7 +1782,7 @@ class Transfer extends PS_Controller
               {
                 $this->load->library('soko_order_api');
 
-                if( ! $this->wms_order_api->create_transfer_order($doc, $details))
+                if( ! $this->soko_order_api->create_transfer_order($doc, $details))
                 {
                   $sc = FALSE;
                   $ex = 0;
