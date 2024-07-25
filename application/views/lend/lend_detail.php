@@ -63,7 +63,7 @@
 
               <td class="middle text-right">
 						<?php if(empty($approve_view)) : ?>
-              <?php if( ($order->is_wms == 0 && $order->state < 4) OR ($order->is_wms == 1 && $order->state < 3)) : ?>
+              <?php if( ($order->is_wms == 0 && $order->state < 4) OR ($order->is_wms != 0 && $order->state < 3)) : ?>
 								<?php if($order->is_paid == 0 && $order->state != 2 && $order->is_expired == 0 && ($edit OR $add)) : ?>
 	              	<button type="button" class="btn btn-mini btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')">
 										<i class="fa fa-trash"></i>
