@@ -2219,7 +2219,7 @@ class Soko_receive_api
 			}
 
       $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
-      $api_path = $isUpdate ? $this->url."advices/@{$doc->code}" : $this->url."advices";
+      $api_path = $isUpdate ? $this->url."advices/{$doc->soko_code}" : $this->url."advices";
       $url = $api_path;
       $method = $isUpdate ? "PUT" : "POST";
       $action = $isUpdate ? "update" : "create";
