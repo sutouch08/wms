@@ -2186,6 +2186,8 @@ class Soko_receive_api
 	public function create_return_cancel($doc, $details)
 	{
 		$sc = TRUE;
+    $this->ci->load->model('orders/orders_model');
+
 		$this->type = "RC";
     $code = "RC{$doc->code}";
 
@@ -2216,9 +2218,11 @@ class Soko_receive_api
 				}
 			}
 
-      $api_path = $this->url."advices";
+      $isUpdate = empty($doc->soko_code) ? FALSE : TRUE;
+      $api_path = $isUpdate ? $this->url."advices/@{$doc->code}" : $this->url."advices";
       $url = $api_path;
-			$method = "POST";
+      $method = $isUpdate ? "PUT" : "POST";
+      $action = $isUpdate ? "update" : "create";
 
 			$headers = array(
 				"Content-Type: application/json",
@@ -2269,6 +2273,14 @@ class Soko_receive_api
                 $sc = FALSE;
                 $this->error = $res->message;
               }
+              else
+              {
+                $arr = array(
+                  'soko_code' => $res->id
+                );
+
+                $this->ci->orders_model->update($doc->code, $arr);
+              }
             }
           }
           else
@@ -2286,7 +2298,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $code,
-              'action' => "create",
+              'action' => $action,
               'status' => ($res->status == 'success' OR $res->status == 'Success') ? 'success' : 'failed',
               'message' => $res->message,
               'request_json' => $json,
@@ -2308,7 +2320,7 @@ class Soko_receive_api
               'type' => $this->type,
               'api_path' => $api_path,
               'code' => $code,
-              'action' => "create",
+              'action' => $action,
               'status' => 'failed',
               'message' => 'No response',
               'request_json' => $json,
