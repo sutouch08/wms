@@ -30,25 +30,33 @@ class Soko_temp_tracking extends PS_Controller
 			'to_date' => get_filter('to_date', 'do_to_date', '')
     );
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
+		if($this->input->post('search'))
 		{
-			$perpage = 20;
+			redirect($this->home);
+		}
+		else
+		{
+			//--- แสดงผลกี่รายการต่อหน้า
+			$perpage = get_rows();
+			//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
+			if($perpage > 300)
+			{
+				$perpage = 20;
+			}
+
+			$segment  = 5; //-- url segment
+			$rows     = $this->soko_temp_tracking_model->count_rows($filter);
+			//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+			$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+			$list   = $this->soko_temp_tracking_model->get_list($filter, $perpage, $this->uri->segment($segment));
+
+	    $filter['list'] = $list;
+
+			$this->pagination->initialize($init);
+
+	    $this->load->view('rest/V1/temp_tracking/temp_tracking_list', $filter);
 		}
 
-		$segment  = 5; //-- url segment
-		$rows     = $this->soko_temp_tracking_model->count_rows($filter);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$list   = $this->soko_temp_tracking_model->get_list($filter, $perpage, $this->uri->segment($segment));
-
-    $filter['list'] = $list;
-
-		$this->pagination->initialize($init);
-
-    $this->load->view('rest/V1/temp_tracking/temp_tracking_list', $filter);
   }
 
 

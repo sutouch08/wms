@@ -51,6 +51,7 @@
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
+<input type="hidden" name="search" value="1" />
 <hr class="margin-top-15 padding-5">
 </form>
 <?php echo $this->pagination->create_links(); ?>
@@ -98,7 +99,7 @@
 </div>
 
 <script>
-var HOME = <?php echo $this->home; ?>
+var HOME = "<?php echo $this->home; ?>/";
 
 window.addEventListener('load', () => {
 	let height = $(window).height();
@@ -120,7 +121,7 @@ function getSearch() {
 }
 
 function clearFilter() {
-	$.get(HOME + '/clear_filter', function() {
+	$.get(HOME + 'clear_filter', function() {
 		goBack();
 	})
 }
