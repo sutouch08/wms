@@ -292,8 +292,8 @@ class Soko_temp_receive_model extends CI_Model
 	public function delete($id)
 	{
 		$this->wms->trans_begin();
-		$rd = $this->wms->where('id_receive', $id)->delete('wms_temp_receive_detail');
-		$rs = $this->wms->where('id', $id)->delete('wms_temp_receive');
+		$rd = $this->wms->where('id_receive', $id)->delete('soko_temp_receive_detail');
+		$rs = $this->wms->where('id', $id)->delete('soko_temp_receive');
 
 		if($rd && $rs)
 		{
