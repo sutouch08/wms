@@ -268,6 +268,7 @@ class Support extends PS_Controller
           $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
           $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
           $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
+          $ds['tracking'] = $this->orders_model->get_order_tracking($code);
           $this->load->view('support/support_edit', $ds);
     }
     else

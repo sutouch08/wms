@@ -253,6 +253,7 @@ class Lend extends PS_Controller
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
+    $ds['tracking'] = $this->orders_model->get_order_tracking($code);
     $this->load->view('lend/lend_edit', $ds);
   }
 

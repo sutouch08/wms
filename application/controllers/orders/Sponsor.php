@@ -282,6 +282,7 @@ class Sponsor extends PS_Controller
       $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
       $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
       $ds['is_api'] = $is_api;
+      $ds['tracking'] = $this->orders_model->get_order_tracking($code);
       $this->load->view('sponsor/sponsor_edit', $ds);
     }
     else

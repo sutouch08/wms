@@ -274,6 +274,7 @@ class Transform_stock extends PS_Controller
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $ds['approve_view'] = $approve_view;
     $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
+    $ds['tracking'] = $this->orders_model->get_order_tracking($code);
     $this->isClosed = $this->transform_model->is_closed($code);
     $this->load->view('transform/transform_edit', $ds);
   }
