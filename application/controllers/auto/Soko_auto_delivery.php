@@ -100,6 +100,8 @@ class Soko_auto_delivery extends CI_Controller
                  //-- drop _eixsts
                  if($this->orders_model->drop_tracking_list($order->code))
                  {
+                   $last_tk = NULL;
+
                    foreach($tracking_list as $tk)
                    {
                      $arr = array(
@@ -113,6 +115,13 @@ class Soko_auto_delivery extends CI_Controller
                      );
 
                      $this->orders_model->add_tracking($arr);
+
+                     $last_tk = $tk->tracking_no;
+                   }
+
+                   if( ! empty($last_tk))
+                   {
+                     $this->orders_model->update($order->code, ['shipping_code' => $last_tk]);
                    }
                  }
               } //--- if ! empty tracking list
@@ -128,7 +137,7 @@ class Soko_auto_delivery extends CI_Controller
 				}
 				else  //--- end if !empty($order)
 				{
-					$this->soko_temp_order_model->update_status($data->code, 3, "Order not found");					
+					$this->soko_temp_order_model->update_status($data->code, 3, "Order not found");
 				}//--- end if !empty($order)
 
 			} //-- end foreach $list as $data
