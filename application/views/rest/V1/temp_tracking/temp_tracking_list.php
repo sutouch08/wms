@@ -98,7 +98,7 @@
 </div>
 
 <script>
-var HOME = BASE_URL + 'rest/V1/wms_temp_tracking/';
+var HOME = <?php echo $this->home; ?>
 
 window.addEventListener('load', () => {
 	let height = $(window).height();
@@ -120,7 +120,7 @@ function getSearch() {
 }
 
 function clearFilter() {
-	$.get(HOME + 'clear_filter', function() {
+	$.get(HOME + '/clear_filter', function() {
 		goBack();
 	})
 }
