@@ -125,7 +125,7 @@
 								<i class="fa fa-trash"></i>
 							</button>
 						<?php endif; ?>
-						<?php if($this->_SuperAdmin && $rs->status != 0) : ?>
+						<?php if($rs->status != 0) : ?>
 							<button type="button" class="btn btn-minier btn-warning" onclick="rollBackStatus(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
 								<i class="fa fa-refresh"></i>
 							</button>
