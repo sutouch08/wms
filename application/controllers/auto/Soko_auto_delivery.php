@@ -80,8 +80,7 @@ class Soko_auto_delivery extends CI_Controller
 						{
 							$channels = $this->channels_model->get($order->channels_code);
 
-							// if((! empty($channels) && $channels->is_online == 1) OR ($order->role == 'N' OR $order->role == 'Q' OR $order->role == 'T'))
-              if(! empty($channels) && $channels->is_online == 1)
+							if((! empty($channels) && $channels->is_online == 1) OR ($order->role == 'N' OR $order->role == 'Q' OR $order->role == 'T'))
 							{
 								$order->shipped_date = $data->shipped_date;
 								//--- บันทึกขาย เซ็ต state = 8  export delivery
@@ -497,36 +496,42 @@ class Soko_auto_delivery extends CI_Controller
 				//--- ตัวเลขที่มีการเปิดบิล
 				$sold_qty = $rs->qty;
 
-				//--- ยอดสินค้าที่มีการเชื่อมโยงไว้ในตาราง tbl_order_transform_detail (เอาไว้โอนเข้าคลังระหว่างทำ รอรับเข้า)
-				//--- ถ้ามีการเชื่อมโยงไว้ ยอดต้องมากกว่า 0 ถ้ายอดเป็น 0 แสดงว่าไม่ได้เชื่อมโยงไว้
-				$trans_list = $this->transform_model->get_transform_product($ds->id);
+        if( ! empty($ds))
+        {
+          foreach($ds as $ro)
+          {
+            //--- ยอดสินค้าที่มีการเชื่อมโยงไว้ในตาราง tbl_order_transform_detail (เอาไว้โอนเข้าคลังระหว่างทำ รอรับเข้า)
+            //--- ถ้ามีการเชื่อมโยงไว้ ยอดต้องมากกว่า 0 ถ้ายอดเป็น 0 แสดงว่าไม่ได้เชื่อมโยงไว้
+            $trans_list = $this->transform_model->get_transform_product($ro->id);
 
-				if(!empty($trans_list))
-				{
-					//--- ถ้าไม่มีการเชื่อมโยงไว้
-					foreach($trans_list as $ts)
-					{
-						//--- ถ้าจำนวนที่เชื่อมโยงไว้ น้อยกว่า หรือ เท่ากับ จำนวนที่ตรวจได้ (ไม่เกินที่สั่งไป)
-						//--- แสดงว่าได้ของครบตามที่ผูกไว้ ให้ใช้ตัวเลขที่ผูกไว้ได้เลย
-						//--- แต่ถ้าได้จำนวนที่ผูกไว้มากกว่าที่ตรวจได้ แสดงว่า ได้สินค้าไม่ครบ ให้ใช้จำนวนที่ตรวจได้แทน
-						$move_qty = $ts->order_qty <= $sold_qty ? $ts->order_qty : $sold_qty;
+            if(!empty($trans_list))
+            {
+              //--- ถ้าไม่มีการเชื่อมโยงไว้
+              foreach($trans_list as $ts)
+              {
+                //--- ถ้าจำนวนที่เชื่อมโยงไว้ น้อยกว่า หรือ เท่ากับ จำนวนที่ตรวจได้ (ไม่เกินที่สั่งไป)
+                //--- แสดงว่าได้ของครบตามที่ผูกไว้ ให้ใช้ตัวเลขที่ผูกไว้ได้เลย
+                //--- แต่ถ้าได้จำนวนที่ผูกไว้มากกว่าที่ตรวจได้ แสดงว่า ได้สินค้าไม่ครบ ให้ใช้จำนวนที่ตรวจได้แทน
+                $move_qty = $ts->order_qty <= $sold_qty ? $ts->order_qty : $sold_qty;
 
-						if( $move_qty > 0)
-						{
-							//--- update ยอดเปิดบิลใน tbl_order_transform_detail field sold_qty
-							if($this->transform_model->update_sold_qty($ts->id, $move_qty))
-							{
-								$sold_qty -= $move_qty;
-							}
-							else
-							{
-								$sc = FALSE;
-								$this->error = 'ปรับปรุงยอดรายการค้างรับไม่สำเร็จ';
-								break;
-							}
-						}
-					}
-				}
+                if( $move_qty > 0)
+                {
+                  //--- update ยอดเปิดบิลใน tbl_order_transform_detail field sold_qty
+                  if($this->transform_model->update_sold_qty($ts->id, $move_qty))
+                  {
+                    $sold_qty -= $move_qty;
+                  }
+                  else
+                  {
+                    $sc = FALSE;
+                    $this->error = 'ปรับปรุงยอดรายการค้างรับไม่สำเร็จ';
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
 			}
 
 			//--- if lend
