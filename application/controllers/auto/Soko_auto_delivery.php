@@ -80,7 +80,7 @@ class Soko_auto_delivery extends CI_Controller
 						{
 							$channels = $this->channels_model->get($order->channels_code);
 
-							if( ! empty($channels) && $channels->is_online == 1)
+							if((! empty($channels) && $channels->is_online == 1) OR ($order->role == 'N' OR $order->role == 'Q' OR $order->role == 'T'))
 							{
 								$order->shipped_date = $data->shipped_date;
 								//--- บันทึกขาย เซ็ต state = 8  export delivery
