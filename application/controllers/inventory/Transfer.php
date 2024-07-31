@@ -1634,66 +1634,7 @@ class Transfer extends PS_Controller
     return FALSE;
   }
 
-  // 
-	// public function send_to_soko($code)
-  // {
-  //   $sc = TRUE;
-  //
-  //   if($this->sokoApi)
-  //   {
-  //     $doc = $this->transfer_model->get($code);
-  //
-  //     if( ! empty($doc))
-  //     {
-  //       if($doc->status == -1)
-  //       {
-  //         $sc = FALSE;
-  //         $this->error = "Invalid Document status";
-  //       }
-  //
-  //       if($doc->must_approve == 1 && $doc->is_approve = 0)
-  //       {
-  //         $sc = FALSE;
-  //         $this->error = "Invalid Approve Status";
-  //       }
-  //
-  //       if($sc === TRUE)
-  //       {
-  //         $details = $this->transfer_model->get_details($code);
-  //
-  //         if(!empty($details))
-  //         {
-  //           if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
-  //           {
-  //
-  //           }
-  //           else
-  //           {
-  //             $sc = FALSE;
-  //             $this->error = "Invalid fulfillment API";
-  //           }
-  //         }
-  //         else
-  //         {
-  //           $sc = FALSE;
-  //           $this->error = "ไม่พบรายการโอนย้าย";
-  //         }
-  //       }
-  //     }
-  //     else
-  //     {
-  //       $sc = FALSE;
-  //       $this->error = "เลขที่เอกสารไม่ถูกต้อง";
-  //     }
-  //   }
-  //   else
-  //   {
-  //     $sc = FALSE;
-  //     $this->error = "API is not enabled";
-  //   }
-  //
-  //   echo $sc === TRUE ? 'success' : $this->error;
-  // }
+
 
   public function send_to_wms($code)
   {
@@ -1749,7 +1690,7 @@ class Transfer extends PS_Controller
                 if(! $rs)
                 {
                   $sc = FALSE;
-                  $$this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_order_api->error}";
+                  $this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_order_api->error}";
                 }
               }
             }
@@ -1823,93 +1764,6 @@ class Transfer extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
-  // public function send_to_wms($code)
-  // {
-  //   $sc = TRUE;
-  //
-  //   if($this->wmsApi)
-  //   {
-  //     $doc = $this->transfer_model->get($code);
-  //
-  //     if( ! empty($doc))
-  //     {
-  //       if($doc->status == -1)
-  //       {
-  //         $sc = FALSE;
-  //         $this->error = "Invalid Document status";
-  //       }
-  //
-  //       if($doc->must_approve == 1 && $doc->is_approve = 0)
-  //       {
-  //         $sc = FALSE;
-  //         $this->error = "Invalid Approve Status";
-  //       }
-  //
-  //       if($sc === TRUE)
-  //       {
-  //         $details = $this->transfer_model->get_details($code);
-  //
-  //         if( ! empty($details))
-  //         {
-  //           //--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-  //           if($doc->is_wms == 1 && $doc->api == 1)
-  //           {
-  //             $this->wms = $this->load->database('wms', TRUE);
-  //             //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-  //             if($doc->direction == 1)
-  //             {
-  //               $this->load->library('wms_receive_api');
-  //
-  //               $rs = $this->wms_receive_api->export_transfer($doc, $details);
-  //
-  //               if(! $rs)
-  //               {
-  //                 $sc = FALSE;
-  //                 $this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_receive_api->error}";
-  //               }
-  //             }
-  //
-  //             if($doc->direction == 2)
-  //             {
-  //               $this->load->library('wms_order_api');
-  //
-  //               $rs = $this->wms_order_api->export_transfer_order($doc, $details);
-  //
-  //               if(! $rs)
-  //               {
-  //                 $sc = FALSE;
-  //                 $$this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_order_api->error}";
-  //               }
-  //             }
-  //           }
-  //           else
-  //           {
-  //             $sc = FALSE;
-  //             $this->error = "Document must process at Warrix";
-  //           } //-- end if is_wms
-  //         }
-  //         else
-  //         {
-  //           $sc = FALSE;
-  //           $this->error = "ไม่พบรายการโอนย้าย";
-  //         }
-  //       }
-  //     }
-  //     else
-  //     {
-  //       $sc = FALSE;
-  //       $this->error = "เลขที่เอกสารไม่ถูกต้อง";
-  //     }
-  //   }
-  //   else
-  //   {
-  //     $sc = FALSE;
-  //     $this->error = "API is not enabled";
-  //   }
-  //
-  //   echo $sc === TRUE ? 'success' : $this->error;
-  // }
 
 
   public function unsave_transfer($code)
