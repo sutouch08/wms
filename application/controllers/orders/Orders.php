@@ -817,7 +817,9 @@ class Orders extends PS_Controller
 			$this->load->model('masters/warehouse_model');
       $code = $this->input->post('order_code');
       $recal = $this->input->post('recal');
-      $has_term = $this->payment_methods_model->has_term($this->input->post('payment_code'));
+      $payment = $this->payment_methods_model->get($this->input->post('payment_code'));
+      $has_term = empty($payment) ? FALSE : ($payment->role == 4 ? FALSE : (is_true($payment->has_term)));
+      // $has_term = $this->payment_methods_model->has_term($this->input->post('payment_code'));
       $sale_code = $this->customers_model->get_sale_code($this->input->post('customer_code'));
 
       $customer = $this->customers_model->get($this->input->post('customer_code'));
