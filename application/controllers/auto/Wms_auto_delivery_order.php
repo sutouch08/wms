@@ -85,7 +85,8 @@ class Wms_auto_delivery_order extends CI_Controller
 						{
 							$channels = $this->channels_model->get($order->channels_code);
 
-							if(( ! empty($channels) && $channels->is_online == 1) OR ($order->role == 'N' OR $order->role == 'T' OR $order->role == 'Q'))
+							// if(( ! empty($channels) && $channels->is_online == 1) OR ($order->role == 'N' OR $order->role == 'T' OR $order->role == 'Q'))
+              if( ! empty($channels) && $channels->is_online == 1)
 							{
 								$order->shipped_date = $data->shipped_date;
 								//--- บันทึกขาย เซ็ต state = 8  export delivery
