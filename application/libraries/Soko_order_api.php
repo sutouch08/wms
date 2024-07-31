@@ -96,7 +96,7 @@ class Soko_order_api
 				{
           $ds = array(
             'external_id' => $order->code,
-            'order_number' => $order->reference,
+            'order_number' => $order->code,
             'comment' => $order->remark,
             'stores' => 1,
             'special_order' => "",
@@ -339,8 +339,8 @@ class Soko_order_api
           'order_type' => $this->type,
           'order_mode' => 0,
           'customer' => array(
-            'code' => "xxx",
-            'name' => "xx",
+            'code' => $order->to_warehouse,
+            'name' => $order->to_warehouse_name,
             'address' => "xx",
             'sub_district' => "xx",
             'district' => "xx",
