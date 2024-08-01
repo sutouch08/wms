@@ -74,17 +74,16 @@ class Delivery_order extends PS_Controller
     $this->load->model('inventory/cancle_model');
     $this->load->model('inventory/movement_model');
     $this->load->helper('discount');
+    $logs = array('code' => $code);
+    $json = array();
 
     if($code)
     {
+      $json[] = "get_order : ". now();
+
       $order = $this->orders_model->get($code);
 
-      $logs = array(
-        'code' => $order->code,
-        'type' => $order->role,
-        'ixTimeBegin' => now()
-      );
-
+      $json[] = 'get_order_end : '. now();
 
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : now();
 
@@ -105,9 +104,13 @@ class Delivery_order extends PS_Controller
         //--- change state
        $this->orders_model->change_state($code, 8);
 
+       $json[] = 'change_state : '. now();
+
 			 if(empty($order->shipped_date))
 			 {
 				 $this->orders_model->update($code, array('shipped_date' => now())); //--- update shipped date
+
+         $json[] = 'update_shipped_date : '. now();
 			 }
 
 
@@ -120,11 +123,17 @@ class Delivery_order extends PS_Controller
 
         $this->order_state_model->add_state($arr);
 
+        $json[] = 'add_state : '.now();
+
         //---- รายการทีรอการเปิดบิล
         $bill = $this->delivery_order_model->get_bill_detail($code);
 
+        $json[] = 'get_gill_detail : '. now();
+
         if(!empty($bill))
         {
+          $json[] = 'loop_bill_detail_start : '. now();
+
           foreach($bill as $rs)
           {
             //--- ถ้ามีรายการที่ไมสำเร็จ ออกจาก loop ทันที
@@ -139,10 +148,13 @@ class Delivery_order extends PS_Controller
 
             //--- ดึงข้อมูลสินค้าที่จัดไปแล้วตามสินค้า
             $buffers = $this->buffer_model->get_details($code, $rs->product_code, $rs->id);
+            $json[] = "get_buffer : ". now();
 
             if( ! empty($buffers))
             {
               $no = 0;
+
+              $json[] = "loop_buffer : ".now();
 
               foreach($buffers as $rm)
               {
@@ -164,6 +176,8 @@ class Delivery_order extends PS_Controller
                     break;
                   }
 
+                  $json[] = "update_buffer : ".now();
+
                   //--- ลดยอด sell qty ลงตามยอด buffer ทีลดลงไป
                   $sell_qty += $qty;
 
@@ -184,6 +198,8 @@ class Delivery_order extends PS_Controller
                     $message = 'บันทึก movement ขาออกไม่สำเร็จ';
                     break;
                   }
+
+                  $json[] = "insert_movement : ".now();
 
                   $item = $this->products_model->get($rs->product_code);
 
@@ -229,8 +245,12 @@ class Delivery_order extends PS_Controller
                     $this->error = 'บันทึกขายไม่สำเร็จ';
                     break;
                   }
+
+                  $json[] = "insert_sold_row {$rs->product_code} : ".now();
                 } //--- end if sell_qty > 0
               } //--- end foreach $buffers
+
+              $json[] = "end_loop_buffer : ".now();
             } //--- end if wmpty ($buffers)
 
 
@@ -293,8 +313,9 @@ class Delivery_order extends PS_Controller
                 $this->error = 'เพิ่มรายการค้างรับไม่สำเร็จ';
               }
             }
-
           } //--- end foreach $bill
+
+          $json[] = "end_loop_bill : ".now();
         } //--- end if empty($bill)
 
 
@@ -339,9 +360,11 @@ class Delivery_order extends PS_Controller
 
         //--- บันทึกขายรายการที่ไม่นับสต็อก
         $bill = $this->delivery_order_model->get_non_count_bill_detail($order->code);
+        $json[] = "get_not_count_bill : ".now();
 
         if(!empty($bill))
         {
+          $json[] = "loop_non_count_bill : ".now();
           foreach($bill as $rs)
           {
             //--- ข้อมูลสำหรับบันทึกยอดขาย
@@ -387,6 +410,8 @@ class Delivery_order extends PS_Controller
               break;
             }
           }
+
+          $json[] = "end_loop_non_count_bill : ".now();
         }
 
         if($sc === TRUE)
@@ -398,6 +423,8 @@ class Delivery_order extends PS_Controller
             $sc = FALSE;
             $this->error = "Failed to update doc total";
           }
+
+          $json[] = "update_doc_total : ".now();
         }
 
         if($sc === TRUE)
@@ -414,8 +441,6 @@ class Delivery_order extends PS_Controller
         $sc = FALSE;
         $this->error = "Invalid order status";
       }
-
-      $logs['ixTimeEnd'] = now();
     }
     else
     {
@@ -425,16 +450,15 @@ class Delivery_order extends PS_Controller
 
     if($sc === TRUE)
     {
-      $logs['sapTimeBegin'] = now();
+      $logs['json_text'] = json_encode($json);
+
       $this->do_export($code);
-      $logs['sapTimeEnd'] = now();
 
       if($sapLogs)
       {
         $this->logs = $this->load->database('logs', TRUE);
-        $this->load->model('rest/V1/order_api_logs_model');
 
-        $this->order_api_logs_model->logs_sap($logs);
+        $this->logs->insert('orders_api_logs', $logs);
       }
     }
     else
@@ -645,7 +669,7 @@ class Delivery_order extends PS_Controller
 
       $this->order_api_logs_model->logs_sap($logs);
     }
-    
+
     echo $rs === TRUE ? 'success' : $this->error;
   }
 
