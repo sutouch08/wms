@@ -65,9 +65,6 @@ class Delivery_order extends PS_Controller
   public function confirm_order()
   {
     $sc = TRUE;
-    $code = $this->input->post('order_code');
-
-    $sapLogs = is_true(getConfig('SAP_EXPORT_LOGS'));
 
     $this->load->model('masters/products_model');
     $this->load->model('inventory/buffer_model');
@@ -75,16 +72,12 @@ class Delivery_order extends PS_Controller
     $this->load->model('inventory/cancle_model');
     $this->load->model('inventory/movement_model');
     $this->load->helper('discount');
-    $logs = array('code' => $code);
-    $json = array();
 
-    if($code)
+    $code = $this->input->post('order_code');
+    $order = $this->orders_model->get($code);
+
+    if( ! empty($order))
     {
-      $json[] = "get_order : ". now();
-
-      $order = $this->orders_model->get($code);
-
-      $json[] = 'get_order_end : '. now();
 
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : now();
 
@@ -105,15 +98,10 @@ class Delivery_order extends PS_Controller
         //--- change state
        $this->orders_model->change_state($code, 8);
 
-       $json[] = 'change_state : '. now();
-
 			 if(empty($order->shipped_date))
 			 {
 				 $this->orders_model->update($code, array('shipped_date' => now())); //--- update shipped date
-
-         $json[] = 'update_shipped_date : '. now();
 			 }
-
 
         //--- add state event
         $arr = array(
@@ -124,17 +112,11 @@ class Delivery_order extends PS_Controller
 
         $this->order_state_model->add_state($arr);
 
-        $json[] = 'add_state : '.now();
-
         //---- รายการทีรอการเปิดบิล
         $bill = $this->delivery_order_model->get_bill_detail($code);
 
-        $json[] = 'get_gill_detail : '. now();
-
         if( ! empty($bill))
         {
-          $json[] = 'loop_bill_detail_start : '. now();
-
           foreach($bill as $rs)
           {
             //--- ถ้ามีรายการที่ไมสำเร็จ ออกจาก loop ทันที
@@ -154,13 +136,10 @@ class Delivery_order extends PS_Controller
 
               //--- ดึงข้อมูลสินค้าที่จัดไปแล้วตามสินค้า
               $buffers = $this->buffer_model->get_details($code, $rs->product_code, $rs->id);
-              $json[] = "get_buffer : ". now();
 
               if( ! empty($buffers))
               {
                 $no = 0;
-
-                $json[] = "loop_buffer : ".now();
 
                 foreach($buffers as $rm)
                 {
@@ -181,8 +160,6 @@ class Delivery_order extends PS_Controller
                       $this->error = 'ปรับยอดใน buffer ไม่สำเร็จ';
                       break;
                     }
-
-                    $json[] = "update_buffer : ".now();
 
                     //--- ลดยอด sell qty ลงตามยอด buffer ทีลดลงไป
                     $sell_qty += $qty;
@@ -205,43 +182,41 @@ class Delivery_order extends PS_Controller
                       break;
                     }
 
-                    $json[] = "insert_movement : ".now();
-
                     $item = $this->products_model->get($rs->product_code);
 
                     //--- ข้อมูลสำหรับบันทึกยอดขาย
                     $arr = array(
-                    'reference' => $order->code,
-                    'role'   => $order->role,
-                    'payment_code'   => $order->payment_code,
-                    'channels_code'  => $order->channels_code,
-                    'product_code'  => $rs->product_code,
-                    'product_name'  => $item->name,
-                    'product_style' => $item->style_code,
-                    'cost'  => $rs->cost,
-                    'price'  => $rs->price,
-                    'sell'  => $rs->final_price,
-                    'qty'   => $buffer_qty,
-                    'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                    'discount_amount' => ($rs->discount_amount * $buffer_qty),
-                    'total_amount'   => $rs->final_price * $buffer_qty,
-                    'total_cost'   => $rs->cost * $buffer_qty,
-                    'margin'  =>  ($rs->final_price * $buffer_qty) - ($rs->cost * $buffer_qty),
-                    'id_policy'   => $rs->id_policy,
-                    'id_rule'     => $rs->id_rule,
-                    'customer_code' => $order->customer_code,
-                    'customer_ref' => $order->customer_ref,
-                    'sale_code'   => $order->sale_code,
-                    'user' => $order->user,
-                    'date_add'  => $date_add, //---- เปลี่ยนไปตาม config ORDER_SOLD_DATE
-                    'zone_code' => $rm->zone_code,
-                    'warehouse_code'  => $rm->warehouse_code,
-                    'update_user' => get_cookie('uname'),
-                    'budget_code' => $order->budget_code,
-                    'empID' => $order->empID,
-                    'empName' => $order->empName,
-                    'approver' => $order->approver,
-                    'order_detail_id' => $rs->id
+                      'reference' => $order->code,
+                      'role'   => $order->role,
+                      'payment_code'   => $order->payment_code,
+                      'channels_code'  => $order->channels_code,
+                      'product_code'  => $rs->product_code,
+                      'product_name'  => $item->name,
+                      'product_style' => $item->style_code,
+                      'cost'  => $rs->cost,
+                      'price'  => $rs->price,
+                      'sell'  => $rs->final_price,
+                      'qty'   => $buffer_qty,
+                      'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
+                      'discount_amount' => ($rs->discount_amount * $buffer_qty),
+                      'total_amount'   => $rs->final_price * $buffer_qty,
+                      'total_cost'   => $rs->cost * $buffer_qty,
+                      'margin'  =>  ($rs->final_price * $buffer_qty) - ($rs->cost * $buffer_qty),
+                      'id_policy'   => $rs->id_policy,
+                      'id_rule'     => $rs->id_rule,
+                      'customer_code' => $order->customer_code,
+                      'customer_ref' => $order->customer_ref,
+                      'sale_code'   => $order->sale_code,
+                      'user' => $order->user,
+                      'date_add'  => $date_add, //---- เปลี่ยนไปตาม config ORDER_SOLD_DATE
+                      'zone_code' => $rm->zone_code,
+                      'warehouse_code'  => $rm->warehouse_code,
+                      'update_user' => get_cookie('uname'),
+                      'budget_code' => $order->budget_code,
+                      'empID' => $order->empID,
+                      'empName' => $order->empName,
+                      'approver' => $order->approver,
+                      'order_detail_id' => $rs->id
                     );
 
                     //--- 3. บันทึกยอดขาย
@@ -252,11 +227,9 @@ class Delivery_order extends PS_Controller
                       break;
                     }
 
-                    $json[] = "insert_sold_row {$rs->product_code} : ".now();
                   } //--- end if sell_qty > 0
                 } //--- end foreach $buffers
 
-                $json[] = "end_loop_buffer : ".now();
               } //--- end if wmpty ($buffers)
 
 
@@ -323,7 +296,6 @@ class Delivery_order extends PS_Controller
 
           } //--- end foreach $bill
 
-          $json[] = "end_loop_bill : ".now();
         } //--- end if empty($bill)
 
 
@@ -368,46 +340,44 @@ class Delivery_order extends PS_Controller
 
         //--- บันทึกขายรายการที่ไม่นับสต็อก
         $bill = $this->delivery_order_model->get_non_count_bill_detail($order->code);
-        $json[] = "get_not_count_bill : ".now();
 
         if(!empty($bill))
         {
-          $json[] = "loop_non_count_bill : ".now();
           foreach($bill as $rs)
           {
             //--- ข้อมูลสำหรับบันทึกยอดขาย
             $arr = array(
-                    'reference' => $order->code,
-                    'role'   => $order->role,
-                    'payment_code'   => $order->payment_code,
-                    'channels_code'  => $order->channels_code,
-                    'product_code'  => $rs->product_code,
-                    'product_name'  => $rs->product_name,
-                    'product_style' => $rs->style_code,
-                    'cost'  => $rs->cost,
-                    'price'  => $rs->price,
-                    'sell'  => $rs->final_price,
-                    'qty'   => $rs->qty,
-                    'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                    'discount_amount' => ($rs->discount_amount * $rs->qty),
-                    'total_amount'   => $rs->final_price * $rs->qty,
-                    'total_cost'   => $rs->cost * $rs->qty,
-                    'margin'  => ($rs->final_price * $rs->qty) - ($rs->cost * $rs->qty),
-                    'id_policy'   => $rs->id_policy,
-                    'id_rule'     => $rs->id_rule,
-                    'customer_code' => $order->customer_code,
-                    'customer_ref' => $order->customer_ref,
-                    'sale_code'   => $order->sale_code,
-                    'user' => $order->user,
-                    'date_add'  => $date_add, //--- เปลี่ยนตาม Config ORDER_SOLD_DATE
-                    'zone_code' => NULL,
-                    'warehouse_code'  => NULL,
-                    'update_user' => get_cookie('uname'),
-                    'budget_code' => $order->budget_code,
-                    'is_count' => 0,
-                    'empID' => $order->empID,
-                    'empName' => $order->empName,
-                    'approver' => $order->approver
+              'reference' => $order->code,
+              'role'   => $order->role,
+              'payment_code'   => $order->payment_code,
+              'channels_code'  => $order->channels_code,
+              'product_code'  => $rs->product_code,
+              'product_name'  => $rs->product_name,
+              'product_style' => $rs->style_code,
+              'cost'  => $rs->cost,
+              'price'  => $rs->price,
+              'sell'  => $rs->final_price,
+              'qty'   => $rs->qty,
+              'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
+              'discount_amount' => ($rs->discount_amount * $rs->qty),
+              'total_amount'   => $rs->final_price * $rs->qty,
+              'total_cost'   => $rs->cost * $rs->qty,
+              'margin'  => ($rs->final_price * $rs->qty) - ($rs->cost * $rs->qty),
+              'id_policy'   => $rs->id_policy,
+              'id_rule'     => $rs->id_rule,
+              'customer_code' => $order->customer_code,
+              'customer_ref' => $order->customer_ref,
+              'sale_code'   => $order->sale_code,
+              'user' => $order->user,
+              'date_add'  => $date_add, //--- เปลี่ยนตาม Config ORDER_SOLD_DATE
+              'zone_code' => NULL,
+              'warehouse_code'  => NULL,
+              'update_user' => get_cookie('uname'),
+              'budget_code' => $order->budget_code,
+              'is_count' => 0,
+              'empID' => $order->empID,
+              'empName' => $order->empName,
+              'approver' => $order->approver
             );
 
             //--- 3. บันทึกยอดขาย
@@ -418,8 +388,6 @@ class Delivery_order extends PS_Controller
               break;
             }
           }
-
-          $json[] = "end_loop_non_count_bill : ".now();
         }
 
         if($sc === TRUE)
@@ -431,8 +399,6 @@ class Delivery_order extends PS_Controller
             $sc = FALSE;
             $this->error = "Failed to update doc total";
           }
-
-          $json[] = "update_doc_total : ".now();
         }
 
         if($sc === TRUE)
@@ -458,16 +424,7 @@ class Delivery_order extends PS_Controller
 
     if($sc === TRUE)
     {
-      $logs['json_text'] = json_encode($json);
-
       $this->do_export($code);
-
-      if($sapLogs)
-      {
-        $this->logs = $this->load->database('logs', TRUE);
-
-        $this->logs->insert('orders_api_logs', $logs);
-      }
     }
     else
     {
@@ -660,23 +617,7 @@ class Delivery_order extends PS_Controller
 
   public function manual_export($code)
   {
-    $logs = array(
-      'code' => $order->code,
-      'type' => $order->role,
-      'sapTimeBegin' => now()
-    );
-
-    $rs = $this->do_export($code);
-
-    $logs['sapTimeEnd'] = now();
-
-    if(is_true(getConfig('SAP_EXPORT_LOGS')))
-    {
-      $this->logs = $this->load->database('logs', TRUE);
-      $this->load->model('rest/V1/order_api_logs_model');
-
-      $this->order_api_logs_model->logs_sap($logs);
-    }
+    $rs = $this->do_export($code);    
 
     echo $rs === TRUE ? 'success' : $this->error;
   }
