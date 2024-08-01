@@ -71,6 +71,7 @@ class Delivery_order extends PS_Controller
 
     $this->load->model('masters/products_model');
     $this->load->model('inventory/buffer_model');
+    $this->load->model('inventory/qc_model');
     $this->load->model('inventory/cancle_model');
     $this->load->model('inventory/movement_model');
     $this->load->helper('discount');
@@ -130,7 +131,7 @@ class Delivery_order extends PS_Controller
 
         $json[] = 'get_gill_detail : '. now();
 
-        if(!empty($bill))
+        if( ! empty($bill))
         {
           $json[] = 'loop_bill_detail_start : '. now();
 
@@ -142,69 +143,74 @@ class Delivery_order extends PS_Controller
               break;
             }
 
-            //--- ถ้ายอดตรวจ น้อยกว่า หรือ เท่ากับ ยอดสั่ง ใช้ยอดตรวจในการตัด buffer
-            //--- ถ้ายอดตวจ มากกว่า ยอดสั่ง ให้ใช้ยอดสั่งในการตัด buffer (บางทีอาจมีการแก้ไขออเดอร์หลังจากมีการตรวจสินค้าแล้ว)
-            $sell_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
+            //--- get prepare and qc
+            $rs->qc = $this->qc_model->get_sum_qty($code, $rs->product_code, $rs->id);
 
-            //--- ดึงข้อมูลสินค้าที่จัดไปแล้วตามสินค้า
-            $buffers = $this->buffer_model->get_details($code, $rs->product_code, $rs->id);
-            $json[] = "get_buffer : ". now();
-
-            if( ! empty($buffers))
+            if($rs->qc > 0)
             {
-              $no = 0;
+              //--- ถ้ายอดตรวจ น้อยกว่า หรือ เท่ากับ ยอดสั่ง ใช้ยอดตรวจในการตัด buffer
+              //--- ถ้ายอดตวจ มากกว่า ยอดสั่ง ให้ใช้ยอดสั่งในการตัด buffer (บางทีอาจมีการแก้ไขออเดอร์หลังจากมีการตรวจสินค้าแล้ว)
+              $sell_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
 
-              $json[] = "loop_buffer : ".now();
+              //--- ดึงข้อมูลสินค้าที่จัดไปแล้วตามสินค้า
+              $buffers = $this->buffer_model->get_details($code, $rs->product_code, $rs->id);
+              $json[] = "get_buffer : ". now();
 
-              foreach($buffers as $rm)
+              if( ! empty($buffers))
               {
-                if($sell_qty > 0)
+                $no = 0;
+
+                $json[] = "loop_buffer : ".now();
+
+                foreach($buffers as $rm)
                 {
-                //--- ถ้ายอดใน buffer น้อยกว่าหรือเท่ากับยอดสั่งซื้อ (แยกแต่ละโซน น้อยกว่าหรือเท่ากับยอดสั่ง (ซึ่งควรเป็นแบบนี้))
-                  $buffer_qty = $rm->qty <= $sell_qty ? $rm->qty : $sell_qty;
-
-                  //--- ทำยอดให้เป็นลบเพื่อตัดยอดออก เพราะใน function  ใช้การบวก
-                  $qty = $buffer_qty * (-1);
-
-                  //--- 1. ตัดยอดออกจาก buffer
-                  //--- นำจำนวนติดลบบวกกลับเข้าไปใน buffer เพื่อตัดยอดให้น้อยลง
-
-                  if($this->buffer_model->update($rm->order_code, $rm->product_code, $rm->zone_code, $qty, $rs->id) !== TRUE)
+                  if($sell_qty > 0)
                   {
-                    $sc = FALSE;
-                    $this->error = 'ปรับยอดใน buffer ไม่สำเร็จ';
-                    break;
-                  }
+                    //--- ถ้ายอดใน buffer น้อยกว่าหรือเท่ากับยอดสั่งซื้อ (แยกแต่ละโซน น้อยกว่าหรือเท่ากับยอดสั่ง (ซึ่งควรเป็นแบบนี้))
+                    $buffer_qty = $rm->qty <= $sell_qty ? $rm->qty : $sell_qty;
 
-                  $json[] = "update_buffer : ".now();
+                    //--- ทำยอดให้เป็นลบเพื่อตัดยอดออก เพราะใน function  ใช้การบวก
+                    $qty = $buffer_qty * (-1);
 
-                  //--- ลดยอด sell qty ลงตามยอด buffer ทีลดลงไป
-                  $sell_qty += $qty;
+                    //--- 1. ตัดยอดออกจาก buffer
+                    //--- นำจำนวนติดลบบวกกลับเข้าไปใน buffer เพื่อตัดยอดให้น้อยลง
 
-                  //--- 2. update movement
-                  $arr = array(
-                    'reference' => $order->code,
-                    'warehouse_code' => $rm->warehouse_code,
-                    'zone_code' => $rm->zone_code,
-                    'product_code' => $rm->product_code,
-                    'move_in' => 0,
-                    'move_out' => $buffer_qty,
-                    'date_add' => $date_add
-                  );
+                    if($this->buffer_model->update($rm->order_code, $rm->product_code, $rm->zone_code, $qty, $rs->id) !== TRUE)
+                    {
+                      $sc = FALSE;
+                      $this->error = 'ปรับยอดใน buffer ไม่สำเร็จ';
+                      break;
+                    }
 
-                  if($this->movement_model->add($arr) === FALSE)
-                  {
-                    $sc = FALSE;
-                    $message = 'บันทึก movement ขาออกไม่สำเร็จ';
-                    break;
-                  }
+                    $json[] = "update_buffer : ".now();
 
-                  $json[] = "insert_movement : ".now();
+                    //--- ลดยอด sell qty ลงตามยอด buffer ทีลดลงไป
+                    $sell_qty += $qty;
 
-                  $item = $this->products_model->get($rs->product_code);
+                    //--- 2. update movement
+                    $arr = array(
+                      'reference' => $order->code,
+                      'warehouse_code' => $rm->warehouse_code,
+                      'zone_code' => $rm->zone_code,
+                      'product_code' => $rm->product_code,
+                      'move_in' => 0,
+                      'move_out' => $buffer_qty,
+                      'date_add' => $date_add
+                    );
 
-                  //--- ข้อมูลสำหรับบันทึกยอดขาย
-                  $arr = array(
+                    if($this->movement_model->add($arr) === FALSE)
+                    {
+                      $sc = FALSE;
+                      $message = 'บันทึก movement ขาออกไม่สำเร็จ';
+                      break;
+                    }
+
+                    $json[] = "insert_movement : ".now();
+
+                    $item = $this->products_model->get($rs->product_code);
+
+                    //--- ข้อมูลสำหรับบันทึกยอดขาย
+                    $arr = array(
                     'reference' => $order->code,
                     'role'   => $order->role,
                     'payment_code'   => $order->payment_code,
@@ -236,83 +242,85 @@ class Delivery_order extends PS_Controller
                     'empName' => $order->empName,
                     'approver' => $order->approver,
                     'order_detail_id' => $rs->id
-                  );
+                    );
 
-                  //--- 3. บันทึกยอดขาย
-                  if($this->delivery_order_model->sold($arr) !== TRUE)
-                  {
-                    $sc = FALSE;
-                    $this->error = 'บันทึกขายไม่สำเร็จ';
-                    break;
-                  }
-
-                  $json[] = "insert_sold_row {$rs->product_code} : ".now();
-                } //--- end if sell_qty > 0
-              } //--- end foreach $buffers
-
-              $json[] = "end_loop_buffer : ".now();
-            } //--- end if wmpty ($buffers)
-
-
-            //------ ส่วนนี้สำหรับโอนเข้าคลังระหว่างทำ
-            //------ หากเป็นออเดอร์เบิกแปรสภาพ
-            if($order->role == 'T' OR $order->role == 'Q')
-            {
-              //--- ตัวเลขที่มีการเปิดบิล
-              $sold_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
-
-              //--- ยอดสินค้าที่มีการเชื่อมโยงไว้ในตาราง tbl_order_transform_detail (เอาไว้โอนเข้าคลังระหว่างทำ รอรับเข้า)
-              //--- ถ้ามีการเชื่อมโยงไว้ ยอดต้องมากกว่า 0 ถ้ายอดเป็น 0 แสดงว่าไม่ได้เชื่อมโยงไว้
-              $trans_list = $this->transform_model->get_transform_product($rs->id);
-
-              if(!empty($trans_list))
-              {
-                //--- ถ้าไม่มีการเชื่อมโยงไว้
-                foreach($trans_list as $ts)
-                {
-                  //--- ถ้าจำนวนที่เชื่อมโยงไว้ น้อยกว่า หรือ เท่ากับ จำนวนที่ตรวจได้ (ไม่เกินที่สั่งไป)
-                  //--- แสดงว่าได้ของครบตามที่ผูกไว้ ให้ใช้ตัวเลขที่ผูกไว้ได้เลย
-                  //--- แต่ถ้าได้จำนวนที่ผูกไว้มากกว่าที่ตรวจได้ แสดงว่า ได้สินค้าไม่ครบ ให้ใช้จำนวนที่ตรวจได้แทน
-                  $move_qty = $ts->order_qty <= $sold_qty ? $ts->order_qty : $sold_qty;
-
-                  if( $move_qty > 0)
-                  {
-                    //--- update ยอดเปิดบิลใน tbl_order_transform_detail field sold_qty
-                    if($this->transform_model->update_sold_qty($ts->id, $move_qty) === TRUE )
-                    {
-                      $sold_qty -= $move_qty;
-                    }
-                    else
+                    //--- 3. บันทึกยอดขาย
+                    if($this->delivery_order_model->sold($arr) !== TRUE)
                     {
                       $sc = FALSE;
-                      $this->error = 'ปรับปรุงยอดรายการค้างรับไม่สำเร็จ';
+                      $this->error = 'บันทึกขายไม่สำเร็จ';
+                      break;
+                    }
+
+                    $json[] = "insert_sold_row {$rs->product_code} : ".now();
+                  } //--- end if sell_qty > 0
+                } //--- end foreach $buffers
+
+                $json[] = "end_loop_buffer : ".now();
+              } //--- end if wmpty ($buffers)
+
+
+              //------ ส่วนนี้สำหรับโอนเข้าคลังระหว่างทำ
+              //------ หากเป็นออเดอร์เบิกแปรสภาพ
+              if($order->role == 'T' OR $order->role == 'Q')
+              {
+                //--- ตัวเลขที่มีการเปิดบิล
+                $sold_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
+
+                //--- ยอดสินค้าที่มีการเชื่อมโยงไว้ในตาราง tbl_order_transform_detail (เอาไว้โอนเข้าคลังระหว่างทำ รอรับเข้า)
+                //--- ถ้ามีการเชื่อมโยงไว้ ยอดต้องมากกว่า 0 ถ้ายอดเป็น 0 แสดงว่าไม่ได้เชื่อมโยงไว้
+                $trans_list = $this->transform_model->get_transform_product($rs->id);
+
+                if(!empty($trans_list))
+                {
+                  //--- ถ้าไม่มีการเชื่อมโยงไว้
+                  foreach($trans_list as $ts)
+                  {
+                    //--- ถ้าจำนวนที่เชื่อมโยงไว้ น้อยกว่า หรือ เท่ากับ จำนวนที่ตรวจได้ (ไม่เกินที่สั่งไป)
+                    //--- แสดงว่าได้ของครบตามที่ผูกไว้ ให้ใช้ตัวเลขที่ผูกไว้ได้เลย
+                    //--- แต่ถ้าได้จำนวนที่ผูกไว้มากกว่าที่ตรวจได้ แสดงว่า ได้สินค้าไม่ครบ ให้ใช้จำนวนที่ตรวจได้แทน
+                    $move_qty = $ts->order_qty <= $sold_qty ? $ts->order_qty : $sold_qty;
+
+                    if( $move_qty > 0)
+                    {
+                      //--- update ยอดเปิดบิลใน tbl_order_transform_detail field sold_qty
+                      if($this->transform_model->update_sold_qty($ts->id, $move_qty) === TRUE )
+                      {
+                        $sold_qty -= $move_qty;
+                      }
+                      else
+                      {
+                        $sc = FALSE;
+                        $this->error = 'ปรับปรุงยอดรายการค้างรับไม่สำเร็จ';
+                      }
                     }
                   }
                 }
               }
-            }
 
 
-            //--- if lend
-            if($order->role == 'L')
-            {
-              //--- ตัวเลขที่มีการเปิดบิล
-              $sold_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
+              //--- if lend
+              if($order->role == 'L')
+              {
+                //--- ตัวเลขที่มีการเปิดบิล
+                $sold_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
 
-              $arr = array(
+                $arr = array(
                 'order_code' => $code,
                 'product_code' => $rs->product_code,
                 'product_name' => $rs->product_name,
                 'qty' => $sold_qty,
                 'empID' => $order->empID
-              );
+                );
 
-              if($this->lend_model->add_detail($arr) === FALSE)
-              {
-                $sc = FALSE;
-                $this->error = 'เพิ่มรายการค้างรับไม่สำเร็จ';
+                if($this->lend_model->add_detail($arr) === FALSE)
+                {
+                  $sc = FALSE;
+                  $this->error = 'เพิ่มรายการค้างรับไม่สำเร็จ';
+                }
               }
             }
+
           } //--- end foreach $bill
 
           $json[] = "end_loop_bill : ".now();
