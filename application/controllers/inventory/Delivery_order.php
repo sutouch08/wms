@@ -10,6 +10,8 @@ class Delivery_order extends PS_Controller
 	public $title = 'รายการรอเปิดบิล';
   public $filter;
   public $error;
+  public $logs;
+
   public function __construct()
   {
     parent::__construct();
@@ -63,6 +65,9 @@ class Delivery_order extends PS_Controller
   public function confirm_order()
   {
     $sc = TRUE;
+    $code = $this->input->post('order_code');
+
+    $sapLogs = is_true(getConfig('SAP_EXPORT_LOGS'));
 
     $this->load->model('masters/products_model');
     $this->load->model('inventory/buffer_model');
@@ -70,11 +75,16 @@ class Delivery_order extends PS_Controller
     $this->load->model('inventory/movement_model');
     $this->load->helper('discount');
 
-    $code = $this->input->post('order_code');
-
     if($code)
     {
       $order = $this->orders_model->get($code);
+
+      $logs = array(
+        'code' => $order->code,
+        'type' => $order->role,
+        'ixTimeBegin' => now()
+      );
+
 
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : now();
 
@@ -404,6 +414,8 @@ class Delivery_order extends PS_Controller
         $sc = FALSE;
         $this->error = "Invalid order status";
       }
+
+      $logs['ixTimeEnd'] = now();
     }
     else
     {
@@ -413,7 +425,17 @@ class Delivery_order extends PS_Controller
 
     if($sc === TRUE)
     {
+      $logs['sapTimeBegin'] = now();
       $this->do_export($code);
+      $logs['sapTimeEnd'] = now();
+
+      if($sapLogs)
+      {
+        $this->logs = $this->load->database('logs', TRUE);
+        $this->load->model('rest/V1/order_api_logs_model');
+
+        $this->order_api_logs_model->logs_sap($logs);
+      }
     }
     else
     {
@@ -548,7 +570,9 @@ class Delivery_order extends PS_Controller
   public function do_export($code)
   {
     $order = $this->orders_model->get($code);
+
     $sc = TRUE;
+
     if(!empty($order))
     {
       switch($order->role)
@@ -589,6 +613,7 @@ class Delivery_order extends PS_Controller
           $sc = $this->export_order($code);
           break;
       }
+
     }
     else
     {
@@ -603,7 +628,24 @@ class Delivery_order extends PS_Controller
 
   public function manual_export($code)
   {
+    $logs = array(
+      'code' => $order->code,
+      'type' => $order->role,
+      'sapTimeBegin' => now()
+    );
+
     $rs = $this->do_export($code);
+
+    $logs['sapTimeEnd'] = now();
+
+    if(is_true(getConfig('SAP_EXPORT_LOGS')))
+    {
+      $this->logs = $this->load->database('logs', TRUE);
+      $this->load->model('rest/V1/order_api_logs_model');
+
+      $this->order_api_logs_model->logs_sap($logs);
+    }
+    
     echo $rs === TRUE ? 'success' : $this->error;
   }
 

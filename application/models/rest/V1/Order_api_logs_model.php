@@ -7,6 +7,7 @@ class Order_api_logs_model extends CI_Model
 	private $stock_table = 'stock_api_logs';
 	private $approve_table = 'approve_api_logs';
 	private $pos = 'pos_api_logs';
+	private $sap = 'sap_export_logs';
 
   public function __construct()
   {
@@ -57,6 +58,11 @@ class Order_api_logs_model extends CI_Model
 	public function logs_pos($ds = array())
 	{
 		return $this->logs->insert($this->pos, $ds);
+	}
+
+	public function logs_sap($ds = array())
+	{
+		return $this->logs->insert($this->sap, $ds);
 	}
 
 } //---

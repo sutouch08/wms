@@ -153,6 +153,7 @@
 function confirmBill(order_code){
 
 	load_in();
+	
 	$.ajax({
 		url: HOME + 'confirm_order',
 		type:'POST',
