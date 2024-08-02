@@ -18,13 +18,8 @@
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
   <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>รหัส</label>
+    <label>รหัส/ชื่อ</label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
-  </div>
-
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>ชื่อ</label>
-    <input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
 
 	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
@@ -89,7 +84,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>POS API</label>
     <select class="form-control input-sm filter" name="is_pos" id="is_pos" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>

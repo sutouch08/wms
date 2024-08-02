@@ -20,7 +20,6 @@ class Warehouse extends PS_Controller
   {
     $filter = array(
       'code' => get_filter('code', 'wh_code', ''),
-      'name' => get_filter('name', 'wh_name', ''),
       'role' => get_filter('role', 'wh_role', 'all'),
       'is_consignment' => get_filter('is_consignment', 'is_consignment', 'all'),
       'active' => get_filter('active', 'wh_active', 'all'),
@@ -28,7 +27,7 @@ class Warehouse extends PS_Controller
       'prepare' => get_filter('prepare', 'wh_prepare', 'all'),
       'lend' => get_filter('lend', 'wh_lend', 'all'),
       'auz' => get_filter('auz', 'wh_auz', 'all'),
-      'is_pos' => get_filter('is_pos', 'is_pos', 'all')
+      'is_pos' => get_filter('is_pos', 'wh_is_pos', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -251,14 +250,14 @@ class Warehouse extends PS_Controller
   {
     $filter = array(
       'code' => get_filter('whCode', 'wh_code', ''),
-      'name' => get_filter('whName', 'wh_name', ''),
       'role' => get_filter('whRole', 'wh_role', 'all'),
       'is_consignment' => get_filter('whIsConsignment', 'is_consignment', 'all'),
       'active' => get_filter('whActive', 'wh_active', 'all'),
       'sell' => get_filter('whSell', 'wh_sell', 'all'),
       'lend' => get_filter('whLend', 'wh_lend', 'all'),
       'prepare' => get_filter('whPrepare', 'wh_prepare', 'all'),
-      'auz' => get_filter('whAuz', 'wh_auz', 'all')
+      'auz' => get_filter('whAuz', 'wh_auz', 'all'),
+      'is_pos' => get_filter('whIsPos', 'wh_is_pos', 'all')
     );
 
     $token = $this->input->post('token');
@@ -336,7 +335,7 @@ class Warehouse extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('wh_code', 'wh_name', 'wh_role', 'is_consignment', 'wh_active', 'wh_sell', 'wh_prepare', 'wh_auz', 'wh_lend');
+    $filter = array('wh_code', 'wh_role', 'is_consignment', 'wh_active', 'wh_sell', 'wh_prepare', 'wh_auz', 'wh_lend', 'wh_is_pos');
     clear_filter($filter);
   }
 

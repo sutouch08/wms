@@ -200,7 +200,6 @@ function syncAllData() {
 
 function exportFilter(){
   let code = $('#code').val();
-  let name = $('#name').val();
   let role = $('#role').val();
   let is_consignment = $('#is_consignment').val();
   let sell = $('#sell').val();
@@ -210,8 +209,7 @@ function exportFilter(){
   let auz = $('#auz').val();
   let is_pos = $('#is_pos').val();
 
-  $('#export-code').val(code);
-  $('#export-name').val(name);
+  $('#export-code').val(code);  
   $('#export-role').val(role);
   $('#export-is-consignment').val(is_consignment);
   $('#export-sell').val(sell);

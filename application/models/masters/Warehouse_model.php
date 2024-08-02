@@ -86,12 +86,7 @@ class Warehouse_model extends CI_Model
   {
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
-    }
-
-    if( ! empty($ds['name']))
-    {
-      $this->db->like('name', $ds['name']);
+      $this->db->like('code', $ds['code'])->or_like('name', $ds['code']);
     }
 
     if( ! empty($ds['role']) && $ds['role'] != 'all')
@@ -156,13 +151,8 @@ class Warehouse_model extends CI_Model
 
     if(!empty($ds['code']))
     {
-      $this->db->like('warehouse.code', $ds['code']);
-    }
-
-    if(!empty($ds['name']))
-    {
-      $this->db->like('warehouse.name', $ds['name']);
-    }
+      $this->db->like('warehouse.code', $ds['code'])->or_like('warehouse.name', $ds['code']);
+    }    
 
     if(! empty($ds['role']) && $ds['role'] != 'all')
     {
