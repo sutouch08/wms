@@ -135,6 +135,21 @@ function toggleAuz(option)
 }
 
 
+function toggleIsPos(option)
+{
+  $('#is_pos').val(option);
+
+  if(option == 1) {
+    $('#btn-pos-yes').addClass('btn-success');
+    $('#btn-pos-no').removeClass('btn-primary');
+  }
+
+  if(option == 0) {
+    $('#btn-pos-no').addClass('btn-primary');
+    $('#btn-pos-yes').removeClass('btn-success');
+  }
+}
+
 function toggleActive(option)
 {
   $('#active').val(option);
@@ -193,6 +208,7 @@ function exportFilter(){
   let lend = $('#lend').val();
   let active = $('#active').val();
   let auz = $('#auz').val();
+  let is_pos = $('#is_pos').val();
 
   $('#export-code').val(code);
   $('#export-name').val(name);
@@ -203,6 +219,8 @@ function exportFilter(){
   $('#export-lend').val(lend);
   $('#export-active').val(active);
   $('#export-auz').val(auz);
+  $('#export-is-pos').val(is_pos);
+
 
   var token = $('#token').val();
   get_download(token);

@@ -124,6 +124,11 @@ class Warehouse_model extends CI_Model
       $this->db->where('auz', $ds['auz']);
     }
 
+    if( isset($ds['is_pos']) && $ds['is_pos'] != 'all')
+    {
+      $this->db->where('warehouse.is_pos', $ds['is_pos']);
+    }
+
     if(isset($ds['is_consignment']) && $ds['is_consignment'] != 'all')
     {
       if($ds['is_consignment'] == 1)
@@ -187,6 +192,11 @@ class Warehouse_model extends CI_Model
     if( isset($ds['auz']) && $ds['auz'] != 'all')
     {
       $this->db->where('warehouse.auz', $ds['auz']);
+    }
+
+    if( isset($ds['is_pos']) && $ds['is_pos'] != 'all')
+    {
+      $this->db->where('warehouse.is_pos', $ds['is_pos']);
     }
 
     if(isset($ds['is_consignment']) && $ds['is_consignment'] != 'all')

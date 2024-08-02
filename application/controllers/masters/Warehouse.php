@@ -27,7 +27,8 @@ class Warehouse extends PS_Controller
       'sell' => get_filter('sell', 'wh_sell', 'all'),
       'prepare' => get_filter('prepare', 'wh_prepare', 'all'),
       'lend' => get_filter('lend', 'wh_lend', 'all'),
-      'auz' => get_filter('auz', 'wh_auz', 'all')
+      'auz' => get_filter('auz', 'wh_auz', 'all'),
+      'is_pos' => get_filter('is_pos', 'is_pos', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -93,9 +94,10 @@ class Warehouse extends PS_Controller
           'auz' => $this->input->post('auz'),
           'active' => $this->input->post('active'),
           'is_consignment' => get_null($this->input->post('is_consignment')),
+          'is_pos' => $this->input->post('is_pos') == 1 ? 1 : 0,
           'update_user' => get_cookie('uname')
         );
-      
+
         if($this->warehouse_model->update($code, $arr))
         {
           set_message("Update Successfull");

@@ -13,6 +13,8 @@
 	$active_no = $ds->active == 0 ? 'btn-danger' : '';
 	$cm_yes = $ds->is_consignment == 1 ? 'btn-success' : '';
 	$cm_no = empty($ds->is_consignment) ? 'btn-danger' : '';
+	$pos_yes = $ds->is_pos == 1 ? 'btn-success' : '';
+	$pos_no = $ds->is_pos == 0 ? 'btn-primary' : '';
  ?>
 <div class="row">
 	<div class="col-sm-6">
@@ -116,6 +118,16 @@
   </div>
 
 	<div class="form-group">
+ 	 <label class="col-sm-3 control-label no-padding-right">POS API</label>
+ 	 <div class="col-xs-12 col-sm-2">
+ 		<div class="btn-group width-100">
+ 			<button type="button" class="btn btn-sm width-50 <?php echo $pos_yes; ?>" id="btn-pos-yes" onclick="toggleIsPos(1)">ใช่</button>
+			<button type="button" class="btn btn-sm width-50 <?php echo $pos_no; ?>" id="btn-pos-no" onclick="toggleIsPos(0)">ไม่ใช่</button>
+ 		</div>
+ 	 </div>
+  </div>
+
+	<div class="form-group">
  	 <label class="col-sm-3 control-label no-padding-right">สถานะ</label>
  	 <div class="col-xs-12 col-sm-2">
 		<?php if($this->_SuperAdmin) : ?>
@@ -153,6 +165,7 @@
 	<input type="hidden" name="prepare" id="prepare" value="<?php echo $ds->prepare; ?>">
 	<input type="hidden" name="lend" id="lend" value="<?php echo $ds->lend; ?>">
 	<input type="hidden" name="auz" id="auz" value="<?php echo $ds->auz; ?>">
+	<input type="hidden" name="is_pos" id="is_pos" value="<?php echo $ds->is_pos; ?>">
 	<!--
 	<input type="hidden" name="active" id="active" value="<?php echo $ds->active; ?>">
 -->

@@ -89,6 +89,15 @@
 		</select>
   </div>
 
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+    <label>POS API</label>
+    <select class="form-control input-sm filter" name="is_pos" id="is_pos" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_pos); ?>>YES</option>
+			<option value="0" <?php echo is_selected('0', $is_pos); ?>>NO</option>
+		</select>
+  </div>
+
   <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="submit" class="btn btn-xs btn-primary btn-block">Search</button>
@@ -112,13 +121,14 @@
 	<input type="hidden" name="whLend" id="export-lend">
 	<input type="hidden" name="whActive" id="export-active">
 	<input type="hidden" name="whAuz" id="export-auz">
+	<input type="hidden" name="whIsPos" id="export-is-pos">
 	<input type="hidden" name="token" id="token" value="<?php echo genUid(); ?>">
 </form>
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-hover border-1" style="min-width:1060px;">
+		<table class="table table-hover border-1" style="min-width:1120px;">
 			<thead>
 				<tr style="font-size:11px;">
 					<th class="fix-width-100 middle"></th>
@@ -131,6 +141,7 @@
 					<th class="fix-width-60 middle text-center">จัด</th>
 					<th class="fix-width-60 middle text-center">ยืม</th>
 					<th class="fix-width-60 middle text-center">ติดลบ</th>
+					<th class="fix-width-60 middle text-center">POS API</th>
 					<th class="fix-width-60 middle text-center">ใช้งาน</th>
 					<th class="fix-width-60 middle text-center">ฝาขายเทียม</th>
 					<th class="fix-width-120 middle text-right">มูลค่าสูงสุด</th>
@@ -163,6 +174,7 @@
 						<td class="middle text-center"><?php echo is_active($rs->prepare); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->lend); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->auz); ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->is_pos); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->is_consignment); ?></td>
 						<td class="middle text-right"><?php echo number($rs->limit_amount, 2); ?></td>

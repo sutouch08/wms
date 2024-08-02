@@ -486,7 +486,6 @@ class Receive_po extends PS_Controller
                 if($sc === TRUE)
                 {
                   $arr = array(
-                  'shipped_date' => $must_accept == 1 ? NULL : (($this->isAPI && $doc->is_wms) ? NULL : now()),
                   'status' => $must_accept == 1 ? 4 : (($this->wmsApi OR $this->sokoApi) && $doc->is_wms != 0 ? 3 : 1)
                   );
 
@@ -646,8 +645,7 @@ class Receive_po extends PS_Controller
 
         if($sc === TRUE)
         {
-          $arr = array(
-          'shipped_date' => $doc->is_wms == 0 ? now() : (($doc->is_wms == 1 && $this->wmsApi ? NULL : ($doc->is_wms == 2 && $this->sokoApi ? NULL : now()))),
+          $arr = array(          
           'status' => $doc->is_wms == 0 ? 1 : (($doc->is_wms == 1 && $this->wmsApi ? 3 : ($doc->is_wms == 2 && $this->sokoApi ? 3 : 1))),
           'is_accept' => 1,
           'accept_by' => $this->_user->uname,
