@@ -6,25 +6,24 @@
 </div>
 <hr/>
 <div class="row">
-  <div class="col-sm-12">
-    <table class="table table-striped border-1">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1" style="min-width:930px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">No.</th>
-          <th class="width-20">รหัสสินค้า</th>
-          <th class="">ชื่อสินค้า</th>
-          <th class="width-10 text-right">ราคา</th>
-          <th class="width-10 text-right">ส่วนลด(%)</th>
-          <th class="width-20">Bin location</th>
-          <th class="width-10 text-right">Order Qty</th>
-          <th class="width-10 text-right">Bin Qty</th>
+          <th class="fix-width-40 text-center">No.</th>
+          <th class="fix-width-200">รหัสสินค้า</th>
+          <th class="min-width-200">ชื่อสินค้า</th>
+          <th class="fix-width-80 text-right">ราคา</th>
+          <th class="fix-width-100 text-right">ส่วนลด(%)</th>
+          <th class="fix-width-150">Bin location</th>
+          <th class="fix-width-80 text-right">Order Qty</th>
+          <th class="fix-width-80 text-right">Bin Qty</th>
         </tr>
       </thead>
       <tbody>
         <?php if(!empty($details)) : ?>
           <?php $no = 1; ?>
-          <?php foreach($details as $rs) : ?>
-            <?php //$hilight = ($rs->Quantity > $rs->onhand) ? 'color:red;' : ''; ?>
+          <?php foreach($details as $rs) : ?>            
             <tr style="<?php echo $rs->hilight; ?>">
               <td class="middle text-center"><?php echo $rs->LineNum; ?></td>
               <td class="middle"><?php echo $rs->ItemCode; ?></td>
