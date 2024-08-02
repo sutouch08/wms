@@ -6,19 +6,19 @@
 </div>
 <hr/>
 <div class="row">
-  <div class="col-sm-12">
-    <table class="table table-striped border-1">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1" style="min-width:940px;">
       <thead>
         <tr>
-          <th class="width-5 text-center">No.</th>
-          <th class="width-20">รหัสสินค้า</th>
-          <th class="">ชื่อสินค้า</th>
-          <th class="width-15">From</th>
-          <th class="width-15">To</th>
-          <th class="width-10 text-right">Qty</th>
-          <th class="width-10 text-right">Bin Qty</th>
+          <th class="fix-width-40 text-center">No.</th>
+          <th class="fix-width-200">รหัสสินค้า</th>
+          <th class="min-width-200">ชื่อสินค้า</th>
+          <th class="fix-width-150">From</th>
+          <th class="fix-width-150">To</th>
+          <th class="fix-width-100 text-right">Qty</th>
+          <th class="fix-width-100 text-right">Bin Qty</th>
         </tr>
-      </thead>
+      </thead>  
       <tbody>
         <?php if(!empty($details)) : ?>
           <?php $no = 1; ?>
