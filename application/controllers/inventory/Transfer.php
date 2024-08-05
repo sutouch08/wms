@@ -862,7 +862,7 @@ class Transfer extends PS_Controller
                 //--- Send to SOKOCHAN
                 if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
                 {
-                  if($this->sokoApi)
+                  if($this->sokoApi && $doc->is_wms == 2)
                   {
                     $this->wms = $this->load->database('wms', TRUE);
 
@@ -1101,7 +1101,7 @@ class Transfer extends PS_Controller
                 //--- Send to SOKOCHAN
                 if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
                 {
-                  if($this->sokoApi)
+                  if($this->sokoApi && $doc->is_wms == 2)
                   {
                     $this->wms = $this->load->database('wms', TRUE);
 
@@ -1391,7 +1391,7 @@ class Transfer extends PS_Controller
               //--- Send to SOKOCHAN
               if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
               {
-                if($this->sokoApi)
+                if($this->sokoApi && $doc->is_wms == 2)
                 {
                   $this->wms = $this->load->database('wms', TRUE);
 
@@ -1623,7 +1623,7 @@ class Transfer extends PS_Controller
               //--- Send to SOKOCHAN
               if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
               {
-                if($this->sokoApi)
+                if($this->sokoApi && $doc->is_wms == 2)
                 {
                   $this->wms = $this->load->database('wms', TRUE);
 
@@ -1935,7 +1935,7 @@ class Transfer extends PS_Controller
               }
             }
 
-            if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
+            if($doc->is_wms == 2 && ($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh))
             {
               if($this->sokoApi)
               {
