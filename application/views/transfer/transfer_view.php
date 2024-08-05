@@ -42,7 +42,12 @@
 		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 		    <?php endif; ?>
 				<?php if($doc->is_wms != 0 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
-					<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+					<?php if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh) : ?>
+						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPlc()"><i class="fa fa-send"></i> Send to PLC</button>
+					<?php endif; ?>
+					<?php if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh) : ?>
+						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to Soko</button>
+					<?php endif; ?>
 				<?php endif; ?>
 				<?php if($doc->status == 0 && $doc->must_approve == 1 && $doc->is_approve == 0 && ($this->pm->can_approve OR $this->_SuperAdmin)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="doApprove()"><i class="fa fa-check-circle"></i> อนุมัติ</button>
