@@ -809,69 +809,6 @@ class Transfer extends PS_Controller
           {
             if($doc->must_approve == 0 && $doc->must_accept == 0)
             {
-              //--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-              if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-
-                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-                if($doc->direction == 1)
-                {
-                  $this->load->library('wms_receive_api');
-
-                  if(! $this->wms_receive_api->export_transfer($doc, $details))
-                  {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
-                  }
-                }
-
-                if($doc->direction == 2)
-                {
-                  $this->load->library('wms_order_api');
-
-                  if( ! $this->wms_order_api->export_transfer_order($doc, $details))
-                  {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
-                  }
-                }
-              }
-
-
-              //--- ถ้าต้อง process ที่ soko chan แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป
-              if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-
-                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-                if($doc->direction == 1)
-                {
-                  $this->load->library('soko_receive_api');
-
-                  if(! $this->soko_receive_api->create_transfer($doc, $details))
-                  {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error : {$this->soko_receive_api->error})";
-                  }
-                }
-
-                if($doc->direction == 2)
-                {
-                  $this->load->library('soko_order_api');
-
-                  if( ! $this->soko_order_api->create_transfer_order($doc, $details))
-                  {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error : {$this->soko_order_api->error})";
-                  }
-                }
-              }
-
               if(($doc->is_wms == 0 OR $doc->api == 0) OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
               {
                 $this->transfer_model->update($code, array('shipped_date' => $date_add)); //--- update transferd date
@@ -882,7 +819,81 @@ class Transfer extends PS_Controller
                   $ex = 0;
                   $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ";
                 }
-              } //-- is isAPI
+              }
+
+              if($doc->is_wms != 0 && $doc->api == 1)
+              {
+                if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)
+                {
+                  if($this->wmsApi)
+                  {
+                    $this->wms = $this->load->database('wms', TRUE);
+
+                    //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                    $direction = $doc->to_warehouse == $this->wmsWh ? 1 : ($doc->from_warehouse == $this->wmsWh ? 2 : 0);
+
+                    if($direction == 1)
+                    {
+                      $this->load->library('wms_receive_api');
+
+                      if( ! $this->wms_receive_api->export_transfer($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
+                      }
+                    }
+
+                    if($direction == 2)
+                    {
+                      $this->load->library('wms_order_api');
+
+                      if( ! $this->wms_order_api->export_transfer_order($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                      }
+                    }
+                  }
+                }
+
+                //--- Send to SOKOCHAN
+                if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
+                {
+                  if($this->sokoApi)
+                  {
+                    $this->wms = $this->load->database('wms', TRUE);
+
+                    //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                    $direction = $doc->to_warehouse == $this->sokoWh ? 1 : ($doc->from_warehouse == $this->sokoWh ? 2 : 0);
+
+                    if($direction == 1)
+                    {
+                      $this->load->library('soko_receive_api');
+
+                      if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                      }
+                    }
+
+                    if($direction == 2)
+                    {
+                      $this->load->library('soko_order_api');
+
+                      if( ! $this->soko_order_api->create_transfer_order($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                      }
+                    }
+                  }
+                }
+              }
             } //-- if must_approve && must_accept = 0
           } //-- if $sc = TRUE
 				}
@@ -1049,60 +1060,76 @@ class Transfer extends PS_Controller
                 }
               }
 
-              if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
+              if($doc->is_wms != 0 && $doc->api == 1)
               {
-                $this->wms = $this->load->database('wms', TRUE);
-                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-                if($doc->direction == 1)
+                if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)
                 {
-                  $this->load->library('wms_receive_api');
-
-                  if( ! $this->wms_receive_api->export_transfer($doc, $details))
+                  if($this->wmsApi)
                   {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                    $this->wms = $this->load->database('wms', TRUE);
+
+                    //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                    $direction = $doc->to_warehouse == $this->wmsWh ? 1 : ($doc->from_warehouse == $this->wmsWh ? 2 : 0);
+
+                    if($direction == 1)
+                    {
+                      $this->load->library('wms_receive_api');
+
+                      if( ! $this->wms_receive_api->export_transfer($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
+                      }
+                    }
+
+                    if($direction == 2)
+                    {
+                      $this->load->library('wms_order_api');
+
+                      if( ! $this->wms_order_api->export_transfer_order($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                      }
+                    }
                   }
                 }
 
-                if($doc->direction == 2)
+                //--- Send to SOKOCHAN
+                if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
                 {
-                  $this->load->library('wms_order_api');
-
-                  if( ! $this->wms_order_api->export_transfer_order($doc, $details))
+                  if($this->sokoApi)
                   {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
-                  }
-                }
-              }
+                    $this->wms = $this->load->database('wms', TRUE);
 
-              if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-                if($doc->direction == 1)
-                {
-                  $this->load->library('soko_receive_api');
+                    //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                    $direction = $doc->to_warehouse == $this->sokoWh ? 1 : ($doc->from_warehouse == $this->sokoWh ? 2 : 0);
 
-                  if( ! $this->soko_receive_api->create_transfer($doc, $details))
-                  {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ : {$this->soko_receive_api->error}";
-                  }
-                }
+                    if($direction == 1)
+                    {
+                      $this->load->library('soko_receive_api');
 
-                if($doc->direction == 2)
-                {
-                  $this->load->library('soko_order_api');
+                      if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                      }
+                    }
 
-                  if( ! $this->soko_order_api->create_transfer_order($doc, $details))
-                  {
-                    $sc = FALSE;
-                    $ex = 0;
-                    $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error : {$this->soko_order_api->error})";
+                    if($direction == 2)
+                    {
+                      $this->load->library('soko_order_api');
+
+                      if( ! $this->wms_order_api->create_transfer_order($doc, $details))
+                      {
+                        $sc = FALSE;
+                        $ex = 0;
+                        $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                      }
+                    }
                   }
                 }
               }
@@ -1323,63 +1350,79 @@ class Transfer extends PS_Controller
               }
             }
 
-            if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
+            if($doc->is_wms != 0 && $doc->api == 1)
             {
-              $this->wms = $this->load->database('wms', TRUE);
-              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-              if($doc->direction == 1)
+              if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)
               {
-                $this->load->library('wms_receive_api');
-
-                if( ! $this->wms_receive_api->export_transfer($doc, $details))
+                if($this->wmsApi)
                 {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
+                  $this->wms = $this->load->database('wms', TRUE);
+
+                  //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                  $direction = $doc->to_warehouse == $this->wmsWh ? 1 : ($doc->from_warehouse == $this->wmsWh ? 2 : 0);
+
+                  if($direction == 1)
+                  {
+                    $this->load->library('wms_receive_api');
+
+                    if( ! $this->wms_receive_api->export_transfer($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
+                    }
+                  }
+
+                  if($direction == 2)
+                  {
+                    $this->load->library('wms_order_api');
+
+                    if( ! $this->wms_order_api->export_transfer_order($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                    }
+                  }
                 }
               }
 
-              if($doc->direction == 2)
+              //--- Send to SOKOCHAN
+              if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
               {
-                $this->load->library('wms_order_api');
-
-                if( ! $this->wms_order_api->export_transfer_order($doc, $details))
+                if($this->sokoApi)
                 {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                  $this->wms = $this->load->database('wms', TRUE);
+
+                  //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                  $direction = $doc->to_warehouse == $this->sokoWh ? 1 : ($doc->from_warehouse == $this->sokoWh ? 2 : 0);
+
+                  if($direction == 1)
+                  {
+                    $this->load->library('soko_receive_api');
+
+                    if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                    }
+                  }
+
+                  if($direction == 2)
+                  {
+                    $this->load->library('soko_order_api');
+
+                    if( ! $this->wms_order_api->create_transfer_order($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                    }
+                  }
                 }
               }
-            } //--- is wms == 1
-
-            if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
-            {
-              $this->wms = $this->load->database('wms', TRUE);
-              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-              if($doc->direction == 1)
-              {
-                $this->load->library('soko_receive_api');
-
-                if( ! $this->wms_receive_api->create_transfer($doc, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
-                }
-              }
-
-              if($doc->direction == 2)
-              {
-                $this->load->library('soko_order_api');
-
-                if( ! $this->wms_order_api->create_transfer_order($doc, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
-                }
-              }
-            } //--- is wms == 2
+            }
           }
         }
         else
@@ -1539,63 +1582,79 @@ class Transfer extends PS_Controller
               }
             }
 
-            if($doc->is_wms == 1 && $doc->api == 1 && $this->wmsApi)
+            if($doc->is_wms != 0 && $doc->api == 1)
             {
-              $this->wms = $this->load->database('wms', TRUE);
-              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-              if($doc->direction == 1)
+              if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)
               {
-                $this->load->library('wms_receive_api');
-
-                if( ! $this->wms_receive_api->export_transfer($doc, $details))
+                if($this->wmsApi)
                 {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
+                  $this->wms = $this->load->database('wms', TRUE);
+
+                  //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                  $direction = $doc->to_warehouse == $this->wmsWh ? 1 : ($doc->from_warehouse == $this->wmsWh ? 2 : 0);
+
+                  if($direction == 1)
+                  {
+                    $this->load->library('wms_receive_api');
+
+                    if( ! $this->wms_receive_api->export_transfer($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ";
+                    }
+                  }
+
+                  if($direction == 2)
+                  {
+                    $this->load->library('wms_order_api');
+
+                    if( ! $this->wms_order_api->export_transfer_order($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                    }
+                  }
                 }
               }
 
-              if($doc->direction == 2)
+              //--- Send to SOKOCHAN
+              if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
               {
-                $this->load->library('wms_order_api');
-
-                if( ! $this->wms_order_api->export_transfer_order($doc, $details))
+                if($this->sokoApi)
                 {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
+                  $this->wms = $this->load->database('wms', TRUE);
+
+                  //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                  $direction = $doc->to_warehouse == $this->sokoWh ? 1 : ($doc->from_warehouse == $this->sokoWh ? 2 : 0);
+
+                  if($direction == 1)
+                  {
+                    $this->load->library('soko_receive_api');
+
+                    if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                    }
+                  }
+
+                  if($direction == 2)
+                  {
+                    $this->load->library('soko_order_api');
+
+                    if( ! $this->wms_order_api->create_transfer_order($doc, $details))
+                    {
+                      $sc = FALSE;
+                      $ex = 0;
+                      $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
+                    }
+                  }
                 }
               }
-            } //--- is wms == 1
-
-            if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
-            {
-              $this->wms = $this->load->database('wms', TRUE);
-              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-              if($doc->direction == 1)
-              {
-                $this->load->library('soko_receive_api');
-
-                if( ! $this->wms_receive_api->create_transfer($doc, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
-                }
-              }
-
-              if($doc->direction == 2)
-              {
-                $this->load->library('soko_order_api');
-
-                if( ! $this->wms_order_api->create_transfer_order($doc, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
-                }
-              }
-            } //--- is wms == 2
+            }
           }
         }
         else
@@ -1832,82 +1891,88 @@ class Transfer extends PS_Controller
         if( ! empty($details))
         {
           //--- ถ้าต้อง process ที่ wms แค่เปลี่ยนสถานะเป็น 3 แล้ส่งข้อมูลออกไป wms
-          if($doc->is_wms == 1 && $doc->api == 1)
+          if($doc->is_wms != 0 && $doc->api == 1)
           {
-            if($this->wmsApi)
+            if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)
             {
-              $this->wms = $this->load->database('wms', TRUE);
-              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-              if($doc->direction == 1)
+              if($this->wmsApi)
               {
-                $this->load->library('wms_receive_api');
+                $this->wms = $this->load->database('wms', TRUE);
+                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                $directtion = $doc->to_warehouse == $this->wmsWh ? 1 : ($doc->from_warehouse == $this->wmsWh ? 2 : 0);
 
-                $rs = $this->wms_receive_api->export_transfer($doc, $details);
-
-                if(! $rs)
+                if($direction == 1)
                 {
-                  $sc = FALSE;
-                  $this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_receive_api->error}";
+                  $this->load->library('wms_receive_api');
+
+                  $rs = $this->wms_receive_api->export_transfer($doc, $details);
+
+                  if(! $rs)
+                  {
+                    $sc = FALSE;
+                    $this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_receive_api->error}";
+                  }
+                }
+
+                if($direction == 2)
+                {
+                  $this->load->library('wms_order_api');
+
+                  $rs = $this->wms_order_api->export_transfer_order($doc, $details);
+
+                  if(! $rs)
+                  {
+                    $sc = FALSE;
+                    $this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_order_api->error}";
+                  }
                 }
               }
-
-              if($doc->direction == 2)
+              else
               {
-                $this->load->library('wms_order_api');
-
-                $rs = $this->wms_order_api->export_transfer_order($doc, $details);
-
-                if(! $rs)
-                {
-                  $sc = FALSE;
-                  $this->error = "ส่งข้อมูลไป Pioneer ไม่สำเร็จ : {$this->wms_order_api->error}";
-                }
+                $sc = FALSE;
+                $this->error = "API is not enabled";
               }
             }
-            else
+
+            if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)
             {
-              $sc = FALSE;
-              $this->error = "API is not enabled";
+              if($this->sokoApi)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
+                $direction = $doc->to_warehouse == $this->sokoWh ? 1 : ($doc->from_warehouse == $this->sokoWh ? 2 : 0);
+
+                if($direction == 1)
+                {
+                  $this->load->library('soko_receive_api');
+
+                  if( ! $this->soko_receive_api->create_transfer($doc, $details))
+                  {
+                    $sc = FALSE;
+                    $ex = 0;
+                    $this->error = "่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error :  {$this->soko_receive_api->error})";
+                  }
+                }
+
+                if($direction == 2)
+                {
+                  $this->load->library('soko_order_api');
+
+                  if( ! $this->soko_order_api->create_transfer_order($doc, $details))
+                  {
+                    $sc = FALSE;
+                    $ex = 0;
+                    $this->error = "ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error :{$this->soko_order_api->error})";
+                  }
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "API is not enabled";
+              }
             }
           }
-
-          if($doc->is_wms == 2 && $doc->api == 1)
-          {
-            if($this->sokoApi)
-            {
-              $this->wms = $this->load->database('wms', TRUE);
-              //---- direction 0 = wrx to wrx, 1 = wrx to wms , 2 = wms to wrx
-              if($doc->direction == 1)
-              {
-                $this->load->library('soko_receive_api');
-
-                if( ! $this->soko_receive_api->create_transfer($doc, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error :  {$this->soko_receive_api->error})";
-                }
-              }
-
-              if($doc->direction == 2)
-              {
-                $this->load->library('soko_order_api');
-
-                if( ! $this->soko_order_api->create_transfer_order($doc, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> (SOKOCHAN Error :{$this->soko_order_api->error})";
-                }
-              }
-            }
-            else
-            {
-              $sc = FALSE;
-              $this->error = "API is not enabled";
-            }
-          }
-
         }
         else
         {
