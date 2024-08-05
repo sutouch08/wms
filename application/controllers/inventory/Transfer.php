@@ -1686,7 +1686,7 @@ class Transfer extends PS_Controller
                 }
               }
 
-              if($doc->direction == 2)
+              if($direction == 2)
               {
                 $this->load->library('wms_order_api');
 
@@ -1758,7 +1758,7 @@ class Transfer extends PS_Controller
 
               $direction = $doc->from_warehouse == $sokoWh ? 2 : ($doc->to_warehouse == $sokoWh ? 1 : 0);
 
-              if($doc->direction == 1)
+              if($direction == 1)
               {
                 $this->load->library('soko_receive_api');
 
@@ -1770,7 +1770,7 @@ class Transfer extends PS_Controller
                 }
               }
 
-              if($doc->direction == 2)
+              if($direction == 2)
               {
                 $this->load->library('soko_order_api');
 
