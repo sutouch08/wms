@@ -17,21 +17,21 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>เลขที่ WX</label>
     <input type="text" class="form-control input-sm search" name="wx_code"  value="<?php echo $wx_code; ?>" />
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>Pallet No.</label>
     <input type="text" class="form-control input-sm search" name="pallet_no"  value="<?php echo $pallet_no; ?>" />
   </div>
 
-  <div class="col-lg-2-harf col-md-2 col-sm-3-harf col-xs-6 padding-5">
+  <div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>คลังต้นทาง</label>
 		<select class="width-100 filter" name="from_warehouse" id="from-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -39,7 +39,7 @@
     </select>
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-3-harf col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>คลังปลายทาง</label>
 		<select class="width-100 filter" name="to_warehouse" id="to-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -47,7 +47,7 @@
     </select>
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>พนักงาน</label>
 		<select class="width-100 filter" name="user" id="user">
 			<option value="all">ทั้งหมด</option>
@@ -56,6 +56,16 @@
 	</div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>การดำเนินการ</label>
+		<select class="form-control input-sm" name="is_wms" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $is_wms); ?>>Warrix</option>
+			<option value="1" <?php echo is_selected('1', $is_wms); ?>>Pioneer</option>
+			<option value="2" <?php echo is_selected('2', $is_wms); ?>>Sokochan</option>
+		</select>
+	</div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -80,7 +90,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>การยืนยัน</label>
 		<select class="form-control input-sm" name="must_accept" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -89,8 +99,8 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
-		<label>WMS</label>
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>Interface</label>
 		<select class="form-control input-sm" name="api" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $api); ?>>ปกติ</option>
@@ -98,7 +108,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>ยอดรับ</label>
 		<select class="form-control input-sm" name="valid" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -124,13 +134,13 @@
 		</select>
 	</div>
 
-  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+    <button type="submit" class="btn btn-xs btn-primary btn-block">Search</button>
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>
 </div>
 <hr class="margin-top-15">

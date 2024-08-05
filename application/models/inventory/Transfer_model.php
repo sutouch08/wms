@@ -731,6 +731,11 @@ class Transfer_model extends CI_Model
 			$this->db->where('tr.api', $ds['api']);
 		}
 
+    if(isset($ds['is_wms']) && $ds['is_wms'] != 'all')
+    {
+      $this->db->where('tr.is_wms', $ds['is_wms']);
+    }
+
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
       $this->db->where('tr.date_add >=', from_date($ds['from_date']));
@@ -836,6 +841,11 @@ class Transfer_model extends CI_Model
 		{
 			$this->db->where('tr.api', $ds['api']);
 		}
+
+    if(isset($ds['is_wms']) && $ds['is_wms'] != 'all')
+    {
+      $this->db->where('tr.is_wms', $ds['is_wms']);
+    }
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
