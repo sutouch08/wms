@@ -319,10 +319,19 @@ class Document_audit_model extends CI_Model
 			$qr .= "FROM warrix_sap.orders AS o ";
 			$qr .= "LEFT JOIN {$tmp} AS tmp ON o.code = tmp.code ";
 			$qr .= "WHERE o.is_wms = {$ds['is_wms']} ";
-			$qr .= "AND o.role IN(".$this->parse_in($ds['role']).") ";
-			$qr .= "AND o.state IN(".$this->parse_in($ds['state']).") ";
-			$qr .= "AND o.date_add >= '".$ds['fromDate']."' ";
-			$qr .= "AND o.date_add <= '".$ds['toDate']."' ";			
+
+      if($ds['allRole'] != 1)
+      {
+        $qr .= "AND o.role IN(".$this->parse_in($ds['role']).") ";
+      }
+
+      if($ds['allState'] != 1)
+      {
+        $qr .= "AND o.state IN(".$this->parse_in($ds['state']).") ";
+      }
+
+			$qr .= "AND o.date_add >= '".from_date($ds['fromDate'])."' ";
+			$qr .= "AND o.date_add <= '".to_date($ds['toDate'])."' ";
 
 			if($ds['channels'] != "all")
 			{

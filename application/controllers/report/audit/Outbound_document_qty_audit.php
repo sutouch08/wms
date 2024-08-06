@@ -175,9 +175,9 @@ class Outbound_document_qty_audit extends PS_Controller
 
   public function do_export()
   {
-    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     set_time_limit(1800); // limit time change to 30 mins.
-
+    $start_time = now();
     $token = $this->input->post('token');
 
 		$roleName = array(
@@ -236,6 +236,10 @@ class Outbound_document_qty_audit extends PS_Controller
 				$i++;
 			}
 		}
+    else
+    {
+      $role = array('S', 'C', 'N', 'P', 'U', 'L', 'T', 'Q');
+    }
 
 		$allState = $this->input->post('allState');
     $state = $this->input->post('state');
@@ -249,6 +253,10 @@ class Outbound_document_qty_audit extends PS_Controller
 				$i++;
 			}
 		}
+    else
+    {
+      $state = array('1', '2', '3', '7', '8', '9');
+    }
 
     $state = $this->input->post('state');
 
@@ -272,7 +280,8 @@ class Outbound_document_qty_audit extends PS_Controller
 
     $header = ["ลำดับ", "วันที่", "IX", "{$wh}", "SAP", "QTY(IX)", "QTY({$wh})", "QTY(SAP)", "สถานะ (IX)", "ช่องทางขาย"];
 
-    $result = $this->document_audit_model->get_ix_order($arr);
+
+    $result = $this->document_audit_model->get_outbound_data_qty($arr);
 
     // Create a file pointer
     $f = fopen('php://memory', 'w');
@@ -291,25 +300,25 @@ class Outbound_document_qty_audit extends PS_Controller
       foreach($result as $rs)
       {
 				$sap = NULL;
-        $rs->order_qty = $this->document_audit_model->get_order_qty($rs->code);
-        $temp = $this->document_audit_model->get_wms_temp_qty($rs->code, $is_wms);
-        $rs->temp_qty = (empty($temp) ? 0 : number($temp->qty));
-        $rs->temp_code = (empty($temp) ? NULL : $temp->reference);
+        // $rs->order_qty = $this->document_audit_model->get_order_qty($rs->code);
+        // $temp = $this->document_audit_model->get_wms_temp_qty($rs->code, $is_wms);
+        // $rs->temp_qty = (empty($temp) ? 0 : number($temp->qty));
+        // $rs->temp_code = (empty($temp) ? NULL : $temp->reference);
 
 				if($rs->state == 8 && ($rs->role == 'S' OR $rs->role == 'C' OR $rs->role == 'P' OR $rs->role == 'U'))
 				{
-					$sap = $this->document_audit_model->get_do_code_and_qty($rs->code);
+					$sap = $this->document_audit_model->get_do_code_and_qty($rs->order_code);
 				}
 
 				if($rs->state == 8 && ($rs->role == 'N' OR $rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q'))
 				{
-					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->code);
+					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->order_code);
 				}
 
         $row = array(
           $no,
           thai_date($rs->date_add, FALSE, '/'),
-          $rs->code,
+          $rs->order_code,
           $rs->temp_code,
           (empty($sap) ? "" : $sap->DocNum),
           $rs->order_qty,
@@ -323,9 +332,13 @@ class Outbound_document_qty_audit extends PS_Controller
         $no++;
       }
 
+      $end_time = now();
+
+      $arr = array("begin : {$start_time}", "end : {$end_time}");
+      fputcsv($f, $arr, $delimiter);
+
       $memuse = (memory_get_usage() / 1024) / 1024;
       $arr = array('memory usage', round($memuse, 2).' MB');
-
       fputcsv($f, $arr, $delimiter);
     }
 
@@ -341,7 +354,7 @@ class Outbound_document_qty_audit extends PS_Controller
     //output all remaining data on a file pointer
     fpassthru($f); ;
 
-    exit();    
+    exit();
   }
 
 
