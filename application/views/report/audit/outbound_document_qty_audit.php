@@ -1,45 +1,52 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row hidden-print">
-	<div class="col-sm-6 padding-5">
-    <h3 class="title">
-      <i class="fa fa-bar-chart"></i>
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-		<div class="col-sm-6 padding-5">
-			<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
-				<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
-			</p>
-		</div>
+	<div class="col-lg-8 col-md-8 col-sm-8 hidden-xs padding-5">
+		<h3 class="title"><?php echo $this->title; ?> </h3>
+	</div>
+	<div class="col-xs-12 padding-5 visible-xs">
+		<h4 class="title-xs"><?php echo $this->title; ?></h4>
+	</div>
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
+			<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
+		</p>
+	</div>
 </div><!-- End Row -->
 <hr class="padding-5 hidden-print"/>
 <form class="hidden-print" id="reportForm" method="post" action="<?php echo $this->home; ?>/do_export">
 <div class="row">
-	<div class="col-sm-2 col-2-harf padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>คลัง</label>
+		<select class="form-control input-sm" name="is_wms" id="is_wms">
+			<option value="1">PLC</option>
+			<option value="2">Sokochan</option>
+		</select>
+	</div>
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group width-100">
       <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" placeholder="เริ่มต้น" required />
       <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" placeholder="สิ้นสุด" required/>
     </div>
   </div>
-  <div class="col-sm-1 col-1-harf padding-5">
+  <!-- <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block">เอกสาร</label>
     <div class="btn-group width-100">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-doc-all" onclick="toggleAllDocument(1)">ทั้งหมด</button>
       <button type="button" class="btn btn-sm width-50" id="btn-doc-range" onclick="toggleAllDocument(0)">เลือก</button>
     </div>
   </div>
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block not-show">เริ่มต้น</label>
     <input type="text" class="form-control input-sm text-center" id="docFrom" name="docFrom" placeholder="เริ่มต้น" disabled>
   </div>
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block not-show">สิ้นสุด</label>
     <input type="text" class="form-control input-sm text-center" id="docTo" name="docTo" placeholder="สิ้นสุด" disabled>
-  </div>
+  </div> -->
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block">ประเภท</label>
     <div class="btn-group width-100">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-role-all" onclick="toggleAllRole(1)">ทั้งหมด</button>
@@ -47,7 +54,7 @@
     </div>
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="display-block">สถานะ(IX)</label>
     <div class="btn-group width-100">
       <button type="button" class="btn btn-sm btn-primary width-50" id="btn-state-all" onclick="toggleAllState(1)">ทั้งหมด</button>
@@ -55,14 +62,13 @@
     </div>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
     <select class="form-control input-sm" id="channels" name="channels">
     	<option value="all">ทั้งหมด</option>
 			<?php echo select_channels(); ?>
     </select>
   </div>
-
 
   <input type="hidden" id="allDoc" name="allDoc" value="1">
 	<input type="hidden" id="allRole" name="allRole" value="1">

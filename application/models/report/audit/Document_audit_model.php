@@ -230,11 +230,86 @@ class Document_audit_model extends CI_Model
 	}
 
 
+  public function get_ix_order(array $ds = array())
+  {
+    $this->db
+    ->select('date_add, code, role, state, channels_code')
+    ->where('is_wms !=', 0)
+    ->where('is_wms', $ds['is_wms'])
+    ->where('date_add >=', from_date($ds['fromDate']))
+    ->where('date_add <=', to_date($ds['toDate']));
 
-	public function get_outbound_data_qty(array $ds = array())
+    if($ds['channels'] != 'all')
+    {
+      $this->db->where('channels_code', $ds['channels']);
+    }
+
+    if($ds['allRole'] != 1)
+    {
+      $this->db->where_in('role', $ds['role']);
+    }
+
+    if($ds['allState'] != 1)
+    {
+      $this->db->where_in('state', $ds['state']);
+    }
+
+    $this->db->order_by('date_add', 'ASC')->order_by('code', 'ASC');
+
+    $rs = $this->db->get('orders');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_order_qty($code)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('order_code', $code)
+    ->where('is_count', 1)
+    ->get('order_details');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
+  public function get_wms_temp_qty($code, $is_wms = 1)
+  {
+    $td = $is_wms == 2 ? 'soko_temp_order_detail' : 'wms_temp_order_detail';
+    $tb = $is_wms == 2 ? 'soko_temp_order' : 'wms_temp_order';
+
+    $rs = $this->wms
+    ->select('o.reference')
+    ->select_sum('d.qty')
+    ->from("{$td} AS d")
+    ->join("{$tb} AS o", "d.id_order = o.id", "left")
+    ->where('o.code', $code)
+    ->where('o.status', 1)
+    ->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();;
+    }
+
+    return NULL;
+  }
+
+  public function get_outbound_data_qty(array $ds = array())
 	{
 		if(!empty($ds))
 		{
+
 			$qr  = "SELECT o.date_add, o.code AS order_code, o.role, o.state, o.channels_code, ";
 			$qr .= "tmp.reference AS temp_code, ";
 			$qr .= "(SELECT SUM(od.qty) FROM warrix_sap.order_details AS od WHERE od.order_code = o.code AND od.is_count = 1) AS order_qty, ";
@@ -269,6 +344,45 @@ class Document_audit_model extends CI_Model
 
 		return NULL;
 	}
+
+	// public function get_outbound_data_qty(array $ds = array())
+	// {
+	// 	if(!empty($ds))
+	// 	{
+	// 		$qr  = "SELECT o.date_add, o.code AS order_code, o.role, o.state, o.channels_code, ";
+	// 		$qr .= "tmp.reference AS temp_code, ";
+	// 		$qr .= "(SELECT SUM(od.qty) FROM warrix_sap.order_details AS od WHERE od.order_code = o.code AND od.is_count = 1) AS order_qty, ";
+	// 		$qr .= "(SELECT SUM(tmd.qty) FROM warrix_wms_temp.wms_temp_order_detail AS tmd WHERE tmd.id_order = tmp.id) AS temp_qty ";
+	// 		$qr .= "FROM warrix_sap.orders AS o ";
+	// 		$qr .= "LEFT JOIN warrix_wms_temp.wms_temp_order AS tmp ON o.code = tmp.code ";
+	// 		$qr .= "WHERE o.is_wms = 1 ";
+	// 		$qr .= "AND o.role IN(".$this->parse_in($ds['role']).") ";
+	// 		$qr .= "AND o.state IN(".$this->parse_in($ds['state']).") ";
+	// 		$qr .= "AND o.date_add >= '".$ds['fromDate']."' ";
+	// 		$qr .= "AND o.date_add <= '".$ds['toDate']."' ";
+  //
+	// 		if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
+	// 		{
+	// 			$qr .= "AND o.code >= '".$ds['docFrom']."' AND o.code <= '".$ds['docTo']."' ";
+	// 		}
+  //
+	// 		if($ds['channels'] != "all")
+	// 		{
+	// 			$qr .= "AND o.channels_code = '".$ds['channels']."' ";
+	// 		}
+  //
+	// 		$qr .= "ORDER BY o.date_add ASC, o.code ASC";
+  //
+	// 		$rs = $this->db->query($qr);
+  //
+	// 		if($rs->num_rows() > 0)
+	// 		{
+	// 			return $rs->result();
+	// 		}
+	// 	}
+  //
+	// 	return NULL;
+	// }
 
 
 

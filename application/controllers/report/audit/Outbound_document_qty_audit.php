@@ -67,56 +67,36 @@ class Outbound_document_qty_audit extends PS_Controller
 
 		$channels = $this->input->get('channels');
 
-    $allDoc = $this->input->get('allDoc');
-    $docFrom = $this->input->get('docFrom');
-    $docTo = $this->input->get('docTo');
-
-    if($docFrom > $docTo)
-		{
-      $sp = $docTo;
-      $docTo = $docFrom;
-      $docFrom = $sp;
-    }
+    $is_wms = $this->input->get('is_wms');
 
     $fromDate = $this->input->get('fromDate');
+
     $toDate = $this->input->get('toDate');
 
     $allRole = $this->input->get('allRole');
 
-		if($allRole != 1)
-		{
-			$role = $this->input->get('role');
-		}
-		else
-		{
-			$role = array("S", "C", "N", "P", "U", "L", "T", "Q");
-		}
+    $role = $this->input->get('role');
 
 		$allState = $this->input->get('allState');
 
-		if($allState != 1)
-		{
-			$state = $this->input->get('state');
-		}
-		else
-		{
-			$state = array("1", "2", "3", "7", "8", "9");
-		}
+    $state = $this->input->get('state');
+
+		// 	$state = array("1", "2", "3", "7", "8", "9");
 
     $arr = array(
-      'allDoc' => $allDoc,
-      'docFrom' => $docFrom,
-      'docTo' => $docTo,
+      'is_wms' => $is_wms,
+      'allRole' => $allRole,
       'role' => $role,
+      'allState' => $allState,
 			'state' => $state,
-      'fromDate' => from_date($fromDate),
-      'toDate' => to_date($toDate),
+      'fromDate' => $fromDate,
+      'toDate' => $toDate,
 			'channels' => $channels
     );
 
-    $result = $this->document_audit_model->get_outbound_data_qty($arr);
+    $result = $this->document_audit_model->get_ix_order($arr);
 
-    if(!empty($result))
+    if(! empty($result))
     {
 			if(count($result) > $this->limit)
 			{
@@ -125,21 +105,29 @@ class Outbound_document_qty_audit extends PS_Controller
 			}
 
       $no = 1;
+
       foreach($result as $rs)
       {
 				$sap = NULL;
+        $rs->order_qty = $this->document_audit_model->get_order_qty($rs->code);
+        $temp = $this->document_audit_model->get_wms_temp_qty($rs->code, $is_wms);
+
 
 				if($rs->state == 8 && ($rs->role == 'S' OR $rs->role == 'C' OR $rs->role == 'P' OR $rs->role == 'U'))
 				{
-					$sap = $this->document_audit_model->get_do_code_and_qty($rs->order_code);
+					$sap = $this->document_audit_model->get_do_code_and_qty($rs->code);
 				}
 
 				if($rs->state == 8 && ($rs->role == 'N' OR $rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q'))
 				{
-					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->order_code);
+					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->code);
 				}
 
 				$sap_qty = (empty($sap) ? 0 : number($sap->qty));
+
+        $rs->temp_qty = (empty($temp) ? 0 : number($temp->qty));
+        $rs->temp_code = (empty($temp) ? NULL : $temp->reference);
+
 				$hilight = "";
 
 				if($rs->state == 8)
@@ -153,7 +141,7 @@ class Outbound_document_qty_audit extends PS_Controller
         $ds = array(
           'no' => number($no),
           'date' => thai_date($rs->date_add, FALSE, '/'),
-          'ix_code' => $rs->order_code,
+          'ix_code' => $rs->code,
 					'ix_type' => $roleName[$rs->role],
 					'wms_code' => $rs->temp_code,
 					'wms_type' => 'OB',
@@ -187,7 +175,11 @@ class Outbound_document_qty_audit extends PS_Controller
 
   public function do_export()
   {
+    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    set_time_limit(1800); // limit time change to 30 mins.
+
     $token = $this->input->post('token');
+
 		$roleName = array(
 			"S" => "WO",
 			"C" => "WC",
@@ -222,29 +214,21 @@ class Outbound_document_qty_audit extends PS_Controller
 			'9' => "ยกเลิก"
 		);
 
+    $is_wms = $this->input->post('is_wms');
+
 		$channelsName = $this->channels_model->get_channels_array();
 
 		$channels = $this->input->post('channels');
 
-    $allDoc = $this->input->post('allDoc');
-    $docFrom = $this->input->post('docFrom');
-    $docTo = $this->input->post('docTo');
-
-    if($docFrom > $docTo)
-		{
-      $sp = $docTo;
-      $docTo = $docFrom;
-      $docFrom = $sp;
-    }
-
     $fromDate = $this->input->post('fromDate');
+
     $toDate = $this->input->post('toDate');
 
     $allRole = $this->input->post('allRole');
+    $role = $this->input->post('role');
 		$role_in = "";
 		if($allRole != 1)
 		{
-			$role = $this->input->post('role');
 			$i = 1;
 			foreach($role as $ro)
 			{
@@ -252,18 +236,12 @@ class Outbound_document_qty_audit extends PS_Controller
 				$i++;
 			}
 		}
-		else
-		{
-			$role = array("S", "C", "N", "P", "U", "L", "T", "Q");
-		}
 
 		$allState = $this->input->post('allState');
-
-
-		$state_in = "";
+    $state = $this->input->post('state');
+    $state_in = "";
 		if($allState != 1)
 		{
-			$state = $this->input->post('state');
 			$i = 1;
 			foreach($state as $st)
 			{
@@ -271,31 +249,28 @@ class Outbound_document_qty_audit extends PS_Controller
 				$i++;
 			}
 		}
-		else
-		{
-			$state = array("1", "2", "3", "7", "8", "9");
-		}
+
+    $state = $this->input->post('state');
 
     $arr = array(
-      'allDoc' => $allDoc,
-      'docFrom' => $docFrom,
-      'docTo' => $docTo,
+      'is_wms' => $is_wms,
+      'allRole' => $allRole,
       'role' => $role,
-			'state' => $state,
-      'fromDate' => from_date($fromDate),
-      'toDate' => to_date($toDate),
-			'channels' => $channels
+      'allState' => $allState,
+      'state' => $state,
+      'fromDate' => $fromDate,
+      'toDate' => $toDate,
+      'channels' => $channels
     );
 
-    $title = "รายงาน กระทบยอดเอกสารขาออก IX-WMS-SAP ";
-		$dateTitle = "วันที่ (".thai_date($fromDate, FALSE, '/').") - (".thai_date($toDate, FALSE, '/').")";
-    $docTitle = $allDoc == 1 ? 'ทั้งหมด' : "{$docFrom} - {$docTo}";
+    $wh = $is_wms == 2 ? "SOKO" : "PLC";
+
+    $title = "รายงาน กระทบยอดเอกสารขาออก IX-{$wh}-SAP ";
+    $dateTitle = "วันที่ (".thai_date($fromDate, FALSE, '/').") - (".thai_date($toDate, FALSE, '/').")";
     $roleTitle = $allRole == 1 ? 'ทั้งหมด' : $role_in;
     $stateTitle = $allState == 1 ? 'ทั้งหมด' : $state_in;
 
-
-
-    $result = $this->document_audit_model->get_outbound_data_qty($arr);
+    $result = $this->document_audit_model->get_ix_order($arr);
 
     //--- load excel library
     $this->load->library('excel');
@@ -308,21 +283,19 @@ class Outbound_document_qty_audit extends PS_Controller
     $this->excel->getActiveSheet()->mergeCells('A1:I1');
 		$this->excel->getActiveSheet()->setCellValue('A2', $dateTitle);
     $this->excel->getActiveSheet()->mergeCells('A2:I2');
-    $this->excel->getActiveSheet()->setCellValue('A3', "เลขที่เอกสาร : {$docTitle}");
+    $this->excel->getActiveSheet()->setCellValue('A3', "ประเภทเอกสาร : {$roleTitle}");
     $this->excel->getActiveSheet()->mergeCells('A3:I3');
-    $this->excel->getActiveSheet()->setCellValue('A4', "ประเภทเอกสาร : {$roleTitle}");
+    $this->excel->getActiveSheet()->setCellValue('A4', "สถานะเอกสาร : {$stateTitle}");
     $this->excel->getActiveSheet()->mergeCells('A4:I4');
-    $this->excel->getActiveSheet()->setCellValue('A5', "สถานะเอกสาร : {$stateTitle}");
-    $this->excel->getActiveSheet()->mergeCells('A5:I5');
 
     //--- set Table header
     $this->excel->getActiveSheet()->setCellValue('A6', 'ลำดับ');
     $this->excel->getActiveSheet()->setCellValue('B6', 'วันที่');
     $this->excel->getActiveSheet()->setCellValue('C6', 'IX');
-    $this->excel->getActiveSheet()->setCellValue('D6', 'WMS');
+    $this->excel->getActiveSheet()->setCellValue('D6', "{$wh}");
     $this->excel->getActiveSheet()->setCellValue('E6', 'SAP');
     $this->excel->getActiveSheet()->setCellValue('F6', 'QTY(IX)');
-    $this->excel->getActiveSheet()->setCellValue('G6', 'QTY(WMS)');
+    $this->excel->getActiveSheet()->setCellValue('G6', "QTY({$wh})");
     $this->excel->getActiveSheet()->setCellValue('H6', 'QTY(SAP)');
     $this->excel->getActiveSheet()->setCellValue('I6', 'สถานะ (IX)');
 		$this->excel->getActiveSheet()->setCellValue('J6', 'ช่องทางขาย');
@@ -336,20 +309,24 @@ class Outbound_document_qty_audit extends PS_Controller
       foreach($result as $rs)
       {
 				$sap = NULL;
+        $rs->order_qty = $this->document_audit_model->get_order_qty($rs->code);
+        $temp = $this->document_audit_model->get_wms_temp_qty($rs->code, $is_wms);
+        $rs->temp_qty = (empty($temp) ? 0 : number($temp->qty));
+        $rs->temp_code = (empty($temp) ? NULL : $temp->reference);
 
 				if($rs->state == 8 && ($rs->role == 'S' OR $rs->role == 'C' OR $rs->role == 'P' OR $rs->role == 'U'))
 				{
-					$sap = $this->document_audit_model->get_do_code_and_qty($rs->order_code);
+					$sap = $this->document_audit_model->get_do_code_and_qty($rs->code);
 				}
 
 				if($rs->state == 8 && ($rs->role == 'N' OR $rs->role == 'N' OR $rs->role == 'L' OR $rs->role == 'T' OR $rs->role == 'Q'))
 				{
-					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->order_code);
+					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->code);
 				}
 
         $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
         $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
-        $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->order_code);
+        $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
         $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->temp_code);
         $this->excel->getActiveSheet()->setCellValue('E'.$row, (empty($sap) ? "" : $sap->DocNum));
         $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->order_qty);
@@ -364,7 +341,7 @@ class Outbound_document_qty_audit extends PS_Controller
     }
 
     setToken($token);
-    $file_name = "รายงานกระทบยอดที่เอกสาร IX-WMS-SAP ".date('Ymd').".xlsx";
+    $file_name = "รายงานกระทบยอดที่เอกสาร IX-{$wh}-SAP ".date('Ymd').".xlsx";
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
     header('Content-Disposition: attachment;filename="'.$file_name.'"');
     $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');

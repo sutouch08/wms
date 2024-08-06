@@ -75,7 +75,8 @@ $('#toDate').datepicker({
 });
 
 
-function getReport(){
+function getReport() {
+  var is_wms = $('#is_wms').val();
   var fromDate = $('#fromDate').val();
   var toDate = $('#toDate').val();
 
@@ -87,21 +88,6 @@ function getReport(){
 	else {
 		$('#fromDate').removeClass('has-error');
 		$('#toDate').removeClass('has-error');
-	}
-
-  var allDoc = $('#allDoc').val();
-  var docFrom = $('#docFrom').val();
-  var docTo = $('#docTo').val();
-
-	if(allDoc == 0 && (docFrom.length == 0 || docTo.length == 0)) {
-		$('#docFrom').addClass('has-error');
-		$('#docTo').addClass('has-error');
-		return false;
-	}
-	else
-	{
-		$('#docFrom').removeClass('has-error');
-		$('#docTo').removeClass('has-error');
 	}
 
   var allRole = $('#allRole').val();
@@ -125,9 +111,7 @@ function getReport(){
 	var channels = $('#channels').val();
 
   var data = [
-    {'name' : 'allDoc', 'value' : allDoc},
-    {'name' : 'docFrom', 'value' : docFrom},
-    {'name' : 'docTo', 'value' : docTo},
+    {'name' : 'is_wms', 'value' : is_wms},
     {'name' : 'fromDate', 'value' : fromDate},
     {'name' : 'toDate', 'value' : toDate},
     {'name' : 'allRole', 'value' : allRole},
@@ -183,6 +167,7 @@ function getReport(){
 
 
 function doExport(){
+  var is_wms = $('#is_wms').val();
 	var fromDate = $('#fromDate').val();
   var toDate = $('#toDate').val();
 
@@ -194,21 +179,6 @@ function doExport(){
 	else {
 		$('#fromDate').removeClass('has-error');
 		$('#toDate').removeClass('has-error');
-	}
-
-  var allDoc = $('#allDoc').val();
-  var docFrom = $('#docFrom').val();
-  var docTo = $('#docTo').val();
-
-	if(allDoc == 0 && (docFrom.length == 0 || docTo.length == 0)) {
-		$('#docFrom').addClass('has-error');
-		$('#docTo').addClass('has-error');
-		return false;
-	}
-	else
-	{
-		$('#docFrom').removeClass('has-error');
-		$('#docTo').removeClass('has-error');
 	}
 
   var allRole = $('#allRole').val();
@@ -232,9 +202,7 @@ function doExport(){
 	var channels = $('#channels').val();
 
   var data = [
-    {'name' : 'allDoc', 'value' : allDoc},
-    {'name' : 'docFrom', 'value' : docFrom},
-    {'name' : 'docTo', 'value' : docTo},
+    {'name' : 'is_wms', 'value' : is_wms},  
     {'name' : 'fromDate', 'value' : fromDate},
     {'name' : 'toDate', 'value' : toDate},
     {'name' : 'allRole', 'value' : allRole},
