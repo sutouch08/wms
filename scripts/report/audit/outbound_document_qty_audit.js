@@ -252,7 +252,9 @@ function doExport(){
     });
   }
 
-  var token = $('#token').val();
+  var token = generateUID();
+  $('#token').val(token);
+  
   get_download(token);
 
   $('#reportForm').submit();

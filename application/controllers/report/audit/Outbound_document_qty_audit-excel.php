@@ -270,19 +270,37 @@ class Outbound_document_qty_audit extends PS_Controller
     $roleTitle = $allRole == 1 ? 'ทั้งหมด' : $role_in;
     $stateTitle = $allState == 1 ? 'ทั้งหมด' : $state_in;
 
-    $header = ["ลำดับ", "วันที่", "IX", "{$wh}", "SAP", "QTY(IX)", "QTY({$wh})", "QTY(SAP)", "สถานะ (IX)", "ช่องทางขาย"];
-
     $result = $this->document_audit_model->get_ix_order($arr);
 
-    // Create a file pointer
-    $f = fopen('php://memory', 'w');
-    $delimiter = ",";
-    fputs($f, $bom = ( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
-    fputcsv($f, [$title], $delimiter);
-    fputcsv($f, [$dateTitle], $delimiter);
-    fputcsv($f, [$roleTitle], $delimiter);
-    fputcsv($f, [$stateTitle], $delimiter);
-    fputcsv($f, $header, $delimiter);
+    //--- load excel library
+    $this->load->library('excel');
+
+    $this->excel->setActiveSheetIndex(0);
+    $this->excel->getActiveSheet()->setTitle('Document Qty audit');
+
+    //--- set report title header
+    $this->excel->getActiveSheet()->setCellValue('A1', $title);
+    $this->excel->getActiveSheet()->mergeCells('A1:I1');
+		$this->excel->getActiveSheet()->setCellValue('A2', $dateTitle);
+    $this->excel->getActiveSheet()->mergeCells('A2:I2');
+    $this->excel->getActiveSheet()->setCellValue('A3', "ประเภทเอกสาร : {$roleTitle}");
+    $this->excel->getActiveSheet()->mergeCells('A3:I3');
+    $this->excel->getActiveSheet()->setCellValue('A4', "สถานะเอกสาร : {$stateTitle}");
+    $this->excel->getActiveSheet()->mergeCells('A4:I4');
+
+    //--- set Table header
+    $this->excel->getActiveSheet()->setCellValue('A6', 'ลำดับ');
+    $this->excel->getActiveSheet()->setCellValue('B6', 'วันที่');
+    $this->excel->getActiveSheet()->setCellValue('C6', 'IX');
+    $this->excel->getActiveSheet()->setCellValue('D6', "{$wh}");
+    $this->excel->getActiveSheet()->setCellValue('E6', 'SAP');
+    $this->excel->getActiveSheet()->setCellValue('F6', 'QTY(IX)');
+    $this->excel->getActiveSheet()->setCellValue('G6', "QTY({$wh})");
+    $this->excel->getActiveSheet()->setCellValue('H6', 'QTY(SAP)');
+    $this->excel->getActiveSheet()->setCellValue('I6', 'สถานะ (IX)');
+		$this->excel->getActiveSheet()->setCellValue('J6', 'ช่องทางขาย');
+
+    $row = 7;
 
     if(!empty($result))
     {
@@ -306,42 +324,29 @@ class Outbound_document_qty_audit extends PS_Controller
 					$sap = $this->document_audit_model->get_tr_code_and_qty($rs->code);
 				}
 
-        $row = array(
-          $no,
-          thai_date($rs->date_add, FALSE, '/'),
-          $rs->code,
-          $rs->temp_code,
-          (empty($sap) ? "" : $sap->DocNum),
-          $rs->order_qty,
-          $rs->temp_qty,
-          (empty($sap) ? 0 : $sap->qty),
-          $stateName[$rs->state],
-          empty($rs->channels_code) ? "" : $channelsName[$rs->channels_code]
-        );
+        $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
+        $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
+        $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
+        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->temp_code);
+        $this->excel->getActiveSheet()->setCellValue('E'.$row, (empty($sap) ? "" : $sap->DocNum));
+        $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->order_qty);
+        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->temp_qty);
+        $this->excel->getActiveSheet()->setCellValue('H'.$row, (empty($sap) ? 0 : $sap->qty));
+        $this->excel->getActiveSheet()->setCellValue('I'.$row, $stateName[$rs->state]);
+				$this->excel->getActiveSheet()->setCellValue('J'.$row, empty($rs->channels_code) ? "" : $channelsName[$rs->channels_code]);
 
-        fputcsv($f, $row, $delimiter);
         $no++;
+        $row++;
       }
-
-      $memuse = (memory_get_usage() / 1024) / 1024;
-      $arr = array('memory usage', round($memuse, 2).' MB');
-
-      fputcsv($f, $arr, $delimiter);
     }
 
-    //--- Move to begin of file
-    fseek($f, 0);
-
     setToken($token);
-    $date = date('Ymd');
-    $file_name = "รายงานกระทบยอดที่เอกสาร IX-{$wh}-SAP {$date}.csv";
-    header('Content-Type: text/csv');
+    $file_name = "รายงานกระทบยอดที่เอกสาร IX-{$wh}-SAP ".date('Ymd').".xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
     header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+    $writer->save('php://output');
 
-    //output all remaining data on a file pointer
-    fpassthru($f); ;
-
-    exit();    
   }
 
 

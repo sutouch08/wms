@@ -307,25 +307,22 @@ class Document_audit_model extends CI_Model
 
   public function get_outbound_data_qty(array $ds = array())
 	{
-		if(!empty($ds))
+		if( ! empty($ds))
 		{
+      $tmp = $ds['is_wms'] == 2 ? 'warrix_wms_temp.soko_temp_order' : 'warrix_wms_temp.wms_temp_order';
+      $tmd = $ds['is_wms'] == 2 ? 'warrix_wms_temp.soko_temp_order_detail' : 'warrix_wms_temp.wms_temp_order_detail';
 
 			$qr  = "SELECT o.date_add, o.code AS order_code, o.role, o.state, o.channels_code, ";
 			$qr .= "tmp.reference AS temp_code, ";
 			$qr .= "(SELECT SUM(od.qty) FROM warrix_sap.order_details AS od WHERE od.order_code = o.code AND od.is_count = 1) AS order_qty, ";
-			$qr .= "(SELECT SUM(tmd.qty) FROM warrix_wms_temp.wms_temp_order_detail AS tmd WHERE tmd.id_order = tmp.id) AS temp_qty ";
+			$qr .= "(SELECT SUM(tmd.qty) FROM {$tmd} AS tmd WHERE tmd.id_order = tmp.id) AS temp_qty ";
 			$qr .= "FROM warrix_sap.orders AS o ";
-			$qr .= "LEFT JOIN warrix_wms_temp.wms_temp_order AS tmp ON o.code = tmp.code ";
-			$qr .= "WHERE o.is_wms = 1 ";
+			$qr .= "LEFT JOIN {$tmp} AS tmp ON o.code = tmp.code ";
+			$qr .= "WHERE o.is_wms = {$ds['is_wms']} ";
 			$qr .= "AND o.role IN(".$this->parse_in($ds['role']).") ";
 			$qr .= "AND o.state IN(".$this->parse_in($ds['state']).") ";
 			$qr .= "AND o.date_add >= '".$ds['fromDate']."' ";
-			$qr .= "AND o.date_add <= '".$ds['toDate']."' ";
-
-			if($ds['allDoc'] != 1 && !empty($ds['docFrom']) && !empty($ds['docTo']))
-			{
-				$qr .= "AND o.code >= '".$ds['docFrom']."' AND o.code <= '".$ds['docTo']."' ";
-			}
+			$qr .= "AND o.date_add <= '".$ds['toDate']."' ";			
 
 			if($ds['channels'] != "all")
 			{
