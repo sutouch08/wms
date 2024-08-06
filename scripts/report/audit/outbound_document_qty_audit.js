@@ -1,5 +1,29 @@
 var HOME = BASE_URL + 'report/audit/outbound_document_qty_audit/';
 
+window.addEventListener('load', () => {
+	resizeDisplay();
+})
+
+window.addEventListener('resize', () => {
+	resizeDisplay();
+});
+
+function resizeDisplay() {
+	let height = $(window).height();
+	let navHeight = 45;
+  let headerRow = $('#header-row').height();
+	let searchHeight = $('#search-row').height() + navHeight + headerRow;
+	let pageContentHeight = height - (navHeight + 75);
+	let billTableHeight = pageContentHeight - (searchHeight + 0);
+	let minHeight = 300;
+
+	billTableHeight = billTableHeight < minHeight ? minHeight : billTableHeight;
+
+	$('.page-content').css('height', pageContentHeight + 'px');
+	$('#result').css('height', billTableHeight + 'px');
+}
+
+
 function toggleAllDocument(option){
   $('#allDoc').val(option);
   if(option == 1){
@@ -202,7 +226,7 @@ function doExport(){
 	var channels = $('#channels').val();
 
   var data = [
-    {'name' : 'is_wms', 'value' : is_wms},  
+    {'name' : 'is_wms', 'value' : is_wms},
     {'name' : 'fromDate', 'value' : fromDate},
     {'name' : 'toDate', 'value' : toDate},
     {'name' : 'allRole', 'value' : allRole},
