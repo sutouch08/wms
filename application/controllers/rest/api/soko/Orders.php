@@ -7,8 +7,9 @@ class Orders extends REST_Controller
   public $error;
   public $user;
   public $ms;
+  public $mc;
+  public $wms;
 	public $api_path = "rest/api/soko/orders";
-	public $wms;
 	public $logs;
 	public $log_json = FALSE;
 	public $api = FALSE;
@@ -22,6 +23,7 @@ class Orders extends REST_Controller
 		{
       $this->wms = $this->load->database('wms', TRUE); //--- Temp database
       $this->ms = $this->load->database('ms', TRUE);
+      $this->mc = $this->load->database('mc', TRUE);
       $this->load->model('rest/V1/soko_api_logs_model');
 
 	    $this->load->model('orders/orders_model');
@@ -50,8 +52,453 @@ class Orders extends REST_Controller
   }
 
 
+  public function cancel_put()
+  {
+    $sc = TRUE;
+
+    if( ! $this->api)
+    {
+      if($this->logs_json)
+      {
+        $arr = array(
+          'status' => FALSE,
+          'error' => 'API Not Enabled'
+        );
+
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => 'API Not Enabled',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $json = file_get_contents("php://input");
+
+    $data = json_decode($json);
+
+    $this->api_path."/cancel";
+
+    if(empty($data))
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'empty data'
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => 'empty data',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+
+    if(empty($data->order_number))
+    {
+      $this->error = 'order_number is required';
+      $this->soko_api_logs_model->add("", "E", $this->error, "");
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $code = $data->order_number;
+
+    $order = $this->orders_model->get($code);
+
+    if( ! empty($order))
+    {
+      if($order->state < 8 && $order->state != 9 && $order->is_wms == 2)
+      {
+        $this->load->model('inventory/prepare_model');
+        $this->load->model('inventory/qc_model');
+        $this->load->model('inventory/transform_model');
+        $this->load->model('inventory/transfer_model');
+        $this->load->model('inventory/delivery_order_model');
+        $this->load->model('inventory/invoice_model');
+        $this->load->model('inventory/buffer_model');
+        $this->load->model('inventory/cancle_model');
+    		$this->load->model('inventory/movement_model');
+        $this->load->model('masters/zone_model');
+
+        $this->db->trans_begin();
+
+        $reason = array(
+          'code' => $order->code,
+          'reason_id' => empty($data->reason_group_id) ? NULL : $data->reason_group_id,
+          'reason' => empty($data->cancel_reason) ? "No reason found from sokochan" : $data->cancel_reason,
+          'user' => $this->user
+        );
+
+        if( ! $this->orders_model->add_cancle_reason($reason))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to add cancel reason";
+        }
+
+        if($sc === TRUE && $order->state > 3)
+        {
+          //--- put prepared product to cancle zone
+          $prepared = $this->prepare_model->get_details($code);
+
+          if(! empty($prepared))
+          {
+            foreach($prepared AS $rs)
+            {
+              if($sc === FALSE)
+              {
+                break;
+              }
+
+              $zone = $this->zone_model->get($rs->zone_code);
+
+              $arr = array(
+                'order_code' => $rs->order_code,
+                'product_code' => $rs->product_code,
+                'warehouse_code' => empty($zone->warehouse_code) ? NULL : $zone->warehouse_code,
+                'zone_code' => $rs->zone_code,
+                'qty' => $rs->qty,
+                'user' => $this->user,
+                'order_detail_id' => $rs->order_detail_id
+              );
+
+              if( ! $this->cancle_model->add($arr) )
+              {
+                $sc = FALSE;
+                $this->error = "Move Items to Cancle failed";
+              }
+            }
+          }
+
+          //--- drop sold data
+          if($sc === TRUE)
+          {
+            if( ! $this->invoice_model->drop_all_sold($code))
+            {
+              $sc = FALSE;
+              $this->error = "Drop shipped data failed";
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          //---- เมื่อมีการยกเลิกออเดอร์
+          //--- 1. เคลียร์ buffer
+          if(! $this->buffer_model->delete_all($code) )
+          {
+            $sc = FALSE;
+            $this->error = "Delete buffer failed";
+          }
+
+          //--- 2. ลบประวัติการจัดสินค้า
+          if($sc === TRUE)
+          {
+            if(! $this->prepare_model->clear_prepare($code) )
+            {
+              $sc = FALSE;
+              $this->error = "Delete prepared data failed";
+            }
+          }
+
+
+          //--- 3. ลบประวัติการตรวจสินค้า
+          if($sc === TRUE)
+          {
+            if(! $this->qc_model->clear_qc($code) )
+            {
+              $sc = FALSE;
+              $this->error = "Delete QC failed";
+            }
+          }
+
+    			//--- remove movement
+    	    if($sc === TRUE)
+    	    {
+    	      if(! $this->movement_model->drop_movement($code) )
+    	      {
+    	        $sc = FALSE;
+    	        $this->error = "Drop movement failed";
+    	      }
+    	    }
+
+
+          //--- 4. set รายการสั่งซื้อ ให้เป็น ยกเลิก
+          if($sc === TRUE)
+          {
+            if(! $this->orders_model->cancle_order_detail($code) )
+            {
+              $sc = FALSE;
+              $this->error = "Cancle Order details failed";
+            }
+          }
+
+
+          //--- 5. ยกเลิกออเดอร์
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'state' => 9,
+              'status' => 2,
+              'inv_code' => NULL,
+              'is_exported' => 0,
+              'is_report' => NULL
+            );
+
+            if( ! $this->orders_model->update($code, $arr) )
+            {
+              $sc = FALSE;
+              $this->error = "Change order status failed";
+            }
+          }
+
+          //--- 6. add order state change
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'order_code' => $code,
+              'state' => 9,
+              'update_user' => $this->user
+            );
+
+            if( ! $this->order_state_model->add_state($arr) )
+            {
+              $sc = FALSE;
+              $this->error = "Add state failed";
+            }
+          }
+
+
+          if($sc === TRUE)
+          {
+            //--- 6. ลบรายการที่ผู้ไว้ใน order_transform_detail (กรณีเบิกแปรสภาพ)
+            if($order->role == 'T' OR $order->role == 'Q')
+            {
+              if(! $this->transform_model->clear_transform_detail($code) )
+              {
+                $sc = FALSE;
+                $this->error = "Clear Transform backlogs failed";
+              }
+
+              $this->transform_model->close_transform($code);
+            }
+
+            //-- หากเป็นออเดอร์ยืม
+            if($order->role == 'L')
+            {
+              if(! $this->lend_model->drop_backlogs_list($code) )
+              {
+                $sc = FALSE;
+                $this->error = "Drop Lend backlogs failed";
+              }
+            }
+
+            //---- ถ้าเป็นฝากขายโอนคลัง ตามไปลบ transfer draft ที่ยังไม่เอาเข้าด้วย
+            if($order->role == 'N')
+            {
+              $middle = $this->transfer_model->get_middle_transfer_draft($code);
+
+              if( ! empty($middle))
+              {
+                foreach($middle as $rows)
+                {
+                  $this->transfer_model->drop_middle_transfer_draft($rows->DocEntry);
+                }
+              }
+            }
+            else if($order->role == 'T' OR $order->role == 'Q' OR $order->role == 'L')
+            {
+              $middle = $this->transfer_model->get_middle_transfer_doc($code);
+
+              if( ! empty($middle))
+              {
+                foreach($middle as $rows)
+                {
+                  $this->transfer_model->drop_middle_exits_data($rows->DocEntry);
+                }
+              }
+            }
+            else
+            {
+              //---- ถ้าออเดอร์ยังไม่ถูกเอาเข้า SAP ลบออกจากถังกลางด้วย
+              $middle = $this->delivery_order_model->get_middle_delivery_order($code);
+
+              if( ! empty($middle))
+              {
+                foreach($middle as $rows)
+                {
+                  $this->delivery_order_model->drop_middle_exits_data($rows->DocEntry);
+                }
+              }
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+      }
+      else
+      {
+        if($order->state == 8 && $order->is_wms == 2)
+        {
+          $sc = FALSE;
+          $this->error = "Order number {$code} already shipped cannot be cancel.";
+        }
+
+        if($order->state < 8 && $order->is_wms != 2)
+        {
+          $sc = FALSE;
+          $this->error = "Order number {$code} are not interface to Sokochan cannot be cancel.";
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Invalid order_number: {$code}";
+    }
+
+    if($sc === TRUE)
+    {
+      $this->soko_api_logs_model->add("cancel", "S", NULL, $code);
+      //--- logs result
+      $arr = array(
+        'status' => 'success',
+        'message' => "The Order {$code} Successfully Cancelled.",
+        'order_number' => $code
+      );
+
+      if($this->logs_json)
+			{
+				$logs = array(
+					'trans_id' => genUid(),
+					'api_path' => $this->api_path,
+					'type' => 'ORDER',
+					'code' => $code,
+					'action' => 'cancel',
+					'status' => 'success',
+					'message' => 'success',
+					'request_json' => $json,
+					'response_json' => json_encode($arr)
+				);
+
+				$this->soko_api_logs_model->add_api_logs($logs);
+			}
+
+			$this->response($arr, 200);
+    }
+    else
+    {
+      $this->soko_api_logs_model->add("cancel", "E", NULL, $code);
+      //--- logs result
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error,
+        'order_number' => $code
+      );
+
+      if($this->logs_json)
+			{
+				$logs = array(
+					'trans_id' => genUid(),
+					'api_path' => $this->api_path,
+					'type' => 'ORDER',
+					'code' => $code,
+					'action' => 'cancel',
+					'status' => 'failed',
+					'message' => $this->error,
+					'request_json' => $json,
+					'response_json' => json_encode($arr)
+				);
+
+				$this->soko_api_logs_model->add_api_logs($logs);
+			}
+
+			$this->response($arr, 200);
+    }
+  } //--- end cancel
+
+
   public function create_post()
   {
+    if( ! $this->api)
+    {
+      if($this->logs_json)
+      {
+        $arr = array(
+          'status' => FALSE,
+          'error' => 'API Not Enabled'
+        );
+
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => 'API Not Enabled',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
     //--- Get raw post data
     $json = file_get_contents("php://input");
 
@@ -68,7 +515,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' =>'ORDER',
           'code' => NULL,
-          'action' => 'Create',
+          'action' => 'create',
           'status' => 'failed',
           'message' => 'empty data',
           'request_json' => $json,
@@ -103,7 +550,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' =>'ORDER',
           'code' => NULL,
-          'action' => 'Create',
+          'action' => 'create',
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -135,7 +582,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' =>'ORDER',
           'code' => $data->order_number,
-          'action' => 'Create',
+          'action' => 'create',
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -169,7 +616,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' =>'ORDER',
           'code' => $data->order_number,
-          'action' => 'Create',
+          'action' => 'create',
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -225,7 +672,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' =>'ORDER',
           'code' => $data->order_number,
-          'action' => 'Create',
+          'action' => 'create',
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -429,7 +876,7 @@ class Orders extends REST_Controller
             'api_path' => $this->api_path,
             'type' =>'ORDER',
             'code' => $data->order_number,
-            'action' => 'Create',
+            'action' => 'create',
             'status' => 'success',
             'message' => 'success',
             'request_json' => $json,
@@ -460,7 +907,7 @@ class Orders extends REST_Controller
             'api_path' => $this->api_path,
             'type' =>'ORDER',
             'code' => $data->order_number,
-            'action' => 'Create',
+            'action' => 'create',
             'status' => 'failed',
             'message' => $this->error,
             'request_json' => $json,

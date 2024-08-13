@@ -288,29 +288,7 @@ class Delivery_order_model extends CI_Model
     //--- เปรียบเทียบยอดที่มีการสั่งซื้อ และมีการตรวจสอนค้า
     //--- เพื่อให้ได้ยอดที่ต้องเปิดบิล บันทึกขายจริงๆ
     //--- ผลลัพธ์จะไม่ได้ยอดที่มีการสั่งซื้อแต่ไม่มียอดตรวจ หรือ มียอดตรวจแต่ไม่มียอดสั่งซื้อ (กรณีมีการแก้ไขออเดอร์)
-    // public function get_bill_detail($code)
-    // {
-    //   $qr = "SELECT o.id, o.style_code, o.product_code, o.product_name, o.qty AS order_qty, ";
-    //   $qr .= "o.cost, o.price, o.discount1, o.discount2, o.discount3, ";
-    //   $qr .= "o.id_rule, ru.id_policy, o.is_count, ";
-    //   $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
-    //   $qr .= "(o.total_amount/o.qty) AS final_price, ";
-    //   $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS prepared, ";
-    //   $qr .= "(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code AND (order_detail_id = o.id OR order_detail_id IS NULL)) AS qc ";
-    //   $qr .= "FROM order_details AS o ";
-    //   $qr .= "LEFT JOIN discount_rule AS ru ON ru.id = o.id_rule ";
-    //   $qr .= "WHERE o.order_code = '{$code}' ";
-    //   $qr .= "HAVING qc IS NOT NULL";
-    //
-    //   $rs = $this->db->query($qr);
-    //   if($rs->num_rows() > 0)
-    //   {
-    //     return $rs->result();
-    //   }
-    //
-    //   return FALSE;
-    // }
-
+    
     public function get_bill_detail($code)
     {
       $qr = "SELECT o.id, o.style_code, o.product_code, o.product_name, o.qty AS order_qty, ";
@@ -332,7 +310,7 @@ class Delivery_order_model extends CI_Model
 
       return FALSE;
     }
-    
+
 
     public function get_non_count_bill_detail($code)
     {

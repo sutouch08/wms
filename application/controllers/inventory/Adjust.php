@@ -997,23 +997,22 @@ class Adjust extends PS_Controller
   public function do_export($code)
   {
     $sc = TRUE;
-    if(!empty($code))
+
+    if( ! empty($code))
     {
       $this->load->library('export');
+
       if(! $this->export->export_adjust_goods_issue($code))
       {
         $sc = FALSE;
         $this->error = trim($this->export->error);
       }
 
-      if($sc === TRUE)
+      if(! $this->export->export_adjust_goods_receive($code))
       {
-        if(! $this->export->export_adjust_goods_receive($code))
-        {
-          $sc = FALSE;
-          $this->error = trim($this->export->error);
-        }
-      }
+        $sc = FALSE;
+        $this->error = trim($this->export->error);
+      }      
     }
     else
     {
