@@ -17,21 +17,21 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่ WX</label>
     <input type="text" class="form-control input-sm search" name="wx_code"  value="<?php echo $wx_code; ?>" />
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>Pallet No.</label>
     <input type="text" class="form-control input-sm search" name="pallet_no"  value="<?php echo $pallet_no; ?>" />
   </div>
 
-  <div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+  <div class="col-lg-3-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>คลังต้นทาง</label>
 		<select class="width-100 filter" name="from_warehouse" id="from-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -39,7 +39,7 @@
     </select>
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-3-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>คลังปลายทาง</label>
 		<select class="width-100 filter" name="to_warehouse" id="to-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -47,7 +47,7 @@
     </select>
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-3 col-sm-2 col-xs-6 padding-5">
 		<label>พนักงาน</label>
 		<select class="width-100 filter" name="user" id="user">
 			<option value="all">ทั้งหมด</option>
@@ -65,7 +65,17 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>WMS</label>
+		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $wms_export); ?>>ยังไม่ส่ง</option>
+			<option value="1" <?php echo is_selected('1', $wms_export); ?>>ส่งแล้ว</option>
+			<option value="3" <?php echo is_selected('3', $wms_export); ?>>ส่งไม่ผ่าน</option>
+		</select>
+	</div>
+
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -79,7 +89,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>การอนุมัติ</label>
     <select class="form-control input-sm" name="is_approve" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -90,7 +100,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>การยืนยัน</label>
 		<select class="form-control input-sm" name="must_accept" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -99,7 +109,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>Interface</label>
 		<select class="form-control input-sm" name="api" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -108,7 +118,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>ยอดรับ</label>
 		<select class="form-control input-sm" name="valid" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -161,13 +171,13 @@
 		</p>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1420px;">
+		<table class="table table-striped border-1" style="min-width:1450px;">
 			<thead>
 				<tr>
 					<th class="fix-width-100 middle"></th>
 					<th class="fix-width-50 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
-					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
+					<th class="fix-width-150 middle">เลขที่เอกสาร</th>
 					<th class="fix-width-40 middle text-center">สถานะ</th>
 					<th class="fix-width-200 middle">ต้นทาง</th>
 					<th class="fix-width-200 middle">ปลายทาง</th>
@@ -196,7 +206,12 @@
 							</td>
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle"><?php echo $rs->code; ?></td>
+              <td class="middle">
+								<?php echo $rs->code; ?>
+								<?php if($rs->wms_export == 3) : ?>
+									<span class="font-size-10 red">Failed</span>
+								<?php endif; ?>
+							</td>
 							<td class="middle text-center">
 								<?php if($rs->is_expire == 1) : ?>
 									<span class="dark">EXP</span>

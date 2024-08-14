@@ -31,7 +31,7 @@ class Wms_receive_api
 	//--- export return order
 	public function export_return_order($doc, $details)
 	{
-		// Assign the CodeIgniter super-object
+		$this->ci->load->model('inventory/return_order_model');
 
 		$sc = TRUE;
 		$this->type = "SM";
@@ -148,10 +148,24 @@ class Wms_receive_api
 		if($sc === TRUE)
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+
+      $arr = array(
+        'wms_export' => 1,
+        'wms_export_error' => NULL
+      );
+
+      $this->ci->return_order_model->update($doc->code, $arr);
 		}
 		else
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+
+      $arr = array(
+        'wms_export' => 3,
+        'wms_export_error' => $this->error
+      );
+
+      $this->ci->return_order_model->update($doc->code, $arr);
 		}
 
 		return $sc;
@@ -163,6 +177,7 @@ class Wms_receive_api
 	public function export_return_consignment($doc, $details)
 	{
 		// Assign the CodeIgniter super-object
+    $this->ci->load->model('inventory/return_consignment_model');
 
 		$sc = TRUE;
 		$this->type = "CN";
@@ -279,10 +294,24 @@ class Wms_receive_api
 		if($sc === TRUE)
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+
+      $arr = array(
+        'wms_export' => 1,
+        'wms_export_error' => NULL
+      );
+
+      $this->ci->return_consignment_model->update($doc->code, $arr);
 		}
 		else
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+
+      $arr = array(
+        'wms_export' => 3,
+        'wms_export_error' => $this->error
+      );
+
+      $this->ci->return_consignment_model->update($doc->code, $arr);
 		}
 
 		return $sc;
@@ -293,6 +322,8 @@ class Wms_receive_api
 	//--- export return lend
 	public function export_return_lend($doc, $details)
 	{
+    $this->ci->load->model('inventory/return_lend_model');
+
 		$sc = TRUE;
 		$this->type = "RN";
 		$xml = "";
@@ -404,10 +435,24 @@ class Wms_receive_api
 		if($sc === TRUE)
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+
+      $arr = array(
+        'wms_export' => 1,
+        'wms_export_error' => NULL
+      );
+
+      $this->ci->return_lend_model->update($doc->code, $arr);
 		}
 		else
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+
+      $arr = array(
+        'wms_export' => 3,
+        'wms_export_error' => $this->error
+      );
+
+      $this->ci->return_lend_model->update($doc->code, $arr);
 		}
 
 		return $sc;
@@ -416,6 +461,7 @@ class Wms_receive_api
 	//---- export receive po
 	public function export_receive_po($doc, $po_code, $invoice, $details)
 	{
+    $this->ci->load->model('inventory/receive_po_model');
 		$sc = TRUE;
 		$this->type = "WR";
 		$xml = "";
@@ -519,10 +565,24 @@ class Wms_receive_api
 		if($sc === TRUE)
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+
+      $arr = array(
+        'wms_export' => 1,
+        'wms_export_error' => NULL
+      );
+
+      $this->ci->receive_po_model->update($doc->code, $arr);
 		}
 		else
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+
+      $arr = array(
+        'wms_export' => 3,
+        'wms_export_error' => $this->error
+      );
+
+      $this->ci->receive_po_model->update($doc->code, $arr);
 		}
 
 		return $sc;
@@ -533,6 +593,8 @@ class Wms_receive_api
 	//---- export receive transform
   public function export_receive_transform($doc, $order_code, $invoice, $details)
   {
+    $this->ci->load->model('inventory/receive_transform_model');
+
 		$sc = TRUE;
 		$this->type = "RT";
 		$xml = "";
@@ -636,10 +698,24 @@ class Wms_receive_api
 		if($sc === TRUE)
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+
+      $arr = array(
+        'wms_export' => 1,
+        'wms_export_error' => NULL
+      );
+
+      $this->ci->receive_transform_model->update($doc->code, $arr);
 		}
 		else
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+
+      $arr = array(
+        'wms_export' => 3,
+        'wms_export_error' => $this->error
+      );
+
+      $this->ci->receive_transform_model->update($doc->code, $arr);
 		}
 
 		return $sc;
@@ -651,6 +727,7 @@ class Wms_receive_api
 	public function export_transfer($doc, $details)
 	{
 		// Assign the CodeIgniter super-object
+    $this->ci->load->model('inventory/transfer_model');
 
 		$sc = TRUE;
 		$this->type = "WW";
@@ -762,10 +839,22 @@ class Wms_receive_api
 		if($sc === TRUE)
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+      $arr = array(
+        'wms_export' => 1,
+        'wms_export_error' => NULL
+      );
+
+      $this->ci->transfer_model->update($doc->code, $arr);
 		}
 		else
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+      $arr = array(
+        'wms_export' => 3,
+        'wms_export_error' => $this->error
+      );
+
+      $this->ci->transfer_model->update($doc->code, $arr);
 		}
 
 		return $sc;
@@ -776,6 +865,7 @@ class Wms_receive_api
 	//--- export consign check to  wms
 	public function export_consign_check($doc, $details)
 	{
+    $this->ci->load->model('inventory/consign_check_model');
 
 		$sc = TRUE;
 		$this->type = "WX";
@@ -887,10 +977,24 @@ class Wms_receive_api
 		if($sc === TRUE)
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'S', NULL, $this->type);
+
+      $arr = array(
+        'wms_export' => 1,
+        'wms_export_error' => NULL
+      );
+
+      $this->ci->consign_check_model->update($doc->code, $arr);
 		}
 		else
 		{
 			$this->ci->wms_error_logs_model->add($doc->code, 'E', $this->error, $this->type);
+
+      $arr = array(
+        'wms_export' => 3,
+        'wms_export_error' => $this->error
+      );
+
+      $this->ci->consign_check_model->update($doc->code, $arr);
 		}
 
 		return $sc;

@@ -56,6 +56,13 @@
 <?php $this->load->view('transform/transform_edit_header'); ?>
 <?php if(empty($approve_view)) : ?>
 <?php $this->load->view('orders/order_panel'); ?>
+
+<?php if($is_api && $order->is_wms != 0 && $order->is_api == 0 && $order->state >= 3 && $order->state != 9 && $order->wms_export != 1) : ?>
+	<div class="col-lg-12 col-md-12 col-xs-12 padding-5">
+		<?php 	$this->load->view('wms_error_watermark'); ?>
+	</div>
+<?php endif; ?>
+
 <?php $this->load->view('orders/order_online_modal'); ?>
 <?php else : ?>
 	<input type="hidden" id="id_sender" value="<?php echo $order->id_sender; ?>"/>

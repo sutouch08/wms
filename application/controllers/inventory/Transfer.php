@@ -46,6 +46,7 @@ class Transfer extends PS_Controller
       'status' => get_filter('status', 'tr_status', 'all'),
       'is_approve' => get_filter('is_approve', 'tr_is_approve', 'all'),
       'is_wms' => get_filter('is_wms', 'tr_is_wms', 'all'),
+      'wms_export' => get_filter('wms_export', 'tr_wms_export', 'all'),
 			'api' => get_filter('api', 'tr_api', 'all'),
       'valid' => get_filter('valid', 'tr_valid', 'all'),
       'sap' => get_filter('sap', 'tr_sap', 'all'),
@@ -68,7 +69,36 @@ class Transfer extends PS_Controller
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 		$docs     = $this->transfer_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
+    $whs = array();
+    $usr = array();
 
+    if( ! empty($docs))
+    {
+      foreach($docs as $rs)
+      {
+        if(empty($usr[$rs->user]))
+        {
+          $user = $this->user_model->get($rs->user);
+          $usr[$rs->user] = empty($user) ? "" : $user->name;
+        }
+
+        if(empty($whs[$rs->from_warehouse]))
+        {
+          $fWh = $this->warehouse_model->get($rs->from_warehouse);
+          $whs[$rs->from_warehouse] = empty($fWh) ? "" : $fWh->name;
+        }
+
+        if(empty($whs[$rs->to_warehouse]))
+        {
+          $tWh = $this->warehouse_model->get($rs->to_warehouse);
+          $whs[$rs->to_warehouse] = empty($tWh) ? "" : $tWh->name;
+        }
+
+        $rs->display_name = $usr[$rs->user];
+        $rs->from_warehouse_name = $whs[$rs->from_warehouse];
+        $rs->to_warehouse_name = $whs[$rs->to_warehouse];
+      }
+    }
 
     $filter['docs'] = $docs;
 		$this->pagination->initialize($init);
@@ -2833,6 +2863,7 @@ class Transfer extends PS_Controller
       'tr_status',
 			'tr_api',
       'tr_is_wms',
+      'tr_wms_export',
       'tr_is_approve',
       'tr_valid',
       'tr_sap',
