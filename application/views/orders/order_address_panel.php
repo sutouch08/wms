@@ -25,7 +25,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
-			<div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-sm-offset-4 col-xs-12 padding-5 bottom-btn" id="rc-div" style="z-index:1;">        
+			<div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-sm-offset-4 col-xs-12 padding-5 bottom-btn" id="rc-div" style="z-index:1;">
 				<?php if($order->is_wms != 0 && $order->wms_export == 1) : ?>
 					<?php if($order->state == 9 && $order->is_cancled == 1) : ?>
 						<button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="print_wms_return_request()">พิมพ์ RC-WO</button>
@@ -39,7 +39,10 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 				<button type="button" class="btn btn-xs btn-primary pull-right margin-left-5" onclick="update_wms_status()">WMS Status</button>
 				<?php endif; ?>
         <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="show_tracking()">Tracking No</button>
+        <button type="button" class="btn btn-xs btn-purple pull-right margin-left-5" onclick="viewTempDelivery('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">Temp Delivery</button>
+        <button type="button" class="btn btn-xs btn-yellow pull-right margin-left-5" onclick="viewApiLogs('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">API Logs</button>
 			</div>
+
     	<ul class="nav nav-tabs" role="tablist">
         <li class="active">
         	<a href="#state" aria-expanded="true" aria-controls="state" role="tab" data-toggle="tab">สถานะ</a>
@@ -409,5 +412,45 @@ function print_wms_return_request() {
 	}
 }
 
+
+function viewTempDelivery(code, is_wms)
+{
+  let url = is_wms == 1 ? BASE_URL + "rest/V1/wms_temp_delivery" : BASE_URL + "rest/V1/soko_temp_delivery";
+  let mapForm = document.createElement("form");
+  mapForm.target = "Map";
+  mapForm.method = "POST";
+  mapForm.action = url;
+
+  let mapInput = document.createElement("input");
+  mapInput.type = "text";
+  mapInput.name = "code";
+  mapInput.value = code;
+  mapForm.appendChild(mapInput);
+
+  document.body.appendChild(mapForm);
+  map = window.open(url, "Map", "height=800, scrollbars=yes");
+  mapForm.submit();
+  document.body.removeChild(mapForm);
+}
+
+function viewApiLogs(code, is_wms)
+{
+  let url = is_wms == 1 ? BASE_URL + "rest/V1/wms_logs" : BASE_URL + "rest/V1/soko_api_logs";
+  let mapForm = document.createElement("form");
+  mapForm.target = "Map";
+  mapForm.method = "POST";
+  mapForm.action = url;
+
+  let mapInput = document.createElement("input");
+  mapInput.type = "text";
+  mapInput.name = "code";
+  mapInput.value = code;
+  mapForm.appendChild(mapInput);
+
+  document.body.appendChild(mapForm);
+  map = window.open(url, "Map", "height=800, scrollbars=yes");
+  mapForm.submit();
+  document.body.removeChild(mapForm);
+}
 
 </script>
