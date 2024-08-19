@@ -1003,7 +1003,7 @@ class Orders extends PS_Controller
     $order = $this->orders_model->get($code);
 
     //--- ถ้าออเดอร์เป็นแบบเครดิต
-    if($order->is_term == 1 && $order->role === 'S' && $order->payment_role == 5)
+    if($order->is_term == 1 && ($order->role === 'S' OR $order->role === 'C') && $order->payment_role == 5)
     {
       //--- creadit used
       $credit_used = round($this->orders_model->get_sum_not_complete_amount($order->customer_code), 2);
