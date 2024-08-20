@@ -4290,6 +4290,61 @@ class Orders extends PS_Controller
 	}
 
 
+  public function test_send_to_wms($code)
+	{
+		$sc = TRUE;
+    $res = "";
+		$order = $this->orders_model->get($code);
+
+		if( ! empty($order))
+		{
+      //---- export to fulfillment
+      if($order->is_wms != 0)
+      {
+        $this->wms = $this->load->database('wms', TRUE);
+
+        if($order->is_wms == 1)
+        {
+          $this->load->library('wms_order_api');
+
+          $res = $this->wms_order_api->test_export_order($code);
+
+          echo '<pre>'.htmlentities($res).'</pre>';
+        } //--- if($order->is_wms == 1)
+
+        //---- export to soko
+        if($order->is_wms == 2)
+        {
+          $this->load->library('soko_order_api');
+
+          $res = $this->soko_order_api->test_export_order($code);
+
+          if(is_array($res))
+          {
+            echo "<pre>";
+            print_r($res);
+            echo "</pre>";
+          }
+          else
+          {
+            echo $res;
+          }
+        } //--- if($order->is_wms == 2)
+      } //--- export fulfillment
+      else
+      {
+        echo "ORDER NOT FOR WMS";
+      }
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
+		}
+
+		echo $sc === TRUE ? "" : $this->error;
+	}
+
 
   public function send_multiple_orders_to_wms()
 	{
