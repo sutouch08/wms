@@ -37,8 +37,10 @@ class WT extends REST_Controller
   }
 
   //--- for POS
-	public function get_get($code = NULL, $test = FALSE)
+	public function get_get($code = NULL)
 	{
+    $api_path = $this->path."get/{$code}";
+
     $sc = TRUE;
 
     $json = file_get_contents("php://input");
@@ -295,7 +297,7 @@ class WT extends REST_Controller
           'trans_id' => genUid(),
           'api_path' => $api_path,
           'type' =>'WT',
-          'code' => $data->code,
+          'code' => $ds->code,
           'action' => 'confirm',
           'status' => 'failed',
           'message' => $this->error,
@@ -344,7 +346,7 @@ class WT extends REST_Controller
             'trans_id' => genUid(),
             'api_path' => $api_path,
             'type' =>'WT',
-            'code' => $data->code,
+            'code' => $ds->code,
             'action' => 'confirm',
             'status' => 'success',
             'message' => 'success',
@@ -373,7 +375,7 @@ class WT extends REST_Controller
             'trans_id' => genUid(),
             'api_path' => $api_path,
             'type' =>'WT',
-            'code' => $data->code,
+            'code' => $ds->code,
             'action' => 'confirm',
             'status' => 'failed',
             'message' => $this->error,
@@ -400,7 +402,7 @@ class WT extends REST_Controller
           'trans_id' => genUid(),
           'api_path' => $api_path,
           'type' =>'WT',
-          'code' => $data->code,
+          'code' => $ds->code,
           'action' => 'confirm',
           'status' => 'success',
           'message' => 'success',
@@ -418,7 +420,8 @@ class WT extends REST_Controller
 
   public function get_list_get($zone_code = NULL)
   {
-    $api_path = $this->path."get_list";
+    $api_path = $this->path."get_list/{$zone_code}";
+    $json = NULL;
 
     $sc = TRUE;
 
@@ -478,7 +481,7 @@ class WT extends REST_Controller
             'trans_id' => genUid(),
             'api_path' => $api_path,
             'type' =>'WT',
-            'code' => NULL,
+            'code' => $zone_code,
             'action' => 'get',
             'status' => 'failed',
             'message' => $this->error,
@@ -524,7 +527,7 @@ class WT extends REST_Controller
           'trans_id' => genUid(),
           'api_path' => $api_path,
           'type' =>'WT',
-          'code' => NULL,
+          'code' => $zone_code,
           'action' => 'get',
           'status' => 'success',
           'message' => 'success',

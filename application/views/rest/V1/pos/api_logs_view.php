@@ -14,7 +14,7 @@
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label>Status</label>
 		<select class="form-control input-sm" name="status" onchange="getSearch()">
-			<option value="all">All</option>
+			<option value="all">ทั้งหมด</option>
 			<option value="success" <?php echo is_selected('success', $status); ?>>Success</option>
 			<option value="failed" <?php echo is_selected('failed', $status); ?>>Failed</option>
 			<option value="test" <?php echo is_selected('test', $status); ?>>Test</option>
@@ -35,7 +35,7 @@
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 		<label>Action</label>
 		<select class="form-control input-sm" name="action" onchange="getSearch()">
-			<option value="all">All</option>
+			<option value="all">ทั้งหมด</option>
 			<option value="get" <?php echo is_selected('get', $action); ?>>GET</option>
 			<option value="create" <?php echo is_selected('create', $action); ?>>CREATE</option>
 			<option value="update" <?php echo is_selected('update', $action); ?>>UPDATE</option>
@@ -68,12 +68,13 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5">
-		<table class="table table-striped border-1">
+		<table class="table table-striped border-1" style="min-width:1030px;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 middle text-center">#</th>
 					<th class="fix-width-150 middle">วันที่</th>
-					<th class="fix-width-200 middle">เลขที่/รหัส</th>
+					<th class="fix-width-120 middle">เลขที่/รหัส</th>
+					<th class="fix-wisth-200 middle">API Path</th>
 					<th class="fix-width-80 middle text-center">Type</th>
 					<th class="fix-width-80 middle text-center">Action</th>
 					<th class="fix-width-80 middle text-center">Status</th>
@@ -85,16 +86,18 @@
         <?php if(!empty($logs)) : ?>
           <?php $no = $this->uri->segment(5) + 1; ?>
           <?php foreach($logs as $rs) : ?>
-            <tr>
+					<?php $color = $rs->status == 'failed' ? 'red' : ''; ?>
+            <tr class="font-size-12 <?php echo $color; ?>">
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle"><?php echo thai_date($rs->date_upd, TRUE, '/'); ?></td>
               <td class="middle"><?php echo $rs->code; ?></td>
+							<td class="middle"><?php echo $rs->api_path; ?></td>
 							<td class="middle text-center"><?php echo $rs->type; ?></td>
 							<td class="middle text-center"><?php echo $rs->action; ?></td>
               <td class="middle text-center"><?php echo $rs->status; ?></td>
               <td class="middle"><?php echo $rs->message; ?></td>
 							<td class="middle">
-								<button type="button" class="btn btn-sm btn-info" onclick="viewDetail(<?php echo $rs->id; ?>)">View detail</button>
+								<button type="button" class="btn btn-mini btn-info" onclick="viewDetail(<?php echo $rs->id; ?>)">View detail</button>
 							</td>
             </tr>
             <?php $no++; ?>
