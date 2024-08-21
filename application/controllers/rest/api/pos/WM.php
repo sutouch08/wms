@@ -9,7 +9,7 @@ class WM extends REST_Controller
   public $mc;
   public $user;
   public $logs;
-  public $log_json = FALSE;
+  public $logs_json = FALSE;
   public $api = FALSE;
   public $create_status;
   private $path = "/rest/api/pos/WM/";
@@ -25,7 +25,7 @@ class WM extends REST_Controller
       $this->ms = $this->load->database('ms', TRUE);
       $this->mc = $this->load->database('mc', TRUE);
       $this->logs = $this->load->database('logs', TRUE); //--- api logs database
-      $this->log_json = is_true(getConfig('POS_LOG_JSON'));
+      $this->logs_json = is_true(getConfig('POS_LOG_JSON'));
       $this->user = "pos@warrix.co.th";
       $this->load->model('account/consign_order_model');
       $this->load->model('inventory/delivery_order_model');
@@ -35,7 +35,7 @@ class WM extends REST_Controller
       $this->load->model('masters/warehouse_model');
       $this->load->model('masters/products_model');
       $this->load->model('masters/customers_model');
-      $this->load->model('rest/V1/order_api_logs_model');
+      $this->load->model('rest/V1/pos_api_logs_model');
       $this->load->helper('discount');
     }
     else
@@ -47,6 +47,8 @@ class WM extends REST_Controller
 
   public function create_post()
   {
+    $api_path = $this->path."create";
+
     $sc = TRUE;
 
     //--- Get raw post data
@@ -58,8 +60,29 @@ class WM extends REST_Controller
     {
       $this->error = "Missing required parameters";
 
-      $this->add_logs('WM', 'create', 'error', $this->error, NULL);
-      $this->response(['status' => FALSE, 'error' => 'Missing required parameters'], 400);
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => NULL,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
     $sc = $this->verify_data($data);
@@ -67,8 +90,29 @@ class WM extends REST_Controller
 		//---- if any error return
     if($sc === FALSE)
     {
-      $this->add_logs('WM', 'create', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'error' => $this->error], 400);
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
 
@@ -76,8 +120,30 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "pos_ref {$data->pos_ref} already exists";
-      $this->add_logs('WM', 'create', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     $customer = $this->customers_model->get($data->customer_code);
@@ -86,8 +152,30 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid Customer code : {$data->customer_code}";
-      $this->add_logs('WM', 'create', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     $zone = $this->zone_model->get($data->zone_code);
@@ -96,16 +184,60 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid Zone code : {$data->zone_code}";
-      $this->add_logs('WM', 'create', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     if( ! $this->zone_model->is_exists_customer($zone->code, $customer->code))
     {
       $sc = FALSE;
       $this->error = "No matching records found, Customer and Zone missmatch";
-      $this->add_logs('WM', 'create', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     //--- check each item code
@@ -113,8 +245,30 @@ class WM extends REST_Controller
     {
 			$sc = FALSE;
 			$this->error = "Missing required parameter : Items";
-      $this->add_logs('WM', 'create', 'error', $this->error, $json);
-      $this->response(array('status' => FALSE, 'message' => $this->error), 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     //---- check valid items data
@@ -138,8 +292,29 @@ class WM extends REST_Controller
     //---- if any error return
     if($sc === FALSE)
     {
-      $this->add_logs('WM', 'create', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     //---- all data validated
@@ -292,23 +467,56 @@ class WM extends REST_Controller
 
         if($sc === TRUE)
         {
-          //--- add logs
-          $this->add_logs($code, 'create', 'success', 'success', $json);
-
           $arr = array(
             'status' => TRUE,
             'message' => 'success',
             'code' => $code
           );
 
-          $this->add_logs($code, 'create', 'response', 'success', json_encode($arr));
+          if($this->logs_json)
+          {
+            $logs = array(
+              'trans_id' => genUid(),
+              'api_path' => $api_path,
+              'type' =>'WM',
+              'code' => $data->pos_ref,
+              'action' => 'create',
+              'status' => 'success',
+              'message' => 'success',
+              'request_json' => $json,
+              'response_json' => json_encode($arr)
+            );
+
+            $this->pos_api_logs_model->add_api_logs($logs);
+          }
 
           $this->response($arr, 200);
         }
         else
         {
-          //--- add logs
-          $this->add_logs('WM', 'create', 'error', $this->error, $json);
+          $arr = array(
+            'status' => FALSE,
+            'message' => $this->error
+          );
+
+          if($this->logs_json)
+          {
+            $logs = array(
+              'trans_id' => genUid(),
+              'api_path' => $api_path,
+              'type' =>'WM',
+              'code' => $data->pos_ref,
+              'action' => 'create',
+              'status' => 'failed',
+              'message' => $this->error,
+              'request_json' => $json,
+              'response_json' => json_encode($arr)
+            );
+
+            $this->pos_api_logs_model->add_api_logs($logs);
+          }
+
+          $this->response($arr, 200);
         }
       }
     }
@@ -317,6 +525,8 @@ class WM extends REST_Controller
 
   public function cancel_post()
   {
+    $api_path = $this->path."cancel";
+
     $sc = TRUE;
     $json = file_get_contents('php://input');
 
@@ -326,24 +536,90 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameters";
-      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'error' => $this->error], 400);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => NULL,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
     if(empty($data->code))
     {
       $sc = FALSE;
       $this->error = "Missing required parameter: code";
-      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'error' => $this->error], 400);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => NULL,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
     if(empty($data->cancel_reason))
     {
       $sc = FALSE;
       $this->error = "Missing required parameter: cancel_reason";
-      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'error' => $this->error], 400);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->code,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
     $code = $data->code;
@@ -354,16 +630,60 @@ class WM extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid document number : {$code}";
-      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->code,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     if($doc->is_api != 1)
     {
       $sc = FALSE;
       $this->error = "The document was not created by the POS system. It cannot be canceled via the API.";
-      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->code,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     if($doc->status != 2)
@@ -374,8 +694,30 @@ class WM extends REST_Controller
       {
         $sc = FALSE;
         $this->error = "Unable to cancel : {$code} already imported into SAP. Please cancel this document in SAP before and try again";
-        $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-        $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+        $arr = array(
+          'status' => FALSE,
+          'message' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WM',
+            'code' => $data->code,
+            'action' => 'cancel',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
       }
 
       if($doc->status == 1)
@@ -398,8 +740,29 @@ class WM extends REST_Controller
 
       if($sc === FALSE)
       {
-        $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-        $this->response(['status' => FALSE, 'message' => $this->error], 200);
+        $arr = array(
+          'status' => FALSE,
+          'message' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WM',
+            'code' => $data->code,
+            'action' => 'cancel',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
       }
 
       $this->db->trans_begin();
@@ -458,14 +821,55 @@ class WM extends REST_Controller
 
     if($sc === TRUE)
     {
-      $this->add_logs('WM', 'cancel', 'success', 'success', $json);
-      $this->add_logs('WM', 'cancel', 'response', 'success', json_encode(['status' => TRUE, 'message' => "{$code} canceled successful"]));
-      $this->response(['status' => TRUE, 'message' => "{$code} canceled successful"], 200);
+      $arr = array(
+        'status' => TRUE,
+        'message' => "{$code} canceled successful"
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->code,
+          'action' => 'cancel',
+          'status' => 'success',
+          'message' => 'success',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
     else
     {
-      $this->add_logs('WM', 'cancel', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->code,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
   }
 
@@ -490,27 +894,6 @@ class WM extends REST_Controller
     }
 
     return $new_code;
-  }
-
-
-  public function add_logs($code = 'WM', $action = 'create', $status = 'error', $message = NULL, $json = NULL)
-  {
-    if($this->log_json)
-    {
-      $log = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->path,
-        'code' => $code,
-        'action' => $action,
-        'status' => $status,
-        'message' => $message,
-        'json_text' => ($this->log_json ? $json : NULL)
-      );
-
-      $this->order_api_logs_model->logs_pos($log);
-    }
-
-    return TRUE;
   }
 
 

@@ -19,6 +19,12 @@
 			}
 		}
 	}
+
+	$fWh = $this->warehouse_model->get($doc->from_warehouse);
+	$tWh = $this->warehouse_model->get($doc->to_warehouse);
+	$pos_api = FALSE;
+	$pos_api =  ! empty($fWh) ? ($fWh->is_pos == 1 ? TRUE : $pos_api) : $pos_api;
+	$pos_api =  ! empty($tWh) ? ($tWh->is_pos == 1 ? TRUE : $pos_api) : $pos_api;
 	?>
 <div class="row">
 	<div class="col-lg-4 col-md-4 col-sm-4 hidden-xs padding-5">
@@ -49,6 +55,11 @@
 						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to Soko</button>
 					<?php endif; ?>
 				<?php endif; ?>
+
+				<?php if($pos_api) : ?>
+					<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPos()"><i class="fa fa-send"></i> Send to POS</button>
+				<?php endif; ?>
+				
 				<?php if($doc->status == 0 && $doc->must_approve == 1 && $doc->is_approve == 0 && ($this->pm->can_approve OR $this->_SuperAdmin)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="doApprove()"><i class="fa fa-check-circle"></i> อนุมัติ</button>
 					<button type="button" class="btn btn-xs btn-danger top-btn" onclick="doReject()"><i class="fa fa-times-circle"></i> ไม่อนุมัติ</button>

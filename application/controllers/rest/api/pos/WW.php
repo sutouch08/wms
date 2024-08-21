@@ -8,6 +8,7 @@ class WW extends REST_Controller
   public $ms;
   public $mc;
   public $api = FALSE;
+  public $logs_json = FALSE;
   private $path = "/rest/api/pos/WW/";
 
   public function __construct()
@@ -21,7 +22,7 @@ class WW extends REST_Controller
       $this->ms = $this->load->database('ms', TRUE);
       $this->mc = $this->load->database('mc', TRUE);
       $this->logs = $this->load->database('logs', TRUE); //--- api logs database
-      $this->log_json = is_true(getConfig('POS_LOG_JSON'));
+      $this->logs_json = is_true(getConfig('POS_LOG_JSON'));
       $this->user = "pos@warrix.co.th";
 
       $this->load->model('inventory/transfer_model');
@@ -36,6 +37,8 @@ class WW extends REST_Controller
   //--- for POS
 	public function get_get($code = NULL, $test = FALSE)
 	{
+    $api_path = $this->path."get";
+
     $sc = TRUE;
     $rows = array();
 
@@ -43,8 +46,30 @@ class WW extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameter : document code";
-      $this->add_logs('WW', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 400);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WW',
+          'code' => NULL,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     $order = $this->transfer_model->get($code);
@@ -53,8 +78,30 @@ class WW extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid document number : {$code}";
-      $this->add_logs('WW', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WW',
+          'code' => $code,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
 
@@ -62,8 +109,30 @@ class WW extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid document status";
-      $this->add_logs('WW', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WW',
+          'code' => $code,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     $details = $this->transfer_model->get_details($code);
@@ -72,13 +141,33 @@ class WW extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "No item in document.";
-      $this->add_logs('WW', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WW',
+          'code' => $code,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
     else
     {
-
-
       foreach($details as $rs)
       {
         $qty = ($order->is_wms == 1 && $order->api == 1) ? $rs->wms_qty : $rs->qty;
@@ -103,33 +192,31 @@ class WW extends REST_Controller
       'rows' => $rows
     );
 
-    $this->add_logs('WW', 'get', 'success', 'success', $code);
-    $this->add_logs('WW', 'get', 'response', 'success', json_encode($ds));
+    $arr = array(
+      'status' => TRUE,
+      'message' => 'success',
+      'data' => $ds
+    );
 
-    $this->response(['status' => TRUE, 'message' => 'success', 'data' => $ds], 200);
-	}
-
-
-
-  public function add_logs($code = 'WW', $action = 'create', $status = 'error', $message = NULL, $json = NULL)
-  {
-    if($this->log_json)
+    if($this->logs_json)
     {
-      $log = array(
+      $logs = array(
         'trans_id' => genUid(),
-        'api_path' => $this->path,
+        'api_path' => $api_path,
+        'type' =>'WW',
         'code' => $code,
-        'action' => $action,
-        'status' => $status,
-        'message' => $message,
-        'json_text' => ($this->log_json ? $json : NULL)
+        'action' => 'get',
+        'status' => 'success',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
       );
 
-      $this->order_api_logs_model->logs_pos($log);
+      $this->pos_api_logs_model->add_api_logs($logs);
     }
 
-    return TRUE;
-  }
+    $this->response($arr, 200);
+	}
 
 } //--- end class
 ?>

@@ -17,10 +17,7 @@
 			<option value="all">All</option>
 			<option value="success" <?php echo is_selected('success', $status); ?>>Success</option>
 			<option value="failed" <?php echo is_selected('failed', $status); ?>>Failed</option>
-			<option value="send" <?php echo is_selected('send', $status); ?>>Send</option>
-			<option value="receive" <?php echo is_selected('receive', $status); ?>>Receive</option>
-			<option value="response" <?php echo is_selected('response', $status); ?>>Response</option>
-				<option value="test" <?php echo is_selected('test', $status); ?>>Test</option>
+			<option value="test" <?php echo is_selected('test', $status); ?>>Test</option>
 		</select>
 	</div>
 
@@ -28,21 +25,10 @@
     <label>Type</label>
     <select class="form-control input-sm" name="type" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
-			<option value="products" <?php echo is_selected('products', $type);?>>Products</option>
-			<option value="RT" <?php echo is_selected('RT', $type); ?>>RT</option>
-			<option value="RN" <?php echo is_selected('RN', $type); ?>>RN</option>
-			<option value="SM" <?php echo is_selected('SM', $type); ?>>SM</option>
-			<option value="WR" <?php echo is_selected('WR', $type); ?>>WR</option>
-			<option value="WW" <?php echo is_selected('WW', $type); ?>>WW</option>
-			<option value="RC" <?php echo is_selected('RC', $type); ?>>RC</option>
-			<option value="WO" <?php echo is_selected('WO', $type); ?>>WO</option>
-			<option value="WC" <?php echo is_selected('WC', $type); ?>>WC</option>
+			<option value="CN" <?php echo is_selected('CN', $type); ?>>CN</option>
+			<option value="WM" <?php echo is_selected('WM', $type); ?>>WM</option>
 			<option value="WT" <?php echo is_selected('WT', $type); ?>>WT</option>
-			<option value="WU" <?php echo is_selected('WU', $type); ?>>WU</option>
-			<option value="WS" <?php echo is_selected('WS', $type); ?>>WS</option>
-			<option value="WL" <?php echo is_selected('WL', $type); ?>>WL</option>
-			<option value="WQ" <?php echo is_selected('WQ', $type); ?>>WQ</option>
-			<option value="WV" <?php echo is_selected('WV', $type); ?>>WV</option>
+			<option value="WW" <?php echo is_selected('WW', $type); ?>>WW</option>
 		</select>
   </div>
 
@@ -55,6 +41,7 @@
 			<option value="update" <?php echo is_selected('update', $action); ?>>UPDATE</option>
 			<option value="delete" <?php echo is_selected('delete', $action); ?>>DELETE</option>
 			<option value="cancel" <?php echo is_selected('cancel', $action); ?>>CANCEL</option>
+			<option value="confirm" <?php echo is_selected('confirm', $action); ?>>CONFIRM</option>
 		</select>
 	</div>
 

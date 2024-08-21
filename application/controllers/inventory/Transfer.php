@@ -840,6 +840,22 @@ class Transfer extends PS_Controller
           {
             if($doc->must_approve == 0 && $doc->must_accept == 0)
             {
+              $fWh = $this->warehouse_model->get($doc->from_warehouse);
+              $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+              if( ! empty($fWh) && ! empty($tWh))
+              {
+                if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                {
+                  $this->logs = $this->load->database('logs', TRUE);
+
+                  $this->load->library('pos_api');
+
+                  $this->pos_api->export_transfer($doc, $details);
+                }
+              }
+
+
               if(($doc->is_wms == 0 OR $doc->api == 0) OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
               {
                 $this->transfer_model->update($code, array('shipped_date' => $date_add)); //--- update transferd date
@@ -1079,6 +1095,21 @@ class Transfer extends PS_Controller
           {
             if( ! empty($details))
             {
+              $fWh = $this->warehouse_model->get($doc->from_warehouse);
+              $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+              if( ! empty($fWh) && ! empty($tWh))
+              {
+                if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                {
+                  $this->logs = $this->load->database('logs', TRUE);
+
+                  $this->load->library('pos_api');
+
+                  $this->pos_api->export_transfer($doc, $details);
+                }
+              }
+
               if(($doc->is_wms == 0 OR $doc->api == 0) OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
               {
                 $this->transfer_model->update($code, array('shipped_date' => $date_add));
@@ -1381,6 +1412,21 @@ class Transfer extends PS_Controller
               }
             }
 
+            $fWh = $this->warehouse_model->get($doc->from_warehouse);
+            $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+            if( ! empty($fWh) && ! empty($tWh))
+            {
+              if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+              {
+                $this->logs = $this->load->database('logs', TRUE);
+
+                $this->load->library('pos_api');
+
+                $this->pos_api->export_transfer($doc, $details);
+              }
+            }
+
             if($doc->is_wms != 0 && $doc->api == 1)
             {
               if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)
@@ -1601,6 +1647,21 @@ class Transfer extends PS_Controller
 
           if($sc === TRUE && $is_accept_all === TRUE)
           {
+            $fWh = $this->warehouse_model->get($doc->from_warehouse);
+            $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+            if( ! empty($fWh) && ! empty($tWh))
+            {
+              if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+              {
+                $this->logs = $this->load->database('logs', TRUE);
+
+                $this->load->library('pos_api');
+
+                $this->pos_api->export_transfer($doc, $details);
+              }
+            }
+            
             if($is_wms === FALSE)
             {
               $this->transfer_model->update($code, array('shipped_date' => $date_add));
@@ -2009,6 +2070,77 @@ class Transfer extends PS_Controller
         {
           $sc = FALSE;
           $this->error = "ไม่พบรายการโอนย้าย";
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "เลขที่เอกสารไม่ถูกต้อง";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+  public function send_to_pos($code)
+  {
+    $sc = TRUE;
+    $doc = $this->transfer_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->status == -1)
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Document status";
+      }
+
+      if($doc->must_approve == 1 && $doc->is_approve = 0)
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Approve Status";
+      }
+
+      if($sc === TRUE)
+      {
+        $fWh = $this->warehouse_model->get($doc->from_warehouse);
+        $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+        if( ! empty($fWh) && ! empty($tWh))
+        {
+          if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+          {
+            $details = $this->transfer_model->get_details($code);
+
+            if( ! empty($details))
+            {
+              $this->logs = $this->load->database('logs', TRUE);
+
+              $this->load->library('pos_api');
+
+              if( ! $this->pos_api->export_transfer($doc, $details))
+              {
+                $sc = FALSE;
+                $this->error = $pos_api->error;
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "ไม่พบรายการโอนย้าย";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "คลังสินค้าไม่ได้ตั้งค่าให้ส่งข้อมูลไป POS";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "คลังสินค้าไม่ถูกต้อง";
         }
       }
     }

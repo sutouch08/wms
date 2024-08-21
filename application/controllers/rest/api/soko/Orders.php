@@ -472,15 +472,19 @@ class Orders extends REST_Controller
 
   public function create_post()
   {
+    $this->api_path = $this->api_path."/create";
+    //--- Get raw post data
+    $json = file_get_contents("php://input");
+
     if( ! $this->api)
     {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'API Not Enabled'
+      );
+
       if($this->logs_json)
       {
-        $arr = array(
-          'status' => FALSE,
-          'error' => 'API Not Enabled'
-        );
-
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
@@ -499,12 +503,7 @@ class Orders extends REST_Controller
       $this->response($arr, 400);
     }
 
-    //--- Get raw post data
-    $json = file_get_contents("php://input");
-
     $data = json_decode($json);
-
-    $this->api_path."/create";
 
     if(empty($data))
     {

@@ -8,6 +8,7 @@ class WT extends REST_Controller
   public $ms;
   public $mc;
   public $api = FALSE;
+  public $logs_json = FALSE;
   private $path = "/rest/api/pos/WT/";
 
   public function __construct()
@@ -21,13 +22,13 @@ class WT extends REST_Controller
       $this->ms = $this->load->database('ms', TRUE);
       $this->mc = $this->load->database('mc', TRUE);
       $this->logs = $this->load->database('logs', TRUE); //--- api logs database
-      $this->log_json = is_true(getConfig('POS_LOG_JSON'));
+      $this->logs_json = is_true(getConfig('POS_LOG_JSON'));
       $this->user = "pos@warrix.co.th";
 
       $this->load->model('inventory/invoice_model');
       $this->load->model('inventory/transfer_model');
       $this->load->model('orders/orders_model');
-      $this->load->model('rest/V1/order_api_logs_model');
+      $this->load->model('rest/V1/pos_api_logs_model');
     }
     else
     {
@@ -48,8 +49,30 @@ class WT extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameter : document code";
-      $this->add_logs('WT', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 400);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => NULL,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
     $order = $this->orders_model->get($code);
@@ -58,24 +81,90 @@ class WT extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Invalid document number : {$code}";
-      $this->add_logs('WT', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => $code,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     if($order->role != 'N')
     {
       $sc = FALSE;
       $this->error = "Invalid document type : {$code}";
-      $this->add_logs('WT', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => $code,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     if($order->state != 8)
     {
       $sc = FALSE;
       $this->error = "Invalid document status : document not shipping";
-      $this->add_logs('WT', 'get', 'error', $this->error, $code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => $code,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     if( ! $force)
@@ -86,9 +175,31 @@ class WT extends REST_Controller
       {
         $sc = FALSE;
         $this->error = "The document was not found in the temp transfer draft.";
-        $this->add_logs('WT', 'get', 'error', $this->error, $code);
-        $this->response(['status' => FALSE, 'message' => $this->error], 200);
-      }      
+
+        $arr = array(
+          'status' => FALSE,
+          'message' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WT',
+            'code' => $code,
+            'action' => 'get',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
+      }
     }
 
     $ds = array(
@@ -99,15 +210,37 @@ class WT extends REST_Controller
       'rows' => $this->invoice_model->get_details_summary_group_by_item($code)
     );
 
-    $this->add_logs('WT', 'get', 'success', 'success', $code);
-    $this->add_logs('WT', 'get', 'response', 'success', json_encode($ds));
+    $arr = array(
+      'status' => TRUE,
+      'message' => 'success',
+      'data' => $ds
+    );
 
-    $this->response(['status' => TRUE, 'message' => 'success', 'data' => $ds], 200);
+    if($this->logs_json)
+    {
+      $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $api_path,
+        'type' =>'WT',
+        'code' => $code,
+        'action' => 'get',
+        'status' => 'success',
+        'message' => 'success',
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
+      );
+
+      $this->pos_api_logs_model->add_api_logs($logs);
+    }
+
+    $this->response($arr, 200);
 	}
 
 
   public function confirm_post()
   {
+    $api_path = $this->path."confirm";
+
     $sc = TRUE;
 
     $json = file_get_contents("php://input");
@@ -117,8 +250,30 @@ class WT extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "Missing required parameters";
-      $this->add_logs('WT', 'update', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 400);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => NULL,
+          'action' => 'confirm',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
     //--- check ว่ามีเลขที่เอกสารนี้ใน transfer draft หรือไม่
@@ -128,8 +283,30 @@ class WT extends REST_Controller
     {
       $sc = FALSE;
       $this->error = "The document was not found in the temp transfer draft.";
-      $this->add_logs('WT', 'update', 'error', $this->error, $json);
-      $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => $data->code,
+          'action' => 'confirm',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
 
     if(empty($draft->F_Receipt) OR $draft->F_Receipt == 'N' OR $draft->F_Receipt == 'D')
@@ -155,37 +332,124 @@ class WT extends REST_Controller
       {
         $this->mc->trans_commit();
         $this->db->trans_commit();
-        $this->add_logs('WT', 'update', 'success', 'success', $json);
-        $this->add_logs('WT', 'update', 'response','success', json_encode(['status' => TRUE, 'message' => 'success']));
-        $this->response(['status' => TRUE, 'message' => 'success'], 200);
+
+        $arr = array(
+          'status' => TRUE,
+          'message' => 'success'
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WT',
+            'code' => $data->code,
+            'action' => 'confirm',
+            'status' => 'success',
+            'message' => 'success',
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
       }
       else
       {
         $this->mc->trans_rollback();
         $this->db->trans_rollback();
-        $this->add_logs('WT', 'update', 'error', $this->error, $json);
-        $this->response(['status' => FALSE, 'message' => $this->error], 200);
+
+        $arr = array(
+          'status' => FALSE,
+          'message' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WT',
+            'code' => $data->code,
+            'action' => 'confirm',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
       }
     }
     else
     {
-      $this->add_logs('WT', 'update', 'success', 'success', $json);
-      $this->add_logs('WT', 'update', 'response','success', json_encode(['status' => TRUE, 'message' => 'success']));
-      $this->response(['status' => TRUE, 'message' => 'success'], 200);
+      $arr = array(
+        'status' => TRUE,
+        'message' => 'Document already confirmed'
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => $data->code,
+          'action' => 'confirm',
+          'status' => 'success',
+          'message' => 'success',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
   } //--- end confirm
 
 
   public function get_list_get($zone_code = NULL)
   {
+    $api_path = $this->path."get_list";
+
     $sc = TRUE;
 
     if(empty($zone_code))
     {
       $sc = FALSE;
       $this->error = "Missing required parameters";
-      $this->add_logs('WT', 'get', 'error', $this->error, $zone_code);
-      $this->response(['status' => FALSE, 'message' => $this->error], 400);
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => NULL,
+          'action' => 'get',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
     }
 
     if($sc === TRUE)
@@ -202,8 +466,30 @@ class WT extends REST_Controller
       {
         $sc = FALSE;
         $this->error = "Invalid zone code Or zone not in consignment warehouse";
-        $this->add_logs('WT', 'get', 'error', $this->error, $zone_code);
-        $this->response(['status' => FALSE, 'message' => $this->error], 400);
+
+        $arr = array(
+          'status' => FALSE,
+          'message' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WT',
+            'code' => NULL,
+            'action' => 'get',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 400);
       }
     }
 
@@ -225,38 +511,32 @@ class WT extends REST_Controller
       ->limit(100)
       ->get();
 
-      $ds = array(
+      $arr = array(
         'status' => TRUE,
         'message' => 'success',
         'count' => $rs->num_rows(),
         'data' => $rs->num_rows() > 0 ? $rs->result() : NULL
       );
 
-      $this->add_logs('WT', 'get', 'success', 'success', $zone_code);
-      $this->add_logs('WT', 'update', 'response','success', json_encode($ds));
-      $this->response($ds, 200);
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => NULL,
+          'action' => 'get',
+          'status' => 'success',
+          'message' => 'success',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
     }
-  }
-
-
-  public function add_logs($code = 'WT', $action = 'create', $status = 'error', $message = NULL, $json = NULL)
-  {
-    if($this->log_json)
-    {
-      $log = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->path,
-        'code' => $code,
-        'action' => $action,
-        'status' => $status,
-        'message' => $message,
-        'json_text' => ($this->log_json ? $json : NULL)
-      );
-
-      $this->order_api_logs_model->logs_pos($log);
-    }
-
-    return TRUE;
   }
 
 } //--- end class
