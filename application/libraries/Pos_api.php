@@ -6,7 +6,7 @@ class Pos_api
   protected $ci;
   public $error;
   public $logs_json = FALSE;
-  public $test = TRUE;
+  public $test = FALSE;
 
   public function __construct()
   {
@@ -14,6 +14,7 @@ class Pos_api
 		$this->ci->load->model('rest/V1/pos_api_logs_model');
     $this->token = "t0dr68gqxi0iuiaogi6k89oiu3c5yqxb";
     $this->logs_json = TRUE;
+    $this->test = getConfig('POS_WW_TEST');
   }
 
   public function export_transfer($doc, $details)

@@ -840,18 +840,21 @@ class Transfer extends PS_Controller
           {
             if($doc->must_approve == 0 && $doc->must_accept == 0)
             {
-              $fWh = $this->warehouse_model->get($doc->from_warehouse);
-              $tWh = $this->warehouse_model->get($doc->to_warehouse);
-
-              if( ! empty($fWh) && ! empty($tWh))
+              if(is_true(getConfig('POS_API_WW')))
               {
-                if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                $fWh = $this->warehouse_model->get($doc->from_warehouse);
+                $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+                if( ! empty($fWh) && ! empty($tWh))
                 {
-                  $this->logs = $this->load->database('logs', TRUE);
+                  if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                  {
+                    $this->logs = $this->load->database('logs', TRUE);
 
-                  $this->load->library('pos_api');
+                    $this->load->library('pos_api');
 
-                  $this->pos_api->export_transfer($doc, $details);
+                    $this->pos_api->export_transfer($doc, $details);
+                  }
                 }
               }
 
@@ -1095,18 +1098,21 @@ class Transfer extends PS_Controller
           {
             if( ! empty($details))
             {
-              $fWh = $this->warehouse_model->get($doc->from_warehouse);
-              $tWh = $this->warehouse_model->get($doc->to_warehouse);
-
-              if( ! empty($fWh) && ! empty($tWh))
+              if(is_true(getConfig('POS_API_WW')))
               {
-                if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                $fWh = $this->warehouse_model->get($doc->from_warehouse);
+                $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+                if( ! empty($fWh) && ! empty($tWh))
                 {
-                  $this->logs = $this->load->database('logs', TRUE);
+                  if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                  {
+                    $this->logs = $this->load->database('logs', TRUE);
 
-                  $this->load->library('pos_api');
+                    $this->load->library('pos_api');
 
-                  $this->pos_api->export_transfer($doc, $details);
+                    $this->pos_api->export_transfer($doc, $details);
+                  }
                 }
               }
 
@@ -1412,18 +1418,21 @@ class Transfer extends PS_Controller
               }
             }
 
-            $fWh = $this->warehouse_model->get($doc->from_warehouse);
-            $tWh = $this->warehouse_model->get($doc->to_warehouse);
-
-            if( ! empty($fWh) && ! empty($tWh))
+            if(is_true(getConfig('POS_API_WW')))
             {
-              if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+              $fWh = $this->warehouse_model->get($doc->from_warehouse);
+              $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+              if( ! empty($fWh) && ! empty($tWh))
               {
-                $this->logs = $this->load->database('logs', TRUE);
+                if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                {
+                  $this->logs = $this->load->database('logs', TRUE);
 
-                $this->load->library('pos_api');
+                  $this->load->library('pos_api');
 
-                $this->pos_api->export_transfer($doc, $details);
+                  $this->pos_api->export_transfer($doc, $details);
+                }
               }
             }
 
@@ -1647,21 +1656,24 @@ class Transfer extends PS_Controller
 
           if($sc === TRUE && $is_accept_all === TRUE)
           {
-            $fWh = $this->warehouse_model->get($doc->from_warehouse);
-            $tWh = $this->warehouse_model->get($doc->to_warehouse);
-
-            if( ! empty($fWh) && ! empty($tWh))
+            if(is_true(getConfig('POS_API_WW')))
             {
-              if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+              $fWh = $this->warehouse_model->get($doc->from_warehouse);
+              $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+              if( ! empty($fWh) && ! empty($tWh))
               {
-                $this->logs = $this->load->database('logs', TRUE);
+                if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                {
+                  $this->logs = $this->load->database('logs', TRUE);
 
-                $this->load->library('pos_api');
+                  $this->load->library('pos_api');
 
-                $this->pos_api->export_transfer($doc, $details);
-              }
+                  $this->pos_api->export_transfer($doc, $details);
+                }
+              }              
             }
-            
+
             if($is_wms === FALSE)
             {
               $this->transfer_model->update($code, array('shipped_date' => $date_add));
@@ -2104,43 +2116,51 @@ class Transfer extends PS_Controller
 
       if($sc === TRUE)
       {
-        $fWh = $this->warehouse_model->get($doc->from_warehouse);
-        $tWh = $this->warehouse_model->get($doc->to_warehouse);
-
-        if( ! empty($fWh) && ! empty($tWh))
+        if(is_true(getConfig('POS_API_WW')))
         {
-          if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+          $fWh = $this->warehouse_model->get($doc->from_warehouse);
+          $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+          if( ! empty($fWh) && ! empty($tWh))
           {
-            $details = $this->transfer_model->get_details($code);
-
-            if( ! empty($details))
+            if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
             {
-              $this->logs = $this->load->database('logs', TRUE);
+              $details = $this->transfer_model->get_details($code);
 
-              $this->load->library('pos_api');
+              if( ! empty($details))
+              {
+                $this->logs = $this->load->database('logs', TRUE);
 
-              if( ! $this->pos_api->export_transfer($doc, $details))
+                $this->load->library('pos_api');
+
+                if( ! $this->pos_api->export_transfer($doc, $details))
+                {
+                  $sc = FALSE;
+                  $this->error = $pos_api->error;
+                }
+              }
+              else
               {
                 $sc = FALSE;
-                $this->error = $pos_api->error;
+                $this->error = "ไม่พบรายการโอนย้าย";
               }
             }
             else
             {
               $sc = FALSE;
-              $this->error = "ไม่พบรายการโอนย้าย";
+              $this->error = "คลังสินค้าไม่ได้ตั้งค่าให้ส่งข้อมูลไป POS";
             }
           }
           else
           {
             $sc = FALSE;
-            $this->error = "คลังสินค้าไม่ได้ตั้งค่าให้ส่งข้อมูลไป POS";
+            $this->error = "คลังสินค้าไม่ถูกต้อง";
           }
         }
         else
         {
           $sc = FALSE;
-          $this->error = "คลังสินค้าไม่ถูกต้อง";
+          $this->error = "API is not enabled";
         }
       }
     }
