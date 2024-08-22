@@ -1116,6 +1116,18 @@ class Return_order extends PS_Controller
                   }
                 }
 
+                if($sc === TRUE && $doc->is_wms == 2)
+                {
+                  $this->wms = $this->load->database('wms', TRUE);
+                  $this->load->library('soko_receive_api');
+
+                  if( ! $this->soko_receive_api->cancel_receive_po($doc))
+                  {
+                    $sc = FALSE;
+                    $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+                  }
+                }
+
 					      if($sc === TRUE)
                 {
                   $this->db->trans_commit();
