@@ -829,7 +829,7 @@ class Return_lend extends PS_Controller
 
               if($sc === TRUE)
               {
-                if($doc->status == 3 && $doc->is_wms == 2)
+                if($doc->status == 3 && $doc->is_wms == 2 && $this->sokoApi)
                 {
                   $this->wms = $this->load->database('wms', TRUE);
                   $this->load->library('soko_receive_api');
@@ -837,7 +837,7 @@ class Return_lend extends PS_Controller
                   if( ! $this->soko_receive_api->cancel_return_lend($doc))
                   {
                     $sc = FALSE;
-                    $this->error = "Failed to Cancel document on SOKOJUNG : {$this->soko_receive_api->error}";
+                    $this->error = "SOKOCHAN Error : {$this->soko_receive_api->error}";
                   }
                 }
               }

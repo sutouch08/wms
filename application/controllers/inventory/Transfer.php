@@ -922,7 +922,7 @@ class Transfer extends PS_Controller
                     {
                       $this->load->library('soko_receive_api');
 
-                      if( ! $this->wms_receive_api->create_transfer($doc, $details))
+                      if( ! $this->soko_receive_api->create_transfer($doc, $details))
                       {
                         $sc = FALSE;
                         $ex = 0;
@@ -1671,7 +1671,7 @@ class Transfer extends PS_Controller
 
                   $this->pos_api->export_transfer($doc, $details);
                 }
-              }              
+              }
             }
 
             if($is_wms === FALSE)
@@ -2816,52 +2816,101 @@ class Transfer extends PS_Controller
   public function delete_transfer($code)
   {
     $sc = TRUE;
+
     $this->load->model('inventory/movement_model');
 
-    $this->db->trans_begin();
+    $doc = $this->transfer_model->get($code);
 
-    //--- clear temp
-    if( ! $this->transfer_model->drop_all_temp($code))
+    if( ! empty($doc))
     {
-      $sc = FALSE;
-      $this->error = "Failed to delete transfer temp";
-    }
+      if($doc->status != 1 && $doc->status != 2)
+      {
+        $this->db->trans_begin();
 
-    //--- delete detail
-    if( ! $this->transfer_model->drop_all_detail($code))
-    {
-      $sc = FALSE;
-      $this->error = "Failed to delete transfer rows";
-    }
+        //--- clear temp
+        if( ! $this->transfer_model->drop_all_temp($code))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to delete transfer temp";
+        }
 
-    //--- drop movement
-    if( ! $this->movement_model->drop_movement($code))
-    {
-      $sc = FALSE;
-      $this->error = "Failed to delete movement";
-    }
+        //--- delete detail
+        if( ! $this->transfer_model->drop_all_detail($code))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to delete transfer rows";
+        }
 
-    //--- change status to 2 (cancled)
-    $arr = array(
-      'status' => 2,
-      'inv_code' => NULL,
-      'cancle_reason' => trim($this->input->post('reason')),
-      'cancle_user' => $this->_user->uname
-    );
+        //--- drop movement
+        if( ! $this->movement_model->drop_movement($code))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to delete movement";
+        }
 
-    if( ! $this->transfer_model->update($code, $arr))
-    {
-      $sc = FALSE;
-      $this->error = "Change status failed";
-    }
+        if($sc === TRUE)
+        {
+          //--- change status to 2 (cancled)
+          $arr = array(
+            'status' => 2,
+            'inv_code' => NULL,
+            'cancle_reason' => trim($this->input->post('reason')),
+            'cancle_user' => $this->_user->uname
+          );
 
-    if($sc === TRUE)
-    {
-      $this->db->trans_commit();
+          if( ! $this->transfer_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "Change status failed";
+          }
+        }
+
+
+        if($sc === TRUE)
+        {
+          if($doc->is_wms == 2 && $doc->api && $this->sokoApi)
+          {
+            $this->wms = $this->load->database('wms', TRUE);
+
+            if($doc->to_warehouse == $this->sokoWh && ! empty($doc->soko_code))
+            {
+              $this->load->library('soko_receive_api');
+
+              if( ! $this->soko_receive_api->cancel_transfer($doc))
+              {
+                $sc = FALSE;
+                $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+              }
+            }
+
+
+            if($doc->from_warehouse == $this->sokoWh && $doc->wms_export == 1)
+            {
+              $this->load->library('soko_order_api');
+
+              if( ! $this->soko_order_api->cancel_transfer_order($doc->code))
+              {
+                $sc = FALSE;
+                $this->error = "SOKOCHAN Error : ".$this->soko_order_api->error;
+              }
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+      }
     }
     else
     {
-      $this->db->trans_rollback();
+      $sc = FALSE;
+      $this->error = "Invalid document number";
     }
 
     echo $sc === TRUE ? 'success' : $this->error;

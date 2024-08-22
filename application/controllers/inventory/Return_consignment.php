@@ -1010,6 +1010,7 @@ class Return_consignment extends PS_Controller
     if($this->pm->can_delete)
     {
 			$doc = $this->return_consignment_model->get($code);
+
 			if(!empty($doc))
 			{
 				if($doc->status != 2)
@@ -1054,6 +1055,21 @@ class Return_consignment extends PS_Controller
 								$this->error = "Change return items status failed";
 							}
 						}
+
+            if($sc === TRUE)
+            {
+              if($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                $this->load->library('soko_receive_api');
+
+                if( ! $this->soko_receive_api->cancel_return_consignment($doc))
+                {
+                  $sc = FALSE;
+                  $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+                }
+              }
+            }
 
 			      if($sc === TRUE)
 						{
