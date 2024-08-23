@@ -159,7 +159,7 @@
 {{#if result}}
 	<table class="table table-striped border-1" style="min-width:2170px;">
 		<thead>
-			<tr class="freez">
+			<tr class="font-size-12">
 				<th class="fix-width-60 text-center">#</th>
 				<th class="fix-width-100 text-center">วันที่</th>
 				<th class="fix-width-120">เลขที่</th>
