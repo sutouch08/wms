@@ -106,6 +106,7 @@ class Receive_details extends PS_Controller
                 'state_name' => $state[$rs->status],
                 'uname' => $rs->user,
                 'emp_name' => $this->user_model->get_name($rs->user),
+                'remark' => $rs->remark,
                 'cancel_reason' => $rs->status == 2 ? $rs->cancle_reason : NULL
               );
 
@@ -138,6 +139,7 @@ class Receive_details extends PS_Controller
                 'state_name' => $state[$rs->status],
                 'uname' => $rs->user,
                 'emp_name' => $this->user_model->get_name($rs->user),
+                'remark' => $rs->remark,
                 'cancel_reason' => $rs->status == 2 ? $rs->cancle_reason : NULL
               );
 
@@ -169,6 +171,7 @@ class Receive_details extends PS_Controller
                 'state_name' => $state[$rs->status],
                 'uname' => $rs->user,
                 'emp_name' => $this->user_model->get_name($rs->user),
+                'remark' => $rs->remark,
                 'cancel_reason' => $rs->status == 2 ? $rs->cancle_reason : NULL
               );
 
@@ -205,6 +208,7 @@ class Receive_details extends PS_Controller
                 'state_name' => $state[$rs->status],
                 'uname' => $rs->user,
                 'emp_name' => $this->user_model->get_name($rs->user),
+                'remark' => $rs->remark,
                 'cancel_reason' => $rs->status == 2 ? $rs->cancle_reason : NULL
               );
 
@@ -241,6 +245,7 @@ class Receive_details extends PS_Controller
                 'state_name' => $state[$rs->status],
                 'uname' => $rs->user,
                 'emp_name' => $this->user_model->get_name($rs->user),
+                'remark' => $rs->remark,
                 'cancel_reason' => $rs->status == 2 ? $rs->cancle_reason : NULL
               );
 
