@@ -173,7 +173,7 @@
 				<th class="fix-width-200">คลังสินค้า</th>
 				<th class="fix-width-100">User</th>
 				<th class="fix-width-150">พนักงาน</th>
-				<th class="fix-width-250">พนักงาน</th>
+				<th class="fix-width-250">หมายเหตุ</th>
 				<th class="min-width-200">Cancel Reason</th>
 			</tr>
 		</thead>
