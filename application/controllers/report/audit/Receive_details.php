@@ -348,7 +348,8 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue("L{$row}", 'ชื่อคลัง');
         $this->excel->getActiveSheet()->setCellValue("M{$row}", 'Username');
         $this->excel->getActiveSheet()->setCellValue("N{$row}", 'พนักงาน');
-        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'cancel reason');
+        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'หมายเหตุ');
+        $this->excel->getActiveSheet()->setCellValue("P{$row}", 'cancel reason');
         $row++;
 
         //---- กำหนดความกว้างของคอลัมภ์
@@ -366,6 +367,7 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(40);
+        $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(40);
 
         $details = $this->receive_details_model->WR($filter);
 
@@ -400,9 +402,10 @@ class Receive_details extends PS_Controller
             $this->excel->getActiveSheet()->setCellValue("L{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
             $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->user);
             $this->excel->getActiveSheet()->setCellValue("N{$row}", $this->user_model->get_name($rs->user));
+            $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->remark);
             if($rs->status == 2)
             {
-              $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->cancle_reason);
+              $this->excel->getActiveSheet()->setCellValue("P{$row}", $rs->cancle_reason);
             }
 
             $no++;
@@ -455,7 +458,8 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue("L{$row}", 'ชื่อคลัง');
         $this->excel->getActiveSheet()->setCellValue("M{$row}", 'Username');
         $this->excel->getActiveSheet()->setCellValue("N{$row}", 'พนักงาน');
-        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'cancel reason');
+        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'หมายเหตุ');
+        $this->excel->getActiveSheet()->setCellValue("P{$row}", 'cancel reason');
         $row++;
 
         //---- กำหนดความกว้างของคอลัมภ์
@@ -473,6 +477,7 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(40);
+        $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(40);
 
         $details = $this->receive_details_model->RT($filter);
 
@@ -507,9 +512,10 @@ class Receive_details extends PS_Controller
             $this->excel->getActiveSheet()->setCellValue("L{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
             $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->user);
             $this->excel->getActiveSheet()->setCellValue("N{$row}", $this->user_model->get_name($rs->user));
+            $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->remark);
             if($rs->status == 2)
             {
-              $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->cancle_reason);
+              $this->excel->getActiveSheet()->setCellValue("P{$row}", $rs->cancle_reason);
             }
 
             $no++;
@@ -563,7 +569,8 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue("L{$row}", 'ชื่อคลัง');
         $this->excel->getActiveSheet()->setCellValue("M{$row}", 'Username');
         $this->excel->getActiveSheet()->setCellValue("N{$row}", 'พนักงาน');
-        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'cancel reason');
+        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'หมายเหตุ');
+        $this->excel->getActiveSheet()->setCellValue("P{$row}", 'cancel reason');
         $row++;
 
         //---- กำหนดความกว้างของคอลัมภ์
@@ -581,6 +588,7 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(40);
+        $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(40);
 
         $details = $this->receive_details_model->RN($filter);
 
@@ -615,9 +623,10 @@ class Receive_details extends PS_Controller
             $this->excel->getActiveSheet()->setCellValue("L{$row}", empty($wh[$rs->to_warehouse]) ? NULL : $wh[$rs->to_warehouse]);
             $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->user);
             $this->excel->getActiveSheet()->setCellValue("N{$row}", $this->user_model->get_name($rs->user));
+            $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->remark);
             if($rs->status == 2)
             {
-              $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->cancle_reason);
+              $this->excel->getActiveSheet()->setCellValue("P{$row}", $rs->cancle_reason);
             }
 
             $no++;
@@ -671,7 +680,8 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue("L{$row}", 'ชื่อคลัง');
         $this->excel->getActiveSheet()->setCellValue("M{$row}", 'Username');
         $this->excel->getActiveSheet()->setCellValue("N{$row}", 'พนักงาน');
-        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'cancel reason');
+        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'หมายเหตุ');
+        $this->excel->getActiveSheet()->setCellValue("P{$row}", 'cancel reason');
         $row++;
 
         //---- กำหนดความกว้างของคอลัมภ์
@@ -689,6 +699,7 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(40);
+        $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(40);
 
         $details = $this->receive_details_model->SM($filter);
 
@@ -727,9 +738,10 @@ class Receive_details extends PS_Controller
             $this->excel->getActiveSheet()->setCellValue("L{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
             $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->user);
             $this->excel->getActiveSheet()->setCellValue("N{$row}", $this->user_model->get_name($rs->user));
+            $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->remark);
             if($rs->status == 2)
             {
-              $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->cancle_reason);
+              $this->excel->getActiveSheet()->setCellValue("P{$row}", $rs->cancle_reason);
             }
 
             $no++;
@@ -783,7 +795,8 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->setCellValue("L{$row}", 'ชื่อคลัง');
         $this->excel->getActiveSheet()->setCellValue("M{$row}", 'Username');
         $this->excel->getActiveSheet()->setCellValue("N{$row}", 'พนักงาน');
-        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'cancel reason');
+        $this->excel->getActiveSheet()->setCellValue("O{$row}", 'หมายเหตุ');
+        $this->excel->getActiveSheet()->setCellValue("P{$row}", 'cancel reason');
         $row++;
 
         //---- กำหนดความกว้างของคอลัมภ์
@@ -801,6 +814,7 @@ class Receive_details extends PS_Controller
         $this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
         $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(40);
+        $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(40);
 
         $details = $this->receive_details_model->CN($filter);
 
@@ -839,9 +853,10 @@ class Receive_details extends PS_Controller
             $this->excel->getActiveSheet()->setCellValue("L{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
             $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->user);
             $this->excel->getActiveSheet()->setCellValue("N{$row}", $this->user_model->get_name($rs->user));
+            $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->remark);
             if($rs->status == 2)
             {
-              $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->cancle_reason);
+              $this->excel->getActiveSheet()->setCellValue("P{$row}", $rs->cancle_reason);
             }
 
             $no++;

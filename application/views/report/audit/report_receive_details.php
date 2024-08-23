@@ -157,7 +157,7 @@
 
 <script id="template" type="text/x-handlebars-template">
 {{#if result}}
-	<table class="table table-striped border-1" style="min-width:1920px;">
+	<table class="table table-striped border-1" style="min-width:2170px;">
 		<thead>
 			<tr class="freez">
 				<th class="fix-width-60 text-center">#</th>
@@ -173,6 +173,7 @@
 				<th class="fix-width-200">คลังสินค้า</th>
 				<th class="fix-width-100">User</th>
 				<th class="fix-width-150">พนักงาน</th>
+				<th class="fix-width-250">พนักงาน</th>
 				<th class="min-width-200">Cancel Reason</th>
 			</tr>
 		</thead>
@@ -192,6 +193,7 @@
 					<td class="middle">{{warehouse_name}}</td>
 					<td class="middle">{{uname}}</td>
 					<td class="middle">{{emp_name}}</td>
+					<td class="middle">{{remark}}</td>
 					<td class="middle">{{cancel_reason}}</td>
 				</tr>
 			{{/each}}
