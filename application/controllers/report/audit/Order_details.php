@@ -280,8 +280,9 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue("N{$row}", 'ชื่อคลัง');
       $this->excel->getActiveSheet()->setCellValue("O{$row}", 'Username');
       $this->excel->getActiveSheet()->setCellValue("P{$row}", 'พนักงาน');
-      $this->excel->getActiveSheet()->setCellValue("Q{$row}", 'cancel reason');
-      $this->excel->getActiveSheet()->setCellValue("R{$row}", 'Pre-order');
+      $this->excel->getActiveSheet()->setCellValue("Q{$row}", 'หมายเหตุ');
+      $this->excel->getActiveSheet()->setCellValue("R{$row}", 'cancel reason');
+      $this->excel->getActiveSheet()->setCellValue("S{$row}", 'Pre-order');
       $row++;
 
       //---- กำหนดความกว้างของคอลัมภ์
@@ -301,7 +302,8 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(15);
       $this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(15);
       $this->excel->getActiveSheet()->getColumnDimension('Q')->setWidth(40);
-      $this->excel->getActiveSheet()->getColumnDimension('R')->setWidth(10);
+      $this->excel->getActiveSheet()->getColumnDimension('R')->setWidth(40);
+      $this->excel->getActiveSheet()->getColumnDimension('S')->setWidth(10);
 
       if( ! empty($details))
       {
@@ -348,12 +350,14 @@ class Order_details extends PS_Controller
           $this->excel->getActiveSheet()->setCellValue("N{$row}", empty($wh[$rs->warehouse_code]) ? NULL : $wh[$rs->warehouse_code]);
           $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->user);
           $this->excel->getActiveSheet()->setCellValue("P{$row}", $this->user_model->get_name($rs->user));
+          $this->excel->getActiveSheet()->setCellValue("Q{$row}", $rs->remark);
+
           if($rs->state == 9)
           {
-            $this->excel->getActiveSheet()->setCellValue("Q{$row}", $this->cancel_reason($rs->code));
+            $this->excel->getActiveSheet()->setCellValue("R{$row}", $this->cancel_reason($rs->code));
           }
 
-          $this->excel->getActiveSheet()->setCellValue("R{$row}", $rs->is_pre_order == 1 ? 'Y' : 'N');
+          $this->excel->getActiveSheet()->setCellValue("S{$row}", $rs->is_pre_order == 1 ? 'Y' : 'N');
 
 
           $no++;
