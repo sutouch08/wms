@@ -157,7 +157,7 @@
 
 <script id="template" type="text/x-handlebars-template">
 {{#if result}}
-	<table class="table table-striped border-1" style="min-width:2170px;">
+	<table class="table table-striped border-1 tableFixHead" style="min-width:2170px;">
 		<thead>
 			<tr class="font-size-12">
 				<th class="fix-width-60 text-center">#</th>
