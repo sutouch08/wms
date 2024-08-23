@@ -401,6 +401,17 @@ class Orders extends REST_Controller
           $sc = FALSE;
           $this->error = "Order number {$code} are not interface to Sokochan cannot be cancel.";
         }
+
+        if($order->state == 9 && $order->is_wms == 2)
+        {
+          $arr = array(
+            'order_code' => $code,
+            'state' => 9,
+            'update_user' => $this->user
+          );
+
+          $this->order_state_model->add_state($arr);          
+        }
       }
     }
     else
