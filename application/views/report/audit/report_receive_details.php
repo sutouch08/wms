@@ -179,7 +179,7 @@
 		</thead>
 		<tbody>
 			{{#each result}}
-				<tr>
+				<tr class="font-size-12">
 					<td class="middle text-center">{{no}}</td>
 					<td class="middle text-center">{{date_add}}</td>
 					<td class="middle">{{code}}</td>

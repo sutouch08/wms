@@ -248,7 +248,7 @@
 {{#if details}}
 	<table class="table table-striped border-1" style="min-width:2550px;">
 		<thead>
-			<tr>
+			<tr class="font-size-12">
 				<th class="fix-width-60 text-center">#</th>
 				<th class="fix-width-100 text-center">วันที่</th>
 				<th class="fix-width-120">เลขที่</th>
@@ -271,7 +271,7 @@
 		</thead>
 		<tbody>
 			{{#each details}}
-				<tr>
+				<tr class="font-size-12">
 					<td class="middle text-center">{{no}}</td>
 					<td class="middle text-center">{{date_add}}</td>
 					<td class="middle">{{code}}</td>
