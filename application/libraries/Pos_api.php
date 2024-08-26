@@ -12,7 +12,8 @@ class Pos_api
   {
     $this->ci =& get_instance();
 		$this->ci->load->model('rest/V1/pos_api_logs_model');
-    $this->token = "t0dr68gqxi0iuiaogi6k89oiu3c5yqxb";
+    $this->token = "7psnl3j0ies0kvh28xhb4bovzk1kwoa0";
+
     $this->logs_json = TRUE;
     $this->test = getConfig('POS_WW_TEST');
   }
@@ -72,29 +73,11 @@ class Pos_api
 
         if( ! empty($res))
         {
-          if(is_true($res->status))
+          if( ! isset($res->status))
           {
-            if($this->logs_json)
-            {
-              $logs = array(
-                'trans_id' => genUid(),
-                'type' => "WW",
-                'api_path' => $api_path,
-                'code' => $doc->code,
-                'action' => 'create',
-                'status' => 'success',
-                'message' => $res->message,
-                'request_json' => $json,
-                'response_json' => $response
-              );
+            $message = empty($res->message) ? $response : $res->message;
+            $this->error = $message;
 
-              $this->ci->pos_api_logs_model->add_api_logs($logs);
-            }
-
-            return TRUE;
-          }
-          else
-          {
             if($this->logs_json)
             {
               $logs = array(
@@ -104,7 +87,7 @@ class Pos_api
                 'code' => $doc->code,
                 'action' => 'create',
                 'status' => 'failed',
-                'message' => $res->message,
+                'message' => $message,
                 'request_json' => $json,
                 'response_json' => $response
               );
@@ -113,6 +96,51 @@ class Pos_api
             }
 
             return FALSE;
+          }
+          else
+          {
+            if(is_true($res->status))
+            {
+              if($this->logs_json)
+              {
+                $logs = array(
+                  'trans_id' => genUid(),
+                  'type' => "WW",
+                  'api_path' => $api_path,
+                  'code' => $doc->code,
+                  'action' => 'create',
+                  'status' => 'success',
+                  'message' => $res->message,
+                  'request_json' => $json,
+                  'response_json' => $response
+                );
+
+                $this->ci->pos_api_logs_model->add_api_logs($logs);
+              }
+
+              return TRUE;
+            }
+            else
+            {
+              if($this->logs_json)
+              {
+                $logs = array(
+                  'trans_id' => genUid(),
+                  'type' => "WW",
+                  'api_path' => $api_path,
+                  'code' => $doc->code,
+                  'action' => 'create',
+                  'status' => 'failed',
+                  'message' => $res->message,
+                  'request_json' => $json,
+                  'response_json' => $response
+                );
+
+                $this->ci->pos_api_logs_model->add_api_logs($logs);
+              }
+
+              return FALSE;
+            }
           }
         }
         else

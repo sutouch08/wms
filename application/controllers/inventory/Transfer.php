@@ -2136,7 +2136,7 @@ class Transfer extends PS_Controller
                 if( ! $this->pos_api->export_transfer($doc, $details))
                 {
                   $sc = FALSE;
-                  $this->error = $pos_api->error;
+                  $this->error = $this->pos_api->error;
                 }
               }
               else
