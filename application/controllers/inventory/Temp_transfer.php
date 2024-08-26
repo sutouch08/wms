@@ -64,7 +64,7 @@ class Temp_transfer extends PS_Controller
 				{
 					$code = $rs->U_ECOMNO;
 				}
-				
+
         $rs->onhand = $this->stock_model->get_stock_zone($rs->F_FROM_BIN, $rs->ItemCode);
       }
     }
@@ -148,7 +148,8 @@ class Temp_transfer extends PS_Controller
     {
       foreach($orders as $order)
       {
-        $details = $this->temp_transfer_model->get_detail($order->code);
+        $details = $this->temp_transfer_model->get_detail($order->DocEntry);
+        
         if(!empty($details))
         {
           foreach($details as $rs)
