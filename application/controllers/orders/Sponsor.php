@@ -54,7 +54,8 @@ class Sponsor extends PS_Controller
       'isApprove' => get_filter('isApprove', 'sponsor_isApprove', 'all'),
 			'warehouse' => get_filter('warehouse', 'sponsor_warehouse', ''),
       'sap_status' => get_filter('sap_status', 'sponsor_sap_status', 'all'),
-			'wms_export' => get_filter('wms_export', 'sponsor_wms_export', 'all')
+			'wms_export' => get_filter('wms_export', 'sponsor_wms_export', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'sponsor_is_backorder', 'all')
     );
 
     $state = array(
@@ -283,6 +284,7 @@ class Sponsor extends PS_Controller
       $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
       $ds['is_api'] = $is_api;
       $ds['tracking'] = $this->orders_model->get_order_tracking($code);
+      $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
       $this->load->view('sponsor/sponsor_edit', $ds);
     }
     else
@@ -536,6 +538,7 @@ class Sponsor extends PS_Controller
       'sponsor_isApprove',
 			'sponsor_warehouse',
 			'sponsor_wms_export',
+      'sponsor_is_backorder',
       'sponsor_sap_status',
       'sponsor_notSave',
       'sponsor_onlyMe',

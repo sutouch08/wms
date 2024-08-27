@@ -28,7 +28,7 @@
 
 	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>คลังต้นทาง</label>
-		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
+		<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
 			<?php echo select_warehouse($warehouse); ?>
 		</select>
@@ -66,6 +66,15 @@
 			<option value="0" <?php echo is_selected('0', $wms_export); ?>>ยังไม่ส่ง</option>
 			<option value="1" <?php echo is_selected('1', $wms_export); ?>>ส่งแล้ว</option>
 			<option value="3" <?php echo is_selected('3', $wms_export); ?>>Error</option>
+		</select>
+	</div>
+
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Back order</label>
+		<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $is_backorder); ?>>No</option>
+			<option value="1" <?php echo is_selected('1', $is_backorder); ?>>Yes</option>
 		</select>
 	</div>
 
@@ -215,5 +224,8 @@
 <script src="<?php echo base_url(); ?>scripts/order_consign/consign_tr.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php endif; ?>
 
+<script>
+	$('#warehouse').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/order_consign/consign.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

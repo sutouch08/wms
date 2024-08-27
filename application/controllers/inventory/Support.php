@@ -51,6 +51,7 @@ class Support extends PS_Controller
       'onlyMe' => get_filter('onlyMe', 'support_onlyMe', NULL),
       'isExpire' => get_filter('isExpire', 'support_isExpire', NULL),
 			'wms_export' => get_filter('wms_export', 'support_wms_export', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'support_is_backorder', 'all'),
       'sap_status' => get_filter('sap_status', 'support_sap_status', 'all')
     );
 
@@ -238,6 +239,7 @@ class Support extends PS_Controller
 
     $ds = array();
     $rs = $this->orders_model->get($code);
+
     if(!empty($rs))
     {
       $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
@@ -246,36 +248,36 @@ class Support extends PS_Controller
       $rs->state_name    = get_state_name($rs->state);
 
 
-          $state = $this->order_state_model->get_order_state($code);
-          $ost = array();
-          if(!empty($state))
-          {
-            foreach($state as $st)
-            {
-              $ost[] = $st;
-            }
-          }
+      $state = $this->order_state_model->get_order_state($code);
+      $ost = array();
+      if(!empty($state))
+      {
+        foreach($state as $st)
+        {
+          $ost[] = $st;
+        }
+      }
 
-          $details = $this->orders_model->get_order_details($code);
-          $ds['state'] = $ost;
-          $ds['order'] = $rs;
-          $ds['approve_view'] = $approve_view;
-          $ds['approve_logs'] = $this->approve_logs_model->get($code);
-          $ds['details'] = $details;
-					$ds['addr'] = $this->address_model->get_ship_to_address($rs->customer_code);
-					$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
-          $ds['allowEditDisc'] = FALSE; //getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
-          $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
-          $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
-          $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
-          $ds['tracking'] = $this->orders_model->get_order_tracking($code);
-          $this->load->view('support/support_edit', $ds);
+      $details = $this->orders_model->get_order_details($code);
+      $ds['state'] = $ost;
+      $ds['order'] = $rs;
+      $ds['approve_view'] = $approve_view;
+      $ds['approve_logs'] = $this->approve_logs_model->get($code);
+      $ds['details'] = $details;
+      $ds['addr'] = $this->address_model->get_ship_to_address($rs->customer_code);
+      $ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
+      $ds['allowEditDisc'] = FALSE; //getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
+      $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
+      $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
+      $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
+      $ds['tracking'] = $this->orders_model->get_order_tracking($code);
+      $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code): NULL;
+      $this->load->view('support/support_edit', $ds);
     }
     else
     {
       $this->load->view('page_error');
     }
-
   }
 
 
@@ -521,6 +523,7 @@ class Support extends PS_Controller
       'support_isApprove',
 			'support_warehouse',
 			'support_wms_export',
+      'support_is_backorder',
       'support_sap_status',
       'support_notSave',
       'support_onlyMe',

@@ -56,6 +56,7 @@ class Consign_tr extends PS_Controller
       'isValid' => get_filter('isValid', 'consign_isValid', 'all'),
 			'warehouse' => get_filter('warehouse', 'consign_warehouse', ''),
 			'wms_export' => get_filter('wms_export', 'consign_wms_export', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'consign_is_backorder', 'all'),
       'sap_status' => get_filter('sap_status', 'consign_sap_status', 'all')
     );
 
@@ -338,7 +339,8 @@ class Consign_tr extends PS_Controller
     $approve_logs = $this->approve_logs_model->get($code);
     $details = $this->orders_model->get_order_details($code);
 		$ship_to = $this->address_model->get_ship_to_address($rs->customer_code);
-      $tracking = $this->orders_model->get_order_tracking($code);
+    $tracking = $this->orders_model->get_order_tracking($code);
+    $backlogs = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
 
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $approve_logs;
@@ -347,6 +349,7 @@ class Consign_tr extends PS_Controller
     $ds['details'] = $details;
 		$ds['addr']  = $ship_to;
     $ds['tracking'] = $tracking;
+    $ds['backlogs'] = $backlogs;
     $ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
     $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
     $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
@@ -576,6 +579,7 @@ class Consign_tr extends PS_Controller
       'consign_isValid',
 			'consign_warehouse',
 			'consign_wms_export',
+      'consign_is_backorder',
       'consign_sap_status',
       'consign_notSave',
       'consign_onlyMe',

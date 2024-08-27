@@ -52,6 +52,7 @@ class Lend extends PS_Controller
       'onlyMe' => get_filter('onlyMe', 'lend_onlyMe', NULL),
       'isExpire' => get_filter('isExpire', 'lend_isExpire', NULL),
 			'wms_export' => get_filter('wms_export', 'lend_wms_export', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'lend_is_backorder', 'all'),
       'sap_status' => get_filter('sap_status', 'lend_sap_status', 'all')
     );
 
@@ -254,6 +255,7 @@ class Lend extends PS_Controller
     $ds['approve_logs'] = $this->approve_logs_model->get($code);
     $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
     $ds['tracking'] = $this->orders_model->get_order_tracking($code);
+    $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
     $this->load->view('lend/lend_edit', $ds);
   }
 
@@ -427,6 +429,7 @@ class Lend extends PS_Controller
       'lend_isApprove',
 			'lend_warehouse',
 			'lend_wms_export',
+      'lend_is_backorder',
       'lend_sap_status',
       'lend_notSave',
       'lend_onlyMe',

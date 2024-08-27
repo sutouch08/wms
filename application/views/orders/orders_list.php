@@ -93,7 +93,7 @@
 		<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected('0', $is_backorder); ?>>No</option>
-			<option value="1" <?php echo is_selected('1', $is_backorder); ?>>Yes</option>			
+			<option value="1" <?php echo is_selected('1', $is_backorder); ?>>Yes</option>
 		</select>
 	</div>
 
@@ -108,7 +108,7 @@
 
 	<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
 		<label>คลัง</label>
-		<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
+		<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
 			<?php echo select_warehouse($warehouse); ?>
 		</select>
@@ -283,7 +283,9 @@ if($can_upload == 1) :
 endif;
 ?>
 
-
+<script>
+	$('#warehouse').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/order_list.js?v=<?php echo date('Ymd'); ?>"></script>
 

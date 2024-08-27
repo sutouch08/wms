@@ -11,6 +11,9 @@
 		<?php if($is_api && $order->is_wms != 0 && $order->is_api == 0 && $order->state >= 3 && $order->state != 9 && $order->wms_export != 1) : ?>
 			<?php 	$this->load->view('wms_error_watermark'); ?>
 		<?php endif; ?>
+		<?php if($is_api && $order->is_wms == 2 && $order->is_api == 0 && $order->state == 3 && $order->wms_export = 1 && $order->is_backorder == 1) : ?>
+			<?php 	$this->load->view('backorder_watermark'); ?>
+		<?php endif; ?>
 	</div>
 </div>
 <hr/>

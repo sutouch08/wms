@@ -33,7 +33,7 @@
 
 	<div class="col-lg-3 col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>คลังสินค้า</label>
-		<select class="form-control input-sm" name="warehouse" id="warehouse" onchange="getSearch()">
+		<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
 			<?php echo select_warehouse($warehouse); ?>
 		</select>
@@ -58,6 +58,14 @@
 		</select>
 	</div>
 
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Back order</label>
+		<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $is_backorder); ?>>No</option>
+			<option value="1" <?php echo is_selected('1', $is_backorder); ?>>Yes</option>
+		</select>
+	</div>
 
 	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
@@ -181,6 +189,9 @@
 	</div>
 </div>
 
+<script>
+	$('#warehouse').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/support/support.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

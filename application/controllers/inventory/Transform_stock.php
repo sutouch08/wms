@@ -56,6 +56,7 @@ class Transform_stock extends PS_Controller
       'isApprove' => get_filter('isApprove', 'transform_isApprove', 'all'),
 			'warehouse' => get_filter('warehouse', 'transform_warehouse', ''),
 			'wms_export' => get_filter('wms_export', 'transform_wms_export', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'transform_is_backorder', 'all'),
       'sap_status' => get_filter('sap_status', 'transform_sap_status', 'all')
     );
 
@@ -275,6 +276,7 @@ class Transform_stock extends PS_Controller
     $ds['approve_view'] = $approve_view;
     $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
     $ds['tracking'] = $this->orders_model->get_order_tracking($code);
+    $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
     $this->isClosed = $this->transform_model->is_closed($code);
     $this->load->view('transform/transform_edit', $ds);
   }
@@ -683,6 +685,7 @@ class Transform_stock extends PS_Controller
       'transform_isApprove',
 			'transform_warehouse',
 			'transform_wms_export',
+      'transform_is_backorder',
       'transform_sap_status',
       'transform_notSave',
       'transform_onlyMe',
