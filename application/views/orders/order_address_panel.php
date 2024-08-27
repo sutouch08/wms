@@ -36,11 +36,14 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 					<?php if($order->is_cancled == 1 && $canCancleShipped && $order->state == 9) : ?>
 						<button type="button" class="btn btn-xs btn-danger pull-right margin-left-5" onclick="send_return_request()">Send RC-WO</button>
 					<?php endif; ?>
-				<button type="button" class="btn btn-xs btn-primary pull-right margin-left-5" onclick="update_wms_status()">WMS Status</button>
+				  <button type="button" class="btn btn-xs btn-primary pull-right margin-left-5" onclick="update_wms_status()">WMS Status</button>
+          <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="show_tracking()">Tracking No</button>
+          <button type="button" class="btn btn-xs btn-purple pull-right margin-left-5" onclick="viewTempDelivery('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">Temp Delivery</button>
+          <button type="button" class="btn btn-xs btn-yellow pull-right margin-left-5" onclick="viewApiLogs('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">API Logs</button>
+          <?php if($order->is_backorder == 1) : ?>
+            <button type="button" class="btn btn-xs btn-default pull-right margin-left-5" onclick="showBacklogs()">Back order logs</button>
+          <?php endif; ?>
 				<?php endif; ?>
-        <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="show_tracking()">Tracking No</button>
-        <button type="button" class="btn btn-xs btn-purple pull-right margin-left-5" onclick="viewTempDelivery('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">Temp Delivery</button>
-        <button type="button" class="btn btn-xs btn-yellow pull-right margin-left-5" onclick="viewApiLogs('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">API Logs</button>
 			</div>
 
     	<ul class="nav nav-tabs" role="tablist">
@@ -236,7 +239,53 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
  </div>
 </div>
 
+<div class="modal fade" id="backlogs-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog" style="min-width:500px; max-width:95vw;">
+   <div class="modal-content">
+       <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h4 class="modal-title">Back Order Details</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th class="min-width-200">Item</th>
+                  <th class="fix-width-100">Order Qty</th>
+                  <th class="fix-width-100">Available</th>
+                </tr>
+              </thead>
+              <tbody>
+          <?php if( ! empty($backlogs)) : ?>
+            <?php foreach($backlogs as $rs) : ?>
+              <tr>
+                <td><?php echo $rs->product_code; ?></td>
+                <td><?php echo number($rs->order_qty); ?></td>
+                <td><?php echo number($rs->available_qty); ?></td>
+              </tr>
+            <?php endforeach; ?>
+          <?php else : ?>
+            <tr>
+              <td colspan="3" class="text-center">-- No Items ---</td>
+            </tr>
+          <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+       </div>
+   </div>
+ </div>
+</div>
+
 <script>
+function showBacklogs() {
+  $('#backlogs-modal').modal('show');
+}
+
+
 function show_tracking() {
   $('#tracking-modal').modal('show');
 }

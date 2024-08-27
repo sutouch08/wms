@@ -5,7 +5,6 @@ class Soko_order_api
 	public $wms;
 	protected $ci;
   public $error;
-  public $backorder = 0;
 	public $log_json;
   public $test = FALSE;
 	public $type = 'OB';
@@ -212,49 +211,12 @@ class Soko_order_api
                 }
                 else
                 {
-                  if( ! empty($res->back_order))
-                  {
-                    $is_backorder = $res->back_order == 'Y' ? 1 : 0;
-                    $this->backorder = $is_backorder;
+                  $arr = array(
+                    'wms_export' => 1,
+                    'wms_export_error' => NULL
+                  );
 
-                    if($res->back_order == 'Y')
-                    {
-                      if( ! empty($res->details))
-                      {
-                        $this->ci->orders_model->drop_backlog_list($code);
-
-                        foreach($res->details as $rs)
-                        {
-                          $backlogs = array(
-                            'order_code' => $code,
-                            'product_code' => $res->item_sku,
-                            'order_qty' => $res->order_qty,
-                            'available_qty' => $res->available
-                          );
-
-                          $this->ci->orders_model->add_backlogs_detail($backlogs);
-                        }
-                      }
-                    }
-
-                    $arr = array(
-                      'wms_export' => 1,
-                      'wms_export_error' => NULL,
-                      'is_backorder' => $is_backorder
-                    );
-
-                    $this->ci->orders_model->update($code, $arr);
-
-                  }
-                  else
-                  {
-                    $arr = array(
-                      'wms_export' => 1,
-                      'wms_export_error' => NULL
-                    );
-
-                    $this->ci->orders_model->update($code, $arr);
-                  }
+                  $this->ci->orders_model->update($code, $arr);
                 }
               }
               else

@@ -686,6 +686,10 @@ class Orders_model extends CI_Model
 				$this->db->where('wms_export', $ds['wms_export']);		}
 		}
 
+    if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
+    {
+      $this->db->where('is_backorder', $ds['is_backorder']);
+    }
 
     if( isset($ds['is_pre_order']) && $ds['is_pre_order'] !== 'all')
     {
@@ -843,12 +847,12 @@ class Orders_model extends CI_Model
       }
     }
 
-    if( !empty($ds['user_ref']))
+    if( ! empty($ds['user_ref']))
     {
       $this->db->like('user_ref', $ds['user_ref']);
     }
 
-    if(!empty($ds['empName']))
+    if( ! empty($ds['empName']))
     {
       $this->db->like('empName', $ds['empName']);
     }
@@ -926,6 +930,11 @@ class Orders_model extends CI_Model
 			{
 				$this->db->where('wms_export', $ds['wms_export']);		}
 		}
+
+    if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
+    {
+      $this->db->where('is_backorder', $ds['is_backorder']);
+    }
 
 
     if( isset($ds['is_pre_order']) && $ds['is_pre_order'] !== 'all')
@@ -1720,6 +1729,36 @@ class Orders_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function add_backlogs_detail(array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->insert('order_backlog_details', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function drop_backlog_list($code)
+  {
+    return $this->db->where('order_code', $code)->delete('order_backlog_details');
+  }
+
+
+  public function get_backlog_details($code)
+  {
+    $rs = $this->db->where('order_code', $code)->get('order_backlog_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

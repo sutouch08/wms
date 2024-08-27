@@ -33,3 +33,31 @@
     }
   ]
 }
+
+
+
+{
+  "code": "0",
+  "status": "success",
+  "message": "Success",
+  "external_id": "WO-240833003",
+  "request_id": "req_666f2795ce8a0",
+  "back_order" : "Y", /* Y = backorder, N = order */
+  "details" : [
+    {
+      "item_sku" : "WA-PLAN15-AA-L",
+      "order_qty" : 10, /* จำนวนที่ IX ยิงไป */
+      "available" : 5  /* จำนวนที่คลังมี (in stock - on order) ไม่รวมยอดของ request นี้ */
+    },
+    {
+      "item_sku" : "WA-PLAN15-AA-XL",
+      "order_qty" : 10,
+      "available" : 15
+    },
+    {
+      "item_sku" : "WA-PLAN15-AA-2L",
+      "order_qty" : 3,
+      "available" : 3
+    },
+  ]
+}

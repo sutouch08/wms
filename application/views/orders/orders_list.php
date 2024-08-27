@@ -88,7 +88,16 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Back order</label>
+		<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $is_backorder); ?>>No</option>
+			<option value="1" <?php echo is_selected('1', $is_backorder); ?>>Yes</option>			
+		</select>
+	</div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>Pre order</label>
 		<select class="form-control input-sm" name="is_pre_order" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -105,8 +114,8 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-		<label>SAP Status</label>
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>SAP</label>
 		<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected('0', $sap_status); ?>>ยังไม่ส่งออก</option>
@@ -116,14 +125,8 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 hide">
-    <label>DO No.</label>
-    <input type="text" class="form-control input-sm search" name="DoNo" value="<?php echo $DoNo; ?>" />
-  </div>
-
-
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-		<label>Create By</label>
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Add By</label>
 		<select class="form-control input-sm" name="method" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected('0', $method); ?>>Manual</option>

@@ -77,7 +77,8 @@ class Orders extends PS_Controller
       'startTime' => get_filter('startTime', 'startTime', ''),
       'endTime' => get_filter('endTime', 'endTime', ''),
 			'wms_export' => get_filter('wms_export', 'wms_export', 'all'),
-      'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all')
+      'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'is_backorder', 'all')
     );
 
     $state = array(
@@ -782,6 +783,7 @@ class Orders extends PS_Controller
 	    $ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
 	    $banks = $this->bank_model->get_active_bank();
       $tracking = $this->orders_model->get_order_tracking($code);
+      $backlogs = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
 
       $is_api = $this->is_api($rs->is_wms);
 
@@ -791,6 +793,7 @@ class Orders extends PS_Controller
 	    $ds['addr']  = $ship_to;
 	    $ds['banks'] = $banks;
       $ds['tracking'] = $tracking;
+      $ds['backlogs'] = $backlogs;
 			$ds['cancle_reason'] = ($rs->state == 9 ? $this->orders_model->get_cancle_reason($code) : NULL);
 	    $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
 	    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
@@ -2621,9 +2624,12 @@ class Orders extends PS_Controller
 
 				if($is_api && $order->state >= 3 && $order->is_wms != 0 && $state != 9 && !$this->_SuperAdmin)
 				{
-          $fulfillment = $order->is_wms == 1 ? 'Pioneer' : ($order->is_wms == 2 ? 'SOKOCHAN' : 'Fulfillment');
-					echo "ออเดอร์ถูกส่งไประบบ {$fulfillment} แล้วไม่อนุญาติให้ย้อนสถานะ";
-					exit;
+          if(($order->wms_export == 1 && $order->is_backorder == 0))
+          {
+            $fulfillment = $order->is_wms == 1 ? 'Pioneer' : ($order->is_wms == 2 ? 'SOKOCHAN' : 'Fulfillment');
+            echo "ออเดอร์ถูกส่งไประบบ {$fulfillment} แล้วไม่อนุญาติให้ย้อนสถานะ";
+            exit;
+          }
 				}
 
         if( ! $uat)
@@ -2852,6 +2858,14 @@ class Orders extends PS_Controller
               {
                 $sc = FALSE;
                 $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (SOKOCHAN Error : ".$this->soko_order_api->error.")";
+              }
+              else
+              {
+                if($this->soko_order_api->backorder == 1)
+                {
+                  $sc = FALSE;
+                  $this->error = "ส่งข้อมูลไป Sochan สำเร็จ <br/> แต่ติด back order กรุณาตรวจสอบ";
+                }
               }
             } //--- if($order->is_wms == 2)
 					} //--- export fulfillment
@@ -4016,7 +4030,8 @@ class Orders extends PS_Controller
       'startTime',
       'endTime',
 			'wms_export',
-      'is_pre_order'
+      'is_pre_order',
+      'is_backorder'
     );
 
     clear_filter($filter);
@@ -4277,6 +4292,14 @@ class Orders extends PS_Controller
             $sc = FALSE;
             $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (SOKOCHAN Error : ".$this->soko_order_api->error.")";
           }
+          else
+          {
+            if($this->soko_order_api->backorder == 1)
+            {
+              $sc = FALSE;
+              $this->error = "ส่งข้อมูลไป Sochan สำเร็จ <br/> แต่ติด back order กรุณาตรวจสอบ";
+            }
+          }
         } //--- if($order->is_wms == 2)
       } //--- export fulfillment
 		}
@@ -4423,6 +4446,15 @@ class Orders extends PS_Controller
                 $sc = FALSE;
                 $errCount++;
                 $errCode[] = ['code' => $code, 'message' => "SOKOCHAN Error : ".$this->soko_order_api->error];
+              }
+              else
+              {
+                if($this->soko_order_api->backorder == 1)
+                {
+                  $sc = FALSE;
+                  $errCode++;
+                  $errCode[] = ['code' => $code, 'message' => "ติด back order"];
+                }
               }
             }
           }
