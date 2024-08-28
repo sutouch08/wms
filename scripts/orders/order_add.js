@@ -565,27 +565,41 @@ function changeState(){
             },
             success:function(rs){
               load_out();
-                var rs = $.trim(rs);
-                if(rs == 'success'){
-                    swal({
-                      title:'success',
-                      text:'status updated',
-                      type:'success',
-                      timer: 1000
-                    });
+              var rs = $.trim(rs);
+              if(rs == 'success'){
+                swal({
+                  title:'success',
+                  text:'status updated',
+                  type:'success',
+                  timer: 1000
+                });
 
-                    setTimeout(function(){
-                      window.location.reload();
-                    }, 1500);
+                setTimeout(function(){
+                  window.location.reload();
+                }, 1500);
 
-                }else{
-                    swal({
-                      title:"Error!",
-                      text:rs,
-                      type:'error',
-                      html:true
-                    });
-                }
+              }
+              else {
+                swal({
+                  title:"Error!",
+                  text:rs,
+                  type:'error',
+                  html:true
+                }, function() {
+                  window.location.reload();
+                });
+              }
+            },
+            error:function(rs) {
+              load_out();
+              swal({
+                title:'Error!',
+                text:rs.responseText,
+                type:'error',
+                html:true
+              }, function() {
+                window.location.reload();
+              });
             }
         });
     }

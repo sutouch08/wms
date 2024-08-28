@@ -30,6 +30,8 @@ function sendToWMS()
 					text:rs,
 					type:'error',
 					html:true
+				}, function() {
+					window.location.reload();
 				});
 			}
 		},
@@ -40,6 +42,8 @@ function sendToWMS()
 				text:'Error - '+xhr.responseText,
 				type:'error',
 				html:true
+			}, function() {
+				window.location.reload();
 			});
 		}
 	})

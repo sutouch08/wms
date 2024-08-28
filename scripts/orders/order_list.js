@@ -41,7 +41,9 @@ function sendToWms(code) {
 					text:rs,
 					type:"error",
 					html:true
-				});
+				}, function() {
+          window.location.reload();
+        });
 			}
 		},
 		error:function(xhr, status, error) {
@@ -51,7 +53,9 @@ function sendToWms(code) {
 				type:'error',
 				text:xhr.responseText,
 				html:true
-			})
+			}, function() {
+        window.location.reload();
+      })
 		}
 	})
 }
@@ -109,7 +113,9 @@ function sendOrdersToWms() {
 							text:rs,
 							type:'error',
 							html:true
-						})
+						}, function() {
+              window.location.reload();
+            })
 					}
 				},
 				error:function(xhr, status, error) {
@@ -119,7 +125,9 @@ function sendOrdersToWms() {
 						type:'error',
 						text:xhr.responseText,
 						html:true
-					})
+					}, function() {
+            window.location.reload();
+          })
 				}
 			})
 		}

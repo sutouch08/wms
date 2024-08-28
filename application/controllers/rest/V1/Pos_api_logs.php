@@ -21,12 +21,12 @@ class Pos_api_logs extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code' => get_filter('code', 'logs_code', ''),
-      'status' => get_filter('status', 'logs_status', 'all'),
-			'type' => get_filter('type', 'logs_type', 'all'),
-			'action' => get_filter('action', 'logs_action', 'all'),
-			'from_date' => get_filter('from_date', 'from_date', ''),
-			'to_date' => get_filter('to_date', 'to_date', '')
+      'code' => get_filter('code', 'pos_logs_code', ''),
+      'status' => get_filter('status', 'pos_logs_status', 'all'),
+			'type' => get_filter('type', 'pos_logs_type', 'all'),
+			'action' => get_filter('action', 'pos_logs_action', 'all'),
+			'from_date' => get_filter('from_date', 'pos_logs_from_date', ''),
+			'to_date' => get_filter('to_date', 'pos_logs_to_date', '')
     );
 
 		if($this->input->post('search'))
@@ -63,12 +63,12 @@ class Pos_api_logs extends PS_Controller
 	public function clear_filter()
 	{
 		$filter = array(
-			'logs_code',
-			'logs_status',
-			'logs_type',
-			'logs_action',
-			'from_date',
-			'to_date'
+			'pos_logs_code',
+			'pos_logs_status',
+			'pos_logs_type',
+			'pos_logs_action',
+			'pos_logs_from_date',
+			'pos_logs_to_date'
 		);
 
 		clear_filter($filter);

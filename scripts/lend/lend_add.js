@@ -517,97 +517,101 @@ function updateOrder() {
 }
 
 
-// JavaScript Document
 function changeState(){
-    var order_code = $("#order_code").val();
-    var state = $("#stateList").val();
-		var id_address = $('#address_id').val();
-		var id_sender = $('#id_sender').val();
-		let trackingNo = $('#trackingNo').val();
-		let tracking = $('#tracking').val();
-		var is_wms = $('#is_wms').val();
-    var reason_id = $('#reason-id').val();
-		var cancle_reason = $.trim($('#cancle-reason').val());
+  var order_code = $("#order_code").val();
+  var state = $("#stateList").val();
+  var id_address = $('#address_id').val();
+  var id_sender = $('#id_sender').val();
+  let trackingNo = $('#trackingNo').val();
+  let tracking = $('#tracking').val();
+  var is_wms = $('#is_wms').val();
+  var reason_id = $('#reason-id').val();
+  var cancle_reason = $.trim($('#cancle-reason').val());
 
-		if(is_wms) {
-			if(state == 3 && id_address == "") {
-				swal("กรุณาระบุที่อยู่จัดส่ง");
-				return false;
-			}
-
-			if(state == 3 && id_sender == "") {
-				swal("กรุณาระบุผู้จัดส่ง");
-				return false;
-			}
-
-			if($('#sender option:selected').data('tracking') == 1) {
-				if(trackingNo != tracking) {
-					swal("กรุณากดบันทึก Tracking No");
-					return false;
-				}
-
-				if(trackingNo.length === 0) {
-					swal("กรุณาระบุ Tracking No");
-					return false;
-				}
-			}
-		}
-
-    if(state == 9 && cancle_reason.length < 10) {
-			showCancleModal();
-			return false;
-		}
-
-    if( state != 0){
-			load_in();
-        $.ajax({
-            url:BASE_URL + 'orders/orders/order_state_change',
-            type:"POST",
-            cache:"false",
-            data:{
-              "order_code" : order_code,
-              "state" : state,
-							"id_address" : id_address,
-							"id_sender" : id_sender,
-							"tracking" : tracking,
-              "reason_id" : reason_id,
-							"cancle_reason" : cancle_reason
-            },
-            success:function(rs){
-							load_out();
-                var rs = $.trim(rs);
-                if(rs == 'success'){
-                    swal({
-                      title:'success',
-                      text:'status updated',
-                      type:'success',
-                      timer: 1000
-                    });
-
-                    setTimeout(function(){
-                      window.location.reload();
-                    }, 1500);
-
-                }else{
-                    swal({
-											title:"Error !",
-											text:rs,
-											type:"error",
-											html:true
-										});
-                }
-            },
-						error:function(xhr, status, error) {
-							load_out();
-							swal({
-								title:'Error!',
-								text:xhr.responseText,
-								type:'error',
-								html:true
-							})
-						}
-        });
+  if(is_wms) {
+    if(state == 3 && id_address == "") {
+      swal("กรุณาระบุที่อยู่จัดส่ง");
+      return false;
     }
+
+    if(state == 3 && id_sender == "") {
+      swal("กรุณาระบุผู้จัดส่ง");
+      return false;
+    }
+
+    if($('#sender option:selected').data('tracking') == 1) {
+      if(trackingNo != tracking) {
+        swal("กรุณากดบันทึก Tracking No");
+        return false;
+      }
+
+      if(trackingNo.length === 0) {
+        swal("กรุณาระบุ Tracking No");
+        return false;
+      }
+    }
+  }
+
+  if(state == 9 && cancle_reason.length < 10) {
+    showCancleModal();
+    return false;
+  }
+
+  if( state != 0){
+    load_in();
+    $.ajax({
+      url:BASE_URL + 'orders/orders/order_state_change',
+      type:"POST",
+      cache:"false",
+      data:{
+        "order_code" : order_code,
+        "state" : state,
+        "id_address" : id_address,
+        "id_sender" : id_sender,
+        "tracking" : tracking,
+        "reason_id" : reason_id,
+        "cancle_reason" : cancle_reason
+      },
+      success:function(rs){
+        load_out();
+        var rs = $.trim(rs);
+        if(rs == 'success'){
+          swal({
+            title:'success',
+            text:'status updated',
+            type:'success',
+            timer: 1000
+          });
+
+          setTimeout(function(){
+            window.location.reload();
+          }, 1500);
+
+        }
+        else {
+          swal({
+            title:"Error !",
+            text:rs,
+            type:"error",
+            html:true
+          }, function() {
+            window.location.reload();
+          });
+        }
+      },
+      error:function(xhr, status, error) {
+        load_out();
+        swal({
+          title:'Error!',
+          text:xhr.responseText,
+          type:'error',
+          html:true
+        }, function() {
+          window.location.reload();
+        })
+      }
+    });
+  }
 }
 
 

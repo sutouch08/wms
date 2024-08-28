@@ -610,6 +610,7 @@ function changeState(){
 
 
 		load_in();
+
     if( state != 0){
         $.ajax({
             url:BASE_URL + 'orders/orders/order_state_change',
@@ -637,11 +638,30 @@ function changeState(){
 
                     setTimeout(function(){
                       window.location.reload();
-                    }, 1500);
+                    }, 1200);
 
-                }else{
-                    swal("Error !", rs, "error");
                 }
+                else {
+                  swal({
+                    title:'Error',
+                    text:rs,
+                    type:'error',
+                    html:true
+                  }, function() {
+                    window.location.reload();
+                  });
+                }
+            },
+            error:function(rs) {
+              load_out();
+              swal({
+                title:'Error!',
+                text:rs.responeText,
+                type:'error',
+                html:true
+              }, function() {
+                window.location.reload();
+              })
             }
         });
     }
