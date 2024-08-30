@@ -2217,7 +2217,7 @@ class Transfer extends PS_Controller
       }
       else
       {
-        if($this->transfer_model->valid_all_detail($code, 0))
+        if( ! $this->transfer_model->valid_all_detail($code, 0))
         {
           $sc = FALSE;
           $this->error = "Failed to rollback transfer rows status";
