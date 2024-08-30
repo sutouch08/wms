@@ -2177,18 +2177,23 @@ class Transfer extends PS_Controller
   public function unsave_transfer($code)
   {
     $sc = TRUE;
+    $uat = is_true(getConfig('IS_UAT'));
+
     $this->load->model('inventory/movement_model');
     //--- check Transfer doc exists in SAP
     $doc = $this->transfer_model->get_sap_transfer_doc($code);
-    if(!empty($doc))
+
+    if( ! empty($doc))
     {
       $sc = FALSE;
       $this->error = "เอกสารเข้า SAP แล้วไม่อนุญาติให้ยกเลิก";
     }
-    else
+
+    if($sc === TRUE OR $uat)
     {
       //--- check middle doc delete it if exists
       $middle = $this->transfer_model->get_middle_transfer_doc($code);
+
       if(!empty($middle))
       {
         foreach($middle as $rs)
@@ -2198,22 +2203,43 @@ class Transfer extends PS_Controller
       }
 
 
-      $this->db->trans_start();
+      $this->db->trans_begin();
       //--- change state to -1
       $arr = array(
         'status' => -1,
         'is_approve' => 0
       );
 
-      $this->transfer_model->update($code, $arr);
-      $this->transfer_model->valid_all_detail($code, 0);
-      $this->movement_model->drop_movement($code);
-      $this->db->trans_complete();
-
-      if($this->db->trans_status() === FALSE)
+      if( ! $this->transfer_model->update($code, $arr))
       {
         $sc = FALSE;
-        $this->error = $this->db->error();
+        $this->error = "Failed to change status";
+      }
+      else
+      {
+        if($this->transfer_model->valid_all_detail($code, 0))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to rollback transfer rows status";
+        }
+        else
+        {
+          if( ! $this->movement_model->drop_movement($code))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to remove stock movement";
+          }
+        }
+      }
+
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
       }
     }
 
