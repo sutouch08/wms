@@ -3093,7 +3093,8 @@ class Transfer extends PS_Controller
       'tr_is_approve',
       'tr_valid',
       'tr_sap',
-      'tr_must_accept'
+      'tr_must_accept',
+      'pallet_no'
     );
 
     clear_filter($filter);
