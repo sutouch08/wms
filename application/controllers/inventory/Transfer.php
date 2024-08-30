@@ -2183,7 +2183,7 @@ class Transfer extends PS_Controller
     //--- check Transfer doc exists in SAP
     $doc = $this->transfer_model->get_sap_transfer_doc($code);
 
-    if( ! empty($doc))
+    if( ! empty($doc) && ! $uat)
     {
       $sc = FALSE;
       $this->error = "เอกสารเข้า SAP แล้วไม่อนุญาติให้ยกเลิก";
