@@ -2899,6 +2899,31 @@ class Transfer extends PS_Controller
 
         if($sc === TRUE)
         {
+          if(is_true(getConfig('POS_API_WW')))
+          {
+            $fWh = $this->warehouse_model->get($doc->from_warehouse);
+            $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+            if( ! empty($fWh) && ! empty($tWh))
+            {
+              if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+              {
+                $this->logs = $this->load->database('logs', TRUE);
+
+                $this->load->library('pos_api');
+
+                if( ! $this->pos_api->cancel_transfer($doc->code))
+                {
+                  $sc = FALSE;
+                  $this->error = "ยกเลิกเอกสารในระบบ POS ไม่สำเร็จ : ".$this->pos_api->error;
+                }
+              }
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
           $this->db->trans_commit();
         }
         else
