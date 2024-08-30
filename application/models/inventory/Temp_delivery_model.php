@@ -152,7 +152,7 @@ class Temp_delivery_model extends CI_Model
   public function get_error_list()
   {
     $rs = $this->mc
-    ->select('U_ECOMNO AS code')
+    ->select('DocEntry, U_ECOMNO AS code')
     ->where('F_Sap', 'N')
     ->order_by('U_ECOMNO', 'ASC')
     ->get('ODLN');

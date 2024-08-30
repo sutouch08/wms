@@ -145,11 +145,13 @@ class Temp_delivery_order extends PS_Controller
 
     $ds = array();
     $orders = $this->temp_delivery_model->get_error_list();
-    if(!empty($orders))
+
+    if( ! empty($orders))
     {
       foreach($orders as $order)
       {
-        $details = $this->temp_delivery_model->get_detail($order->code);
+        $details = $this->temp_delivery_model->get_detail($order->DocEntry);
+
         if(!empty($details))
         {
           foreach($details as $rs)
