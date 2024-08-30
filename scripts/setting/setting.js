@@ -29,7 +29,7 @@ function changeURL(tab)
 {
 	var url = BASE_URL + 'setting/configs/index/'+ tab;
 	var stObj = { stage: 'stage' };
-	window.history.pushState(stObj, 'configs', url);  
+	window.history.pushState(stObj, 'configs', url);
 }
 
 
@@ -141,6 +141,21 @@ function togglePosApi(option){
 	}else if(option == 0){
 		$('#btn-pos-api-on').removeClass('btn-primary');
 		$('#btn-pos-api-off').addClass('btn-primary');
+		return;
+	}
+}
+
+
+//--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
+function togglePosApiWW(option){
+	$('#pos-api-ww').val(option);
+	if(option == 1){
+		$('#btn-pos-api-ww-on').addClass('btn-primary');
+		$('#btn-pos-api-ww-off').removeClass('btn-primary');
+		return;
+	}else if(option == 0){
+		$('#btn-pos-api-ww-on').removeClass('btn-primary');
+		$('#btn-pos-api-ww-off').addClass('btn-primary');
 		return;
 	}
 }

@@ -35,7 +35,7 @@
 	<li class="li-block <?php echo $tab9; ?>" onclick="changeURL('WMS')"><a href="#WMS" data-toggle="tab">ข้อมูล WMS</a></li>
 	<li class="li-block <?php echo $tab10; ?>" onclick="changeURL('sokojung')"><a href="#sokojung" data-toggle="tab">ข้อมูล SOKOJUNG</a></li>
 	<li class="li-block <?php echo $tab11; ?>" onclick="changeURL('chatbot')"><a href="#chatbot" data-toggle="tab">ข้อมูล CHATBOT</a></li>
-	<li class="li-block <?php echo $tab12; ?>" onclick="changeURL('web')"><a href="#web" data-toggle="tab">ข้อมูล Web</a></li>
+	<li class="li-block <?php echo $tab12; ?>" onclick="changeURL('web')"><a href="#web" data-toggle="tab">ข้อมูล Magento</a></li>
 
 </ul>
 </div>

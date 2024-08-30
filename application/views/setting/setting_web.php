@@ -3,6 +3,8 @@
 		$web_api_off = $WEB_API == 0 ? 'btn-primary' : '';
 		$pos_on = $POS_API == 1 ? 'btn-primary' : '';
 		$pos_off = $POS_API == 0 ? 'btn-primary' : '';
+		$pos_ww_on = $POS_API_WW == 1 ? 'btn-primary' : '';
+		$pos_ww_off = $POS_API_WW == 0 ? 'btn-primary' : '';
 	 ?>
 	<form id="webForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
@@ -52,6 +54,8 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="divider"></div>
+
 			<div class="col-sm-4">
         <span class="form-control left-label">POS API</span>
       </div>
@@ -86,6 +90,21 @@
 					<option value="1" <?php echo is_selected('1', $POS_API_CN_CREATE_STATUS); ?>>Saved</option>
 				</select>
 				<span class="help-block">กำหนดสถานะเอกสาร SM เมื่อสร้างเอกสารบน IX สำเร็จ</span>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="divider"></div>
+
+			<div class="col-sm-4">
+        <span class="form-control left-label">POS API WW</span>
+      </div>
+      <div class="col-sm-8">
+				<div class="btn-group">
+					<button type="button" class="btn btn-sm <?php echo $pos_ww_on; ?>" style="width:50%;" id="btn-pos-api-ww-on" onClick="togglePosApiWW(1)">ON</button>
+					<button type="button" class="btn btn-sm <?php echo $pos_ww_off; ?>" style="width:50%;" id="btn-pos-api-ww-off" onClick="togglePosApiWW(0)">OFF</button>
+				</div>
+				<input type="hidden" name="POS_API_WW" id="pos-api-ww" value="<?php echo $POS_API_WW; ?>" />
+				<span class="help-block">Turn POS Api WW On/Off</span>
       </div>
       <div class="divider-hidden"></div>
 
