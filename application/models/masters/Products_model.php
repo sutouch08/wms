@@ -1111,7 +1111,7 @@ class Products_model extends CI_Model
     ->where('barcode !=', '')
     ->where('count_stock', 1)
     ->where('soko_code IS NULL', NULL, FALSE)
-    ->order_by('id', 'ASC')
+    ->order_by('last_sync', 'ASC')
     ->limit($limit)
     ->get('products');
 
