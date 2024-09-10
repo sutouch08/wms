@@ -1,9 +1,9 @@
 <?php
-class Soko_auto_delivery extends CI_Controller
+class Soko_auto_products extends CI_Controller
 {
   public $home;
 	public $wms;
-	public $user;	
+	public $user;
 
   public function __construct()
   {
