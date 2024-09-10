@@ -1103,5 +1103,25 @@ class Products_model extends CI_Model
 		return NULL;
 	}
 
+  public function get_non_soko_list($limit = 100)
+  {
+    $rs = $this->db
+    ->select('id, code, name, barcode, color_code, size_code, old_code, price')
+    ->where('barcode IS NOT NULL', NULL, FALSE)
+    ->where('barcode !=', '')
+    ->where('count_stock', 1)
+    ->where('soko_code IS NULL', NULL, FALSE)
+    ->order_by('id', 'ASC')
+    ->limit($limit)
+    ->get('products');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 }
 ?>

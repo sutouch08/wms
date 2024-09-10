@@ -58,7 +58,12 @@
 		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
 			<label>รับที่</label>
 			<select class="form-control input-sm edit" name="is_wms" id="is_wms" onchange="toggleInterface()" disabled>
-				<option value="1" <?php echo is_selected("1", $doc->is_wms); ?>>Pioneer</option>
+				<?php if($this->wmsApi) : ?>
+				<option value="1">Pioneer</option>
+				<?php endif; ?>
+				<?php if($this->sokoApi) : ?>
+				<option value="2">SOKOCHAN</option>
+				<?php endif; ?>				
 				<option value="0" <?php echo is_selected("0", $doc->is_wms); ?>>Warrix</option>
 			</select>
 		</div>
@@ -276,7 +281,7 @@
 		</td>
 		<input type="hidden" id="barcode_{{barcode}}" value="{{no}}"/>
 		<input type="hidden" name="item[{{no}}]" id="item_{{no}}" value="{{code}}"/>
-		<input type="hidden" name="item_name[{{no}}]" id="item_name_{{no}}" value="{{name}}"/>		
+		<input type="hidden" name="item_name[{{no}}]" id="item_name_{{no}}" value="{{name}}"/>
 	</tr>
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment.js?v=<?php echo date('Ymd'); ?>"></script>
