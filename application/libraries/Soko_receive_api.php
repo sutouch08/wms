@@ -139,7 +139,7 @@ class Soko_receive_api
               {
                 $arr = array(
                   'soko_code' => $res->id,
-                  'wms_status' => 1,
+                  'wms_export' => 1,
                   'wms_export_error' => NULL
                 );
 
