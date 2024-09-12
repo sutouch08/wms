@@ -29,6 +29,7 @@
     <select class="form-control input-sm" name="type" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="products" <?php echo is_selected('products', $type);?>>Products</option>
+			<option value="ORDER" <?php echo is_selected('ORDER', $type); ?>>ORDER</option>
 			<option value="RT" <?php echo is_selected('RT', $type); ?>>RT</option>
 			<option value="RN" <?php echo is_selected('RN', $type); ?>>RN</option>
 			<option value="SM" <?php echo is_selected('SM', $type); ?>>SM</option>
