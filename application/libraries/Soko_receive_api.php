@@ -100,7 +100,7 @@ class Soko_receive_api
 
                 $arr = array(
                   'soko_code' => $res->id,
-                  'wms_status' => 1,
+                  'wms_export' => 1,
                   'wms_export_error' => NULL
                 );
 
@@ -155,7 +155,7 @@ class Soko_receive_api
             $this->error = $response;
 
             $arr = array(
-              'wms_status' => $isUpdate ? 1 : 3,
+              'wms_export' => $isUpdate ? 1 : 3,
               'wms_export_error' => $res->message
             );
 
