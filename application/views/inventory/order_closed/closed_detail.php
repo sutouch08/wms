@@ -56,11 +56,21 @@
       <label>พนักงาน</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
     </div>
-    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-4 padding-5">
+    <div class="col-lg-7 col-md-6-harf col-sm-6-harf col-xs-4 padding-5">
       <label>หมายเหตุ</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
     </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+      <label class="font-size-2 blod">วันที่จัดส่ง</label>
+      <div class="input-group width-100">
+        <input type="text" class="form-control input-sm text-center" id="ship-date" value="<?php echo empty($order->shipped_date) ? NULL : thai_date($order->shipped_date); ?>" disabled />
+        <span class="input-group-btn">
+          <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
+          <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save"></i></button>
+        </span>
+      </div>
+    </div>
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
       <label class="font-size-2 blod">SAP No</label>
       <input type="text" class="form-control input-sm text-center" value="<?php echo $order->inv_code; ?>" disabled />
     </div>
@@ -81,11 +91,21 @@
         <label>พนักงาน</label>
         <input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
       </div>
-      <div class="col-lg-8 col-md-8 col-sm-8 col-xs-4 padding-5">
+      <div class="col-lg-7 col-md-6-harf col-sm-6-harf col-xs-4 padding-5">
         <label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
       </div>
-      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+      <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+        <label class="font-size-2 blod">วันที่จัดส่ง</label>
+        <div class="input-group width-100">
+          <input type="text" class="form-control input-sm text-center" id="ship-date" value="<?php echo empty($order->shipped_date) ? NULL : thai_date($order->shipped_date); ?>" disabled />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
+            <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save" style="min-width:20px;"></i></button>
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
         <label class="font-size-2 blod">SAP No</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $order->inv_code; ?>" disabled />
       </div>
@@ -292,6 +312,47 @@
 <?php endif; ?>
 
 
+<script>
+	$('#ship-date').datepicker({
+		'dateFormat' : 'dd-mm-yy'
+	});
+
+	function activeShipDate() {
+		$('#ship-date').removeAttr('disabled');
+		$('#btn-edit-ship-date').addClass('hide');
+		$('#btn-update-ship-date').removeClass('hide');
+	}
+
+	function updateShipDate() {
+		let shipDate = $('#ship-date').val();
+		let order = $('#order_code').val();
+
+		$.ajax({
+			url:BASE_URL + 'inventory/delivery_order/update_shipped_date',
+			type:'POST',
+			cache:false,
+			data:{
+				'order_code' : order,
+				'shipped_date' : shipDate
+			},
+			success:function(rs) {
+				rs = $.trim(rs);
+				if(rs === 'success') {
+					$('#ship-date').attr('disabled', 'disabled');
+					$('#btn-update-ship-date').addClass('hide');
+					$('#btn-edit-ship-date').removeClass('hide');
+				}
+				else {
+					swal({
+						title:'Error!',
+						type:'error',
+						text:rs
+					});
+				}
+			}
+		})
+	}
+</script>
 <script>
 
   function confirm_receipted(){
