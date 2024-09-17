@@ -410,7 +410,7 @@ class Orders extends REST_Controller
             'update_user' => $this->user
           );
 
-          $this->order_state_model->add_state($arr);          
+          $this->order_state_model->add_state($arr);
         }
       }
     }
@@ -1132,7 +1132,8 @@ class Orders extends REST_Controller
     $custList = [
       'CLON04-0001' => 'บริษัท ช้อปปี้ (ประเทศไทย) จำกัด สำนักงานใหญ่',
       'CLON01-0001' => 'บริษัท ลาซาด้า จำกัด (สำนักงานใหญ่)',
-      'CLON13-0001' => 'TIK TOK PTE. LTD.'
+      'CLON13-0001' => 'TIK TOK PTE. LTD.',
+      'CLON16-0001' => 'TIKTok Shop (Thailand) Ltd.'
     ];
 
     if(! property_exists($data, 'customer_code') OR $data->customer_code == '')

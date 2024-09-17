@@ -560,6 +560,7 @@ class Orders_model extends CI_Model
       }
 
       $this->db->like('code', $code, 'after');
+      // $this->db->like('code', $ds['code']);
     }
 
 
@@ -837,6 +838,8 @@ class Orders_model extends CI_Model
       }
 
       $this->db->like('code', $code, 'after');
+
+      // $this->db->like('code', $ds['code']);
     }
 
 
