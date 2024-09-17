@@ -3,12 +3,12 @@
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
 
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <h4 class="title">
       <?php echo $this->title; ?>
     </h4>
     </div>
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
 				<?php if($can_upload == 1) : ?>
@@ -27,7 +27,7 @@
 <div class="row">
   <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
+    <input type="number" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
@@ -125,7 +125,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>Add By</label>
 		<select class="form-control input-sm" name="method" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -134,11 +134,11 @@
 			<option value="2" <?php echo is_selected('2', $method); ?>>API</option>
 		</select>
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label class="display-block not-show">search</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label class="display-block not-show">reset</label>
 		<button type="button" class="btn btn-xs btn-warning btn-100" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
 	</div>

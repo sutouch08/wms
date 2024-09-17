@@ -1079,6 +1079,16 @@ hr.padding-5 {
   	width: 95.833333333%;
   }
 
+  .title {
+    font-size:20px;
+    margin-top:0px;
+    margin-bottom:10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    background-color: #eee;
+  }
+
 }
 
 

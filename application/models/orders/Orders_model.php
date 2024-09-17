@@ -528,7 +528,38 @@ class Orders_model extends CI_Model
     //---- เลขที่เอกสาร
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $ds['code'] = preg_replace("/\D/", "", $ds['code']);
+      $code = NULL;
+
+      switch($role)
+      {
+        case 'S' :
+          $code = "WO-{$ds['code']}";
+        break;
+        case 'P' :
+          $code = "WS-{$ds['code']}";
+        break;
+        case 'U' :
+          $code = "WU-{$ds['code']}";
+        break;
+        case 'C' :
+          $code = "WC-{$ds['code']}";
+        break;
+        case 'N' :
+          $code = "WT-{$ds['code']}";
+        break;
+        case 'T' :
+          $code = "WQ-{$ds['code']}";
+        break;
+        case 'Q' :
+          $code = "WV-{$ds['code']}";
+        break;
+        case 'L' :
+          $code = "WL-{$ds['code']}";
+        break;
+      }
+
+      $this->db->like('code', $code, 'after');
     }
 
 
@@ -773,7 +804,39 @@ class Orders_model extends CI_Model
     //---- เลขที่เอกสาร
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $ds['code'] = preg_replace("/\D/", "", $ds['code']);
+
+      $code = NULL;
+
+      switch($role)
+      {
+        case 'S' :
+          $code = "WO-{$ds['code']}";
+        break;
+        case 'P' :
+          $code = "WS-{$ds['code']}";
+        break;
+        case 'U' :
+          $code = "WU-{$ds['code']}";
+        break;
+        case 'C' :
+          $code = "WC-{$ds['code']}";
+        break;
+        case 'N' :
+          $code = "WT-{$ds['code']}";
+        break;
+        case 'T' :
+          $code = "WQ-{$ds['code']}";
+        break;
+        case 'Q' :
+          $code = "WV-{$ds['code']}";
+        break;
+        case 'L' :
+          $code = "WL-{$ds['code']}";
+        break;
+      }
+
+      $this->db->like('code', $code, 'after');
     }
 
 
@@ -1030,7 +1093,7 @@ class Orders_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
