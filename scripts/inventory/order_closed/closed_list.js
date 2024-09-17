@@ -16,6 +16,21 @@ $("#toDate").datepicker({
   }
 });
 
+$("#shipFromDate").datepicker({
+  dateFormat:'dd-mm-yy',
+  onClose:function(sd){
+    $("#shipToDate").datepicker('option', 'minDate', sd);
+  }
+});
+
+
+$("#shipToDate").datepicker({
+  dateFormat:'dd-mm-yy',
+  onClose:function(sd){
+    $("#shipFromDate").datepicker('option', 'maxDate', sd);
+  }
+});
+
 
 
 $(".search-box").keyup(function(e){

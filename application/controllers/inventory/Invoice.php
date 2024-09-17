@@ -24,6 +24,7 @@ class Invoice extends PS_Controller
   {
     $this->load->helper('channels');
     $this->load->helper('warehouse');
+
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
       'customer' => get_filter('customer', 'ic_customer', ''),
@@ -32,6 +33,8 @@ class Invoice extends PS_Controller
       'channels' => get_filter('channels', 'ic_channels', ''),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'ship_from_date' => get_filter('ship_from_date', 'ic_ship_from_date', ''),
+      'ship_to_date' => get_filter('ship_to_date', 'ic_ship_to_date', ''),
       'order_by'   => get_filter('order_by', 'ic_order_by', ''),
       'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
       'is_valid' => get_filter('is_valid', 'ic_valid', 'all'),
@@ -132,6 +135,8 @@ class Invoice extends PS_Controller
       'ic_channels',
       'ic_from_date',
       'ic_to_date',
+      'ic_ship_from_date',
+      'ic_ship_to_date',
       'ic_order_by',
       'ic_sort_by',
       'ic_valid',

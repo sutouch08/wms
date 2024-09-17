@@ -9,22 +9,22 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search-box" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search-box" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search-box" name="user" value="<?php echo $user; ?>" />
   </div>
 
-	<div class="col-lg-2 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>รูปแบบ</label>
 		<select class="form-control input-sm" name="role" onchange="getSearch()">
       <option value="">ทั้งหมด</option>
@@ -32,7 +32,7 @@
     </select>
   </div>
 
-	<div class="col-lg-2 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
 		<select class="form-control input-sm" name="channels" onchange="getSearch()">
       <option value="">ทั้งหมด</option>
@@ -40,9 +40,9 @@
     </select>
   </div>
 
-	<div class="col-lg-2 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-3-harf col-md-2 col-sm-5 col-xs-6 padding-5">
     <label>คลังสินค้า</label>
-		<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
+		<select class="width-100 filter" id="warehouse" name="warehouse">
       <option value="all">ทั้งหมด</option>
       <?php echo select_sell_warehouse($warehouse); ?>
     </select>
@@ -72,7 +72,7 @@
 		<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
       <option value="Y" <?php echo is_selected($sap_status, 'Y'); ?>>เข้าแล้ว</option>
-			<option value="N" <?php echo is_selected($sap_status, 'N'); ?>>ยังไม่เข้า</option>			
+			<option value="N" <?php echo is_selected($sap_status, 'N'); ?>>ยังไม่เข้า</option>
     </select>
   </div>
 
@@ -84,13 +84,21 @@
     </div>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+    <label>วันที่จัดส่ง</label>
+    <div class="input-daterange input-group">
+      <input type="text" class="form-control input-sm width-50 text-center from-date" name="ship_from_date" id="shipFromDate" value="<?php echo $ship_from_date; ?>" />
+      <input type="text" class="form-control input-sm width-50 text-center" name="ship_to_date" id="shipToDate" value="<?php echo $ship_to_date; ?>" />
+    </div>
+  </div>
+
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">btn</label>
-		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()">Search</button>
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">btn</label>
-		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
 	</div>
 </div>
 
@@ -104,11 +112,12 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:990px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1090px;">
       <thead>
         <tr>
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
+					<th class="fix-width-100 text-center">วันที่จัดส่ง</th>
           <th class="fix-width-150">เลขที่เอกสาร</th>
 					<th class="fix-width-100">SAP NO</th>
           <th class="min-width-200">ลูกค้า/ผู้รับ/ผู้เบิก</th>
@@ -133,6 +142,10 @@
             <?php echo thai_date($rs->date_add); ?>
           </td>
 
+					<td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
+            <?php echo thai_date($rs->shipped_date); ?>
+          </td>
+
           <td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->code; ?>
             <?php echo ($rs->reference != '' ? ' ['.$rs->reference.']' : ''); ?>
@@ -146,7 +159,7 @@
             <?php echo $rs->customer_name; ?>
           </td>
 
-          <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
+          <td class="pointer text-right" onclick="viewDetail('<?php echo $rs->code; ?>')">
 						<?php echo ($rs->doc_total <= 0 ? number($this->invoice_model->get_billed_amount($rs->code), 2) : number($rs->doc_total,2)); ?>
           </td>
 
@@ -177,6 +190,9 @@
   </div>
 </div>
 
+<script>
+	$('#warehouse').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed_list.js?v=<?php echo date('Ymd'); ?>"></script>
 

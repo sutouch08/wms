@@ -100,6 +100,16 @@ class Delivery_order_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
+    if(isset($ds['ship_from_date']) && $ds['ship_from_date'] != '')
+    {
+      $this->db->where('shipped_date >=', from_date($ds['ship_from_date']));
+    }
+
+    if(isset($ds['ship_to_date']) && $ds['ship_to_date'] != '')
+    {
+      $this->db->where('shipped_date <=', to_date($ds['ship_to_date']));
+    }
+
     return $this->db->count_all_results('orders');
   }
 
@@ -181,6 +191,16 @@ class Delivery_order_model extends CI_Model
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    if(isset($ds['ship_from_date']) && $ds['ship_from_date'] != '')
+    {
+      $this->db->where('shipped_date >=', from_date($ds['ship_from_date']));
+    }
+
+    if(isset($ds['ship_to_date']) && $ds['ship_to_date'] != '')
+    {
+      $this->db->where('shipped_date <=', to_date($ds['ship_to_date']));
     }
 
     $rs = $this->db->order_by('date_add', 'DESC')->limit($perpage, $offset)->get('orders');
@@ -288,7 +308,7 @@ class Delivery_order_model extends CI_Model
     //--- เปรียบเทียบยอดที่มีการสั่งซื้อ และมีการตรวจสอนค้า
     //--- เพื่อให้ได้ยอดที่ต้องเปิดบิล บันทึกขายจริงๆ
     //--- ผลลัพธ์จะไม่ได้ยอดที่มีการสั่งซื้อแต่ไม่มียอดตรวจ หรือ มียอดตรวจแต่ไม่มียอดสั่งซื้อ (กรณีมีการแก้ไขออเดอร์)
-    
+
     public function get_bill_detail($code)
     {
       $qr = "SELECT o.id, o.style_code, o.product_code, o.product_name, o.qty AS order_qty, ";
