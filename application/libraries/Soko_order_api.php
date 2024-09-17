@@ -227,9 +227,9 @@ class Soko_order_api
                         {
                           $backlogs = array(
                             'order_code' => $code,
-                            'product_code' => $res->item_sku,
-                            'order_qty' => $res->order_qty,
-                            'available_qty' => $res->available
+                            'product_code' => $rs->item_sku,
+                            'order_qty' => $rs->order_qty,
+                            'available_qty' => $rs->available
                           );
 
                           $this->ci->orders_model->add_backlogs_detail($backlogs);
