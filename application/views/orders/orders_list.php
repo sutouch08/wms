@@ -267,12 +267,13 @@
 <div >
 	<?php
 	//echo "query : {$start} - {$end} &nbsp;&nbsp;&nbsp;";
-	list($usec, $sec) = explode(' ',$start);
-	$querytime_before = ((float)$usec + (float)$sec);
-	list($usec, $sec) = explode(' ',$end);
-	$querytime_after = ((float)$usec + (float)$sec);
-	$querytime = $querytime_after - $querytime_before;
-	echo "Query Time : ".round($querytime, 4)." Second";
+	// list($usec, $sec) = explode(' ',$start);
+	// $querytime_before = ((float)$usec + (float)$sec);
+	// list($usec, $sec) = explode(' ',$end);
+	// $querytime_after = ((float)$usec + (float)$sec);
+	// $querytime = $querytime_after - $querytime_before;
+	// echo "Query Time : ".round($querytime, 4)." Second";
+	echo "Start @ : {$start} , End @ {$end}";
 	?>
 </div>
 <?php endif; ?>
