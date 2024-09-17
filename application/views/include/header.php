@@ -130,9 +130,7 @@
 							</ul>
 						</li>
 					</ul>
-				</div>
-			<?php else : ?>
-					<button type="button" class="close margin-top-10" onclick="window.close()"><i class="fa fa-times"></i></button>
+				</div>			
 				<?php endif; ?>
 
 				<!-- /section:basics/navbar.dropdown -->

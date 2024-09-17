@@ -34,9 +34,16 @@
 <?php $reference = empty($order->reference) ? $order->code : $order->code . " [{$order->reference}]"; ?>
 <?php $cust_name = empty($order->customer_ref) ? $order->customer_name : $order->customer_name.' ['.$order->customer_ref.']'; ?>
   <div class="row">
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+    <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
       <label>เลขที่เอกสาร</label>
-      <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
+      <div class="input-group width-100">
+        <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
+        <span class="input-group-btn">
+          <button type="button" class="btn btn-xs btn-info" onclick="viewOrderDetail('<?php echo $order->code; ?>', '<?php echo $order->role; ?>')" style="min-width:20px;">
+            <i class="fa fa-external-link"></i>
+          </button>
+        </span>
+      </div>
     </div>
 
     <?php if($order->role == 'C' OR $order->role == 'N') : ?>
@@ -44,7 +51,7 @@
       <label>รหัสลูกค้า</label>
       <input type="text" class="form-control input-sm text-center" value="<?php echo $order->customer_code; ?>" disabled />
     </div>
-    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
+    <div class="col-lg-4 col-md-4 col-sm-3-harf col-xs-12 padding-5">
       <label>ลูกค้า</label>
       <input type="text" class="form-control input-sm" value="<?php echo $cust_name; ?>" disabled />
     </div>
@@ -83,7 +90,7 @@
         <label>รหัสลูกค้า</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $order->customer_code; ?>" disabled />
       </div>
-      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
+      <div class="col-lg-6 col-md-6 col-sm-5-harf col-xs-8 padding-5">
         <label>ลูกค้า</label>
         <input type="text" class="form-control input-sm" value="<?php echo $cust_name; ?>" disabled />
       </div>
@@ -352,6 +359,46 @@
 			}
 		})
 	}
+
+  function viewOrderDetail(code, role) {
+    let width = $(document).width() * 0.9;
+    var center = ($(document).width() - width)/2;
+    var prop = "width="+width+", height=900. left="+center+", scrollbars=yes";
+
+    var target = BASE_URL + 'orders/orders/edit_order/'+code+'?nomenu';
+
+    switch (role) {
+      case 'S' :
+        target = BASE_URL + 'orders/orders/edit_order/'+code+'?nomenu';
+      break;
+      case 'P' :
+        target = BASE_URL + 'orders/sponsor/edit_order/'+code+'?nomenu';
+      break;
+      case 'C' :
+        target = BASE_URL + 'orders/consign_so/edit_order/'+code+'?nomenu';
+      break;
+      case 'N' :
+        target = BASE_URL + 'orders/consign_tr/edit_order/'+code+'?nomenu';
+      break;
+      case 'T' :
+        target = BASE_URL + 'inventory/transform/edit_order/'+code+'?nomenu';
+      break;
+      case 'Q' :
+        target = BASE_URL + 'inventory/transform_stock/edit_order/'+code+'?nomenu';
+      break;
+      case 'U' :
+        target = BASE_URL + 'inventory/support/edit_order/'+code+'?nomenu';
+      break;
+      case 'L' :
+        target = BASE_URL + 'inventory/lend/edit_order/'+code+'?nomenu';
+      break;
+      default:
+        target = BASE_URL + 'orders/orders/edit_order/'+code+'?nomenu';
+    }
+
+    window.open(target, '_blank', prop);
+
+  }
 </script>
 <script>
 
@@ -397,6 +444,6 @@
     })
   }
 </script>
-<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>
