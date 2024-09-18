@@ -451,23 +451,36 @@ class Soko_order_api
           {
             if(empty($res->error))
             {
-              if($res->status != 'success' && empty($res->id))
+              if($res->status != 'success' && $res->code != 13)
               {
                 $sc = FALSE;
+
                 $this->error = $res->message;
 
-                $arr = array(
-                'wms_export' => 3,
-                'wms_export_error' => $res->message
-                );
+                if($res->code != 13)
+                {
+                  $arr = array(
+                    'wms_export' => 3,
+                    'wms_export_error' => $res->message
+                  );
 
-                $this->ci->transfer_model->update($code, $arr);
+                  $this->ci->transfer_model->update($code, $arr);
+                }
+                else
+                {
+                  $arr = array(
+                    'wms_export' => 1,
+                    'wms_export_error' => $res->message
+                  );
+
+                  $this->ci->transfer_model->update($code, $arr);
+                }
               }
               else
               {
                 $arr = array(
-                'wms_export' => 1,
-                'wms_export_error' => NULL
+                  'wms_export' => 1,
+                  'wms_export_error' => NULL
                 );
 
                 $this->ci->transfer_model->update($code, $arr);
