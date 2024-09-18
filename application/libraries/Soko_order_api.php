@@ -457,10 +457,10 @@ class Soko_order_api
 
                 $this->error = $res->message;
 
-                if($res->code != "SOKO-13")
+                if($res->code == "SOKO-13")
                 {
                   $arr = array(
-                    'wms_export' => 3,
+                    'wms_export' => 1,
                     'wms_export_error' => $res->message
                   );
 
@@ -469,7 +469,7 @@ class Soko_order_api
                 else
                 {
                   $arr = array(
-                    'wms_export' => 1,
+                    'wms_export' => 3,
                     'wms_export_error' => $res->message
                   );
 
