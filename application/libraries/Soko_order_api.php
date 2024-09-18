@@ -451,20 +451,23 @@ class Soko_order_api
           {
             if(empty($res->error))
             {
-              if($res->status != 'success' && $res->code != "SOKO-13")
+              if($res->status != 'success')
               {
                 $sc = FALSE;
 
                 $this->error = $res->message;
 
-                if($res->code == "SOKO-13")
+                if( ! empty($res->code) && ($res->code == "SOKO-13" OR $res->code == "SOKO-14"))
                 {
-                  $arr = array(
-                    'wms_export' => 1,
-                    'wms_export_error' => $res->message
-                  );
+                  if( ! $isUpdate)
+                  {
+                    $arr = array(
+                      'wms_export' => 1,
+                      'wms_export_error' => $res->message
+                    );
 
-                  $this->ci->transfer_model->update($code, $arr);
+                    $this->ci->transfer_model->update($code, $arr);
+                  }
                 }
                 else
                 {
