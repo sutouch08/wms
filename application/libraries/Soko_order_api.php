@@ -451,13 +451,13 @@ class Soko_order_api
           {
             if(empty($res->error))
             {
-              if($res->status != 'success' && $res->code != 13)
+              if($res->status != 'success' && $res->code != "SOKO-13")
               {
                 $sc = FALSE;
 
                 $this->error = $res->message;
 
-                if($res->code != 13)
+                if($res->code != "SOKO-13")
                 {
                   $arr = array(
                     'wms_export' => 3,
