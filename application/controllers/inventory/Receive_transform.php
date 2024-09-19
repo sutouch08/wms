@@ -822,137 +822,137 @@ class Receive_transform extends PS_Controller
         $this->load->model('inventory/movement_model');
         $code = $this->input->post('receive_code');
         $reason = trim($this->input->post('reason'));
+        $force_cancel = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
 
         $doc = $this->receive_transform_model->get($code);
 
-        if(! empty($doc))
+        if( ! empty($doc))
         {
-          if($doc->status == 0 OR $doc->status == 1 OR $doc->status == 4 OR $this->_SuperAdmin)
+          if($this->pm->can_delete)
           {
-            if($doc->status == 1)
+            if($doc->status != 2)
             {
-              $sap = $this->receive_transform_model->get_sap_doc_num($code);
-
-              if(! empty($sap))
+              if($doc->status == 1)
               {
-                $sc = FALSE;
-                $this->error = "กรุณายกเลิกเอกสาร Goods Receipt บน SAP ก่อน (สร้างเอกสาร Goods Issue กลับรายการ แล้วแก้ไขเลข RT โดยเติม -X ต่อท้าย)";
-              }
+                $sap = $this->receive_transform_model->get_sap_doc_num($code);
 
-              if($sc === TRUE)
-              {
-                $middle = $this->receive_transform_model->get_middle_receive_transform($code);
-
-                if(! empty($middle))
-                {
-                  foreach($middle as $mid)
-                  {
-                    if($sc === FALSE)
-                    {
-                      break;
-                    }
-
-                    if(! $this->receive_transform_model->drop_middle_exits_data($mid->DocEntry))
-                    {
-                      $sc = FALSE;
-                      $this->error = "Drop Temp data failed";
-                    }
-                  }
-                }
-              }
-            }
-
-            if($sc === TRUE && $doc->status == 3)
-            {
-              if($doc->is_wms == 2 && ! empty($doc->soko_code) && $this->sokoApi)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-                $this->load->library('soko_receive_api');
-
-                $ex = $this->soko_receive_api->cancel_receive_transform($doc);
-
-                if( ! $ex)
+                if(! empty($sap))
                 {
                   $sc = FALSE;
-                  $this->error = "ยกเลิกเอกสารที่ SOKOCHAN ไม่สำเร็จ กรุณาติดต่อเจ้าหน้าที่ <br/>{$this->soko_receive_api->error}";
+                  $this->error = "กรุณายกเลิกเอกสาร Goods Receipt บน SAP ก่อน (สร้างเอกสาร Goods Issue กลับรายการ แล้วแก้ไขเลข RT โดยเติม -X ต่อท้าย)";
                 }
-              }
-            }
 
-            if($sc === TRUE)
-            {
-              $this->db->trans_begin();
-
-              if( ! $this->receive_transform_model->cancle_details($code) )
-              {
-                $sc = FALSE;
-                $this->error = "ยกเลิกรายการไม่สำเร็จ";
-              }
-
-              $arr = array(
-                'status' => 2,
-                'cancle_reason' => $reason
-              );
-
-              if(! $this->receive_transform_model->update($code, $arr)) //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
-              {
-                $sc = FALSE;
-                $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
-              }
-
-              if(! $this->movement_model->drop_movement($code))
-              {
-                $sc = FALSE;
-                $this->error = "ลบ movement ไม่สำเร็จ";
-              }
-
-
-              if($sc === TRUE)
-              {
-                if($doc->status == 1)
+                if($sc === TRUE)
                 {
-                  $details = $this->receive_transform_model->get_details($code);
+                  $middle = $this->receive_transform_model->get_middle_receive_transform($code);
 
-                  if(!empty($details))
+                  if(! empty($middle))
                   {
-                    foreach($details as $rs)
+                    foreach($middle as $mid)
                     {
-                      if(!$this->unreceive_product($doc->order_code, $rs->product_code, $rs->qty))
+                      if($sc === FALSE)
+                      {
+                        break;
+                      }
+
+                      if(! $this->receive_transform_model->drop_middle_exits_data($mid->DocEntry))
                       {
                         $sc = FALSE;
-                        $this->error = "Update ยอดค้างรับไม่สำเร็จ";
-                        break;
+                        $this->error = "Drop Temp data failed";
                       }
                     }
                   }
-                  //--- unclose WQ
-                  $this->transform_model->unclose_transform($doc->order_code);
+                }
+              }
+
+              if($sc === TRUE && $doc->status == 3 && ! $force_cancel)
+              {
+                if($doc->is_wms == 2 && ! empty($doc->soko_code) && $this->sokoApi)
+                {
+                  $this->wms = $this->load->database('wms', TRUE);
+                  $this->load->library('soko_receive_api');
+
+                  $ex = $this->soko_receive_api->cancel_receive_transform($doc);
+
+                  if( ! $ex)
+                  {
+                    $sc = FALSE;
+                    $this->error = "ยกเลิกเอกสารที่ SOKOCHAN ไม่สำเร็จ กรุณาติดต่อเจ้าหน้าที่ <br/>{$this->soko_receive_api->error}";
+                  }
                 }
               }
 
               if($sc === TRUE)
               {
-                $this->db->trans_commit();
+                $this->db->trans_begin();
+
+                if( ! $this->receive_transform_model->cancle_details($code) )
+                {
+                  $sc = FALSE;
+                  $this->error = "ยกเลิกรายการไม่สำเร็จ";
+                }
+
+                $arr = array(
+                  'status' => 2,
+                  'cancle_reason' => $reason
+                );
+
+                if(! $this->receive_transform_model->update($code, $arr)) //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
+                {
+                  $sc = FALSE;
+                  $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+                }
+
+                if(! $this->movement_model->drop_movement($code))
+                {
+                  $sc = FALSE;
+                  $this->error = "ลบ movement ไม่สำเร็จ";
+                }
+
+
+                if($sc === TRUE)
+                {
+                  if($doc->status == 1)
+                  {
+                    $details = $this->receive_transform_model->get_details($code);
+
+                    if(!empty($details))
+                    {
+                      foreach($details as $rs)
+                      {
+                        if(!$this->unreceive_product($doc->order_code, $rs->product_code, $rs->qty))
+                        {
+                          $sc = FALSE;
+                          $this->error = "Update ยอดค้างรับไม่สำเร็จ";
+                          break;
+                        }
+                      }
+                    }
+                    //--- unclose WQ
+                    $this->transform_model->unclose_transform($doc->order_code);
+                  }
+                }
+
+                if($sc === TRUE)
+                {
+                  $this->db->trans_commit();
+                }
+                else
+                {
+                  $this->db->trans_rollback();
+                }
               }
-              else
-              {
-                $this->db->trans_rollback();
-              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "เอกสารถูกยกเลิกไปแล้ว";
             }
           }
           else
           {
             $sc = FALSE;
-
-            if($doc->status == 3)
-            {
-              $this->error = "ไม่สามารถยกเลิกได้เนื่องจากอยู่ระหว่างการรับสินค้า";
-            }
-
-            if($doc->status == 2)
-            {
-              $this->error = "เอกสารถูกยกเลิกไปแล้ว";
-            }
+            set_error('permission');
           }
         }
         else

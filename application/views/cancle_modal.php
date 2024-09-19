@@ -12,6 +12,14 @@
             <textarea class="form-control input-sm" id="cancle-reason" maxlength="250" style="min-height:100px;" placeholder="กรุณาระบุเหตุผลในการยกเลิกอย่างน้อย 10 ตัวอักษร"></textarea>
             <input type="hidden" id="cancle-code" value="" />
           </div>
+        <?php if($this->_SuperAdmin) : ?>
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margin-top-15">
+            <label>
+              <input type="checkbox" class="ace" name="force_cancel" id="force-cancel" value="1" />
+              <span class="lbl">&nbsp;&nbsp; Force cancel</span>
+            </label>
+          </div>
+        <?php endif; ?>
         </div>
        </div>
       <div class="modal-footer">

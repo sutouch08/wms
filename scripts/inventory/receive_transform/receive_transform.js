@@ -120,6 +120,7 @@ function goDelete(code){
 		}, function(){
 			$('#cancle-reason').val('');
 			$('#cancle-code').val(code);
+			$('#force-cancel').prop('checked', false);
 			$('#cancle-modal').on('shown.bs.modal', function() {
 				$('#cancle-reason').focus();
 			});
@@ -135,6 +136,7 @@ function doCancle() {
 
 	let code = $('#cancle-code').val();
 	let reason = $('#cancle-reason').val();
+	let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
 	if(reason.length == 0) {
 		$('#cancle-reason').addClass('has-error').focus();
@@ -164,7 +166,8 @@ function doCancle() {
 		cache:"false",
 		data:{
 			"receive_code" : code,
-			"reason" : reason
+			"reason" : reason,
+			"force_cancel" : force_cancel
 		},
 		success: function(rs){
 			load_out();
