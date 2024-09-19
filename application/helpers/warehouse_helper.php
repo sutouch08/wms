@@ -115,5 +115,13 @@ function select_lend_warehouse($se = NULL)
   return $sc;
 }
 
+function warehouse_name($code)
+{
+  $ci =& get_instance();
+  $ci->load->model('masters/warehouse_model');
+  $name = $ci->warehouse_model->get_name($code);
+
+  return $name;
+}
 
  ?>

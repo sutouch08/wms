@@ -368,11 +368,13 @@ class Receive_transform_model extends CI_Model
       $this->db->like('zone_code', $ds['zone']);
     }
 
+    if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
+    {
+      $this->db->where('warehouse_code', $ds['warehouse']);
+    }
 
-    $rs = $this->db->get('receive_transform');
 
-
-    return $rs->num_rows();
+    return $this->db->count_all_results('receive_transform');
   }
 
 
@@ -442,6 +444,11 @@ class Receive_transform_model extends CI_Model
     if(isset($ds['zone']) && $ds['zone'] != "")
     {
       $this->db->like('zone_code', $ds['zone']);
+    }
+
+    if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
+    {
+      $this->db->where('warehouse_code', $ds['warehouse']);
     }
 
     $this->db->order_by('code', 'DESC');

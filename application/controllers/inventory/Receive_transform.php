@@ -31,6 +31,8 @@ class Receive_transform extends PS_Controller
   public function index()
   {
     $this->load->helper('channels');
+    $this->load->helper('warehouse');
+
     $filter = array(
       'code'    => get_filter('code', 'trans_code', ''),
       'invoice' => get_filter('invoice', 'trans_invoice', ''),
@@ -41,6 +43,7 @@ class Receive_transform extends PS_Controller
       'status' => get_filter('status', 'trans_status', 'all'),
 			'is_wms' => get_filter('is_wms', 'trans_is_wms', 'all'),
       'sap_status' => get_filter('sap_status', 'trans_sap_status', 'all'),
+      'warehouse' => get_filter('warehouse', 'trans_warehouse', 'all'),
       'zone' => get_filter('zone', 'trans_zone', '')
     );
 
@@ -1307,7 +1310,8 @@ class Receive_transform extends PS_Controller
       'trans_must_accept',
       'trans_is_wms',
       'trans_sap_status',
-      'trans_zone'
+      'trans_zone',
+      'trans_warehouse'
     );
     clear_filter($filter);
   }
