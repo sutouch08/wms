@@ -465,12 +465,6 @@ class Transfer extends PS_Controller
       $isSoko = $fWh == $sokoWh ? TRUE : ($tWh == $sokoWh ? TRUE : FALSE);
       $isWms = $fWh == $wmsWh ? TRUE : ($tWh == $wmsWh ? TRUE : FALSE);
 
-      if($is_wms == 0 && ($isSoko OR $isWms))
-      {
-        $sc = FALSE;
-        $this->error = "เอกสารต้องดำเนินการที่ Warrix แต่ไม่ได้เลือกคลังในฝั่งของ Warrix";
-      }
-
       if($sc === TRUE)
       {
         if($is_wms == 1 && ! $isWms)
@@ -624,13 +618,7 @@ class Transfer extends PS_Controller
 
     $isSoko = $fWh == $sokoWh ? TRUE : ($tWh == $sokoWh ? TRUE : FALSE);
     $isWms = $fWh == $wmsWh ? TRUE : ($tWh == $wmsWh ? TRUE : FALSE);
-
-    if($is_wms == 0 && ($isSoko OR $isWms))
-    {
-      $sc = FALSE;
-      $this->error = "เอกสารต้องดำเนินการที่ Warrix แต่ไม่ได้เลือกคลังในฝั่งของ Warrix";
-    }
-
+    
     if($sc === TRUE)
     {
       if($is_wms == 1 && ! $isWms)
