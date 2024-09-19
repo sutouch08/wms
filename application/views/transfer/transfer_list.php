@@ -171,13 +171,14 @@
 		</p>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1450px;">
+		<table class="table table-striped border-1" style="min-width:1550px;">
 			<thead>
 				<tr>
 					<th class="fix-width-100 middle"></th>
 					<th class="fix-width-50 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-150 middle">เลขที่เอกสาร</th>
+					<th class="fix-width-100 middle">การดำเนินการ</th>
 					<th class="fix-width-40 middle text-center">สถานะ</th>
 					<th class="fix-width-200 middle">ต้นทาง</th>
 					<th class="fix-width-200 middle">ปลายทาง</th>
@@ -214,6 +215,9 @@
 								<?php if($rs->wms_export == 3) : ?>
 									<span class="font-size-10 red">Failed</span>
 								<?php endif; ?>
+							</td>
+							<td class="middle">
+								<?php echo $rs->is_wms == 2 ? "Soko" : ($rs->is_wms == 1 ? "PLC" : "Warrix"); ?>
 							</td>
 							<td class="middle text-center">
 								<?php if($rs->is_expire == 1) : ?>
