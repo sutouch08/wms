@@ -944,6 +944,68 @@ function acceptConfirm() {
 }
 
 
+function rollBackExpired() {
+	let code = $('#return_code').val();
+
+	swal({
+		title:'คุณแน่ใจ ?',
+		text:'ต้องการทำให้เอกสารนี้ยังไม่หมดอายุหรือไม่ ?',
+		type:'warning',
+		showCancelButton:true,
+		cancelButtonText:'No',
+		confirmButtonText:'Yes',
+		closeOnConfirm:true
+	},
+	function() {
+		load_in();
+
+		setTimeout(() => {
+			$.ajax({
+				url:HOME + 'roll_back_expired',
+				type:'POST',
+				cache:false,
+				data:{
+					'code' : code
+				},
+				success:function(rs) {
+					load_out();
+
+					if(rs == 'success') {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							window.location.reload();
+						}, 1200);
+					}
+					else {
+						swal({
+							title:'Error!',
+							text:rs,
+							type:'error',
+							html:true
+						});
+					}
+				},
+				error:function(rs) {
+					load_out();
+
+					swal({
+						title:'Error!',
+						text:rs.responseText,
+						type:'error',
+						html:true
+					});
+				}
+			})
+		}, 200);
+	});
+}
+
+
 $(document).ready(function(){
 	load_out();
 });

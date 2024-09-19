@@ -19,6 +19,9 @@
       <p class="pull-right top-p">
 				<button type="button" class="btn btn-xs btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 
+	<?php if($doc->is_expire == 1 && $this->_SuperAdmin) : ?>
+				<button type="button" class="btn btn-xs btn-purple top-btn" onclick="rollBackExpired()">ทำให้ไม่หมดอายุ</button>
+	<?php endif; ?>
   <?php if($doc->status == 1 && $doc->is_complete == 1 && $doc->is_approve == 1) : ?>
 				<button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 	<?php endif; ?>
@@ -254,6 +257,6 @@ else
 <?php $this->load->view('accept_modal'); ?>
 
 
-<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js?v=<?php echo date('Ymd');?>"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order_add.js?v=<?php echo date('Ymd');?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js?v=<?php echo date('YmdH');?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order_add.js?v=<?php echo date('YmdH');?>"></script>
 <?php $this->load->view('include/footer'); ?>

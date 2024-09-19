@@ -1184,6 +1184,46 @@ class Return_order extends PS_Controller
   }
 
 
+  public function roll_back_expired()
+  {
+    $sc = TRUE;
+
+    $code = $this->input->post('code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->return_order_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->is_expire == 1)
+        {
+          $arr = array(
+            'is_expire' => 0
+          );
+
+          if( ! $this->return_order_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "ย้อนสถานะเอกสารไม่สำเร็จ";
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid document number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+  
 
 	public function drop_middle_exits_data($code)
   {
