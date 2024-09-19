@@ -20,7 +20,7 @@ class Receive_transform extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/receive_transform';
     $this->load->model('inventory/receive_transform_model');
-    $this->load->model('inventory/transform_model');
+    $this->load->model('inventory/transform_model');    
 
 		$this->isAPI = is_true(getConfig('WMS_API'));
     $this->wmsApi = is_true(getConfig('WMS_API'));

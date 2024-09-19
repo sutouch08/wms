@@ -130,7 +130,11 @@
 			<tbody>
         <?php if(!empty($document)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
+					<?php $whsName = array(); ?>
           <?php foreach($document as $rs) : ?>
+						<?php if(empty($whsName[$rs->warehouse_code])) : ?>
+							<?php $whsName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
+						<?php endif; ?>
 						<?php $color = $rs->is_expire == 1 ? "light-grey" : ($rs->status == 0 ? "blue" : ($rs->status == 2 ? "red" : ($rs->status == 3 ? "purple" : ($rs->status == 4 ? "orange" : "")))); ?>
             <tr id="row-<?php echo $rs->code; ?>" class="<?php echo $color; ?>" style="font-size:12px;">
 							<td class="middle text-left">
@@ -174,7 +178,7 @@
 									<span class="dark"><strong>EXP</strong></span>
 								<?php endif; ?>
 							</td>
-							<td class="middle"><?php echo warehouse_name($rs->warehouse_code); ?></td>
+							<td class="middle"><?php echo $whsName[$rs->warehouse_code]; ?></td>
               <td class="middle"><?php echo $rs->invoice_code; ?></td>
               <td class="middle"><?php echo $rs->order_code; ?></td>
               <td class="middle text-center"><?php echo $rs->qty; ?></td>
