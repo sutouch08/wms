@@ -675,6 +675,7 @@ class Return_order extends PS_Controller
     if( ! empty($data))
     {
       $date_add = db_date($data->date_add, TRUE);
+      $shipped_date = empty($data->shipped_date) ? NULL : db_date($data->shipped_date, TRUE);
       $wmsZone = getConfig('WMS_ZONE');
       $sokoZone = getConfig('SOKOJUNG_ZONE');
       $is_wms = $data->is_wms;
@@ -721,6 +722,7 @@ class Return_order extends PS_Controller
           'zone_code' => $zone->code,
           'user' => $this->_user->uname,
           'date_add' => $date_add,
+          'shipped_date' => $shipped_date,
           'remark' => get_null(trim($data->remark)),
   				'is_wms' => $is_wms,
   				'api' => $data->api,
@@ -856,6 +858,7 @@ class Return_order extends PS_Controller
     {
       $code = $data->code;
       $date_add = db_date($data->date_add, TRUE);
+      $shipped_date = empty($data->shipped_date) ? NULL : db_date($data->shipped_date, TRUE);
       $wmsZone = getConfig('WMS_ZONE');
       $sokoZone = getConfig('SOKOJUNG_ZONE');
       $is_wms = $data->is_wms;
@@ -895,6 +898,7 @@ class Return_order extends PS_Controller
 
         $arr = array(
           'date_add' => $date_add,
+          'shipped_date' => $shipped_date,
           'invoice' => $data->invoice,
           'customer_code' => $data->customer_code,
           'warehouse_code' => $zone->warehouse_code,
@@ -1223,7 +1227,7 @@ class Return_order extends PS_Controller
 
     $this->_response($sc);
   }
-  
+
 
 	public function drop_middle_exits_data($code)
   {

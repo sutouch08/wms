@@ -489,6 +489,7 @@ function updateHeader(){
 
 	let code = $('#return_code').val();
 	let date_add = $('#dateAdd').val();
+	let shipped_date = $('#shipped-date').val();
 	let invoice = $('#invoice').val();
 	let customer_code = $('#customer_code').val();
 	let zone_code = $('#zone_code').val();
@@ -541,6 +542,7 @@ function updateHeader(){
 	let data = {
 		'code' : code,
 		'date_add' : date_add,
+		'shipped_date' : shipped_date,
 		'invoice' : invoice,
 		'customer_code' : customer_code,
 		'zone_code' : zone_code,
@@ -597,6 +599,10 @@ $('#dateAdd').datepicker({
 	dateFormat:'dd-mm-yy'
 });
 
+$('#shipped-date').datepicker({
+	dateFormat:'dd-mm-yy'
+});
+
 
 function updateZone() {
 	let el = $('#is_wms option:selected');
@@ -610,6 +616,7 @@ function addNew()
 	$('.h').removeClass('has-error');
 
   let date_add = $('#dateAdd').val();
+	let shipped_date = $('#shipped-date').val();
 	let invoice = $('#invoice').val();
 	let customer_code = $('#customer_code').val();
 	let zone_code = $('#zone_code').val();
@@ -663,6 +670,7 @@ function addNew()
 
 	let data = {
 		'date_add' : date_add,
+		'shipped_date' : shipped_date,
 		'invoice' : invoice,
 		'customer_code' : customer_code,
 		'zone_code' : zone_code,

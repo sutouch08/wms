@@ -31,14 +31,18 @@
     <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
   </div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  	<label>Posting Date</label>
+    <input type="text" class="form-control input-sm text-center edit" name="shipped_date" id="shipped-date" value="<?php echo empty($doc->shipped_date) ? "" : thai_date($doc->shipped_date, FALSE); ?>" disabled/>
+  </div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>เลขที่บิล[SAP]</label>
 		<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
 	</div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>รหัสลูกค้า</label>
 		<input type="text" class="form-control input-sm text-center edit" name="customer_code" id="customer_code" value="<?php echo $doc->customer_code; ?>" disabled />
 	</div>
-	<div class="col-lg-6 col-md-5 col-sm-5 col-xs-8 padding-5">
+	<div class="col-lg-4-harf col-md-4 col-sm-4 col-xs-12 padding-5">
 		<label>ชื่อลูกค้า</label>
 		<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
 	</div>

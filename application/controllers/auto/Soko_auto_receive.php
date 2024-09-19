@@ -144,7 +144,7 @@ class Soko_auto_receive extends CI_Controller
 
 		if( ! empty($order))
 		{
-      $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : $data->received_date);			
+      $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : (empty($data->received_date) ? now() : $data->received_date));
 
 			if($order->status == 1)
 			{
@@ -304,7 +304,7 @@ class Soko_auto_receive extends CI_Controller
 		{
 			$sc = TRUE;
 
-			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : (empty($data->received_date) ? now() : $data->received_date));
 
 			if($order->status == 1)
 			{
@@ -445,7 +445,7 @@ class Soko_auto_receive extends CI_Controller
 		{
 			$sc = TRUE;
 
-			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+      $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : (empty($data->received_date) ? now() : $data->received_date));
 
 			if($order->status == 1)
 			{
@@ -586,7 +586,7 @@ class Soko_auto_receive extends CI_Controller
 		{
 			$sc = TRUE;
 
-			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : (empty($data->received_date) ? now() : $data->received_date));
 
 			if($order->status == 1)
 			{
@@ -759,7 +759,7 @@ class Soko_auto_receive extends CI_Controller
 		{
 			$sc = TRUE;
 
-			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : (empty($data->received_date) ? now() : $data->received_date));
 
 			if($order->status == 1)
 			{
@@ -926,7 +926,7 @@ class Soko_auto_receive extends CI_Controller
 		if(!empty($order))
 		{
 
-			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : (empty($data->received_date) ? now() : $data->received_date));
 
 			if($order->status == 1)
 			{
@@ -1100,7 +1100,7 @@ class Soko_auto_receive extends CI_Controller
 		{
 			$sc = TRUE;
 
-			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($data->received_date) ? now() : $data->received_date);
+			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : ( ! empty($order->shipped_date) ? $order->shipped_date : (empty($data->received_date) ? now() : $data->received_date));
 
 			if($order->status == 1)
 			{

@@ -24,15 +24,19 @@
 		<label>วันที่</label>
 		<input type="text" class="form-control input-sm text-center h" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" readonly />
 	</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  	<label>Posting Date</label>
+    <input type="text" class="form-control input-sm text-center edit" name="shipped_date" id="shipped-date" value=""/>
+  </div>
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>เลขที่บิล[SAP]</label>
 		<input type="text" class="form-control input-sm text-center h" name="invoice" id="invoice" value="" />
 	</div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>รหัสลูกค้า</label>
 		<input type="text" class="form-control input-sm text-center h" name="customer_code" id="customer_code" value="" />
 	</div>
-	<div class="col-lg-6 col-md-5 col-sm-5 col-xs-8 padding-5">
+	<div class="col-lg-4-harf col-md-4 col-sm-4 col-xs-12 padding-5">
 		<label>ชื่อลูกค้า</label>
 		<input type="text" class="form-control input-sm h" id="customer" value="" />
 	</div>
