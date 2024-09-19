@@ -208,6 +208,9 @@
               <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle">
 								<?php echo $rs->code; ?>
+								<?php if($rs->is_wms == 2 && ! empty($rs->soko_code)) : ?>
+									<?php echo "[{$rs->soko_code}]"; ?>
+								<?php endif; ?>
 								<?php if($rs->wms_export == 3) : ?>
 									<span class="font-size-10 red">Failed</span>
 								<?php endif; ?>
