@@ -20,7 +20,7 @@ class Receive_transform extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/receive_transform';
     $this->load->model('inventory/receive_transform_model');
-    $this->load->model('inventory/transform_model');    
+    $this->load->model('inventory/transform_model');
 
 		$this->isAPI = is_true(getConfig('WMS_API'));
     $this->wmsApi = is_true(getConfig('WMS_API'));
@@ -1154,6 +1154,7 @@ class Receive_transform extends PS_Controller
 		$sc = TRUE;
     $code = $this->input->post('code');
     $date = db_date($this->input->post('date_add'));
+    $shipped_date = empty($this->input->post('shipped_date')) ? NULL : db_date($this->input->post('shipped_date'), TRUE);
 		$is_wms = $this->input->post('is_wms');
     $remark = get_null($this->input->post('remark'));
 
@@ -1162,6 +1163,7 @@ class Receive_transform extends PS_Controller
 			$arr = array(
 				'is_wms' => $is_wms,
 	      'date_add' => $date,
+        'shipped_date' => $shipped_date,
 	      'remark' => $remark
 	    );
 
@@ -1170,7 +1172,6 @@ class Receive_transform extends PS_Controller
 	      $sc = FALSE;
 				$this->error = "ปรับปรุงข้อมูลไม่สำเร็จ";
 	    }
-
     }
 		else
 		{
@@ -1211,6 +1212,7 @@ class Receive_transform extends PS_Controller
     if($this->input->post('date_add'))
     {
       $date_add = db_date($this->input->post('date_add'), TRUE);
+      $shipped_date = empty($this->input->post('shipped_date')) ? NULL : db_date($this->input->post('shipped_date'), TRUE);
       $code = $this->input->post('code') ? $this->input->post('code') : $this->get_new_code($date_add);
 
       $arr = array(
@@ -1220,6 +1222,7 @@ class Receive_transform extends PS_Controller
         'invoice_code' => NULL,
         'remark' => $this->input->post('remark'),
         'date_add' => $date_add,
+        'shipped_date' => $shipped_date,
         'user' => $this->_user->uname,
 				'is_wms' => $this->input->post('is_wms')
       );

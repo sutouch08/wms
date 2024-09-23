@@ -645,7 +645,7 @@ class Receive_po extends PS_Controller
 
         if($sc === TRUE)
         {
-          $arr = array(          
+          $arr = array(
           'status' => $doc->is_wms == 0 ? 1 : (($doc->is_wms == 1 && $this->wmsApi ? 3 : ($doc->is_wms == 2 && $this->sokoApi ? 3 : 1))),
           'is_accept' => 1,
           'accept_by' => $this->_user->uname,
@@ -898,6 +898,7 @@ class Receive_po extends PS_Controller
       $this->load->model('inventory/movement_model');
       $code = $this->input->post('receive_code');
 			$reason = $this->input->post('reason');
+      $force_cancel = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
 
       $doc = $this->receive_po_model->get($code);
 
@@ -919,19 +920,23 @@ class Receive_po extends PS_Controller
             }
           }
 
-          if($doc->is_wms == 2 && ! empty($doc->soko_code) && $this->sokoApi)
+          if($sc === TRUE && $doc->status == 3 && ! $force_cancel)
           {
-            $this->wms = $this->load->database('wms', TRUE);
-            $this->load->library('soko_receive_api');
-
-            $ex = $this->soko_receive_api->cancel_receive_po($doc);
-
-            if( ! $ex)
+            if($doc->is_wms == 2 && ! empty($doc->soko_code) && $this->sokoApi)
             {
-              $sc = FALSE;
-              $this->error = "ยกเลิกเอกสารที่ Soko jung ไม่สำเร็จ กรุณาติดต่อเจ้าหน้าที่ <br/>{$this->soko_receive_api->error}";
+              $this->wms = $this->load->database('wms', TRUE);
+              $this->load->library('soko_receive_api');
+
+              $ex = $this->soko_receive_api->cancel_receive_po($doc);
+
+              if( ! $ex)
+              {
+                $sc = FALSE;
+                $this->error = "ยกเลิกเอกสารที่ Soko jung ไม่สำเร็จ กรุณาติดต่อเจ้าหน้าที่ <br/>{$this->soko_receive_api->error}";
+              }
             }
           }
+
 
           if($sc === TRUE)
           {

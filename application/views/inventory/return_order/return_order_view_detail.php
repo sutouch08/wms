@@ -100,6 +100,7 @@
   			<option value="1" <?php echo is_selected('1', $doc->status); ?>>บันทึกแล้ว</option>
   			<option value="2" <?php echo is_selected('2', $doc->status); ?>>ยกเลิก</option>
 				<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
+				<option value="4" <?php echo is_selected('4', $doc->status); ?>>รอยืนยัน</option>
   		</select>
 		</div>
 		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">

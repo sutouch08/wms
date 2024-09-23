@@ -13,6 +13,7 @@ function goDelete(code){
 		closeOnConfirm: true
 		}, function(){
 			$('#cancle-code').val(code);
+			$('#force-cancel').prop('checked', false);
 			$('#cancle-reason').val('').removeClass('has-error');
 
 			cancle_received(code);
@@ -23,7 +24,8 @@ function goDelete(code){
 
 function cancle_received(code)
 {
-	var reason = $.trim($('#cancle-reason').val());
+	let reason = $.trim($('#cancle-reason').val());
+	let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
 	if(reason.length < 10)
 	{
@@ -39,7 +41,8 @@ function cancle_received(code)
 		cache:"false",
 		data:{
 			"receive_code" : code,
-			"reason" : reason
+			"reason" : reason,
+			"force_cancel" : force_cancel
 		},
 		success: function(rs){
 			load_out();

@@ -8680,7 +8680,7 @@ fieldset[disabled] .btn-white.btn-grey.active {
 }
 label {
   font-weight: normal;
-  font-size: 14px;
+  font-size: 12px;
 }
 .form-group > label[class*="col-"] {
   margin-bottom: 4px;

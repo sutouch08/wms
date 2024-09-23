@@ -26,6 +26,10 @@
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center header-box" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add); ?>" disabled />
   </div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  	<label>Posting Date</label>
+    <input type="text" class="form-control input-sm text-center header-box" name="shipped_date" id="shipped-date" value="<?php echo (empty($doc->shipped_date) ? "" : thai_date($doc->shipped_date)); ?>" disabled/>
+  </div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 		<label>ช่องทางการรับ</label>
 		<select class="form-control input-sm header-box" name="is_wms" id="is_wms" disabled>
@@ -39,7 +43,7 @@
 				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
 		</select>
 	</div>
-	<div class="col-lg-6-harf col-md-6 col-sm-4-harf col-xs-9 padding-5">
+	<div class="col-lg-5 col-md-5 col-sm-4-harf col-xs-9 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm header-box" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled />
 	</div>

@@ -15,6 +15,7 @@ function editHeader(){
 function updateHeader(){
 	let code = $('#receive_code').val();
 	let date_add = $('#dateAdd').val();
+	let shipped_date = $('#shipped-date').val();
 	let is_wms = $('#is_wms').val();
 	let remark = $('#remark').val().trim();
 	let reqRemark = $('#required-remark').val();
@@ -43,6 +44,7 @@ function updateHeader(){
 			'code' : code,
 			'is_wms' : is_wms,
 			'date_add' : date_add,
+			'shipped_date' : shipped_date,
 			'remark' : remark
 		},
 		success:function(rs){
@@ -57,7 +59,8 @@ function updateHeader(){
 				$('.header-box').attr('disabled', 'disabled');
 				$('#btn-update').addClass('hide');
 				$('#btn-edit').removeClass('hide');
-			}else{
+			}
+			else {
 				swal({
 					title:'Error',
 					text:rs,
@@ -71,7 +74,7 @@ function updateHeader(){
 
 
 
-function receiveProduct(no){
+function receiveProduct(no) {
 	var qty = isNaN( parseInt( $("#qty").val() ) ) ? 1 : parseInt( $("#qty").val() );
 	var bc = $("#barcode");
 	var input = $("#receive_"+ no);
@@ -590,6 +593,8 @@ $("#zoneName").autocomplete({
 
 
 $("#dateAdd").datepicker({ dateFormat: 'dd-mm-yy'});
+
+$('#shipped-date').datepicker({ dateFormat: 'dd-mm-yy'});
 
 
 

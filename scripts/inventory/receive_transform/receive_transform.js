@@ -206,6 +206,7 @@ function doCancle() {
 function addNew()
 {
   let date_add = $('#dateAdd').val();
+	let shipped_date = $('#shipped-date').val();
 	let is_wms = $('#is_wms').val();
   let remark = $.trim($('#remark').val());
 	let reqRemark = $('#required-remark').val();
@@ -232,6 +233,7 @@ function addNew()
 		cache:false,
 		data:{
 			'date_add' : date_add,
+			'shipped_date' : shipped_date,
 			'is_wms' : is_wms,
 			'remark' : remark
 		},
