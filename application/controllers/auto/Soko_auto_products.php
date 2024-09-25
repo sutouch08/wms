@@ -25,7 +25,10 @@ class Soko_auto_products extends CI_Controller
 		{
       foreach($list as $item)
       {
-        $this->soko_product_api->create_item($item->code, $item);
+        if(strlen($item->barcode) === 13)
+        {
+          $this->soko_product_api->create_item($item->code, $item);
+        }
 
         $this->products_model->update($item->code, ['last_sync' => now()]);
       }
