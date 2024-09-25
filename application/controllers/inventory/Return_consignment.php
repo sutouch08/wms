@@ -572,7 +572,7 @@ class Return_consignment extends PS_Controller
       $invoice = trim($this->input->post('invoice'));
 
 			$is_wms = $this->input->post('is_wms');
-			$is_api = $is_wms == 1 ? $this->input->post('is_api') : 0;
+			$is_api = $is_wms != 0 ? $this->input->post('is_api') : 0;
 
       $customer_code = trim($this->input->post('customer_code'));
       $from_zone = $this->zone_model->get($this->input->post('from_zone'));
@@ -585,11 +585,17 @@ class Return_consignment extends PS_Controller
 				$zone_code = getConfig('WMS_ZONE');
 				$warehouse_code = getConfig('WMS_WAREHOUSE');
 			}
+
+      if($is_wms == 2)
+      {
+        $zone_code = getConfig('SOKOJUNG_ZONE');
+        $warehouse_code = getConfig('SOKOJUNG_WAREHOUSE');
+      }
 			else
 			{
-				  $zone = $this->zone_model->get($this->input->post('zone_code'));
-					$zone_code = $zone->code;
-					$warehouse_code = $zone->warehouse_code;
+				$zone = $this->zone_model->get($this->input->post('zone_code'));
+				$zone_code = $zone->code;
+				$warehouse_code = $zone->warehouse_code;
 			}
 
       $arr = array(
