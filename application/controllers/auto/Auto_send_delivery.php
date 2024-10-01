@@ -82,7 +82,7 @@ class Auto_send_delivery extends PS_Controller
 
   public function get_order_list()
   {
-    $rs  = $this->db->where('status', 0)->limit(100)->get('auto_send_to_sap_order');
+    $rs  = $this->db->where_in('status', [0,3])->limit(100)->get('auto_send_to_sap_order');
 
     if($rs->num_rows() > 0)
     {
