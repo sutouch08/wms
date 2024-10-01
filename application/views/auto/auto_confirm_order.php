@@ -5,7 +5,7 @@
   </div>
   <div class="col-lg-6 col-md-6 col-sm-4 col-xs-4 padding-5">
     <p class="pull-right top-p">
-      <button type="button" class="btn btn-xs btn-success top-btn" onclick="startExport()">tart Process</button>
+      <button type="button" class="btn btn-xs btn-success top-btn" onclick="startExport()">Start Process</button>
     </p>
   </div>
 </div>
@@ -70,6 +70,7 @@ function startExport() {
 }
 
 
+
 function do_export(no){
   let order = orders[no];
   let code = order.code;
@@ -77,7 +78,7 @@ function do_export(no){
   if(finished == false) {
     if(code != null && code != "" && code != undefined) {
       $.ajax({
-        url:BASE_URL + 'auto/auto_confirm_order/confirm_order/',
+        url:BASE_URL + 'inventory/delivery_order/confirm_order',
         type:'POST',
         cache:false,
         data:{
@@ -93,6 +94,7 @@ function do_export(no){
               load_out();
             }
             else {
+              update_status(code, 1, rs);
               do_export(no);
             }
           }
@@ -105,6 +107,7 @@ function do_export(no){
               load_out();
             }
             else {
+              update_status(code, 3, rs);
               do_export(no);
             }
           }
@@ -112,6 +115,22 @@ function do_export(no){
       })
     }
   }
+}
+
+function update_status(code, status, message) {
+  $.ajax({
+    url:BASE_URL + 'auto/auto_comfirm_order/update_status',
+    type:'POST',
+    cache:false,
+    data:{
+      'code' : code,
+      'status' : status,
+      'message' : message
+    },
+    success:function(rs) {
+      console.log(rs);
+    }
+  })
 }
 </script>
 <?php $this->load->view('include/footer'); ?>
