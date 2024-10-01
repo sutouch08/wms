@@ -85,6 +85,7 @@ function do_export(no){
           'order_code' : code
         },
         success:function(rs){
+          rs = $.trim(rs);
 
           if(rs == 'success') {
             $('#status-'+no).text('OK');
@@ -121,7 +122,7 @@ function do_export(no){
 
 function update_status(code, status, message) {
   $.ajax({
-    url:BASE_URL + 'auto/auto_comfirm_order/update_status',
+    url:BASE_URL + 'auto/auto_confirm_order/update_status',
     type:'POST',
     cache:false,
     data:{
