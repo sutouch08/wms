@@ -90,6 +90,7 @@ function do_export(no){
             $('#status-'+no).text('OK');
             no++;
             if(no == max) {
+              update_status(code, 1, rs);
               finished = true;
               load_out();
             }
@@ -104,6 +105,7 @@ function do_export(no){
             $('#msg-'+no).text(rs);
             no++;
             if(no == max) {
+              update_status(code, 3, rs);
               finished = true;
               load_out();
             }
