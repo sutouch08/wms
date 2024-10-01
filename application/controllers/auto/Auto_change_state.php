@@ -39,5 +39,16 @@ class Auto_change_state extends CI_Controller
     $this->load->view('auto/auto_change_state', $ds);
   }
 
+
+  public function update_status($code, $status, $message)
+	{
+    $ds = array(
+      'status' => $status,
+      'message' => $message
+    );
+
+		return $this->db->where('code', $code)->update('auto_send_to_sap_order', $ds);
+	}
+
 } //--- end class
  ?>
