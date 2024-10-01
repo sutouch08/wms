@@ -153,6 +153,7 @@ class Auto_confirm_order extends CI_Controller
     return $sc;
   }
 
+  
   public function confirm_order()
   {
     $sc = TRUE;
@@ -276,39 +277,39 @@ class Auto_confirm_order extends CI_Controller
                   $total_cost = $rs->cost * $buffer_qty;
 
                   $arr = array(
-                          'reference' => $order->code,
-                          'role'   => $order->role,
-                          'payment_code'   => $order->payment_code,
-                          'channels_code'  => $order->channels_code,
-                          'product_code'  => $rs->product_code,
-                          'product_name'  => $item->name,
-                          'product_style' => $item->style_code,
-                          'cost'  => $rs->cost,
-                          'price'  => $rs->price,
-                          'sell'  => $rs->final_price,
-                          'qty'   => $buffer_qty,
-                          'currency' => $rs->currency,
-                          'rate' => $rs->rate,
-                          'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                          'discount_amount' => ($rs->discount_amount * $buffer_qty),
-                          'total_amount'   => $total_amount,
-                          'total_cost'   => $total_cost,
-                          'totalFrgn' => $totalFrgn,
-                          'margin'  =>  $totalFrgn > 0 ? $totalFrgn - $total_cost : $total_amount - $total_cost,
-                          'id_policy'   => $rs->id_policy,
-                          'id_rule'     => $rs->id_rule,
-                          'customer_code' => $order->customer_code,
-                          'customer_ref' => $order->customer_ref,
-                          'sale_code'   => $order->sale_code,
-                          'user' => $order->user,
-                          'date_add'  => $date_add, //---- เปลี่ยนไปตาม config ORDER_SOLD_DATE
-                          'zone_code' => $rm->zone_code,
-                          'warehouse_code'  => $rm->warehouse_code,
-                          'update_user' => $uname,
-                          'budget_code' => $order->budget_code,
-                          'empID' => $order->empID,
-                          'empName' => $order->empName,
-                          'approver' => $order->approver
+                    'reference' => $order->code,
+                    'role'   => $order->role,
+                    'payment_code'   => $order->payment_code,
+                    'channels_code'  => $order->channels_code,
+                    'product_code'  => $rs->product_code,
+                    'product_name'  => $item->name,
+                    'product_style' => $item->style_code,
+                    'cost'  => $rs->cost,
+                    'price'  => $rs->price,
+                    'sell'  => $rs->final_price,
+                    'qty'   => $buffer_qty,
+                    'currency' => $rs->currency,
+                    'rate' => $rs->rate,
+                    'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
+                    'discount_amount' => ($rs->discount_amount * $buffer_qty),
+                    'total_amount'   => $total_amount,
+                    'total_cost'   => $total_cost,
+                    'totalFrgn' => $totalFrgn,
+                    'margin'  =>  $totalFrgn > 0 ? $totalFrgn - $total_cost : $total_amount - $total_cost,
+                    'id_policy'   => $rs->id_policy,
+                    'id_rule'     => $rs->id_rule,
+                    'customer_code' => $order->customer_code,
+                    'customer_ref' => $order->customer_ref,
+                    'sale_code'   => $order->sale_code,
+                    'user' => $order->user,
+                    'date_add'  => $date_add, //---- เปลี่ยนไปตาม config ORDER_SOLD_DATE
+                    'zone_code' => $rm->zone_code,
+                    'warehouse_code'  => $rm->warehouse_code,
+                    'update_user' => $uname,
+                    'budget_code' => $order->budget_code,
+                    'empID' => $order->empID,
+                    'empName' => $order->empName,
+                    'approver' => $order->approver
                   );
 
                   //--- 3. บันทึกยอดขาย
@@ -434,37 +435,37 @@ class Auto_confirm_order extends CI_Controller
           {
             //--- ข้อมูลสำหรับบันทึกยอดขาย
             $arr = array(
-                    'reference' => $order->code,
-                    'role'   => $order->role,
-                    'payment_code'   => $order->payment_code,
-                    'channels_code'  => $order->channels_code,
-                    'product_code'  => $rs->product_code,
-                    'product_name'  => $rs->product_name,
-                    'product_style' => $rs->style_code,
-                    'cost'  => $rs->cost,
-                    'price'  => $rs->price,
-                    'sell'  => $rs->final_price,
-                    'qty'   => $rs->qty,
-                    'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                    'discount_amount' => ($rs->discount_amount * $rs->qty),
-                    'total_amount'   => $rs->final_price * $rs->qty,
-                    'total_cost'   => $rs->cost * $rs->qty,
-                    'margin'  => ($rs->final_price * $rs->qty) - ($rs->cost * $rs->qty),
-                    'id_policy'   => $rs->id_policy,
-                    'id_rule'     => $rs->id_rule,
-                    'customer_code' => $order->customer_code,
-                    'customer_ref' => $order->customer_ref,
-                    'sale_code'   => $order->sale_code,
-                    'user' => $order->user,
-                    'date_add'  => $date_add, //--- เปลี่ยนตาม Config ORDER_SOLD_DATE
-                    'zone_code' => NULL,
-                    'warehouse_code'  => NULL,
-                    'update_user' => $uname,
-                    'budget_code' => $order->budget_code,
-                    'is_count' => 0,
-                    'empID' => $order->empID,
-                    'empName' => $order->empName,
-                    'approver' => $order->approver
+              'reference' => $order->code,
+              'role'   => $order->role,
+              'payment_code'   => $order->payment_code,
+              'channels_code'  => $order->channels_code,
+              'product_code'  => $rs->product_code,
+              'product_name'  => $rs->product_name,
+              'product_style' => $rs->style_code,
+              'cost'  => $rs->cost,
+              'price'  => $rs->price,
+              'sell'  => $rs->final_price,
+              'qty'   => $rs->qty,
+              'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
+              'discount_amount' => ($rs->discount_amount * $rs->qty),
+              'total_amount'   => $rs->final_price * $rs->qty,
+              'total_cost'   => $rs->cost * $rs->qty,
+              'margin'  => ($rs->final_price * $rs->qty) - ($rs->cost * $rs->qty),
+              'id_policy'   => $rs->id_policy,
+              'id_rule'     => $rs->id_rule,
+              'customer_code' => $order->customer_code,
+              'customer_ref' => $order->customer_ref,
+              'sale_code'   => $order->sale_code,
+              'user' => $order->user,
+              'date_add'  => $date_add, //--- เปลี่ยนตาม Config ORDER_SOLD_DATE
+              'zone_code' => NULL,
+              'warehouse_code'  => NULL,
+              'update_user' => $uname,
+              'budget_code' => $order->budget_code,
+              'is_count' => 0,
+              'empID' => $order->empID,
+              'empName' => $order->empName,
+              'approver' => $order->approver
             );
 
             //--- 3. บันทึกยอดขาย
