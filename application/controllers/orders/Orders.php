@@ -1881,17 +1881,17 @@ class Orders extends PS_Controller
 
   public function get_sell_stock($item_code, $warehouse = NULL, $zone = NULL)
   {
-    $transfer_stock = $warehouse == 'AFG-0010' ? $this->transfer_model->get_uncomplete_transfer_qty($item_code, $warehouse) : 0;
-    $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
-    $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
-    $availableStock = $sell_stock - $reserv_stock - $transfer_stock;
-		return $availableStock < 0 ? 0 : $availableStock;
-
-    // //---- Orignal
+    // $transfer_stock = $warehouse == 'AFG-0010' ? $this->transfer_model->get_uncomplete_transfer_qty($item_code, $warehouse) : 0;
     // $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
     // $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
-    // $availableStock = $sell_stock - $reserv_stock;
+    // $availableStock = $sell_stock - $reserv_stock - $transfer_stock;
 		// return $availableStock < 0 ? 0 : $availableStock;
+
+    //---- Orignal
+    $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
+    $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
+    $availableStock = $sell_stock - $reserv_stock;
+		return $availableStock < 0 ? 0 : $availableStock;
   }
 
 

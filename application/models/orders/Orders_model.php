@@ -1850,6 +1850,16 @@ class Orders_model extends CI_Model
 
     return NULL;
   }
+
+  public function has_zero_price($code)
+  {
+    $count = $this->db
+    ->where('order_code', $code)
+    ->where('price', 0)
+    ->count_all_results('order_details');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
 } //--- End class
 
 

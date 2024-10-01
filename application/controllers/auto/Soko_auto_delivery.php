@@ -84,18 +84,29 @@ class Soko_auto_delivery extends CI_Controller
 							{
 								$order->shipped_date = $data->shipped_date;
 								//--- บันทึกขาย เซ็ต state = 8  export delivery
+
+                // $this->process_delivery($order, $details);
+
                 if($order->channels_code == 'SHOPEE')
                 {
-                  $this->process_pre_delivery($order, $details);
+                  if($this->orders_model->has_zero_price($order->code))
+                  {
+                    //---- ทำให้เป็นรอเปิดบิล
+                    $this->process_pre_delivery($order, $details);
+                  }
+                  else
+                  {
+                    $this->process_delivery($order, $details);
+                  }
                 }
                 else
                 {
-                  $this->process_delivery($order, $details);                  
+                  $this->process_delivery($order, $details);
                 }
 							}
 							else
 							{
-								//---- ทำให้เป็นรอจัด
+								//---- ทำให้เป็นรอเปิดบิล
 								$this->process_pre_delivery($order, $details);
 							}
 
