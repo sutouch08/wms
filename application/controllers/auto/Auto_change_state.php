@@ -40,14 +40,25 @@ class Auto_change_state extends CI_Controller
   }
 
 
-  public function update_status($code, $status, $message)
+  public function update_status()
 	{
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $status = $this->input->post('status');
+    $message = $this->input->post('message');
+
     $ds = array(
       'status' => $status,
       'message' => $message
     );
 
-		return $this->db->where('code', $code)->update('auto_send_to_sap_order', $ds);
+		if( ! $this->db->where('code', $code)->update('auto_send_to_sap_order', $ds))
+    {
+      $sc = FALSE;
+      $this->error = "Update false";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
 	}
 
 } //--- end class
