@@ -80,9 +80,11 @@ class Soko_auto_delivery extends CI_Controller
 						{
 							$channels = $this->channels_model->get($order->channels_code);
 
+              $order->shipped_date = empty($order->shipped_date) ? ( empty($data->shipped_date) ? now() : $data->shipped_date) : $order->shipped_date;
+
 							if((! empty($channels) && $channels->is_online == 1)) // OR ($order->role == 'N' OR $order->role == 'Q' OR $order->role == 'T'))
 							{
-								$order->shipped_date = $data->shipped_date;
+
 								//--- บันทึกขาย เซ็ต state = 8  export delivery
 
                 // $this->process_delivery($order, $details);
@@ -178,7 +180,13 @@ class Soko_auto_delivery extends CI_Controller
 		$this->db->trans_begin();
 
 	  //--- change state
-		$this->orders_model->change_state($order->code, 7);
+    $arr = array(
+      'state' => 7,
+      'shipped_date' => $order->shipped_date,
+      'update_user' => $this->user
+    );
+
+    $this->orders_model->update($order->code, $arr);
 
 		//--- add state event
 		$arr = array(
