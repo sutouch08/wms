@@ -597,7 +597,7 @@ class Orders_model extends CI_Model
     //---- เลขที่อ้างอิงออเดอร์ภายนอก
     if( ! empty($ds['reference']))
     {
-      $this->db->like('reference', $ds['reference']);
+      $this->db->like('reference', $ds['reference'], 'after');
     }
 
     //---เลขที่จัดส่ง
@@ -877,7 +877,7 @@ class Orders_model extends CI_Model
     //---- เลขที่อ้างอิงออเดอร์ภายนอก
     if( ! empty($ds['reference']))
     {
-      $this->db->like('reference', $ds['reference']);
+      $this->db->like('reference', $ds['reference'], 'after');
     }
 
     //---เลขที่จัดส่ง
