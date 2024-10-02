@@ -233,7 +233,8 @@ class Orders extends PS_Controller
       $customer = $this->customers_model->get($data->customer_code);
 			$customer_ref = trim($data->customer_ref);
       $role = 'S'; //--- S = ขาย
-      $has_term = $this->payment_methods_model->has_term($data->payment_code);
+      $payment = $this->payment_methods_model->get($data->payment_code);
+      $has_term = empty($payment) ? FALSE : ($payment->role == 4 ? FALSE : (is_true($payment->has_term)));
       $sale_code = $customer->sale_code;
 
       //--- check over due
