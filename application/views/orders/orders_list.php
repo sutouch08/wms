@@ -262,21 +262,10 @@
 			</tbody>
 		</table>
 	</div>
+	<?php if($this->_SuperAdmin) : ?>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">	<?php	echo "Start @ {$start} <br/> End&nbsp; @ {$end}";	?></div>
+	<?php endif; ?>
 </div>
-<?php if($this->_SuperAdmin) : ?>
-<div >
-	<?php
-	//echo "query : {$start} - {$end} &nbsp;&nbsp;&nbsp;";
-	// list($usec, $sec) = explode(' ',$start);
-	// $querytime_before = ((float)$usec + (float)$sec);
-	// list($usec, $sec) = explode(' ',$end);
-	// $querytime_after = ((float)$usec + (float)$sec);
-	// $querytime = $querytime_after - $querytime_before;
-	// echo "Query Time : ".round($querytime, 4)." Second";
-	echo "Start @ : {$start} , End @ {$end}";
-	?>
-</div>
-<?php endif; ?>
 
 <?php
 if($can_upload == 1) :

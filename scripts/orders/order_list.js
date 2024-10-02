@@ -1,14 +1,14 @@
 
-window.addEventListener('load', () => {
-  let height = $(window).height();
-	let pageContentHeight = height - 128;
-	// header = 80, hr = 15, table margin = 10, footer 170, margin-bottom = 15
-	let itemTableHeight = pageContentHeight - (112);
-
-	$('.page-content').css('height', pageContentHeight + 'px');
-	$('#order-table').css('height', itemTableHeight + 'px');
-
-})
+// window.addEventListener('load', () => {
+//   let height = $(window).height();
+// 	let pageContentHeight = height - 128;
+// 	// header = 80, hr = 15, table margin = 10, footer 170, margin-bottom = 15
+// 	let itemTableHeight = pageContentHeight - (112);
+//
+// 	$('.page-content').css('height', pageContentHeight + 'px');
+// 	$('#order-table').css('height', itemTableHeight + 'px');
+//
+// })
 
 $(document).ready(function() {
 	//---	reload ทุก 5 นาที
