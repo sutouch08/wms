@@ -78,17 +78,19 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1000px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1150px;">
       <thead>
         <tr>
-          <th style="min-width:60px;"  class="width-5 text-center">ลำดับ</th>
-          <th style="min-width:90px;"  class="width-8 sorting <?php echo $sort_date; ?> text-center" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-          <th style="min-width:110px;" class="width-15 sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร </th>
-          <th style="min-width:200px;" class="">ลูกค้า/ผู้รับ/ผู้เบิก</th>
-          <th style="min-width:100px;" class="width-10 text-center">ยอดเงิน</th>
-          <th style="min-width:100px;" class="width-10 text-center">รูปแบบ</th>
-          <th style="min-width:100px;" class="width-10 text-center">พนักงาน</th>
-					<th style="min-width:100px;" class="width-10 text-right"></th>
+          <th class="fix-width-50 text-center">#</th>
+          <th class="fix-width-100">วันที่</th>
+					<th class="fix-width-100">วันที่จัดส่ง</th>
+          <th class="fix-width-150">เลขที่เอกสาร </th>
+					<th class="fix-width-100">รหัสลูกค้า</th>
+          <th class="min-width-250">ลูกค้า</th>
+          <th class="fix-width-100 text-center">ยอดเงิน</th>
+          <th class="fix-width-100 text-center">รูปแบบ</th>
+          <th class="fix-width-100 text-center">พนักงาน</th>
+					<th class="fix-width-100 text-right"></th>
         </tr>
       </thead>
       <tbody>
@@ -102,8 +104,12 @@
             <?php echo $no; ?>
           </td>
 
-          <td class="pointer text-center" onclick="goDetail('<?php echo $rs->code; ?>')">
+          <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
             <?php echo thai_date($rs->date_add); ?>
+          </td>
+
+					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
+            <?php echo (empty($rs->shipped_date) ? "" : thai_date($rs->shipped_date, FALSE)); ?>
           </td>
 
           <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
@@ -111,11 +117,19 @@
             <?php echo ($rs->reference != '' ? ' ['.$rs->reference.']' : ''); ?>
           </td>
 
-          <td class="pointer hide-text" onclick="goDetail('<?php echo $rs->code; ?>')">
+					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
+						<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
+							<?php echo $rs->empID; ?>
+						<?php else: ?>
+							<?php echo $rs->customer_code; ?>
+						<?php endif; ?>
+          </td>
+
+          <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
 						<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 							<?php echo $rs->empName; ?>
 						<?php else: ?>
-            	<?php echo $rs->customer_code." | ".$rs->customer_name; ?>
+            	<?php echo $rs->customer_name; ?>
 						<?php endif; ?>
           </td>
 
@@ -153,7 +167,7 @@
 function confirmBill(order_code){
 
 	load_in();
-	
+
 	$.ajax({
 		url: HOME + 'confirm_order',
 		type:'POST',
