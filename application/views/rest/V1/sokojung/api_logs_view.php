@@ -44,6 +44,7 @@
 			<option value="WL" <?php echo is_selected('WL', $type); ?>>WL</option>
 			<option value="WQ" <?php echo is_selected('WQ', $type); ?>>WQ</option>
 			<option value="WV" <?php echo is_selected('WV', $type); ?>>WV</option>
+			<option value="WX" <?php echo is_selected('WX', $type); ?>>WX</option>
 		</select>
   </div>
 
@@ -56,6 +57,8 @@
 			<option value="update" <?php echo is_selected('update', $action); ?>>UPDATE</option>
 			<option value="delete" <?php echo is_selected('delete', $action); ?>>DELETE</option>
 			<option value="cancel" <?php echo is_selected('cancel', $action); ?>>CANCEL</option>
+			<option value="receive" <?php echo is_selected('receive', $action); ?>>RECEIVED</option>
+			<option value="shipped" <?php echo is_selected('shipped', $action); ?>>SHIPPED</option>
 		</select>
 	</div>
 
@@ -82,7 +85,7 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5">
-		<table class="table table-striped border-1">
+		<table class="table table-striped border-1" style="min-width:1030px;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 middle text-center">#</th>
@@ -91,7 +94,8 @@
 					<th class="fix-width-80 middle text-center">Type</th>
 					<th class="fix-width-80 middle text-center">Action</th>
 					<th class="fix-width-80 middle text-center">Status</th>
-					<th class="min-wisth-150 middle">Message</th>
+					<th class="fix-width-150 middle">API Path</th>
+					<th class="min-width-150 middle">Message</th>
 					<th class="fix-width-100"></th>
 				</tr>
 			</thead>
@@ -106,9 +110,10 @@
 							<td class="middle text-center"><?php echo $rs->type; ?></td>
 							<td class="middle text-center"><?php echo $rs->action; ?></td>
               <td class="middle text-center"><?php echo $rs->status; ?></td>
+							<td class="middle"><?php echo $rs->api_path; ?></td>
               <td class="middle"><?php echo $rs->message; ?></td>
 							<td class="middle">
-								<button type="button" class="btn btn-sm btn-info" onclick="viewDetail(<?php echo $rs->id; ?>)">View detail</button>
+								<button type="button" class="btn btn-xs btn-info" onclick="viewDetail(<?php echo $rs->id; ?>)">View detail</button>
 							</td>
             </tr>
             <?php $no++; ?>
