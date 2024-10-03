@@ -45,7 +45,7 @@ class Soko_api_logs_model extends CI_Model
 	{
 		if(!empty($ds['code']))
 		{
-			$this->wms->like('code', $ds['code']);
+			$this->wms->like('code', $ds['code'], 'after');
 		}
 
 		if(!empty($ds['status']) && $ds['status'] !== 'all')
@@ -87,7 +87,7 @@ class Soko_api_logs_model extends CI_Model
 	{
 		if(!empty($ds['code']))
 		{
-			$this->wms->like('code', $ds['code']);
+			$this->wms->like('code', $ds['code'], 'after');
 		}
 
 		if(!empty($ds['status']) && $ds['status'] !== 'all')
