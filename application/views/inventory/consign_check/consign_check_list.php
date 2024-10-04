@@ -98,7 +98,7 @@
           <th class="fix-width-80 text-center">ช่องทาง</th>
           <th class="min-width-250">ลูกค้า</th>
           <th class="min-width-250">โซน</th>
-          <th class="fix-width-100">อ้างอิง</th>
+          <th class="fix-width-120">อ้างอิง</th>
         </tr>
       </thead>
       <tbody>
