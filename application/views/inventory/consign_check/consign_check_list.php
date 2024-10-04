@@ -30,8 +30,9 @@
     	<label>ช่องทางการรับ</label>
 			<select class="form-control input-sm" name="is_wms" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
-				<option value="1" <?php echo is_selected('1', $is_wms); ?>>WMS</option>
-				<option value="0" <?php echo is_selected('0', $is_wms); ?>>Warrix</option>
+        <option value="0" <?php echo is_selected('0', $is_wms); ?>>Warrix</option>
+				<option value="1" <?php echo is_selected('1', $is_wms); ?>>PLC</option>
+        <option value="1" <?php echo is_selected('1', $is_wms); ?>>Soko</option>
 			</select>
     </div>
     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
