@@ -101,12 +101,6 @@ function checkItem(barcode, qty){
 }
 
 
-
-
-
-
-
-
 function changeBox(){
   $('#id_box').val('');
   $('#box-code').val('');
@@ -126,8 +120,8 @@ function activeControl(){
     $('.box').attr('disabled', 'disabled');
     $('.item').removeAttr('disabled');
     $('#barcode').focus();
-
-  }else{
+  }
+  else{
     swal('โซนไม่ถูกต้อง');
   }
 }

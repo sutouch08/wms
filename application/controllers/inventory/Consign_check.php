@@ -9,7 +9,9 @@ class Consign_check extends PS_Controller
   public $filter;
   public $error;
 	public $wms;
-	public $isAPI;
+  public $isAPI;
+  public $wmsApi = FALSE;
+  public $sokoApi = FALSE;
 
   public function __construct()
   {
@@ -21,7 +23,8 @@ class Consign_check extends PS_Controller
     $this->load->model('masters/warehouse_model');
     $this->load->model('stock/stock_model');
 
-		$this->isAPI = is_true(getConfig('WMS_API'));
+    $this->wmsApi = is_true(getConfig('WMS_API'));
+    $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
   }
 
   public function index()
@@ -74,44 +77,43 @@ class Consign_check extends PS_Controller
   }
 
 
-
-
   //--- add new document
   public function add()
   {
     $sc = TRUE;
+    $ex = 1;
 
-    //--- check is form submited
-    if($this->input->post())
+    $data = json_decode($this->input->post('data'));
+
+    if( ! empty($data))
     {
+      $date_add = db_date($data->date_add, TRUE);
+      $zone = $this->zone_model->get($data->zone_code);
+      $is_wms = $data->is_wms;
 
-      $date = db_date($this->input->post('date_add'), TRUE);
-      $customer_code = $this->input->post('customer_code');
-      $customer_name = $this->input->post('customer');
-      $zone = $this->zone_model->get($this->input->post('zone_code'));
-      $remark = $this->input->post('remark');
-			$is_wms = $this->input->post('is_wms');
-
-			if($is_wms == 1 && $this->consign_check_model->is_not_close_exists($zone->code))
+      if($is_wms != 0 && $this->consign_check_model->is_not_close_exists($zone->code))
 			{
 				$sc = FALSE;
 				$this->error = "เพิ่มเอกสารไม่สำเร็จ เนื่องจากพบเอกสารกระทบยอดของโซนนี้ที่ยังไม่ปิด";
 			}
 			else
 			{
-				$code = $this->get_new_code($date);
-	      $arr = array(
-	        'code' => $code,
-	        'customer_code' => $customer_code,
-	        'customer_name' => $customer_name,
-	        'zone_code' => $zone->code,
-	        'warehouse_code' => $zone->warehouse_code,
-	        'user' => get_cookie('uname'),
-	        'date_add' => $date,
-	        'remark' => $remark,
-					'is_wms' => $is_wms,
-					'status' => $is_wms == 1 ? 3 : 0
-	      );
+				$code = $this->get_new_code($date_add);
+
+        $status = $is_wms == 0 ? 0 : ($is_wms == 2 && $this->sokoApi ? 3 : ($is_wms == 1 && $this->wmsApi ? 3 : 0));
+
+        $arr = array(
+          'code' => $code,
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'zone_code' => $zone->code,
+          'warehouse_code' => $zone->warehouse_code,
+          'user' => $this->_user->uname,
+          'date_add' => $date_add,
+          'remark' => $data->remark,
+          'is_wms' => $is_wms,
+          'status' => $status
+        );
 
 	      $this->db->trans_begin();
 
@@ -119,7 +121,8 @@ class Consign_check extends PS_Controller
 	      {
 	        //---- get stock balance in zone
 	        $warehouse = $this->warehouse_model->get($zone->warehouse_code);
-	        if(!empty($warehouse))
+
+	        if( ! empty($warehouse))
 	        {
 	          if($warehouse->is_consignment == 1)
 	          {
@@ -130,7 +133,7 @@ class Consign_check extends PS_Controller
 	            $stocks = $this->stock_model->get_all_stock_in_zone($zone->code);
 	          }
 
-	          if(!empty($stocks))
+	          if( ! empty($stocks))
 	          {
 	            foreach($stocks as $rs)
 	            {
@@ -139,12 +142,12 @@ class Consign_check extends PS_Controller
 	                break;
 	              }
 
-	              $ds = array(
-	              'check_code' => $code,
-	              'product_code' => $rs->product_code,
-	              'product_name' => $this->products_model->get_name($rs->product_code),
-	              'stock_qty' => $rs->qty
-	              );
+                $ds = array(
+                  'check_code' => $code,
+                  'product_code' => $rs->product_code,
+                  'product_name' => $this->products_model->get_name($rs->product_code),
+                  'stock_qty' => $rs->qty
+                );
 
 	              if( ! $this->consign_check_model->add_detail($ds))
 	              {
@@ -178,7 +181,7 @@ class Consign_check extends PS_Controller
 
 				if($sc === TRUE)
 				{
-					if($this->isAPI && $is_wms == 1)
+					if($is_wms == 1 && $this->wmsApi)
 					{
 						//--- send to wms
 						$this->wms = $this->load->database('wms', TRUE);
@@ -186,36 +189,46 @@ class Consign_check extends PS_Controller
 
 						$doc = $this->consign_check_model->get($code);
 						$details = $this->consign_check_model->get_details($code);
-						$rs = $this->wms_receive_api->export_consign_check($doc, $details);
 
-						if($rs)
+						if( ! $this->wms_receive_api->export_consign_check($doc, $details))
 						{
-							$this->error = $this->wms_receive_api->error;
-							//set_error($this->error);
-							set_error("บันทึกรายการสำเร็จแต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณากดส่งข้อมูลอีกครั้ง");
+              $ex = 0;
+							$this->error = "บันทึกรายการสำเร็จแต่ส่งข้อมูลไป WMS ไม่สำเร็จ กรุณากดส่งข้อมูลอีกครั้ง";
 						}
 					}
+
+          if($is_wms == 2 && $this->sokoApi)
+          {
+            $this->wms = $this->load->database('wms', TRUE);
+            $this->load->library('soko_receive_api');
+
+            $doc = $this->consign_check_model->get($code);
+						$details = $this->consign_check_model->get_details($code);
+
+            if( ! $this->soko_receive_api->create_consign_check($doc, $details))
+            {
+              $ex = 0;
+              $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Soko ไม่สำเร็จ <br/> ".$this->soko_receive_api->error;
+            }
+          }
 				}
 			}
     }
     else
     {
       $sc = FALSE;
-      $this->error = "ไม่พบข้อมูล";
+      set_error('required');
     }
 
-    if($sc === TRUE)
-    {
-      redirect($this->home.'/edit/'.$code);
-    }
-    else
-    {
-      set_error($this->error);
-      redirect($this->home.'/add_new');
-    }
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => ($sc === TRUE && $ex == 1) ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $code : NULL,
+      'ex' => $ex
+    );
+
+    echo json_encode($arr);
   }
-
-
 
 
   //---- edit document details
@@ -261,21 +274,19 @@ class Consign_check extends PS_Controller
   public function view_detail($code)
   {
     $doc = $this->consign_check_model->get($code);
-    $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
 
-    $details = $this->consign_check_model->get_details($code);
-    if(!empty($details))
+    if( ! empty($doc))
     {
-      foreach($details as $rs)
-      {
-        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
-      }
+      $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
+      $ds['doc'] = $doc;
+      $ds['details'] = $this->consign_check_model->get_details($code);
+
+      $this->load->view('inventory/consign_check/consign_check_view_detail', $ds);
     }
-
-    $ds['doc'] = $doc;
-    $ds['details'] = $details;
-
-    $this->load->view('inventory/consign_check/consign_check_view_detail', $ds);
+    else
+    {
+      $this->page_error();
+    }
   }
 
 
@@ -493,11 +504,7 @@ class Consign_check extends PS_Controller
       {
         $this->error = "เอกสารถูกดึงไปตัดยอดขายแล้ว";
       }
-			else if($doc->is_wms == 1 && $doc->status == 0)
-			{
-				$this->error = "เอกสารต้องดำเนินการบนระบบ WMS ไม่สามารถบันทึกเองได้";
-			}
-			else if($doc->status != 0)
+      else
       {
         $this->error = $doc->status == 2 ? "เอกสารถูกยกเลิกไปแล้ว" : ($doc->status == 3 ? "เอกสารอยู่ระหว่างดำเนินการบนระบบ WMS ไม่สามารถบันทึกเองได้" : "เอกสารถูกบันทึกไปแล้ว");
       }
@@ -527,6 +534,7 @@ class Consign_check extends PS_Controller
     else
     {
       $sc = FALSE;
+
       if($doc->valid == 1)
       {
         $this->error = "เอกสารถูกดึงไปตัดยอดขายแล้ว";
@@ -547,13 +555,9 @@ class Consign_check extends PS_Controller
   {
     $sc = TRUE;
 
-    $date_add = db_date($this->input->post('date_add'), TRUE);
     $remark = $this->input->post('remark');
-		$is_wms = $this->input->post('is_wms');
 
     $arr = array(
-      'date_add' => $date_add,
-			'is_wms' => $is_wms,
       'remark' => $remark
     );
 
@@ -675,7 +679,7 @@ class Consign_check extends PS_Controller
 
     if($doc->valid == 0)
     {
-      if($doc->status == 0)
+      if($doc->status != 1)
       {
         $this->db->trans_begin();
         //--- 1. ลบรายการในกล่องทั้งหมด
@@ -739,39 +743,64 @@ class Consign_check extends PS_Controller
 
     if($this->pm->can_delete)
     {
-      //--- delete all data
-      if( ! $this->delete_all_details($code))
-      {
-        $sc = FALSE;
-        //-- error throw from function delete_all_details
-      }
+      $reason = $this->input->post('reason');
+      $force = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
 
-      //--- change status = 2 (cancle)
-      if($sc === TRUE)
-      {
-        $arr = array(
-          'status' => 2,
-          'cancle_reason' => trim($this->input->post('reason')),
-          'cancle_user' => $this->_user->uname
-        );
+      $doc = $this->consign_check_model->get($code);
 
-        if( ! $this->consign_check_model->update($code, $arr))
+      if($doc->status != 2)
+      {
+        if($doc->valid == 0)
+        {
+          if($doc->is_wms == 2 && $this->sokoApi)
+          {
+            if($doc->wms_export == 1 && $doc->soko_code)
+            {
+              $this->wms = $this->load->database('wms', TRUE);
+              $this->load->library('soko_receive_api');
+
+              if( ! $this->soko_receive_api->cancel_consign_check($doc))
+              {
+                if( ! $force)
+                {
+                  $sc = FALSE;
+                  $this->error = "ยกเลิกเอกสารที่ Soko ไม่สำเร็จ กรุณาติดต่อเจ้าหน้าที่ <br/>{$this->soko_receive_api->error}";
+                }
+              }
+            }
+          }
+
+          //--- change status = 2 (cancle)
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'status' => 2,
+              'cancle_reason' => trim($this->input->post('reason')),
+              'cancle_user' => $this->_user->uname
+            );
+
+            if( ! $this->consign_check_model->update($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+            }
+          }
+        }
+        else
         {
           $sc = FALSE;
-          $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+          $this->error = "ไม่สามารถยกเลิกได้เนื่องจากมีการดึงไปตัดยอดขายแล้ว";
         }
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = "คุณไม่มีสิทธิ์ในการยกเลิกเอกสาร";
+      set_error('permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
-
 
 
   public function print($code, $id_box)
@@ -806,15 +835,38 @@ class Consign_check extends PS_Controller
 	public function send_to_wms($code)
 	{
 		$sc = TRUE;
+
 		$doc = $this->consign_check_model->get($code);
 
-		if(!empty($doc))
+		if( ! empty($doc))
 		{
-			if($doc->is_wms == 1 && ($doc->status == 3 OR $doc->status == 0))
+      if($doc->is_wms == 2 && $this->sokoApi && ($doc->status == 3 OR $doc->status == 0))
+      {
+        $this->wms = $this->load->database('wms', TRUE);
+        $this->load->library('soko_receive_api');
+
+        $details = $this->consign_check_model->get_details($code);
+
+        if( ! empty($details))
+        {
+          if( ! $this->soko_receive_api->create_consign_check($doc, $details))
+          {
+            $sc = FALSE;
+            $this->error = "ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ <br/> {$this->soko_receive_api->error}";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "ไม่พบรายการตั้งรับ กรุณาตรวจสอบ";
+        }
+      }
+
+			if($doc->is_wms == 1 && $this->wmsApi && ($doc->status == 3 OR $doc->status == 0))
 			{
 				$details = $this->consign_check_model->get_details($code);
 
-				if(!empty($details))
+				if( ! empty($details))
 				{
 					$this->wms = $this->load->database('wms', TRUE);
 					$this->load->library('wms_receive_api');
@@ -826,30 +878,12 @@ class Consign_check extends PS_Controller
 						$sc = FALSE;
 						$this->error = "ส่งข้อมูลไป WMS ไม่สำเร็จ <br/>({$this->wms_receive_api->error})";
 					}
-
-					if($sc === TRUE)
-					{
-						if($doc->status == 0)
-						{
-							//--- change doc status
-							$arr = array(
-								'status' => 3
-							);
-
-							$this->consign_check_model->update($code, $arr);
-						}
-					}
 				}
 				else
 				{
 					$sc = FALSE;
-					$this->error = "Return items not found";
+					$this->error = "ไม่พบรายการตั้งรับ กรุณาตรวจสอบ";
 				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid document status";
 			}
 		}
 		else

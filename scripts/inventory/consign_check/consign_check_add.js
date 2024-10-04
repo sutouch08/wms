@@ -41,8 +41,6 @@ function unsave()
 
 
 function getEdit(){
-  $('#dateAdd').removeAttr('disabled');
-	$('#is_wms').removeAttr('disabled');
   $('#remark').removeAttr('disabled');
   $('#btn-edit').addClass('hide');
   $('#btn-update').removeClass('hide');
@@ -52,29 +50,21 @@ function getEdit(){
 
 function update(){
   var code = $('#check_code').val();
-  var date_add = $('#dateAdd').val();
-	var is_wms = $('#is_wms').val();
-  var remark   = $('#remark').val();
-
-  if(! isDate(date_add)){
-    swal('วันที่ไม่ถูกต้อง');
-    return false;
-  }
-
+  var remark   = $('#remark').val().trim();
 
   load_in();
+
   $.ajax({
     url: HOME + 'update_header/'+code,
     type:'POST',
     cache:'false',
     data:{
-      'date_add' : date_add,
-			'is_wms' : is_wms,
       'remark' : remark
     },
-    success:function(rs){
+    success:function(rs) {
       load_out();
-      var rs = $.trim(rs);
+      var rs = rs.trim();
+
       if(rs == 'success'){
         swal({
           title: 'Updated',
@@ -82,25 +72,40 @@ function update(){
           timer: 1000
         });
 
-        $('#dateAdd').attr('disabled', 'disabled');
-				$('#is_wms').attr('disabled', 'disabled');
-        $('#remark').attr('disabled', 'disabled');
-        $('#btn-update').addClass('hide');
-        $('#btn-edit').removeClass('hide');
+				setTimeout(() => {
+					window.location.reload();
+				}, 1200);
       }
-    }
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				})
+			}
+    },
+		error:function(rs) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:rs.responseText,
+				type:'error',
+				html:true
+			})
+		}
   });
 }
 
 
 
-$('#dateAdd').datepicker({
+$('#date_add').datepicker({
 	dateFormat:'dd-mm-yy'
 });
 
 
 
-$("#customer").autocomplete({
+$("#customer_code").autocomplete({
 	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
 	autoFocus: true,
 	close: function () {
@@ -110,11 +115,12 @@ $("#customer").autocomplete({
 			var code = arr[0];
 			var name = arr[1];
 			$("#customer_code").val(code);
-			$("#customer").val(name);
+			$("#customer_name").val(name);
 			zoneInit(code, true);
-		} else {
-			$("#customer_code").val('');
+		}
+		else {
 			$(this).val('');
+			$("#customer_name").val('');
 			zoneInit('', true);
 		}
 	}
@@ -125,10 +131,10 @@ $("#customer").autocomplete({
 function zoneInit(customer_code, edit) {
 	if (edit) {
 		$('#zone_code').val('');
-		$('#zone').val('');
+		$('#zone_name').val('');
 	}
 
-	$('#zone').autocomplete({
+	$('#zone_code').autocomplete({
 		source: BASE_URL + 'auto_complete/get_consign_zone/' + customer_code,
 		autoFocus: true,
 		close: function () {
@@ -138,41 +144,120 @@ function zoneInit(customer_code, edit) {
 				var code = arr[0];
 				var name = arr[1];
 				$('#zone_code').val(code);
-				$('#zone').val(name);
+				$('#zone_name').val(name);
 			} else {
 				$('#zone_code').val('');
-				$('#zone').val('');
+				$('#zone_name').val('');
 			}
 		}
 	})
 }
 
 
-function add(){
-	let date = $('#dateAdd').val();
-	let customer = $('#customer').val();
-	let customer_code = $('#customer_code').val();
-	let zone = $('#zone').val();
-	let zone_code = $('#zone_code').val();
-	let remark = $('#remark').val();
+function add() {
+	$('.e').clearError();
 
-	if(! isDate(date)){
+	let h = {
+		'date_add' : $('#date_add').val(),
+		'customer_code' : $('#customer_code').val().trim(),
+		'customer_name' : $('#customer_name').val().trim(),
+		'zone_code' : $('#zone_code').val().trim(),
+		'zone_name' : $('#zone_name').val().trim(),
+		'is_wms' : $('#is_wms').val(),
+		'remark' : $('#remark').val().trim()
+	};
+
+
+	if(! isDate(h.date_add)){
+		$('#date_add').hasError();
 		swal("วันที่ไม่ถูกต้อง");
 		return false;
 	}
 
-	if(customer_code.length == 0 || customer.length == 0){
+	if(h.customer_code.length == 0 || h.customer_name.length == 0) {
+		$('#customer_code').hasError();
 		swal("กรุณาระบุลูกค้า");
 		return false;
 	}
 
-	if(zone.length == 0 || zone_code.length == 0){
+	if(h.is_wms == "") {
+		$('#is_wms').hasError();
+		swal("กรุณาเลือกช่องทาง");
+		return false;
+	}
+
+	if(h.zone_code.length == 0 || h.zone_name.length == 0) {
+		$('#zone_code').hasError();
 		swal("โซนไม่ถูกต้อง");
 		return false;
 	}
 
-	$('#addForm').submit();
+	load_in();
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data:{
+			'data' : JSON.stringify(h)
+		},
+		success:function(rs) {
+			load_out();
+
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+
+				if(ds.status === 'success') {
+					if(ds.ex == 0) {
+						swal({
+							title:'ข้อผิดพลาด',
+							text:ds.message,
+							type:'warning'
+						}, function() {
+							viewDetail(ds.code);
+						});
+					}
+					else {
+						if(h.is_wms == '0') {
+							goEdit(ds.code);
+						}
+						else {
+							viewDetail(ds.code);
+						}
+					}
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:ds.message,
+						type:'error',
+						html:true
+					});
+				}
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+
+		},
+		error:function(rs) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:rs.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
 }
+
+
 
 
 function recalTotal(){

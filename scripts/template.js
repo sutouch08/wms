@@ -357,3 +357,19 @@ function validCode(input){
 function closeModal(name) {
   $('#'+name).modal('hide');
 }
+
+$.fn.hasError = function(msg) {
+  name = this.attr('id');
+  
+  if(msg !== undefined) {
+    $('#'+name+'-error').text(msg);
+  }
+
+  return this.addClass('has-error');
+};
+
+$.fn.clearError = function() {
+  name = this.attr('id');
+  $('#'+name+'-error').text('');
+  return this.removeClass('has-error');
+};

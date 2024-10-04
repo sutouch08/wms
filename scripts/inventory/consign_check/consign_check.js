@@ -14,13 +14,16 @@ function goDelete(code){
 		}, function(){
 			$('#cancle-code').val(code);
 	    $('#cancle-reason').val('').removeClass('has-error');
+			$('#force-cancel').prop('checked', false);
 	    cancle(code);
 	});
 }
 
+
 function cancle(code)
 {
-	var reason = $.trim($('#cancle-reason').val());
+	var reason = $('#cancle-reason').val().trim();
+	var force = $('#force-cancel').is(':checked') ? 1 : 0;
 
 	if(reason.length < 10)
 	{
@@ -33,9 +36,10 @@ function cancle(code)
   $.ajax({
     url:HOME + 'cancle/'+code,
     type:"POST",
-    cache:"false",
+    cache:false,
     data:{
-      "reason" : reason
+      "reason" : reason,
+			"force_cancel" : force
     },
     success: function(rs) {
       load_out();
@@ -50,7 +54,7 @@ function cancle(code)
           });
 
           setTimeout(function(){
-            goBack();
+            window.location.reload();
           }, 1200);
         }, 200);
 

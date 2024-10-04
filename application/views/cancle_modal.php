@@ -1,3 +1,5 @@
+<?php $hide = $this->_SuperAdmin ? '' : 'hide'; ?>
+
 <div class="modal fade" id="cancle-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
  <div class="modal-dialog" style="max-width:95%; margin-left:auto; margin-right:auto;">
    <div class="modal-content">
@@ -12,14 +14,14 @@
             <textarea class="form-control input-sm" id="cancle-reason" maxlength="250" style="min-height:100px;" placeholder="กรุณาระบุเหตุผลในการยกเลิกอย่างน้อย 10 ตัวอักษร"></textarea>
             <input type="hidden" id="cancle-code" value="" />
           </div>
-        <?php if($this->_SuperAdmin) : ?>
-          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margin-top-15">
+
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margin-top-15 <?php echo $hide; ?>">
             <label>
               <input type="checkbox" class="ace" name="force_cancel" id="force-cancel" value="1" />
               <span class="lbl">&nbsp;&nbsp; Force cancel</span>
             </label>
           </div>
-        <?php endif; ?>
+
         </div>
        </div>
       <div class="modal-footer">

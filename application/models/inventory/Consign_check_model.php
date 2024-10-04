@@ -612,13 +612,9 @@ class Consign_check_model extends CI_Model
 
 	public function is_not_close_exists($zone_code)
 	{
-		$rows = $this->db->where('zone_code', $zone_code)->where('is_wms', 1)->where_in('status', array(0, 3))->count_all_results('consign_check');
-		if($rows > 0)
-		{
-			return TRUE;
-		}
+    $count = $this->db->where('zone_code', $zone_code)->where('is_wms !=', 0)->where_in('status', array(0, 3))->count_all_results('consign_check');
 
-		return FALSE;
+		return $count > 0 ? TRUE : FALSE;
 	}
 
 } //--- end class

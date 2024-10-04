@@ -1374,6 +1374,10 @@ hr.padding-5 {
 	margin-top:5px;
 }
 
+.top-p > .btn {
+  margin-top:5px;
+}
+
 
 .callout{
 	padding:20px;
