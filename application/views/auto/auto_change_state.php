@@ -23,7 +23,7 @@
       </thead>
       <tbody>
         <?php if( ! empty($data)) : ?>
-          <?php $no = 0; ?>
+          <?php $no = 1; ?>
           <?php foreach($data as $rs) : ?>
             <tr>
               <td class="text-center"><?php echo $no; ?></td>
