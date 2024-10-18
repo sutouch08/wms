@@ -26,14 +26,16 @@ class Auto_delivery_order extends CI_Controller
 
   public function index()
   {
+    $limit = getConfig('AUTO_DELIVERY_ORDER_LIMIT');
+    $limit = empty($limit) ? 100 : $limit;
     $ds['data'] = NULL;
     $all = $this->db->where('status !=', 1)->count_all_results('auto_send_to_sap_order');
-    $rs = $this->db->where('status !=', 1)->limit(100)->get('auto_send_to_sap_order');
+    $rs = $this->db->where('status !=', 1)->limit($limit)->get('auto_send_to_sap_order');
 
     $ds['count'] = $rs->num_rows();
     $ds['all'] = $all;
     $ds['data'] = $rs->result();
-    
+
     $this->load->view('auto/auto_delivery_order', $ds);
   }
 

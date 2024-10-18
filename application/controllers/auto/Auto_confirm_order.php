@@ -28,9 +28,13 @@ class Auto_confirm_order extends CI_Controller
 
   public function index()
   {
+    $limit = getConfig('AUTO_CONFRIM_ORDER_LIMIT');
+
+    $limit = empty($limit) ? 50 : $limit;
+
     $ds['data'] = NULL;
     $all = $this->db->where('status !=', 1)->count_all_results('auto_send_to_sap_order');
-    $rs = $this->db->where('status !=', 1)->limit(50)->get('auto_send_to_sap_order');
+    $rs = $this->db->where('status !=', 1)->limit($limit)->get('auto_send_to_sap_order');
 
     $ds['count'] = $rs->num_rows();
     $ds['all'] = $all;
