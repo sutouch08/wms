@@ -29,10 +29,10 @@
               <td class="text-center"><?php echo $no; ?></td>
               <td>
                 <?php echo $rs->code; ?>
-                <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $no; ?>"  value="<?php echo $rs->code; ?>" />
+                <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $rs->id; ?>"  value="<?php echo $rs->code; ?>" />
               </td>
-              <td id="status-<?php echo $no; ?>">รอดำเนินการ</td>
-              <td id="msg-<?php echo $no; ?>"></td>
+              <td id="status-<?php echo $rs->id; ?>">รอดำเนินการ</td>
+              <td id="msg-<?php echo $rs->id; ?>"></td>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>
@@ -74,6 +74,7 @@ function startExport() {
 function do_export(no){
   let order = orders[no];
   let code = order.code;
+  let id = order.id;
 
   if(finished == false) {
     if(code != null && code != "" && code != undefined) {
@@ -85,11 +86,10 @@ function do_export(no){
           'order_code' : code
         },
         success:function(rs){
-          rs = $.trim(rs);
-
-          if(rs == 'success') {
-            $('#status-'+no).text('OK');
+          if(rs.trim() == 'success') {
             no++;
+            $('#status-'+id).text('OK');
+            
             if(no == max) {
               update_status(code, 1, rs);
               finished = true;
@@ -101,8 +101,8 @@ function do_export(no){
             }
           }
           else {
-            $('#status-'+no).text('failed');
-            $('#msg-'+no).text(rs);
+            $('#status-'+id).text('failed');
+            $('#msg-'+id).text(rs);
             no++;
             if(no == max) {
               update_status(code, 3, rs);

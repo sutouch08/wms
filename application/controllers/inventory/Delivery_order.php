@@ -617,7 +617,7 @@ class Delivery_order extends PS_Controller
 
   public function manual_export($code)
   {
-    $rs = $this->do_export($code);    
+    $rs = $this->do_export($code);
 
     echo $rs === TRUE ? 'success' : $this->error;
   }

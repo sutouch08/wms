@@ -33,8 +33,8 @@
                 <?php echo $rs->code; ?>
                 <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $no; ?>"  value="<?php echo $rs->code; ?>" />
               </td>
-              <td id="status-<?php echo $no; ?>">รอดำเนินการ</td>
-              <td id="msg-<?php echo $no; ?>"></td>
+              <td id="status-<?php echo $rs->id; ?>">รอดำเนินการ</td>
+              <td id="msg-<?php echo $rs->id; ?>"></td>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>
@@ -75,6 +75,7 @@ function startExport() {
 function do_export(no){
   let order = orders[no];
   let code = order.code;
+  let id = order.id;
 
   if(finished == false) {
     if(code != null && code != "" && code != undefined) {
@@ -85,8 +86,8 @@ function do_export(no){
         success:function(rs){
 
           if(rs == 'success') {
-            $('#status-'+no).text('OK');
             no++;
+            $('#status-'+id).text('OK');
             if(no == max) {
               finished = true;
               load_out();
@@ -96,9 +97,10 @@ function do_export(no){
             }
           }
           else {
-            $('#status-'+no).text('failed');
-            $('#msg-'+no).text(rs);
             no++;
+            $('#status-'+id).text('failed');
+            $('#msg-'+id).text(rs);
+            
             if(no == max) {
               finished = true;
               load_out();
