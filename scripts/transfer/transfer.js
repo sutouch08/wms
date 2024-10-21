@@ -226,7 +226,8 @@ function goDelete(code, status){
 
 function cancle(code)
 {
-	var reason = $.trim($('#cancle-reason').val());
+	let reason = $.trim($('#cancle-reason').val());
+  let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
 	if(reason.length < 10)
 	{
@@ -241,7 +242,8 @@ function cancle(code)
     type:"POST",
     cache:"false",
     data:{
-      "reason" : reason
+      "reason" : reason,
+      "force_cancel" : force_cancel
     },
     success: function(rs) {
       load_out();

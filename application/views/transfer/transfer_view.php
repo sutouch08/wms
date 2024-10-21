@@ -20,11 +20,25 @@
 		}
 	}
 
-	$fWh = $this->warehouse_model->get($doc->from_warehouse);
-	$tWh = $this->warehouse_model->get($doc->to_warehouse);
 	$pos_api = is_true(getConfig('POS_API_WW'));
-	$pos_api =  $pos_api ? (! empty($fWh) ? ($fWh->is_pos == 1 ? TRUE : $pos_api) : $pos_api) : FALSE;
-	$pos_api =  $pos_api ? (! empty($tWh) ? ($tWh->is_pos == 1 ? TRUE : $pos_api) : $pos_api) : FALSE;
+
+	if($pos_api === TRUE)
+	{
+		$fWh = $this->warehouse_model->get($doc->from_warehouse);
+		$tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+		if( ! empty($fWh) && ! empty($tWh))
+		{
+			if( $fWh->is_pos == 0 && $tWh->is_pos == 0)
+			{
+				$pos_api = FALSE;
+			}
+		}
+		else
+		{
+			$pos_api = FALSE;
+		}
+	}
 	?>
 <div class="row">
 	<div class="col-lg-4 col-md-4 col-sm-4 hidden-xs padding-5">
@@ -41,23 +55,26 @@
 				<?php if($doc->status == 4 && ($accept_user OR $canAccept)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="accept()"><i class="fa fa-check-circle"></i> ยืนยันการรับสินค้า</button>
 				<?php endif; ?>
-		    <?php if($doc->status == 1) : ?>
-					<?php if($doc->is_wms == 0 OR $this->_SuperAdmin) : ?>
-					<button type="button" class="btn btn-xs btn-danger top-btn" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
-					<?php endif; ?>
-		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-		    <?php endif; ?>
-				<?php if($doc->is_wms != 0 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
-					<?php if($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh) : ?>
-						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPlc()"><i class="fa fa-send"></i> Send to PLC</button>
-					<?php endif; ?>
-					<?php if($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh) : ?>
-						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to Soko</button>
+				<?php if($doc->status != 2) : ?>
+					<?php if($doc->status != 1 && $this->pm->can_delete OR $this->_SuperAdmin) : ?>
+						<button type="button" class="btn btn-xs btn-danger" onclick="goDelete('<?php echo $doc->code; ?>', <?php echo $doc->status; ?>)">
+							<i class="fa fa-trash"></i> ยกเลิก
+						</button>
 					<?php endif; ?>
 				<?php endif; ?>
-
-				<?php if($pos_api) : ?>
-					<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPos()"><i class="fa fa-send"></i> Send to POS</button>
+		    <?php if($doc->status == 1) : ?>
+		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+					<?php if($pos_api) : ?>
+						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPos()"><i class="fa fa-send"></i> Send to POS</button>
+					<?php endif; ?>
+		    <?php endif; ?>
+				<?php if($doc->is_wms != 0 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
+					<?php if($this->wmsApi && ($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)) : ?>
+						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPlc()"><i class="fa fa-send"></i> Send to PLC</button>
+					<?php endif; ?>
+					<?php if($this->sokoApi && ($doc->from_warehouse == $this->sokoWh OR $doc->to_warehouse == $this->sokoWh)) : ?>
+						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to Soko</button>
+					<?php endif; ?>
 				<?php endif; ?>
 
 				<?php if($doc->status == 0 && $doc->must_approve == 1 && $doc->is_approve == 0 && ($this->pm->can_approve OR $this->_SuperAdmin)) : ?>
@@ -107,6 +124,7 @@
 	$this->load->view('transfer/transfer_view_header');
 	$this->load->view('transfer/transfer_view_detail');
 	$this->load->view('accept_modal');
+	$this->load->view('cancle_modal');
 ?>
 
 <script src="<?php echo base_url(); ?>scripts/transfer/transfer.js?v=<?php echo date('Ymd'); ?>"></script>

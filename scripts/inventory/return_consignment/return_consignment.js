@@ -20,7 +20,8 @@ function goDelete(code){
 
 function cancle_return(code)
 {
-	var reason = $.trim($('#cancle-reason').val());
+	let reason = $.trim($('#cancle-reason').val());
+	let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
 	if(reason.length < 10)
 	{
@@ -35,7 +36,8 @@ function cancle_return(code)
 		type:"POST",
 		cache:"false",
 		data:{
-			"reason" : reason
+			"reason" : reason,
+			"force_cancel" : force_cancel
 		},
 		success: function(rs) {
 			var rs = $.trim(rs);

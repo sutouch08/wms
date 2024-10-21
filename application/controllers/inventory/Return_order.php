@@ -1075,15 +1075,23 @@ class Return_order extends PS_Controller
   public function cancle_return($code)
   {
     $sc = TRUE;
+    $reason = trim($this->input->post('reason'));
+    $force_cancel = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
 
     if($this->pm->can_delete)
     {
 			$doc = $this->return_order_model->get($code);
 
-			if(!empty($doc))
+			if( ! empty($doc))
 			{
-				if($doc->status == 1 OR $doc->status == 0 OR $this->_SuperAdmin)
+				if($doc->status != 2)
 				{
+          if($doc->status == 3 && $doc->is_wms == 1 && ! $this->_SuperAdmin)
+          {
+            $sc = FALSE;
+            $this->error = "เอกสารอยู่ระหว่างการรับเข้าไม่อนุญาติให้ยกเลิก";
+          }
+
 					//--- check sap
 					$sap = $this->return_order_model->get_sap_doc_num($code);
 
@@ -1108,7 +1116,7 @@ class Return_order extends PS_Controller
                   $arr = array(
                     'inv_code' => NULL,
                     'status' => 2,
-                    'cancle_reason' => trim($this->input->post('reason')),
+                    'cancle_reason' => $reason,
                     'cancle_user' => $this->_user->uname,
                     'cancle_date' => now()
                   );
@@ -1122,15 +1130,18 @@ class Return_order extends PS_Controller
 
                 if($sc === TRUE)
                 {
-                  if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
+                  if($doc->status == 3 && ! $force_cancel)
                   {
-                    $this->wms = $this->load->database('wms', TRUE);
-                    $this->load->library('soko_receive_api');
-
-                    if( ! $this->soko_receive_api->cancel_receive_po($doc))
+                    if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
                     {
-                      $sc = FALSE;
-                      $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+                      $this->wms = $this->load->database('wms', TRUE);
+                      $this->load->library('soko_receive_api');
+
+                      if( ! $this->soko_receive_api->cancel_receive_po($doc))
+                      {
+                        $sc = FALSE;
+                        $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+                      }
                     }
                   }
                 }
@@ -1160,16 +1171,7 @@ class Return_order extends PS_Controller
 				else
 				{
 					$sc = FALSE;
-
-					if($doc->status == 3)
-					{
-						$this->error = "เอกสารอยู่ระหว่างการรับเข้าไม่อนุญาติให้ยกเลิก";
-					}
-
-					if($doc->status == 2)
-					{
-						$this->error = "เอกสารถูกยกเลิกไปแล้ว";
-					}
+          $this->error = "เอกสารถูกยกเลิกไปแล้ว";
 				}
 			}
 			else

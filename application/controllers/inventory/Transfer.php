@@ -618,7 +618,7 @@ class Transfer extends PS_Controller
 
     $isSoko = $fWh == $sokoWh ? TRUE : ($tWh == $sokoWh ? TRUE : FALSE);
     $isWms = $fWh == $wmsWh ? TRUE : ($tWh == $wmsWh ? TRUE : FALSE);
-    
+
     if($sc === TRUE)
     {
       if($is_wms == 1 && ! $isWms)
@@ -2826,136 +2826,180 @@ class Transfer extends PS_Controller
 
 
 
-
   public function delete_transfer($code)
   {
     $sc = TRUE;
 
-    $this->load->model('inventory/movement_model');
+    $reason = trim($this->input->post('reason'));
+    $force_cancel = $this->input->post('force_cancel') == 1 ? 1 : 0;
 
-    $doc = $this->transfer_model->get($code);
-
-    if( ! empty($doc))
+    if($this->pm->can_delete)
     {
-      if($doc->status != 1 && $doc->status != 2)
+      $this->load->model('inventory/movement_model');
+
+      $doc = $this->transfer_model->get($code);
+
+      if( ! empty($doc))
       {
-        $this->db->trans_begin();
-
-        //--- clear temp
-        if( ! $this->transfer_model->drop_all_temp($code))
+        if($doc->status != 2)
         {
-          $sc = FALSE;
-          $this->error = "Failed to delete transfer temp";
-        }
-
-        //--- delete detail
-        if( ! $this->transfer_model->drop_all_detail($code))
-        {
-          $sc = FALSE;
-          $this->error = "Failed to delete transfer rows";
-        }
-
-        //--- drop movement
-        if( ! $this->movement_model->drop_movement($code))
-        {
-          $sc = FALSE;
-          $this->error = "Failed to delete movement";
-        }
-
-        if($sc === TRUE)
-        {
-          //--- change status to 2 (cancled)
-          $arr = array(
-            'status' => 2,
-            'inv_code' => NULL,
-            'cancle_reason' => trim($this->input->post('reason')),
-            'cancle_user' => $this->_user->uname
-          );
-
-          if( ! $this->transfer_model->update($code, $arr))
+          if($doc->status == 1)
           {
-            $sc = FALSE;
-            $this->error = "Change status failed";
-          }
-        }
+            $sap = $this->transfer_model->get_sap_transfer_doc($code);
 
-
-        if($sc === TRUE)
-        {
-          if($doc->is_wms == 2 && $doc->api && $this->sokoApi)
-          {
-            $this->wms = $this->load->database('wms', TRUE);
-
-            if($doc->to_warehouse == $this->sokoWh && ! empty($doc->soko_code))
+            if( ! empty($sap))
             {
-              $this->load->library('soko_receive_api');
-
-              if( ! $this->soko_receive_api->cancel_transfer($doc))
-              {
-                $sc = FALSE;
-                $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
-              }
+              $sc = FALSE;
+              $this->error = "เอกสารเข้า SAP แล้วไม่อนุญาติให้ยกเลิก";
             }
 
-
-            if($doc->from_warehouse == $this->sokoWh && $doc->wms_export == 1)
+            if($sc === TRUE)
             {
-              $this->load->library('soko_order_api');
+              $middle = $this->transfer_model->get_middle_transfer_doc($code);
 
-              if( ! $this->soko_order_api->cancel_transfer_order($doc->code))
+              if( ! empty($middle))
               {
-                $sc = FALSE;
-                $this->error = "SOKOCHAN Error : ".$this->soko_order_api->error;
-              }
-            }
-          }
-        }
-
-        if($sc === TRUE)
-        {
-          if(is_true(getConfig('POS_API_WW')))
-          {
-            $fWh = $this->warehouse_model->get($doc->from_warehouse);
-            $tWh = $this->warehouse_model->get($doc->to_warehouse);
-
-            if( ! empty($fWh) && ! empty($tWh))
-            {
-              if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
-              {
-                $this->logs = $this->load->database('logs', TRUE);
-
-                $this->load->library('pos_api');
-
-                if( ! $this->pos_api->cancel_transfer($doc->code))
+                foreach($middle as $rs)
                 {
-                  $sc = FALSE;
-                  $this->error = "ยกเลิกเอกสารในระบบ POS ไม่สำเร็จ : ".$this->pos_api->error;
+                  $this->transfer_model->drop_middle_exits_data($rs->DocEntry);
                 }
               }
             }
           }
-        }
 
-        if($sc === TRUE)
-        {
-          $this->db->trans_commit();
-        }
-        else
-        {
-          $this->db->trans_rollback();
-        }
+          if($sc === TRUE)
+          {
+            if($doc->status == 3 && ! $force_cancel)
+            {
+              if($doc->is_wms == 2 && $doc->api && $this->sokoApi)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+
+                if($doc->to_warehouse == $this->sokoWh && ! empty($doc->soko_code))
+                {
+                  $this->load->library('soko_receive_api');
+
+                  if( ! $this->soko_receive_api->cancel_transfer($doc))
+                  {
+                    $sc = FALSE;
+                    $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+                  }
+                }
+
+
+                if($doc->from_warehouse == $this->sokoWh && $doc->wms_export == 1)
+                {
+                  $this->load->library('soko_order_api');
+
+                  if( ! $this->soko_order_api->cancel_transfer_order($doc->code))
+                  {
+                    $sc = FALSE;
+                    $this->error = "SOKOCHAN Error : ".$this->soko_order_api->error;
+                  }
+                }
+              } //--- if is_wms == 2
+
+
+              if($doc->is_wms == 1 && ! $this->_SuperAdmin)
+              {
+                $sc = FALSE;
+                $this->error = "เอกสารอยู่ระหว่างดำเนินการ ไม่อนุญาติให้ยกเลิก";
+              }
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_begin();
+
+            //--- clear temp
+            if( ! $this->transfer_model->drop_all_temp($code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete transfer temp";
+            }
+
+            //--- delete detail
+            if( ! $this->transfer_model->drop_all_detail($code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete transfer rows";
+            }
+
+            //--- drop movement
+            if( ! $this->movement_model->drop_movement($code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete movement";
+            }
+
+            if($sc === TRUE)
+            {
+              //--- change status to 2 (cancled)
+              $arr = array(
+                'status' => 2,
+                'inv_code' => NULL,
+                'cancle_reason' => trim($this->input->post('reason')),
+                'cancle_user' => $this->_user->uname
+              );
+
+              if( ! $this->transfer_model->update($code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Change status failed";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              if(is_true(getConfig('POS_API_WW')))
+              {
+                $fWh = $this->warehouse_model->get($doc->from_warehouse);
+                $tWh = $this->warehouse_model->get($doc->to_warehouse);
+
+                if( ! empty($fWh) && ! empty($tWh))
+                {
+                  if($fWh->is_pos == 1 OR $tWh->is_pos == 1)
+                  {
+                    $this->logs = $this->load->database('logs', TRUE);
+
+                    $this->load->library('pos_api');
+
+                    if( ! $this->pos_api->cancel_transfer($doc->code))
+                    {
+                      $sc = FALSE;
+                      $this->error = "ยกเลิกเอกสารในระบบ POS ไม่สำเร็จ : ".$this->pos_api->error;
+                    }
+                  }
+                }
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+          }
+        } //--- if status != 2
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = "Invalid document number";
+      set_error('permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
-
 
 
   public function print_transfer($code)

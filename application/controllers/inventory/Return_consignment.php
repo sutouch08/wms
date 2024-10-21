@@ -1013,6 +1013,10 @@ class Return_consignment extends PS_Controller
   public function cancle_return($code)
   {
     $sc = TRUE;
+
+    $reason = trim($this->input->post('reason'));
+    $force_cancel = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
+
     if($this->pm->can_delete)
     {
 			$doc = $this->return_consignment_model->get($code);
@@ -1026,23 +1030,55 @@ class Return_consignment extends PS_Controller
 						//-- check SAP return doc ORDN
 						$sap = $this->return_consignment_model->get_sap_return_consignment($code);
 						//--- if document exists in sap, reject cancelation
-						if(!empty($sap))
+						if( ! empty($sap))
 						{
 							$sc = FALSE;
 							$this->error = "เอกสารเข้า SAP แล้ว กรุณายกเลิกเอกสารใน SAP ก่อนดำเนินการต่อไป";
 						}
+
+            if($sc === TRUE)
+            {
+              if( ! $this->cancle_sap_doc($code))
+              {
+                $sc = FALSE;
+                $this->error = "ลบรายค้างใน SAP Temp ไม่สำเร็จ";
+              }
+            }
 					}
+
+          if($sc === TRUE)
+          {
+            if($doc->status == 3 && ! $force_cancel)
+            {
+              if($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                $this->load->library('soko_receive_api');
+
+                if( ! $this->soko_receive_api->cancel_return_consignment($doc))
+                {
+                  $sc = FALSE;
+                  $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+                }
+              }
+
+              if($doc->is_wms == 1 && ! $this->_SuperAdmin)
+              {
+                $sc = FALSE;
+                $this->error = "เอกสารอยู่ระหว่างรับเข้า ไม่อนุญาติให้ยกเลิก";
+              }
+            }
+          }
+
 
 					if($sc === TRUE)
 					{
-						$this->cancle_sap_doc($code);
-
 						$this->db->trans_begin();
 
             $arr = array(
               'status' => 2,
               'inv_code' => NULL,
-              'cancle_reason' => trim($this->input->post('reason')),
+              'cancle_reason' => $reason,
               'cancle_user' => $this->_user->uname
             );
 
@@ -1062,21 +1098,6 @@ class Return_consignment extends PS_Controller
 							}
 						}
 
-            if($sc === TRUE)
-            {
-              if($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-                $this->load->library('soko_receive_api');
-
-                if( ! $this->soko_receive_api->cancel_return_consignment($doc))
-                {
-                  $sc = FALSE;
-                  $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
-                }
-              }
-            }
-
 			      if($sc === TRUE)
 						{
 							$this->db->trans_commit();
@@ -1091,13 +1112,13 @@ class Return_consignment extends PS_Controller
 			else
 			{
 				$sc = FALSE;
-				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+				set_error('notfound');
 			}
     }
     else
     {
       $sc = FALSE;
-      $this->error = 'คุณไม่มีสิทธิ์ในการยกเลิกเอกสาร';
+      set_error('permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;

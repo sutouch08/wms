@@ -768,36 +768,29 @@ class Return_lend extends PS_Controller
   public function cancle_return()
   {
     $sc = TRUE;
+
+    $this->load->model('inventory/movement_model');
+    $this->load->model('inventory/lend_model');
+
     $code = $this->input->post('return_code');
     $reason = $this->input->post('reason');
+    $force_cancel = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
 
-    if( ! empty($code))
+    if($this->pm->can_delete)
     {
-      $doc = $this->return_lend_model->get($code);
-
-      if( ! empty($doc))
+      if( ! empty($code))
       {
-        //--- if document saved
-        if($doc->status == 1 OR $doc->status == 3)
+        $doc = $this->return_lend_model->get($code);
+
+        if( ! empty($doc))
         {
-          $this->load->model('inventory/movement_model');
-          $this->load->model('inventory/lend_model');
-
-          if($doc->status == 3 && $this->_SuperAdmin === FALSE)
+          if($doc->status != 2)
           {
-            $sc = FALSE;
-            $this->error = "สินค้าอยู่ระหว่างการรับเข้า ไม่สามารถยกเลิกได้";
-          }
+            $sap = $doc->status == 1 ? $this->return_lend_model->get_sap_doc_num($code) : NULL;
 
-
-          if($sc === TRUE)
-          {
-            //--- check sap doc
-            $sap = $this->return_lend_model->get_sap_doc_num($code);
-
-            if( empty($sap))
+            if(empty($sap))
             {
-              $middle = $this->return_lend_model->get_middle_transfer_doc($code);
+              $middle = $doc->status == 1 ? $this->return_lend_model->get_middle_transfer_doc($code) : NULL;
 
               if( ! empty($middle))
               {
@@ -829,15 +822,24 @@ class Return_lend extends PS_Controller
 
               if($sc === TRUE)
               {
-                if($doc->status == 3 && $doc->is_wms == 2 && $this->sokoApi)
+                if($doc->status == 3 && ! $force_cancel)
                 {
-                  $this->wms = $this->load->database('wms', TRUE);
-                  $this->load->library('soko_receive_api');
-
-                  if( ! $this->soko_receive_api->cancel_return_lend($doc))
+                  if($doc->is_wms == 1 && ! $this->_SuperAdmin)
                   {
                     $sc = FALSE;
-                    $this->error = "SOKOCHAN Error : {$this->soko_receive_api->error}";
+                    $this->error = "สินค้าอยู่ระหว่างการรับเข้า ไม่สามารถยกเลิกได้";
+                  }
+
+                  if($doc->is_wms == 2 && $this->sokoApi)
+                  {
+                    $this->wms = $this->load->database('wms', TRUE);
+                    $this->load->library('soko_receive_api');
+
+                    if( ! $this->soko_receive_api->cancel_return_lend($doc))
+                    {
+                      $sc = FALSE;
+                      $this->error = "SOKOCHAN Error : {$this->soko_receive_api->error}";
+                    }
                   }
                 }
               }
@@ -847,40 +849,41 @@ class Return_lend extends PS_Controller
                 //--- start transection
                 $this->db->trans_begin();
 
-                //--- 1 remove movement
-                if( ! $this->movement_model->drop_movement($code) )
+                if($doc->status == 1)
                 {
-                  $sc = FALSE;
-                  $this->error = "ลบ movement ไม่สำเร็จ";
-                }
-
-                //--- 2 update order_lend_detail
-                if($sc === TRUE && $doc->status == 1)
-                {
-
-                  $details = $this->return_lend_model->get_lend_details($code);
-
-                  if( ! empty($details))
+                  //--- 1 remove movement
+                  if( ! $this->movement_model->drop_movement($code) )
                   {
-                    foreach($details as $rs)
+                    $sc = FALSE;
+                    $this->error = "ลบ movement ไม่สำเร็จ";
+                  }
+
+                  //--- 2 update order_lend_detail
+                  if($sc === TRUE)
+                  {
+                    $details = $this->return_lend_model->get_lend_details($code);
+
+                    if( ! empty($details))
                     {
-
-                      //--- exit loop if any error
-                      if($sc === FALSE)
+                      foreach($details as $rs)
                       {
-                        break;
-                      }
+                        //--- exit loop if any error
+                        if($sc === FALSE)
+                        {
+                          break;
+                        }
 
-                      $qty = $rs->receive_qty * -1;  //--- convert to negative for add in function
+                        $qty = $rs->receive_qty * -1;  //--- convert to negative for add in function
 
-                      if( ! $this->return_lend_model->update_receive($rs->lend_code, $rs->product_code, $qty))
-                      {
-                        $sc = FALSE;
-                        $this->error = "ปรับปรุง ยอดรับ {$rs->product_code} ไม่สำเร็จ";
-                      }
-                    } //-- end foreach
-                  } //--- end if !empty $details
-                } //--- end if $sc
+                        if( ! $this->return_lend_model->update_receive($rs->lend_code, $rs->product_code, $qty))
+                        {
+                          $sc = FALSE;
+                          $this->error = "ปรับปรุง ยอดรับ {$rs->product_code} ไม่สำเร็จ";
+                        }
+                      } //-- end foreach
+                    } //--- end if !empty $details
+                  } //--- end if $sc
+                }
 
                 //--- 3. change lend_details status to 2 (cancle)
                 if($sc === TRUE)
@@ -892,7 +895,7 @@ class Return_lend extends PS_Controller
                   }
                 }
 
-                //--- 4. change return_lend document to 0 (not save)
+                //--- 4. change return_lend document to 2
                 if($sc === TRUE)
                 {
                   $arr = array(
@@ -918,8 +921,7 @@ class Return_lend extends PS_Controller
                 {
                   $this->db->trans_rollback();
                 }
-
-              } //-- if $sc === TRUE
+              }
             }
             else
             {
@@ -928,66 +930,28 @@ class Return_lend extends PS_Controller
             }
           }
         }
-        else if($doc->status == 0)  //--- if not save
+        else
         {
-          //--- just change status
-          $this->db->trans_begin();
-
-          if($sc === TRUE)
-          {
-            //--- change lend_details status to 2 (cancle)
-            if( ! $this->return_lend_model->change_details_status($code, 2))
-            {
-              $sc = FALSE;
-              $this->error = "เปลี่ยนสถานะรายการไม่สำเร็จ";
-            }
-          }
-
-          //--- change return_lend document to 2 (cancle)
-          if($sc === TRUE)
-          {
-            $arr = array(
-              'status' => 2,
-              'cancle_reason' => $reason,
-              'cancle_user' => $this->_user->uname
-            );
-
-            if( ! $this->return_lend_model->update($code, $arr))
-            {
-              $sc = FALSE;
-              $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
-            }
-          }
-
-          //--- commit or rollback transection
-          if($sc === TRUE)
-          {
-            $this->db->trans_commit();
-          }
-          else
-          {
-            $this->db->trans_rollback();
-          }
+          $sc = FALSE;
+          $this->error = "ไม่พบเลขที่เอกสาร";
         }
       }
       else
       {
         $sc = FALSE;
-        $this->error = "ไม่พบเลขที่เอกสาร";
+        set_error('required');
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = "Missing required parameter";
+      set_error('permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
 
-
-
-
+  
   public function view_detail($code)
   {
     $this->load->model('inventory/lend_model');
