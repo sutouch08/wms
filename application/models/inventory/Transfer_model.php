@@ -1199,5 +1199,17 @@ class Transfer_model extends CI_Model
     return NULL;
   }
 
+
+  public function is_exists_pos_ref($pos_ref)
+  {
+    $count = $this->db
+    ->where('pos_ref', $pos_ref)
+    ->where('status !=', 2)
+    ->count_all_results('transfer');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+
 }
  ?>

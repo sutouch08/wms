@@ -747,13 +747,13 @@ class Transfer extends PS_Controller
 
                   //--- 2. update movement
                   $move_out = array(
-                  'reference' => $code,
-                  'warehouse_code' => $doc->from_warehouse,
-                  'zone_code' => $rs->from_zone,
-                  'product_code' => $rs->product_code,
-                  'move_in' => 0,
-                  'move_out' => $rs->qty,
-                  'date_add' => $date_add
+                    'reference' => $code,
+                    'warehouse_code' => $doc->from_warehouse,
+                    'zone_code' => $rs->from_zone,
+                    'product_code' => $rs->product_code,
+                    'move_in' => 0,
+                    'move_out' => $rs->qty,
+                    'date_add' => $date_add
                   );
 
                   //--- move out
@@ -764,13 +764,13 @@ class Transfer extends PS_Controller
                   }
 
                   $move_in = array(
-                  'reference' => $code,
-                  'warehouse_code' => $doc->to_warehouse,
-                  'zone_code' => $rs->to_zone,
-                  'product_code' => $rs->product_code,
-                  'move_in' => $rs->qty,
-                  'move_out' => 0,
-                  'date_add' => $date_add
+                    'reference' => $code,
+                    'warehouse_code' => $doc->to_warehouse,
+                    'zone_code' => $rs->to_zone,
+                    'product_code' => $rs->product_code,
+                    'move_in' => $rs->qty,
+                    'move_out' => 0,
+                    'date_add' => $date_add
                   );
 
                   //--- move in

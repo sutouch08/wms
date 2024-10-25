@@ -536,8 +536,8 @@ class Orders extends REST_Controller
       }
 
       $arr = array(
-        'status' => FALSE,
-        'error' => 'empty data'
+      'status' => FALSE,
+      'error' => 'empty data'
       );
 
       $this->response($arr, 400);
@@ -547,6 +547,72 @@ class Orders extends REST_Controller
     {
       $this->error = 'order_number is required';
       $this->soko_api_logs_model->add("", "E", $this->error, "");
+
+      $arr = array(
+      'status' => FALSE,
+      'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $this->api_path,
+        'type' =>'ORDER',
+        'code' => NULL,
+        'action' => 'create',
+        'status' => 'failed',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $sc = $this->verify_data($data);
+
+    //---- if any error return
+    if($sc === FALSE)
+    {
+      $arr = array(
+      'status' => FALSE,
+      'error' => $this->error
+      );
+
+      $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
+
+      if($this->logs_json)
+      {
+        $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $this->api_path,
+        'type' =>'ORDER',
+        'code' => $data->order_number,
+        'action' => 'create',
+        'status' => 'failed',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
+        );
+
+        $this->soko_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    //--- check each item code
+    $details = $data->details;
+
+    if(empty($details))
+    {
+      $sc = FALSE;
+      $this->error = "Items not found";
+      $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
 
       $arr = array(
         'status' => FALSE,
@@ -559,226 +625,195 @@ class Orders extends REST_Controller
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
           'type' =>'ORDER',
-          'code' => NULL,
-          'action' => 'create',
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
-          );
-
-          $this->soko_api_logs_model->add_api_logs($logs);
-        }
-
-        $this->response($arr, 400);
-      }
-
-      $sc = $this->verify_data($data);
-
-      //---- if any error return
-      if($sc === FALSE)
-      {
-        $arr = array(
-        'status' => FALSE,
-        'error' => $this->error
-        );
-
-        $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
-
-        if($this->logs_json)
-        {
-          $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' =>'ORDER',
           'code' => $data->order_number,
           'action' => 'create',
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
           'response_json' => json_encode($arr)
-          );
-
-          $this->soko_api_logs_model->add_api_logs($logs);
-        }
-
-        $this->response($arr, 400);
-      }
-
-      //--- check each item code
-      $details = $data->details;
-
-      if(empty($details))
-      {
-        $sc = FALSE;
-        $this->error = "Items not found";
-        $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
-
-        $arr = array(
-        'status' => FALSE,
-        'error' => $this->error
         );
 
-        if($this->logs_json)
-        {
-          $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' =>'ORDER',
-          'code' => $data->order_number,
-          'action' => 'create',
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
-          );
-
-          $this->soko_api_logs_model->add_api_logs($logs);
-        }
-
-        $this->response($arr, 400);
+        $this->soko_api_logs_model->add_api_logs($logs);
       }
 
+      $this->response($arr, 400);
+    }
 
-      if( ! empty($details))
+
+    if( ! empty($details))
+    {
+      foreach($details as $rs)
       {
-        foreach($details as $rs)
+        //---- check valid items
+        $item = $this->products_model->get_with_old_code($rs->item);
+
+        if(empty($item))
         {
-          if($sc === FALSE)
-          {
-            break;
-          }
-
-          //---- check valid items
-          $item = $this->products_model->get_with_old_code($rs->item);
-
-          if(empty($item))
-          {
-            $sc = FALSE;
-            $this->error = "Invalid SKU : {$rs->item}";
-          }
-          else
-          {
-            $rs->item = $item;
-          }
+          $sc = FALSE;
+          $this->error = "Invalid SKU : {$rs->item}";
+        }
+        else
+        {
+          $rs->item = $item;
         }
       }
+    }
 
 
-      //---- if any error return
-      if($sc === FALSE)
+    //---- if any error return
+    if($sc === FALSE)
+    {
+      $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
+
+      $arr = array(
+      'status' => FALSE,
+      'error' => $this->error
+      );
+
+      if($this->logs_json)
       {
-        $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
-
-        $arr = array(
-        'status' => FALSE,
-        'error' => $this->error
+        $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $this->api_path,
+        'type' =>'ORDER',
+        'code' => $data->order_number,
+        'action' => 'create',
+        'status' => 'failed',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
         );
 
-        if($this->logs_json)
-        {
-          $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' =>'ORDER',
-          'code' => $data->order_number,
-          'action' => 'create',
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
-          );
-
-          $this->soko_api_logs_model->add_api_logs($logs);
-        }
-
-        $this->response($arr, 400);
+        $this->soko_api_logs_model->add_api_logs($logs);
       }
 
-      //---- new code start
-      if($sc === TRUE)
+      $this->response($arr, 400);
+    }
+
+    //---- new code start
+    if($sc === TRUE)
+    {
+      //---- check duplicate order number
+      $order = $this->orders_model->get_active_order_by_reference($data->order_number);
+
+      //--- รหัสเล่มเอกสาร [อ้างอิงจาก SAP]
+      //--- ถ้าเป็นฝากขายแบบโอนคลัง ยืมสินค้า เบิกแปรสภาพ เบิกสินค้า (ไม่เปิดใบกำกับ เปิดใบโอนคลังแทน) นอกนั้น เปิด SO
+      $bookcode = getConfig('BOOK_CODE_ORDER');
+
+      $role = 'S';
+
+      $date_add = date('Y-m-d H:i:s');
+
+      $ref_code = $data->order_number;
+
+      $customer = $this->customers_model->get($data->customer_code);
+
+      $sale_code = empty($customer) ? -1 : $customer->sale_code;
+
+      $state = 3;
+
+      $warehouse_code = getConfig('SOKOJUNG_WAREHOUSE');
+
+      $is_wms = 2;
+
+      //---- id_sender
+      $sender = $this->sender_model->get_id($data->shipping);
+
+      $id_sender = empty($sender) ? NULL : $sender;
+
+      //--- order code gen จากระบบ
+      $order_code = empty($order) ? $this->get_new_code($date_add) : $order->code;
+
+      $tracking = $data->tracking_no;
+
+      $total_amount = 0;
+
+      if(empty($order))
       {
-        //--- รหัสเล่มเอกสาร [อ้างอิงจาก SAP]
-        //--- ถ้าเป็นฝากขายแบบโอนคลัง ยืมสินค้า เบิกแปรสภาพ เบิกสินค้า (ไม่เปิดใบกำกับ เปิดใบโอนคลังแทน) นอกนั้น เปิด SO
-        $bookcode = getConfig('BOOK_CODE_ORDER');
-
-        $role = 'S';
-
-        $date_add = date('Y-m-d H:i:s');
-
-        //---- order code from chatbot
-        $ref_code = $data->order_number;
-
-        $customer = $this->customers_model->get($data->customer_code);
-
-        $sale_code = empty($customer) ? -1 : $customer->sale_code;
-
-        $state = 3;
-
-        $warehouse_code = getConfig('SOKOJUNG_WAREHOUSE');
-
-        $is_wms = 2;
-
-        //---- id_sender
-        $sender = $this->sender_model->get_id($data->shipping);
-
-        $id_sender = empty($sender) ? NULL : $sender;
-
-        //--- order code gen จากระบบ
-        $order_code = $this->get_new_code($date_add);
-
-        $tracking = $data->tracking_no;
-
-        $total_amount = 0;
-
         //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
         $ds = array(
-        'code' => $order_code,
-        'role' => $role,
-        'bookcode' => $bookcode,
-        'reference' => $data->order_number,
-        'customer_code' => $data->customer_code,
-        'customer_name' => $data->customer_name,
-        'customer_ref' => $data->customer_ref,
-        'channels_code' => $data->channel,
-        'payment_code' => $data->payment_method,
-        'sale_code' => $sale_code,
-        'state' => 3,
-        'is_term' => $data->payment_method === "COD" ? 1 : 0,
-        'status' => 1,
-        'shipping_code' => $tracking,
-        'user' => $this->user,
-        'date_add' => $date_add,
-        'warehouse_code' => $warehouse_code,
-        'is_api' => 1,
-        'id_sender' => $id_sender,
-        'is_wms' => $is_wms,
-        'wms_export' => 1
+          'code' => $order_code,
+          'role' => $role,
+          'bookcode' => $bookcode,
+          'reference' => $data->order_number,
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'customer_ref' => $data->customer_ref,
+          'channels_code' => $data->channel,
+          'payment_code' => $data->payment_method,
+          'sale_code' => $sale_code,
+          'state' => 3,
+          'is_term' => $data->payment_method === "COD" ? 1 : 0,
+          'status' => 1,
+          'shipping_code' => $tracking,
+          'user' => $this->user,
+          'date_add' => $date_add,
+          'warehouse_code' => $warehouse_code,
+          'is_api' => 1,
+          'id_sender' => $id_sender,
+          'is_wms' => $is_wms,
+          'wms_export' => 1
         );
+      }
+      else
+      {
+        //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
+        $ds = array(
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'customer_ref' => $data->customer_ref,
+          'channels_code' => $data->channel,
+          'payment_code' => $data->payment_method,
+          'sale_code' => $sale_code,
+          'state' => 3,
+          'is_term' => $data->payment_method === "COD" ? 1 : 0,
+          'shipping_code' => $tracking,
+          'user' => $this->user,
+          'date_add' => $date_add,
+          'warehouse_code' => $warehouse_code,
+          'is_api' => 1,
+          'id_sender' => $id_sender,
+          'is_wms' => $is_wms,
+          'wms_export' => 1
+        );
+      }
 
-        $this->db->trans_begin();
+      $this->db->trans_begin();
 
+      if(empty($order))
+      {
         if(  ! $this->orders_model->add($ds))
         {
           $sc = FALSE;
           $this->error = "Order create failed";
         }
-        else
+      }
+      else
+      {
+        if( ! $this->orders_model->update($order->code, $ds))
         {
-          $arr = array(
+          $sc = FALSE;
+          $this->error = "Failed to update order";
+        }
+      }
+
+
+      if($sc === TRUE)
+      {
+        $arr = array(
           'order_code' => $order_code,
           'state' => 1,
           'update_user' => $this->user
-          );
+        );
 
-          //--- add state event
-          $this->order_state_model->add_state($arr);
+        //--- add state event
+        $this->order_state_model->add_state($arr);
 
-          $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
+        $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
 
-          if($id_address === FALSE)
-          {
-            $arr = array(
+        if($id_address === FALSE)
+        {
+          $arr = array(
             'code' => $data->customer_ref,
             'name' => $data->ship_to->name,
             'address' => $data->ship_to->address,
@@ -790,17 +825,28 @@ class Orders extends REST_Controller
             'email' => $data->ship_to->email,
             'alias' => empty($data->alias) ? 'Home' : $data->alias,
             'is_default' => 1
-            );
+          );
 
-            $id_address = $this->address_model->add_shipping_address($arr);
+          $id_address = $this->address_model->add_shipping_address($arr);
+        }
+
+        $this->orders_model->set_address_id($order_code, $id_address);
+
+        //---- add order details
+        $details = $data->details;
+
+        if(! empty($details))
+        {
+          if( ! empty($order))
+          {
+            if( ! $this->orders_model->remove_all_details($order->code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete previous order items";
+            }
           }
 
-          $this->orders_model->set_address_id($order_code, $id_address);
-
-          //---- add order details
-          $details = $data->details;
-
-          if(! empty($details))
+          if($sc === TRUE)
           {
             foreach($details as $rs)
             {
@@ -845,43 +891,44 @@ class Orders extends REST_Controller
                 }
               } //--- end if item
             }  //--- endforeach add details
+          }
 
-            if($sc === TRUE)
+          if($sc === TRUE)
+          {
+            if($this->orders_model->change_state($order_code, 3))
             {
-              if($this->orders_model->change_state($order_code, 3))
-              {
-                $arr = array(
-                  'order_code' => $order_code,
-                  'state' => 3,
-                  'update_user' => $this->user
-                );
+              $arr = array(
+                'order_code' => $order_code,
+                'state' => 3,
+                'update_user' => $this->user
+              );
 
-                $this->order_state_model->add_state($arr);
-              }
+              $this->order_state_model->add_state($arr);
             }
           }
-          else
-          {
-            $sc = FALSE;
-            $this->error = "Items not found";
-          }
-        } //--- if add order
-
-        if($sc === TRUE)
+        }
+        else
         {
-          $this->db->trans_commit();
+          $sc = FALSE;
+          $this->error = "Items not found";
+        }
+      } //--- if add order
 
-          $this->soko_api_logs_model->add($data->order_number, "S", "success", $order_code);
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
 
-          $arr = array(
+        $this->soko_api_logs_model->add($data->order_number, "S", "success", $order_code);
+
+        $arr = array(
           'status' => 'success',
           'message' => 'success',
           'order_code' => $order_code
-          );
+        );
 
-          if($this->logs_json)
-          {
-            $logs = array(
+        if($this->logs_json)
+        {
+          $logs = array(
             'trans_id' => genUid(),
             'api_path' => $this->api_path,
             'type' =>'ORDER',
@@ -891,28 +938,28 @@ class Orders extends REST_Controller
             'message' => 'success',
             'request_json' => $json,
             'response_json' => json_encode($arr)
-            );
-
-            $this->soko_api_logs_model->add_api_logs($logs);
-          }
-
-          $this->soko_api_logs_model->add($data->order_number, 'S', 'success', $order_code);
-
-          $this->response($arr, 200);
-        }
-        else
-        {
-          $this->db->trans_rollback();
-          $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
-
-          $arr = array(
-          'status' => FALSE,
-          'error' => $this->error
           );
 
-          if($this->logs_json)
-          {
-            $logs = array(
+          $this->soko_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->soko_api_logs_model->add($data->order_number, 'S', 'success', $order_code);
+
+        $this->response($arr, 200);
+      }
+      else
+      {
+        $this->db->trans_rollback();
+        $this->soko_api_logs_model->add($data->order_number, "E", $this->error, "");
+
+        $arr = array(
+          'status' => FALSE,
+          'error' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
             'trans_id' => genUid(),
             'api_path' => $this->api_path,
             'type' =>'ORDER',
@@ -922,17 +969,17 @@ class Orders extends REST_Controller
             'message' => $this->error,
             'request_json' => $json,
             'response_json' => json_encode($arr)
-            );
+          );
 
-            $this->soko_api_logs_model->add_api_logs($logs);
-          }
-
-          $this->soko_api_logs_model->add($arr);
-
-          $this->response($arr, 200);
+          $this->soko_api_logs_model->add_api_logs($logs);
         }
+
+        $this->soko_api_logs_model->add($arr);
+
+        $this->response($arr, 200);
       }
-    } //--- create_post
+    }
+  } //--- create_post
 
 
   public function update_status_put()
@@ -1212,11 +1259,11 @@ class Orders extends REST_Controller
     }
 
 
-    if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
-    {
-      $this->error = 'Order number already exists';
-			return FALSE;
-    }
+    // if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
+    // {
+    //   $this->error = 'Order number already exists';
+		// 	return FALSE;
+    // }
 
 
 		return TRUE;

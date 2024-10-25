@@ -875,7 +875,7 @@ class Return_order extends PS_Controller
         $this->error = "เอกสารต้องรับเข้าที่โซน {$sokoZone}";
       }
 
-      if($is_wms == 0 && ($data->zon_code == $wmsZone OR $data->zone_code == $sokoZone))
+      if($is_wms == 0 && ($data->zone_code == $wmsZone OR $data->zone_code == $sokoZone))
       {
         $sc = FALSE;
         $this->error = "เอกสารต้องรับเข้าที่โซนของ WARRIX";

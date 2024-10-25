@@ -64,7 +64,7 @@
 				<?php endif; ?>
 		    <?php if($doc->status == 1) : ?>
 		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-					<?php if($pos_api) : ?>
+					<?php if($pos_api && ! $doc->is_pos) : ?>
 						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPos()"><i class="fa fa-send"></i> Send to POS</button>
 					<?php endif; ?>
 		    <?php endif; ?>
@@ -120,8 +120,16 @@
 			$this->load->view('accept_watermark');
 		}
 	}
-
 	$this->load->view('transfer/transfer_view_header');
+	?>
+	<?php if($doc->is_pos == 1) : ?>
+		<div class="row">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<p class="red text-center">** เอกสารนี้ถูกสร้างโดยระบบ POS จึงไม่สามารถแก้ไขรายการได้ **</p>
+			</div>
+		</div>
+	<?php endif; ?>
+	<?php
 	$this->load->view('transfer/transfer_view_detail');
 	$this->load->view('accept_modal');
 	$this->load->view('cancle_modal');

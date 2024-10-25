@@ -106,6 +106,11 @@ class Orders_model extends CI_Model
     return $this->db->where('id', $id)->delete('order_details');
   }
 
+  public function remove_all_details($order_code)
+  {
+    return $this->db->where('order_code', $order_code)->delete('order_details');
+  }
+
 
 	public function log_delete(array $ds = array())
 	{
@@ -417,6 +422,18 @@ class Orders_model extends CI_Model
     return FALSE;
   }
 
+
+  public function get_active_order_by_reference($reference)
+  {
+    $rs = $this->db->where('reference', $reference)->where('state <=', 7)->get('orders');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
 
   public function valid_detail($id)
