@@ -1259,11 +1259,11 @@ class Orders extends REST_Controller
     }
 
 
-    // if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
-    // {
-    //   $this->error = 'Order number already exists';
-		// 	return FALSE;
-    // }
+    if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
+    {
+      $this->error = 'Order number already exists';
+			return FALSE;
+    }
 
 
 		return TRUE;
