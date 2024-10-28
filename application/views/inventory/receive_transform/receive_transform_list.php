@@ -142,9 +142,9 @@
 								<?php if($rs->is_expire == 0 && ($this->pm->can_edit OR $this->pm->can_add) && $rs->status == 0) : ?>
 									<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 								<?php endif; ?>
-								<?php if($rs->is_expire == 0 && $this->pm->can_delete && $rs->status != 2 && ($rs->status == 0 OR $rs->status == 1 OR $this->_SuperAdmin)) : ?>
+								<?php if($rs->status != 2 && $this->pm->can_delete) : ?>
 									<button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
-								<?php endif; ?>
+								<?php endif; ?>								
 							</td>
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE, '/'); ?></td>
