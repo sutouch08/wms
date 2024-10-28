@@ -28,7 +28,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 							<?php elseif( $order->state != 9 && $order->is_expired == 0 && $order->status == 1) : ?>
 
                  <?php if( $order->state <=3) : ?>
-                   
+
                         <?php if($order->state != 1): ?>
 													<option value="1">รอดำเนินการ</option>
 												<?php endif; ?>
@@ -110,7 +110,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 <?php $this->load->view('order_cancle_modal'); ?>
 
 <div class="modal fade" id="cancle-reason-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="width:800px; max-width:95vw;">
+ <div class="modal-dialog" style="width:900px; max-width:95vw;">
    <div class="modal-content">
        <div class="modal-header">
        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -122,10 +122,10 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
             <table class="table table-bordered">
 							<thead>
 	            	<tr>
-	            		<th class="width-35">เหตุผลในการยกเลิก</th>
-                  <th class="width-35">คำอธิบาย</th>
-									<th class="width-15">User</th>
-									<th class="width-15">วันที่ยกเลิก</th>
+	            		<th class="fix-width-200">เหตุผลในการยกเลิก</th>
+                  <th class="min-width-200">คำอธิบาย</th>
+									<th class="fix-width-200">User</th>
+									<th class="fix-width-150">วันที่ยกเลิก</th>
 	            	</tr>
 							</thead>
 							<tbody>
