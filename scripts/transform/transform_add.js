@@ -634,6 +634,7 @@ function changeState(){
   var is_wms = $('#is_wms').val();
   var reason_id = $('#reason-id').val();
   var cancle_reason = $.trim($('#cancle-reason').val());
+  let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
   if(is_wms) {
     if(state == 3 && id_address == "") {
@@ -677,7 +678,8 @@ function changeState(){
         "id_sender" : id_sender,
         "tracking" : tracking,
         "reason_id" : reason_id,
-        "cancle_reason" : cancle_reason
+        "cancle_reason" : cancle_reason,
+        "force_cancel" : force_cancel
       },
       success:function(rs){
         load_out();

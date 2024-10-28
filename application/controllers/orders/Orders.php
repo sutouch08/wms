@@ -2617,6 +2617,7 @@ class Orders extends PS_Controller
       $order = $this->orders_model->get($code);
       $reason_id = $this->input->post('reason_id');
 			$reason = $this->input->post('cancle_reason');
+      $force_cancel = $this->input->post('force_cancel') == 1 ? 1 : 0;
       $uat = is_true(getConfig('IS_UAT'));
 
       if(! empty($order))
@@ -2730,7 +2731,7 @@ class Orders extends PS_Controller
             }
             else if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason, $reason_id) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason, $reason_id, $force_cancel) )
               {
                 $sc = FALSE;
               }
@@ -2741,7 +2742,7 @@ class Orders extends PS_Controller
           {
             if($state == 9)
             {
-              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason, $reason_id) )
+              if(! $this->cancle_order($code, $order->role, $order->state, $order->is_wms, $order->wms_export, $reason, $reason_id, $force_cancel) )
               {
                 $sc = FALSE;
               }
@@ -3072,7 +3073,7 @@ class Orders extends PS_Controller
   }
 
 
-  public function cancle_order($code, $role, $state, $is_wms = 0, $wms_export = 0, $cancle_reason = NULL, $reason_id = NULL)
+  public function cancle_order($code, $role, $state, $is_wms = 0, $wms_export = 0, $cancle_reason = NULL, $reason_id = NULL, $force_cancel = 0)
   {
     $this->load->model('inventory/prepare_model');
     $this->load->model('inventory/qc_model');
@@ -3105,7 +3106,7 @@ class Orders extends PS_Controller
 		{
       $is_api = $this->is_api($is_wms);
 
-			if($is_api && $is_wms != 0 && $wms_export == 1)
+			if($is_api && $is_wms != 0 && $wms_export == 1 && $force_cancel == 0)
 			{
 				$this->wms = $this->load->database('wms', TRUE);
 
@@ -3509,6 +3510,7 @@ class Orders extends PS_Controller
   }
 
 
+  //--- RCWO
 	public function cancle_wms_shipped_order()
 	{
 		$sc = TRUE;
