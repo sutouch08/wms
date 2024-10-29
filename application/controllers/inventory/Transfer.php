@@ -3066,7 +3066,7 @@ class Transfer extends PS_Controller
     }
     else
     {
-      $this->transfer_model->set_export($code, 1);
+      $this->transfer_model->update($code, array('is_export' => 1, 'inv_code' => NULL));
     }
 
     return $sc;
