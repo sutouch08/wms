@@ -505,6 +505,228 @@ class WW extends REST_Controller
   } //-- end function create
 
 
+  public function cancel_post()
+  {
+    $api_path = $this->path."cancel";
+
+    $sc = TRUE;
+
+    //--- Get raw post data
+    $json = file_get_contents("php://input");
+
+    $code = NULL;
+
+    $data = json_decode($json);
+
+    if(empty($data))
+    {
+      $this->error = "Missing required parameters";
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WW',
+          'code' => NULL,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    if(empty($data->code) OR empty($data->cancel_reason))
+    {
+      $this->error = "Missing required parameters : ".(empty($data->code) ? 'code' : 'cancel_reason');
+
+      $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WW',
+          'code' => empty($data->code) ? NULL : $data->code,
+          'action' => 'cancel',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $code = $data->code;
+
+    //---- all data validated
+    if($sc === TRUE)
+    {
+      $doc = $this->transfer_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status != 2)
+        {
+          if($doc->status == 1)
+          {
+            $sap = $this->transfer_model->get_sap_transfer_doc($code);
+
+            if( ! empty($sap))
+            {
+              $sc = FALSE;
+              $this->error = "Status error : Document already completed, cancellation cannot be completed";
+            }
+
+            if($sc === TRUE)
+            {
+              $middle = $this->transfer_model->get_middle_transfer_doc($code);
+
+              if( ! empty($middle))
+              {
+                foreach($middle as $rs)
+                {
+                  $this->transfer_model->drop_middle_exits_data($rs->DocEntry);
+                }
+              }
+            }
+          } //--- if doc->status == 1
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_begin();
+
+            //--- clear temp
+            if( ! $this->transfer_model->drop_all_temp($code))
+            {
+              $sc = FALSE;
+              $this->error = "Internal transection error : Failed to delete transfer temp";
+            }
+
+            //--- delete detail
+            if( ! $this->transfer_model->drop_all_detail($code))
+            {
+              $sc = FALSE;
+              $this->error = "Internal transection error : Failed to delete transfer rows";
+            }
+
+            //--- drop movement
+            if( ! $this->movement_model->drop_movement($code))
+            {
+              $sc = FALSE;
+              $this->error = "Internal transection error : Failed to delete movement";
+            }
+
+            if($sc === TRUE)
+            {
+              //--- change status to 2 (cancled)
+              $arr = array(
+                'status' => 2,
+                'inv_code' => NULL,
+                'cancle_reason' => $data->cancel_reason,
+                'cancle_user' => $this->user
+              );
+
+              if( ! $this->transfer_model->update($code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Internal transection error : Failed to update document status";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+          } //--- $sc === TRUE
+        } //--- $doc->status != 2
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+
+      if($sc === TRUE)
+      {
+        $arr = array(
+          'status' => TRUE,
+          'message' => "The cancellation was successful",
+          'code' => $code
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WW',
+            'code' => $code,
+            'action' => 'cancel',
+            'status' => 'success',
+            'message' => 'The cancellation was successful',
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
+      }
+      else
+      {
+        $arr = array(
+          'status' => FALSE,
+          'message' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WW',
+            'code' => $code,
+            'action' => 'cancel',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
+      }
+    }
+  } //-- end function create
+
+
   //--- for POS
 	public function get_get($code = NULL, $test = FALSE)
 	{
