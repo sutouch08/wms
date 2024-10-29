@@ -24,7 +24,7 @@
 <?php 	$total_receive = 0; ?>
 <?php		foreach($details as $rs) : 	?>
 	<?php $color = $rs->valid == 0 ? 'color:red;' : ''; ?>
-	<?php $receive_qty = ($this->isAPI && $doc->is_wms && $doc->api ? $rs->wms_qty : $rs->qty); ?>
+	<?php $receive_qty = (($doc->is_wms != 0 && $doc->api) ? $rs->wms_qty : $rs->qty); ?>
 				<tr class="font-size-12" id="row-<?php echo $rs->id; ?>" style="<?php echo $color; ?>">
 	      	<td class="middle text-center">
 						<?php echo $no; ?>
