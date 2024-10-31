@@ -243,6 +243,17 @@ class Return_consignment_model extends CI_Model
 	}
 
 
+  public function update_details($code, array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('return_code', $code)->update('return_consignment_detail', $ds);
+    }
+
+    return FALSE;
+  }
+
+
 
   public function get($code)
   {
@@ -636,7 +647,7 @@ class Return_consignment_model extends CI_Model
         $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
       }
     }
-    
+
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));

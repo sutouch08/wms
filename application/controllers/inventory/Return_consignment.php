@@ -1136,35 +1136,77 @@ class Return_consignment extends PS_Controller
 		{
 			$doc = $this->return_consignment_model->get($code);
 
-			if(!empty($doc))
+			if( ! empty($doc))
 			{
-				if($doc->status == 2)
-				{
-					$arr = array(
-						'status' => 0,
-						'inv_code' => NULL
-					);
+        if($doc->status == 1 && $doc->is_approve == 1)
+        {
+          $sap = $this->return_consignment_model->get_sap_return_consignment($code);
 
-					$this->db->trans_begin();
-					$ds = $this->db->set('is_cancle', 0)->where('return_code', $code)->update('return_consignment_detail');
-					$os = $this->db->where('code', $code)->update('return_consignment', $arr);
+          if( ! empty($sap))
+          {
+            $sc = FALSE;
+            $this->error = "เอกสารถูกนำเข้า SAP แล้ว หากต้องการเปลี่ยนแปลงกรุณายกเลิกเอกสารใน SAP ก่อน";
+          }
+          else
+          {
+            $middle = $this->return_consignment_model->get_middle_return_doc($code);
 
-					if($ds && $os)
-					{
-						$this->db->trans_commit();
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "Update Status Failed";
-						$this->db->trans_rollback();
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "Invalid Document Status";
-				}
+            if(!empty($middle))
+            {
+              foreach($middle as $rows)
+              {
+                if($this->return_consignment_model->drop_middle_exits_data($rows->DocEntry) === FALSE)
+                {
+                  $sc = FALSE;
+                  $this->error = "ลบรายการที่ค้างใน temp ไม่สำเร็จ";
+                }
+              }
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_begin();
+
+          if($doc->status == 2)
+          {
+            $arr = array(
+              'is_cancle' => 0
+            );
+
+            if( ! $this->return_consignment_model->update_details($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to roll back transections";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'status' => 0,
+              'is_approve' => 0,
+              'inv_code' => NULL
+            );
+
+            if( ! $this->return_consignment_model->update($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to update document status";
+            }
+          }
+
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+        }      
 			}
 			else
 			{
@@ -1175,7 +1217,7 @@ class Return_consignment extends PS_Controller
 		else
 		{
 			$sc = FALSE;
-			$this->error = "Permission Required";
+			set_error('permission');
 		}
 
 		echo $sc === TRUE ? 'success' : $this->error;

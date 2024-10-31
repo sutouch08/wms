@@ -30,7 +30,7 @@
 				<button type="button" class="btn btn-sm btn-danger" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
 			<?php endif; ?>
 
-			<?php if($doc->status == 2 && $this->_SuperAdmin) : ?>
+			<?php if($doc->status != 0 && $this->_SuperAdmin) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ดึงสถานะกลับมาแก้ไข</button>
 			<?php endif; ?>
 
