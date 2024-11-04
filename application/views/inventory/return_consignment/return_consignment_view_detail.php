@@ -37,7 +37,7 @@
 			<?php if($doc->status != 0) : ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
 				<?php if($doc->status != 2) : ?>
-					<button type="button" class="btn btn-sm btn-info hide" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+					<button type="button" class="btn btn-sm btn-info" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
 				<?php endif; ?>
 			<?php endif; ?>
 		</p>
