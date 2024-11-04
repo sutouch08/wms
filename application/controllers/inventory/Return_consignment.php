@@ -630,6 +630,43 @@ class Return_consignment extends PS_Controller
   }
 
 
+  public function update_shipped_date()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $date = $this->input->post('shipped_date');
+
+    if( ! empty($code) && ! empty($date))
+    {
+      $doc = $this->return_consignment_model->get($code);
+
+      if( ! empty($doc))
+      {
+        $arr = array(
+          'shipped_date' => db_date($date, TRUE)
+        );
+
+        if( ! $this->return_consignment_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          set_error('update');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+  
 
   public function view_detail($code)
   {
@@ -1206,7 +1243,7 @@ class Return_consignment extends PS_Controller
           {
             $this->db->trans_rollback();
           }
-        }      
+        }
 			}
 			else
 			{

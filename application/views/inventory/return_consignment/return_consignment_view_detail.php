@@ -37,7 +37,7 @@
 			<?php if($doc->status != 0) : ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
 				<?php if($doc->status != 2) : ?>
-					<button type="button" class="btn btn-sm btn-info" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
+					<button type="button" class="btn btn-sm btn-info hide" onclick="printWmsReturn()"><i class="fa fa-print"></i> พิมพ์ใบส่งของ</button>
 				<?php endif; ?>
 			<?php endif; ?>
 		</p>
@@ -46,41 +46,41 @@
 <hr />
 
 <div class="row">
-    <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     	<label>เลขที่เอกสาร</label>
-        <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
+        <input type="text" class="form-control input-sm text-center" id="code" value="<?php echo $doc->code; ?>" disabled />
     </div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     	<label>วันที่</label>
       <input type="text" class="form-control input-sm text-center" value="<?php echo thai_date($doc->date_add, FALSE); ?>" disabled/>
     </div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<label>รหัสลูกค้า</label>
 			<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->customer_code; ?>" disabled />
 		</div>
-		<div class="col-sm-5 col-xs-12 padding-5">
+		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-9 padding-5">
 			<label>ลูกค้า</label>
 			<input type="text" class="form-control input-sm" value="<?php echo $doc->customer_name; ?>" disabled/>
 		</div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>เลขที่บิล[SAP]</label>
 			<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->invoice; ?>" disabled />
 		</div>
-		<div class="col-sm-1 col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>GP(%)</label>
 			<input type="number" class="form-control input-sm text-center" value="<?php echo $doc->gp; ?>" disabled />
 		</div>
 
-		<div class="col-sm-6 col-xs-12 padding-5">
+		<div class="col-lg-6 col-md-4-harf col-sm-4-harf col-xs-12 padding-5">
 			<label>โซนฝากขาย</label>
 			<input type="text" class="form-control input-sm" value="<?php echo $doc->from_zone_name; ?>" disabled />
 		</div>
 
-		<div class="col-sm-6 col-xs-12 padding-5">
+		<div class="col-lg-6 col-md-4-harf col-sm-4-harf col-xs-12 padding-5">
 			<label>โซน[รับคืน]</label>
 			<input type="text" class="form-control input-sm" value="<?php echo $doc->zone_name; ?>" disabled />
 		</div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>รับที่</label>
 			<select class="form-control input-sm" disabled>
 				<option value="">เลือก</option>
@@ -93,21 +93,42 @@
 				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>WARRIX</option>
 			</select>
 		</div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>Interface</label>
 			<select class="form-control input-sm" disabled>
 				<option value="1" <?php echo is_selected("1", $doc->is_api); ?>>ส่ง</option>
 				<option value="0" <?php echo is_selected("0", $doc->is_api); ?>>ไม่ส่ง</option>
 			</select>
 		</div>
-    <div class="col-sm-7 col-7-harf col-xs-12 padding-5">
+    <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm" value="<?php echo $doc->remark; ?>" disabled />
     </div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<?php $disabled = $this->pm->can_edit ? "" : 'disabled'; ?>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+			<label class="font-size-2 blod">วันที่จัดส่ง</label>
+			<div class="input-group width-100">
+				<input type="text" class="form-control input-sm text-center" id="ship-date" value="<?php echo empty($doc->shipped_date) ? NULL : thai_date($doc->shipped_date); ?>" disabled />
+				<span class="input-group-btn">
+					<button type="button"
+					class="btn btn-xs btn-warning btn-block"
+					id="btn-edit-ship-date" <?php echo $disabled; ?>
+					<?php if($this->pm->can_edit) : ?> onclick="activeShipDate()" <?php endif; ?>>
+						<i class="fa fa-pencil" style="min-width:20px;"></i>
+					</button>
+					<button type="button"
+					class="btn btn-xs btn-success btn-block hide"
+					id="btn-update-ship-date" <?php echo $disabled; ?>
+					<?php if($this->pm->can_edit) : ?> onclick="updateShipDate()" <?php endif; ?> >
+					<i class="fa fa-save" style="min-width:20px;"></i></button>
+				</span>
+			</div>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>SAP NO.</label>
 			<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled>
 		</div>
+
 
 		<?php if($doc->status == 2) : ?>
 			<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 padding-5">
@@ -192,7 +213,46 @@ if($doc->status == 3)
 	</div>
 </div>
 
+<script>
+	$('#ship-date').datepicker({
+		'dateFormat' : 'dd-mm-yy'
+	});
 
+	function activeShipDate() {
+		$('#ship-date').removeAttr('disabled');
+		$('#btn-edit-ship-date').addClass('hide');
+		$('#btn-update-ship-date').removeClass('hide');
+	}
+
+	function updateShipDate() {
+		let shipDate = $('#ship-date').val();
+		let code = $('#return_code').val();
+
+		$.ajax({
+			url:BASE_URL + 'inventory/return_consignment/update_shipped_date',
+			type:'POST',
+			cache:false,
+			data:{
+				'code' : code,
+				'shipped_date' : shipDate
+			},
+			success:function(rs) {
+				if(rs.trim() === 'success') {
+					$('#ship-date').attr('disabled', 'disabled');
+					$('#btn-update-ship-date').addClass('hide');
+					$('#btn-edit-ship-date').removeClass('hide');
+				}
+				else {
+					swal({
+						title:'Error!',
+						type:'error',
+						text:rs
+					});
+				}
+			}
+		})
+	}
+</script>
 <script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/return_consignment/return_consignment_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>
