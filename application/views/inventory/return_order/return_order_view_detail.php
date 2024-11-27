@@ -223,7 +223,7 @@ else
 				$no++;
 				$total_qty += $rs->qty;
 				$total_reveice_qty += $rs->receive_qty;
-				$total_amount += ($rs->receive_qty * $rs->price);
+				$total_amount += $rs->amount;
 ?>
 <?php  endforeach; ?>
 				<tr>
