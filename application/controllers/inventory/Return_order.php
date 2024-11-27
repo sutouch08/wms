@@ -336,7 +336,7 @@ class Return_order extends PS_Controller
               {
                 if($doc->is_wms == 0 OR $doc->api == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
                 {
-                  if( ! $this->do_export)
+                  if( ! $this->do_export($code))
                   {
                     $ex = 1;
                     $this->error = "อนุมัติสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ กรุณา refresh หน้าจอแล้วกดส่งข้อมูลอีกครั้ง";
