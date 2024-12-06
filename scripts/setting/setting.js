@@ -279,6 +279,22 @@ function toggleControlCredit(option)
 	}
 }
 
+function toggleImportOrder(option){
+	$('#allow-upload-order').val(option);
+
+	if(option == 1){
+		$('#btn-import-order-yes').addClass('btn-success');
+		$('#btn-import-order-no').removeClass('btn-primary');
+		return;
+	}
+
+	if(option == 0){
+		$('#btn-import-order-yes').removeClass('btn-success');
+		$('#btn-import-order-no').addClass('btn-primary');
+		return;
+	}
+}
+
 
 function toggleShowStock(option)
 {

@@ -16,6 +16,9 @@ $btn_credit_no  = $CONTROL_CREDIT == 0 ? 'btn-danger' : '';
 
 $btn_show_stock_yes = $SHOW_SUM_STOCK == 1 ? 'btn-success' : '';
 $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
+
+$btn_import_order_yes = $ALLOW_UPLOAD_ORDER == 1 ? 'btn-success' : '';
+$btn_import_order_no  = $ALLOW_UPLOAD_ORDER == 0 ? 'btn-primary' : '';
 ?>
 <form id="orderForm" method="post" action="<?php echo $this->home; ?>/update_config">
 	<div class="row">
@@ -45,7 +48,7 @@ $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 
 		<div class="col-sm-3"><span class="form-control left-label">แสดงยอดรวมสต็อก</span></div>
 		<div class="col-sm-9">
-			<div class="btn-group">
+			<div class="btn-group input-medium">
 				<button type="button" class="btn btn-sm <?php echo $btn_show_stock_yes; ?>" style="width:50%;" id="btn-show-stock-yes" onClick="toggleShowStock(1)">เปิด</button>
 				<button type="button" class="btn btn-sm <?php echo $btn_show_stock_no; ?>" style="width:50%;" id="btn-show-stock-no" onClick="toggleShowStock(0)">ปิด</button>
 			</div>
@@ -63,7 +66,7 @@ $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 
 		<div class="col-sm-3"><span class="form-control left-label">ควบคุมเครดิต</span></div>
 		<div class="col-sm-9">
-			<div class="btn-group">
+			<div class="btn-group input-medium">
 				<button type="button" class="btn btn-sm <?php echo $btn_credit_yes; ?>" style="width:50%;" id="btn-credit-yes" onClick="toggleControlCredit(1)">คุม</button>
 				<button type="button" class="btn btn-sm <?php echo $btn_credit_no; ?>" style="width:50%;" id="btn-credit-no" onClick="toggleControlCredit(0)">ไม่คุม</button>
 			</div>
@@ -81,7 +84,7 @@ $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 
 		<div class="col-sm-3"><span class="form-control left-label">มียอดค้างชำระเกินกำหนด</span></div>
     <div class="col-sm-9">
-			<div class="btn-group">
+			<div class="btn-group input-medium">
 				<button type="button" class="btn btn-sm <?php echo $btn_strict_yes; ?>" style="width:50%;" id="btn-strict-yes" onClick="toggleStrictDue(1)">ไม่ขาย</button>
 				<button type="button" class="btn btn-sm <?php echo $btn_strict_no; ?>" style="width:50%;" id="btn-strict-no" onClick="toggleStrictDue(0)">ขาย</button>
 			</div>
@@ -92,7 +95,7 @@ $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 
 		<div class="col-sm-3"><span class="form-control left-label">การแก้ไขส่วนลดในออเดอร์</span></div>
 		<div class="col-sm-9">
-			<div class="btn-group input-small">
+			<div class="btn-group input-medium">
 				<button type="button" class="btn btn-sm <?php echo $btn_disc_yes; ?>" style="width:50%;" id="btn-disc-yes" onClick="toggleEditDiscount(1)">เปิด</button>
 				<button type="button" class="btn btn-sm <?php echo $btn_disc_no; ?>" style="width:50%;" id="btn-disc-no" onClick="toggleEditDiscount(0)">ปิด</button>
 			</div>
@@ -103,12 +106,23 @@ $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 
 		<div class="col-sm-3"><span class="form-control left-label">การแก้ไขราคาในออเดอร์</span></div>
 		<div class="col-sm-9">
-			<div class="btn-group input-small">
+			<div class="btn-group input-medium">
 				<button type="button" class="btn btn-sm <?php echo $btn_price_yes; ?>" style="width:50%;" id="btn-price-yes" onClick="toggleEditPrice(1)">เปิด</button>
 				<button type="button" class="btn btn-sm <?php echo $btn_price_no; ?>" style="width:50%;" id="btn-price-no" onClick="toggleEditPrice(0)">ปิด</button>
 			</div>
 			<span class="help-block">กรณีปิดจะไม่สามารแก้ไขราคาขายสินค้าในออเดอร์ได้ จะใช้ราคาขายในระบบเท่านั้น</span>
 			<input type="hidden" name="ALLOW_EDIT_PRICE" id="allow-edit-price" value="<?php echo $ALLOW_EDIT_PRICE; ?>" />
+		</div>
+		<div class="divider"></div>
+
+		<div class="col-sm-3"><span class="form-control left-label">การ Import Order ด้วยไฟล์ Excel</span></div>
+		<div class="col-sm-9">
+			<div class="btn-group input-medium">
+				<button type="button" class="btn btn-sm <?php echo $btn_import_order_yes; ?>" style="width:50%;" id="btn-import-order-yes" onClick="toggleImportOrder(1)">เปิด</button>
+				<button type="button" class="btn btn-sm <?php echo $btn_import_order_no; ?>" style="width:50%;" id="btn-import-order-no" onClick="toggleImportOrder(0)">ปิด</button>
+			</div>
+			<span class="help-block">กรณีปิดจะไม่สามารถ Import Order ด้วยไฟล์ Excel ได้</span>
+			<input type="hidden" name="ALLOW_UPLOAD_ORDER" id="allow-upload-order" value="<?php echo $ALLOW_UPLOAD_ORDER; ?>" />
 		</div>
 		<div class="divider-hidden"></div>
 

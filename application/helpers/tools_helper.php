@@ -421,6 +421,16 @@ function is_true($value)
 	return FALSE;
 }
 
+//---- check permission for add edit delete
+function can_do($pm)
+{
+	if( ! empty($pm))
+	{
+		return ($pm->can_add OR $pm->can_edit OR $pm->can_delete OR $pm->can_approve) ? TRUE : FALSE;
+	}
+
+	return FALSE;
+}
 
 function get_zero($value)
 {

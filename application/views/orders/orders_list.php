@@ -1,5 +1,7 @@
 <?php $this->load->view('include/header'); ?>
-<?php $can_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
+<?php $allow_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
+<?php $cim = get_permission('SOIMOR', $this->_user->uid, $this->_user->id_profile); ?>
+<?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
 
 <div class="row">
@@ -11,7 +13,7 @@
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
-				<?php if($can_upload == 1) : ?>
+				<?php if($can_upload) : ?>
 					<button type="button" class="btn btn-xs btn-purple btn-100" onclick="getUploadFile()">นำเข้าออเดอร์</button>
 				<?php endif;?>
         <button type="button" class="btn btn-xs btn-success btn-100" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
@@ -268,7 +270,7 @@
 </div>
 
 <?php
-if($can_upload == 1) :
+if($can_upload) :
 	 $this->load->view('orders/import_order');
 endif;
 ?>
