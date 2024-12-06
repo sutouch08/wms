@@ -22,8 +22,6 @@ class Export
   }
 
 
-
-
   //--- ODLN  DLN1
   public function export_order($code)
   {
@@ -339,8 +337,6 @@ class Export
       $sc = FALSE;
       $this->error = "เอกสารถูกนำเข้า SAP แล้ว หากต้องการเปลี่ยนแปลงกรุณายกเลิกเอกสารใน SAP ก่อน";
     }
-
-    $this->set_exported($code, $sc);
 
     return $sc;
   }

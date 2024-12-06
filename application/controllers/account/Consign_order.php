@@ -31,7 +31,8 @@ class Consign_order extends PS_Controller
       'to_date' => get_filter('to_date', 'consign_to_date', ''),
       'status' => get_filter('status', 'consign_status', 'all'),
       'ref_code' => get_filter('ref_code', 'consign_ref_code', ''),
-      'is_api' => get_filter('is_api', 'consign_is_api', 'all')
+      'is_api' => get_filter('is_api', 'consign_is_api', 'all'),
+      'sap' => get_filter('sap', 'consign_sap', 'all')
     );
 
     //--- แสดงผลกี่รายการต่อหน้า
@@ -618,31 +619,31 @@ class Consign_order extends PS_Controller
               $final_price = $rs->amount/$rs->qty;
               //--- ข้อมูลสำหรับบันทึกยอดขาย
               $arr = array(
-                      'reference' => $doc->code,
-                      'role'   => $doc->role, ///--- ตัดยอดฝากขาย(shop)
-                      'product_code'  => $rs->product_code,
-                      'product_name'  => $rs->product_name,
-                      'product_style' => $rs->style_code,
-                      'cost'  => $rs->cost,
-                      'price'  => $rs->price,
-                      'sell'  => $final_price,
-                      'qty'   => $rs->qty,
-                      'discount_label'  => $rs->discount,
-                      'discount_amount' => $rs->discount_amount,
-                      'total_amount'   => $rs->amount,
-                      'total_cost'   => $rs->cost * $rs->qty,
-                      'margin'  =>  ($final_price * $rs->qty) - ($rs->cost * $rs->qty),
-                      'id_policy'   => NULL,
-                      'id_rule'     => NULL,
-                      'customer_code' => $doc->customer_code,
-                      'customer_ref' => NULL,
-                      'sale_code'   => NULL,
-                      'user' => $doc->user,
-                      'date_add'  => $doc->date_add,
-                      'zone_code' => $doc->zone_code,
-                      'warehouse_code'  => $doc->warehouse_code,
-                      'update_user' => get_cookie('uname'),
-                      'budget_code' => NULL
+                'reference' => $doc->code,
+                'role'   => $doc->role, ///--- ตัดยอดฝากขาย(shop)
+                'product_code'  => $rs->product_code,
+                'product_name'  => $rs->product_name,
+                'product_style' => $rs->style_code,
+                'cost'  => $rs->cost,
+                'price'  => $rs->price,
+                'sell'  => $final_price,
+                'qty'   => $rs->qty,
+                'discount_label'  => $rs->discount,
+                'discount_amount' => $rs->discount_amount,
+                'total_amount'   => $rs->amount,
+                'total_cost'   => $rs->cost * $rs->qty,
+                'margin'  =>  ($final_price * $rs->qty) - ($rs->cost * $rs->qty),
+                'id_policy'   => NULL,
+                'id_rule'     => NULL,
+                'customer_code' => $doc->customer_code,
+                'customer_ref' => NULL,
+                'sale_code'   => NULL,
+                'user' => $doc->user,
+                'date_add'  => $doc->date_add,
+                'zone_code' => $doc->zone_code,
+                'warehouse_code'  => $doc->warehouse_code,
+                'update_user' => get_cookie('uname'),
+                'budget_code' => NULL
               );
 
               //--- 1.บันทึกขาย
@@ -700,15 +701,14 @@ class Consign_order extends PS_Controller
           }
         }
 
-        if($sc === FALSE)
-        {
-          $this->db->trans_rollback();
-        }
-        else
+        if($sc === TRUE)
         {
           $this->db->trans_commit();
         }
-
+        else
+        {
+          $this->db->trans_rollback();
+        }
 
         if($sc === TRUE )
         {
@@ -1492,7 +1492,8 @@ class Consign_order extends PS_Controller
       'consign_to_date',
       'consign_status',
       'consign_ref_code',
-      'consign_is_api'
+      'consign_is_api',
+      'consign_sap'
     );
     clear_filter($filter);
   }

@@ -323,6 +323,19 @@ class Consign_order_model extends CI_Model
       $this->db->where('is_api', $ds['is_api']);
     }
 
+    if( isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == '1')
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+
+      if($ds['sap'] == '0')
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
+    }
+
     $this->db->order_by('date_add', 'DESC');
 
     if(!empty($perpage))
@@ -392,6 +405,19 @@ class Consign_order_model extends CI_Model
     if( isset($ds['is_api']) && $ds['is_api'] != 'all')
     {
       $this->db->where('is_api', $ds['is_api']);
+    }
+
+    if( isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      if($ds['sap'] == '1')
+      {
+        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
+
+      if($ds['sap'] == '0')
+      {
+        $this->db->where('inv_code IS NULL', NULL, FALSE);
+      }
     }
 
     return $this->db->count_all_results('consign_order');
