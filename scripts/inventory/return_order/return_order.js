@@ -164,3 +164,47 @@ function clearFilter(){
     goBack();
   });
 }
+
+
+function sendToFulfillment(code) {
+	load_in();
+
+	$.ajax({
+		url:HOME + 'send_to_fulfillment',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+
+			if(rs.trim() === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					tmier:1000
+				});
+
+				$('#row-'+code).remove();
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				})
+			}
+		},
+		error:function(rs) {
+			load_out();
+			swal({
+				title:'Error!',
+				text:rs.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+}

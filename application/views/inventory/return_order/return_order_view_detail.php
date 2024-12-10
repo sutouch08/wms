@@ -29,7 +29,7 @@
 	<?php if($this->wmsApi && $doc->is_wms == 1 && $doc->api == 1 && $doc->status != 0 && $doc->status !=2 && $doc->is_complete != 1 && $doc->is_approve == 1) : ?>
 				<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToWms()"><i class="fa fa-send"></i> Send to Pioneer</button>
 	<?php endif; ?>
-	<?php if($this->sokoApi && $doc->is_wms == 2 && $doc->api == 1 && $doc->status != 0 && $doc->status !=2 && $doc->is_complete != 1 && $doc->is_approve == 1) : ?>
+	<?php if($this->_SuperAdmin OR ($this->sokoApi && $doc->is_wms == 2 && $doc->api == 1 && $doc->status != 0 && $doc->status !=2 && $doc->is_complete != 1 && $doc->is_approve == 1)) : ?>
 				<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to SOKOCHAN</button>
 	<?php endif; ?>
 	<?php if($doc->status == 4 && ($doc->uname == $this->_user->uname OR $canAccept)) : ?>

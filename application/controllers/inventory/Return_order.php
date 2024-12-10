@@ -1438,6 +1438,92 @@ class Return_order extends PS_Controller
 	}
 
 
+  public function send_to_fulfillment()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->return_order_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->api == 1)
+        {
+          if($doc->status != 2 && $doc->status != 0)
+          {
+            if($doc->is_wms == 1 && $this->wmsApi)
+            {
+              $details = $this->return_order_model->get_details($doc->code);
+
+              if( ! empty($details))
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+
+                $this->load->library('wms_receive_api');
+
+                if( ! $this->wms_receive_api->export_return_order($doc, $details))
+                {
+                  $sc = FALSE;
+                  $this->error = $this->wms_receive_api->error;
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "ไม่พบรายการคืนสินค้า";
+              }
+            }
+
+            if($doc->is_wms == 2 && $this->sokoApi)
+            {
+              $details = $this->return_order_model->get_details($doc->code);
+
+              if( ! empty($details))
+              {
+                $this->wms = $this->load->database('wms', TRUE);
+                $this->load->library('soko_receive_api');
+
+                if( ! $this->soko_receive_api->create_return_order($doc, $details))
+                {
+                  $this->error = "ส่งข้อมูลไม่สำเร็จ : {$this->soko_receive_api->error}";
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "ไม่พบรายการคืนสินค้า";
+              }
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "สถานะเอกสารไม่ถุกต้อง";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "This document was set to not interface";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
 
   public function get_new_code($date)
   {

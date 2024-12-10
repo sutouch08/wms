@@ -120,6 +120,9 @@
     <table class="table table-striped border-1" style="min-width:1300px;">
       <thead>
         <tr>
+          <?php if($this->_SuperAdmin) : ?>
+            <th class="fix-width-60 text-center">WMS</th>
+          <?php endif; ?>
           <th class="fix-width-100"></th>
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
@@ -140,6 +143,16 @@
 <?php   $no = $this->uri->segment($this->segment) + 1; ?>
 <?php   foreach($docs as $rs) : ?>
           <tr class="font-size-12" id="row-<?php $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
+            <?php if($this->_SuperAdmin) : ?>
+              <td class="fix-width-40 text-center">
+                <?php if($this->wmsApi && $rs->is_wms == 1 && $rs->api == 1 && $rs->status != 0 && $rs->status !=2 && $rs->is_approve == 1) : ?>
+              				<button type="button" class="btn btn-minier btn-success top-btn" onclick="sendToFulfillment('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> PLC</button>
+              	<?php endif; ?>
+              	<?php if($this->sokoApi && $rs->is_wms == 2 && $rs->api == 1 && $rs->status != 0 && $rs->status !=2 && $rs->is_approve == 1) : ?>
+              				<button type="button" class="btn btn-minier btn-success top-btn" onclick="sendToFulfillment('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> SOKO</button>
+              	<?php endif; ?>
+              </td>
+            <?php endif; ?>
             <td class="middle">
               <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
           <?php if($this->pm->can_edit && $rs->status == 0 && $rs->is_expire == 0) : ?>
