@@ -44,6 +44,7 @@ class Return_order extends PS_Controller
       'approve' => get_filter('approve', 'sm_approve', 'all'),
 			'zone' => get_filter('zone', 'sm_zone', ''),
 			'api' => get_filter('api', 'sm_api', 'all'),
+      'wms_export' => get_filter('wms_export', 'sm_wms_export', 'all'),
       'is_pos_api' => get_filter('is_pos_api', 'sm_pos_api', 'all'),
       'must_accept' => get_filter('must_accept', 'sm_must_accept', 'all'),
       'sap' => get_filter('sap', 'sm_sap', 'all')

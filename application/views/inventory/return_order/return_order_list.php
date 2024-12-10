@@ -69,6 +69,15 @@
   		</select>
     </div>
     <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+      <label>Interface</label>
+      <select class="form-control input-sm" name="wms_export" onchange="getSearch()">
+  			<option value="all">ทั้งหมด</option>
+  			<option value="0" <?php echo is_selected($wms_export, '0'); ?>>ยังไม่ส่ง</option>
+  			<option value="1" <?php echo is_selected($wms_export, '1'); ?>>ส่งแล้ว</option>
+        <option value="3" <?php echo is_selected($wms_export, '3'); ?>>ส่งไม่สำเร็จ</option>
+  		</select>
+    </div>
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
       <label>POS</label>
       <select class="form-control input-sm" name="is_pos_api" onchange="getSearch()">
   			<option value="all">ทั้งหมด</option>

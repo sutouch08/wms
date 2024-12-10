@@ -521,6 +521,11 @@ class Return_order_model extends CI_Model
       $this->db->where('r.is_pos_api', $ds['is_pos_api']);
     }
 
+    if(isset($ds['wms_export']) && $ds['wms_export'] != 'all')
+    {
+      $this->db->where('r.wms_export', $ds['wms_export']);
+    }
+
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('r.date_add >=', from_date($ds['from_date']));
@@ -621,6 +626,11 @@ class Return_order_model extends CI_Model
     if(isset($ds['is_pos_api']) && $ds['is_pos_api'] !== 'all')
     {
       $this->db->where('r.is_pos_api', $ds['is_pos_api']);
+    }
+
+    if(isset($ds['wms_export']) && $ds['wms_export'] != 'all')
+    {
+      $this->db->where('r.wms_export', $ds['wms_export']);
     }
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
