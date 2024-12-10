@@ -126,14 +126,16 @@
     </p>
   </div>
   <?php
+    $ex = $this->_SuperAdmin && is_true(getConfig('WMS_FAST_EXPORT')) ? TRUE : FALSE;
     $width = 1320;
-    $width = $this->_SuperAdmin ? $width + 80 : $width;
+    $width = $ex ? $width + 80 : $width;
+
   ?>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped border-1" style="min-width:<?php echo $width; ?>px;">
       <thead>
         <tr>
-          <?php if($this->_SuperAdmin) : ?>
+          <?php if($ex) : ?>
             <th class="fix-width-80 text-center">WMS</th>
           <?php endif; ?>
           <th class="fix-width-100"></th>
@@ -156,7 +158,7 @@
 <?php   $no = $this->uri->segment($this->segment) + 1; ?>
 <?php   foreach($docs as $rs) : ?>
           <tr class="font-size-12" id="row-<?php echo $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
-            <?php if($this->_SuperAdmin) : ?>
+            <?php if($ex) : ?> :
               <td class="fix-width-40 text-center">
                 <?php if($this->wmsApi && $rs->is_wms == 1 && $rs->api == 1 && $rs->status != 0 && $rs->status !=2 && $rs->is_approve == 1) : ?>
               				<button type="button" class="btn btn-minier btn-success top-btn" onclick="sendToFulfillment('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> PLC</button>
