@@ -151,7 +151,7 @@
 <?php if(!empty($docs)) : ?>
 <?php   $no = $this->uri->segment($this->segment) + 1; ?>
 <?php   foreach($docs as $rs) : ?>
-          <tr class="font-size-12" id="row-<?php $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
+          <tr class="font-size-12" id="row-<?php echo $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
             <?php if($this->_SuperAdmin) : ?>
               <td class="fix-width-40 text-center">
                 <?php if($this->wmsApi && $rs->is_wms == 1 && $rs->api == 1 && $rs->status != 0 && $rs->status !=2 && $rs->is_approve == 1) : ?>
