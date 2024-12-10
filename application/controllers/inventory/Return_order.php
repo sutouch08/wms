@@ -1563,6 +1563,7 @@ class Return_order extends PS_Controller
       'sm_zone',
       'sm_must_accept',
 			'sm_api',
+      'sm_wms_export',
       'sm_pos_api',
       'sm_sap'
     );
