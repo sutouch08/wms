@@ -125,17 +125,21 @@
       <span class="dark blod">EXP</span> = หมดอายุ
     </p>
   </div>
+  <?php
+    $width = 1320;
+    $width = $this->_SuperAdmin ? $width + 80 : $width;
+  ?>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" style="min-width:1300px;">
+    <table class="table table-striped border-1" style="min-width:<?php echo $width; ?>px;">
       <thead>
         <tr>
           <?php if($this->_SuperAdmin) : ?>
-            <th class="fix-width-60 text-center">WMS</th>
+            <th class="fix-width-80 text-center">WMS</th>
           <?php endif; ?>
           <th class="fix-width-100"></th>
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
-          <th class="fix-width-120">เลขที่เอกสาร</th>
+          <th class="fix-width-150">เลขที่เอกสาร</th>
           <th class="fix-width-120">เลขที่บิล</th>
           <th class="min-width-200">ลูกค้า</th>
 					<th class="fix-width-150">โซน</th>
@@ -173,7 +177,15 @@
             </td>
             <td class="middle text-center no"><?php echo $no; ?></td>
             <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
-            <td class="middle"><?php echo $rs->code; ?></td>
+            <td class="middle">
+              <?php echo $rs->code; ?>
+              <?php if($rs->wms_export == 3) : ?>
+                <span class="red">failed</span>
+              <?php endif; ?>
+              <?php if($rs->wms_export == 1 && ! empty($rs->soko_code)) : ?>
+                [<?php echo $rs->soko_code; ?>]
+              <?php endif; ?>
+            </td>
             <td class="middle"><?php echo ($rs->is_pos_api == 1 ? $rs->bill_code : $rs->invoice); ?></td>
             <td class="middle"><?php echo inputRow($rs->customer_name); ?></td>
 						<td class="middle"><?php echo $rs->zone_code; ?></td>
