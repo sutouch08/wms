@@ -15,12 +15,12 @@
 <div class="row" style="margin-top:30px;">
 	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
 		<label>รหัสสินค้า</label>
-		<input type="text" class="form-control input-sm text-center" id="search-text" placeholder="พิมพ์รหัสสินค้า 4 ตัวอักษรขึ้นไป" />
+		<input type="text" class="width-100 text-center" id="search-text" placeholder="พิมพ์รหัสสินค้า 4 ตัวอักษรขึ้นไป" />
 	</div>
 
 	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>คลัง</label>
-		<select class="form-control input-sm" id="warehouse" name="warehouse">
+		<select class="width-100" id="warehouse" name="warehouse">
 			<option value="">ทั้งหมด</option>
 			<?php echo select_warehouse(); ?>
 		</select>
@@ -192,6 +192,8 @@ function popover_init(){
 function getViewStock(){
 	window.location.href = BASE_URL + 'view_stock' ;
 }
+
+$('#warehouse').select2();
 </script>
 
 <?php $this->load->view('include/footer'); ?>
