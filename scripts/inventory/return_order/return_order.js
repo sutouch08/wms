@@ -183,7 +183,7 @@ function sendToFulfillment(code) {
 				swal({
 					title:'Success',
 					type:'success',
-					tmier:1000
+					timer:1000
 				});
 
 				$('#row-'+code).remove();
