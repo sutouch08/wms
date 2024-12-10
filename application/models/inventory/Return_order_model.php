@@ -523,7 +523,18 @@ class Return_order_model extends CI_Model
 
     if(isset($ds['wms_export']) && $ds['wms_export'] != 'all')
     {
-      $this->db->where('r.wms_export', $ds['wms_export']);
+      if($ds['wms_export'] == '0')
+      {
+        $this->db
+        ->group_start()
+        ->where('r.wms_export IS NULL', NULL, FALSE)
+        ->or_where('r.wms_export', 0)
+        ->group_end();
+      }
+      else
+      {
+        $this->db->where('r.wms_export', $ds['wms_export']);
+      }
     }
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
@@ -630,7 +641,18 @@ class Return_order_model extends CI_Model
 
     if(isset($ds['wms_export']) && $ds['wms_export'] != 'all')
     {
-      $this->db->where('r.wms_export', $ds['wms_export']);
+      if($ds['wms_export'] == '0')
+      {
+        $this->db
+        ->group_start()
+        ->where('r.wms_export IS NULL', NULL, FALSE)
+        ->or_where('r.wms_export', 0)
+        ->group_end();
+      }
+      else
+      {
+        $this->db->where('r.wms_export', $ds['wms_export']);
+      }
     }
 
     if(!empty($ds['from_date']) && !empty($ds['to_date']))
