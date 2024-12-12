@@ -424,7 +424,7 @@ class Receive_po_model extends CI_Model
         $this->db->where('wms_export', $ds['wms_export']);
       }
 		}
-    
+
     if($ds['must_accept'] != 'all')
     {
       $this->db->where('r.must_accept', $ds['must_accept']);
@@ -632,7 +632,8 @@ class Receive_po_model extends CI_Model
 
   public function get_sap_doc_num($code)
   {
-    $rs = $this->ms->select('DocNum')->where('U_ECOMNO', $code)->get('OPDN');
+    $rs = $this->ms->select('DocNum')->where('U_ECOMNO', $code)->where('CANCELED', 'N')->get('OPDN');
+    
     if($rs->num_rows() === 1)
     {
       return $rs->row()->DocNum;
