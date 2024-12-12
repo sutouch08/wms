@@ -869,16 +869,31 @@ class Receive_po extends PS_Controller
 
   public function do_export($code)
   {
-    $rs = $this->export_receive($code);
+    $sc = TRUE;
 
-    echo $rs === TRUE ? 'success' : $this->error;
+    if( ! $this->export_receive($code))
+    {
+      $sc = FALSE;
+    }
+    else
+    {
+      $arr = array(
+        'inv_code' => NULL
+      );
+
+      $this->receive_po_model->update($code, $arr);
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
   private function export_receive($code)
   {
     $sc = TRUE;
+
     $this->load->library('export');
+
     if(! $this->export->export_receive($code))
     {
       $sc = FALSE;
