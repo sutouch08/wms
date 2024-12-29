@@ -1,17 +1,17 @@
 <?php $showZone = get_cookie('showZone') ? '' : 'hide'; ?>
 <?php $showBtn  = get_cookie('showZone') ? 'hide' : '';  ?>
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped border-1">
       <thead>
         <tr><td colspan="6" align="center">รายการที่ครบแล้ว</td></tr>
-        <tr>
-          <th class="width-15 middle text-center">บาร์โค้ด</th>
-          <th class="width-50 middle text-center">สินค้า</th>
-          <th class="width-5 middle text-center">จำนวน</th>
-          <th class="width-5 middle text-center">จัดแล้ว</th>
-          <th class="width-5 middle text-center">คงเหลือ</th>
-          <th class="text-right">จัดจากโซน</th>
+        <tr>          
+          <th class="fix-width-150 middle">บาร์โค้ด</th>
+          <th class="min-width-300 middle">สินค้า</th>
+          <th class="fix-width-100 middle text-center">จำนวน</th>
+          <th class="fix-width-100 middle text-center">จัดแล้ว</th>
+          <th class="fix-width-100 middle text-center">คงเหลือ</th>
+          <th class="fix-width-200 text-right">จัดจากโซน</th>
         </tr>
       </thead>
       <tbody id="complete-table">

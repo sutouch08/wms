@@ -372,6 +372,38 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_valid_item($id_order_detail)
+  {
+    $rs = $this->db
+    ->where('id', $id_order_detail)
+    ->where('valid', 1)
+    ->get('order_details');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_invalid_item($id_order_detail)
+  {
+    $rs = $this->db
+    ->where('id', $id_order_detail)
+    ->where('valid', 0)
+    ->get('order_details');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_state($code)
   {
     $rs = $this->db->select('state')->where('code', $code)->get('orders');

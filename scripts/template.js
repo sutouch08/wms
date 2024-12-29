@@ -39,6 +39,19 @@ function checkError(){
 }
 
 
+function showError(response) {
+  load_out();
+
+  setTimeout(() => {
+    swal({
+      title:'Error!',
+      text:(typeof response === 'object') ? response.responseText : response,
+      type:'error',
+      html:true
+    })
+  }, 100);
+}
+
 //--- save side bar layout to cookie
 function toggle_layout(){
 	var sidebar_layout = getCookie('sidebar_layout');
@@ -360,7 +373,7 @@ function closeModal(name) {
 
 $.fn.hasError = function(msg) {
   name = this.attr('id');
-  
+
   if(msg !== undefined) {
     $('#'+name+'-error').text(msg);
   }

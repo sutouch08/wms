@@ -1,171 +1,224 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('inventory/prepare/style'); ?>
+
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-		<div class="col-sm-6">
-			<p class="pull-right top-p">
-				<button type="button" class="btn btn-xs btn-primary" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
-				<button type="button" class="btn btn-xs btn-warning" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
-				<button type="button" class="btn btn-xs btn-primary" onclick="goProcess()">กำลังจัด</button>
-			</p>
-		</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hidden-xs">
+		<button type="button" class="btn btn-white btn-primary top-btn" onclick="goProcess()"><i class="fa fa-external-link-square"></i> รายการกำลังจัด</button>
+	</div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
-<div class="row">
-  <div class="col-sm-2 padding-5 first">
-    <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
-  </div>
+	<div class="row filter-pad move-out" id="filter-pad">
+		<div class="col-xs-12 padding-5 text-center visible-xs">
+			<h4 class="title">ตัวกรอง</h4>
+		</div>
 
-  <div class="col-sm-2 padding-5">
-    <label>ลูกค้า</label>
-    <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
-  </div>
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-12 padding-5">
+			<label>เลขที่เอกสาร</label>
+			<input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
+		</div>
 
-	<div class="col-sm-2 padding-5">
-    <label>พนักงาน[เปิดออเดอร์]</label>
-    <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
-  </div>
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-12 padding-5">
+			<label>ลูกค้า</label>
+			<input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
+		</div>
 
-	<div class="col-sm-2 padding-5">
-    <label>ช่องทางขาย</label>
-		<select class="form-control input-sm" name="channels" onchange="getSearch()">
-      <option value="">ทั้งหมด</option>
-      <?php echo select_channels($channels); ?>
-    </select>
-  </div>
+		<div class="col-lg-3 col-md-4-harf col-sm-4-harf col-xs-12 padding-5">
+			<label>คลัง</label>
+			<select class="width-100" name="warehouse" id="warehouse">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_sell_warehouse($warehouse); ?>
+			</select>
+		</div>
 
-	<div class="col-sm-2 padding-5">
-    <label>ออนไลน์</label>
-		<select class="form-control input-sm" name="is_online" onchange="getSearch()">
-      <option value="2">ทั้งหมด</option>
-      <option value="1" <?php echo is_selected($is_online, '1'); ?>>ออนไลน์</option>
-			<option value="0" <?php echo is_selected($is_online, '0'); ?>>ออฟไลน์</option>
-    </select>
-  </div>
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-12 padding-5">
+			<label>พนักงาน[เปิดออเดอร์]</label>
+			<input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
+		</div>
 
-	<div class="col-sm-2 padding-5 last">
-    <label>ประเภท</label>
-		<select class="form-control input-sm" name="role" onchange="getSearch()">
-      <option value="all">ทั้งหมด</option>
-      <option value="S" <?php echo is_selected($role, 'S'); ?>>ขาย</option>
-			<option value="C" <?php echo is_selected($role, 'C'); ?>>ฝากขาย(SO)</option>
-			<option value="N" <?php echo is_selected($role, 'N'); ?>>ฝากขาย(TR)</option>
-			<option value="P" <?php echo is_selected($role, 'P'); ?>>สปอนเซอร์</option>
-			<option value="U" <?php echo is_selected($role, 'U'); ?>>อภินันท์</option>
-			<option value="Q" <?php echo is_selected($role, 'Q'); ?>>แปรสภาพ(สต็อก)</option>
-			<option value="T" <?php echo is_selected($role, 'T'); ?>>แปรสภาพ(ขาย)</option>
-			<option value="L" <?php echo is_selected($role, 'L'); ?>>ยืม</option>
-    </select>
-  </div>
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-12 padding-5">
+			<label>ช่องทางขาย</label>
+			<select class="form-control input-sm" name="channels">
+				<option value="">ทั้งหมด</option>
+				<?php echo select_channels($channels); ?>
+			</select>
+		</div>
 
-	<div class="col-sm-2 padding-5 first">
-    <label>ช่องทางการชำระเงิน</label>
-		<select class="form-control input-sm" name="payment" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
-			<?php echo select_payment_method($payment); ?>
-		</select>
-  </div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-12 padding-5">
+			<label>ออนไลน์</label>
+			<select class="form-control input-sm" name="is_online">
+				<option value="2">ทั้งหมด</option>
+				<option value="1" <?php echo is_selected($is_online, '1'); ?>>ออนไลน์</option>
+				<option value="0" <?php echo is_selected($is_online, '0'); ?>>ออฟไลน์</option>
+			</select>
+		</div>
 
-	<div class="col-sm-2 padding-5">
-    <label>วันที่</label>
-    <div class="input-daterange input-group">
-      <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
-      <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
-    </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-12 padding-5">
+			<label>ประเภท</label>
+			<select class="form-control input-sm" name="role">
+				<option value="all">ทั้งหมด</option>
+				<option value="S" <?php echo is_selected($role, 'S'); ?>>ขาย</option>
+				<option value="C" <?php echo is_selected($role, 'C'); ?>>ฝากขาย(SO)</option>
+				<option value="N" <?php echo is_selected($role, 'N'); ?>>ฝากขาย(TR)</option>
+				<option value="P" <?php echo is_selected($role, 'P'); ?>>สปอนเซอร์</option>
+				<option value="U" <?php echo is_selected($role, 'U'); ?>>อภินันท์</option>
+				<option value="Q" <?php echo is_selected($role, 'Q'); ?>>แปรสภาพ(สต็อก)</option>
+				<option value="T" <?php echo is_selected($role, 'T'); ?>>แปรสภาพ(ขาย)</option>
+				<option value="L" <?php echo is_selected($role, 'L'); ?>>ยืม</option>
+			</select>
+		</div>
 
-  </div>
+		<div class="col-lg-1-harf col-md-3 col-sm-2 col-xs-12 padding-5">
+			<label>ช่องทางการชำระเงิน</label>
+			<select class="form-control input-sm" name="payment">
+				<option value="">ทั้งหมด</option>
+				<?php echo select_payment_method($payment); ?>
+			</select>
+		</div>
 
-	<div class="col-sm-2 padding-5">
-		<label class="display-block">สถานะ</label>
-		<select class="form-control input-sm" name="stated">
-			<option value="">เลือกสถานะ</option>
-			<option value="3" <?php echo is_selected($stated, '3'); ?>>รอจัดสินค้า</option>
-			<option value="4" <?php echo is_selected($stated, '4'); ?>>กำลังจัดสินค้า</option>
-			<option value="5" <?php echo is_selected($stated, '5'); ?>>รอตรวจ</option>
-			<option value="6" <?php echo is_selected($stated, '6'); ?>>กำลังตรวจ</option>
-			<option value="7" <?php echo is_selected($stated, '7'); ?>>รอเปิดบิล</option>
-		</select>
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-12 padding-5">
+			<label>วันที่</label>
+			<div class="input-daterange input-group width-100">
+				<input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" readonly value="<?php echo $from_date; ?>" />
+				<input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" readonly value="<?php echo $to_date; ?>" />
+			</div>
+		</div>
+
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-12 padding-5">
+			<label>สถานะ</label>
+			<select class="form-control input-sm" name="stated">
+				<option value="">เลือกสถานะ</option>
+				<option value="3" <?php echo is_selected($stated, '3'); ?>>รอจัดสินค้า</option>
+				<option value="4" <?php echo is_selected($stated, '4'); ?>>กำลังจัดสินค้า</option>
+				<option value="5" <?php echo is_selected($stated, '5'); ?>>รอตรวจ</option>
+				<option value="6" <?php echo is_selected($stated, '6'); ?>>กำลังตรวจ</option>
+				<option value="7" <?php echo is_selected($stated, '7'); ?>>รอเปิดบิล</option>
+			</select>
+		</div>
+
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+			<label class="display-block">เริ่มต้น</label>
+			<select class="form-control input-sm" name="startTime">
+				<?php echo selectTime($startTime); ?>
+			</select>
+		</div>
+
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+			<label class="display-block">สิ้นสุด</label>
+			<select class="form-control input-sm" name="endTime">
+				<?php echo selectTime($endTime); ?>
+			</select>
+		</div>
+
+		<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
+			<label>รหัสสินค้า</label>
+			<input type="text" class="form-control input-sm search" name="item_code" id="item_code" value="<?php echo $item_code; ?>" />
+		</div>
+
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 hidden-xs">
+			<label class="display-block not-show">&nbsp;</label>
+			<button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 hidden-xs">
+			<label class="display-block not-show">&nbsp;</label>
+			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 visible-xs">
+			<label class="display-block not-show">&nbsp;</label>
+			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 visible-xs">
+			<label class="display-block not-show">&nbsp;</label>
+			<button type="button" class="btn btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+		</div>
 	</div>
-
-	<div class="col-sm-1 padding-5">
-		<label class="display-block">เริ่มต้น</label>
-		<select class="form-control input-sm" name="startTime">
-			<?php echo selectTime($startTime); ?>
-		</select>
-	</div>
-
-	<div class="col-sm-1 padding-5">
-		<label class="display-block">สิ้นสุด</label>
-		<select class="form-control input-sm" name="endTime">
-			<?php echo selectTime($endTime); ?>
-		</select>
-	</div>
-
-	<div class="col-sm-2 padding-5">
-    <label>รหัสสินค้า</label>
-    <input type="text" class="form-control input-sm search" name="item_code" id="item_code" value="<?php echo $item_code; ?>" />
-  </div>
-
-	<div class="col-sm-2 padding-5 last">
-		<label>คลัง</label>
-		<select class="form-control input-sm" name="warehouse" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<?php echo select_sell_warehouse($warehouse); ?>
-		</select>
-	</div>
-</div>
-<hr class="margin-top-15">
-<input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
-<input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
+	<input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
+	<input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
+	<input type="hidden" name="search" value="1" />
 </form>
-<?php echo $this->pagination->create_links(); ?>
+<hr class="margin-top-15 hidden-xs">
+<div class="">
+	<?php echo $this->pagination->create_links(); ?>
+</div>
 <?php $sort_date = $order_by == '' ? "" : ($order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
-	<div class="col-sm-12">
-		<table class="table table-striped table-hover border-1 dataTable">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+		<table class="table table-hover border-1 no-border-xs table-listing">
 			<thead>
 				<tr>
-					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-8 middle text-center sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-					<th class="width-25 middle sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
-					<th class="middle">ลูกค้า/ผู้เบิก</th>
-					<th class="width-10 middle text-center">จำนวน</th>
-          <th class="width-10 middle">ช่องทาง</th>
-					<th class="width-10 middle"></th>
+					<th class="fix-width-100 hidden-xs"></th>
+					<th class="fix-width-40 middle text-center hidden-xs">#</th>
+					<th class="fix-width-100 middle text-center hidden-xs">วันที่</th>
+					<th class="fix-width-300 middle hidden-xs">เลขที่เอกสาร</th>
+					<th class="min-width-250 middle hidden-xs">ลูกค้า/ผู้เบิก</th>
+					<th class="fix-width-100 middle text-center hidden-xs">จำนวน</th>
+          <th class="fix-width-150 middle hidden-xs">ช่องทาง</th>
+					<th class="width-100 text-center hide">รายการรอจัด</th>
 				</tr>
 			</thead>
 			<tbody>
         <?php if(!empty($orders)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
+					<?php $whName = []; ?>
           <?php foreach($orders as $rs) : ?>
+						<?php if( empty($whName[$rs->warehouse_code])) : ?>
+							<?php $whName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
+						<?php endif; ?>
             <?php $customer_name = (!empty($rs->customer_ref)) ? $rs->customer_ref : $rs->customer_name; ?>
             <tr id="row-<?php echo $rs->code; ?>">
-              <td class="middle text-center no"><?php echo $no; ?></td>
-							<td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
-              <td class="middle">
+							<td class="middle hidden-xs">
+          <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+                <button type="button" class="btn btn-white btn-info" onClick="goPrepare('<?php echo $rs->code; ?>')">จัดสินค้า</button>
+          <?php endif; ?>
+              </td>
+              <td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
+							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
+              <td class="middle  hidden-xs">
 								<?php echo $rs->code; ?>
 								<?php echo (empty($rs->reference) ? "" : "[".$rs->reference."]"); ?>
 							</td>
-              <td class="middle">
+              <td class="middle  hidden-xs">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>
 								<?php else : ?>
 									<?php echo $customer_name; ?>
 								<?php endif; ?>
 							</td>
-							<td class="middle text-center"><?php echo number($rs->qty); ?></td>
-              <td class="middle"><?php echo $rs->channels_name; ?></td>
-              <td class="middle text-right">
-          <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-                <button type="button" class="btn btn-mini btn-info" onClick="goPrepare('<?php echo $rs->code; ?>')">จัดสินค้า</button>
-          <?php endif; ?>
-              </td>
+							<td class="middle text-center  hidden-xs"><?php echo number($rs->qty); ?></td>
+              <td class="middle  hidden-xs"><?php echo $rs->channels_name; ?></td>
+
+							<td class="visible-xs" style="border:0px; padding:3px; font-size:14px;">
+								<div class="col-xs-12" style="border:solid 1px #ccc; border-radius:5px; box-shadow:0px 1px 2px #f3ecec; padding:5px;">
+									<div class="width-100" style="padding: 3px 3px 3px 10px;">
+										<p class="margin-bottom-3 pre-wrap"><b>วันที่ : </b><?php echo thai_date($rs->date_add, FALSE,'/'); ?></p>
+										<p class="margin-bottom-3 pre-wrap"><b>เลขที่ : </b>
+											<?php echo $rs->code; ?>
+											<?php echo (empty($rs->reference) ? "" : "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[".$rs->reference."]"); ?>
+										</p>
+										<p class="margin-bottom-3 pre-wrap"><b>ลูกค้า : </b>
+											<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
+												<?php echo $rs->empName; ?>
+											<?php else : ?>
+												<?php echo $customer_name; ?>
+											<?php endif; ?>
+										</p>
+										<p class="margin-bottom-3 pre-wrap"><b>ช่องทางขาย : </b> <?php echo $rs->channels_name; ?></p>
+										<p class="margin-bottom-3 pre-wrap"><b>คลัง : </b> <?php echo $whName[$rs->warehouse_code]; ?></p>
+										<p class="margin-bottom-3 pre-wrap"><b>จำนวน : </b> <?php echo number($rs->qty); ?></p>
+
+									</div>
+									<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+										<button type="button" class="btn btn-white btn-info"
+										onclick="goPrepare('<?php echo $rs->code; ?>', 'mobile')"
+										style="position:absolute; top:5px; right:5px; border-radius:4px !important;">#<?php echo $no; ?> จัดสินค้า</button>
+										<?php endif; ?>
+								</div>
+
+							</td>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>
@@ -177,6 +230,34 @@
 			</tbody>
 		</table>
 	</div>
+</div>
+
+<div class="pg-footer visible-xs">
+	<div class="pg-footer-inner">
+		<div class="pg-footer-content text-right">
+			<div class="footer-menu width-25">
+				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="refresh()">
+					<i class="fa fa-refresh fa-2x white"></i><span class="fon-size-12">Refresh</span>
+				</button>
+			</div>
+			<div class="footer-menu width-25">
+				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goToBuffer()">
+					<i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
+				</button>
+			</div>
+			<div class="footer-menu width-25">
+				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goProcess()">
+					<i class="fa fa-shopping-basket fa-2x white"></i><span class="fon-size-12">รายการกำลังจัด</span>
+				</button>
+			</div>
+			<div class="footer-menu width-25">
+				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleFilter()">
+					<i class="fa fa-search fa-2x white"></i><span class="fon-size-12">ตัวกรอง</span>
+				</button>
+			</div>
+		</div>
+		<input type="hidden" id="filter" value="hide" />
+ </div>
 </div>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=<?php echo date('YmdHis'); ?>"></script>
