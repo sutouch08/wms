@@ -201,7 +201,7 @@ class Order_payment extends PS_Controller
   				}
 
           //---- export to soko
-          if($order->is_wms == 2)
+          if($order->is_wms == 2 && ! $order->is_pre_order)
           {
             $this->load->library('soko_order_api');
 
@@ -211,21 +211,7 @@ class Order_payment extends PS_Controller
               $this->error = "ส่งข้อมูลไป Sokochan ไม่สำเร็จ <br/> (SOKOCHAN Error : ".$this->soko_order_api->error.")";
             }
           } //--- if($order->is_wms == 2)
-        }
-
-				//---- send api to chatbot
-				// if($order->is_api == 1 && !empty($order->reference))
-				// {
-				// 	$this->logs = $this->load->database('logs', TRUE);
-				// 	$this->load->library('chatbot_api');
-				// 	$arr = array(
-				// 		"order_number" => $order->reference,
-				// 		"amount" => round($detail->pay_amount, 2),
-				// 		"action" => "approve"
-				// 	);
-        //
-				// 	$this->chatbot_api->approve_payment($arr);
-				// }
+        }				
 			}
 
       //--- complete transecrtion with commit or rollback if any error
