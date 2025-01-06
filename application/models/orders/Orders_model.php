@@ -1745,6 +1745,7 @@ class Orders_model extends CI_Model
     ->where_in('state', array(1,2))
     ->where('is_paid', 0)
     ->where('never_expire', 0)
+    ->where('is_pre_order', 0)
     ->get('orders');
 
     if($rs->num_rows() > 0)
