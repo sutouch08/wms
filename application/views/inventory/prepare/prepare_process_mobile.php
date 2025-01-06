@@ -50,9 +50,10 @@
       </div>
     </div>
   </div>
+
+
 	<div class="width-100 header-info hide-text">
-    <div class="col-xs-4 font-size-24" id="qty-title">Picked </div>
-    <div class="col-xs-8 font-size-24 text-center">
+    <div class="col-xs-12 font-size-24 text-center" style="padding:4px;">
       <span id="pick-qty"><?php echo $pickedQty; ?></span>
       &nbsp;/&nbsp;
       <span id="order-qty"><?php echo $orderQty; ?></span>

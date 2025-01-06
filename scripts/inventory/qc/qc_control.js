@@ -263,8 +263,8 @@ function updateBox(){
 
 
 function updateBoxList(){
-  var id_box = $("#id_box").val();
-  var order_code = $("#order_code").val();
+  let id_box = $("#id_box").val();
+  let order_code = $("#order_code").val();
 
   $.ajax({
     url: HOME + 'get_box_list',
@@ -274,18 +274,31 @@ function updateBoxList(){
       "order_code" : order_code,
       "id_box" : id_box
     },
-    success:function(rs){
-      var rs = $.trim(rs);
-      if(isJson(rs)){
-        var source = $("#box-template").html();
-        var data = $.parseJSON(rs);
-        var output = $("#box-row");
-        render(source, data, output);
-      }else if(rs == "no box"){
-        $("#box-row").html('<span id="no-box-label">ยังไม่มีการตรวจสินค้า</span>');
-      }else{
-        swal("Error!", rs, "error");
+    success:function(rs) {
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          if(ds.box_list != 'no box') {
+            var source = $("#box-template").html();
+            var data = ds.box_list;
+            var output = $("#box-row");
+            render(source, data, output);
+          }
+          else {
+            $("#box-row").html('<span id="no-box-label">ยังไม่มีการตรวจสินค้า</span>');
+          }
+        }
+        else {
+          showError(rs);
+        }
       }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
     }
   });
 }
@@ -316,17 +329,27 @@ function getBox(){
         "barcode":barcode,
         "order_code" : order_code
       },
-      success:function(rs){
-        var rs = $.trim(rs);
-        if( ! isNaN( parseInt(rs) ) ){
-          $("#id_box").val(rs);
-          $("#barcode-box").attr('disabled', 'disabled');
-          $(".item").removeAttr('disabled');
-          $("#barcode-item").focus();
-          updateBoxList();
-        }else{
-          swal("Error!", rs, "error");
+      success:function(rs) {
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status == 'success') {
+            $("#id_box").val(ds.box_id);
+            $("#barcode-box").attr('disabled', 'disabled');
+            $(".item").removeAttr('disabled');
+            $("#barcode-item").focus();
+            updateBoxList();
+          }
+          else {
+            showError(ds.message);
+          }
         }
+        else {
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        showError(rs);
       }
     });
   }

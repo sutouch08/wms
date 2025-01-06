@@ -332,7 +332,7 @@ class Prepare_model extends CI_Model
     }
 
 
-    if(!empty($ds['channels']))
+    if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
       $this->db->where('o.channels_code', $ds['channels']);
     }
@@ -477,7 +477,7 @@ class Prepare_model extends CI_Model
       $this->db->group_end();
     }
 
-    if(!empty($ds['channels']))
+    if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
       $this->db->where('o.channels_code', $ds['channels']);
     }

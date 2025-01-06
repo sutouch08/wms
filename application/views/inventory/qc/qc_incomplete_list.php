@@ -1,14 +1,15 @@
 <div class="row">
-  <div class="col-sm-12">
-    <table class="table table-striped border-1 qc-table">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+    <table class="table table-striped border-1" style="min-width:900px;">
       <thead>
+        <tr><th colspan="6" class="text-center">รายการที่ครบแล้ว</th></tr>
         <tr class="font-size-12">
-          <th class="width-15 text-center">บาร์โค้ด</th>
-          <th class="width-50">สินค้า</th>
-          <th class="width-8 text-center">จำนวนที่สั่ง</th>
-          <th class="width-8 text-center">จำนวนที่จัด</th>
-          <th class="width-8 text-center">ตรวจแล้ว</th>
-          <th class="text-right">จากโซน</th>
+          <th class="fix-width-150">บาร์โค้ด</th>
+          <th class="min-width-300">สินค้า</th>
+          <th class="fix-width-100 text-center">จำนวนที่สั่ง</th>
+          <th class="fix-width-100 text-center">จำนวนที่จัด</th>
+          <th class="fix-width-100 text-center">ตรวจแล้ว</th>
+          <th class="fix-width-150 text-right">จากโซน</th>
         </tr>
       </thead>
       <tbody id="incomplete-table">

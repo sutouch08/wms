@@ -5,19 +5,20 @@ function goBack(){
 }
 
 
-
-
 //--- ต้องการจัดสินค้า
-function goQc(code){
-  window.location.href = HOME + 'process/'+code;
+function goQc(code, view){
+  if(view === undefined) {
+    window.location.href = HOME + 'process/'+code;
+  }
+  else {
+    window.location.href = HOME + 'process/'+code+'/mobile';
+  }
 }
-
 
 
 function viewProcess(){
   window.location.href = HOME + 'view_process';
 }
-
 
 
 //---- กำหนดค่าการแสดงผลที่เก็บสินค้า เมื่อมีการคลิกปุ่มที่เก็บ

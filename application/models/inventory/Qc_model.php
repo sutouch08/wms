@@ -15,7 +15,6 @@ class Qc_model extends CI_Model
   }
 
 
-
   public function update($order_code, $product_code, $box_id, $qty, $detail_id = NULL)
   {
     $this->db
@@ -45,110 +44,113 @@ class Qc_model extends CI_Model
   }
 
 
-
-
-  public function get_data(array $ds = array(), $state = 5, $perpage = NULL, $offset = NULL)
+  public function get_list(array $ds = array(), $state = 5, $perpage = 20, $offset = 0)
   {
-    $this->db->select('orders.*, channels.name AS channels_name, customers.name AS customer_name')
-    ->from('orders')
-    ->join('channels', 'channels.code = orders.channels_code','left')
-    ->join('customers', 'customers.code = orders.customer_code', 'left')
-    ->where('orders.state', $state);
+    $this->db->where('state', $state);
 
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db->like('orders.code', $ds['code']);
+      $this->db->like('code', $ds['code']);
     }
 
-    if(!empty($ds['customer']))
+    if( ! empty($ds['customer']))
     {
-      $this->db->like('customers.name', $ds['customer']);
-      $this->db->or_like('orders.customer_ref', $ds['customer']);
+      $this->db
+      ->group_start()
+      ->like('customer_code', $ds['customer'])
+      ->or_like('customer_name', $ds['customer'])
+      ->or_like('customer_ref', $ds['customer'])
+      ->group_end();
     }
 
     //---- user name / display name
-    if(!empty($ds['user']))
+    if( ! empty($ds['user']))
     {
       $users = user_in($ds['user']);
-      $this->db->where_in('orders.user', $users);
+      $this->db->where_in('user', $users);
     }
 
-    if(!empty($ds['channels']))
+    if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
-      $this->db->where('orders.channels_code', $ds['channels']);
+      $this->db->where('channels_code', $ds['channels']);
     }
 
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    if( ! empty($ds['role']) && $ds['role'] != 'all')
     {
-      $this->db->where('orders.date_add >=', from_date($ds['from_date']));
-      $this->db->where('orders.date_add <=', to_date($ds['to_date']));
+      $this->db->where('role', $ds['role']);
     }
 
-    if(!empty($ds['order_by']))
+    if( ! empty($ds['from_date']))
     {
-      $order_by = "orders.{$ds['order_by']}";
-      $this->db->order_by($order_by, $ds['sort_by']);
-    }
-    else
-    {
-      $this->db->order_by('orders.date_add', 'DESC');
+      $this->db->where('date_add >=', from_date($ds['from_date']));
     }
 
-    if(!empty($perpage))
+    if( ! empty($ds['to_date']))
     {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
+      $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
-    $rs = $this->db->get();
+    $this->db->order_by('date_add', 'DESC');
+
+    $rs = $this->db->limit($perpage, $offset)->get('orders');
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
 
   public function count_rows(array $ds = array(), $state = 5)
   {
-    $this->db->select('orders.*, channels.name AS channels_name, customers.name AS customer_name')
-    ->from('orders')
-    ->join('channels', 'channels.code = orders.channels_code','left')
-    ->join('customers', 'customers.code = orders.customer_code', 'left')
-    ->where('orders.state', $state);
+    $this->db->where('state', $state);
 
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db->like('orders.code', $ds['code']);
+      $this->db->like('code', $ds['code']);
     }
 
-    if(!empty($ds['customer']))
+    if( ! empty($ds['customer']))
     {
-      $this->db->like('customers.name', $ds['customer']);
-      $this->db->or_like('orders.customer_ref', $ds['customer']);
+      $this->db
+      ->group_start()
+      ->like('customer_code', $ds['customer'])
+      ->or_like('customer_name', $ds['customer'])
+      ->or_like('customer_ref', $ds['customer'])
+      ->group_end();
     }
 
     //---- user name / display name
-    if(!empty($ds['user']))
+    if( ! empty($ds['user']))
     {
       $users = user_in($ds['user']);
-      $this->db->where_in('orders.user', $users);
+      $this->db->where_in('user', $users);
     }
 
-    if(!empty($ds['channels']))
+    if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
-      $this->db->where('orders.channels_code', $ds['channels']);
+      $this->db->where('channels_code', $ds['channels']);
     }
 
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    if( ! empty($ds['role']) && $ds['role'] != 'all')
     {
-      $this->db->where('orders.date_add >=', from_date($ds['from_date']));
-      $this->db->where('orders.date_add <=', to_date($ds['to_date']));
+      $this->db->where('role', $ds['role']);
     }
 
-    return $this->db->count_all_results();
+    if( ! empty($ds['from_date']))
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+    }
+
+    if( ! empty($ds['to_date']))
+    {
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    return $this->db->count_all_results('orders');
   }
 
 

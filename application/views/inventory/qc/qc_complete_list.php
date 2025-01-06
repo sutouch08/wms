@@ -1,15 +1,15 @@
 <div class="row">
-  <div class="col-sm-12">
-    <table class="table table-striped border-1">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+    <table class="table table-striped border-1" style="min-width:900px;">
       <thead>
         <tr><th colspan="6" class="text-center">รายการที่ครบแล้ว</th></tr>
         <tr class="font-size-12">
-          <th class="width-15">บาร์โค้ด</th>
-          <th class="width-50">สินค้า</th>
-          <th class="width-8 text-center">จำนวนที่สั่ง</th>
-          <th class="width-8 text-center">จำนวนที่จัด</th>
-          <th class="width-8 text-center">ตรวจแล้ว</th>
-          <th class="text-right">จากโซน</th>
+          <th class="fix-width-150">บาร์โค้ด</th>
+          <th class="min-width-300">สินค้า</th>
+          <th class="fix-width-100 text-center">จำนวนที่สั่ง</th>
+          <th class="fix-width-100 text-center">จำนวนที่จัด</th>
+          <th class="fix-width-100 text-center">ตรวจแล้ว</th>
+          <th class="fix-width-150 text-right">จากโซน</th>
         </tr>
       </thead>
       <tbody id="complete-table">
@@ -20,11 +20,7 @@
         <td class="middle text-center"><?php echo $rs->barcode; ?></td>
         <td class="middle">
           <?php echo $rs->product_code; ?> :
-          <?php if(empty($rs->old_code) OR $rs->old_code == $rs->product_code) : ?>
-          <?php     echo $rs->product_name; ?>
-          <?php else : ?>
-          <?php     echo $rs->old_code; ?>
-          <?php endif; ?>
+          <?php echo $rs->product_name; ?>
         </td>
         <td class="middle text-center"><?php echo number($rs->order_qty); ?></td>
         <td class="middle text-center" id="prepared-<?php echo $rs->id; ?>"><?php echo number($rs->prepared); ?></td>
@@ -37,14 +33,14 @@
           <?php endif; ?>
           <button
             type="button"
-            class="btn btn-default btn-xs btn-pop"
+            class="btn btn-link btn-pop"
             data-container="body"
             data-toggle="popover"
             data-placement="left"
             data-trigger="focus"
             data-content="<?php echo $rs->from_zone; ?>"
             data-original-title=""
-            title="">
+            title=""><i class="fa fa-external-link"></i> 
             ที่เก็บ
           </button>
           <input type="hidden" id="id-<?php echo $rs->id; ?>" value="<?php echo $rs->id; ?>" />

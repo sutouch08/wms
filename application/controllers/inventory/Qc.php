@@ -8,6 +8,8 @@ class Qc extends PS_Controller
   public $menu_sub_group_code = 'PICKPACK';
 	public $title = 'ตรวจสินค้า';
   public $filter;
+  public $segment;
+
   public function __construct()
   {
     parent::__construct();
@@ -15,7 +17,76 @@ class Qc extends PS_Controller
     $this->load->model('inventory/qc_model');
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
+    $this->load->helper('warehouse');
+    $this->load->helper('channels');
   }
+
+  public function index()
+  {
+    $this->title = "รายการรอตรวจ";
+
+    $filter = array(
+      'code' => get_filter('code', 'ic_code', ''),
+      'customer' => get_filter('customer', 'ic_customer', ''),
+      'user' => get_filter('user', 'ic_user', ''),
+      'role' => get_filter('role', 'ic_role', 'all'),
+      'channels'  => get_filter('channels', 'ic_channels', 'all'),
+      'from_date' => get_filter('from_date', 'ic_from_date', ''),
+      'to_date' => get_filter('to_date', 'ic_to_date', '')
+    );
+
+    if($this->input->post('search'))
+    {
+      redirect($this->home);
+    }
+    else
+    {
+      //--- แสดงผลกี่รายการต่อหน้า
+      $perpage = get_rows();
+      $state = 5; //---- รอตรวจ
+      $this->segment  = 4; //-- url segment
+      $rows = $this->qc_model->count_rows($filter, $state);
+      $init = pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
+      $filter['orders'] = $this->qc_model->get_list($filter, $state, $perpage, $this->uri->segment($this->segment));
+      $this->pagination->initialize($init);
+      $this->load->view('inventory/qc/qc_list', $filter);
+    }
+  }
+
+
+  public function view_process()
+  {
+    $this->title = "รายการกำลังตรวจ";
+
+    $filter = array(
+      'code' => get_filter('code', 'ic_code', ''),
+      'customer' => get_filter('customer', 'ic_customer', ''),
+      'user' => get_filter('user', 'ic_user', ''),
+      'role' => get_filter('role', 'ic_role', 'all'),
+      'channels'  => get_filter('channels', 'ic_channels', 'all'),
+      'from_date' => get_filter('from_date', 'ic_from_date', ''),
+      'to_date' => get_filter('to_date', 'ic_to_date', '')
+    );
+
+    if($this->input->post('search'))
+    {
+      redirect($this->home . '/view_process');
+    }
+    else
+    {
+      //--- แสดงผลกี่รายการต่อหน้า
+      $perpage = get_rows();
+
+      $state = 6; //---- รอตรวจ
+      $this->segment  = 5; //-- url segment
+      $rows = $this->qc_model->count_rows($filter, $state);
+      $init = pagination_config($this->home.'/view_process/index/', $rows, $perpage, $this->segment);
+      $filter['orders'] = $this->qc_model->get_list($filter, $state, $perpage, $this->uri->segment($this->segment));
+      $this->pagination->initialize($init);
+      $this->load->view('inventory/qc/qc_view_process_list', $filter);
+    }
+  }
+
 
   public function close_order()
   {
@@ -147,81 +218,13 @@ class Qc extends PS_Controller
     echo $sc == TRUE ? 'success' : $this->error;
   }
 
-  public function index()
-  {
-    $this->load->helper('channels');
-    $filter = array(
-      'code'          => get_filter('code', 'ic_code', ''),
-      'customer'      => get_filter('customer', 'ic_customer', ''),
-      'user'          => get_filter('user', 'ic_user', ''),
-      'channels'      => get_filter('channels', 'ic_channels', ''),
-      'from_date'     => get_filter('from_date', 'ic_from_date', ''),
-      'to_date'       => get_filter('to_date', 'ic_to_date', ''),
-      'sort_by'       => get_filter('sort_by', 'ic_sort_by', ''),
-      'order_by'      => get_filter('order_by', 'ic_order_by', '')
-    );
-    //--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
 
-    $state = 5; //---- รอตรวจ
-		$segment  = 4; //-- url segment
-		$rows     = $this->qc_model->count_rows($filter, $state);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-    $offset   = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
-		$orders   = $this->qc_model->get_data($filter, $state, $perpage, $offset);
-    $filter['orders'] = $orders;
-    $this->pagination->initialize($init);
-    $this->load->view('inventory/qc/qc_list', $filter);
-  }
-
-
-
-  public function view_process()
-  {
-    $this->load->helper('channels');
-    $filter = array(
-      'code'          => get_filter('code', 'qc_code', ''),
-      'customer'      => get_filter('customer', 'qc_customer', ''),
-      'user'          => get_filter('user', 'qc_user', ''),
-      'channels'      => get_filter('channels', 'qc_channels', ''),
-      'from_date'     => get_filter('from_date', 'qc_from_date', ''),
-      'to_date'       => get_filter('to_date', 'qc_to_date', ''),
-      'sort_by'       => get_filter('sort_by', 'qc_sort_by', ''),
-      'order_by'      => get_filter('order_by', 'qc_order_by', '')
-    );
-    //--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
-    $state = 6; //---- รอตรวจ
-		$segment  = 5; //-- url segment
-		$rows     = $this->qc_model->count_rows($filter, $state);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/view_process/index/', $rows, $perpage, $segment);
-    $offset   = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
-		$orders   = $this->qc_model->get_data($filter, $state, $perpage, $offset);
-    $filter['orders'] = $orders;
-    $this->pagination->initialize($init);
-    $this->load->view('inventory/qc/qc_view_process_list', $filter);
-  }
-
-
-
-
-  public function process($code)
+  public function process($code, $view = NULL)
   {
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
     $this->load->model('inventory/buffer_model');
+
     $state = $this->orders_model->get_state($code);
 
     if($state == 5)
@@ -240,10 +243,11 @@ class Qc extends PS_Controller
 
     $order = $this->orders_model->get($code);
 
-    if(!empty($order))
+    if( ! empty($order))
     {
       $order->customer_name = $this->customers_model->get_name($order->customer_code);
       $order->channels_name = $this->channels_model->get_name($order->channels_code);
+      $order->warehouse_name = warehouse_name($order->warehouse_code);
     }
 
     $barcode_list = array();
@@ -301,10 +305,20 @@ class Qc extends PS_Controller
       'box_list' => $this->qc_model->get_box_list($code),
       'qc_qty' => $this->qc_model->total_qc($code),
       'all_qty' => $this->get_sum_qty($code),
-      'disActive' => $order->state == 6 ? '' : 'disabled'
+      'finished' => empty($uncomplete) ? TRUE : FALSE,
+      'disActive' => $order->state == 6 ? '' : 'disabled',
+      'allow_input_qty' => getConfig('ALLOW_QC_INPUT_QTY') == 1 ? TRUE : FALSE
     );
 
-    $this->load->view('inventory/qc/qc_process', $ds);
+    if( ! empty($view))
+    {
+      $ds['title'] = $order->code;
+      $this->load->view('inventory/qc/qc_process_mobile', $ds);
+    }
+    else
+    {
+      $this->load->view('inventory/qc/qc_process', $ds);
+    }
   }
 
 
@@ -360,37 +374,68 @@ class Qc extends PS_Controller
   }
 
 
+  // public function get_box()
+  // {
+  //   $code = $this->input->get('order_code');
+  //   $barcode = $this->input->get('barcode');
+  //
+  //   $box = $this->qc_model->get_box($code, $barcode);
+  //
+  //   if(!empty($box))
+  //   {
+  //     echo $box->id;
+  //   }
+  //   else
+  //   {
+  //     //--- insert new box
+  //     $box_no = $this->qc_model->get_last_box_no($code) + 1;
+  //     $id_box = $this->qc_model->add_new_box($code, $barcode, $box_no);
+  //     echo $id_box === FALSE ? 'เพิมกล่องไม่สำเร็จ' : $id_box;
+  //   }
+  // }
+
+
   public function get_box()
   {
+    $box_id = FALSE;
+    $box_no = FALSE;
     $code = $this->input->get('order_code');
     $barcode = $this->input->get('barcode');
-
     $box = $this->qc_model->get_box($code, $barcode);
-    if(!empty($box))
+
+    if( ! empty($box))
     {
-      echo $box->id;
+      $box_id = $box->id;
+      $box_no = $box_no;
     }
     else
     {
       //--- insert new box
       $box_no = $this->qc_model->get_last_box_no($code) + 1;
-      $id_box = $this->qc_model->add_new_box($code, $barcode, $box_no);
-      echo $id_box === FALSE ? 'เพิมกล่องไม่สำเร็จ' : $id_box;
+      $box_id = $this->qc_model->add_new_box($code, $barcode, $box_no);
     }
+
+    $arr = array(
+      'status' => $box_id === FALSE ? 'failed' : 'success',
+      'message' => $box_id === FALSE ? "เพิ่มกล่องไม่สำเร็จ" : 'success',
+      'box_id' => $box_id,
+      'box_no' => $box_no
+    );
+
+    echo json_encode($arr);
   }
 
 
 
   public function get_box_list()
   {
-    $sc = TRUE;
+    $ds = array();
     $code = $this->input->get('order_code');
     $id = $this->input->get('id_box');
     $box_list = $this->qc_model->get_box_list($code);
-    if(!empty($box_list))
-    {
-      $ds = array();
 
+    if( ! empty($box_list))
+    {
       foreach($box_list as $box)
       {
         $arr = array(
@@ -399,16 +444,17 @@ class Qc extends PS_Controller
           'qty' => number($box->qty),
           'class' => $box->id == $id ? 'btn-success' : 'btn-default'
         );
+
         array_push($ds, $arr);
       }
     }
-    else
-    {
-      $sc = FALSE;
-    }
 
-    echo $sc === TRUE ? json_encode($ds) : 'no box';
+    $arr = array(
+      'status' => 'success',
+      'box_list' => empty($box_list) ? 'no box' : $ds
+    );
 
+    echo json_encode($arr);
   }
 
 
@@ -503,8 +549,17 @@ class Qc extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('ic_code', 'ic_customer', 'ic_user', 'ic_channels', 'ic_from_date', 'ic_to_date', 'ic_sort_by', 'ic_order_by');
-    clear_filter($filter);
+    $filter = array(
+      'ic_code',
+      'ic_customer',
+      'ic_user',
+      'ic_channels',
+      'ic_role',
+      'ic_from_date',
+      'ic_to_date'
+    );
+
+    return clear_filter($filter);
   }
 
 } //--- end Qc
