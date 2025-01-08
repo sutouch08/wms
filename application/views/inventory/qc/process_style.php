@@ -27,6 +27,17 @@
     vertical-align: top;
   }
 
+  .pad-title {
+    position: sticky;
+    top: 0;
+    left: 0;
+    height: 30px;
+    padding: 3px;
+    background-color: #fefefe;
+    border-bottom: solid 1px #CCC;
+    z-index: 10
+  }
+
   .counter {
     position: fixed;
     top: 46px;
@@ -46,8 +57,7 @@
     right: -100vw;
     width: 100vw;
     height: 100vh;
-    max-height: 100vh;
-    padding-top: 10px;
+    max-height: 100vh;    
     padding-bottom: 80px;
     overflow: auto;
     background-color: white;
@@ -101,11 +111,9 @@
   }
 
   .complete-item {
-    position: relative;
     padding:5px;
-    border:solid 1px #ccc;
-    border-radius: 5px;
-    margin-top: 10px;
+    border-bottom:solid 1px #ccc;
+    margin-bottom: 10px;
   }
 
   .complete-box {
@@ -118,6 +126,56 @@
     padding-bottom: 80px;
     background-color: white;
     z-index: 8
+  }
+
+  .edit-box {
+    position: fixed;
+    top:0px;
+    right: 0px;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    padding-bottom: 80px;
+    background-color: white;
+    z-index: 8
+  }
+
+  .edit-item {
+    padding:5px;
+    border-bottom:solid 1px #ccc;
+    margin-bottom: 10px;
+  }
+
+  .box-details {
+    position: fixed;
+    top:0px;
+    right: 0px;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    padding-bottom: 80px;
+    background-color: white;
+    z-index: 9
+  }
+
+  .item-in-box {
+    padding:5px;
+    border-bottom:solid 1px #ccc;
+    margin-bottom: 10px;
+  }
+
+  button.close-box {
+    position:absolute;
+    bottom:80px;
+    right:15px;
+    background:black;
+    padding:10px;
+    font-size:30px;
+    color:white;
+    line-height:0.5;
+    border:none;
+    border-radius:25px;
+    opacity:0.5;
   }
 
   #close-bar {

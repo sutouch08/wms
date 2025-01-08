@@ -154,6 +154,26 @@ class Qc_model extends CI_Model
   }
 
 
+  public function get_complete_item($order_detail_id)
+  {
+    $qr  = "SELECT id, order_code, product_code, product_name, is_count, ";
+    $qr .= "(SELECT SUM(qty) FROM order_details WHERE id = {$order_detail_id}) AS order_qty, ";
+    $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_detail_id = {$order_detail_id}) AS prepared, ";
+    $qr .= "(SELECT SUM(qty) FROM qc WHERE order_detail_id = {$order_detail_id}) AS qc ";
+    $qr .= "FROM order_details ";
+    $qr .= "WHERE id = {$order_detail_id} HAVING prepared <= qc ";
+
+    $rs = $this->db->query($qr);
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   //--- รายการที่ตรวจครบแล้ว
   public function get_complete_list($order_code)
   {
@@ -173,6 +193,26 @@ class Qc_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_incomplete_item($order_detail_id)
+  {
+    $qr  = "SELECT id, order_code, product_code, product_name, is_count, ";
+    $qr .= "(SELECT SUM(qty) FROM order_details WHERE id = {$order_detail_id}) AS order_qty, ";
+    $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_detail_id = {$order_detail_id}) AS prepared, ";
+    $qr .= "(SELECT SUM(qty) FROM qc WHERE order_detail_id = {$order_detail_id}) AS qc ";
+    $qr .= "FROM order_details ";
+    $qr .= "WHERE id = {$order_detail_id} HAVING (prepared > qc OR qc IS NULL)";
+
+    $rs = $this->db->query($qr);
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
   }
 
 
@@ -204,17 +244,21 @@ class Qc_model extends CI_Model
   //--- รายการกล่องทั้งหมดที่ตรวจในออเดอร์ที่กำหนด
   public function get_box_list($order_code)
   {
-    $qr = "SELECT b.id, b.box_no, SUM(q.qty) AS qty FROM qc_box AS b ";
-    $qr .= "LEFT JOIN qc AS q ON b.id = q.box_id AND b.order_code = q.order_code ";
-    $qr .= "WHERE b.order_code = '{$order_code}' GROUP BY b.id";
+    $rs = $this->db
+    ->select('b.id, b.code, b.box_no')
+    ->select_sum('q.qty', 'qty')
+    ->from('qc_box AS b')
+    ->join('qc AS q', 'b.id = q.box_id AND b.order_code = q.order_code', 'left')
+    ->where('b.order_code', $order_code)
+    ->group_by('b.id')
+    ->get();
 
-    $rs = $this->db->query($qr);
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -231,6 +275,19 @@ class Qc_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_box_by_id($box_id)
+  {
+    $rs = $this->db->where('id', $box_id)->get('qc_box');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
   }
 
 
@@ -376,7 +433,7 @@ class Qc_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

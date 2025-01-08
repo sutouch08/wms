@@ -6,6 +6,7 @@ window.addEventListener('load', () => {
   $('#barcode-box').focus();
 });
 
+
 function bclick_init() {
   $('.b-click').click(function(){
     let barcode = $(this).text().trim();
@@ -13,6 +14,7 @@ function bclick_init() {
     $('#barcode-item').focus();
   });
 }
+
 
 function focus_init() {
 	$('.focus').focusout(function() {
@@ -29,13 +31,51 @@ function focus_init() {
 	});
 }
 
-
-function updateBox(){
-  var id_box = $("#id_box").val();
-  var qty = parseInt( removeCommas( $("#"+id_box).text() ) ) +1 ;
-  $("#"+id_box).text(addCommas(qty));
+function setFocus() {
+  if($('#item-bc').hasClass('hide')) {
+    $('#barcode-box').focus();
+  }
+  else {
+    $('#barcode-item').focus();
+  }
 }
 
+
+function updateQc(id, qty) {
+  qty = parseDefault(parseFloat(qty), 0);
+
+  let badgeQty = parseDefault(parseFloat(removeCommas($('#badge-qty-'+id).text())), 0);
+  let packQty = parseDefault(parseFloat(removeCommas($('#qc-'+id).text())), 0);
+  let balance = badgeQty - qty;
+  let packed = packQty + qty;
+
+  if(qty > 0 && balance >= 0) {
+    $('#badge-qty-'+id).text(addCommas(balance));
+    $('#qc-'+id).text(addCommas(packed))
+
+    if(balance == 0) {
+      getCompleteItem(id);
+
+      $('#incomplete-'+id).remove();
+    }
+  }
+  else {
+    showError("จำนวนไม่ถูกต้อง");
+  }
+}
+
+
+function updateBox(id_box, qty) {
+  let allQty = parseDefault(parseFloat(removeCommas($('#all-qty').text())), 0);
+  let boxQty = parseDefault(parseFloat(removeCommas($('#box-qty-'+id_box).text())), 0);
+
+  qty = parseDefault(parseFloat(qty), 1);
+  allQty += qty;
+  boxQty += qty;
+
+  $('#all-qty').text(addCommas(allQty));
+  $('#box-qty-'+id_box).text(addCommas(boxQty));
+}
 
 
 function updateBoxList(){
@@ -50,27 +90,33 @@ function updateBoxList(){
       "order_code" : order_code,
       "id_box" : id_box
     },
-    success:function(rs){
-      var rs = $.trim(rs);
-      if(isJson(rs)){
-        var source = $("#box-template").html();
-        var data = $.parseJSON(rs);
-        var output = $("#box-row");
-        render(source, data, output);
-      }
-      else if(rs == "no box") {
-        $("#box-row").html('<span id="no-box-label">ยังไม่มีการตรวจสินค้า</span>');
+    success:function(rs) {
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.box_list !== null && ds.box_list !== undefined && ds.box_list != 'no box') {
+          let data = ds.box_list;
+          let source = $('#box-template').html();
+          let output = $('#box-list');
+
+          render(source, data, output);
+        }
+        else {
+          let data = ds.box_list;
+          let source = $('#no-box-template').html();
+          let output = $('#box-list');
+
+          render(source, data, output);
+        }
       }
       else {
-        swal("Error!", rs, "error");
+        showError(rs);
       }
     }
   });
 }
 
 
-
-//---
 $("#barcode-box").keyup(function(e){
   if(e.keyCode == 13){
     if( $(this).val() != ""){
@@ -78,6 +124,55 @@ $("#barcode-box").keyup(function(e){
     }
   }
 });
+
+
+function addBox() {
+  let order_code = $('#order_code').val();
+  let barcode = Math.random().toString(36).substring(2, 15);
+  let allow_input_qty = $('#allow-input-qty').val();
+
+  $.ajax({
+    url:HOME + 'get_box',
+    type:'GET',
+    cache:false,
+    data:{
+      'order_code' : order_code,
+      'barcode' : barcode
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          $("#id_box").val(ds.box_id);
+          $("#barcode-box").attr('disabled', 'disabled');
+          $('#box-label').text("กล่องที่ "+ds.box_no);
+          $('#box-bc').addClass('hide');
+          $('#item-bc').removeClass('hide');
+          $('#item-qty').val(1);
+
+          if(allow_input_qty == 1) {
+            $('#item-qty').removeClass('hide');
+          }
+
+          $("#barcode-item").focus();
+
+          updateBoxList();
+        }
+        else {
+          showError(ds.message);
+        }
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
+}
+
 
 function getBox() {
   let barcode = $('#barcode-box').val().trim();
@@ -96,13 +191,13 @@ function getBox() {
       success:function(rs) {
         if(isJson(rs)) {
           let ds = JSON.parse(rs);
-
           if(ds.status == 'success') {
             $("#id_box").val(ds.box_id);
             $("#barcode-box").attr('disabled', 'disabled');
             $('#box-label').text("กล่องที่ "+ds.box_no);
             $('#box-bc').addClass('hide');
             $('#item-bc').removeClass('hide');
+            $('#item-qty').val(1);
 
             if(allow_input_qty == 1) {
               $('#item-qty').removeClass('hide');
@@ -119,11 +214,55 @@ function getBox() {
         else {
           showError(rs);
         }
+      },
+      error:function(rs) {
+        showError(rs);
+      }
+    });
+  }
+}
 
-        if( ! isNaN( parseInt(rs) ) ) {
+//-- change box to select box when press box icon
+function getSelectBox(barcode) {
+  let order_code = $('#order_code').val();
+  let allow_input_qty = $('#allow-input-qty').val();
 
-        }else{
-          swal("Error!", rs, "error");
+  if(barcode.length > 0) {
+    $.ajax({
+      url: HOME + 'get_box',
+      type:"GET",
+      cache:"false",
+      data:{
+        "barcode":barcode,
+        "order_code" : order_code
+      },
+      success:function(rs) {
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+          if(ds.status == 'success') {
+            $("#id_box").val(ds.box_id);
+            $("#barcode-box").attr('disabled', 'disabled');
+            $('#box-label').text("กล่องที่ "+ds.box_no);
+            $('#box-bc').addClass('hide');
+            $('#item-bc').removeClass('hide');
+            $('#item-qty').val(1);
+
+            if(allow_input_qty == 1) {
+              $('#item-qty').removeClass('hide');
+            }
+
+            closeBoxList();
+
+            $("#barcode-item").focus();
+
+            updateBoxList();
+          }
+          else {
+            showError(ds.message);
+          }
+        }
+        else {
+          showError(rs);
         }
       },
       error:function(rs) {
@@ -137,10 +276,11 @@ function getBox() {
 $('#barcode-item').keyup(function(e) {
   if(e.keyCode === 13) {
     if($(this).val() != "") {
-      doPrepare();
+      qcProduct();
     }
   }
 });
+
 
 $('#btn-increse').click(function() {
   let qty = parseDefault(parseFloat($('#qty').val()), 0);
@@ -148,6 +288,7 @@ $('#btn-increse').click(function() {
   $('#qty').val(qty);
   $('#barcode-item').focus();
 })
+
 
 $('#btn-decrese').click(function() {
   let qty = parseDefault(parseFloat($('#qty').val()), 0);
@@ -163,91 +304,119 @@ $('#btn-decrese').click(function() {
   $('#barcode-item').focus();
 })
 
-function setFocus() {
-  if($('#item-bc').hasClass('hide')) {
-    $('#barcode-box').focus();
-  }
-  else {
-    $('#barcode-item').focus();
-  }
-}
 
-//--- จัดสินค้า ตัดยอดออกจากโซน เพิ่มเข้า buffer
-function doPrepare() {
-  let order_code = $("#order_code").val();
-  let zone_code = $("#zone_code").val();
-  let barcode = $("#barcode-item").val();
-  let qty   = parseDefault(parseFloat($("#qty").val()), 0);
+function qcProduct() {
+  let order_code = $('#order_code').val();
+  let id_box = $('#id_box').val();
 
-  if( zone_code == "") {
+  if(id_box == '') {
     beep();
-    swal("Error!", "ไม่พบรหัสโซน กรุณาเปลี่ยนโซนแล้วลองใหม่อีกครั้ง", "error");
+    showError("กรุณาระบุกล่อง");
     return false;
   }
 
-  if( barcode.length == 0){
+  if(order_code == '') {
     beep();
-    swal("Error!", "บาร์โค้ดสินค้าไม่ถูกต้อง", "error");
+    showError('ไม่พบเลขที่ออเดอร์');
     return false;
   }
 
-  if(qty <= 0){
-    beep();
-    swal("Error!", "จำนวนไม่ถูกต้อง", "error");
-    return false;
-  }
+  let input_barcode = $("#barcode-item").val().trim();
+  let iqty = parseDefault(parseInt($('#qc-qty').val()), 1);
 
-  $.ajax({
-    url: BASE_URL + 'inventory/prepare/do_prepare',
-    type:"POST",
-    cache:"false",
-    data:{
-      "order_code" : order_code,
-      "zone_code" : zone_code,
-      "barcode" : barcode,
-      "qty" : qty
-    },
-    success: function(rs) {
-      if( isJson(rs)){
-        let ds = JSON.parse(rs);
-        let order_qty = parseDefault(parseInt(removeCommas($("#order-qty-" + ds.id).text())), 0);
-        let prepared = parseDefault(parseInt(removeCommas($("#prepared-qty-" + ds.id).text())), 0);
-        let balance = parseDefault(parseInt(removeCommas($("#balance-qty-" + ds.id).text())), 0);
-        let prepare_qty = parseInt(ds.qty);
-        let picked = parseDefault(parseInt(removeCommas($('#pick-qty').text())), 0);
+  $('#barcode-item').attr('disabled', 'disabled');
+  // $('#barcode-item').val('');
 
-        prepared = prepared + prepare_qty;
-        balance = order_qty - prepared;
+  if(input_barcode.length) {
+    let barcode = md5(input_barcode); //--- id กับ barcode คือตัวเดียวกัน
+    let id = barcode;
 
-        $("#prepared-qty-" + ds.id).text(addCommas(prepared));
-        $("#balance-qty-" + ds.id).text(addCommas(balance));
-        $('#badge-qty-'+ ds.id).text(addCommas(balance));
+    if($('.'+barcode).length == 1) {
+      let pdCode = $('.'+barcode).data('code');
+      let pqty = parseDefault(parseInt($("."+barcode).val()), 1);
+      let qty = iqty * pqty;
 
-        $('#pick-qty').text(addCommas(picked + qty));
-
-        $("#qty").val(1);
-        $("#barcode-item").val('');
-
-        if( ds.valid == '1') {
-          getCompleteItem(ds.id);
-        }
-        else {
-          $('.incomplete-item').removeClass('heighlight');
-          $('#incomplete-'+ds.id).addClass('heighlight');
-          $('#incomplete-'+ds.id).prependTo('#incomplete-box');
-          $('#btn-scroll-up').click();
-        }
-      }
-      else {
+      if(qty <= 0) {
         beep();
-        swal("Error!", rs, "error");
-        $("#qty").val(1);
-        $("#barcode-item").val('');
+        showError("จำนวนไม่ถูกต้อง");
+        return false;
       }
+
+      let d = {
+        'order_code' : order_code,
+        'id_box' : id_box,
+        'product_code' : pdCode,
+        'qty' : qty
+      };
+
+      load_in();
+
+      $.ajax({
+        url:HOME + 'do_qc',
+        type:'POST',
+        cache:false,
+        data:{
+          'data' : JSON.stringify(d)
+        },
+        success:function(rs) {
+          load_out();
+
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+
+            if(ds.status == 'success') {
+
+              if(ds.result) {
+                let result = ds.result;
+
+                result.forEach((el) => {
+                  updateBox(id_box, el.qty);
+                  updateQc(el.detail_id, el.qty);
+                });
+              }
+            }
+            else {
+              showError(ds.message);
+            }
+
+            $('#barcode-item').val('');
+            $('#qc-qty').val(1);
+          }
+          else {
+            showError(rs);
+          }
+
+          $('#barcode-item').removeAttr('disabled');
+          $('#barcode-item').focus();
+        },
+        error:function(rs) {
+          load_out();
+          showError(rs);
+          $('#barcode-item').removeAttr('disabled');
+          $('#barcode-item').focus();
+        }
+      });
     }
-  });
+    else
+    {
+      beep();
+      swal("สินค้าไม่ถูกต้อง");
+    }
+  }
 }
 
+
+function changeBox() {
+  $("#id_box").val('');
+  $('#item-bc').addClass('hide');
+  $('#item-qty').addClass('hide');
+  $('#item-qty').val(1);
+  $('#barcode-box').val('');
+  $("#barcode-box").removeAttr('disabled');
+  $('#box-label').text("กรุณาระบุกล่อง");
+  $('#box-bc').removeClass('hide');
+  $("#barcode-box").focus();
+}
 
 
 function getCompleteItem(id) {
@@ -337,29 +506,137 @@ function getIncompleteItem(id) {
 }
 
 
+function showEditOption(order_code, product_code) {
+  load_in();
+
+  $.ajax({
+    url:HOME + 'get_checked_table',
+    type:'GET',
+    cache:'false',
+    data:{
+      'order_code' : order_code,
+      'product_code' : product_code
+    },
+    success:function(rs){
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+        let data = {
+          'title' : product_code,
+          'items' : ds
+        };
+
+        let source = $('#edit-template').html();
+        let output = $('#edit-box');
+        render(source, data, output);
+        focus_init();
+
+        openEditBox();
+
+      }
+      else {
+        showError(rs);
+      }
+    }
+  });
+}
+
+
+function updateQty(id_qc) {
+  clearErrorByClass('e');
+
+  let remove_qty = parseDefault(parseInt($('#input-'+id_qc).val()), 0);
+  let limit = parseDefault(parseInt($('#input-'+id_qc).data('qty')), 0);
+
+  if(remove_qty > 0) {
+
+    if(remove_qty > limit) {
+      $('#input-'+id_qc).hasError();
+      showError("ยอดที่เอาออกต้องไม่เกินยอดตรวจนับ");
+      return false;
+    }
+
+    if(limit >= remove_qty) {
+      load_in();
+
+      $.ajax({
+        url:HOME + 'remove_check_qty',
+        type:'POST',
+        cache:'false',
+        data:{
+          'id' : id_qc,
+          'qty' : remove_qty
+        },
+        success:function(rs){
+          load_out();
+
+          if(rs.trim() == 'success'){
+            qty = limit - remove_qty;
+            if(qty <= 0) {
+              $('#edit-'+id_qc).remove();
+            }
+            else {
+              $('#label-'+id_qc).text(qty);
+              $('#input-'+id_qc).val('').focus();
+            }
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          load_out();
+          showError(rs);
+        }
+      });
+    }
+  }
+}
+
+
+function viewBoxItems(box_id) {
+  let order_code = $('#order_code').val();
+
+  $.ajax({
+    url:HOME + 'get_box_details',
+    type:'POST',
+    cache:false,
+    data:{
+      'order_code' : order_code,
+      'box_id' : box_id
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+        let source = $('#box-item-template').html();
+        let output = $('#box-details');
+
+        render(source, ds, output);
+
+        openBoxDetail();
+      }
+    }
+  })
+}
 
 function closeHeader() {
-  $('#header').val("hide");
   $('#header-pad').removeClass('move-in');
 }
 
-function toggleHeader() {
-  let hd = $('#header');
-  let pad = $('#header-pad');
-
-  if(hd.val() == "hide") {
-    hd.val("show");
-    pad.addClass('move-in');
-  }
-  else {
-    hd.val("hide");
-    pad.removeClass('move-in');
-  }
-
+function openHeader() {
   closeBoxList();
   closeComplete();
+  closeEditBox();
+  closeBoxDetail();
+  closeExtraMenu();
+  $('#header-pad').addClass('move-in');
 }
 
+function closeExtraMenu() {
+  $('#extra').val('hide');
+  $('#extra-menu').removeClass('slide-in');
+}
 
 function toggleExtraMenu() {
   let hd = $('#extra');
@@ -376,45 +653,42 @@ function toggleExtraMenu() {
 }
 
 function closeComplete() {
-  $('#complete').val("hide");
   $('#complete-box').removeClass('move-in');
 }
 
-function toggleComplete() {
-  let hd = $('#complete');
-  let pad = $('#complete-box');
-
-  if(hd.val() == "hide") {
-    hd.val("show");
-    pad.addClass('move-in');
-  }
-  else {
-    hd.val("hide");
-    pad.removeClass('move-in');
-  }
-
+function openComplete() {
   closeHeader();
+  closeBoxDetail();
   closeBoxList();
+  closeEditBox();
+  $('#complete-box').addClass('move-in');
 }
 
 function closeBoxList() {
-  $('#box-pad').val("hide");
   $('#box-list').removeClass('move-in');
 }
 
-function toggleBoxList() {
-  let hd = $('#box-pad');
-  let pad = $('#box-list');
-
-  if(hd.val() == "hide") {
-    hd.val("show");
-    pad.addClass('move-in');
-  }
-  else {
-    hd.val("hide");
-    pad.removeClass('move-in');
-  }
-
+function openBoxList() {
   closeHeader();
   closeComplete();
+  closeEditBox();
+  closeBoxDetail();
+  $('#box-list').addClass('move-in');
+}
+
+function closeEditBox() {
+  $('#edit-box').removeClass('move-in');
+}
+
+function openEditBox() {
+  $('#edit-box').addClass('move-in');
+}
+
+
+function closeBoxDetail() {
+  $('#box-details').removeClass('move-in');
+}
+
+function openBoxDetail() {
+  $('#box-details').addClass('move-in');
 }

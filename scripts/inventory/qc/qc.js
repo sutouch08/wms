@@ -21,6 +21,10 @@ function viewProcess(){
 }
 
 
+function refresh() {
+  window.location.reload();
+}
+
 //---- กำหนดค่าการแสดงผลที่เก็บสินค้า เมื่อมีการคลิกปุ่มที่เก็บ
 $(function () {
   $('.btn-pop').popover({html:true});

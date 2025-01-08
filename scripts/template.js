@@ -386,3 +386,16 @@ $.fn.clearError = function() {
   $('#'+name+'-error').text('');
   return this.removeClass('has-error');
 };
+
+function clearErrorByClass(className) {
+  $('.'+className).each(function() {
+    let name = $(this).attr('id');
+    $('#'+name+'-error').text('');
+    $(this).removeClass('has-error');
+  })
+}
+
+
+function clearCache() {
+  window.location.reload(true);
+}

@@ -116,7 +116,6 @@ class Qc extends PS_Controller
   }
 
 
-
   public function save_qc()
   {
     $sc = TRUE;
@@ -216,6 +215,120 @@ class Qc extends PS_Controller
     }
 
     echo $sc == TRUE ? 'success' : $this->error;
+  }
+
+
+  public function do_qc()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+    $result = array();
+
+    if( ! empty($ds))
+    {
+      if( ! empty($ds->order_code))
+      {
+        if($ds->qty > 0)
+        {
+          $this->load->model('inventory/buffer_model');
+
+          $details = $this->orders_model->get_unvalid_qc_detail($ds->order_code, $ds->product_code);
+
+          if( ! empty($details))
+          {
+            $qty = $ds->qty;
+
+            $this->db->trans_begin();
+
+            foreach($details as $detail)
+            {
+              if($sc === TRUE)
+              {
+                if($qty > 0)
+                {
+                  $Qty = $qty >= $detail->qty ? $detail->qty : $qty; //-- 3
+                  $bufferQty = $this->buffer_model->get_sum_buffer_product($detail->order_code, $detail->product_code, $detail->id); //--- 5
+                  $qcQty = $this->qc_model->get_sum_qty($detail->order_code, $detail->product_code, $detail->id); //-- 2
+                  //--- ยอดที่จัดมาต้องน้อยกว่า หรือ เท่ากับยอดที่สั่ง
+                  //--- ถ้ามากกว่าให้ใช้ยอดที่สั่งในการตรวจสอบ
+
+                  //--- ยอดที่จะบันทึกตรวจต้องรวมกันแล้วไม่เกินยอดที่จัดและต้องไม่เกินยอดสั่ง
+                  $updateQty = $qcQty + $Qty; //--- 2 + 3
+
+                  if($updateQty > $bufferQty)
+                  {
+                    $sc = FALSE;
+                    $this->error = $detail->product_code.' ยอดตรวจเกินยอดจัดหรือยอดสั่ง';
+                  }
+
+                  //--- update ยอดตรวจ
+                  if($sc === TRUE)
+                  {
+                    if( ! $this->qc_model->update_checked($ds->order_code, $detail->product_code, $ds->id_box, $Qty, $detail->id))
+                    {
+                      $sc = FALSE;
+                      $this->error = $detail->product_code.' บันทึกยอดตรวจไม่สำเร็จ';
+                    }
+
+                    if($sc === TRUE)
+                    {
+                      $qty = $qty - $Qty;
+
+                      $result[] = array(
+                        'detail_id' => $detail->id,
+                        'qty' => $Qty
+                      );
+
+                      if($detail->qty == $updateQty)
+                      {
+                        $this->orders_model->valid_qc($detail->id);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "ไม่พบรายการตรวจสินค้าที่ระบุ";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "จำนวนต้องมากกว่า 0";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Order Number not found";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'result' => $sc === TRUE ? $result : NULL
+    );
+
+    echo json_encode($arr);
   }
 
 
@@ -322,6 +435,45 @@ class Qc extends PS_Controller
   }
 
 
+  public function get_complete_item($id_order_detail)
+  {
+    $sc = TRUE;
+    $rs = $this->qc_model->get_complete_item($id_order_detail);
+
+    if( ! empty($rs))
+    {
+      $this->load->model('inventory/buffer_model');
+
+      $rs->qty = round($rs->order_qty, 2);
+      $rs->barcode = $this->get_barcode($rs->product_code);
+      $rs->prepared = round($rs->prepared, 2);
+      $rs->qc = round($rs->qc, 2);
+
+      $arr = array(
+        'order_code' => $rs->order_code,
+        'product_code' => $rs->product_code,
+        'order_detail_id' => $rs->id,
+        'is_count' => $rs->is_count
+      );
+
+      $rs->from_zone = $this->get_prepared_from_zone($arr);
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบรายการที่ครบแล้ว : {$id_order_detail}";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $sc === TRUE ? $rs : NULL
+    );
+
+    echo json_encode($arr);
+  }
+
+
   public function get_barcode($item_code)
   {
     $this->load->model('masters/products_model');
@@ -374,31 +526,10 @@ class Qc extends PS_Controller
   }
 
 
-  // public function get_box()
-  // {
-  //   $code = $this->input->get('order_code');
-  //   $barcode = $this->input->get('barcode');
-  //
-  //   $box = $this->qc_model->get_box($code, $barcode);
-  //
-  //   if(!empty($box))
-  //   {
-  //     echo $box->id;
-  //   }
-  //   else
-  //   {
-  //     //--- insert new box
-  //     $box_no = $this->qc_model->get_last_box_no($code) + 1;
-  //     $id_box = $this->qc_model->add_new_box($code, $barcode, $box_no);
-  //     echo $id_box === FALSE ? 'เพิมกล่องไม่สำเร็จ' : $id_box;
-  //   }
-  // }
-
-
   public function get_box()
   {
     $box_id = FALSE;
-    $box_no = FALSE;
+    $box_no = 0;
     $code = $this->input->get('order_code');
     $barcode = $this->input->get('barcode');
     $box = $this->qc_model->get_box($code, $barcode);
@@ -406,7 +537,7 @@ class Qc extends PS_Controller
     if( ! empty($box))
     {
       $box_id = $box->id;
-      $box_no = $box_no;
+      $box_no = $box->box_no;
     }
     else
     {
@@ -426,7 +557,6 @@ class Qc extends PS_Controller
   }
 
 
-
   public function get_box_list()
   {
     $ds = array();
@@ -440,6 +570,7 @@ class Qc extends PS_Controller
       {
         $arr = array(
           'no' => $box->box_no,
+          'code' => $box->code,
           'id_box' => $box->id,
           'qty' => number($box->qty),
           'class' => $box->id == $id ? 'btn-success' : 'btn-default'
@@ -456,7 +587,6 @@ class Qc extends PS_Controller
 
     echo json_encode($arr);
   }
-
 
 
   public function get_checked_table()
@@ -490,7 +620,6 @@ class Qc extends PS_Controller
   }
 
 
-
   public function remove_check_qty()
   {
     $sc = TRUE;
@@ -498,6 +627,7 @@ class Qc extends PS_Controller
     $qty = $this->input->post('qty'); //--- remove qty
 
     $qc = $this->qc_model->get($id);
+
     if(!empty($qc))
     {
       if($qty == $qc->qty)
@@ -506,6 +636,10 @@ class Qc extends PS_Controller
         {
           $sc = FALSE;
           $this->error = "ลบรายการไม่สำเร็จ";
+        }
+        else
+        {
+
         }
       }
       else
@@ -516,6 +650,11 @@ class Qc extends PS_Controller
           $this->error = "ปรับปรุงยอดตรวจนับไม่สำเร็จ";
         }
       }
+
+      if($sc === TRUE)
+      {
+        $this->orders_model->unvalid_detail($qc->order_detail_id);
+      }
     }
     else
     {
@@ -525,6 +664,7 @@ class Qc extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
+
 
   public function print_box($code, $box_id)
   {
@@ -546,6 +686,21 @@ class Qc extends PS_Controller
   }
 
 
+  public function get_box_details()
+  {
+    $order_code = $this->input->post('order_code');
+    $box_id = $this->input->post('box_id');
+    $items = $this->qc_model->get_box_details($order_code, $box_id);
+    $box = $this->qc_model->get_box_by_id($box_id);
+
+    $ds = array(
+      'box_no' => empty($box) ? NULL : $box->box_no,
+      'barcode' => empty($box) ? NULL : $box->code,
+      'items' => $items
+    );
+
+    echo json_encode($ds);
+  }
 
   public function clear_filter()
   {

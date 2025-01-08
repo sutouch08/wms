@@ -155,22 +155,6 @@
   </div>
 </div>
 
-<script id="incomplete-template" type="text/x-handlebarsTemplate">
-  <div class="col-xs-12 incomplete-item" id="incomplete-{{id}}">
-    <div class="width-100" style="padding: 3px 3px 3px 10px;">
-      <div class="margin-bottom-3 pre-wrap b-click " id="b-click-{{id}}">{{barcode}}</div>
-      <div class="margin-bottom-3 pre-wrap">{{product_code}}</div>
-      <div class="margin-bottom-3 pre-wrap hide-text">{{product_name}}</div>
-      <div class="margin-bottom-3 pre-wrap">
-        <div class="width-33 float-left">จำนวน : <span class="width-30" id="order-qty-{{id}}">{{qty}}</span></div>
-        <div class="width-33 float-left">จัดแล้ว : <span class="width-30" id="prepared-qty-{{id}}">{{prepared}}</span></div>
-        <div class="width-33 float-left">คงเหลือ : <span class="width-30" id="balance-qty-{{id}}">{{balance}}</span></div>
-      </div>
-      <div class="margin-bottom-3 pre-wrap">Location : {{stock_in_zone}}</div>
-    </div>
-    <span class="badge-qty" id="badge-qty-{{id}}">{{balance}}</span>
-  </div>
-</script>
 
 <script id="incomplete-template" type="text/x-handlebarsTemplate">
   <div class="col-xs-12 incomplete-item" id="incomplete-{{id}}">

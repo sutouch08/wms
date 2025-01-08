@@ -2,168 +2,14 @@
 <?php $this->load->view('inventory/qc/style'); ?>
 <?php $this->load->view('inventory/qc/process_style'); ?>
 <script src="<?php echo base_url(); ?>/assets/js/md5.min.js"></script>
-<?php $ref = empty($order->reference) ? "" : "&nbsp;&nbsp;&nbsp;[{$order->reference}]"; ?>
-<div class="form-horizontal filter-pad move-out" id="header-pad">
-  <div class="form-group margin-top-30">
-    <div class="col-xs-12 padding-5">
-      <label>เลขที่เอกสาร</label>
-      <input type="text" class="width-100" value="<?php echo $order->code . $ref; ?> " readonly/>
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="col-xs-12 padding-5">
-      <label>ลูกค้า/ผู้เบิก/ผู้ยืม</label>
-      <input type="text" class="width-100" value="<?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>" readonly/>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <div class="col-xs-12 padding-5">
-      <label>คลัง</label>
-      <input type="text" class="width-100" value="<?php echo $order->warehouse_name; ?>" readonly/>
-    </div>
-  </div>
-
-  <?php if($order->role == 'S') : ?>
-    <div class="form-group">
-      <div class="col-xs-12 padding-5">
-        <label>ช่องทาง</label>
-        <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" readonly/>
-      </div>
-    </div>
-  <?php endif; ?>
-
-  <div class="form-group">
-    <div class="col-xs-12 padding-5">
-      <label>วันที่</label>
-      <input type="text" class="width-100" value="<?php echo thai_date($order->date_add); ?>" readonly/>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <div class="col-xs-12 padding-5">
-      <label>หมายเหตุ</label>
-      <textarea class="form-control" rows="5" readonly><?php echo $order->remark; ?></textarea>
-    </div>
-  </div>
-</div>
-
-<!-- แสดงผลกล่อง  -->
-<div class="box-list move-out" id="box-list">
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-12" style="padding-left:0;">
-        <h4 class="text-center">ไม่พบกล่อง</h4>
-      </div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <div class="box-item">
-    <div class="row">
-      <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
-      <div class="col-xs-7" style="padding-left:0;">
-        <p class="box-line">กล่องที่ 1</p>
-        <p class="box-line">จำนวน : 100 pcs.</p>
-      </div>
-      <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
-    </div>
-  </div>
-  <?php if(!empty($box_list)) : ?>
-    <?php   foreach($box_list as $rs) : ?>
-      <button type="button" class="btn btn-sm btn-default" id="btn-box-<?php echo $rs->id; ?>" onclick="printBox(<?php echo $rs->id; ?>)">
-        <i class="fa fa-print"></i>&nbsp;กล่องที่ <?php echo $rs->box_no; ?>&nbsp; : &nbsp;
-        <span id="<?php echo $rs->id; ?>"><?php echo number($rs->qty); ?></span>&nbsp; Pcs.
-      </button>
-    <?php   endforeach; ?>
-  <?php endif; ?>
-</div>
 
 <div class="counter text-center">
-  <span id="all-qty"><?php echo number($qc_qty); ?><span><span> / <?php echo number($all_qty); ?><span>
+  <span id="all-qty"><?php echo number($qc_qty); ?></span><span> / <?php echo number($all_qty); ?></span>
 </div>
 
 <?php $this->load->view('inventory/qc/qc_incomplete_list_mobile'); ?>
 <?php $this->load->view('inventory/qc/qc_complete_list_mobile');?>
+<?php $this->load->view('inventory/qc/hidden_pad'); ?>
 
 <div id="control-box">
   <div class="">
@@ -181,8 +27,10 @@
     </div>
 
     <div class="width-100 e-item hide" id="item-bc">
-      <input type="text" class="form-control input-lg focus" style="padding-left:15px; padding-right:40px;" id="barcode-item" inputmode="none" placeholder="Barcode Item">
-      <i class="ace-icon fa fa-qrcode fa-2x" style="position:absolute; top:72px; right:22px; color:grey;"></i>
+      <div class="input-group width-100">
+        <input type="text" class="form-control input-lg focus" style="padding-left:15px; padding-right:40px;" id="barcode-item" inputmode="none" placeholder="Barcode Item">
+        <i class="ace-icon fa fa-qrcode fa-2x" style="position:absolute; top:10px; right:15px; color:grey; z-index:2;" onclick="qcProduct()"></i>
+      </div>
     </div>
   </div>
 </div>
@@ -191,13 +39,9 @@
 
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
 <input type="hidden" id="id_box" value="" />
-<input type="hidden" id="header" value="hide" />
-<input type="hidden" id="filter" value="hide" />
 <input type="hidden" id="extra" value="hide" />
-<input type="hidden" id="box-pad" value="hide" />
-<input type="hidden" id="complete" value="hide" />
 <input type="hidden" id="allow-input-qty" value="<?php echo $allow_input_qty ? 1 : 0; ?>" />
-
+<input type="hidden" id="finished" value="<?php echo $finished ? 1 : 0; ?>" />
 
 <div class="pg-footer visible-xs">
   <div class="pg-footer-inner">
@@ -208,19 +52,19 @@
         </button>
       </div>
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="changeZone()">
-          <i class="fa fa-repeat fa-2x white"></i><span class="fon-size-12">เปลี่ยนโซน</span>
+        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="changeBox()">
+          <i class="fa fa-repeat fa-2x white"></i><span class="fon-size-12">เปลี่ยนกล่อง</span>
         </button>
       </div>
 
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleComplete()">
+        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="openComplete()">
           <i class="fa fa-check-square fa-2x white"></i><span class="fon-size-12">ครบแล้ว</span>
         </button>
       </div>
 
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleBoxList()">
+        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="openBoxList()">
           <i class="fa fa-cubes fa-2x white"></i><span class="fon-size-12">Box list</span>
         </button>
       </div>
@@ -235,119 +79,150 @@
 </div>
 
 <div class="extra-menu slide-out" id="extra-menu">
-  <div class="footer-menu width-25">
+  <div class="footer-menu width-20">
     <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goBack()">
       <i class="fa fa-tasks fa-2x white"></i><span class="fon-size-12">รายการรอจัด</span>
     </button>
   </div>
-  <div class="footer-menu width-25">
-    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goProcess()">
+  <div class="footer-menu width-20">
+    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="viewProcess()">
       <i class="fa fa-shopping-basket fa-2x white"></i><span class="fon-size-12">รายการกำลังจัด</span>
     </button>
   </div>
-  <div class="footer-menu width-25">
-    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleHeader()">
+  <div class="footer-menu width-20">
+    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="openHeader()">
       <i class="fa fa-file-text-o fa-2x white"></i><span class="fon-size-12">ห้วเอกสาร</span>
     </button>
   </div>
-  <div class="footer-menu width-25">
+  <div class="footer-menu width-20">
     <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="confirmClose()">
       <i class="fa fa-exclamation-triangle fa-2x white"></i><span class="fon-size-12">Force Close</span>
+    </button>
+  </div>
+  <div class="footer-menu width-20">
+    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="clearCache()">
+      <i class="fa fa-bolt fa-2x white"></i><span class="fon-size-12">Clear cache</span>
     </button>
   </div>
 </div>
 
 
-
-  <!--************** Address Form Modal ************-->
-  <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="addressModal" aria-hidden="true">
-    <div class="modal-dialog" style="width:500px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="colse" data-dismiss="modal" aria-hidden="true">&times;</button>
-        </div>
-        <div class="modal-body" id="info_body">
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-primary" onclick="printSelectAddress()"><i class="fa fa-print"></i> พิมพ์</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="optionModal" aria-hidden="true">
-    <div class="modal-dialog" style="width:500px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="edit-title"></h4>
-        </div>
-        <div class="modal-body" id="edit-body">
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-
 <script id="edit-template" type="text/x-handlebarsTemplate">
-  <div class="row">
-    <div class="col-sm-12">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th class="width-20">รหัส</th>
-            <th class="width-40">กล่อง</th>
-            <th class="width-15 text-center">ในกล่อง</th>
-            <th class="width-15 text-center">เอาออก</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-      {{#each this}}
+  <div class="box-item" style="height:45px;">
+    <a class="pull-left margin-left-10" onclick="closeEditBox()"><i class="fa fa-angle-left fa-2x"></i></a>
+    <div class="font-size-18 text-center">{{title}}</div>
+  </div>
+  {{#each items}}
+    <div class="item-in-box">
+      <table class="table" style="margin-bottom:0px;">
         <tr>
-          <td>{{barcode}}</td>
-          <td>กล่องที่ {{box_no}}</td>
-          <td class="text-center"><span id="label-{{id_qc}}">{{qty}}</span></td>
-          <td class="text-center">
-            <input type="number" class="form-control input-sm text-center" id="input-{{id_qc}}" />
+          <td class="width-50" style="border:0px;">
+            กล่องที่ : {{box_no}} <br/>
+            จำนวน : {{qty}} pcs.
           </td>
-          <td class="text-right">
-          <?php if($this->pm->can_delete) : ?>
-            <button type="button" class="btn btn-sm btn-danger" onclick="updateQty({{id_qc}})">Update</button>
-          <?php endif; ?>
+          <td class="width-50" style="border:0px;">
+            <div class="input-group">
+              <input type="number" class="form-control text-center focus e" data-qty="{{qty}}" inputmode="numeric" id="input-{{id_qc}}" />
+              <span class="input-group-btn">
+              <button class="btn btn-sm btn-danger" onclick="updateQty({{id_qc}})">เอาออก</button>
+              </span>
+            </div>
           </td>
         </tr>
-      {{/each}}
-        </tbody>
       </table>
     </div>
+  {{/each}}
+</script>
+
+<script id="incomplete-template" type="text/x-handlebarsTemplate">
+  <div class="col-xs-12 incomplete-item" id="incomplete-{{id}}">
+    <div class="width-100" style="padding: 3px 3px 3px 10px;">
+      <div class="margin-bottom-3 pre-wrap b-click " id="b-click-{{id}}">{{barcode}}</div>
+      <div class="margin-bottom-3 pre-wrap">{{product_code}}</div>
+      <div class="margin-bottom-3 pre-wrap hide-text">{{product_name}}</div>
+      <div class="margin-bottom-3 pre-wrap">
+        <div class="width-33 float-left">จำนวน : <span class="width-30" id="order-qty-{{id}}">{{qty}}</span></div>
+        <div class="width-33 float-left">จัดแล้ว : <span class="width-30" id="prepared-qty-{{id}}">{{prepared}}</span></div>
+        <div class="width-33 float-left">คงเหลือ : <span class="width-30" id="balance-qty-{{id}}">{{balance}}</span></div>
+      </div>
+      <div class="margin-bottom-3 pre-wrap">Location : {{stock_in_zone}}</div>
+    </div>
+    <span class="badge-qty" id="badge-qty-{{id}}">{{balance}}</span>
   </div>
-  </script>
+</script>
 
-  <script id="box-template" type="text/x-handlebarsTemplate">
+<script id="complete-template" type="text/x-handlebarsTemplate">
+  <div class="col-xs-12 complete-item" id="complete-{{id}}" data-id="{{id}}">
+    <div class="width-100" style="padding: 3px 3px 3px 10px;">
+      <div class="margin-bottom-3 pre-wrap">{{barcode}}</div>
+      <div class="margin-bottom-3 pre-wrap">{{product_code}}</div>
+      <div class="margin-bottom-3 pre-wrap hide-text">{{product_name}}</div>
+      <div class="margin-bottom-3 pre-wrap">
+        <div class="width-33 float-left">Order : <span class="width-30" id="order-{{id}}">{{qty}}</span></div>
+        <div class="width-33 float-left">Picked : <span class="width-30" id="prepared-{{id}}">{{prepared}}</span></div>
+        <div class="width-33 float-left">Packed : <span class="width-30" id="qc-{{id}}">{{qc}}</span></div>
+      </div>
+      <div class="margin-bottom-3 pre-wrap">Location : {{{from_zone}}}</div>
+    </div>
+    <button type="button" class="btn btn-mini btn-warning"
+      style="position:absolute; top:5px; right:5px; border-radius:4px !important;"
+      onclick="showEditOption('{{order_code}}', '{{product_code}}', '{{id}}')">
+    <i class="fa fa-pencil"></i>
+  </button>
+  </div>
+</script>
+
+<script id="box-template" type="text/x-handlebarsTemplate">
+  <div class="box-item" style="height:45px;">
+    <a class="pull-left margin-left-10" onclick="closeBoxList()"><i class="fa fa-angle-left fa-2x"></i></a>
+    <div class="font-size-18 text-center">Box List</div>
+  </div>
+  {{#each this}}
     <div class="box-item">
       <div class="row">
-        <div class="col-xs-3 text-center" style="padding-right:0;"><i class="fa fa-cube fa-3x"></i></div>
+        <div class="col-xs-3 text-center" style="padding-right:0;">
+          <a href="javascript:getSelectBox('{{code}}')"><i class="fa fa-cube fa-3x"></i></a>
+        </div>
         <div class="col-xs-7" style="padding-left:0;">
-          <p class="box-line">กล่องที่ {{no}}</p>
-          <p class="box-line">จำนวน : {{qty}} pcs.</p>
+          <p class="box-line">กล่องที่ {{no}}  &nbsp;&nbsp;&nbsp;&nbsp; รหัส {{code}}</p>
+          <p class="box-line">จำนวน : <span id="box-qty-{{id_box}}">{{qty}}</span> pcs.</p>
         </div>
-        <div class="box-link font-size-24"><i class="fa fa-angle-right"></i></div>
+        <a class="box-link font-size-24"
+          href="javascript:viewBoxItems({{id_box}})"
+          data-barcode="{{barcode}}"
+          data-no="{{no}}" data-id="{{id_box}}">
+          <i class="fa fa-angle-right"></i></a>
       </div>
     </div>
-  </script>
+  {{/each}}
+</script>
 
-  <script id="no-box-template" type="text/x-handlebarsTemplate">
-    <div class="box-item">
-      <div class="row">
-        <div class="col-xs-12" style="padding-left:0;">
-          <h4 class="text-center">ไม่พบกล่อง</h4>
-        </div>
+<script id="no-box-template" type="text/x-handlebarsTemplate">
+  <div class="pad-title">
+    <a class="margin-left-10" onclick="closeBoxList()"><i class="fa fa-angle-left fa-2x"></i></a>
+  </div>
+  <div class="box-item">
+    <div class="row">
+      <div class="col-xs-12" style="padding-left:0;">
+        <h4 class="text-center">ไม่พบกล่อง</h4>
       </div>
     </div>
-  </script>
+  </div>
+</script>
+
+<script id="box-item-template" type="text/x-handlebarsTemplate">
+  <div class="item-in-box" style="height:45px;">
+    <a class="pull-left margin-left-10" onclick="closeBoxDetail()"><i class="fa fa-angle-left fa-2x"></i></a>
+    <div class="font-size-18 text-center">กล่องที่ {{box_no}}</div>
+  </div>
+  {{#each items}}
+    <div class="item-in-box">
+      <p class="font-size-14">{{product_code}}</p>
+      <p class="font-size-14">{{product_name}}</p>
+      <p class="font-size-18">จำนวน : {{qty}} pcs.</p>
+    </div>
+  {{/each}}
+</script>
 
 <?php
 if(!empty($barcode_list))
