@@ -275,9 +275,12 @@ class Return_order extends PS_Controller
             {
               $shipped_date = getConfig('ORDER_SOLD_DATE') === 'D' ? $doc->date_add : now();
 
-              $arr = array('shipped_date' => $shipped_date);
+              if(empty($doc->shipped_date))
+              {
+                $arr = array('shipped_date' => $shipped_date);
 
-              $this->return_order_model->update($code, $arr);
+                $this->return_order_model->update($code, $arr);
+              }
 
               $details = $this->return_order_model->get_details($doc->code);
 
@@ -435,9 +438,10 @@ class Return_order extends PS_Controller
       {
         $status = $doc->is_wms == 0 ? 1 : ($doc->is_wms == 1 && $this->wmsApi ? 3 : ($doc->is_wms == 2 && $this->sokoApi ? 3 : 1));
         $ship_date = $doc->is_wms == 0 ? $date_add : ($doc->is_wms == 1 && $this->wmsApi ? NULL : ($doc->is_wms == 2 && $this->sokoApi ? NULL : $date_add));
+
         $arr = array(
           "status" => $status,
-          "shipped_date" => $ship_date,
+          "shipped_date" => empty($doc->shipped_date) ? $ship_date : $doc->shipped_date,
           "is_accept" => 1,
           "accept_by" => $this->_user->uname,
           "accept_on" => now(),
