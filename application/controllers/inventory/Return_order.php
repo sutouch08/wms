@@ -77,6 +77,7 @@ class Return_order extends PS_Controller
   public function import_excel_file()
 	{
     ini_set('max_execution_time', 1200);
+    ini_set('memory_limit','1000M');
 
     $this->load->library('excel');
 
