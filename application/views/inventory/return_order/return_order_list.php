@@ -1,14 +1,18 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-5">
-    <p class="pull-right top-p">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+    <?php if($allow_import_return) : ?>
       <?php if($this->pm->can_add) : ?>
-        <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
+        <button type="button" class="btn btn-sm btn-primary top-btn" onclick="getUploadFile()"><i class="fa fa-file-excel-o"></i> &nbsp; Import Excel</button>
       <?php endif; ?>
-    </p>
+      <button type="button" class="btn btn-sm btn-purple top-btn" onclick="getTemplate()"><i class="fa fa-download"></i> &nbsp; Template file</button>
+    <?php endif; ?>
+    <?php if($this->pm->can_add) : ?>
+      <button type="button" class="btn btn-sm btn-success top-btn" onclick="goAdd()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
+    <?php endif; ?>
   </div>
 </div>
 <hr/>
@@ -235,6 +239,10 @@
     </table>
   </div>
 </div>
+
+<?php if($allow_import_return) : ?>
+  <?php $this->load->view('inventory/return_order/import_file'); ?>
+<?php endif; ?>
 
 <?php $this->load->view('cancle_modal'); ?>
 

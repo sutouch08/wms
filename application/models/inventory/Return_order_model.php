@@ -340,6 +340,27 @@ class Return_order_model extends CI_Model
   }
 
 
+  public function get_invoice_detail_by_order_item($order_code, $item_code)
+  {
+    $rs = $this->ms
+    ->select('ivd.DocEntry, ivd.U_ECOMNO AS order_code')
+    ->select('ivd.ItemCode AS product_code, ivd.Dscription AS product_name')
+    ->select('ivd.Quantity AS qty, ivd.PriceBefDi AS price, ivd.DiscPrcnt AS discount')
+    ->select('iv.DocNum AS code, iv.CardCode AS customer_code, iv.CardName AS customer_name, iv.NumAtCard')
+    ->from('INV1 AS ivd')
+    ->join('OINV AS iv', 'ivd.DocEntry = iv.DocEntry')
+    ->where('ivd.U_ECOMNO', $order_code)
+    ->where('ivd.ItemCode', $item_code)
+    ->limit(1)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
 
   public function get_total_return_vat($code)
@@ -362,7 +383,7 @@ class Return_order_model extends CI_Model
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

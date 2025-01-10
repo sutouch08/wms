@@ -206,4 +206,45 @@ function selectTime($time='')
 	}
 	return $sc;
 }
+
+
+function is_valid_date($date)
+{
+  //--- check date is valid format Y-m-d
+  $Y = intval(date('Y', strtotime($date)));
+  $M = intval(date('m', strtotime($date)));
+  $D = intval(date('d', strtotime($date)));
+
+  if($Y > 2500 OR $Y < 2000)
+  {
+    return FALSE;
+  }
+
+  if($M < 1 OR $M > 12)
+  {
+    return FALSE;
+  }
+
+  if($M == 2 && ($D > 29 OR $D < 1))
+  {
+    return FALSE;
+  }
+
+  if($M == 1 OR $M == 3 OR $M == 5 OR $M == 7 OR $M == 8 OR $M == 10 OR $M == 12)
+  {
+    if($D > 31 OR $D < 1)
+    {
+      return FALSE;
+    }
+  }
+  else
+  {
+    if($D > 30 OR $D < 1)
+    {
+      return FALSE;
+    }
+  }
+
+  return TRUE;
+}
  ?>

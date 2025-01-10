@@ -34,6 +34,7 @@ class Return_order extends PS_Controller
   {
 		$this->load->helper('warehouse');
     $this->load->helper('print');
+
     $filter = array(
       'code'    => get_filter('code', 'sm_code', ''),
       'invoice' => get_filter('invoice', 'sm_invoice', ''),
@@ -67,11 +68,388 @@ class Return_order extends PS_Controller
     }
 
     $filter['docs'] = $document;
+    $filter['allow_import_return'] = is_true(getConfig('ALLOW_IMPORT_RETURN'));
 		$this->pagination->initialize($init);
     $this->load->view('inventory/return_order/return_order_list', $filter);
   }
 
 
+  public function import_excel_file()
+	{
+    ini_set('max_execution_time', 1200);
+
+    $this->load->library('excel');
+
+    $sc = TRUE;
+    $import = 0;
+    $uid = genUid();
+    $Ymd = date('Ymd');
+    $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
+  	$path = $this->config->item('upload_path').'return/';
+    $file	= 'uploadFile';
+    $config = array(
+      "allowed_types" => "xlsx",
+      "upload_path" => $path,
+      "file_name"	=> "SM-import-{$Ymd}-{$uid}",
+      "max_size" => 5120,
+      "overwrite" => TRUE
+    );
+
+    $this->load->library("upload", $config);
+
+    if(! $this->upload->do_upload($file))
+    {
+      $sc = FALSE;
+      $this->error = $this->upload->display_errors();
+    }
+
+    if($sc === TRUE)
+    {
+      //---- checking data
+      $info = $this->upload->data();
+      /// read file
+      $excel = PHPExcel_IOFactory::load($info['full_path']);
+      //get only the Cell Collection
+      $collection	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
+
+      $i = 1;
+      $count = count($collection);
+      $limit = intval(getConfig('IMPORT_ROWS_LIMIT')) + 1;
+
+      if($count <= $limit)
+      {
+        $ds = array();
+        $zn = array(); //-- ไว้เก็บโซน object
+        $bookcode = getConfig('BOOK_CODE_RETURN_ORDER');
+
+        /*
+        Loop เพื่อ จัดข้อมูลในรูปแบบเอกสารมี order เป็น key หลัก ในมิติที่ 1 ไว้ใช้สร้างเอกสาร
+        รายการสินค้า จะถูกเพิ่มเข้าใน invoice เป็น array มิติที่ 2
+        $ds[order_code] = array(
+          [0] => line data object,
+          [1] => line data object
+        );
+        */
+
+        foreach($collection as $cs)
+        {
+          if($sc === FALSE)
+          {
+            break;
+          }
+
+          if($i === 1)
+          {
+            $i++;
+
+            $headCol = array(
+              'A' => 'Date',
+              'B' => 'Order Code',
+              'C' => 'Warehouse Code',
+              'D' => 'Zone Code',
+              'E' => 'Item Code',
+              'F' => 'Return Qty',
+              'G' => 'Interface',
+              'H' => 'WMS',
+              'I' => 'Remark'
+            );
+
+            foreach($headCol as $col => $field)
+            {
+              if($cs[$col] !== $field)
+              {
+                $sc = FALSE;
+                $this->error = 'Column '.$col.' Should be '.$field;
+                break;
+              }
+            }
+          }
+          else
+          {
+            if( ! empty($cs['A']))
+            {
+              if(empty(trim($cs['B'])))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Order Code at Line{$i}";
+              }
+
+              if(empty(trim($cs['C'])))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Warhouse Code at Line{$i}";
+              }
+
+              if(empty(trim($cs['D'])))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Zone Code at Line{$i}";
+              }
+
+              if(empty(trim($cs['E'])))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Item Code at Line{$i}";
+              }
+
+              if(empty(trim($cs['F'])) OR intval($cs['F']) <= 0)
+              {
+                $sc = FALSE;
+                $this->error = "Invalid Reqturn Qty at Line{$i}";
+              }
+
+              if($sc === TRUE)
+              {
+                $date = db_date(trim($cs['A']));
+                $order_code = trim($cs['B']); //--- order code use to be 1st dimention array
+                $zone_code = trim($cs['D']);
+                $item_code = trim($cs['E']);
+                $return_qty = intval(trim($cs['F']));
+                $api = trim($cs['G']);
+                $is_wms = trim($cs['H']) == 2 ? 2 : 0;
+                $remark = empty($cs['I']) ? NULL : get_null(trim($cs['I']));
+
+
+                //--- ถ้ายังไม่มี order_code ให้สร้างใหม่
+                if( ! isset($ds[$order_code]))
+                {
+                  //--- check date format only check not convert
+                  if( ! is_valid_date($date))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Invalid Date format at Line{$i}";
+                  }
+
+                  //--- check warehouse and zone
+                  if( empty($zn[$zone_code]))
+                  {
+                    $zone = $this->zone_model->get($zone_code);
+
+                    if( ! empty($zone))
+                    {
+                      $zn[$zone_code] = $zone;
+                    }
+                    else
+                    {
+                      $sc = FALSE;
+                      $this->error = "Invalid Zone Code at Line{$i}";
+                    }
+                  }
+                  else
+                  {
+                    $zone = $zn[$zone_code];
+                  }
+
+
+                  //---- ไว้สร้างเอกสารใหม่
+                  if($sc == TRUE)
+                  {
+                    $invoice = $this->return_order_model->get_invoice_detail_by_order_item($order_code, $item_code);
+
+                    if(empty($invoice))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Invoice not exists for {$order_code} : {$item_code} at Line {$i}";
+                    }
+
+                    if($sc === TRUE)
+                    {
+                      if($invoice->qty < $return_qty)
+                      {
+                        $sc = FALSE;
+                        $this->error = "Return quantity ({$return_qty}) exceed invoice quantity ({intval($invoice)}) at Line {$i}";
+                      }
+                    }
+
+                    if($sc === TRUE)
+                    {
+                      $invoice->price = round(add_vat($invoice->price), 2);
+                      $amount = round((get_price_after_discount($invoice->price, $invoice->discount) * $return_qty), 2);
+                      $vat_amount = round(get_vat_amount($amount), 2);
+
+                      $ds[$order_code] = (object) array(
+                        'date_add' => $date,
+                        'invoice' => $invoice->code,
+                        'customer_code' => $invoice->customer_code,
+                        'customer_name' => $invoice->customer_name,
+                        'order_code' => $order_code,
+                        'warehouse_code' => $zone->warehouse_code,
+                        'zone_code' => $zone->code,
+                        'must_accept' => empty($zone->user_id) ? 0 : 1,
+                        'is_wms' => $is_wms,
+                        'api' => ($api == 'N' OR $api == 0) ? 0 : 1,
+                        'remark' => $remark,
+                        'details' => array((object)array(
+                          'invoice_code' => $invoice->code,
+                          'order_code' => $order_code,
+                          'product_code' => $invoice->product_code,
+                          'product_name' => $invoice->product_name,
+                          'sold_qty' => round($invoice->qty, 2),
+                          'return_qty' => $return_qty,
+                          'price' => $invoice->price,
+                          'discount_percent' => round($invoice->discount, 2),
+                          'amount' => $amount,
+                          'vat_amount' => $vat_amount
+                        ))
+                      );
+                    }
+                  }
+                }
+                else
+                {
+                  $invoice = $this->return_order_model->get_invoice_detail_by_order_item($order_code, $item_code);
+                  $invoice->price = round(add_vat($invoice->price), 2);
+                  $amount = round((get_price_after_discount($invoice->price, $invoice->discount) * $return_qty), 2);
+                  $vat_amount = round(get_vat_amount($amount), 2);
+
+                  $ds[$order_code]->details[] = (object)array(
+                    'invoice_code' => $invoice->code,
+                    'order_code' => $order_code,
+                    'product_code' => $invoice->product_code,
+                    'product_name' => $invoice->product_name,
+                    'sold_qty' => round($invoice->qty, 2),
+                    'return_qty' => $return_qty,
+                    'price' => $invoice->price,
+                    'discount_percent' => round($invoice->discount, 2),
+                    'amount' => $amount,
+                    'vat_amount' => $vat_amount
+                  );
+                }
+              } //--- endif $sc === TRUE
+
+              $i++;
+            }
+          }  //--- end if $i === 1
+        } //--- foreach collection
+
+        //--- เก็บข้อมูลครบแล้ว
+        if($sc === TRUE && ! empty($ds))
+        {
+          $this->db->trans_begin();
+
+          foreach($ds as $sm)
+          {
+            if($sc === FALSE)
+            {
+              break;
+            }
+
+            $code = $this->get_new_code($sm->date_add);
+
+            if(empty($code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to generate document number for {$sm->order_code}";
+            }
+
+            if($sc === TRUE)
+            {
+              $arr = array(
+                'code' => $code,
+                'bookcode' => $bookcode,
+                'invoice' => $sm->invoice,
+                'customer_code' => $sm->customer_code,
+                'warehouse_code' => $sm->warehouse_code,
+                'zone_code' => $sm->zone_code,
+                'user' => $this->_user->uname,
+                'date_add' => $sm->date_add,
+                'remark' => $sm->remark,
+        				'is_wms' => $sm->is_wms,
+        				'api' => $sm->api,
+                'status' => 1,
+                'must_accept' => $sm->must_accept,
+                'is_import' => 1,
+                'import_id' => $uid
+              );
+
+              if( ! $this->return_order_model->add($arr))
+              {
+                $sc = FALSE;
+                $this->error = "เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+              }
+
+              if($sc === TRUE)
+              {
+                if( ! empty($sm->details))
+                {
+                  foreach($sm->details as $rs)
+                  {
+                    $arr = array(
+                      'return_code' => $code,
+                      'invoice_code' => $rs->invoice_code,
+                      'order_code' => get_null($rs->order_code),
+                      'product_code' => $rs->product_code,
+                      'product_name' => $rs->product_name,
+                      'sold_qty' => $rs->sold_qty,
+                      'qty' => $rs->return_qty,
+                      'receive_qty' => $sm->is_wms == 2 ? 0 : $rs->return_qty,
+                      'price' => $rs->price,
+                      'discount_percent' => $rs->discount_percent,
+                      'amount' => $rs->amount,
+                      'vat_amount' => $rs->vat_amount
+                    );
+
+                    if( ! $this->return_order_model->add_detail($arr))
+                    {
+                      $sc = FALSE;
+                      $this->error = "บันทึกรายการไม่สำเร็จ @ {$rs->product_code} : {$rs->order_code}";
+                    }
+                  } //-- end foreach
+                } // end if
+              } // endif
+            }
+          } //--- end foreach
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+        } //-- endif
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไฟล์มีรายการเกิน {$limit} บรรทัด";
+      }
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+	}
+
+
+  public function get_template_file()
+  {
+    $path = $this->config->item('upload_path').'transfer/';
+    $file_name = $path."import_transfer_template.xlsx";
+
+    if(file_exists($file_name))
+    {
+      header('Content-Description: File Transfer');
+      header('Content-Type:Application/octet-stream');
+      header('Cache-Control: no-cache, must-revalidate');
+      header('Expires: 0');
+      header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
+      header('Content-Length: '.filesize($file_name));
+      header('Pragma: public');
+
+      flush();
+      readfile($file_name);
+      die();
+    }
+    else
+    {
+      echo "File Not Found";
+    }
+  }
 
 
   public function add_details($code)
@@ -234,7 +612,6 @@ class Return_order extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
 
 
   public function approve($code)
@@ -415,7 +792,6 @@ class Return_order extends PS_Controller
   }
 
 
-
   public function accept_confirm()
   {
     $sc = TRUE;
@@ -568,7 +944,6 @@ class Return_order extends PS_Controller
 
 		echo $sc === TRUE ? 'success' : $this->error;
   }
-
 
 
   public function unapprove($code)
@@ -853,7 +1228,6 @@ class Return_order extends PS_Controller
   }
 
 
-
   public function update()
   {
     $sc = TRUE;
@@ -930,7 +1304,6 @@ class Return_order extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
 
 
   public function view_detail($code)
@@ -1074,7 +1447,6 @@ class Return_order extends PS_Controller
 
     $this->load->view('print/print_wms_return', $ds);
   }
-
 
 
   public function cancle_return($code)
@@ -1274,9 +1646,6 @@ class Return_order extends PS_Controller
   }
 
 
-
-
-
   public function do_export($code)
   {
     $sc = TRUE;
@@ -1289,8 +1658,6 @@ class Return_order extends PS_Controller
 
     return $sc;
   }
-
-
 
 
   //---- เรียกใช้จากภายนอก
