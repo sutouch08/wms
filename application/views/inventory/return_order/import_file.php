@@ -1,27 +1,3 @@
-<!-- <div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="width:500px; max-width:95vw;">
-	 <div class="modal-content">
-			 <div class="modal-header">
-			 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			 <h4 class="modal-title">Import File</h4>
-			</div>
-			<div class="modal-body">
-				<form id="upload-form" name="upload-form" method="post" enctype="multipart/form-data">
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<button type="button" class="btn btn-white btn-primary btn-block" id="show-file-name" onclick="getFile()">กรุณาเลือกไฟล์ Excel</button>
-					</div>
-				</div>
-				<input type="file" class="hide" name="uploadFile" id="uploadFile" accept=".xlsx" />
-				</form>
-			 </div>
-			<div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-info" onclick="uploadfile()"><i class="fa fa-cloud-upload"></i> นำเข้า</button>
-			</div>
-	 </div>
- </div>
-</div> -->
-
 <div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
  <div class="modal-dialog" style="width:600px; max-width:95vw;">
 	 <div class="modal-content">
@@ -109,7 +85,7 @@ function uploadfile()
 
           if(ds.status == 'success') {
             swal({
-              title: 'นำเข้าเรียบร้อยแล้ว',              
+              title: 'นำเข้าเรียบร้อยแล้ว',
               type: 'success',
               html:true,
               timer:1000
@@ -133,6 +109,10 @@ function uploadfile()
       }
     });
   }
+}
+
+function getTemplate(){
+  window.location.href = HOME + 'get_template_file';
 }
 
 </script>

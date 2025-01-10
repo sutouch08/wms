@@ -429,8 +429,8 @@ class Return_order extends PS_Controller
 
   public function get_template_file()
   {
-    $path = $this->config->item('upload_path').'transfer/';
-    $file_name = $path."import_transfer_template.xlsx";
+    $path = $this->config->item('upload_path').'return/';
+    $file_name = $path."import_return_template.xlsx";
 
     if(file_exists($file_name))
     {
