@@ -664,9 +664,20 @@ function openComplete() {
   $('#complete-box').addClass('move-in');
 }
 
+function toggleBoxList() {
+  if($('#box-list').hasClass('move-in')) {
+    closeBoxList();
+  }
+  else {
+    openBoxList();
+  }
+}
+
 function closeBoxList() {
+  closeBoxDetail();
   $('#box-list').removeClass('move-in');
 }
+
 
 function openBoxList() {
   closeHeader();
@@ -691,4 +702,62 @@ function closeBoxDetail() {
 
 function openBoxDetail() {
   $('#box-details').addClass('move-in');
+}
+
+
+//--- ปิดออเดอร์ (ตรวจเสร็จแล้วจ้า) เปลี่ยนสถานะ
+function closeOrder(){
+  let order_code = $("#order_code").val();
+
+  //--- รายการที่ต้องแก้ไข
+  let must_edit = $('.must-edit').length;
+
+  var notsave = 0;
+
+  //-- ตรวจสอบว่ามีรายการที่ต้องแก้ไขให้ถูกต้องหรือเปล่า
+  if(must_edit > 0){
+    swal({
+      title:'ข้อผิดพลาด',
+      text:'พบรายการที่ต้องแก้ไข กรุณาแก้ไขให้ถูกต้อง',
+      type:'error'
+    });
+
+    return false;
+  }
+
+  //--- ตรวจสอบก่อนว่ามีรายการที่ยังไม่บันทึกค้างอยู่หรือไม่
+  $(".hidden-qc").each(function(index, element){
+    if( $(this).val() > 0){
+      notsave++;
+    }
+  });
+
+  //--- ถ้ายังมีรายการที่ยังไม่บันทึก ให้บันทึกก่อน
+  if(notsave > 0){
+    saveQc(2);
+  }else{
+    //--- close order
+    $.ajax({
+      url: HOME +'close_order',
+      type:'POST',
+      cache:'false',
+      data:{
+        "order_code": order_code
+      },
+      success:function(rs){
+        var rs = $.trim(rs);
+        if(rs == 'success'){
+          swal({title:'Success', type:'success', timer:1000});
+          $('#btn-close').attr('disabled', 'disabled');
+          $(".zone").attr('disabled', 'disabled');
+          $(".item").attr('disabled', 'disabled');
+          $(".close").attr('disabled', 'disabled');
+          $('#btn-print-address').removeClass('hide');
+        }else{
+          swal("Error!", rs, "error");
+        }
+      }
+    });
+  }
+
 }

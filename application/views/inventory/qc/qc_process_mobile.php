@@ -64,7 +64,7 @@
       </div>
 
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="openBoxList()">
+        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleBoxList()">
           <i class="fa fa-cubes fa-2x white"></i><span class="fon-size-12">Box list</span>
         </button>
       </div>

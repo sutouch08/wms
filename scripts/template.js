@@ -291,6 +291,33 @@ function parseDefault(value, def){
 	return value;
 }
 
+function parseDiscountAmount(discount_label, price)
+{
+	var discAmount = 0;
+
+	if(discount_label != '' && discount_label != 0)
+	{
+		var arr = discount_label.split('+');
+		arr.forEach(function(item, index){
+			var i = index + 1;
+			if(i < 4){
+				var disc = item.split('%');
+				var value = parseDefault(parseFloat(disc[0]), 0);
+				if(disc.length == 2){
+					var amount = (value * 0.01) * price;
+					discAmount += amount;
+					price -= amount;
+				}else{
+					discAmount += value;
+					price -= value;
+				}
+			}
+		});
+	}
+
+	return discAmount;
+}
+
 //--- return discount array
 function parseDiscount(discount_label, price)
 {

@@ -67,12 +67,12 @@
 <?php if($order->role == 'S') : ?>
 <!--  สรุปยอดส่ง Line --------->
 <div class="modal fade" id="orderSummaryTab" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="max-width:500px;">
+    <div class="modal-dialog" style="width:500px; max-width:95vw;">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
-            <div class="modal-body" >
+            <div class="modal-body" style="max-height:70vh; overflow:auto;">
             <div id="summaryText"></div>
             </div>
             <div class="modal-footer">
@@ -81,8 +81,6 @@
         </div>
     </div>
 </div>
-
-
 
 
 

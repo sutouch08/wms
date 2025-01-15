@@ -21,12 +21,12 @@
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-3-harf col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 padding-5">
+	<div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 padding-5">
 		<label>คลังต้นทาง</label>
 		<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -34,7 +34,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-2-harf col-sm-3-harf col-xs-6 padding-5">
     <label>โซนปลายทาง</label>
 		<input type="text" class="form-control input-sm search" name="zone" value="<?php echo $zone_code; ?>" />
   </div>
@@ -69,7 +69,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>Back order</label>
 		<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -78,11 +78,11 @@
 		</select>
 	</div>
 
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label>วันที่</label>
-    <div class="input-daterange input-group">
-      <input type="text" class="form-control input-sm width-50 from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
-      <input type="text" class="form-control input-sm width-50" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
+    <div class="input-daterange input-group width-100">
+      <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
+      <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
   </div>
 

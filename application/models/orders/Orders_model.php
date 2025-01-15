@@ -1508,6 +1508,31 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_reserv_stock_exclude($item_code, $warehouse, $order_detail_id)
+  {
+    $this->db
+    ->select_sum('order_details.qty', 'qty')
+    ->from('order_details')
+    ->join('orders', 'order_details.order_code = orders.code', 'left')
+    ->where('orders.is_pre_order', 0)
+    ->where('order_details.product_code', $item_code)
+		->where('order_details.is_cancle', 0)
+    ->where('order_details.is_complete', 0)
+    ->where('order_details.is_expired', 0)
+    ->where('order_details.is_count', 1)
+    ->where('orders.warehouse_code', $warehouse)
+    ->where('order_details.id !=', $order_detail_id);
+
+    $rs = $this->db->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
 
   public function get_reserv_stock_by_style($style_code, $warehouse = NULL)
   {
