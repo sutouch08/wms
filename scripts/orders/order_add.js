@@ -23,8 +23,7 @@ $('#qt_no').autocomplete({
 })
 
 
-function get_quotation()
-{
+function get_quotation() {
 	var qt_no = $('#qt_no').val();
 	var code = $('#order_code').val();
 
@@ -70,15 +69,101 @@ function get_quotation()
 }
 
 
+function validOrder() {
+  clearErrorByClass('e');
 
+  let auz = $('#auz').val();
+  let error = 0;
+
+  if(auz == 0) {
+    let order_code = $('#order_code').val();
+    let h = {
+      'code' : order_code,
+      'rows' : []
+    };
+
+    load_in();
+
+    $('.line-qty').each(function() {
+      let item_code = $(this).data('code');
+      let qty = $(this).val();
+      let id = $(this).data('id');
+      let is_count = $(this).data('count');
+
+      if(is_count == 1) {
+        h.rows.push({
+          'product_code' : item_code,
+          'qty' : qty,
+          'id' : id
+        });
+      }
+    });
+
+    if(h.rows.length > 0) {
+      $.ajax({
+        url:BASE_URL + 'orders/orders/check_available_stock',
+        type:'POST',
+        cache:false,
+        data:{
+          'data' : JSON.stringify(h)
+        },
+        success:function(rs) {
+          load_out();
+
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+
+            if(ds.status == 'success') {
+              if(ds.data.length) {
+                ds.data.forEach(function(el) {
+                  if(el.status != 'OK') {
+                    $('#qty_'+el.id).hasError();
+                    error++;
+
+                    if(el.status == 'failed') {
+                      $('#qty_'+el.id).attr('title', 'Available : '+el.available);
+                    }
+                    else if(el.status == 'inactive') {
+                      $('#qty_'+el.id).attr('title', 'Inactive');
+                    }
+                    else if(el.status == 'invalid item') {
+                      $('#qty_'+el.status).attr('title', 'Invalid item');
+                    }
+                  }
+                });
+              }
+
+              if(error == 0) {
+                //saveOrder();
+              }
+            }
+            else {
+              showError(ds.message);
+            }
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          load_out();
+          showError(rs);
+        }
+      })
+    }
+  }
+  else {
+    saveOrder();
+  }
+}
 
 //---- เปลี่ยนสถานะออเดอร์  เป็นบันทึกแล้ว
-function saveOrder(){
-  var order_code = $('#order_code').val();
-	var id_sender = $('#id_sender').val();
-	var tracking = $('#tracking').val();
-  var payment_role = $('#payment option:selected').data('role');
-  var cod_amount = parseDefault(parseFloat($('#cod-amount').val()), 0);
+function saveOrder() {
+  let order_code = $('#order_code').val();
+	let id_sender = $('#id_sender').val();
+	let tracking = $('#tracking').val();
+  let payment_role = $('#payment option:selected').data('role');
+  let cod_amount = parseDefault(parseFloat($('#cod-amount').val()), 0);
 
   if(payment_role == '4' && cod_amount <= 0) {
     swal({
@@ -133,8 +218,6 @@ function saveOrder(){
 }
 
 
-
-
 $("#customer").autocomplete({
 	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
 	autoFocus: true,
@@ -174,6 +257,29 @@ function getEdit(){
 }
 
 
+function updateRemark() {
+  let order_code = $('#order_code').val();
+  let remark = $('#remark').val().trim();
+
+  $.ajax({
+    url:BASE_URL + 'orders/orders/update_remark',
+    type:'POST',
+    cache:false,
+    data:{
+      'code' : order_code,
+      'remark' : remark
+    },
+    success:function(rs) {
+      if(rs.trim() != 'success') {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
+}
+
 //---- เพิ่มรายการสินค้าเช้าออเดอร์
 function addToOrder(){
   var order_code = $('#order_code').val();
@@ -205,16 +311,18 @@ function addToOrder(){
             type: 'success',
             timer: 1000
           });
+
 					$("#btn-save-order").removeClass('hide');
-					updateDetailTable(); //--- update list of order detail
-				}else{
+
+					updateDetailTable();
+				}
+        else {
 					swal("Error", rs, "error");
 				}
 			}
 		});
 	}
 }
-
 
 
 //---- เพิ่มรายการสินค้าเช้าออเดอร์
@@ -285,10 +393,11 @@ function updateDetailTable(){
 				var output = $("#detail-table");
 				render(source, data, output);
 			}
+
+      recalTotal();
 		}
 	});
 }
-
 
 
 function removeDetail(id, name){
@@ -308,18 +417,17 @@ function removeDetail(id, name){
         cache:"false",
 				success: function(rs){
 					var rs = $.trim(rs);
-					if( rs == 'success' ){
+					if( rs == 'success' ) {
 						swal({ title: 'Deleted', type: 'success', timer: 1000 });
 						updateDetailTable();
-					}else{
+					}
+          else{
 						swal("Error !", rs , "error");
 					}
 				}
 			});
 	});
 }
-
-
 
 
 $("#pd-box").autocomplete({
@@ -331,8 +439,6 @@ $("#pd-box").autocomplete({
     $(this).val(arr[0]);
   }
 });
-
-
 
 
 $('#pd-box').keyup(function(event) {
@@ -349,7 +455,6 @@ $('#pd-box').keyup(function(event) {
 });
 
 
-
 $('#item-code').autocomplete({
 	source:BASE_URL + 'auto_complete/get_product_code',
 	minLength: 4,
@@ -360,6 +465,7 @@ $('#item-code').autocomplete({
     $(this).val(arr[0]);
   }
 });
+
 
 $('#item-code').keyup(function(e){
 	if(e.keyCode == 13){
@@ -378,8 +484,6 @@ $('#input-qty').keyup(function(e){
 		addItemToOrder();
 	}
 });
-
-
 
 
 //--- ตรวจสอบจำนวนที่คีย์สั่งใน order grid
@@ -434,9 +538,6 @@ function validUpdate(){
 
   updateOrder(recal);
 }
-
-
-
 
 
 function updateOrder(recal){
@@ -498,113 +599,111 @@ function updateOrder(recal){
 }
 
 
-
 function recalDiscount(){
 	updateOrder(1);
 }
 
 
-
 // JavaScript Document
 function changeState(){
-    var order_code = $("#order_code").val();
-    var state = $("#stateList").val();
-		var is_wms = $('#is_wms').val();
-		var trackingNo = $('#trackingNo').val();
-		var tracking = $('#tracking').val();
-		var id_address = $('#address_id').val();
-		var id_sender = $('#id_sender').val();
-    var reason_id = $('#reason-id').val();
-		var cancle_reason = $.trim($('#cancle-reason').val());
-    let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
+  var order_code = $("#order_code").val();
+  var state = $("#stateList").val();
+  var is_wms = $('#is_wms').val();
+  var trackingNo = $('#trackingNo').val();
+  var tracking = $('#tracking').val();
+  var id_address = $('#address_id').val();
+  var id_sender = $('#id_sender').val();
+  var reason_id = $('#reason-id').val();
+  var cancle_reason = $.trim($('#cancle-reason').val());
+  let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
 
-		if(is_wms) {
-			if(state == 3 && id_address == "") {
-				swal("กรุณาระบุที่อยู่จัดส่ง");
-				return false;
-			}
-
-			if(state == 3 && id_sender == "") {
-				swal("กรุณาระบุผู้จัดส่ง");
-				return false;
-			}
-
-			if($('#sender option:selected').data('tracking') == 1) {
-				if(trackingNo != tracking) {
-					swal("กรุณากดบันทึก Tracking No");
-					return false;
-				}
-
-				if(trackingNo.length === 0) {
-					swal("กรุณาระบุ Tracking No");
-					return false;
-				}
-			}
-		}
-
-		if(state == 9 && cancle_reason.length < 10) {
-			showCancleModal();
-			return false;
-		}
-
-
-    if( state != 0){
-      load_in();
-        $.ajax({
-            url:BASE_URL + 'orders/orders/order_state_change',
-            type:"POST",
-            cache:"false",
-            data:{
-              "order_code" : order_code,
-              "state" : state,
-							"id_address" : id_address,
-							"id_sender" : id_sender,
-							"tracking" : tracking,
-              "reason_id" : reason_id,
-							"cancle_reason" : cancle_reason,
-              "force_cancel" : force_cancel
-            },
-            success:function(rs){
-              load_out();
-              var rs = $.trim(rs);
-              if(rs == 'success'){
-                swal({
-                  title:'success',
-                  text:'status updated',
-                  type:'success',
-                  timer: 1000
-                });
-
-                setTimeout(function(){
-                  window.location.reload();
-                }, 1500);
-
-              }
-              else {
-                swal({
-                  title:"Error!",
-                  text:rs,
-                  type:'error',
-                  html:true
-                }, function() {
-                  window.location.reload();
-                });
-              }
-            },
-            error:function(rs) {
-              load_out();
-              swal({
-                title:'Error!',
-                text:rs.responseText,
-                type:'error',
-                html:true
-              }, function() {
-                window.location.reload();
-              });
-            }
-        });
+  if(is_wms) {
+    if(state == 3 && id_address == "") {
+      swal("กรุณาระบุที่อยู่จัดส่ง");
+      return false;
     }
+
+    if(state == 3 && id_sender == "") {
+      swal("กรุณาระบุผู้จัดส่ง");
+      return false;
+    }
+
+    if($('#sender option:selected').data('tracking') == 1) {
+      if(trackingNo != tracking) {
+        swal("กรุณากดบันทึก Tracking No");
+        return false;
+      }
+
+      if(trackingNo.length === 0) {
+        swal("กรุณาระบุ Tracking No");
+        return false;
+      }
+    }
+  }
+
+  if(state == 9 && cancle_reason.length < 10) {
+    showCancleModal();
+    return false;
+  }
+
+
+  if( state != 0){
+    load_in();
+    $.ajax({
+      url:BASE_URL + 'orders/orders/order_state_change',
+      type:"POST",
+      cache:"false",
+      data:{
+        "order_code" : order_code,
+        "state" : state,
+        "id_address" : id_address,
+        "id_sender" : id_sender,
+        "tracking" : tracking,
+        "reason_id" : reason_id,
+        "cancle_reason" : cancle_reason,
+        "force_cancel" : force_cancel
+      },
+      success:function(rs){
+        load_out();
+        var rs = $.trim(rs);
+        if(rs == 'success'){
+          swal({
+            title:'success',
+            text:'status updated',
+            type:'success',
+            timer: 1000
+          });
+
+          setTimeout(function(){
+            window.location.reload();
+          }, 1500);
+
+        }
+        else {
+          swal({
+            title:"Error!",
+            text:rs,
+            type:'error',
+            html:true
+          }, function() {
+            window.location.reload();
+          });
+        }
+      },
+      error:function(rs) {
+        load_out();
+        swal({
+          title:'Error!',
+          text:rs.responseText,
+          type:'error',
+          html:true
+        }, function() {
+          window.location.reload();
+        });
+      }
+    });
+  }
 }
 
 
@@ -638,6 +737,7 @@ function setNotExpire(option){
     }
   });
 }
+
 
 function unExpired(){
   var order_code = $('#order_code').val();
@@ -740,7 +840,7 @@ function add() {
         let ds = JSON.parse(rs);
 
         if(ds.status == 'success') {
-          window.location.href = BASE_URL + 'orders/orders/edit_detail/'+ ds.code;
+          window.location.href = BASE_URL + 'orders/orders/edit_order/'+ ds.code;
         }
         else {
           swal({
@@ -837,4 +937,265 @@ function submitCod() {
       }
     }
   })
+}
+
+
+//---- for update price on noncount item
+function updateItemPrice(id) {
+  let code = $('#order_code').val();
+  let price = parseDefault(parseFloat($('#price_'+id).val()), 0.00);
+  let currentPrice = parseDefault(parseFloat($('#price_'+id).data('price')), 0);
+
+  load_in();
+
+  $.ajax({
+    url:BASE_URL + 'orders/orders/update_item_price',
+    type:'POST',
+    cache:false,
+    data:{
+      'order_code' : code,
+      'id' : id,
+      'price' : price
+    },
+    success:function(rs) {
+      load_out();
+
+      if(rs.trim() == 'success') {
+        //--- update current
+        $('#price_'+id).data('price', price);
+        $('#btn-change-state').addClass('hide');
+        $('#btn-save-order').removeClass('hide');
+      }
+      else {
+        showError(rs);
+        //--- roll back data
+        $('#price-'+id).val(currentPrice);
+        price = currentPrice;
+        let qty = parseDefault(parseFloat($('#qty_'+id).val()), 0);
+        let disc = $('#disc_'+id).val();
+        let discAmount = parseDiscountAmount(disc, price);
+        let lineTotal = (price * qty) - (discAmount * qty);
+        $('#line_total_'+id).val(addCommas(lineTotal.toFixed(2)));
+
+        recalTotal();
+      }
+    },
+    error:function(rs) {
+      load_out();
+      showError(rs);
+    }
+  })
+}
+
+
+function updateItem(id) {
+  let code = $('#order_code').val();
+	let qty = parseDefault(parseFloat($('#qty_'+id).val()), 0);
+	let price = parseDefault(parseFloat($('#price_'+id).val()), 0.00);
+	let disc = $('#disc_'+id).val();
+  let currentQty = parseDefault(parseFloat($('#qty_'+id).data('qty')), 0);
+	let currentPrice = parseDefault(parseFloat($('#price_'+id).data('price')), 0);
+	let currentDisc = $('#disc_'+id).data('disc');
+
+	disc = disc == '' ? 0 : disc;
+	currentDisc = currentDisc == '' ? 0 : currentDisc;
+
+  load_in();
+
+  $.ajax({
+    url:BASE_URL + 'orders/orders/update_item',
+    type:'POST',
+    cache:false,
+    data:{
+      'order_code' : code,
+      'id' : id,
+      'price' : price,
+      'qty' : qty
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          //--- update current
+          $('#price_'+id).data('price', price);
+          $('#disc_'+id).data('disc', ds.discLabel);
+          $('#disc_'+id).val(ds.discLabel);
+          $('#disc_label_'+id).text(ds.discLabel);
+
+          recalItem(id);
+          $('#btn-change-state').addClass('hide');
+          $('#btn-save-order').removeClass('hide');
+        }
+        else {
+          showError(ds.message);
+
+          //--- roll back data
+          $('#price-'+id).val(currentPrice);
+          $('#disc_'+id).val(currentDisc);
+          $('#qty_'+id).val(currentQty);
+          recalItem(id);
+        }
+
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      load_out();
+      showError(rs);
+    }
+  })
+}
+
+
+function recalItem(id, updatePrice) {
+	let price = parseDefault(parseFloat($('#price_'+id).val()), 0);
+  let isCount = $('#price_'+id).data('count');
+
+  if(price < 0) {
+    price = price * (-1);
+    $('#price-'+id).val(price.toFixed(2));
+  }
+
+	let qty = parseDefault(parseFloat($('#qty_'+id).val()), 0);
+	let disc = $('#disc_'+id).val();
+	let discAmount = parseDiscountAmount(disc, price);
+	let lineTotal = (price * qty) - (discAmount * qty);
+	$('#line_total_'+id).val(addCommas(lineTotal.toFixed(2)));
+  console.log(disc);
+	recalTotal();
+
+  if(isCount == 0 && updatePrice == 'Y') {
+    updateItemPrice(id);
+  }
+}
+
+
+function recalTotal() {
+	var total_order = 0;
+	var totalAfDisc = 0;
+	var total_qty = 0;
+	var total_disc = 0;
+
+	var net_amount = 0;
+
+	$('.line-total').each(function() {
+		let id = $(this).data('id');
+		let price = parseDefault(parseFloat($('#price_'+id).val()), 0);
+		let qty = parseDefault(parseFloat($('#qty_'+id).val()), 0);
+		let amount = parseDefault(parseFloat(removeCommas($('#line_total_'+id).val())), 0);
+		let order_amount = qty * price;
+		let disc_amount = order_amount - amount;
+
+		total_order += order_amount;
+		total_qty += qty;
+		total_disc += disc_amount;
+
+	});
+
+	net_amount = total_order - total_disc;
+
+	$('#total-qty').val(addCommas(total_qty.toFixed(2)));
+	$('#total-order').val(addCommas(total_order.toFixed(2)));
+	$('#total-disc').val(addCommas(total_disc.toFixed(2)));
+	$('#net-amount').val(addCommas(net_amount.toFixed(2)));
+}
+
+
+function toggleCate() {
+  if($('#cate-widget').hasClass('collapsed')) {
+    $('#cate-widget').removeClass('collapsed');
+  }
+  else {
+    $('#cate-widget').addClass('collapsed');
+  }
+}
+
+function getPreorderItem() {
+  load_in();
+
+  $.ajax({
+    url:BASE_URL + 'orders/pre_order_policy/get_active_items',
+    type:'GET',
+    cache:false,
+    success:function(rs) {
+      load_out();
+      if( isJson(rs)) {
+        let ds = JSON.parse(rs);
+        let source = $('#preOrderTemplate').html();
+        let output = $('#preOrderTable');
+
+        render(source, ds, output);
+
+        $('#preOrderModal').modal('show');
+      }
+      else {
+        swal({
+          title:'Not found',
+          text:'ไม่พบรายการสินค้าที่เปิด Pre Order',
+          type:'info'
+        });
+      }
+    }
+  })
+}
+
+
+function addPreOrderItems() {
+  let order_code = $('#order_code').val();
+  let items = [];
+
+  $('.pre-qty').each(function() {
+    if($(this).val() != '') {
+      let qty = parseDefault(parseFloat($(this).val()), 0);
+      let code = $(this).data('pd');
+      let id = $(this).data('id'); //pre_order_detail_id
+
+      if(qty > 0) {
+        items.push({"id" : id, "code" : code, "qty" : qty});
+      }
+    }
+  });
+
+  if(items.length > 0) {
+    $('#preOrderModal').modal('hide');
+
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'orders/orders/add_pre_order_detail',
+      type:'POST',
+      cache:false,
+      data:{
+        'order_code' : order_code,
+        'data' : JSON.stringify(items)
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs === 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:rs,
+            type:'error'
+          })
+        }
+      }
+    })
+  }
 }

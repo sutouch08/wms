@@ -497,6 +497,29 @@ class Zone_model extends CI_Model
     return FALSE;
   }
 
+  public function get_zone($code, $warehouse_code = NULL)
+  {
+    if( ! empty($warehouse_code))
+    {
+      $this->db->where('warehouse_code', $warehouse_code);
+    }
+
+    $rs = $this->db
+    ->where('warehouse_code IS NOT NULL', NULL, FALSE)
+    ->group_start()
+    ->where('code', $code)
+    ->or_where('old_code', $code)
+    ->group_end()
+    ->get('zone');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return FALSE;
+  }
+
 
   public function search($txt, $warehouse_code = NULL)
   {

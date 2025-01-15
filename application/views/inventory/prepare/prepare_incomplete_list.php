@@ -2,19 +2,18 @@
 <?php $showBtn  = get_cookie('showZone') ? 'hide' : '';  ?>
 <?php $checked  = get_cookie('showZone') ? 'checked' : ''; ?>
 
-
 <div class="row">
-  <div class="col-sm-12">
-    <table class="table table-striped border-1">
+  <div class="div-col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1" style="min-width:950px;">
       <thead>
         <tr><td colspan="6" align="center">รายการรอจัด</td></tr>
         <tr>
-          <th class="width-15 middle">บาร์โค้ด</th>
-          <th class="width-50 middle">สินค้า</th>
-          <th class="width-5 middle text-center">จำนวน</th>
-          <th class="width-5 middle text-center">จัดแล้ว</th>
-          <th class="width-5 middle text-center">คงเหลือ</th>
-          <th class="text-right">
+          <th class="fix-width-150 middle">บาร์โค้ด</th>
+          <th class="min-width-300 middle">สินค้า</th>
+          <th class="fix-width-100 middle text-center">จำนวน</th>
+          <th class="fix-width-100 middle text-center">จัดแล้ว</th>
+          <th class="fix-width-100 middle text-center">คงเหลือ</th>
+          <th class="fix-width-200 text-right">
             <label><input type="checkbox" id="showZone" style="margin-right:10px;" <?php echo $checked; ?> />แสดงที่เก็บ</label>
           </th>
         </tr>
@@ -75,14 +74,12 @@
             <input type="checkbox" id="force-close" class="ace" style="margin-right:5px;" onchange="toggleForceClose()" />
             <span class="lbl">  สินค้าไม่ครบ</span>
           </label>
-
         </div>
 
 
         <div id="close-bar" class="<?php echo $close; ?>">
           <button type="button" class="btn btn-sm btn-success" onclick="finishPrepare()">จัดเสร็จแล้ว</button>
         </div>
-
       </td>
     </tr>
 

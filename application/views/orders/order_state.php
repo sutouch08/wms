@@ -68,11 +68,11 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
                 </td>
                 <td class="width-25" style="border:0px; padding:5px;">
                 <?php if( $order->status == 1 && $order->is_expired == 0 ) : ?>
-                	<button class="btn btn-xs btn-primary btn-block" onclick="changeState()">เปลี่ยนสถานะ</button>
+                	<button class="btn btn-xs btn-primary btn-block" id="btn-change-state" onclick="changeState()">เปลี่ยนสถานะ</button>
 								<?php elseif($order->is_expired == 1 && $this->pm->can_delete) : ?>
-									<button class="btn btn-xs btn-primary btn-block" onclick="changeState()">เปลี่ยนสถานะ</button>
+									<button class="btn btn-xs btn-primary btn-block" id="btn-change-state" onclick="changeState()">เปลี่ยนสถานะ</button>
 								<?php elseif($order->state == 9 && $this->pm->can_delete) : ?>
-									<button class="btn btn-xs btn-primary btn-block" onclick="changeState()">เปลี่ยนสถานะ</button>
+									<button class="btn btn-xs btn-primary btn-block" id="btn-change-state" onclick="changeState()">เปลี่ยนสถานะ</button>
                 <?php endif; ?>
                 </td>
             </tr>

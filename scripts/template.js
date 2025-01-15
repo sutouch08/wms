@@ -39,6 +39,19 @@ function checkError(){
 }
 
 
+function showError(response) {
+  load_out();
+
+  setTimeout(() => {
+    swal({
+      title:'Error!',
+      text:(typeof response === 'object') ? response.responseText : response,
+      type:'error',
+      html:true
+    })
+  }, 100);
+}
+
 //--- save side bar layout to cookie
 function toggle_layout(){
 	var sidebar_layout = getCookie('sidebar_layout');
@@ -278,6 +291,33 @@ function parseDefault(value, def){
 	return value;
 }
 
+function parseDiscountAmount(discount_label, price)
+{
+	var discAmount = 0;
+
+	if(discount_label != '' && discount_label != 0)
+	{
+		var arr = discount_label.split('+');
+		arr.forEach(function(item, index){
+			var i = index + 1;
+			if(i < 4){
+				var disc = item.split('%');
+				var value = parseDefault(parseFloat(disc[0]), 0);
+				if(disc.length == 2){
+					var amount = (value * 0.01) * price;
+					discAmount += amount;
+					price -= amount;
+				}else{
+					discAmount += value;
+					price -= value;
+				}
+			}
+		});
+	}
+
+	return discAmount;
+}
+
 //--- return discount array
 function parseDiscount(discount_label, price)
 {
@@ -360,7 +400,7 @@ function closeModal(name) {
 
 $.fn.hasError = function(msg) {
   name = this.attr('id');
-  
+
   if(msg !== undefined) {
     $('#'+name+'-error').text(msg);
   }
@@ -373,3 +413,16 @@ $.fn.clearError = function() {
   $('#'+name+'-error').text('');
   return this.removeClass('has-error');
 };
+
+function clearErrorByClass(className) {
+  $('.'+className).each(function() {
+    let name = $(this).attr('id');
+    $('#'+name+'-error').text('');
+    $(this).removeClass('has-error');
+  })
+}
+
+
+function clearCache() {
+  window.location.reload(true);
+}

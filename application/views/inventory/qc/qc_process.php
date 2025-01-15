@@ -1,51 +1,55 @@
 <?php $this->load->view('include/header'); ?>
 <script src="<?php echo base_url(); ?>/assets/js/md5.min.js"></script>
-<div class="row top-row">
-  <div class="col-sm-6 top-col">
-    <h4 class="title"><?php echo $this->title; ?></h4>
+<div class="row">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-sm-6">
-    <p class="pull-right top-p">
-      <button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> รอตรวจ</button>
-      <button type="button" class="btn btn-sm btn-yellow" onclick="viewProcess()"><i class="fa fa-arrow-left"></i> กำลังตรวจ</button>
-    </p>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+    <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-cubes"></i> รอตรวจ</button>
+    <button type="button" class="btn btn-white btn-info top-btn" onclick="viewProcess()"><i class="fa fa-cube"></i> กำลังตรวจ</button>
+  </div>
+</div>
+<hr/>
+<div class="row">
+  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+    <label>เลขที่</label>
+    <input type="text" class="width-100 text-center" value="<?php echo $order->code; ?>" disabled />
+  </div>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <label>วันที่</label>
+    <input type="text" class="width-100 text-center" value="<?php echo thai_date($order->date_add); ?>" disabled />
+  </div>
+  <div class="col-lg-2 col-md-2-harf col-sm-2 col-xs-6 padding-5 hidden-sm">
+    <label>อ้างอิง</label>
+    <input type="text" class="width-100 text-center" value="<?php echo $order->reference; ?>" disabled />
+  </div>
+  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+    <label>ลูกค้า</label>
+    <input type="text" class="width-100 text-center" value="<?php echo $order->customer_code; ?>" disabled />
+  </div>
+  <div class="col-lg-5-harf col-md-4 col-sm-5-harf col-xs-6 padding-5">
+    <label class="not-show">ลูกค้า</label>
+    <input type="text" class="width-100" value="<?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>" disabled />
+  </div>
+  <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
+    <label>ช่องทางขาย</label>
+    <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" disabled />
   </div>
 
+  <div class="col-lg-10 col-md-9-harf col-sm-9-harf col-xs-12 padding-5">
+    <label>หมายเหตุ</label>
+    <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
+  </div>
 </div>
 
-<hr class="margin-top-10 margin-bottom-10" />
-  <div class="row">
-    <div class="col-sm-2 padding-5 first">
-      <label>เลขที่ : <?php echo $order->code; ?></label>
-    </div>
-    <div class="col-sm-5 padding-5">
-      <label>ลูกค้า/ผู้เบิก/ผู้ยืม : &nbsp;
-    <?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>
-      </label>
-    </div>
-    <div class="col-sm-3">
-      <label>ช่องทาง : <?php echo $order->channels_name; ?></label>
-    </div>
-    <div class="col-sm-2 padding-5 last text-right">
-      <label>วันที่ : <?php echo thai_date($order->date_add); ?></label>
-    </div>
-  <?php if($order->remark != '') : ?>
-    <div class="col-sm-12 margin-top-10">
-      <label>หมายเหตุ : <?php echo $order->remark; ?></label>
-    </div>
-  <?php endif; ?>
+<input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
+<input type="hidden" id="id_box" value="" />
+<hr />
 
-    <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
-    <input type="hidden" id="id_box" value="" />
-  </div>
-  <hr />
-<?php
-
-    $this->load->view('inventory/qc/qc_box');
-    $this->load->view('inventory/qc/qc_control');
-    $this->load->view('inventory/qc/qc_incomplete_list');
-    $this->load->view('inventory/qc/qc_complete_list');
-?>
+<?php $this->load->view('inventory/qc/qc_box'); ?>
+<?php $this->load->view('inventory/qc/qc_control'); ?>
+<?php $this->load->view('inventory/qc/qc_incomplete_list'); ?>
+<?php $this->load->view('inventory/qc/qc_complete_list'); ?>
 
 
   <!--************** Address Form Modal ************-->

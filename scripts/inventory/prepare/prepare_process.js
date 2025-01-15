@@ -29,46 +29,47 @@ function doPrepare(){
     type:"POST",
     cache:"false",
     data:{
-        "order_code" : order_code,
-        "zone_code" : zone_code,
-        "barcode" : barcode,
-        "qty" : qty
+      "order_code" : order_code,
+      "zone_code" : zone_code,
+      "barcode" : barcode,
+      "qty" : qty
     },
     success: function(rs){
-        var rs = $.trim(rs);
-        if( isJson(rs)){
-          var rs = $.parseJSON(rs);
-          var order_qty = parseInt( removeCommas( $("#order-qty-" + rs.id).text() ) );
-          var prepared = parseInt( removeCommas( $("#prepared-qty-" + rs.id).text() ) );
-          var balance = parseInt( removeCommas( $("#balance-qty-" + rs.id).text() ) );
-          var prepare_qty = parseInt(rs.qty);
+      var rs = $.trim(rs);
+      if( isJson(rs)){
+        var rs = $.parseJSON(rs);
+        var order_qty = parseInt( removeCommas( $("#order-qty-" + rs.id).text() ) );
+        var prepared = parseInt( removeCommas( $("#prepared-qty-" + rs.id).text() ) );
+        var balance = parseInt( removeCommas( $("#balance-qty-" + rs.id).text() ) );
+        var prepare_qty = parseInt(rs.qty);
 
-          prepared = prepared + prepare_qty;
-          balance = order_qty - prepared;
+        prepared = prepared + prepare_qty;
+        balance = order_qty - prepared;
 
-          $("#prepared-qty-" + rs.id).text(addCommas(prepared));
-          $("#balance-qty-" + rs.id).text(addCommas(balance));
+        $("#prepared-qty-" + rs.id).text(addCommas(prepared));
+        $("#balance-qty-" + rs.id).text(addCommas(balance));
 
-          $("#qty").val(1);
-          $("#barcode-item").val('');
+        $("#qty").val(1);
+        $("#barcode-item").val('');
 
 
-          if( rs.valid == '1'){
-            $("#complete-table").append($("#incomplete-" + rs.id));
-            $("#incomplete-" + rs.id).removeClass('incomplete');
-          }
-
-          if( $(".incomplete").length == 0){
-            $("#force-bar").addClass('hide');
-            $("#close-bar").removeClass('hide');
-          }
-
-        }else{
-          beep();
-          swal("Error!", rs, "error");
-          $("#qty").val(1);
-          $("#barcode-item").val('');
+        if( rs.valid == '1'){
+          $("#complete-table").append($("#incomplete-" + rs.id));
+          $("#incomplete-" + rs.id).removeClass('incomplete');
         }
+
+        if( $(".incomplete").length == 0){
+          $("#force-bar").addClass('hide');
+          $("#close-bar").removeClass('hide');
+        }
+
+      }
+      else {
+        beep();
+        swal("Error!", rs, "error");
+        $("#qty").val(1);
+        $("#barcode-item").val('');
+      }
     }
   });
 }

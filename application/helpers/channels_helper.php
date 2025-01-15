@@ -25,4 +25,11 @@ function select_channels_type($code = NULL)
 
 	return $sc;
 }
+
+function get_channels_array()
+{
+  $ci =& get_instance();
+  $ci->load->model('masters/channels_model');
+  return $ci->channels_model->get_channels_array();
+}
  ?>

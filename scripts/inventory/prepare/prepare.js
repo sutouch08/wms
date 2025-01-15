@@ -6,16 +6,31 @@ function goBack(){
 }
 
 
-
+function refresh() {
+  load_in();
+  setTimeout(() => {
+    window.location.reload();
+  }, 100);
+}
 
 //---- ไปหน้าจัดสินค้า
-function goPrepare(code){
+function goPrepare(code, view){
+  if(view === undefined) {
     window.location.href = HOME + '/process/'+code;
+  }
+  else {
+    window.location.href = HOME + '/process/'+code+'/mobile';
+  }
 }
 
 
-function goProcess(){
+function goProcess(view){
   window.location.href = HOME + '/view_process';
+}
+
+
+function goToBuffer() {
+  window.location.href = BASE_URL + 'inventory/buffer';
 }
 
 
@@ -39,21 +54,7 @@ function pullBack(code){
   });
 }
 
-
-
-
 //--- ไปหน้ารายการที่กำลังจัดสินค้าอยู่
 function viewProcess(){
   window.location.href = HOME + '/view_process';
 }
-
-
-// $('#item-code').autocomplete({
-//   source : BASE_URL + 'auto_complete/get_prepare_item_code',
-//   autoFocus: true,
-//   close:function(){
-//     let code = $(this).val();
-//     let arr = code.split(' | ');
-//     $(this).val(arr[1]);
-//   }
-// })

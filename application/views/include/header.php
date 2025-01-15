@@ -29,23 +29,7 @@
     <script src="<?php echo base_url(); ?>assets/js/handlebars-v3.js"></script>
 		<script src="<?php echo base_url(); ?>assets/js/select2.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
-	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
-    <style>
-			.ui-helper-hidden-accessible {
-				display:none;
-			}
-
-			.ui-autocomplete {
-		    max-height: 250px;
-		    overflow-y: auto;
-		    /* prevent horizontal scrollbar */
-		    overflow-x: hidden;
-			}
-
-			.ui-widget {
-				width:auto;
-			}
-	</style>
+	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">    
 	</head>
 	<body class="no-skin" onload="checkError()">
 		<!--
@@ -130,7 +114,7 @@
 							</ul>
 						</li>
 					</ul>
-				</div>			
+				</div>
 				<?php endif; ?>
 
 				<!-- /section:basics/navbar.dropdown -->

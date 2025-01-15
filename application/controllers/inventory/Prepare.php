@@ -8,6 +8,8 @@ class Prepare extends PS_Controller
   public $menu_sub_group_code = 'PICKPACK';
 	public $title = 'จัดสินค้า';
   public $filter;
+  public $full_mode = TRUE;
+
   public function __construct()
   {
     parent::__construct();
@@ -15,107 +17,114 @@ class Prepare extends PS_Controller
     $this->load->model('inventory/prepare_model');
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
+
+    $this->full_mode = is_true(getConfig('WMS_FULL_MODE'));
   }
 
 
   public function index()
   {
+    $this->title = "รายการรอจัด";
     $this->load->helper('channels');
     $this->load->helper('payment_method');
     $this->load->helper('warehouse');
+
     $filter = array(
-      'code'          => get_filter('code', 'ic_code', ''),
-      'customer'      => get_filter('customer', 'ic_customer', ''),
-      'user'          => get_filter('user', 'ic_user', ''),
-      'channels'      => get_filter('channels', 'ic_channels', ''),
-      'is_online'     => get_filter('is_online', 'ic_is_online', '2'),
-      'role'          => get_filter('role', 'ic_role', 'all'),
-      'from_date'     => get_filter('from_date', 'ic_from_date', ''),
-      'to_date'       => get_filter('to_date', 'ic_to_date', ''),
-      'order_by'      => get_filter('order_by', 'ic_order_by', ''),
-      'sort_by'       => get_filter('sort_by', 'ic_sort_by', ''),
-      'stated'        => get_filter('stated', 'ic_stated', ''),
-      'startTime'     => get_filter('startTime', 'ic_startTime', ''),
-      'endTime'       => get_filter('endTime', 'ic_endTime', ''),
-      'item_code'    => get_filter('item_code', 'ic_item_code', ''),
+      'code' => get_filter('code', 'ic_code', ''),
+      'customer' => get_filter('customer', 'ic_customer', ''),
+      'user' => get_filter('user', 'ic_user', ''),
+      'channels' => get_filter('channels', 'ic_channels', 'all'),
+      'is_online' => get_filter('is_online', 'ic_is_online', '2'),
+      'role' => get_filter('role', 'ic_role', 'all'),
+      'from_date' => get_filter('from_date', 'ic_from_date', ''),
+      'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'order_by' => get_filter('order_by', 'ic_order_by', ''),
+      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
+      'stated' => get_filter('stated', 'ic_stated', ''),
+      'startTime' => get_filter('startTime', 'ic_startTime', ''),
+      'endTime' => get_filter('endTime', 'ic_endTime', ''),
+      'item_code' => get_filter('item_code', 'ic_item_code', ''),
       'payment' => get_filter('payment', 'ic_payment', 'all'),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all')
     );
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
+    if($this->input->post('search'))
+    {
+      redirect($this->home);
+    }
+    else
+    {
+      //--- แสดงผลกี่รายการต่อหน้า
+  		$perpage = get_rows();
+  		$segment  = 4; //-- url segment
+  		$rows     = $this->prepare_model->count_rows($filter, 3, $this->full_mode);
+  		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+  		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+  		$orders   = $this->prepare_model->get_list($filter, $perpage, $this->uri->segment($segment), 3, $this->full_mode);
 
-		$segment  = 4; //-- url segment
-		$rows     = $this->prepare_model->count_rows($filter, 3);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->prepare_model->get_data($filter, $perpage, $this->uri->segment($segment), 3);
+      $filter['orders'] = $orders;
 
-    $filter['orders'] = $orders;
-
-		$this->pagination->initialize($init);
-    $this->load->view('inventory/prepare/prepare_list', $filter);
+  		$this->pagination->initialize($init);
+      $this->load->view('inventory/prepare/prepare_list', $filter);
+    }
   }
-
-
-
 
 
   public function view_process()
   {
+    $this->title = "รายการกำลังจัด";
     $this->load->helper('channels');
     $this->load->helper('payment_method');
     $this->load->helper('warehouse');
+
     $filter = array(
-      'code'          => get_filter('code', 'ic_code', ''),
-      'customer'      => get_filter('customer', 'ic_customer', ''),
-      'display_name'  => get_filter('display_name', 'ic_display_name', ''),
-      'channels'      => get_filter('channels', 'ic_channels', ''),
-      'is_online'     => get_filter('is_online', 'ic_is_online', '2'),
-      'role'          => get_filter('role', 'ic_role', 'all'),
-      'from_date'     => get_filter('from_date', 'ic_from_date', ''),
-      'to_date'       => get_filter('to_date', 'ic_to_date', ''),
-      'order_by'      => get_filter('order_by', 'ic_order_by', ''),
-      'sort_by'       => get_filter('sort_by', 'ic_sort_by', ''),
-      'stated'        => get_filter('stated', 'ic_stated', ''),
-      'startTime'     => get_filter('startTime', 'ic_startTime', ''),
-      'endTime'       => get_filter('endTime', 'ic_endTime', ''),
-      'item_code'    => get_filter('item_code', 'ic_item_code', ''),
-      'payment'  => get_filter('payment', 'ic_payment', 'all'),
+      'code' => get_filter('code', 'ic_code', ''),
+      'customer' => get_filter('customer', 'ic_customer', ''),
+      'user' => get_filter('user', 'ic_user', ''),
+      'channels' => get_filter('channels', 'ic_channels', 'all'),
+      'is_online' => get_filter('is_online', 'ic_is_online', '2'),
+      'role' => get_filter('role', 'ic_role', 'all'),
+      'from_date' => get_filter('from_date', 'ic_from_date', ''),
+      'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'order_by' => get_filter('order_by', 'ic_order_by', ''),
+      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
+      'stated' => get_filter('stated', 'ic_stated', ''),
+      'startTime' => get_filter('startTime', 'ic_startTime', ''),
+      'endTime' => get_filter('endTime', 'ic_endTime', ''),
+      'item_code' => get_filter('item_code', 'ic_item_code', ''),
+      'payment' => get_filter('payment', 'ic_payment', 'all'),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all')
     );
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
+    if($this->input->post('search'))
+    {
+      redirect($this->home.'/view_process/');
+    }
+    else
+    {
+      //--- แสดงผลกี่รายการต่อหน้า
+  		$perpage = get_rows();
+  		$segment  = 4; //-- url segment
+  		$rows     = $this->prepare_model->count_rows($filter, 4, $this->full_mode);
+  		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+  		$init	    = pagination_config($this->home.'/veiw_process/', $rows, $perpage, $segment);
+  		$orders   = $this->prepare_model->get_list($filter, $perpage, $this->uri->segment($segment), 4, $this->full_mode);
 
-		$segment  = 4; //-- url segment
-		$rows     = $this->prepare_model->count_rows($filter, 4);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/view_process/', $rows, $perpage, $segment);
-		$orders   = $this->prepare_model->get_data($filter, $perpage, $this->uri->segment($segment), 4);
+      $filter['orders'] = $orders;
 
-    $filter['orders'] = $orders;
-
-		$this->pagination->initialize($init);
-    $this->load->view('inventory/prepare/prepare_view_process', $filter);
+  		$this->pagination->initialize($init);
+      $this->load->view('inventory/prepare/prepare_view_process', $filter);
+    }
   }
 
 
 
-  public function process($code)
+  public function process($code, $view = NULL)
   {
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
+    $this->load->helper('warehouse');
+
     $state = $this->orders_model->get_state($code);
 
     if($state == 3)
@@ -135,12 +144,18 @@ class Prepare extends PS_Controller
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $order->channels_name = $this->channels_model->get_name($order->channels_code);
+    $order->warehouse_name = warehouse_name($order->warehouse_code);
+
+    $orderQty = 0;
+    $pickedQty = 0;
 
     $uncomplete = $this->orders_model->get_unvalid_details($code);
+
     if(!empty($uncomplete))
     {
       foreach($uncomplete as $rs)
       {
+        $orderQty += $rs->qty;
         $rs->barcode = $this->get_barcode($rs->product_code);
         $rs->prepared = $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id);
         $rs->stock_in_zone = $this->get_stock_in_zone($rs->product_code, get_null($order->warehouse_code));
@@ -155,6 +170,8 @@ class Prepare extends PS_Controller
       {
         $rs->barcode = $this->get_barcode($rs->product_code);
         $rs->prepared = $rs->is_count == 1 ? $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id) : $rs->qty;
+        $orderQty += $rs->qty;
+        $pickedQty += $rs->prepared;
 
         $arr = array(
           'order_code' => $rs->order_code,
@@ -170,13 +187,99 @@ class Prepare extends PS_Controller
     $ds = array(
       'order' => $order,
       'uncomplete_details' => $uncomplete,
-      'complete_details' => $complete
+      'complete_details' => $complete,
+      'finished' => empty($uncomplete) ? TRUE : FALSE,
+      'orderQty' => number($orderQty),
+      'pickedQty' => number($pickedQty)
     );
 
-    $this->load->view('inventory/prepare/prepare_process', $ds);
+    if( ! empty($view))
+    {
+      $ds['title'] = $order->code . '<br/>' . $order->warehouse_code .' : '.$order->warehouse_name;
+      $this->load->view('inventory/prepare/prepare_process_mobile', $ds);
+    }
+    else
+    {
+      $this->load->view('inventory/prepare/prepare_process', $ds);
+    }
   }
 
 
+  public function get_complete_item($id_order_detail)
+  {
+    $sc = TRUE;
+    $rs = $this->orders_model->get_valid_item($id_order_detail);
+
+    if( ! empty($rs))
+    {
+      $rs->qty = round($rs->qty, 2);
+      $rs->barcode = $this->get_barcode($rs->product_code);
+      $rs->prepared = $rs->is_count == 1 ? $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id) : $rs->qty;
+      $rs->balance = $rs->qty - $rs->prepared;
+
+      $arr = array(
+        'order_code' => $rs->order_code,
+        'product_code' => $rs->product_code,
+        'order_detail_id' => $rs->id,
+        'is_count' => $rs->is_count
+      );
+
+      $rs->from_zone = $this->get_prepared_from_zone($arr);
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบรายการที่ครบแล้ว : {$id_order_detail}";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $sc === TRUE ? $rs : NULL
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function get_incomplete_item()
+  {
+    $sc = TRUE;
+    $id = $this->input->post('id');
+    $whsCode = $this->input->post('warehouse_code');
+
+    $rs = $this->orders_model->get_invalid_item($id);
+
+    if( ! empty($rs))
+    {
+      $rs->qty = round($rs->qty, 2);
+      $rs->barcode = $this->get_barcode($rs->product_code);
+      $rs->prepared = $rs->is_count == 1 ? $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id) : $rs->qty;
+      $rs->balance = $rs->qty - $rs->prepared;
+
+      $arr = array(
+        'order_code' => $rs->order_code,
+        'product_code' => $rs->product_code,
+        'order_detail_id' => $rs->id,
+        'is_count' => $rs->is_count
+      );
+
+      $rs->stock_in_zone = $this->get_stock_in_zone($rs->product_code, get_null($whsCode));
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบรายการที่ครบแล้ว : {$id}";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $sc === TRUE ? $rs : NULL
+    );
+
+    echo json_encode($arr);
+  }
 
 
   public function do_prepare()
@@ -307,7 +410,6 @@ class Prepare extends PS_Controller
   }
 
 
-
   public function get_barcode($item_code)
   {
     $this->load->model('masters/products_model');
@@ -321,6 +423,46 @@ class Prepare extends PS_Controller
   }
 
 
+  public function get_zone_code()
+  {
+    $ds = array();
+    $sc = TRUE;
+    $zone_code = trim($this->input->get('zone_code'));
+    $warehouse_code = trim($this->input->get('warehouse_code'));
+
+    if($zone_code)
+    {
+      $this->load->model('masters/zone_model');
+
+      $zone = $this->zone_model->get_zone($zone_code, $warehouse_code);
+
+      if( ! empty($zone))
+      {
+        $ds = array(
+          'code' => $zone->code,
+          'name' => $zone->name
+        );
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบโซน";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'zone' => $sc === TRUE ? $ds : NULL
+    );
+
+    echo json_encode($arr);
+  }
 
 
   public function get_prepared_from_zone(array $ds = array())
@@ -357,8 +499,6 @@ class Prepare extends PS_Controller
   }
 
 
-
-
   public function get_stock_in_zone($item_code, $warehouse = NULL)
   {
     $sc = "ไม่มีสินค้า";
@@ -381,8 +521,6 @@ class Prepare extends PS_Controller
 
     return empty($sc) ? 'ไม่พบสินค้า' : $sc;
   }
-
-
 
 
   //---- สินค้าคงเหลือในโซน ลบด้วย สินค้าที่จัดไปแล้ว
@@ -411,7 +549,6 @@ class Prepare extends PS_Controller
 
 
     return $stock - $prepared;
-
   }
 
 
@@ -419,10 +556,6 @@ class Prepare extends PS_Controller
   {
     $this->input->set_cookie(array('name' => 'showZone', 'value' => $value, 'expire' => 3600 , 'path' => '/'));
   }
-
-
-
-
 
   public function finish_prepare()
   {
@@ -463,7 +596,6 @@ class Prepare extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $message;
   }
-
 
 
   public function check_state()

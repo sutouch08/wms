@@ -1,9 +1,7 @@
 
-
 function getSearch(){
   $("#searchForm").submit();
 }
-
 
 
 function clearFilter(){
@@ -16,16 +14,11 @@ function clearProcessFilter(){
 }
 
 
-
-
-
 $(".search").keyup(function(e){
   if( e.keyCode == 13){
     getSearch();
   }
 });
-
-
 
 
 $("#fromDate").datepicker({
@@ -43,6 +36,20 @@ $("#toDate").datepicker({
   }
 });
 
+
+function toggleFilter() {
+  let filter = $('#filter');
+  let pad = $('#filter-pad');
+
+  if(filter.val() == "hide") {
+    filter.val("show");
+    pad.addClass('move-in');
+  }
+  else {
+    filter.val("hide");
+    pad.removeClass('move-in');
+  }
+}
 
 
 //---- Reload page every 5 minute

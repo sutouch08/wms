@@ -716,6 +716,19 @@ class Products_model extends CI_Model
   }
 
 
+  public function get_by_old_code($code)
+  {
+    $rs = $this->db->where('old_code', $code)->order_by('date_upd', 'DESC')->get('products');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 
   public function get_name($code)
   {
