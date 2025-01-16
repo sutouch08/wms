@@ -40,7 +40,12 @@
       <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" disabled />
     </div>
 
-    <div class="col-lg-12 col-md-10 col-sm-10 col-xs-12 padding-5">
+    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5">
+      <label>คลัง</label>
+      <input type="text" class="width-100" id="whs-name" value="<?php echo $order->warehouse_name; ?>" disabled />
+    </div>
+
+    <div class="col-lg-9 col-md-7 col-sm-7 col-xs-12 padding-5">
       <label>หมายเหตุ</label>
       <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
     </div>
@@ -48,6 +53,7 @@
 
   <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
   <input type="hidden" name="zone_code" id="zone_code" />
+  <input type="hidden" id="warehouse_code" value="<?php echo $order->warehouse_code; ?>" />
 
   <hr class="margin-top-10 margin-bottom-10"/>
 
@@ -61,8 +67,8 @@
 
 <?php endif; //--- endif order->state ?>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_process.js?"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_process.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>

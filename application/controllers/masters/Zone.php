@@ -396,7 +396,32 @@ class Zone extends PS_Controller
     echo 'done';
   }
 
+  //---- for prepare product
+  public function get_zone()
+  {
+    $sc = TRUE;
+    $code = trim($this->input->get('code'));
+    $whsCode = get_null(trim($this->input->get('warehouse_code')));
+    $whsName = get_null(trim($this->input->get('warehouse_name')));
+    $zone = $this->zone_model->get_zone($code, $whsCode);
 
+    if(empty($zone))
+    {
+      $sc = FALSE;
+      $this->error = "Invalid zone or zone not belong to warehouse {$whsCode} : {$whsName}";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $sc === TRUE ? $zone->code : NULL,
+      'name' => $sc === TRUE ? $zone->name : NULL,
+      'warehouse_code' => $sc === TRUE ? $zone->warehouse_code : NULL
+    );
+
+    echo json_encode($arr);
+  }
+  
 
   //--- check zone
   public function get_zone_code()

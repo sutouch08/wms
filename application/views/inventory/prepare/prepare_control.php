@@ -5,7 +5,7 @@
   </div>
   <div class="col-lg-4 col-md-3 col-sm-6 col-xs-5 padding-5">
     <label class="not-show">ชื่อโซน</label>
-    <input type="text" class="width-100" id="zone-name" value="" readonly />
+    <input type="text" class="width-100" id="zone-name" value="" disabled />
   </div>
   <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="not-show">changeZone</label>
