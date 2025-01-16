@@ -75,12 +75,6 @@ function doPrepare(){
 }
 
 
-
-
-
-
-
-
 //---- จัดเสร็จแล้ว
 function finishPrepare(){
   var order_code = $("#order_code").val();
@@ -105,9 +99,6 @@ function finishPrepare(){
 }
 
 
-
-
-
 function forceClose(){
   swal({
     title: "Are you sure ?",
@@ -126,39 +117,58 @@ function forceClose(){
 
 
 //---- เมื่อมีการยิงบาร์โค้ดโซน เพื่อระบุว่าจะจัดสินค้าออกจากโซนนี้
-$("#barcode-zone").keyup(function(e){
-  if(e.keyCode == 13){
-    if( $(this).val() != ""){
+$("#barcode-zone").keyup(function(e) {
+  if(e.keyCode == 13) {
+    let barcode = $(this).val().trim();
+    let whsCode = $('#warehouse_code').val();
+    let whsName = $('#whs-name').val();
+
+    if(barcode.length) {
+      load_in();
       $.ajax({
-        url: BASE_URL + 'masters/zone/get_zone_code',
+        url: BASE_URL + 'masters/zone/get_zone',
         type:"GET",
         cache:"false",
         data:{
-          "barcode" : $(this).val()
+          "code" : barcode,
+          "warehouse_code" : whsCode,
+          "warehouse_name" : whsName
         },
-        success: function(rs){
-            var rs = $.trim(rs);
-            if(rs != 'not_exists'){
-              $("#zone_code").val(rs);
-              $("#barcode-zone").attr('disabled', 'disabled');
-              $("#qty").removeAttr('disabled');
-              $("#barcode-item").removeAttr('disabled');
-              $("#btn-submit").removeAttr('disabled');
+        success: function(rs) {
+          load_out();
 
-              $("#qty").focus();
-              $("#qty").select();
-            }else{
-              beep();
-              swal("Error!", 'โซนไม่ถูกต้อง', "error");
-              $("#zone_code").val('');
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+
+            if(ds.status == 'success') {
+              $('#zone_code').val(ds.code);
+              $('#barcode-zone').val(ds.code).attr('disabled', 'disabled');
+              $('#zone-name').val(ds.name);
+              $('#qty').val(1).removeAttr('disabled');
+              $('#barcode-item').removeAttr('disabled');
+              $('#btn-submit').removeAttr('disabled');
+              $('#barcode-item').focus().select();
             }
+            else {
+              beep();
+              showError(ds.message);
+              $('#zone_code').val('');
+            }
+          }
+          else {
+            beep();
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          load_out();
+          beep();
+          showError(rs);
         }
       });
     }
   }
 });
-
-
 
 
 $('.b-click').click(function(){
@@ -168,11 +178,10 @@ $('.b-click').click(function(){
     $('#barcode-item').val(barcode);
     $('#barcode-item').focus();
   }
-
 });
 
 
-function changeZone(){
+function changeZone() {
   $("#zone_code").val('');
   $("#barcode-item").val('');
   $("#barcode-item").attr('disabled','disabled');
@@ -180,11 +189,10 @@ function changeZone(){
   $("#qty").attr('disabled', 'disabled');
   $("#btn-submit").attr('disabled', 'disabled');
   $("#barcode-zone").val('');
+  $('#zone-name').val('');
   $("#barcode-zone").removeAttr('disabled');
   $("#barcode-zone").focus();
 }
-
-
 
 
 //---- ถ้าใส่จำนวนไม่ถูกต้อง
@@ -200,7 +208,6 @@ $("#qty").keyup(function(e){
 });
 
 
-
 //--- เมื่อยิงบาร์โค้ดสินค้าหรือกดปุ่ม Enter
 $("#barcode-item").keyup(function(e){
   if(e.keyCode == 13){
@@ -208,7 +215,17 @@ $("#barcode-item").keyup(function(e){
       doPrepare();
     }
   }
+});
+
+
+//--- กด Q เพื่อ focus ที่ Qty
+$('#barcode-item').keydown(function(e) {
+  if(e.keyCode == 81) {
+    e.preventDefault();
+    $('#qty').focus().select();
+  }
 })
+
 
 //--- เปิด/ปิด การแสดงที่เก็บ
 function toggleForceClose(){
@@ -220,13 +237,10 @@ function toggleForceClose(){
 }
 
 
-
 //---- กำหนดค่าการแสดงผลที่เก็บสินค้า เมื่อมีการคลิกปุ่มที่เก็บ
 $(function () {
   $('.btn-pop').popover({html:true});
 });
-
-
 
 
 $("#showZone").change(function(){
@@ -248,8 +262,7 @@ function setZoneLabel(showZone){
 }
 
 
-
-var intv = setInterval(function(){
+var intv = setInterval(function() {
   var order_code = $('#order_code').val();
   $.ajax({
     url: BASE_URL + 'inventory/prepare/check_state',

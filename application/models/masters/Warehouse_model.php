@@ -152,7 +152,7 @@ class Warehouse_model extends CI_Model
     if(!empty($ds['code']))
     {
       $this->db->like('warehouse.code', $ds['code'])->or_like('warehouse.name', $ds['code']);
-    }    
+    }
 
     if(! empty($ds['role']) && $ds['role'] != 'all')
     {
@@ -228,7 +228,7 @@ class Warehouse_model extends CI_Model
   public function get_sell_warehouse_list()
   {
     $rs = $this->db
-    ->where('role', 1)
+    ->where_in('role', [1, 2, 3])
     ->where('active', 1)
     ->where('sell', 1)
     ->order_by('position', 'ASC')
