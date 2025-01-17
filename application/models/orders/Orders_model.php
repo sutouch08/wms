@@ -420,6 +420,7 @@ class Orders_model extends CI_Model
   public function get_order_code_by_reference($reference)
   {
     $rs = $this->db->select('code')->where('reference', $reference)->get('orders');
+    
     if($rs->num_rows() > 0)
     {
       return $rs->row()->code;
@@ -431,7 +432,8 @@ class Orders_model extends CI_Model
 
   public function get_active_order_code_by_reference($reference)
   {
-    $rs = $this->db->select('code')->where('reference', $reference)->where('state !=', 9)->get('orders');
+    $rs = $this->db->select('code')->where('reference', $reference)->where('state !=', 9)->where('status !=', 2)->get('orders');
+
     if($rs->num_rows() > 0)
     {
       return $rs->row()->code;

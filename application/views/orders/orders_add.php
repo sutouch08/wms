@@ -87,7 +87,7 @@
 
 	<div class="col-lg-3 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>คลัง</label>
-    <select class="form-control input-sm" name="warehouse" id="warehouse" required>
+    <select class="width-100" name="warehouse" id="warehouse" required>
 			<option value="">เลือกคลัง</option>
 			<?php echo select_sell_warehouse(); ?>
 		</select>
@@ -110,6 +110,9 @@
 <input type="hidden" name="customerCode" id="customerCode" value="" />
 </form>
 
+<script>
+	$('#warehouse').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/order_add.js?v=<?php echo date('Ymd'); ?>"></script>
 

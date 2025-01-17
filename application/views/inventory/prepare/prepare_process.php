@@ -54,10 +54,19 @@
   <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
   <input type="hidden" name="zone_code" id="zone_code" />
   <input type="hidden" id="warehouse_code" value="<?php echo $order->warehouse_code; ?>" />
+  <input type="hidden" id="allow-prepare" value="<?php echo $order->allow_prepare; ?>" />
 
   <hr class="margin-top-10 margin-bottom-10"/>
 
-  <?php $this->load->view('inventory/prepare/prepare_control'); ?>
+  <?php if($order->allow_prepare) : ?>
+    <?php $this->load->view('inventory/prepare/prepare_control'); ?>
+  <?php else : ?>
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center">
+        <h4 class="red">ไม่อนุญาติให้จัดสินค้าในคลังนี้</h4>
+      </div>
+    </div>
+  <?php endif; ?>
 
   <hr class="margin-top-10 margin-bottom-10"/>
 

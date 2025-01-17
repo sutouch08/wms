@@ -236,12 +236,12 @@ class Items extends PS_Controller
 							else if(!empty($main_group_code) && ! $this->product_main_group_model->is_exists($main_group_code))
               {
                 $sc = FALSE;
-                $this->error = "Product Sub Group : {$sub_roup_code}  does not exists";
+                $this->error = "Product Sub Group : {$sub_group_code}  does not exists";
               }
               else if(!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
               {
                 $sc = FALSE;
-                $this->error = "Product Sub Group : {$sub_roup_code}  does not exists";
+                $this->error = "Product Sub Group : {$sub_group_code}  does not exists";
               }
               else if(!empty($category_code) && ! $this->product_category_model->is_exists($category_code))
               {

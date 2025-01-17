@@ -94,7 +94,7 @@
 										data-id="<?php echo $rs->id; ?>"
 										value="<?php echo round($rs->qty, 2); ?>"
 										data-qty="<?php echo round($rs->qty, 2); ?>"
-										data-count="<?php echo $rs->is_count; ?>"										
+										data-count="<?php echo $rs->is_count; ?>"
 									/>
       						<?php echo number($rs->qty); ?>
 								<?php endif; ?>
@@ -147,7 +147,7 @@
         </table>
     </div>
 </div>
-<?php 	$netAmount = ( $total_amount - $order->bDiscAmount ) + $order->shipping_fee + $order->service_fee;	?>
+<?php 	$netAmount = $total_amount - $order->bDiscAmount;	?>
 <?php $disabled = ($order->state == 1 && ($this->pm->can_add OR $this->pm->can_edit)) ? '' : 'disabled'; ?>
 <div class="divider-hidden"></div>
 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
@@ -162,7 +162,7 @@
     <div class="form-group">
       <label class="col-lg-2 col-md-4 col-sm-4 col-xs-12 control-label no-padding-right">Remark</label>
       <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12">
-        <textarea id="remark" maxlength="254" rows="3" class="form-control" onchange="updateRemark()" <?php echo $disabled; ?>><?php echo $order->remark; ?></textarea>
+        <textarea id="remark" maxlength="254" rows="3" class="form-control" onchange="updateRemark()" <?php echo $disabled; ?>><?php echo str_replace('"', '&quot;',$order->remark); ?></textarea>
       </div>
     </div>
 

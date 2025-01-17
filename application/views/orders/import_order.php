@@ -34,16 +34,9 @@ function getUploadFile(){
 }
 
 
-
 function getFile(){
   $('#uploadFile').click();
 }
-
-
-
-
-
-
 
 
 $("#uploadFile").change(function(){
@@ -66,48 +59,54 @@ $("#uploadFile").change(function(){
 });
 
 
+function uploadfile()	{
+  $('#upload-modal').modal('hide');
 
-	function uploadfile()
-	{
-    $('#upload-modal').modal('hide');
+  var file	= $("#uploadFile")[0].files[0];
+  var fd = new FormData();
+  fd.append('uploadFile', $('input[type=file]')[0].files[0]);
+  if( file !== '')
+  {
+    load_in();
 
-		var file	= $("#uploadFile")[0].files[0];
-		var fd = new FormData();
-		fd.append('uploadFile', $('input[type=file]')[0].files[0]);
-		if( file !== '')
-		{
-			load_in();
-			$.ajax({
-				url:BASE_URL + 'orders/import_order', //"controller/importController.php?importOrderFromWeb",
-				type:"POST",
-        cache:"false",
-        data: fd,
-        processData:false,
-        contentType: false,
-				success: function(rs){
-					load_out();
-					var rs = $.trim(rs);
-          if(rs === 'success'){
+    $.ajax({
+      url:BASE_URL + 'orders/import_order',
+      type:"POST",
+      cache:false,
+      data: fd,
+      processData:false,
+      contentType: false,
+      success: function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+          
+          let ds = JSON.parse(rs);
+
+          if(ds.status == 'success') {
             swal({
-              title: 'นำเข้าเรียบร้อยแล้ว',
-              text : rs,
-              type: 'success',
-              html:true,
-              timer:1000
-            });
-
-            setTimeout(function(){
-              window.location.reload();
-            }, 1200);
-          }else{
-            swal({
-              title:'Error!!',
-              text:rs,
-              type:'error'
+              title:'นำเข้าเรียบร้อยแล้ว',
+              text:ds.message,
+              type:'success',
+              html:true
+            }, function() {
+              goBack();
             });
           }
-				}
-			});
-		}
-	}
+          else {
+            showError(ds.message);
+          }
+        }
+        else {
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        load_out();
+        showError(rs);
+      }
+    });
+  }
+}
+
 </script>

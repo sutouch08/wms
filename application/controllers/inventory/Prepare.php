@@ -17,6 +17,7 @@ class Prepare extends PS_Controller
     $this->load->model('inventory/prepare_model');
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
+    $this->load->model('masters/warehouse_model');
 
     $this->full_mode = is_true(getConfig('WMS_FULL_MODE'));
   }
@@ -144,7 +145,10 @@ class Prepare extends PS_Controller
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $order->channels_name = $this->channels_model->get_name($order->channels_code);
-    $order->warehouse_name = warehouse_name($order->warehouse_code);
+    
+    $whs = $this->warehouse_model->get($order->warehouse_code);
+    $order->warehouse_name = empty($whs) ? NULL : $whs->name;
+    $order->allow_prepare = $whs->prepare;
 
     $orderQty = 0;
     $pickedQty = 0;

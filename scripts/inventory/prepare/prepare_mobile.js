@@ -167,7 +167,7 @@ function finishPrepare() {
     },
     success: function(rs) {
       var rs = $.trim(rs);
-      
+
       if(rs == 'success') {
         swal({
           title: "Success",
@@ -445,4 +445,38 @@ function removeBuffer(orderCode, pdCode, order_detail_id) {
       })
     },100);
   })
+}
+
+
+function showKeyboard(input) {
+  if(input == 'zone') {
+    $('#barcode-zone').attr('inputmode', 'text').focus();
+    $('#zone-qr').addClass('hide');
+    $('#zone-keyboard').removeClass('hide');
+  }
+
+  if(input == 'item') {
+    $('#barcode-item').attr('inputmode', 'text').focus();
+    $('#item-qr').addClass('hide');
+    $('#item-keyboard').removeClass('hide');
+  }
+
+  setCookie('showKeyboard', 1, 60);
+}
+
+
+function hideKeyboard(input) {
+  if(input == 'zone') {
+    $('#barcode-zone').attr('inputmode', 'none').focus();
+    $('#zone-keyboard').addClass('hide');
+    $('#zone-qr').removeClass('hide');
+  }
+
+  if(input == 'item') {
+    $('#barcode-item').attr('inputmode', 'none').focus();
+    $('#item-keyboard').addClass('hide');
+    $('#item-qr').removeClass('hide');
+  }
+
+  setCookie('showKeyboard', 0, 60);
 }

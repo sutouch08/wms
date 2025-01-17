@@ -1,28 +1,23 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 padding-5 hidden-xs">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-xs-12 padding-5 visible-xs">
-    <h3 class="title-xs"><?php echo $this->title; ?></h3>
-  </div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-  	<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-info" onclick="syncData()"><i class="fa fa-refresh"></i> Sync</button>
-			<button type="button" class="btn btn-sm btn-info" onclick="syncAllData()"><i class="fa fa-refresh"></i> Sync all</button>
-			<button type="button" class="btn btn-sm btn-purple" onclick="exportFilter()"><i class="fa fa-file-excel-o"></i> Export</button>
-    </p>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+		<button type="button" class="btn btn-white btn-info top-btn" onclick="syncData()"><i class="fa fa-refresh"></i> Sync</button>
+		<button type="button" class="btn btn-white btn-info top-btn" onclick="syncAllData()"><i class="fa fa-refresh"></i> Sync all</button>
+		<button type="button" class="btn btn-white btn-purple top-btn" onclick="exportFilter()"><i class="fa fa-file-excel-o"></i> Export</button>  	
   </div>
 </div><!-- End Row -->
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>รหัส/ชื่อ</label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>ประเภท</label>
     <select class="form-control input-sm filter" name="role" id="role" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -30,7 +25,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>คลังเทียม</label>
     <select class="form-control input-sm filter" name="is_consignment" id="is_consignment" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -39,7 +34,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm filter" name="active" id="active" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -48,7 +43,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>ขาย</label>
     <select class="form-control input-sm filter" name="sell" id="sell" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -57,7 +52,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>จัด</label>
     <select class="form-control input-sm filter" name="prepare" id="prepare" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -66,7 +61,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>ยืม</label>
     <select class="form-control input-sm filter" name="lend" id="lend" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -75,7 +70,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>ติดลบ</label>
     <select class="form-control input-sm filter" name="auz" id="auz" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -84,7 +79,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
     <label>POS API</label>
     <select class="form-control input-sm filter" name="is_pos" id="is_pos" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -93,12 +88,12 @@
 		</select>
   </div>
 
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="submit" class="btn btn-xs btn-primary btn-block">Search</button>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>

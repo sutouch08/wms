@@ -16,9 +16,11 @@ class Support_model extends CI_Model
     ->where('BpCode', $code)
 		->where('OOAT.StartDate <=', now())
 		->where('OOAT.EndDate >=', now())
+    ->where('OOAT.Status', 'A')
+    ->order_by('OOAT.AbsID', 'ASC')
     ->get();
 
-    if($rs->num_rows() === 1)
+    if($rs->num_rows() > 0)
     {
       return $rs->row()->amount;
     }
