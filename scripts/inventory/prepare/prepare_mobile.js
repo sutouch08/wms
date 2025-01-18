@@ -3,19 +3,9 @@ var autoFocus = 1;
 window.addEventListener('load', () => {
   focus_init();
   bclick_init();
-  input_init();
   $('#barcode-zone').focus();
 });
 
-function input_init() {
-  let showKeyboard = getCookie('showKeyboard');
-  if(showKeyboard == "" || showKeyboard == 0 || showKeyboard == '0') {
-    navigator.virtualKeyboard.hide();
-  }
-  else {
-    navigator.virtualKeyboard.show();
-  }
-}
 
 function bclick_init() {
   $('.b-click').click(function(){
@@ -460,16 +450,14 @@ function removeBuffer(orderCode, pdCode, order_detail_id) {
 
 
 function showKeyboard(input) {
-  if("virtualKeyboard" in navigator) {
-    navigator.virtualKeyboard.show();
-  }
-
   if(input == 'zone') {
+    $('#barcode-zone').attr('inputmode', 'text');
     $('#zone-qr').addClass('hide');
     $('#zone-keyboard').removeClass('hide');
   }
 
   if(input == 'item') {
+    $('#barcode-item').attr('inputmode', 'text');
     $('#item-qr').addClass('hide');
     $('#item-keyboard').removeClass('hide');
   }
@@ -479,16 +467,14 @@ function showKeyboard(input) {
 
 
 function hideKeyboard(input) {
-  if("virtualKeyboard" in navigator) {
-    navigator.virtualKeyboard.hide();
-  }
-
   if(input == 'zone') {
+    $('#barcode-zone').attr('inputmode', 'none');
     $('#zone-keyboard').addClass('hide');
     $('#zone-qr').removeClass('hide');
   }
 
   if(input == 'item') {
+    $('#barcode-item').attr('inputmode', 'none');
     $('#item-keyboard').addClass('hide');
     $('#item-qr').removeClass('hide');
   }

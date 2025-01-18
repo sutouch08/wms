@@ -42,7 +42,6 @@
   <div class="col-sm-12" id="result">
   </div>
 </div>
-
 <script id="order-template" type="text/x-handlebarsTemplate">
 <table class="table table-bordered">
 	<thead>

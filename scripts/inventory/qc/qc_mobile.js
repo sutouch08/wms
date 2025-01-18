@@ -401,6 +401,7 @@ function qcProduct() {
     {
       beep();
       swal("สินค้าไม่ถูกต้อง");
+      $('#barcode-item').removeAttr('disabled');
     }
   }
 }
