@@ -17,9 +17,18 @@ function clearFilter(){
 }
 
 
-
 function getEdit(code){
   window.location.href = HOME + '/edit/'+code;
+}
+
+
+function toggleCheckAll() {
+  if($('#chk-all').is(':checked')) {
+    $('.chk').prop('checked', true);
+  }
+  else {
+    $('.chk').prop('checked', false);
+  }
 }
 
 
@@ -56,6 +65,7 @@ function togglePosApi(id) {
     }
   })
 }
+
 
 function saveUpdate() {
   let code = $('#zone_code').val();
@@ -96,7 +106,6 @@ function saveUpdate() {
 }
 
 
-
 $("#empName").autocomplete({
 	source: BASE_URL + 'auto_complete/get_employee',
 	autoFocus: true,
@@ -121,7 +130,6 @@ $('#empName').keyup(function(e){
     addEmployee();
   }
 });
-
 
 
 function addEmployee(){
@@ -172,7 +180,6 @@ function addEmployee(){
     }
   });
 }
-
 
 
 $('#search-box').autocomplete({
@@ -249,7 +256,6 @@ function addCustomer(){
 }
 
 
-
 function getDelete(code){
   swal({
     title:'Are sure ?',
@@ -287,7 +293,6 @@ function getDelete(code){
 
   })
 }
-
 
 
 function deleteCustomer(id,code){
@@ -370,8 +375,6 @@ function deleteEmployee(id,name){
 }
 
 
-
-
 function syncData(){
   load_in();
   $.get(HOME +'/syncData', function(){
@@ -386,6 +389,7 @@ function syncData(){
     }, 1500);
   });
 }
+
 
 function exportFilter(){
   let code = $('#code').val();
@@ -409,4 +413,45 @@ function editZone() {
   $('#pos-api').removeAttr('disabled');
   $('#btn-u-edit').addClass('hide');
   $('#btn-u-update').removeClass('hide');
+}
+
+
+function generateQrcode() {
+  if($('.chk:checked').length) {
+
+    let h = [];
+
+    $('.chk:checked').each(function() {
+      let code = $(this).data('code');
+      let name = $(this).data('name');
+
+      h.push({'code' : code, 'name' : name});
+    });
+
+    if(h.length) {
+      
+      var mapForm = document.createElement('form');
+      mapForm.target = "Map";
+      mapForm.method = "POST";
+      mapForm.action = HOME + "/generate_qrcode";
+
+      var mapInput = document.createElement("input");
+      mapInput.type = "hidden";
+      mapInput.name = "data";
+      mapInput.value = JSON.stringify(h);
+
+      mapForm.appendChild(mapInput);
+
+      document.body.appendChild(mapForm);
+
+      map = window.open("", "Map", "status=0,title=0,height=900,width=800,scrollbars=1");
+
+      if(map) {
+        mapForm.submit();
+      }
+      else {
+        swal('You must allow popups for this map to work.');
+      }
+    }
+  }
 }

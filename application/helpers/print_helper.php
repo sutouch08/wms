@@ -144,5 +144,4 @@ function inputRow($text, $style='')
   return '<input type="text" class="print-row" value="'.$text.'" style="'.$style.'" />';
 }
 
-
  ?>

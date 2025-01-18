@@ -57,6 +57,40 @@ class Zone extends PS_Controller
   }
 
 
+  public function generate_qrcode()
+  {
+    $ds = json_decode($this->input->post('data'));
+    $list = [];
+
+    if( ! empty($ds))
+    {
+      $this->load->library('ixqrcode');
+
+      foreach($ds as $rs)
+      {
+        $path = $this->config->item('qrcode_path').$rs->code.'.png';
+
+        $qr = array(
+          'data' => $rs->code,
+          'size' => 8,
+          'level' => 'H',
+          'savename' => $path
+        );
+
+        $this->ixqrcode->generate($qr);
+
+        $list[] = (object)['file' => $path, 'code' => $rs->code];
+      }
+
+      $this->load->library('printer');
+      $ds = array(
+        'list' => $list
+      );
+
+      $this->load->view('print/print_qr_code', $ds);
+    }
+
+  }
 
   public function edit($code)
   {
@@ -421,7 +455,7 @@ class Zone extends PS_Controller
 
     echo json_encode($arr);
   }
-  
+
 
   //--- check zone
   public function get_zone_code()

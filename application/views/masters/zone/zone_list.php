@@ -8,6 +8,7 @@
 		<button type="button" class="btn btn-white btn-purple  top-btn" onclick="exportFilter()">
 			<i class="fa fa-file-excel-o"></i> Export
 		</button>
+		<button type="button" class="btn btn-white btn-primary top-btn" onclick="generateQrcode()"><i class="fa fa-qrcode"></i> Generate QR</button>
   </div>
 </div><!-- End Row -->
 <hr/>
@@ -80,7 +81,13 @@
 		<table class="table table-striped table-hover border-1" style="min-width:1360px;">
 			<thead>
 				<tr>
-					<th class="fix-width-80"></th>
+					<th class="fix-width-60 middle text-center">
+						<label>
+							<input type="checkbox" id="chk-all" class="ace" onchange="toggleCheckAll()"/>
+							<span class="lbl"></span>
+						</label>
+					</th>
+					<th class="fix-width-80 middle"></th>
 					<th class="fix-width-40 middle text-center">#</th>
 					<th class="fix-width-200 middle">Code</th>
 					<th class="min-width-200 middle">Name</th>
@@ -97,14 +104,23 @@
 				<?php $no = $this->uri->segment(4) + 1; ?>
 				<?php foreach($list as $rs) : ?>
 					<tr style="font-size:11px;" id="row-<?php echo $rs->code; ?>">
-						<td class="">
+						<td class="middle text-center">
+							<label>
+								<input type="checkbox" class="ace chk"
+								value="<?php echo $rs->code; ?>"
+								data-code="<?php echo $rs->code; ?>"
+								data-name="<?php echo $rs->name; ?>" />
+								<span class="lbl"></span>
+							</label>
+						</td>
+						<td class="middle">
 							<?php if($this->pm->can_edit) : ?>
-								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">
+								<button type="button" class="btn btn-minier btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">
 									<i class="fa fa-pencil"></i>
 								</button>
 							<?php endif; ?>
 							<?php if($this->pm->can_delete) : ?>
-								<button type="button" class="btn btn-mini btn-danger" onclick="getDelete('<?php echo $rs->code; ?>')" <?php echo ($rs->customer_count > 0 ? 'disabled' :''); ?>>
+								<button type="button" class="btn btn-minier btn-danger" onclick="getDelete('<?php echo $rs->code; ?>')" <?php echo ($rs->customer_count > 0 ? 'disabled' :''); ?>>
 									<i class="fa fa-trash"></i>
 								</button>
 							<?php endif; ?>
@@ -140,6 +156,7 @@
 		</table>
 	</div>
 </div>
+
 
 <script>
 	$('#warehouse').select2();

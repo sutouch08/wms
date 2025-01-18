@@ -70,7 +70,8 @@
 		<div class="">
 			<div class="width-100 e-zone" id="zone-bc">
 				<span class="width-100">
-					<input type="text" class="form-control input-lg focus" style="padding-left:15px; padding-right:40px;" id="barcode-zone" inputmode="<?php echo $inputmode; ?>" placeholder="Barcode Zone" autocomplete="off">
+					<input type="text" class="form-control input-lg focus"
+          style="padding-left:15px; padding-right:40px;" id="barcode-zone" virtualkeyboardpolicy="manual" placeholder="Barcode Zone" autocomplete="off">
 					<i class="ace-icon fa fa-keyboard-o fa-2x <?php echo $keyboard; ?>" style="position:absolute; top:15px; right:22px; color:grey;" id="zone-keyboard" onclick="hideKeyboard('zone')"></i>
           <i class="ace-icon fa fa-qrcode fa-2x <?php echo $qr; ?>" style="position:absolute; top:15px; right:22px; color:grey;" id="zone-qr" onclick="showKeyboard('zone')"></i>
 				</span>
@@ -82,7 +83,7 @@
 			</div>
 
 			<div class="width-100 e-item hide" id="item-bc">
-				<input type="text" class="form-control input-lg focus" style="padding-left:15px; padding-right:40px;" id="barcode-item" inputmode="<?php echo $inputmode; ?>" placeholder="Barcode Item" autocomplete="off">
+				<input type="text" class="form-control input-lg focus" style="padding-left:15px; padding-right:40px;" id="barcode-item" inputmode="manual" placeholder="Barcode Item" autocomplete="off">
 				<i class="ace-icon fa fa-keyboard-o fa-2x <?php echo $keyboard; ?>" style="position:absolute; top:72px; right:22px; color:grey;" onclick="hideKeyboard('item')"></i>
         <i class="ace-icon fa fa-qr fa-2x <?php echo $qr; ?>" style="position:absolute; top:72px; right:22px; color:grey;" onclick="showKeyboard('item')"></i>
 			</div>
@@ -149,24 +150,29 @@
 </div>
 
 <div class="extra-menu slide-out" id="extra-menu">
-  <div class="footer-menu width-25">
+  <div class="footer-menu width-20">
     <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goBack()">
       <i class="fa fa-tasks fa-2x white"></i><span class="fon-size-12">รายการรอจัด</span>
     </button>
   </div>
-  <div class="footer-menu width-25">
+  <div class="footer-menu width-20">
     <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goProcess()">
       <i class="fa fa-shopping-basket fa-2x white"></i><span class="fon-size-12">รายการกำลังจัด</span>
     </button>
   </div>
-  <div class="footer-menu width-25">
+  <div class="footer-menu width-20">
     <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goToBuffer()">
       <i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
     </button>
   </div>
-  <div class="footer-menu width-25">
+  <div class="footer-menu width-20">
     <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="confirmClose()">
       <i class="fa fa-exclamation-triangle fa-2x white"></i><span class="fon-size-12">Force Close</span>
+    </button>
+  </div>
+  <div class="footer-menu width-20">
+    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="clearCache()">
+      <i class="fa fa-bolt fa-2x white"></i><span class="fon-size-12">Clear cache</span>
     </button>
   </div>
 </div>
