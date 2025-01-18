@@ -31,7 +31,7 @@
 	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
 	</head>
 
-	<body class="no-skin">
+	<body class="no-skin" id="mobile-body">
     <style>
       .navbar {
         position: fixed;

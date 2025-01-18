@@ -51,8 +51,22 @@ function toggleFilter() {
   }
 }
 
+function toggleExtraMenu() {
+  let hd = $('#extra');
+  let pad = $('#extra-menu');
 
-//---- Reload page every 5 minute
-$(document).ready(function(){
-  setInterval(function(){ goBack();}, 300000);
-});
+  if(hd.val() == "hide") {
+    hd.val("show");
+    pad.addClass('slide-in');
+  }
+  else {
+    hd.val("hide");
+    pad.removeClass('slide-in');
+  }
+}
+
+// 
+// //---- Reload page every 5 minute
+// $(document).ready(function(){
+//   setInterval(function(){ goBack();}, 300000);
+// });

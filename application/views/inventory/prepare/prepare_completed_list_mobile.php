@@ -1,5 +1,8 @@
 <div class="padding-5 complete-box move-out" id="complete-box">
-  <div class="width-100 text-center" style="position:sticky; top:0; left:0; height:30px; padding:3px; background-color:#fefefe; border-bottom: solid 1px #ccc; z-index:10">รายการที่ครบแล้ว</div>
+  <div class="nav-title">
+    <a class="pull-left margin-left-10" onclick="closeCompleteBox()"><i class="fa fa-angle-left fa-2x"></i></a>
+    <div class="font-size-18 text-center">รายการที่ครบแล้ว</div>
+  </div>
   <?php  if( ! empty($complete_details)) : ?>
     <?php $no = 1; ?>
     <?php   foreach($complete_details as $rs) : ?>
@@ -15,10 +18,10 @@
           </div>
           <div class="margin-bottom-3 pre-wrap">Location : <?php echo $rs->from_zone; ?></div>
         </div>
-        <button type="button" class="btn btn-mini btn-danger"
+        <button type="button" class="btn btn-white btn-minier btn-danger"
           style="position:absolute; top:5px; right:5px; border-radius:4px !important;"
           onclick="removeBuffer('<?php echo $order->code; ?>', '<?php echo $rs->product_code; ?>', '<?php echo $rs->id; ?>')">
-        <i class="fa fa-trash"></i>
+        <i class="fa fa-times"></i>
       </button>
     </div>
     <?php $no++; ?>

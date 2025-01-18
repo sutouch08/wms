@@ -45,7 +45,7 @@ li {
   .fi {
     margin-bottom: 10px;
   }
-  
+
   .help-block {
     margin-top: 0px;
     margin-bottom: 0px;
@@ -82,6 +82,29 @@ li {
   .move-in {
     transition: right 0.3s ease-in-out;
      right:0px;
+  }
+
+  .extra-menu {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 68px;
+    padding: 8px;
+    line-height: 20;
+    background-color: #438eb9;
+    opacity: 0.9;
+    z-index: 11;
+  }
+  
+  .slide-out {
+    transition: bottom 0.3s ease-in-out;
+    bottom: 0px;
+  }
+
+  .slide-in {
+    transition: bottom 0.3s ease-in-out;
+    bottom: 68px;
   }
 
   .no-border-xs {

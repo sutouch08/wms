@@ -238,29 +238,63 @@
 <div class="pg-footer visible-xs">
 	<div class="pg-footer-inner">
 		<div class="pg-footer-content text-right">
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="refresh()">
+			<div class="footer-menu width-20">
+				<span class="width-100" onclick="refresh()">
 					<i class="fa fa-refresh fa-2x white"></i><span class="fon-size-12">Refresh</span>
-				</button>
+				</span>
 			</div>
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goToBuffer()">
+			<div class="footer-menu width-20">
+				<span class="width-100" onclick="goToBuffer()">
 					<i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
-				</button>
+				</span>
 			</div>
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goBack()">
-					<i class="fa fa-server fa-2x white"></i><span class="fon-size-12">รายการรอจัด</span>
-				</button>
+			<div class="footer-menu width-20">
+				<span class="width-100" onclick="goBack()">
+					<i class="fa fa-server fa-2x white"></i><span class="fon-size-12">รอจัด</span>
+				</span>
 			</div>
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleFilter()">
+			<div class="footer-menu width-20">
+				<span class="width-100" onclick="toggleFilter()">
 					<i class="fa fa-search fa-2x white"></i><span class="fon-size-12">ตัวกรอง</span>
-				</button>
+				</span>
 			</div>
+			<div class="footer-menu width-20">
+        <span class="width-100" onclick="toggleExtraMenu()">
+          <i class="fa fa-bars fa-2x white"></i><span class="fon-size-12">เพิ่มเติม</span>
+        </span>
+      </div>
 		</div>
 		<input type="hidden" id="filter" value="hide" />
  </div>
+</div>
+
+<div class="extra-menu slide-out" id="extra-menu">
+  <div class="footer-menu width-20 not-show">
+    <span class="width-100">
+      <i class="fa fa-tasks fa-2x white"></i><span class="fon-size-12">รายการรอจัด</span>
+    </span>
+  </div>
+  <div class="footer-menu width-20 not-show">
+    <span class="width-100" >
+      <i class="fa fa-shopping-basket fa-2x white"></i><span class="fon-size-12">รายการกำลังจัด</span>
+    </span>
+  </div>
+  <div class="footer-menu width-20 not-show">
+    <span class="width-100" onclick="goToBuffer()">
+      <i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
+    </button>
+  </div>
+  <div class="footer-menu width-20 not-show">
+    <span class="width-100" onclick="confirmClose()">
+      <i class="fa fa-exclamation-triangle fa-2x white"></i><span class="fon-size-12">Force Close</span>
+    </span>
+  </div>
+  <div class="footer-menu width-20">
+    <span class="width-100" onclick="clearCache()">
+      <i class="fa fa-bolt fa-2x white"></i><span class="fon-size-12">Clear cache</span>
+    </span>
+  </div>
+	<input type="hidden" id="extra" value="hide" />
 </div>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=<?php echo date('YmdHis'); ?>"></script>

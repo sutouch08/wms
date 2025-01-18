@@ -7,7 +7,11 @@
 <?php else : ?>
   <?php $ref = empty($order->reference) ? "" : "&nbsp;&nbsp;&nbsp;[{$order->reference}]"; ?>
   <div class="form-horizontal filter-pad move-out" id="header-pad">
-    <div class="form-group margin-top-30">
+    <div class="nav-title">
+      <a class="pull-left margin-left-10" onclick="closeHeader()"><i class="fa fa-angle-left fa-2x"></i></a>
+      <div class="font-size-18 text-center">ข้อมูลเอกสาร</div>
+    </div>
+    <div class="form-group margin-top-20">
       <div class="col-xs-12 padding-5">
         <label>เลขที่เอกสาร</label>
         <input type="text" class="width-100" value="<?php echo $order->code . $ref; ?> " readonly/>
@@ -119,31 +123,31 @@
   <div class="pg-footer-inner">
     <div class="pg-footer-content text-right">
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="refresh()">
+        <span class="width-100" onclick="refresh()">
           <i class="fa fa-refresh fa-2x white"></i><span class="fon-size-12">Refresh</span>
-        </button>
+        </span>
       </div>
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="changeZone()">
+        <span class="width-100" onclick="changeZone()">
           <i class="fa fa-repeat fa-2x white"></i><span class="fon-size-12">เปลี่ยนโซน</span>
-        </button>
+        </span>
       </div>
 
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleComplete()">
+        <span class="width-100" onclick="toggleComplete()">
           <i class="fa fa-check-square fa-2x white"></i><span class="fon-size-12">ครบแล้ว</span>
-        </button>
+        </span>
       </div>
 
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleHeader()">
-          <i class="fa fa-file-text-o fa-2x white"></i><span class="fon-size-12">ห้วเอกสาร</span>
-        </button>
+        <span class="width-100" onclick="goBack()">
+          <i class="fa fa-tasks fa-2x white"></i><span class="fon-size-12">รอจัด</span>
+        </span>
       </div>
       <div class="footer-menu width-20">
-        <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleExtraMenu()">
+        <span class="width-100" onclick="toggleExtraMenu()">
           <i class="fa fa-bars fa-2x white"></i><span class="fon-size-12">เพิ่มเติม</span>
-        </button>
+        </span>
       </div>
     </div>
   </div>
@@ -151,29 +155,29 @@
 
 <div class="extra-menu slide-out" id="extra-menu">
   <div class="footer-menu width-20">
-    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goBack()">
-      <i class="fa fa-tasks fa-2x white"></i><span class="fon-size-12">รายการรอจัด</span>
-    </button>
-  </div>
-  <div class="footer-menu width-20">
-    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goProcess()">
-      <i class="fa fa-shopping-basket fa-2x white"></i><span class="fon-size-12">รายการกำลังจัด</span>
-    </button>
-  </div>
-  <div class="footer-menu width-20">
-    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goToBuffer()">
-      <i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
-    </button>
-  </div>
-  <div class="footer-menu width-20">
-    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="confirmClose()">
-      <i class="fa fa-exclamation-triangle fa-2x white"></i><span class="fon-size-12">Force Close</span>
-    </button>
-  </div>
-  <div class="footer-menu width-20">
-    <button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="clearCache()">
+    <span class="width-100" onclick="clearCache()">
       <i class="fa fa-bolt fa-2x white"></i><span class="fon-size-12">Clear cache</span>
-    </button>
+    </span>
+  </div>
+  <div class="footer-menu width-20">
+    <span class="width-100" onclick="goProcess()">
+      <i class="fa fa-shopping-basket fa-2x white"></i><span class="fon-size-12">กำลังจัด</span>
+    </span>
+  </div>
+  <div class="footer-menu width-20">
+    <span class="width-100" onclick="confirmClose()">
+      <i class="fa fa-exclamation-triangle fa-2x white"></i><span class="fon-size-12">Force Close</span>
+    </span>
+  </div>
+  <div class="footer-menu width-20">
+    <span class="width-100" onclick="goToBuffer()">
+      <i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
+    </span>
+  </div>
+  <div class="footer-menu width-20">
+    <span class="width-100" onclick="toggleHeader()">
+      <i class="fa fa-file-text-o fa-2x white"></i><span class="fon-size-12">ห้วเอกสาร</span>
+    </span>
   </div>
 </div>
 

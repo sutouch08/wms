@@ -335,6 +335,8 @@ function showItem() {
 
 
 function confirmClose(){
+  closeExtraMenu();
+
   setTimeout(() => {
     swal({
       title: "Force Close",
@@ -354,6 +356,8 @@ function confirmClose(){
 
 
 function changeZone(){
+  closeExtraMenu();
+  
   $('#force-row').removeClass('item-bc');
   $("#zone_code").val('');
   $('#zone-name').text('กรุณาระบุโซน');
@@ -371,6 +375,7 @@ function toggleHeader() {
   let pad = $('#header-pad');
 
   if(hd.val() == "hide") {
+    closeExtraMenu();
     hd.val("show");
     pad.addClass('move-in');
   }
@@ -378,6 +383,12 @@ function toggleHeader() {
     hd.val("hide");
     pad.removeClass('move-in');
   }
+}
+
+
+function closeHeader() {
+  $('#header').val('hide');
+  $('#header-pad').removeClass('move-in');
 }
 
 
@@ -395,8 +406,14 @@ function toggleExtraMenu() {
   }
 }
 
+function closeExtraMenu() {
+  $('#extra').val('hide');
+  $('#extra-menu').removeClass('slide-in');
+}
 
 function toggleComplete() {
+  closeExtraMenu();
+
   let hd = $('#complete');
   let pad = $('#complete-box');
 
@@ -408,6 +425,11 @@ function toggleComplete() {
     hd.val("hide");
     pad.removeClass('move-in');
   }
+}
+
+function closeCompleteBox() {
+  $('#complete').val('hide');
+  $('#complete-box').removeClass('move-in');
 }
 
 

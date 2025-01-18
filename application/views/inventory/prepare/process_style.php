@@ -63,6 +63,14 @@
     z-index: 8
   }
 
+  .nav-title {
+    position: relative;
+    height: 45px;
+    padding:10px 5px;
+    border-bottom: solid 1px #ccc;
+    background-color: white;
+  }
+
   #close-bar {
     position: fixed;
     bottom: 250px;
