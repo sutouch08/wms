@@ -40,10 +40,10 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
           <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="show_tracking()">Tracking No</button>
           <button type="button" class="btn btn-xs btn-purple pull-right margin-left-5" onclick="viewTempDelivery('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">Temp Delivery</button>
           <button type="button" class="btn btn-xs btn-yellow pull-right margin-left-5" onclick="viewApiLogs('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">API Logs</button>
-          <?php if($order->is_backorder == 1) : ?>
-            <button type="button" class="btn btn-xs btn-default pull-right margin-left-5" onclick="showBacklogs()">Back order logs</button>
-          <?php endif; ?>
 				<?php endif; ?>
+        <?php if($order->is_backorder == 1) : ?>
+          <button type="button" class="btn btn-xs btn-default pull-right margin-left-5" onclick="showBacklogs()">Back order logs</button>          
+        <?php endif; ?>
 			</div>
 
     	<ul class="nav nav-tabs" role="tablist">

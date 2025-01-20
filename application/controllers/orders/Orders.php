@@ -921,7 +921,7 @@ class Orders extends PS_Controller
 	    $ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
 	    $banks = $this->bank_model->get_active_bank();
       $tracking = $this->orders_model->get_order_tracking($code);
-      $backlogs = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
+      $backlogs = $rs->is_backorder == 1 ? $this->orders_model->get_backlogs_details($rs->code) : NULL;
 
       $is_api = $this->is_api($rs->is_wms);
 

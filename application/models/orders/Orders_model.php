@@ -416,11 +416,24 @@ class Orders_model extends CI_Model
   }
 
 
+  //---- get order not cancel by reference เพื่อใช้กับ api ยกเลิกออเดอร์ จาก platform
+  public function get_order_by_reference($reference)
+  {
+    $rs = $this->db->where('reference', $reference)->order_by('id', 'DESC')->get('orders');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
 
   public function get_order_code_by_reference($reference)
   {
     $rs = $this->db->select('code')->where('reference', $reference)->get('orders');
-    
+
     if($rs->num_rows() > 0)
     {
       return $rs->row()->code;
@@ -479,30 +492,36 @@ class Orders_model extends CI_Model
     return $this->db->set('valid', 1)->where('id', $id)->update('order_details');
   }
 
+
   public function unvalid_detail($id)
   {
     return $this->db->set('valid', 0)->where('id', $id)->update('order_details');
   }
+
 
   public function valid_all_details($code)
   {
     return $this->db->set('valid', 1)->where('order_code', $code)->update('order_details');
   }
 
+
   public function valid_qc($id)
   {
     return $this->db->set('valid_qc', 1)->where('id', $id)->update('order_details');
   }
+
 
   public function unvalid_qc($id)
   {
     return $this->db->set('valid_qc', 0)->where('id', $id)->update('order_details');
   }
 
+
   public function valid_all_qc_details($code)
   {
     return $this->db->set('valid_qc', 1)->where('order_code', $code)->update('order_details');
   }
+
 
   public function change_state($code, $state)
   {
@@ -515,14 +534,10 @@ class Orders_model extends CI_Model
   }
 
 
-
-
   public function update_shipping_code($code, $ship_code)
   {
     return $this->db->set('shipping_code', $ship_code)->where('code', $code)->update('orders');
   }
-
-
 
 
   public function set_never_expire($code, $option)
@@ -545,7 +560,6 @@ class Orders_model extends CI_Model
     {
       return TRUE;
     }
-
   }
 
 
@@ -556,11 +570,11 @@ class Orders_model extends CI_Model
   }
 
 
-
   public function un_complete($code)
   {
     return $this->db->set('is_complete', 0)->where('order_code', $code)->update('order_details');
   }
+
 
   public function clear_inv_code($code)
   {
@@ -573,7 +587,6 @@ class Orders_model extends CI_Model
     $paid = $paid === TRUE ? 1 : 0;
     return $this->db->set('is_paid', $paid)->where('code', $code)->update('orders');
   }
-
 
 
   public function count_rows(array $ds = array(), $role = 'S')
@@ -617,7 +630,6 @@ class Orders_model extends CI_Model
       $this->db->like('code', $code, 'after');
       // $this->db->like('code', $ds['code']);
     }
-
 
     if(!empty($ds['qt_no']))
     {
@@ -673,7 +685,6 @@ class Orders_model extends CI_Model
       $this->db->where('payment_code', $ds['payment']);
     }
 
-
     if( ! empty($ds['zone_code']))
     {
       $zone = $this->zone_in($ds['zone_code']);
@@ -703,7 +714,6 @@ class Orders_model extends CI_Model
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
-
 
     if(!empty($ds['warehouse']))
     {
@@ -758,7 +768,6 @@ class Orders_model extends CI_Model
       }
     }
 
-
 		if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
 		{
 			if($ds['wms_export'] == 0)
@@ -782,7 +791,6 @@ class Orders_model extends CI_Model
     {
       $this->db->where('is_pre_order', $ds['is_pre_order']);
     }
-
 
 		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
 		{
@@ -812,12 +820,10 @@ class Orders_model extends CI_Model
 			}
 		}
 
-
 		if(isset($ds['DoNo']) && $ds['DoNo'] != "")
 		{
 			$this->db->like('inv_code', $ds['DoNo']);
 		}
-
 
 		if(isset($ds['method']) && $ds['method'] != "all")
 		{
@@ -849,8 +855,6 @@ class Orders_model extends CI_Model
 
     return $this->db->count_all_results('orders');
   }
-
-
 
 
   public function get_data(array $ds = array(), $perpage = 20, $offset = 0, $role = 'S')
@@ -896,7 +900,6 @@ class Orders_model extends CI_Model
 
       // $this->db->like('code', $ds['code']);
     }
-
 
     if(!empty($ds['qt_no']))
     {
@@ -952,7 +955,6 @@ class Orders_model extends CI_Model
     {
       $this->db->where('payment_code', $ds['payment']);
     }
-
 
     if( ! empty($ds['zone_code']))
     {
@@ -1037,7 +1039,6 @@ class Orders_model extends CI_Model
       }
     }
 
-
 		if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
 		{
 			if($ds['wms_export'] == 0)
@@ -1057,12 +1058,10 @@ class Orders_model extends CI_Model
       $this->db->where('is_backorder', $ds['is_backorder']);
     }
 
-
     if( isset($ds['is_pre_order']) && $ds['is_pre_order'] !== 'all')
     {
       $this->db->where('is_pre_order', $ds['is_pre_order']);
     }
-
 
 		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
 		{
@@ -1092,12 +1091,10 @@ class Orders_model extends CI_Model
 			}
 		}
 
-
 		if(isset($ds['DoNo']) && $ds['DoNo'] != "")
 		{
 			$this->db->like('inv_code', $ds['DoNo']);
 		}
-
 
 		if(isset($ds['method']) && $ds['method'] != "all")
 		{
@@ -1126,7 +1123,6 @@ class Orders_model extends CI_Model
 				->group_end();
 			}
 		}
-
 
     if(!empty($ds['order_by']))
     {
@@ -1193,6 +1189,7 @@ class Orders_model extends CI_Model
     return $ds;
   }
 
+
   private function user_in($user)
   {
     $ds = array();
@@ -1212,6 +1209,7 @@ class Orders_model extends CI_Model
 
     return $ds;
   }
+
 
   private function getOrderStateChangeIn($state, $fromDate, $toDate, $startTime, $endTime)
   {
@@ -1271,7 +1269,6 @@ class Orders_model extends CI_Model
   }
 
 
-
   public function count_un_approve_rows($role = 'C')
   {
     $this->db
@@ -1284,7 +1281,6 @@ class Orders_model extends CI_Model
 
     return $this->db->count_all_results('orders');
   }
-
 
 
   public function get_un_received_list($perpage = '', $offset = '')
@@ -1320,7 +1316,6 @@ class Orders_model extends CI_Model
   }
 
 
-
   public function count_un_receive_rows()
   {
     $this->db
@@ -1334,9 +1329,6 @@ class Orders_model extends CI_Model
 
     return $this->db->count_all_results('orders');
   }
-
-
-
 
 
   public function get_max_code($code)
@@ -1377,7 +1369,6 @@ class Orders_model extends CI_Model
 
     return 0;
   }
-
 
 
   public function get_order_total_qty($code)
@@ -1448,7 +1439,6 @@ class Orders_model extends CI_Model
   }
 
 
-
   public function get_bill_discount($code)
   {
     $rs = $this->db->select('bDiscAmount')
@@ -1472,8 +1462,6 @@ class Orders_model extends CI_Model
 
     return $rs->row()->qty;
   }
-
-
 
 
   public function get_reserv_stock($item_code, $warehouse = NULL, $zone = NULL)
@@ -1576,7 +1564,6 @@ class Orders_model extends CI_Model
   }
 
 
-
   public function update_approver($code, $user)
   {
     return $this->db
@@ -1586,7 +1573,6 @@ class Orders_model extends CI_Model
     ->where('code', $code)
     ->update('orders');
   }
-
 
 
   public function un_approver($code, $user)
@@ -1599,12 +1585,12 @@ class Orders_model extends CI_Model
     ->update('orders');
   }
 
+
   //---- ระบุที่อยู่จัดส่งในออเดอร์นั้นๆ
   public function set_address_id($code, $id_address)
   {
     return $this->db->set('id_address', $id_address)->where('code', $code)->update('orders');
   }
-
 
 
   public function clear_order_detail($code)
@@ -1613,12 +1599,10 @@ class Orders_model extends CI_Model
   }
 
 
-
 	public function cancle_order_detail($code)
 	{
 		return $this->db->set('is_cancle', 1)->where('order_code', $code)->update('order_details');
 	}
-
 
 
   //--- Set is_valid = 1 when transfer draft is confirmed (use in Controller inventory/transfer->confirm_receipted)
@@ -1672,8 +1656,6 @@ class Orders_model extends CI_Model
   }
 
 
-
-
   public function get_consignment_non_inv_code($limit = 100)
   {
     $rs = $this->db
@@ -1694,6 +1676,7 @@ class Orders_model extends CI_Model
 
     return NULL;
   }
+
 
   //--- WT
   public function get_order_transfer_non_inv_code($limit = 100)
@@ -1765,7 +1748,6 @@ class Orders_model extends CI_Model
   }
 
 
-
   public function get_sap_doc_num($code)
   {
     $rs = $this->ms
@@ -1829,6 +1811,7 @@ class Orders_model extends CI_Model
     return FALSE;
   }
 
+
   public function set_expire_order_details($code)
   {
     if(!empty($code))
@@ -1890,13 +1873,13 @@ class Orders_model extends CI_Model
   }
 
 
-  public function drop_backlog_list($code)
+  public function drop_backlogs_list($code)
   {
     return $this->db->where('order_code', $code)->delete('order_backlog_details');
   }
 
 
-  public function get_backlog_details($code)
+  public function get_backlogs_details($code)
   {
     $rs = $this->db->where('order_code', $code)->get('order_backlog_details');
 
@@ -1906,6 +1889,17 @@ class Orders_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function add_cancel_request(array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->insert('order_cancel_request', $ds);
+    }
+
+    return FALSE;
   }
 
 
@@ -1931,6 +1925,7 @@ class Orders_model extends CI_Model
 
     return NULL;
   }
+
 
   public function has_zero_price($code)
   {

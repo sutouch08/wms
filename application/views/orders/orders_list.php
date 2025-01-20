@@ -3,7 +3,11 @@
 <?php $cim = get_permission('SOIMOR', $this->_user->uid, $this->_user->id_profile); ?>
 <?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
-
+<style>
+	.backorder {
+		color:red !important;
+	}
+</style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <h4 class="title">
@@ -216,7 +220,7 @@
           <?php foreach($orders as $rs) : ?>
 						<?php $ref = empty($rs->reference) ? '' :' ['.$rs->reference.']'; ?>
 						<?php $cus_ref = empty($rs->customer_ref) ? '' : ' ['.$rs->customer_ref.']'; ?>
-            <tr id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
+            <tr class="<?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>" id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
 					<?php if($this->sokoApi OR $this->wmsApi) : ?>
 							<td class="middle text-center">
 								<?php if($rs->state == 3 && $rs->is_wms != 0 && $rs->wms_export != 1) : ?>

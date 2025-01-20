@@ -21,6 +21,7 @@
 	$tab10 = $tab == 'sokojung' ? 'active in' : '';
 	$tab11 = $tab == 'chatbot' ? 'active in' : '';
 	$tab12 = $tab == 'web' ? 'active in' : '';
+	$tab13 = $tab == 'ix' ? 'active in' : '';
 
 	?>
 <ul id="myTab1" class="setting-tabs">
@@ -36,6 +37,7 @@
 	<li class="li-block <?php echo $tab10; ?>" onclick="changeURL('sokojung')"><a href="#sokojung" data-toggle="tab">ข้อมูล SOKOJUNG</a></li>
 	<li class="li-block <?php echo $tab11; ?>" onclick="changeURL('chatbot')"><a href="#chatbot" data-toggle="tab">ข้อมูล CHATBOT</a></li>
 	<li class="li-block <?php echo $tab12; ?>" onclick="changeURL('web')"><a href="#web" data-toggle="tab">ข้อมูล Magento</a></li>
+	<li class="li-block <?php echo $tab13; ?>" onclick="changeURL('ix')"><a href="#ix" data-toggle="tab">ข้อมูล IX API</a></li>
 
 </ul>
 </div>
@@ -89,6 +91,10 @@
 
 <div class="tab-pane fade <?php echo $tab12; ?>" id="web">
 <?php $this->load->view('setting/setting_web'); ?>
+</div>
+
+<div class="tab-pane fade <?php echo $tab13; ?>" id="ix">
+<?php $this->load->view('setting/setting_ix_api'); ?>
 </div>
 
 </div>

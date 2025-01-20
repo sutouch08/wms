@@ -1,3 +1,6 @@
+window.addEventListener('load', () => {
+  zone_init();
+});
 
 //--- จัดสินค้า ตัดยอดออกจากโซน เพิ่มเข้า buffer
 function doPrepare(){
@@ -112,61 +115,84 @@ function forceClose(){
   }, function(){
     finishPrepare();
   });
+}
 
+function zone_init() {
+  let warehouse_code = $('#warehouse_code').val();
+
+  $('#barcode-zone').autocomplete({
+    source:BASE_URL + 'auto_complete/get_zone_code_and_name/' + warehouse_code,
+    autoFocus:true,
+    close:function() {
+      let zone = $(this).val().trim().split(' | ');
+      if(zone.length == 2) {
+        $(this).val(zone[0]);
+        $('#zone_code').val(zone[0]);
+        $('#zone-name').val(zone[1]);
+      }
+      else {
+        $(this).val('');
+        $('#zone_code').val('');
+        $('#zone-name').val('');
+      }
+    }
+  })
 }
 
 
 //---- เมื่อมีการยิงบาร์โค้ดโซน เพื่อระบุว่าจะจัดสินค้าออกจากโซนนี้
 $("#barcode-zone").keyup(function(e) {
   if(e.keyCode == 13) {
-    let barcode = $(this).val().trim();
-    let whsCode = $('#warehouse_code').val();
-    let whsName = $('#whs-name').val();
+    setTimeout(() => {
+      let barcode = $(this).val().trim();
+      let whsCode = $('#warehouse_code').val();
+      let whsName = $('#whs-name').val();
 
-    if(barcode.length) {
-      load_in();
-      $.ajax({
-        url: BASE_URL + 'masters/zone/get_zone',
-        type:"GET",
-        cache:"false",
-        data:{
-          "code" : barcode,
-          "warehouse_code" : whsCode,
-          "warehouse_name" : whsName
-        },
-        success: function(rs) {
-          load_out();
+      if(barcode.length) {
+        load_in();
+        $.ajax({
+          url: BASE_URL + 'masters/zone/get_zone',
+          type:"GET",
+          cache:"false",
+          data:{
+            "code" : barcode,
+            "warehouse_code" : whsCode,
+            "warehouse_name" : whsName
+          },
+          success: function(rs) {
+            load_out();
 
-          if(isJson(rs)) {
-            let ds = JSON.parse(rs);
+            if(isJson(rs)) {
+              let ds = JSON.parse(rs);
 
-            if(ds.status == 'success') {
-              $('#zone_code').val(ds.code);
-              $('#barcode-zone').val(ds.code).attr('disabled', 'disabled');
-              $('#zone-name').val(ds.name);
-              $('#qty').val(1).removeAttr('disabled');
-              $('#barcode-item').removeAttr('disabled');
-              $('#btn-submit').removeAttr('disabled');
-              $('#barcode-item').focus().select();
+              if(ds.status == 'success') {
+                $('#zone_code').val(ds.code);
+                $('#barcode-zone').val(ds.code).attr('disabled', 'disabled');
+                $('#zone-name').val(ds.name);
+                $('#qty').val(1).removeAttr('disabled');
+                $('#barcode-item').removeAttr('disabled');
+                $('#btn-submit').removeAttr('disabled');
+                $('#barcode-item').focus().select();
+              }
+              else {
+                beep();
+                showError(ds.message);
+                $('#zone_code').val('');
+              }
             }
             else {
               beep();
-              showError(ds.message);
-              $('#zone_code').val('');
+              showError(rs);
             }
-          }
-          else {
+          },
+          error:function(rs) {
+            load_out();
             beep();
             showError(rs);
           }
-        },
-        error:function(rs) {
-          load_out();
-          beep();
-          showError(rs);
-        }
-      });
-    }
+        });
+      }
+    }, 100);
   }
 });
 

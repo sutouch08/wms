@@ -44,8 +44,6 @@
 			</select>
     </div>
 
-
-
 		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>แปรสภาพ</label>
 		  <select class="form-control input-sm edit" name="transformed" id="transformed" disabled>
@@ -74,6 +72,9 @@
 		  <input type="text" class="form-control input-sm" value="<?php echo $order->inv_code; ?>" disabled />
 		</div>
 
+		<?php if($order->is_backorder == 1 && $order->state < 5) : ?>
+			<?php $this->load->view('backorder_watermark'); ?>
+		<?php endif; ?>
 
 		<?php if($order->state == 1) : ?>
 			<?php if( $order->is_expired == 0 && ($this->pm->can_add OR $this->pm->can_edit)): ?>

@@ -860,3 +860,107 @@ function toggleSokojungTest(option) {
 		return;
 	}
 }
+
+
+//================================================== IX API ==========================//
+
+//--- เปิด/ปิด IX API
+function toggleIxApi(option){
+	$('#ix-api').val(option);
+	if(option == 1){
+		$('#btn-ix-api-on').addClass('btn-success');
+		$('#btn-ix-api-off').removeClass('btn-primary');
+		return;
+	}else if(option == 0){
+		$('#btn-ix-api-on').removeClass('btn-success');
+		$('#btn-ix-api-off').addClass('btn-primary');
+		return;
+	}
+}
+
+$('#ix-warehouse').autocomplete({
+	source: BASE_URL + 'auto_complete/get_warehouse_by_role/1',
+	autoFocus:true,
+	close:function(){
+		let rs = $(this).val();
+		let arr = rs.split(' | ');
+
+		if(arr[0] === 'not found'){
+			$(this).val('');
+		}else{
+			$(this).val(arr[0]);
+			set_ix_warehouse(arr[0]);
+		}
+	}
+})
+
+
+function set_ix_warehouse(wh_code) {
+	$('#ix-zone').autocomplete({
+		source: BASE_URL + 'auto_complete/get_zone_code_and_name/'+ wh_code,
+		autoFocus:true,
+		close:function() {
+			let rs = $(this).val();
+			let arr = rs.split(' | ');
+
+			if(arr[0] === 'ไม่พบรายการ') {
+				$(this).val('');
+			}
+			else {
+				$(this).val(arr[0]);
+			}
+		}
+	})
+}
+
+
+function toggleIxSyncStock(option) {
+
+	$('#sync-ix-stock').val(option);
+
+	if(option == 1) {
+		$('#btn-ix-stock-off').removeClass('btn-danger');
+		$('#btn-ix-stock-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-ix-stock-on').removeClass('btn-success');
+		$('#btn-ix-stock-off').addClass('btn-danger');
+		return;
+	}
+}
+
+
+function toggleIxLogJson(option) {
+
+	$('#ix-log-json').val(option);
+
+	if(option == 1) {
+		$('#btn-ix-log-off').removeClass('btn-danger');
+		$('#btn-ix-log-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-ix-log-on').removeClass('btn-success');
+		$('#btn-ix-log-off').addClass('btn-danger');
+		return;
+	}
+}
+
+function toggleIxTest(option) {
+	$('#ix-test').val(option);
+
+	if(option == 1) {
+		$('#btn-ix-test-off').removeClass('btn-primary');
+		$('#btn-ix-test-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-ix-test-on').removeClass('btn-success');
+		$('#btn-ix-test-off').addClass('btn-primary');
+		return;
+	}
+}

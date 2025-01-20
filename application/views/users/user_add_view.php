@@ -15,36 +15,23 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">Display name</label>
     <div class="col-xs-12 col-sm-3">
-			<span class="input-icon input-icon-right width-100">
-      	<input type="text" name="dname" id="dname" class="width-100" autofocus required />
-				<i class="ace-icon fa fa-user"></i>
-			</span>
+			<input type="text" name="dname" id="dname" class="width-100" autofocus required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="dname-error"></div>
   </div>
 
-
-
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">User name</label>
     <div class="col-xs-12 col-sm-3">
-			<span class="input-icon input-icon-right width-100">
-        <input type="text" name="uname" id="uname" class="width-100" required />
-				<i class="ace-icon fa fa-user"></i>
-			</span>
+			<input type="text" name="uname" id="uname" class="width-100" required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="uname-error"></div>
   </div>
 
-
-
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">New password</label>
     <div class="col-xs-12 col-sm-3">
-			<span class="input-icon input-icon-right width-100">
-        <input type="password" name="pwd" id="pwd" class="width-100" required />
-				<i class="ace-icon fa fa-key"></i>
-			</span>
+			<input type="password" name="pwd" id="pwd" class="width-100" required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" style="padding-left:15px;" id="pwd-error"></div>
   </div>
@@ -52,27 +39,18 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">Confirm password</label>
     <div class="col-xs-12 col-sm-3">
-			<span class="input-icon input-icon-right width-100">
-        <input type="password" name="cm-pwd" id="cm-pwd" class="width-100" required />
-				<i class="ace-icon fa fa-key"></i>
-			</span>
+			<input type="password" name="cm-pwd" id="cm-pwd" class="width-100" required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" style="padding-left:15px;" id="cm-pwd-error"></div>
   </div>
 
-
-
-
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">Profile</label>
     <div class="col-xs-12 col-sm-3">
-			<span class="input-icon input-icon-right width-100">
-      <select class="form-control" name="profile" id="profile">
-        <option value="">Please, select profile</option>
-        <?php echo select_profile(); ?>
-      </select>
-			<i class="ace-icon fa fa-user"></i>
-		</span>
+			<select class="width-100" name="profile" id="profile">
+				<option value="">Please, select profile</option>
+				<?php echo select_profile(); ?>
+			</select>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
       &nbsp;
@@ -82,13 +60,10 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">พนักงานขาย</label>
     <div class="col-xs-12 col-sm-3">
-			<span class="input-icon input-icon-right width-100">
-      <select class="form-control" name="sale_id" id="sale_id">
-        <option value="">พนักงานขาย(ถ้าเป็น)</option>
-        <?php echo select_saleman(); ?>
-      </select>
-			<i class="ace-icon fa fa-user"></i>
-		</span>
+			<select class="width-100" name="sale_id" id="sale_id">
+				<option value="">พนักงานขาย(ถ้าเป็น)</option>
+				<?php echo select_saleman(); ?>
+			</select>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
       &nbsp;
@@ -146,5 +121,9 @@
 	<input type="hidden" name="user_id" id="user_id" value="0" />
 </form>
 
+<script>
+	$('#profile').select2();
+	$('#sale_id').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/users/users.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>
