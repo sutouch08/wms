@@ -271,7 +271,7 @@ class Support extends PS_Controller
       $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
       $ds['is_api'] = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
       $ds['tracking'] = $this->orders_model->get_order_tracking($code);
-      $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code): NULL;
+      $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlogs_details($rs->code): NULL;
       $this->load->view('support/support_edit', $ds);
     }
     else

@@ -26,7 +26,7 @@ $receiver	.= '</div>';
 $leftCol = '';
 $rightCol = '';
 
-if(!empty($details))
+if(!empty($detailsx))
 {
 
   //--------- Left column -----------------//

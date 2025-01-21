@@ -888,3 +888,7 @@ function unapprove()
     }
   });
 }
+
+function getTemplate(){
+  window.location.href = HOME + 'get_template_file';
+}

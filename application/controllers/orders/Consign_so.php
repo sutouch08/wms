@@ -318,7 +318,7 @@ class Consign_so extends PS_Controller
     $approve_logs = $this->approve_logs_model->get($code);
     $details = $this->orders_model->get_order_details($code);
     $tracking = $this->orders_model->get_order_tracking($code);
-    $backlogs = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
+    $backlogs = $rs->is_backorder == 1 ? $this->orders_model->get_backlogs_details($rs->code) : NULL;
 
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $approve_logs;
@@ -529,6 +529,305 @@ class Consign_so extends PS_Controller
     }
 
     echo $sc === TRUE ? 'success' : $message;
+  }
+
+
+  public function import_data()
+	{
+    ini_set('max_execution_time', 1200);
+    ini_set('memory_limit','1000M');
+
+    $sc = TRUE;
+
+    $code = $this->input->post('order_code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->orders_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->state < 3 && $doc->status != 2)
+        {
+          $uid = genUid();
+          $import = 0;
+          $success = 0;
+          $failed = 0;
+          $skip = 0;
+
+          $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
+        	$path = $this->config->item('upload_path').'WC/';
+          $file	= 'uploadFile';
+          $Ymd = date('Ymd');
+      		$config = array(   // initial config for upload class
+      			"allowed_types" => "xlsx",
+      			"upload_path" => $path,
+      			"file_name"	=> "WT-import-{$Ymd}-{$uid}",
+      			"max_size" => 5120,
+      			"overwrite" => TRUE
+      		);
+
+      		$this->load->library("upload", $config);
+
+      		if(! $this->upload->do_upload($file))
+          {
+            $sc = FALSE;
+            $this->error = $this->upload->display_errors();
+      		}
+          else
+          {
+            $this->load->library('excel');
+            $info = $this->upload->data();
+            /// read file
+      			$excel = PHPExcel_IOFactory::load($info['full_path']);
+      			//get only the Cell Collection
+            $cs	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
+
+            $count = count($cs);
+            $limit = intval(getConfig('IMPORT_ROWS_LIMIT')) + 1;
+
+            if($count > $limit)
+            {
+              $sc = FALSE;
+              $this->error = "Import data exceeds limit rows : allow {$limit} rows";
+            }
+            else
+            {
+              $i = 1;
+
+              $ds = array();
+
+              foreach($cs as $rs)
+              {
+                if($sc === FALSE)
+                {
+                  break;
+                }
+
+                if($i == 1)
+                {
+                  if(trim($rs['A']) != 'ProductCode')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column A should be 'ProductCode'";
+                  }
+
+                  if(trim($rs['B']) != 'Price')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column B should be 'Price'";
+                  }
+
+                  if(trim($rs['C']) != 'GP [%]')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column C should be 'GP [%]'";
+                  }
+
+                  if(trim($rs['D']) != 'Qty')
+                  {
+                    $sc = FALSE;
+                    $this->error = "Column C should be 'Qty'";
+                  }
+
+                  $i++;
+                }
+                else
+                {
+                  $gp = str_replace('%', '', $doc->gp);
+                  $gp = trim($gp);
+
+                  if($sc === TRUE && ! empty($rs['A']) && ! empty($rs['D']))
+                  {
+                    //--- check item cache
+                    $Qty = str_replace(',', '', $rs['D']);
+                    $Qty = is_numeric($Qty) ? $Qty : 1;
+
+                    $Price = str_replace(',', '', $rs['B']);
+                    $Price = is_numeric($Price) ? $Price : 0;
+
+                    if($Qty > 0)
+                    {
+                      $item_code = trim($rs['A']);
+
+                      //--- มี cache อยู่หรือไม่
+                      //--- ถ้าไม่มี ไปดึงรายการมาสร้างใหม่
+                      if( ! isset($ds[$item_code]))
+                      {
+                        $item = $this->products_model->get($item_code);
+
+                        if(empty($item))
+                        {
+                          $item = $this->products_model->get_by_old_code($item_code);
+                        }
+
+                        if( ! empty($item))
+                        {
+                          $ds[$item->code] = (object) array(
+                            'style_code' => $item->style_code,
+                            'product_code' => $item->code,
+                            'product_name' => $item->name,
+                            'cost' => $item->cost,
+                            'price' => $Price > 0 ? $Price : $item->price,
+                            'qty' => $Qty,
+                            'discount1' => empty(trim($rs['C'])) ? $gp : $rs['C'],
+                            'is_count' => $item->count_stock
+                          );
+
+                          $item_code = $item->code;
+                        }
+                        else
+                        {
+                          $sc = FALSE;
+                          $this->error .= "Invalid Item code '{$item_code}' at Line {$i} <br/>";
+                        }
+                      }
+                      else
+                      {
+                        $ds[$item_code]->qty += $Qty;
+                      }
+                    } //--- endif Qty > 0
+                  } //--- endif $rs['A']
+                } //--- end if collection
+              } //--- end foreach cs
+            } //--- endif count > limit
+          }
+
+          if($sc === TRUE)
+          {
+            if( ! empty($ds))
+            {
+              $this->db->trans_begin();
+
+              foreach($ds as $row)
+              {
+                if($sc === FALSE)
+                {
+                  break;
+                }
+
+                $details = $this->orders_model->get_order_detail($doc->code, $row->product_code);
+
+                if( empty($details))
+                {
+                  $disc = empty($row->discount1) ? 0 : $row->discount1 * 0.01;
+                  $discount_amount = ($row->price * $disc) * $row->qty;
+                  $total_amount = ($row->qty * $row->price) - $discount_amount;
+
+                  $arr = array(
+                    'order_code' => $doc->code,
+                    'style_code' => $row->style_code,
+                    'product_code' => $row->product_code,
+                    'product_name' => $row->product_name,
+                    'cost' => $row->cost,
+                    'price' => $row->price,
+                    'qty' => $row->qty,
+                    'discount1' => $row->discount1.'%',
+                    'discount_amount' => $discount_amount,
+                    'total_amount' => $total_amount,
+                    'id_rule' => NULL,
+                    'is_count' => $row->is_count,
+                    'is_import' => 1
+                  );
+
+                  if( ! $this->orders_model->add_detail($arr))
+                  {
+                    $res = FALSE;
+                    $this->error = "Failed to add item row of {$row->product_code}";
+                  }
+                }
+                else
+                {
+                  $detail = $details[0];
+
+                  $disc = empty($detail->discount1) ? 0 : str_replace('%', '', $detail->discount1);
+                  $disc = empty($detail->discount1) ? 0 : floatval($detail->discount1) * 0.01;
+                  $qty = $row->qty + $detail->qty;
+                  $discount_amount = ($detail->price * $disc) * $qty;
+                  $total_amount = ($qty * $detail->price) - $discount_amount;
+
+                  $arr = array(
+                    'qty' => $qty,
+                    'discount_amount' => $discount_amount,
+                    'total_amount' => $total_amount,
+                    'is_import' => 1
+                  );
+
+                  if( ! $this->orders_model->update_detail($detail->id, $arr))
+                  {
+                    $res = FALSE;
+                    $this->error = "Failed to update item row of {$row->product_code}";
+                  }
+                }
+              }
+
+              //-- add state
+              if($sc === TRUE)
+              {
+                $arr = array(
+                  'doc_total' => $this->orders_model->get_order_total_amount($doc->code),
+                  'is_import' => 1
+                );
+
+                $this->orders_model->update($doc->code, $arr);
+              }
+
+              if($sc === TRUE)
+              {
+                $this->db->trans_commit();
+              }
+              else
+              {
+                $this->db->trans_rollback();
+              }
+            }
+          } //--- $sc === TRUE
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid document status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid document number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+	}
+
+
+  public function get_template_file()
+  {
+    $path = $this->config->item('upload_path').'WC/';
+    $file_name = $path."import_consign_template.xlsx";
+
+    if(file_exists($file_name))
+    {
+      header('Content-Description: File Transfer');
+      header('Content-Type:Application/octet-stream');
+      header('Cache-Control: no-cache, must-revalidate');
+      header('Expires: 0');
+      header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
+      header('Content-Length: '.filesize($file_name));
+      header('Pragma: public');
+
+      flush();
+      readfile($file_name);
+      die();
+    }
+    else
+    {
+      echo "File Not Found";
+    }
   }
 
 

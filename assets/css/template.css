@@ -2056,3 +2056,58 @@ input[type=number]::-webkit-outer-spin-button {
 .fix-header {
 	z-index: 2;
 }
+
+
+.dropdown-menu > li.success > a {
+  color: #87b87f !important;
+}
+
+.dropdown-menu > li.success > a:hover {
+  color: #ffffff !important;
+  background-color: #87b87f !important;
+}
+
+.dropdown-menu > li.primary > a {
+  color: #428bca !important;
+}
+
+.dropdown-menu > li.primary > a:hover {
+  color: #ffffff !important;
+  background-color: #428bca !important;
+}
+
+.dropdown-menu > li.info > a {
+  color: #6fb3e0;
+}
+
+.dropdown-menu > li.info > a:hover {
+  color: #ffffff !important;
+  background-color: #6fb3e0 !important;
+}
+
+.dropdown-menu > li.warning > a {
+  color: #ffb752;
+}
+
+.dropdown-menu > li.warning > a:hover {
+  color: #ffffff !important;
+  background-color: #ffb752 !important;
+}
+
+.dropdown-menu > li.danger > a {
+  color: #d15b47 !important;
+}
+
+.dropdown-menu > li.danger > a:hover {
+  color:#ffffff !important;
+  background-color: #d15b47;
+}
+
+.dropdown-menu > li.purple > a {
+  color: #7461aa !important;
+}
+
+.dropdown-menu > li.purple > a:hover {
+  color:#ffffff !important;
+  background-color: #7461aa;
+}

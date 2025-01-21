@@ -325,6 +325,8 @@ class WM extends REST_Controller
       $date_add = date_create($date) > $minDate ? $date : date('Y-m-d H:i:s');
       $code = $this->get_new_code($date_add);
       $bookcode = getConfig('BOOK_CODE_CONSIGN_SOLD');
+      $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
+      $bill_to = empty($data->bill_to) ? NULL : $data->bill_to;
 
       $arr = array(
         'code' => $code,
@@ -340,8 +342,23 @@ class WM extends REST_Controller
         'user' => $this->user,
         'status' => $this->create_status,
         'pos_ref' => $data->pos_ref,
-        'is_api' => 1
+        'is_api' => 1,
+        'tax_status' => $tax_status
       );
+
+      if($tax_status && ! empty($bill_to) && ! empty($bill_to->tax_id))
+      {
+        $arr['tax_id'] = $bill_to->tax_id;
+        $arr['name'] = $bill_to->name;
+        $arr['branch_code'] = $bill_to->branch_code;
+        $arr['branch_name'] = $bill_to->branch_name;
+        $arr['address'] = $bill_to->address;
+        $arr['sub_district'] = $bill_to->sub_district;
+        $arr['district'] = $bill_to->district;
+        $arr['province'] = $bill_to->province;
+        $arr['postcode'] = $bill_to->postcode;
+        $arr['phone'] = $bill_to->phone;
+      }
 
       $this->db->trans_begin();
 
@@ -920,7 +937,6 @@ class WM extends REST_Controller
 
 		return TRUE;
 	}
-
 
 } //--- end class
 ?>

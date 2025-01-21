@@ -42,7 +42,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
           <button type="button" class="btn btn-xs btn-yellow pull-right margin-left-5" onclick="viewApiLogs('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">API Logs</button>
 				<?php endif; ?>
         <?php if($order->is_backorder == 1) : ?>
-          <button type="button" class="btn btn-xs btn-default pull-right margin-left-5" onclick="showBacklogs()">Back order logs</button>          
+          <button type="button" class="btn btn-xs btn-default pull-right margin-left-5" onclick="showBacklogs()">Back order logs</button>
         <?php endif; ?>
 			</div>
 
@@ -91,18 +91,12 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
                     <td><?php echo $rs->address." ". $rs->sub_district." ".$rs->district." ".$rs->province." ". $rs->postcode; ?></td>
                     <td><?php echo $rs->phone; ?></td>
                     <td align="right">
-									<?php if(( ! $order->is_wms) OR ($order->is_wms && $order->state < 3) OR ($order->is_wms && $order->wms_export != 1)) : ?>
-										<?php $func = "onClick='setAddress({$rs->id})'"; ?>
-									<?php else : ?>
-										<?php $func = ""; ?>
-									<?php endif; ?>
-
               <?php if( $rs->id == $order->id_address ) : ?>
-                      <button type="button" class="btn btn-minier btn-success btn-address" id="btn-<?php echo $rs->id; ?>" <?php echo $func; ?>>
+                      <button type="button" class="btn btn-minier btn-success btn-address" id="btn-<?php echo $rs->id; ?>" onclick="setAddress(<?php echo $rs->id; ?>)">
                         <i class="fa fa-check"></i>
                       </button>
               <?php else : ?>
-                      <button type="button" class="btn btn-minier btn-address" id="btn-<?php echo $rs->id; ?>" <?php echo $func; ?>>
+                      <button type="button" class="btn btn-minier btn-address" id="btn-<?php echo $rs->id; ?>"  onclick="setAddress(<?php echo $rs->id; ?>)">
                         <i class="fa fa-check"></i>
                       </button>
               <?php endif; ?>

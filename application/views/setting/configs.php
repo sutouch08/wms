@@ -1,13 +1,13 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     	<h4 class="title"><?php echo $this->title; ?></h4>
 	</div>
 </div>
 <hr style="border-color:#CCC; margin-top: 15px; margin-bottom:0px;" />
 
 <div class="row">
-<div class="col-sm-2 padding-right-0" style="padding-top:15px;">
+<div class="col-lg-2 col-md-2 col-sm-2 padding-5 padding-right-0" style="padding-top:15px;">
 	<?php
 	$tab1 = $tab == 'general' ? 'active in' : '';
 	$tab2 = $tab == 'company' ? 'active in' : '';
@@ -24,7 +24,7 @@
 	$tab13 = $tab == 'ix' ? 'active in' : '';
 
 	?>
-<ul id="myTab1" class="setting-tabs">
+<ul id="myTab1" class="setting-tabs" style="margin-left:0;">
   <li class="li-block <?php echo $tab1; ?>" onclick="changeURL('general')"><a href="#general" data-toggle="tab">ทั่วไป</a></li>
 	<li class="li-block <?php echo $tab2; ?>" onclick="changeURL('company')"><a href="#company" data-toggle="tab">ข้อมูลบริษัท</a></li>
 	<li class="li-block <?php echo $tab3; ?>" onclick="changeURL('system')"><a href="#system" data-toggle="tab">ระบบ</a></li>
@@ -41,63 +41,63 @@
 
 </ul>
 </div>
-<div class="col-sm-10" style="padding-top:15px; border-left:solid 1px #ccc; min-height:600px; max-height:1500px;">
-<div class="tab-content" style="border:0px;">
-<!---  ตั้งค่าทั่วไป  ----------------------------------------------------->
-<div class="tab-pane fade <?php echo $tab1; ?>" id="general">
-	<?php $this->load->view('setting/setting_general'); ?>
-</div>
+<div class="col-lg-10 col-md-10 col-sm-10" style="padding-top:15px; border-left:solid 1px #ccc; min-height:600px; max-height:1000px; overflow:auto;">
+	<div class="tab-content" style="border:0px;">
+		<!---  ตั้งค่าทั่วไป  ----------------------------------------------------->
+		<div class="tab-pane fade <?php echo $tab1; ?>" id="general">
+			<?php $this->load->view('setting/setting_general'); ?>
+		</div>
 
-<!---  ตั้งค่าบริษัท  ------------------------------------------------------>
-<div class="tab-pane fade <?php echo $tab2; ?>" id="company">
-<?php $this->load->view('setting/setting_company'); ?>
-</div>
-<!---  ตั้งค่าระบบ  ----------------------------------------------------->
-<div class="tab-pane fade <?php echo $tab3; ?>" id="system">
-<?php	$this->load->view('setting/setting_system'); ?>
-</div>
-<div class="tab-pane fade <?php echo $tab4; ?>" id="inventory">
-	<?php $this->load->view('setting/setting_inventory'); ?>
-</div>
-<!---  ตั้งค่าออเดอร์  --------------------------------------------------->
-<div class="tab-pane fade <?php echo $tab5; ?>" id="order">
-<?php $this->load->view('setting/setting_order'); ?>
-</div>
-<!---  ตั้งค่าเอกสาร  --------------------------------------------------->
-<div class="tab-pane fade <?php echo $tab6; ?>" id="document">
-<?php $this->load->view('setting/setting_document'); ?>
-</div>
+		<!---  ตั้งค่าบริษัท  ------------------------------------------------------>
+		<div class="tab-pane fade <?php echo $tab2; ?>" id="company">
+			<?php $this->load->view('setting/setting_company'); ?>
+		</div>
+		<!---  ตั้งค่าระบบ  ----------------------------------------------------->
+		<div class="tab-pane fade <?php echo $tab3; ?>" id="system">
+			<?php	$this->load->view('setting/setting_system'); ?>
+		</div>
+		<div class="tab-pane fade <?php echo $tab4; ?>" id="inventory">
+			<?php $this->load->view('setting/setting_inventory'); ?>
+		</div>
+		<!---  ตั้งค่าออเดอร์  --------------------------------------------------->
+		<div class="tab-pane fade <?php echo $tab5; ?>" id="order">
+			<?php $this->load->view('setting/setting_order'); ?>
+		</div>
+		<!---  ตั้งค่าเอกสาร  --------------------------------------------------->
+		<div class="tab-pane fade <?php echo $tab6; ?>" id="document">
+			<?php $this->load->view('setting/setting_document'); ?>
+		</div>
 
-<div class="tab-pane fade <?php echo $tab7; ?>" id="bookcode">
-<?php $this->load->view('setting/setting_bookcode'); ?>
-</div>
+		<div class="tab-pane fade <?php echo $tab7; ?>" id="bookcode">
+			<?php $this->load->view('setting/setting_bookcode'); ?>
+		</div>
 
-<div class="tab-pane fade <?php echo $tab8; ?>" id="SAP">
-<?php $this->load->view('setting/setting_sap'); ?>
-</div>
+		<div class="tab-pane fade <?php echo $tab8; ?>" id="SAP">
+			<?php $this->load->view('setting/setting_sap'); ?>
+		</div>
 
 
-<div class="tab-pane fade <?php echo $tab9; ?>" id="WMS">
-<?php $this->load->view('setting/setting_wms'); ?>
-</div>
+		<div class="tab-pane fade <?php echo $tab9; ?>" id="WMS">
+			<?php $this->load->view('setting/setting_wms'); ?>
+		</div>
 
-<div class="tab-pane fade <?php echo $tab10; ?>" id="sokojung">
-<?php $this->load->view('setting/setting_sokojung'); ?>
-</div>
+		<div class="tab-pane fade <?php echo $tab10; ?>" id="sokojung">
+			<?php $this->load->view('setting/setting_sokojung'); ?>
+		</div>
 
-<div class="tab-pane fade <?php echo $tab11; ?>" id="chatbot">
-<?php $this->load->view('setting/setting_chatbot'); ?>
-</div>
+		<div class="tab-pane fade <?php echo $tab11; ?>" id="chatbot">
+			<?php $this->load->view('setting/setting_chatbot'); ?>
+		</div>
 
-<div class="tab-pane fade <?php echo $tab12; ?>" id="web">
-<?php $this->load->view('setting/setting_web'); ?>
-</div>
+		<div class="tab-pane fade <?php echo $tab12; ?>" id="web">
+			<?php $this->load->view('setting/setting_web'); ?>
+		</div>
 
-<div class="tab-pane fade <?php echo $tab13; ?>" id="ix">
-<?php $this->load->view('setting/setting_ix_api'); ?>
-</div>
+		<div class="tab-pane fade <?php echo $tab13; ?>" id="ix">
+			<?php $this->load->view('setting/setting_ix_api'); ?>
+		</div>
 
-</div>
+	</div>
 </div><!--/ col-sm-9  -->
 </div><!--/ row  -->
 

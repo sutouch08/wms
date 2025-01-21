@@ -4,17 +4,21 @@ var prop 			= "width=800, height=900, left="+center+", scrollbars=yes";
 var center    = ($(document).width() - 800)/2;
 
 //--- พิมพ์ใบนำส่งสำหรับแปะหน้ากล่อง
-function printAddress()
-{
-	var order_code = $('#order_code').val();
-	var customer_code = $('#customer_code').val();
-	var customer_ref = $('#customer_ref').val();
-	if( customer_ref != '' ){
-		getOnlineAddress()
-	}else{
-		getAddressForm();
-	}
+function printAddress(id, order_code) {
+	printOnlineAddress(id, order_code);
 }
+// function printAddress()
+// {
+// 	var order_code = $('#order_code').val();
+// 	var customer_code = $('#customer_code').val();
+// 	var customer_ref = $('#customer_ref').val();
+// 	if( customer_ref != '' ){
+// 		getOnlineAddress()
+// 	}else{
+// 		getAddressForm();
+// 	}
+// }
+
 
 
 

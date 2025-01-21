@@ -3,21 +3,23 @@
 <?php $auz_no = $ALLOW_UNDER_ZERO == 0 ? 'btn-success' : ''; ?>
 <?php $auz_yes = $ALLOW_UNDER_ZERO == 1 ? 'btn-danger' : ''; ?>
 <?php $over_po_yes = $ALLOW_RECEIVE_OVER_PO == 1 ? 'btn-success' : ''; ?>
-<?php $over_po_no = $ALLOW_RECEIVE_OVER_PO == 0 ? 'btn-success' : ''; ?>
+<?php $over_po_no = $ALLOW_RECEIVE_OVER_PO == 0 ? 'btn-primary' : ''; ?>
 <?php $strict_receive_yes = $STRICT_RECEIVE_PO == 1 ? 'btn-success' : ''; ?>
-<?php $strict_receive_no = $STRICT_RECEIVE_PO == 0 ? 'btn-success' : ''; ?>
+<?php $strict_receive_no = $STRICT_RECEIVE_PO == 0 ? 'btn-primary' : ''; ?>
 <?php $system_bin_yes = $SYSTEM_BIN_LOCATION == 1 ? 'btn-success' : ''; ?>
-<?php $system_bin_no = $SYSTEM_BIN_LOCATION == 0 ? 'btn-success' : ''; ?>
+<?php $system_bin_no = $SYSTEM_BIN_LOCATION == 0 ? 'btn-primary' : ''; ?>
 <?php $wt_btn_yes = is_true($LIMIT_CONSIGN) ? 'btn-success' : ''; ?>
 <?php $wt_btn_no = is_true($LIMIT_CONSIGN) ? '' : 'btn-danger'; ?>
 <?php $wc_btn_yes = is_true($LIMIT_CONSIGNMENT) ? 'btn-success' : ''; ?>
 <?php $wc_btn_no = is_true($LIMIT_CONSIGNMENT) ? '' : 'btn-danger'; ?>
 <?php $strict_transfer_yes = is_true($STRICT_TRANSFER) ? 'btn-success' : ''; ?>
-<?php $strict_transfer_no = is_true($STRICT_TRANSFER) ? '' : 'btn-success'; ?>
+<?php $strict_transfer_no = is_true($STRICT_TRANSFER) ? '' : 'btn-primary'; ?>
 <?php $eom_yes = is_true($TRANSFER_EXPIRE_EOM) ? 'btn-success' : ''; ?>
-<?php $eom_no = is_true($TRANSFER_EXPIRE_EOM) ? '' : 'btn-success'; ?>
+<?php $eom_no = is_true($TRANSFER_EXPIRE_EOM) ? '' : 'btn-primary'; ?>
 <?php $imp_yes = is_true($ALLOW_IMPORT_TRANSFER) ? 'btn-success' : ''; ?>
-<?php $imp_no = is_true($ALLOW_IMPORT_TRANSFER) ? '' : 'btn-success'; ?>
+<?php $imp_no = is_true($ALLOW_IMPORT_TRANSFER) ? '' : 'btn-primary'; ?>
+<?php $btn_import_sm_yes = is_true($ALLOW_IMPORT_RETURN) ? 'btn-success' : ''; ?>
+<?php $btn_import_sm_no = is_true($ALLOW_IMPORT_RETURN) ? '' : 'btn-primary'; ?>
 
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
@@ -206,6 +208,17 @@
         <input type="hidden" name="ALLOW_IMPORT_TRANSFER" id="transfer-imp" value="<?php echo $ALLOW_IMPORT_TRANSFER; ?>" />
       </div>
       <div class="divider-hidden"></div>
+
+			<div class="col-sm-3"><span class="form-control left-label">การ Import SM ด้วยไฟล์ Excel</span></div>
+			<div class="col-sm-9">
+				<div class="btn-group input-medium">
+					<button type="button" class="btn btn-sm <?php echo $btn_import_sm_yes; ?>" style="width:50%;" id="btn-import-sm-yes" onClick="toggleImportSM(1)">เปิด</button>
+					<button type="button" class="btn btn-sm <?php echo $btn_import_sm_no; ?>" style="width:50%;" id="btn-import-sm-no" onClick="toggleImportSM(0)">ปิด</button>
+				</div>
+				<span class="help-block">กรณีปิดจะไม่สามารถ Import WC ด้วยไฟล์ Excel ได้</span>
+				<input type="hidden" name="ALLOW_IMPORT_TRANSFER" id="allow-import-sm" value="<?php echo $ALLOW_IMPORT_TRANSFER; ?>" />
+			</div>
+			<div class="divider-hidden"></div>
 
 
       <div class="col-sm-9 col-sm-offset-3">

@@ -284,7 +284,7 @@ class Sponsor extends PS_Controller
       $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
       $ds['is_api'] = $is_api;
       $ds['tracking'] = $this->orders_model->get_order_tracking($code);
-      $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlog_details($rs->code) : NULL;
+      $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlogs_details($rs->code) : NULL;
       $this->load->view('sponsor/sponsor_edit', $ds);
     }
     else

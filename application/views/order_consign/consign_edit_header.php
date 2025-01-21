@@ -7,11 +7,11 @@
     	<label>วันที่</label>
 			<input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($order->date_add); ?>" disabled />
     </div>
-		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
     	<label>รหัสลูกค้า</label>
 			<input type="text" class="form-control input-sm text-center edit" id="customer-code" value="<?php echo $order->customer_code; ?>" disabled />
     </div>
-    <div class="col-lg-4 col-md-5-harf col-sm-5 col-xs-12 padding-5">
+    <div class="col-lg-6 col-md-5-harf col-sm-5 col-xs-12 padding-5">
     	<label>ลูกค้า[ในระบบ]</label>
 			<input type="text" class="form-control input-sm edit" id="customer" name="customer" value="<?php echo $order->customer_name; ?>" required disabled />
     </div>
@@ -19,25 +19,24 @@
 			<label>GP</label>
 			<input type="text" class="form-control input-sm text-center edit" name="gp" id="gp" value="<?php echo $order->gp; ?>" disabled />
 		</div>
-		<div class="col-lg-2-harf col-md-4 col-sm-4 col-xs-9 padding-5">
+		<div class="col-lg-4-harf col-md-4 col-sm-4 col-xs-9 padding-5">
 			<label>คลัง[ต้นทาง]</label>
 			<select class="form-control input-sm edit" name="warehouse" id="warehouse" required disabled>
 				<option value="">เลือกคลัง</option>
 				<?php echo select_sell_warehouse($order->warehouse_code); ?>
 			</select>
 		</div>
-		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-4 padding-5">
+		<div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-4 padding-5">
 			<label>โซน[ปลายทาง]</label>
 			<input type="text" class="form-control input-sm edit" name="zone_code" id="zone_code" value="<?php echo $order->zone_code; ?>" readonly disabled />
 		</div>
-		<div class="col-lg-4 col-md-5-harf col-sm-5 col-xs-8 padding-5">
+		<div class="col-lg-5 col-md-5-harf col-sm-5 col-xs-8 padding-5">
 	    <label class="not-show">โซน[ฝากขาย]</label>
 			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $order->zone_name; ?>" required disabled/>
 	  </div>
 
-
 		<?php if(empty($approve_view) && ($this->pm->can_add OR $this->pm->can_edit)): ?>
-		<div class="col-lg-5 col-md-10-harf col-sm-10-harf col-xs-9 padding-5">
+		<div class="col-lg-11 col-md-10-harf col-sm-10-harf col-xs-9 padding-5">
 		 	<label>หมายเหตุ</label>
 		  <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
 		</div>

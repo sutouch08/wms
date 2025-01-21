@@ -202,12 +202,12 @@ function toggleOverPo(option)
 	$('#allow-receive-over-po').val(option);
 	if(option == 1){
 		$('#btn-ovpo-yes').addClass('btn-success');
-		$('#btn-ovpo-no').removeClass('btn-success');
+		$('#btn-ovpo-no').removeClass('btn-primary');
 		return;
 	}
 	if(option == 0){
 		$('#btn-ovpo-yes').removeClass('btn-success');
-		$('#btn-ovpo-no').addClass('btn-success');
+		$('#btn-ovpo-no').addClass('btn-primary');
 		return;
 	}
 }
@@ -219,12 +219,12 @@ function toggleRequest(option)
 	$('#strict-receive-po').val(option);
 	if(option == 1){
 		$('#btn-request-yes').addClass('btn-success');
-		$('#btn-request-no').removeClass('btn-success');
+		$('#btn-request-no').removeClass('btn-primary');
 		return;
 	}
 	if(option == 0){
 		$('#btn-request-yes').removeClass('btn-success');
-		$('#btn-request-no').addClass('btn-success');
+		$('#btn-request-no').addClass('btn-primary');
 		return;
 	}
 }
@@ -236,12 +236,12 @@ function toggleTransfer(option)
 
 	if(option == 1){
 		$('#btn-transfer-yes').addClass('btn-success');
-		$('#btn-transfer-no').removeClass('btn-success');
+		$('#btn-transfer-no').removeClass('btn-primary');
 		return;
 	}
 	if(option == 0){
 		$('#btn-transfer-yes').removeClass('btn-success');
-		$('#btn-transfer-no').addClass('btn-success');
+		$('#btn-transfer-no').addClass('btn-primary');
 		return;
 	}
 }
@@ -253,12 +253,12 @@ function toggleTransferImport(option)
 
 	if(option == 1){
 		$('#btn-imp-yes').addClass('btn-success');
-		$('#btn-imp-no').removeClass('btn-success');
+		$('#btn-imp-no').removeClass('btn-primary');
 		return;
 	}
 	if(option == 0){
 		$('#btn-imp-yes').removeClass('btn-success');
-		$('#btn-imp-no').addClass('btn-success');
+		$('#btn-imp-no').addClass('btn-primary');
 		return;
 	}
 }
@@ -291,6 +291,57 @@ function toggleImportOrder(option){
 	if(option == 0){
 		$('#btn-import-order-yes').removeClass('btn-success');
 		$('#btn-import-order-no').addClass('btn-primary');
+		return;
+	}
+}
+
+
+function toggleImportWC(option){
+	$('#allow-import-wc').val(option);
+
+	if(option == 1){
+		$('#btn-import-wc-yes').addClass('btn-success');
+		$('#btn-import-wc-no').removeClass('btn-primary');
+		return;
+	}
+
+	if(option == 0){
+		$('#btn-import-wc-yes').removeClass('btn-success');
+		$('#btn-import-wc-no').addClass('btn-primary');
+		return;
+	}
+}
+
+
+function toggleImportWT(option){
+	$('#allow-import-wt').val(option);
+
+	if(option == 1){
+		$('#btn-import-wt-yes').addClass('btn-success');
+		$('#btn-import-wt-no').removeClass('btn-primary');
+		return;
+	}
+
+	if(option == 0){
+		$('#btn-import-wt-yes').removeClass('btn-success');
+		$('#btn-import-wt-no').addClass('btn-primary');
+		return;
+	}
+}
+
+
+function toggleImportSM(option){
+	$('#allow-import-sm').val(option);
+
+	if(option == 1){
+		$('#btn-import-sm-yes').addClass('btn-success');
+		$('#btn-import-sm-no').removeClass('btn-primary');
+		return;
+	}
+
+	if(option == 0){
+		$('#btn-import-sm-yes').removeClass('btn-success');
+		$('#btn-import-sm-no').addClass('btn-primary');
 		return;
 	}
 }
@@ -687,14 +738,14 @@ function toggleTransferEOM(option) {
 	$('#transfer-eom').val(option);
 
 	if(option == 1) {
-		$('#btn-eom-no').removeClass('btn-success');
 		$('#btn-eom-yes').addClass('btn-success');
+		$('#btn-eom-no').removeClass('btn-primary');
 		return;
 	}
 
 	if(option == 0) {
 		$('#btn-eom-yes').removeClass('btn-success');
-		$('#btn-eom-no').addClass('btn-success');
+		$('#btn-eom-no').addClass('btn-primary');
 		return;
 	}
 }

@@ -19,6 +19,12 @@ $btn_show_stock_no  = $SHOW_SUM_STOCK == 0 ? 'btn-primary' : '';
 
 $btn_import_order_yes = $ALLOW_UPLOAD_ORDER == 1 ? 'btn-success' : '';
 $btn_import_order_no  = $ALLOW_UPLOAD_ORDER == 0 ? 'btn-primary' : '';
+
+$btn_import_wc_yes = $ALLOW_IMPORT_WC == 1 ? 'btn-success' : '';
+$btn_import_wc_no = $ALLOW_IMPORT_WC == 0 ? 'btn-primary' : '';
+
+$btn_import_wt_yes = $ALLOW_IMPORT_WT == 1 ? 'btn-success' : '';
+$btn_import_wt_no = $ALLOW_IMPORT_WT == 0 ? 'btn-primary' : '';
 ?>
 <form id="orderForm" method="post" action="<?php echo $this->home; ?>/update_config">
 	<div class="row">
@@ -123,6 +129,28 @@ $btn_import_order_no  = $ALLOW_UPLOAD_ORDER == 0 ? 'btn-primary' : '';
 			</div>
 			<span class="help-block">กรณีปิดจะไม่สามารถ Import Order ด้วยไฟล์ Excel ได้</span>
 			<input type="hidden" name="ALLOW_UPLOAD_ORDER" id="allow-upload-order" value="<?php echo $ALLOW_UPLOAD_ORDER; ?>" />
+		</div>
+		<div class="divider-hidden"></div>
+
+		<div class="col-sm-3"><span class="form-control left-label">การ Import WC ด้วยไฟล์ Excel</span></div>
+		<div class="col-sm-9">
+			<div class="btn-group input-medium">
+				<button type="button" class="btn btn-sm <?php echo $btn_import_wc_yes; ?>" style="width:50%;" id="btn-import-wc-yes" onClick="toggleImportWC(1)">เปิด</button>
+				<button type="button" class="btn btn-sm <?php echo $btn_import_wc_no; ?>" style="width:50%;" id="btn-import-wc-no" onClick="toggleImportWC(0)">ปิด</button>
+			</div>
+			<span class="help-block">กรณีปิดจะไม่สามารถ Import WC ด้วยไฟล์ Excel ได้</span>
+			<input type="hidden" name="ALLOW_IMPORT_WC" id="allow-import-wc" value="<?php echo $ALLOW_IMPORT_WC; ?>" />
+		</div>
+		<div class="divider-hidden"></div>
+
+		<div class="col-sm-3"><span class="form-control left-label">การ Import WT ด้วยไฟล์ Excel</span></div>
+		<div class="col-sm-9">
+			<div class="btn-group input-medium">
+				<button type="button" class="btn btn-sm <?php echo $btn_import_wt_yes; ?>" style="width:50%;" id="btn-import-wt-yes" onClick="toggleImportWT(1)">เปิด</button>
+				<button type="button" class="btn btn-sm <?php echo $btn_import_wt_no; ?>" style="width:50%;" id="btn-import-wt-no" onClick="toggleImportWT(0)">ปิด</button>
+			</div>
+			<span class="help-block">กรณีปิดจะไม่สามารถ Import WC ด้วยไฟล์ Excel ได้</span>
+			<input type="hidden" name="ALLOW_IMPORT_WT" id="allow-import-wt" value="<?php echo $ALLOW_IMPORT_WT; ?>" />
 		</div>
 		<div class="divider-hidden"></div>
 

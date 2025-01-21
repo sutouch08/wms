@@ -1,27 +1,22 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-  <div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-xs-12 visible-xs padding-5">
-    <h3 class="title-xs"><?php echo $this->title; ?></h3>
-  </div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-    <p class="pull-right top-p">
-      <?php if(empty($approve_view)) : ?>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+    <?php if(empty($approve_view)) : ?>
       <button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-      <?php endif; ?>
+    <?php endif; ?>
 
-      <?php if($order->role == 'N' && ($order->is_valid == '0' OR $order->is_received === NULL OR $order->is_received === 'N') ) : ?>
+    <?php if($order->role == 'N' && ($order->is_valid == '0' OR $order->is_received === NULL OR $order->is_received === 'N') ) : ?>
       <button type="button" class="btn btn-sm btn-primary" onclick="confirm_receipted()"><i class="fa fa-check"></i> ยืนยันการรับสินค้า</button>
     <?php elseif($order->role == 'N' && ($order->is_valid == '1' OR $order->is_received === 'Y')) : ?>
       <button type="button" class="btn btn-sm btn-default" disabled><i class="fa fa-check"></i> รับสินค้าแล้ว</button>
-      <?php endif; ?>
+    <?php endif; ?>
 
-      <?php if(empty($approve_view)) : ?>
+    <?php if(empty($approve_view)) : ?>
       <button type="button" class="btn btn-sm btn-success" onclick="doExport()">ส่งข้อมูลไป SAP</button>
-      <?php endif; ?>
-    </p>
+    <?php endif; ?>
   </div>
 </div>
 <hr/>
@@ -37,7 +32,7 @@
     <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
       <label>เลขที่เอกสาร</label>
       <div class="input-group width-100">
-        <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
+        <input type="text" class="width-100 text-center" value="<?php echo $order->code; ?>" disabled />
         <span class="input-group-btn">
           <button type="button" class="btn btn-xs btn-info" onclick="viewOrderDetail('<?php echo $order->code; ?>', '<?php echo $order->role; ?>')" style="min-width:20px;">
             <i class="fa fa-external-link"></i>
@@ -49,23 +44,23 @@
     <?php if($order->role == 'C' OR $order->role == 'N') : ?>
     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
       <label>รหัสลูกค้า</label>
-      <input type="text" class="form-control input-sm text-center" value="<?php echo $order->customer_code; ?>" disabled />
+      <input type="text" class="width-100 text-center" value="<?php echo $order->customer_code; ?>" disabled />
     </div>
     <div class="col-lg-4 col-md-4 col-sm-3-harf col-xs-12 padding-5">
       <label>ลูกค้า</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $cust_name; ?>" disabled />
+      <input type="text" class="width-100" value="<?php echo $cust_name; ?>" disabled />
     </div>
     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
       <label>โซน</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->zone_name; ?>" disabled />
+      <input type="text" class="width-100" value="<?php echo $order->zone_name; ?>" disabled />
     </div>
     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>พนักงาน</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
+      <input type="text" class="width-100" value="<?php echo $order->user; ?>" disabled />
     </div>
     <div class="col-lg-7 col-md-6-harf col-sm-6-harf col-xs-4 padding-5">
       <label>หมายเหตุ</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
+      <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
     </div>
     <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
       <label class="font-size-2 blod">วันที่จัดส่ง</label>
@@ -84,28 +79,28 @@
     <?php else : ?>
       <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
         <label>อ้างอิง</label>
-        <input type="text" class="form-control input-sm text-center" value="<?php echo $order->reference; ?>" disabled />
+        <input type="text" class="width-100 text-center" value="<?php echo $order->reference; ?>" disabled />
       </div>
       <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
         <label>รหัสลูกค้า</label>
-        <input type="text" class="form-control input-sm text-center" value="<?php echo $order->customer_code; ?>" disabled />
+        <input type="text" class="width-100 text-center" value="<?php echo $order->customer_code; ?>" disabled />
       </div>
       <div class="col-lg-6 col-md-6 col-sm-5-harf col-xs-8 padding-5">
         <label>ลูกค้า</label>
-        <input type="text" class="form-control input-sm" value="<?php echo $cust_name; ?>" disabled />
+        <input type="text" class="width-100" value="<?php echo $cust_name; ?>" disabled />
       </div>
       <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
         <label>พนักงาน</label>
-        <input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
+        <input type="text" class="width-100" value="<?php echo $order->user; ?>" disabled />
       </div>
       <div class="col-lg-7 col-md-6-harf col-sm-6-harf col-xs-4 padding-5">
         <label>หมายเหตุ</label>
-        <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
+        <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
       </div>
       <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
         <label class="font-size-2 blod">วันที่จัดส่ง</label>
         <div class="input-group width-100">
-          <input type="text" class="form-control input-sm text-center" id="ship-date" value="<?php echo empty($order->shipped_date) ? NULL : thai_date($order->shipped_date); ?>" disabled />
+          <input type="text" class="width-100 text-center" id="ship-date" value="<?php echo empty($order->shipped_date) ? NULL : thai_date($order->shipped_date); ?>" disabled />
           <span class="input-group-btn">
             <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
             <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save" style="min-width:20px;"></i></button>
@@ -114,7 +109,7 @@
       </div>
       <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
         <label class="font-size-2 blod">SAP No</label>
-        <input type="text" class="form-control input-sm text-center" value="<?php echo $order->inv_code; ?>" disabled />
+        <input type="text" class="width-100 text-center" value="<?php echo $order->inv_code; ?>" disabled />
       </div>
     <?php endif; ?>
   </div>
@@ -122,7 +117,7 @@
 
   <div class="row hidden-xs">
     <div class="col-sm-12 text-right">
-      <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress()"><i class="fa fa-print"></i> ใบนำส่ง</button>
+      <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>')"><i class="fa fa-print"></i> ใบนำส่ง</button>
       <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
       <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
       <button type="button" class="btn btn-sm btn-warning top-btn" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>
@@ -310,9 +305,8 @@
 
   <?php $this->load->view('inventory/order_closed/box_list');  ?>
 
-  <script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
-  <script src="<?php echo base_url(); ?>scripts/print/print_order.js"></script>
-  <script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
+  <script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
+  <script src="<?php echo base_url(); ?>scripts/print/print_order.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php else : ?>
   <?php $this->load->view('inventory/delivery_order/invalid_state'); ?>
