@@ -1,4 +1,4 @@
-get_backlogs_details<?php
+<?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Lend extends PS_Controller
