@@ -27,7 +27,7 @@ function goDetail(code){
 //--- สลับมาใช้บาร์โค้ดในการคีย์สินค้า
 function goUseBarcode(){
   var code = $('#move_code').val();
-  window.location.href = HOME + 'edit/'+code+'/barcode';
+  window.location.href = HOME + 'edit/'+code+'/Y';
 }
 
 
@@ -36,7 +36,7 @@ function goUseBarcode(){
 //--- สลับมาใช้การคื่ย์มือในการย้ายสินค้า
 function goUseKeyboard(){
   var code = $('#move_code').val();
-  window.location.href = HOME + 'edit/'+code;
+  window.location.href = HOME + 'edit/'+code+'/N';
 }
 
 
@@ -61,7 +61,7 @@ function goDelete(code, status){
 	}, function() {
     $('#cancle-code').val(code);
     $('#cancle-reason').val('').removeClass('has-error');
-    cancle(code);    
+    cancle(code);
 	});
 }
 

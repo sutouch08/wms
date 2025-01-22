@@ -130,7 +130,7 @@ class Move extends PS_Controller
 
 
 
-  public function edit($code, $barcode = '')
+  public function edit($code, $barcode = 'Y')
   {
     $doc = $this->move_model->get($code);
     if(!empty($doc))
@@ -153,10 +153,17 @@ class Move extends PS_Controller
     $ds = array(
       'doc' => $doc,
       'details' => $details,
-      'barcode' => $barcode == '' ? FALSE : TRUE
+      'barcode' => $barcode == 'N' ? FALSE : TRUE
     );
 
-    $this->load->view('move/move_edit', $ds);
+    if($barcode == 'N')
+    {
+      $this->load->view('move/move_edit', $ds);
+    }
+    else
+    {
+      $this->load->view('move/move_edit_barcode', $ds);
+    }
   }
 
 
@@ -1058,6 +1065,10 @@ class Move extends PS_Controller
       $no = 1;
       foreach($temp as $rs)
       {
+        $btn_delete = '';
+        $btn_delete .= '<button type="button" class="btn btn-minier btn-danger" ';
+        $btn_delete .= 'onclick="deleteMoveTemp('.$rs->id.', \''.$rs->product_code.'\')">';
+        $btn_delete .= '<i class="fa fa-trash"></i></button>';
         $arr = array(
           'no' => $no,
           'id' => $rs->id,
@@ -1065,7 +1076,8 @@ class Move extends PS_Controller
           'products' => $rs->product_code,
           'from_zone' => $rs->zone_code,
           'fromZone' => $this->zone_model->get_name($rs->zone_code),
-          'qty' => $rs->qty
+          'qty' => $rs->qty,
+          'btn_delete' => $btn_delete
         );
 
         array_push($ds, $arr);
@@ -1079,7 +1091,6 @@ class Move extends PS_Controller
 
     echo json_encode($ds);
   }
-
 
 
 
@@ -1271,6 +1282,32 @@ class Move extends PS_Controller
   }
 
 
+  public function delete_temp()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $id = $this->input->post('id');
+
+    $this->db->trans_begin();
+
+    if( ! $this->move_model->drop_temp($id))
+    {
+      $sc = FALSE;
+      $this->error = "Failed to delete temp";
+    }
+
+
+    if( $sc === TRUE)
+    {
+      $this->db->trans_commit();
+    }
+    else
+    {
+      $this->db->trans_rollback();
+    }
+
+    $this->_response($sc);
+  }
 
 
   public function delete_move($code)

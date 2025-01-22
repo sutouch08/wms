@@ -88,12 +88,12 @@ abstract class BCGBarcode1D extends BCGBarcode
                 $label .= $checksum;
             }
         }
-        
-        $rnd = rand(0, 99);
-        if ($rnd <= 5) {
-            $label = 'Non-commercial version';
-        }
-        
+
+        // $rnd = rand(0, 99);
+        // if ($rnd <= 5) {
+        //     $label = 'Non-commercial version';
+        // }
+
         return $label;
     }
 

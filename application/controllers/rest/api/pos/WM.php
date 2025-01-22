@@ -326,6 +326,10 @@ class WM extends REST_Controller
       $code = $this->get_new_code($date_add);
       $bookcode = getConfig('BOOK_CODE_CONSIGN_SOLD');
       $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
+      $etax = empty($data->ETAX) ? 0 : ($data->ETAX == 'Y' ? 1 : 0);
+      $bill_code = empty($data->bill_code) ? NULL : $data->bill_code;
+      $seller_branch_id = empty($data->seller_branch_id) ? "00000" : $data->seller_branch_id;
+      $seller_tax_id = empty($data->seller_tax_id) ? "0107565000255" : $data->seller_tax_id;
       $bill_to = empty($data->bill_to) ? NULL : $data->bill_to;
 
       $arr = array(
@@ -343,74 +347,110 @@ class WM extends REST_Controller
         'status' => $this->create_status,
         'pos_ref' => $data->pos_ref,
         'is_api' => 1,
-        'tax_status' => $tax_status
+        'tax_status' => $tax_status,
+        'is_etax' => $etax
       );
 
-      if($tax_status && ! empty($bill_to) && ! empty($bill_to->tax_id))
+      if($tax_status)
       {
+        if(
+            empty($bill_to->tax_id)
+            OR empty($bill_to->name)
+            OR empty($bill_to->address)
+            OR empty($bill_to->sub_district)
+            OR empty($bill_to->district)
+            OR empty($bill_to->province)
+          )
+          {
+            $sc = FALSE;
+            $this->error = "You must fill in all required fields [tax_id, name, address, sub_district, district, province]";
+          }
+
+        $email = empty($bill_to->email) ? NULL : $bill_to->email;
+
+
+        $taxType = array(
+          'NIDN' => 'NIDN', //-- บุคคลธรรมดา
+          'TXID' => 'TXID', //-- นิติบุคคล
+          'CCPT' => 'CCPT', //--- Passport
+          'OTHR' => 'OTHR' //--- N/A
+        );
+
+        $arr['tax_type'] = empty($taxType[$bill_to->tax_type]) ? "NIDN" : $bill_to->tax_type;
         $arr['tax_id'] = $bill_to->tax_id;
+        $arr['seller_tax_id'] = $seller_tax_id;
+        $arr['seller_branch_id'] = $seller_branch_id;
         $arr['name'] = $bill_to->name;
-        $arr['branch_code'] = $bill_to->branch_code;
-        $arr['branch_name'] = $bill_to->branch_name;
+        $arr['branch_code'] = empty($bill_to->branch_code) ? "00000" : $bill_to->branch_code;
+        $arr['branch_name'] = empty($bill_to->branch_name) ? "สำนักงานใหญ่" : $bill_to->branch_name;
         $arr['address'] = $bill_to->address;
         $arr['sub_district'] = $bill_to->sub_district;
         $arr['district'] = $bill_to->district;
         $arr['province'] = $bill_to->province;
-        $arr['postcode'] = $bill_to->postcode;
-        $arr['phone'] = $bill_to->phone;
-      }
+        $arr['postcode'] = get_null($bill_to->postcode);
+        $arr['phone'] = get_null($bill_to->phone);
+        $arr['email'] = $email;
 
-      $this->db->trans_begin();
-
-      if( ! $this->consign_order_model->add($arr))
-      {
-        $sc = FALSE;
-        $this->error = "Failed to Create Document Please try again later";
+        if($etax == 1 && empty($email))
+        {
+          $sc = FALSE;
+          $this->error = "Email is required for E-TAX";
+        }
       }
 
       if($sc === TRUE)
       {
-        foreach($data->items as $rs)
+        $this->db->trans_begin();
+
+        if( ! $this->consign_order_model->add($arr))
         {
-          if($sc === FALSE)
+          $sc = FALSE;
+          $this->error = "Failed to Create Document Please try again later";
+        }
+
+        if($sc === TRUE)
+        {
+          foreach($data->items as $rs)
           {
-            break;
-          }
+            if($sc === FALSE)
+            {
+              break;
+            }
 
-          //--- add new row
-          $item = $rs->item;
+            //--- add new row
+            $item = $rs->item;
 
-          $arr = array(
-            'consign_code' => $code,
-            'style_code' => $item->style_code,
-            'product_code' => $item->code,
-            'product_name' => $item->name,
-            'cost' => $item->cost,
-            'price' => $rs->price,
-            'qty' => $rs->qty,
-            'discount' => $rs->discount_label, //-- discount label per item
-            'discount_amount' => $rs->discount_amount * $rs->qty,
-            'amount' => $rs->line_total,
-            'status' => $this->create_status,
-            'pos_ref' => $data->pos_ref,
-            'bill_ref' => $rs->bill_ref,
-            'input_type' => 4
-          );
-
-          $id = $this->consign_order_model->add_detail($arr);
-
-          if( ! $id)
-          {
-            $sc = FALSE;
-            $this->error = "Faild to add item : {$item->code}, {$rs->bill_ref}";
-          }
-
-          if($sc === TRUE && $this->create_status == 1)
-          {
-            $final_price = $rs->line_total/$rs->qty;
-
-            //--- ข้อมูลสำหรับบันทึกยอดขาย
             $arr = array(
+              'consign_code' => $code,
+              'style_code' => $item->style_code,
+              'product_code' => $item->code,
+              'product_name' => $item->name,
+              'cost' => $item->cost,
+              'price' => $rs->price,
+              'qty' => $rs->qty,
+              'discount' => $rs->discount_label, //-- discount label per item
+              'discount_amount' => $rs->discount_amount * $rs->qty,
+              'amount' => $rs->line_total,
+              'status' => $this->create_status,
+              'pos_ref' => $data->pos_ref,
+              'bill_ref' => $rs->bill_ref,
+              'input_type' => 4
+            );
+
+            $id = $this->consign_order_model->add_detail($arr);
+
+            if( ! $id)
+            {
+              $sc = FALSE;
+              $this->error = "Faild to add item : {$item->code}, {$rs->bill_ref}";
+            }
+
+            if($sc === TRUE && $this->create_status == 1)
+            {
+              $final_price = $rs->line_total/$rs->qty;
+
+              //--- ข้อมูลสำหรับบันทึกยอดขาย
+              $arr = array(
               'reference' => $code,
               'role'   => 'M',
               'product_code'  => $item->code,
@@ -436,19 +476,19 @@ class WM extends REST_Controller
               'warehouse_code'  => $zone->warehouse_code,
               'update_user' => $this->user,
               'order_detail_id' => $id
-            );
+              );
 
-            //--- บันทึกขาย
-            if( ! $this->delivery_order_model->sold($arr))
-            {
-              $sc = FALSE;
-              $this->error = 'Sales record failed';
-            }
+              //--- บันทึกขาย
+              if( ! $this->delivery_order_model->sold($arr))
+              {
+                $sc = FALSE;
+                $this->error = 'Sales record failed';
+              }
 
-            if($sc === TRUE)
-            {
-              //--- update movement
-              $arr = array(
+              if($sc === TRUE)
+              {
+                //--- update movement
+                $arr = array(
                 'reference' => $code,
                 'warehouse_code' => $zone->warehouse_code,
                 'zone_code' => $zone->code,
@@ -456,43 +496,43 @@ class WM extends REST_Controller
                 'move_in' => 0,
                 'move_out' => $rs->qty,
                 'date_add' => $date_add
-              );
+                );
 
-              if(! $this->movement_model->add($arr))
-              {
-                $sc = FALSE;
-                $this->error = 'Failed to add stock movement';
+                if(! $this->movement_model->add($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = 'Failed to add stock movement';
+                }
               }
             }
+          } //--- foreach items
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
           }
-        } //--- foreach items
+          else
+          {
+            $this->db->trans_rollback();
+          }
 
-        if($sc === TRUE)
-        {
-          $this->db->trans_commit();
-        }
-        else
-        {
-          $this->db->trans_rollback();
-        }
+          if($sc === TRUE && $this->create_status == 1)
+          {
+            $this->load->library('export');
+            $this->export->export_consign_order($code);
+          }
 
-        if($sc === TRUE && $this->create_status == 1)
-        {
-          $this->load->library('export');
-          $this->export->export_consign_order($code);
-        }
-
-        if($sc === TRUE)
-        {
-          $arr = array(
+          if($sc === TRUE)
+          {
+            $arr = array(
             'status' => TRUE,
             'message' => 'success',
             'code' => $code
-          );
+            );
 
-          if($this->logs_json)
-          {
-            $logs = array(
+            if($this->logs_json)
+            {
+              $logs = array(
               'trans_id' => genUid(),
               'api_path' => $api_path,
               'type' =>'WM',
@@ -502,23 +542,23 @@ class WM extends REST_Controller
               'message' => 'success',
               'request_json' => $json,
               'response_json' => json_encode($arr)
-            );
+              );
 
-            $this->pos_api_logs_model->add_api_logs($logs);
+              $this->pos_api_logs_model->add_api_logs($logs);
+            }
+
+            $this->response($arr, 200);
           }
-
-          $this->response($arr, 200);
-        }
-        else
-        {
-          $arr = array(
+          else
+          {
+            $arr = array(
             'status' => FALSE,
             'message' => $this->error
-          );
+            );
 
-          if($this->logs_json)
-          {
-            $logs = array(
+            if($this->logs_json)
+            {
+              $logs = array(
               'trans_id' => genUid(),
               'api_path' => $api_path,
               'type' =>'WM',
@@ -528,6 +568,33 @@ class WM extends REST_Controller
               'message' => $this->error,
               'request_json' => $json,
               'response_json' => json_encode($arr)
+              );
+
+              $this->pos_api_logs_model->add_api_logs($logs);
+            }
+
+            $this->response($arr, 200);
+          }
+        }
+        else
+        {
+          $arr = array(
+          'status' => FALSE,
+          'message' => $this->error
+          );
+
+          if($this->logs_json)
+          {
+            $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $api_path,
+            'type' =>'WM',
+            'code' => $data->pos_ref,
+            'action' => 'create',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
             );
 
             $this->pos_api_logs_model->add_api_logs($logs);
@@ -535,6 +602,32 @@ class WM extends REST_Controller
 
           $this->response($arr, 200);
         }
+      }
+      else
+      {
+        $arr = array(
+        'status' => FALSE,
+        'message' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WM',
+          'code' => $data->pos_ref,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->pos_api_logs_model->add_api_logs($logs);
+        }
+
+        $this->response($arr, 200);
       }
     }
   } //-- end function create

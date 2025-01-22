@@ -5,28 +5,25 @@
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
 <style>
 	.backorder {
-		color:red !important;
+		color:#811818 !important;
 	}
 </style>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-    <h4 class="title">
-      <?php echo $this->title; ?>
-    </h4>
-    </div>
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-    	<p class="pull-right top-p">
-      <?php if($this->pm->can_add) : ?>
-				<?php if($can_upload) : ?>
-					<button type="button" class="btn btn-xs btn-purple btn-100" onclick="getUploadFile()">นำเข้าออเดอร์</button>
-				<?php endif;?>
-        <button type="button" class="btn btn-xs btn-success btn-100" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
-      <?php endif; ?>
-			<?php if($this->sokoApi OR $this->wmsApi) : ?>
-				<button type="button" class="btn btn-xs btn-primary btn-100" onclick="sendOrdersToWms()"><i class="fa fa-send"></i> Send to WMS</button>
-			<?php endif; ?>
-      </p>
-    </div>
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5 padding-top-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5 text-right">
+		<?php if($this->pm->can_add) : ?>
+			<?php if($can_upload) : ?>
+				<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="getUploadFile()"><i class="fa fa-upload"></i> &nbsp; Import Order</button>
+			<?php endif;?>
+			<button type="button" class="btn btn-white btn-purple top-btn btn-100" onclick="getTemplate()"><i class="fa fa-download"></i> &nbsp; Template</button>
+			<button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+		<?php endif; ?>
+		<?php if($this->sokoApi OR $this->wmsApi) : ?>
+			<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="sendOrdersToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+		<?php endif; ?>
+	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">

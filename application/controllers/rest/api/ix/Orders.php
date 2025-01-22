@@ -55,6 +55,689 @@ class Orders extends REST_Controller
   }
 
 
+  public function create_post()
+  {
+    $this->api_path = $this->api_path."/create";
+    //--- Get raw post data
+    $json = file_get_contents("php://input");
+
+    if( ! $this->api)
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'API Not Enabled'
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => 'API Not Enabled',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $data = json_decode($json);
+
+    if(empty($data))
+    {
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => 'empty data',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $arr = array(
+      'status' => FALSE,
+      'error' => 'empty data'
+      );
+
+      $this->response($arr, 400);
+    }
+
+    if(! property_exists($data, 'order_number') OR $data->order_number == '')
+    {
+      $this->error = 'order_number is required';
+
+      $arr = array(
+      'status' => FALSE,
+      'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $this->api_path,
+        'type' =>'ORDER',
+        'code' => NULL,
+        'action' => 'create',
+        'status' => 'failed',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $sc = $this->verify_data($data);
+
+    //---- if any error return
+    if($sc === FALSE)
+    {
+      $arr = array(
+      'status' => FALSE,
+      'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $this->api_path,
+        'type' =>'ORDER',
+        'code' => $data->order_number,
+        'action' => 'create',
+        'status' => 'failed',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    //--- check each item code
+    $details = $data->details;
+
+    if(empty($details))
+    {
+      $sc = FALSE;
+      $this->error = "Items not found";
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => $data->order_number,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+
+    if( ! empty($details))
+    {
+      foreach($details as $rs)
+      {
+        //---- check valid items
+        $item = $this->products_model->get($rs->item);
+        $item = empty($item) ? $this->products_model->get_by_old_code($rs->item) : $item;
+
+        if(empty($item))
+        {
+          $sc = FALSE;
+          $this->error = "Invalid SKU : {$rs->item}";
+        }
+        else
+        {
+          $rs->item = $item;
+        }
+      }
+    }
+
+
+    //---- if any error return
+    if($sc === FALSE)
+    {
+      $arr = array(
+      'status' => FALSE,
+      'error' => $this->error
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+        'trans_id' => genUid(),
+        'api_path' => $this->api_path,
+        'type' =>'ORDER',
+        'code' => $data->order_number,
+        'action' => 'create',
+        'status' => 'failed',
+        'message' => $this->error,
+        'request_json' => $json,
+        'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    //---- new code start
+    if($sc === TRUE)
+    {
+      //---- check duplicate order number
+      $order = $this->orders_model->get_active_order_by_reference($data->order_number);
+
+      //--- รหัสเล่มเอกสาร [อ้างอิงจาก SAP]
+      //--- ถ้าเป็นฝากขายแบบโอนคลัง ยืมสินค้า เบิกแปรสภาพ เบิกสินค้า (ไม่เปิดใบกำกับ เปิดใบโอนคลังแทน) นอกนั้น เปิด SO
+      $bookcode = getConfig('BOOK_CODE_ORDER');
+
+      $role = 'S';
+
+      $date_add = date('Y-m-d H:i:s');
+
+      $ref_code = $data->order_number;
+
+      $customer = $this->customers_model->get($data->customer_code);
+
+      $sale_code = empty($customer) ? -1 : $customer->sale_code;
+
+      $state = 3;
+
+      $warehouse_code = getConfig('IX_WAREHOUSE');
+
+      $is_wms = 0;
+
+      //---- id_sender
+      $sender = $this->sender_model->get_id($data->shipping);
+
+      $id_sender = empty($sender) ? NULL : $sender;
+
+      //--- order code gen จากระบบ
+      $order_code = empty($order) ? $this->get_new_code($date_add) : $order->code;
+
+      $tracking = $data->tracking_no;
+
+      $total_amount = 0;
+      $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
+      $is_backorder = FALSE;
+      $backorderList = [];
+
+      $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
+      $is_etax = empty($data->ETAX) ? 0 : ($data->ETAX == 'Y' && $tax_status == 1 ? 1 : 0);
+      $bill_to = empty($data->bill_to) ? NULL : $data->bill_to;
+
+      $taxType = array(
+        'NIDN' => 'NIDN', //-- บุคคลธรรมดา
+        'TXID' => 'TXID', //-- นิติบุคคล
+        'CCPT' => 'CCPT', //--- Passport
+        'OTHR' => 'OTHR' //--- N/A
+      );
+
+      if(empty($order))
+      {
+        //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
+        $ds = array(
+          'code' => $order_code,
+          'role' => $role,
+          'bookcode' => $bookcode,
+          'reference' => $data->order_number,
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'customer_ref' => $data->customer_ref,
+          'channels_code' => $data->channel,
+          'payment_code' => $data->payment_method,
+          'sale_code' => $sale_code,
+          'state' => 3,
+          'is_term' => $data->payment_method === "COD" ? 1 : 0,
+          'status' => 1,
+          'shipping_code' => $tracking,
+          'user' => $this->user,
+          'date_add' => $date_add,
+          'warehouse_code' => $warehouse_code,
+          'is_api' => 1,
+          'is_pre_order' => $is_pre_order ? 1 : 0,
+          'id_sender' => $id_sender,
+          'is_wms' => $is_wms,
+          'wms_export' => 0,
+          'tax_status' => $tax_status,
+          'is_etax' => $is_etax
+        );
+
+        if($tax_status)
+        {
+          if( ! empty($bill_to))
+          {
+            if(
+                empty($bill_to->tax_id)
+                OR empty($bill_to->name)
+                OR empty($bill_to->address)
+                OR empty($bill_to->sub_district)
+                OR empty($bill_to->district)
+                OR empty($bill_to->province)
+              )
+              {
+                $sc = FALSE;
+                $this->error = "You must fill in all required fields [tax_id, name, address, sub_district, district, province]";
+              }
+
+            $email = empty($bill_to->email) ? NULL : $bill_to->email;
+
+            if($is_etax == 1 && empty($email))
+            {
+              $sc = FALSE;
+              $this->error = "Email is required for E-TAX";
+            }
+
+            $ds['tax_type'] = empty($taxType[$bill_to->tax_type]) ? "NIDN" : $bill_to->tax_type;
+            $ds['tax_id'] = get_null($bill_to->tax_id);
+            $ds['name'] = get_null($bill_to->name);
+            $ds['branch_code'] = empty($bill_to->branch_code) ? "00000" : $bill_to->branch_code;
+            $ds['branch_name'] = empty($bill_to->branch_name) ? "สำนักงานใหญ่" : $bill_to->branch_name;
+            $ds['address'] = get_null($bill_to->address);
+            $ds['sub_district'] = get_null($bill_to->sub_district);
+            $ds['district'] = get_null($bill_to->district);
+            $ds['province'] = get_null($bill_to->province);
+            $ds['postcode'] = get_null($bill_to->postcode);
+            $ds['phone'] = get_null($bill_to->phone);
+            $ds['email'] = get_null($bill_to->email);
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "bill_to is required for tax_status = Y";
+          }
+        }
+      }
+      else
+      {
+        //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
+        $ds = array(
+          'customer_code' => $data->customer_code,
+          'customer_name' => $data->customer_name,
+          'customer_ref' => $data->customer_ref,
+          'channels_code' => $data->channel,
+          'payment_code' => $data->payment_method,
+          'sale_code' => $sale_code,
+          'state' => 3,
+          'is_term' => $data->payment_method === "COD" ? 1 : 0,
+          'shipping_code' => $tracking,
+          'user' => $this->user,
+          'date_add' => $date_add,
+          'warehouse_code' => $warehouse_code,
+          'is_api' => 1,
+          'is_pre_order' => $is_pre_order ? 1 : 0,
+          'id_sender' => $id_sender,
+          'is_wms' => $is_wms,
+          'wms_export' => 0,
+          'tax_status' => $tax_status,
+          'is_etax' => $is_etax
+        );
+
+        if($tax_status)
+        {
+          if( ! empty($bill_to))
+          {
+            if(
+                empty($bill_to->tax_id)
+                OR empty($bill_to->name)
+                OR empty($bill_to->address)
+                OR empty($bill_to->sub_district)
+                OR empty($bill_to->district)
+                OR empty($bill_to->province)
+              )
+              {
+                $sc = FALSE;
+                $this->error = "You must fill in all required fields [tax_id, name, address, sub_district, district, province]";
+              }
+
+            $email = empty($bill_to->email) ? NULL : $bill_to->email;
+
+            if($is_etax == 1 && empty($email))
+            {
+              $sc = FALSE;
+              $this->error = "Email is required for E-TAX";
+            }
+
+            $ds['tax_type'] = empty($taxType[$bill_to->tax_type]) ? "NIDN" : $bill_to->tax_type;
+            $ds['tax_id'] = get_null($bill_to->tax_id);
+            $ds['name'] = get_null($bill_to->name);
+            $ds['branch_code'] = empty($bill_to->branch_code) ? "00000" : $bill_to->branch_code;
+            $ds['branch_name'] = empty($bill_to->branch_name) ? "สำนักงานใหญ่" : $bill_to->branch_name;
+            $ds['address'] = get_null($bill_to->address);
+            $ds['sub_district'] = get_null($bill_to->sub_district);
+            $ds['district'] = get_null($bill_to->district);
+            $ds['province'] = get_null($bill_to->province);
+            $ds['postcode'] = get_null($bill_to->postcode);
+            $ds['phone'] = get_null($bill_to->phone);
+            $ds['email'] = get_null($bill_to->email);
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Missing required parameter : bill_to";
+          }
+        }
+        else
+        {
+          $ds['tax_type'] = NULL;
+          $ds['tax_id'] = NULL;
+          $ds['name'] = NULL;
+          $ds['branch_code'] = NULL;
+          $ds['branch_name'] = NULL;
+          $ds['address'] = NULL;
+          $ds['sub_district'] = NULL;
+          $ds['district'] = NULL;
+          $ds['province'] = NULL;
+          $ds['postcode'] = NULL;
+          $ds['phone'] = NULL;
+          $ds['email'] = NULL;
+        }
+      }
+
+      //---- if any error return
+      if($sc === FALSE)
+      {
+        $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => $data->order_number,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 400);
+      }
+
+
+      $this->db->trans_begin();
+
+      if(empty($order))
+      {
+        if(  ! $this->orders_model->add($ds))
+        {
+          $sc = FALSE;
+          $this->error = "Order create failed";
+        }
+      }
+      else
+      {
+        if( ! $this->orders_model->update($order->code, $ds))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update order";
+        }
+      }
+
+
+      if($sc === TRUE)
+      {
+        $arr = array(
+          'order_code' => $order_code,
+          'state' => 1,
+          'update_user' => $this->user
+        );
+
+        //--- add state event
+        $this->order_state_model->add_state($arr);
+
+        $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
+
+        if($id_address === FALSE)
+        {
+          $arr = array(
+            'code' => $data->customer_ref,
+            'name' => $data->ship_to->name,
+            'address' => $data->ship_to->address,
+            'sub_district' => $data->ship_to->sub_district,
+            'district' => $data->ship_to->district,
+            'province' => $data->ship_to->province,
+            'postcode' => $data->ship_to->postcode,
+            'phone' => $data->ship_to->phone,
+            'email' => $data->ship_to->email,
+            'alias' => empty($data->alias) ? 'Home' : $data->alias,
+            'is_default' => 1
+          );
+
+          $id_address = $this->address_model->add_shipping_address($arr);
+        }
+
+        $this->orders_model->set_address_id($order_code, $id_address);
+
+        //---- add order details
+        $details = $data->details;
+
+        if( ! empty($details))
+        {
+          if( ! empty($order))
+          {
+            if( ! $this->orders_model->remove_all_details($order->code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete previous order items";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            foreach($details as $rs)
+            {
+              if($sc === FALSE)
+              {
+                break;
+              }
+
+              if( ! empty($rs->item))
+              {
+                //--- check item code
+                $item = $rs->item;
+                $disc = $rs->discount > 0 ? $rs->discount/$rs->qty : 0;
+
+                //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
+                $arr = array(
+                  "order_code"	=> $order_code,
+                  "style_code"		=> $item->style_code,
+                  "product_code"	=> $item->code,
+                  "product_name"	=> $item->name,
+                  "cost"  => $item->cost,
+                  "price"	=> $rs->price, //--- price bef disc
+                  "qty"		=> $rs->qty,
+                  "discount1"	=> round($disc, 2),
+                  "discount2" => 0,
+                  "discount3" => 0,
+                  "discount_amount" => $rs->discount, //--- discount per item * qty
+                  "total_amount"	=> round($rs->amount, 2),
+                  "id_rule"	=> NULL,
+                  "is_count" => $item->count_stock,
+                  "is_api" => 1
+                );
+
+                if( ! $this->orders_model->add_detail($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Order item insert failed : {$item->code}";
+                  break;
+                }
+                else
+                {
+                  $total_amount += round($rs->amount, 2);
+
+                  if($this->checkBackorder && $item->count_stock && ! $is_pre_order)
+                  {
+                    $available = $this->get_available_stock($item->code, $warehouse_code);
+
+                    if($available < $rs->qty)
+                    {
+                      $is_backorder = TRUE;
+
+                      $backorderList[] = (object) array(
+                        'order_code' => $order_code,
+                        'product_code' => $item->code,
+                        'order_qty' => $rs->qty,
+                        'available_qty' => $available
+                      );
+                    }
+                  }
+                }
+              } //--- end if item
+            }  //--- endforeach add details
+          }
+
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'doc_total' => $total_amount,
+              'is_backorder' => $is_backorder == TRUE ? 1 : 0
+            );
+
+            $this->orders_model->update($order_code, $arr);
+
+            if($this->checkBackorder && ! empty($backorderList))
+            {
+              foreach($backorderList as $rs)
+              {
+                $backlogs = array(
+                  'order_code' => $rs->order_code,
+                  'product_code' => $rs->product_code,
+                  'order_qty' => $rs->order_qty,
+                  'available_qty' => $rs->available_qty
+                );
+
+                $this->orders_model->add_backlogs_detail($backlogs);
+              }
+            }
+
+            if($this->orders_model->change_state($order_code, 3))
+            {
+              $arr = array(
+                'order_code' => $order_code,
+                'state' => 3,
+                'update_user' => $this->user
+              );
+
+              $this->order_state_model->add_state($arr);
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Items not found";
+        }
+      } //--- if add order
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+
+        $arr = array(
+          'status' => 'success',
+          'message' => 'success',
+          'order_code' => $order_code
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $this->api_path,
+            'type' =>'ORDER',
+            'code' => $data->order_number,
+            'action' => 'create',
+            'status' => 'success',
+            'message' => 'success',
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 200);
+      }
+      else
+      {
+        $this->db->trans_rollback();
+
+        $arr = array(
+          'status' => FALSE,
+          'error' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'api_path' => $this->api_path,
+            'type' =>'ORDER',
+            'code' => $data->order_number,
+            'action' => 'create',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 200);
+      }
+    }
+  } //--- create_post
+
+
   public function cancel_put()
   {
     $sc = TRUE;
@@ -498,538 +1181,6 @@ class Orders extends REST_Controller
   } //--- end cancel
 
 
-  public function create_post()
-  {
-    $this->api_path = $this->api_path."/create";
-    //--- Get raw post data
-    $json = file_get_contents("php://input");
-
-    if( ! $this->api)
-    {
-      $arr = array(
-        'status' => FALSE,
-        'error' => 'API Not Enabled'
-      );
-
-      if($this->logs_json)
-      {
-        $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' =>'ORDER',
-          'code' => NULL,
-          'action' => 'create',
-          'status' => 'failed',
-          'message' => 'API Not Enabled',
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
-        );
-
-        $this->ix_api_logs_model->add_logs($logs);
-      }
-
-      $this->response($arr, 400);
-    }
-
-    $data = json_decode($json);
-
-    if(empty($data))
-    {
-      if($this->logs_json)
-      {
-        $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' =>'ORDER',
-          'code' => NULL,
-          'action' => 'create',
-          'status' => 'failed',
-          'message' => 'empty data',
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
-        );
-
-        $this->ix_api_logs_model->add_logs($logs);
-      }
-
-      $arr = array(
-      'status' => FALSE,
-      'error' => 'empty data'
-      );
-
-      $this->response($arr, 400);
-    }
-
-    if(! property_exists($data, 'order_number') OR $data->order_number == '')
-    {
-      $this->error = 'order_number is required';
-
-      $arr = array(
-      'status' => FALSE,
-      'error' => $this->error
-      );
-
-      if($this->logs_json)
-      {
-        $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' =>'ORDER',
-        'code' => NULL,
-        'action' => 'create',
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
-        );
-
-        $this->ix_api_logs_model->add_logs($logs);
-      }
-
-      $this->response($arr, 400);
-    }
-
-    $sc = $this->verify_data($data);
-
-    //---- if any error return
-    if($sc === FALSE)
-    {
-      $arr = array(
-      'status' => FALSE,
-      'error' => $this->error
-      );
-
-      if($this->logs_json)
-      {
-        $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' =>'ORDER',
-        'code' => $data->order_number,
-        'action' => 'create',
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
-        );
-
-        $this->ix_api_logs_model->add_logs($logs);
-      }
-
-      $this->response($arr, 400);
-    }
-
-    //--- check each item code
-    $details = $data->details;
-
-    if(empty($details))
-    {
-      $sc = FALSE;
-      $this->error = "Items not found";
-
-      $arr = array(
-        'status' => FALSE,
-        'error' => $this->error
-      );
-
-      if($this->logs_json)
-      {
-        $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' =>'ORDER',
-          'code' => $data->order_number,
-          'action' => 'create',
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
-        );
-
-        $this->ix_api_logs_model->add_logs($logs);
-      }
-
-      $this->response($arr, 400);
-    }
-
-
-    if( ! empty($details))
-    {
-      foreach($details as $rs)
-      {
-        //---- check valid items
-        $item = $this->products_model->get($rs->item);
-        $item = empty($item) ? $this->products_model->get_by_old_code($rs->item) : $item;
-
-        if(empty($item))
-        {
-          $sc = FALSE;
-          $this->error = "Invalid SKU : {$rs->item}";
-        }
-        else
-        {
-          $rs->item = $item;
-        }
-      }
-    }
-
-
-    //---- if any error return
-    if($sc === FALSE)
-    {
-      $arr = array(
-      'status' => FALSE,
-      'error' => $this->error
-      );
-
-      if($this->logs_json)
-      {
-        $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' =>'ORDER',
-        'code' => $data->order_number,
-        'action' => 'create',
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
-        );
-
-        $this->ix_api_logs_model->add_logs($logs);
-      }
-
-      $this->response($arr, 400);
-    }
-
-    //---- new code start
-    if($sc === TRUE)
-    {
-      //---- check duplicate order number
-      $order = $this->orders_model->get_active_order_by_reference($data->order_number);
-
-      //--- รหัสเล่มเอกสาร [อ้างอิงจาก SAP]
-      //--- ถ้าเป็นฝากขายแบบโอนคลัง ยืมสินค้า เบิกแปรสภาพ เบิกสินค้า (ไม่เปิดใบกำกับ เปิดใบโอนคลังแทน) นอกนั้น เปิด SO
-      $bookcode = getConfig('BOOK_CODE_ORDER');
-
-      $role = 'S';
-
-      $date_add = date('Y-m-d H:i:s');
-
-      $ref_code = $data->order_number;
-
-      $customer = $this->customers_model->get($data->customer_code);
-
-      $sale_code = empty($customer) ? -1 : $customer->sale_code;
-
-      $state = 3;
-
-      $warehouse_code = getConfig('IX_WAREHOUSE');
-
-      $is_wms = 0;
-
-      //---- id_sender
-      $sender = $this->sender_model->get_id($data->shipping);
-
-      $id_sender = empty($sender) ? NULL : $sender;
-
-      //--- order code gen จากระบบ
-      $order_code = empty($order) ? $this->get_new_code($date_add) : $order->code;
-
-      $tracking = $data->tracking_no;
-
-      $total_amount = 0;
-      $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
-      $is_backorder = FALSE;
-      $backorderList = [];
-
-      if(empty($order))
-      {
-        //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
-        $ds = array(
-          'code' => $order_code,
-          'role' => $role,
-          'bookcode' => $bookcode,
-          'reference' => $data->order_number,
-          'customer_code' => $data->customer_code,
-          'customer_name' => $data->customer_name,
-          'customer_ref' => $data->customer_ref,
-          'channels_code' => $data->channel,
-          'payment_code' => $data->payment_method,
-          'sale_code' => $sale_code,
-          'state' => 3,
-          'is_term' => $data->payment_method === "COD" ? 1 : 0,
-          'status' => 1,
-          'shipping_code' => $tracking,
-          'user' => $this->user,
-          'date_add' => $date_add,
-          'warehouse_code' => $warehouse_code,
-          'is_api' => 1,
-          'is_pre_order' => $is_pre_order ? 1 : 0,
-          'id_sender' => $id_sender,
-          'is_wms' => $is_wms,
-          'wms_export' => 0
-        );
-      }
-      else
-      {
-        //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
-        $ds = array(
-          'customer_code' => $data->customer_code,
-          'customer_name' => $data->customer_name,
-          'customer_ref' => $data->customer_ref,
-          'channels_code' => $data->channel,
-          'payment_code' => $data->payment_method,
-          'sale_code' => $sale_code,
-          'state' => 3,
-          'is_term' => $data->payment_method === "COD" ? 1 : 0,
-          'shipping_code' => $tracking,
-          'user' => $this->user,
-          'date_add' => $date_add,
-          'warehouse_code' => $warehouse_code,
-          'is_api' => 1,
-          'is_pre_order' => $is_pre_order ? 1 : 0,
-          'id_sender' => $id_sender,
-          'is_wms' => $is_wms,
-          'wms_export' => 0
-        );
-      }
-
-      $this->db->trans_begin();
-
-      if(empty($order))
-      {
-        if(  ! $this->orders_model->add($ds))
-        {
-          $sc = FALSE;
-          $this->error = "Order create failed";
-        }
-      }
-      else
-      {
-        if( ! $this->orders_model->update($order->code, $ds))
-        {
-          $sc = FALSE;
-          $this->error = "Failed to update order";
-        }
-      }
-
-
-      if($sc === TRUE)
-      {
-        $arr = array(
-          'order_code' => $order_code,
-          'state' => 1,
-          'update_user' => $this->user
-        );
-
-        //--- add state event
-        $this->order_state_model->add_state($arr);
-
-        $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
-
-        if($id_address === FALSE)
-        {
-          $arr = array(
-            'code' => $data->customer_ref,
-            'name' => $data->ship_to->name,
-            'address' => $data->ship_to->address,
-            'sub_district' => $data->ship_to->sub_district,
-            'district' => $data->ship_to->district,
-            'province' => $data->ship_to->province,
-            'postcode' => $data->ship_to->postcode,
-            'phone' => $data->ship_to->phone,
-            'email' => $data->ship_to->email,
-            'alias' => empty($data->alias) ? 'Home' : $data->alias,
-            'is_default' => 1
-          );
-
-          $id_address = $this->address_model->add_shipping_address($arr);
-        }
-
-        $this->orders_model->set_address_id($order_code, $id_address);
-
-        //---- add order details
-        $details = $data->details;
-
-        if( ! empty($details))
-        {
-          if( ! empty($order))
-          {
-            if( ! $this->orders_model->remove_all_details($order->code))
-            {
-              $sc = FALSE;
-              $this->error = "Failed to delete previous order items";
-            }
-          }
-
-          if($sc === TRUE)
-          {
-            foreach($details as $rs)
-            {
-              if($sc === FALSE)
-              {
-                break;
-              }
-
-              if( ! empty($rs->item))
-              {
-                //--- check item code
-                $item = $rs->item;
-                $disc = $rs->discount > 0 ? $rs->discount/$rs->qty : 0;
-
-                //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
-                $arr = array(
-                  "order_code"	=> $order_code,
-                  "style_code"		=> $item->style_code,
-                  "product_code"	=> $item->code,
-                  "product_name"	=> $item->name,
-                  "cost"  => $item->cost,
-                  "price"	=> $rs->price, //--- price bef disc
-                  "qty"		=> $rs->qty,
-                  "discount1"	=> round($disc, 2),
-                  "discount2" => 0,
-                  "discount3" => 0,
-                  "discount_amount" => $rs->discount, //--- discount per item * qty
-                  "total_amount"	=> round($rs->amount, 2),
-                  "id_rule"	=> NULL,
-                  "is_count" => $item->count_stock,
-                  "is_api" => 1
-                );
-
-                if( ! $this->orders_model->add_detail($arr))
-                {
-                  $sc = FALSE;
-                  $this->error = "Order item insert failed : {$item->code}";
-                  break;
-                }
-                else
-                {
-                  $total_amount += round($rs->amount, 2);
-
-                  if($this->checkBackorder && $item->count_stock && ! $is_pre_order)
-                  {
-                    $available = $this->get_available_stock($item->code, $warehouse_code);
-
-                    if($available < $rs->qty)
-                    {
-                      $is_backorder = TRUE;
-
-                      $backorderList[] = (object) array(
-                        'order_code' => $order_code,
-                        'product_code' => $item->code,
-                        'order_qty' => $rs->qty,
-                        'available_qty' => $available
-                      );
-                    }
-                  }
-                }
-              } //--- end if item
-            }  //--- endforeach add details
-          }
-
-          if($sc === TRUE)
-          {
-            $arr = array(
-              'doc_total' => $total_amount,
-              'is_backorder' => $is_backorder == TRUE ? 1 : 0
-            );
-
-            $this->orders_model->update($order_code, $arr);
-
-            if($this->checkBackorder && ! empty($backorderList))
-            {
-              foreach($backorderList as $rs)
-              {
-                $backlogs = array(
-                  'order_code' => $rs->order_code,
-                  'product_code' => $rs->product_code,
-                  'order_qty' => $rs->order_qty,
-                  'available_qty' => $rs->available_qty
-                );
-
-                $this->orders_model->add_backlogs_detail($backlogs);
-              }
-            }
-
-            if($this->orders_model->change_state($order_code, 3))
-            {
-              $arr = array(
-                'order_code' => $order_code,
-                'state' => 3,
-                'update_user' => $this->user
-              );
-
-              $this->order_state_model->add_state($arr);
-            }
-          }
-        }
-        else
-        {
-          $sc = FALSE;
-          $this->error = "Items not found";
-        }
-      } //--- if add order
-
-      if($sc === TRUE)
-      {
-        $this->db->trans_commit();
-
-        $arr = array(
-          'status' => 'success',
-          'message' => 'success',
-          'order_code' => $order_code
-        );
-
-        if($this->logs_json)
-        {
-          $logs = array(
-            'trans_id' => genUid(),
-            'api_path' => $this->api_path,
-            'type' =>'ORDER',
-            'code' => $data->order_number,
-            'action' => 'create',
-            'status' => 'success',
-            'message' => 'success',
-            'request_json' => $json,
-            'response_json' => json_encode($arr)
-          );
-
-          $this->ix_api_logs_model->add_logs($logs);
-        }
-
-        $this->response($arr, 200);
-      }
-      else
-      {
-        $this->db->trans_rollback();
-
-        $arr = array(
-          'status' => FALSE,
-          'error' => $this->error
-        );
-
-        if($this->logs_json)
-        {
-          $logs = array(
-            'trans_id' => genUid(),
-            'api_path' => $this->api_path,
-            'type' =>'ORDER',
-            'code' => $data->order_number,
-            'action' => 'create',
-            'status' => 'failed',
-            'message' => $this->error,
-            'request_json' => $json,
-            'response_json' => json_encode($arr)
-          );
-
-          $this->ix_api_logs_model->add_logs($logs);
-        }
-
-        $this->response($arr, 200);
-      }
-    }
-  } //--- create_post
 
 
   public function get_new_code($date, $prefix = 'WO', $run_digit = 5)
@@ -1062,20 +1213,24 @@ class Orders extends REST_Controller
 	{
     $paymentList = [
       'COD' => 'COD',
-      'CARD' => 'CARD'
+      'CARD' => 'CARD',
+      '2C2P' => '2C2P'
     ];
 
     $channelsList = [
       'LAZADA' => 'LAZADA',
       'SHOPEE' => 'Shopee',
-      '0009' => 'TIKTOK'
+      '0009' => 'TIKTOK',
+      'WRX12' => 'WRX12'
     ];
 
     $custList = [
       'CLON04-0001' => 'บริษัท ช้อปปี้ (ประเทศไทย) จำกัด สำนักงานใหญ่',
       'CLON01-0001' => 'บริษัท ลาซาด้า จำกัด (สำนักงานใหญ่)',
       'CLON13-0001' => 'TIK TOK PTE. LTD.',
-      'CLON16-0001' => 'TIKTok Shop (Thailand) Ltd.'
+      'CLON16-0001' => 'TIKTok Shop (Thailand) Ltd.',
+      'CLON03-0001' => 'COD ลูกค้า เว็บไซต์',
+      'CLON03-0002' => '2C2P ลูกค้า เว็บไซต์'
     ];
 
     if(! property_exists($data, 'customer_code') OR $data->customer_code == '')

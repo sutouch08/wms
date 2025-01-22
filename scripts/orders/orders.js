@@ -136,3 +136,8 @@ function test_cancle(code)
     }
   });
 }
+
+
+function getTemplate(){
+  window.location.href = BASE_URL + 'orders/orders/get_template_file';
+}

@@ -118,6 +118,17 @@ function getTempTable(){
 				var data		= $.parseJSON(rs);
 				var output	= $("#temp-list");
 				render(source, data, output);
+
+				setTimeout(() => {
+					let zone = $('#to_zone_code').val().trim();
+
+					if(zone.length) {
+						$('#barcode-item-to').focus();
+					}
+					else {
+						$("#toZone-barcode").focus();
+					}
+				}, 200);
 			}
 		}
 	});
@@ -178,8 +189,6 @@ function addToMove(){
     });
 
 		ds.push({"name" : "items", "value" : JSON.stringify(items)});
-		console.log(ds);
-		//return false;
 
 	if( count > 0 ){
 		load_in();
@@ -202,11 +211,11 @@ function addToMove(){
 
 						setTimeout( function(){
 							showMoveTable();
+							getProductInZone();
 						}, 1200);
-
-					}else{
-
-						swal("ข้อผิดพลาด", rs, "error");
+					}
+					else{
+						showError(rs);
 					}
 				}
 			});

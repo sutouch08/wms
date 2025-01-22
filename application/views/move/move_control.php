@@ -15,11 +15,16 @@
   <hr id="barcode-hr" class="margin-top-15 margin-bottom-15 hide" />
 
   <div class="row">
-  	<div class="col-sm-12 moveOut-zone hide">
+  	<div class="col-lg-12 col-md-12 col-sm-12 moveOut-zone hide">
       <div class="row">
-        <div class="col-sm-3 padding-5 first">
+        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
           <label>โซนต้นทาง</label>
-          <input type="text" class="form-control input-sm" id="fromZone-barcode" placeholder="ยิงบาร์โค้ดโซน" />
+          <input type="text" class="width-100" id="fromZone-barcode" placeholder="ยิงบาร์โค้ดโซน" />
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+          <label class="display-block not-shohw">โซนต้นทาง</label>
+          <input type="text" class="width-100" id="fromZone-name" disabled />
         </div>
 
         <div class="col-sm-1 padding-5">

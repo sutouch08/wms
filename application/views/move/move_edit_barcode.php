@@ -11,19 +11,14 @@
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		    <?php if($doc->status == 1) : ?>
 		      <button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-
 		    <?php endif; ?>
 		    <?php if($doc->status == 1 && $this->pm->can_add OR $this->pm->can_edit) : ?>
-
-		      <?php if($doc->status == 0 && $barcode === TRUE) : ?>
+		      <?php if($doc->status == 0) : ?>
 		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseKeyboard()">คีย์มือ</button>
 		      <?php endif; ?>
 
-		      <?php if($doc->status == 0 && $barcode === FALSE) : ?>
-		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseBarcode()">ใช้บาร์โค้ด</button>
-		      <?php endif; ?>
 					<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
-		      <button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
+		          <button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
 					<?php endif; ?>
 		    <?php endif; ?>
       </p>
@@ -32,19 +27,9 @@
 <hr/>
 <?php
 	$this->load->view('move/move_edit_header');
-	// if($doc->status == 0)
-	// {
-	// 	$this->load->view('move/move_control');
-	// }
 
-	if($barcode === TRUE)
-	{
-		$this->load->view('move/move_detail_barcode');
-	}
-	else
-	{
-		$this->load->view('move/move_detail');
-	}
+  $this->load->view('move/move_detail_barcode');
+  
 ?>
 
 	<script id="moveTableTemplate" type="text/x-handlebars-template">

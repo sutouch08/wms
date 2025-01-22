@@ -491,6 +491,11 @@ class Move_model extends CI_Model
   }
 
 
+  public function drop_temp($id)
+  {
+    return $this->db->where('id', $id)->delete('move_temp');
+  }
+
 
   public function drop_all_detail($code)
   {

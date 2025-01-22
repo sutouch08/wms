@@ -4819,6 +4819,30 @@ class Orders extends PS_Controller
   }
 
 
+  public function get_template_file()
+  {
+    $path = $this->config->item('upload_path').'orders/';
+    $file_name = $path."import_order_template.xlsx";
+
+    if(file_exists($file_name))
+    {
+      header('Content-Description: File Transfer');
+      header('Content-Type:Application/octet-stream');
+      header('Cache-Control: no-cache, must-revalidate');
+      header('Expires: 0');
+      header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
+      header('Content-Length: '.filesize($file_name));
+      header('Pragma: public');
+
+      flush();
+      readfile($file_name);
+      die();
+    }
+    else
+    {
+      echo "File Not Found";
+    }
+  }
 
 }
 ?>
