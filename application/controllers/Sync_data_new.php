@@ -18,6 +18,10 @@ class Sync_data_new extends CI_Controller
 		$this->cn = $this->load->database('cn', TRUE);
     $this->load->model('sync_data_model');
     $this->date = date('Y-d-m H:i:s');
+
+    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
+    ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
   }
 
 
@@ -140,9 +144,6 @@ class Sync_data_new extends CI_Controller
 
   public function syncZone()
   {
-    ini_set('max_execution_time', 1200);
-    ini_set('memory_limit','1000M');
-    
     $this->load->model('masters/zone_model');
     $last_sync = from_date($this->zone_model->get_last_sync_date());
     $newData = $this->zone_model->get_new_data($last_sync);
