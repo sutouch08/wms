@@ -140,6 +140,9 @@ class Sync_data_new extends CI_Controller
 
   public function syncZone()
   {
+    ini_set('max_execution_time', 1200);
+    ini_set('memory_limit','1000M');
+    
     $this->load->model('masters/zone_model');
     $last_sync = from_date($this->zone_model->get_last_sync_date());
     $newData = $this->zone_model->get_new_data($last_sync);
