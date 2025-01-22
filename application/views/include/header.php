@@ -96,6 +96,12 @@
 							</a>
 
 							<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+								<li>
+									<a href="JavaScript:window.location.reload(true)">
+										<i class="ace-icon fa fa-bolt"></i>
+										Clear cache
+									</a>
+								</li>
 								<?php if(!$this->isViewer) : ?>
 								<li>
 									<a href="JavaScript:void(0)" onclick="changeUserPwd('<?php echo get_cookie('uname'); ?>')">
