@@ -215,8 +215,8 @@
 					<button type="button" class="btn btn-sm <?php echo $btn_import_sm_yes; ?>" style="width:50%;" id="btn-import-sm-yes" onClick="toggleImportSM(1)">เปิด</button>
 					<button type="button" class="btn btn-sm <?php echo $btn_import_sm_no; ?>" style="width:50%;" id="btn-import-sm-no" onClick="toggleImportSM(0)">ปิด</button>
 				</div>
-				<span class="help-block">กรณีปิดจะไม่สามารถ Import WC ด้วยไฟล์ Excel ได้</span>
-				<input type="hidden" name="ALLOW_IMPORT_TRANSFER" id="allow-import-sm" value="<?php echo $ALLOW_IMPORT_TRANSFER; ?>" />
+				<span class="help-block">กรณีปิดจะไม่สามารถ Import SM ด้วยไฟล์ Excel ได้</span>
+				<input type="hidden" name="ALLOW_IMPORT_RETURN" id="allow-import-sm" value="<?php echo $ALLOW_IMPORT_RETURN; ?>" />
 			</div>
 			<div class="divider-hidden"></div>
 
