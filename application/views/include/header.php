@@ -29,7 +29,7 @@
     <script src="<?php echo base_url(); ?>assets/js/handlebars-v3.js"></script>
 		<script src="<?php echo base_url(); ?>assets/js/select2.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
-	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">    
+	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
 	</head>
 	<body class="no-skin" onload="checkError()">
 		<!--
