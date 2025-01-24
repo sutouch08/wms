@@ -40,7 +40,7 @@
 
   .incomplete-box {
     margin-top:78px;
-    margin-bottom: 10px;
+    margin-bottom: 120px;
   }
 
   .complete-item {
@@ -58,17 +58,23 @@
     width: 100vw;
     height: 100vh;
     overflow: auto;
-    padding-bottom: 80px;
+    padding-bottom: 150px;
     background-color: white;
     z-index: 8
   }
 
+  .complete-item:nth-child(2) {
+    margin-top:50px !important;
+  }
+
   .nav-title {
-    position: relative;
+    position: fixed;
     height: 45px;
     padding:10px 5px;
     border-bottom: solid 1px #ccc;
     background-color: white;
+    width: 100%;
+    z-index: 10
   }
 
   #close-bar {

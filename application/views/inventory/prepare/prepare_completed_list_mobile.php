@@ -6,7 +6,7 @@
   <?php  if( ! empty($complete_details)) : ?>
     <?php $no = 1; ?>
     <?php   foreach($complete_details as $rs) : ?>
-      <div class="col-xs-12 complete-item" id="complete-<?php echo $rs->id; ?>" data-id="<?php echo $rs->id; ?>">
+      <div class="col-xs-12 complete-item c-<?php echo $no; ?>" id="complete-<?php echo $rs->id; ?>" data-id="<?php echo $rs->id; ?>">
         <div class="width-100" style="padding: 3px 3px 3px 10px;">
           <div class="margin-bottom-3 pre-wrap"><?php echo $rs->barcode; ?></div>
           <div class="margin-bottom-3 pre-wrap"><?php echo $rs->product_code; ?></div>

@@ -302,6 +302,8 @@ function getZone(bZone, whsCode) {
           }
           else {
             beep();
+            $('#barcode-zone').val('');
+
             swal({
               title:'Error!',
               text:ds.message,
@@ -312,11 +314,13 @@ function getZone(bZone, whsCode) {
         }
         else {
           beep();
+          $('#barcode-zone').val('');
           showError(rs);
         }
       },
       error:function(rs) {
         beep();
+        $('#barcode-zone').val('');
         showError(rs);
       }
     })
@@ -357,7 +361,7 @@ function confirmClose(){
 
 function changeZone(){
   closeExtraMenu();
-  
+
   $('#force-row').removeClass('item-bc');
   $("#zone_code").val('');
   $('#zone-name').text('กรุณาระบุโซน');
@@ -503,3 +507,21 @@ function hideKeyboard(input) {
 
   setCookie('showKeyboard', 0, 60);
 }
+
+
+var intv = setInterval(function() {
+  var order_code = $('#order_code').val();
+  $.ajax({
+    url: BASE_URL + 'inventory/prepare/check_state',
+    type:'GET',
+    cache:'false',
+    data:{
+      'order_code':order_code
+    },
+    success:function(rs){
+      if(rs.trim() != 4){
+        window.location.reload();
+      }
+    }
+  })
+}, 10000);

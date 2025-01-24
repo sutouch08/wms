@@ -278,7 +278,7 @@ class Return_order extends PS_Controller
                         'zone_code' => $zone->code,
                         'must_accept' => empty($zone->user_id) ? 0 : 1,
                         'is_wms' => $is_wms,
-                        'api' => ($api == 'N' OR $api == 0) ? 0 : 1,
+                        'api' => (empty($api) OR $api == 'N') ? 0 : 1,
                         'remark' => $remark,
                         'details' => array((object)array(
                           'invoice_code' => $invoice->code,
