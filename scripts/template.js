@@ -422,7 +422,16 @@ function clearErrorByClass(className) {
   })
 }
 
+function addMetaTag(name,content){
+  let meta = document.createElement('meta');
+  meta.httpEquiv = name;
+  meta.content = content;
+  document.getElementsByTagName('head')[0].appendChild(meta);
+}
 
 function clearCache() {
+  addMetaTag("pragma","no-cache")
+  addMetaTag("expires","0")
+  addMetaTag("cache-control","no-cache")
   window.location.reload(true);
 }

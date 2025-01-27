@@ -557,6 +557,27 @@ class Qc extends PS_Controller
   }
 
 
+  public function add_new_box()
+  {
+    $box_id = FALSE;
+    $box_no = 0;
+    $order_code = $this->input->post('order_code');
+    $code = $this->get_new_code();
+    $box_no = $this->qc_model->get_last_box_no($order_code) + 1;
+    $box_id = $this->qc_model->add_new_box($order_code, $code, $box_no);
+
+    $arr = array(
+      'status' => $box_id === FALSE ? 'failed' : 'success',
+      'message' => $box_id === FALSE ? "เพิ่มกล่องไม่สำเร็จ" : 'success',
+      'box_code' => $code,
+      'box_id' => $box_id,
+      'box_no' => $box_no
+    );
+
+    echo json_encode($arr);
+  }
+
+
   public function get_box_list()
   {
     $ds = array();
@@ -573,6 +594,7 @@ class Qc extends PS_Controller
           'code' => $box->code,
           'id_box' => $box->id,
           'qty' => number($box->qty),
+          'checked' => $box->id == $id ? 'checked' : '',
           'class' => $box->id == $id ? 'btn-success' : 'btn-default'
         );
 
@@ -620,50 +642,203 @@ class Qc extends PS_Controller
   }
 
 
-  public function remove_check_qty()
+  public function update_check_qty()
   {
     $sc = TRUE;
-    $id = $this->input->post('id'); //--- id qc
-    $qty = $this->input->post('qty'); //--- remove qty
 
-    $qc = $this->qc_model->get($id);
+    $ds = json_decode($this->input->post('data'));
 
-    if(!empty($qc))
+    if( ! empty($ds))
     {
-      if($qty == $qc->qty)
+      $this->db->trans_begin();
+
+      foreach($ds as $rs)
       {
-        if(! $this->qc_model->delete_qc($id))
+        if($sc === FALSE)
         {
-          $sc = FALSE;
-          $this->error = "ลบรายการไม่สำเร็จ";
+          break;
+        }
+
+        $qc = $this->qc_model->get($rs->id);
+
+        if( ! empty($qc))
+        {
+          if($rs->remove_qty == $qc->qty)
+          {
+            if( ! $this->qc_model->delete_qc($rs->id))
+            {
+              $sc = FALSE;
+              $this->error = "ลบรายการตรวจนับไม่สำเร็จ";
+            }
+          }
+          else
+          {
+            if( ! $this->qc_model->update_qty($rs->id, (-1) * $rs->remove_qty))
+            {
+              $sc = FALSE;
+              $this->error = "ปรับปรุงยอดตรวจนับไม่สำเร็จ";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->orders_model->unvalid_qc($qc->order_detail_id);
+          }
         }
         else
         {
-
-        }
-      }
-      else
-      {
-        if(! $this->qc_model->update_qty($id, (-1) * $qty))
-        {
           $sc = FALSE;
-          $this->error = "ปรับปรุงยอดตรวจนับไม่สำเร็จ";
+          $this->error = "ไม่พบรายการตรวจนับ : {$rs->product_code}";
         }
       }
 
       if($sc === TRUE)
       {
-        $this->orders_model->unvalid_detail($qc->order_detail_id);
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = "ไม่พบรายการตรวจนับ";
+      set_error('required');
     }
 
-    echo $sc === TRUE ? 'success' : $this->error;
+    $this->_response($sc);
   }
+
+
+  public function remove_checked_box()
+  {
+    $sc = TRUE;
+    $id = $this->input->post('box_id');
+    $order_code = $this->input->post('order_code');
+
+    if( ! empty($id) && ! empty($order_code))
+    {
+      $order = $this->orders_model->get($order_code);
+
+      if( ! empty($order))
+      {
+        if($order->state == 6)
+        {
+          $this->db->trans_begin();
+
+          $details = $this->qc_model->get_details_in_box($order_code, $id);
+
+          if( ! empty($details))
+          {
+            foreach($details as $rs)
+            {
+              if($sc === FALSE)
+              {
+                break;
+              }
+
+              if( ! $this->qc_model->delete_qc($rs->id))
+              {
+                $sc = FALSE;
+                $this->error = "ลบรายการตรวจนับไม่สำเร็จ";
+              }
+
+              if($sc === TRUE)
+              {
+                $this->orders_model->unvalid_qc($rs->order_detail_id);
+              }
+            }
+          } //--- end foreach
+
+          if($sc === TRUE)
+          {
+            if( ! $this->qc_model->delete_box($id))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to delete box";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid order status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid order number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+  }
+
+  // public function remove_check_qty()
+  // {
+  //   $sc = TRUE;
+  //   $id = $this->input->post('id'); //--- id qc
+  //   $qty = $this->input->post('qty'); //--- remove qty
+  //
+  //   $qc = $this->qc_model->get($id);
+  //
+  //   if(!empty($qc))
+  //   {
+  //     if($qty == $qc->qty)
+  //     {
+  //       if(! $this->qc_model->delete_qc($id))
+  //       {
+  //         $sc = FALSE;
+  //         $this->error = "ลบรายการไม่สำเร็จ";
+  //       }
+  //       else
+  //       {
+  //
+  //       }
+  //     }
+  //     else
+  //     {
+  //       if(! $this->qc_model->update_qty($id, (-1) * $qty))
+  //       {
+  //         $sc = FALSE;
+  //         $this->error = "ปรับปรุงยอดตรวจนับไม่สำเร็จ";
+  //       }
+  //     }
+  //
+  //     if($sc === TRUE)
+  //     {
+  //       $this->orders_model->unvalid_detail($qc->order_detail_id);
+  //     }
+  //   }
+  //   else
+  //   {
+  //     $sc = FALSE;
+  //     $this->error = "ไม่พบรายการตรวจนับ";
+  //   }
+  //
+  //   echo $sc === TRUE ? 'success' : $this->error;
+  // }
 
 
   public function print_box($code, $box_id)
@@ -701,6 +876,67 @@ class Qc extends PS_Controller
 
     echo json_encode($ds);
   }
+
+
+  public function get_checked_box_details()
+  {
+    $sc = TRUE;
+    $order_code = $this->input->get('order_code');
+    $id_box = $this->input->get('id_box');
+
+    if( ! empty($order_code) && ! empty($id_box))
+    {
+      $items = $this->qc_model->get_details_in_box($order_code, $id_box);
+
+      if( ! empty($items))
+      {
+        $no = 1;
+        foreach($items as $item)
+        {
+          $item->no = $no;
+          $no++;
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $sc === TRUE ? $items : NULL
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function get_new_code($date = NULL)
+  {
+    $date = empty($date) ? date('Y-m-d') : $date;
+    $Y = date('y', strtotime($date));
+    $M = date('m', strtotime($date));
+    $prefix = 'BN';
+    $run_digit = 5;
+    $pre = $prefix.$Y.$M;
+    $code = $this->qc_model->get_max_code($pre);
+
+    if(! is_null($code))
+    {
+      $run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;
+      $new_code = $prefix . $Y . $M . sprintf('%0'.$run_digit.'d', $run_no);
+    }
+    else
+    {
+      $new_code = $prefix . $Y . $M . sprintf('%0'.$run_digit.'d', '001');
+    }
+
+    return $new_code;
+  }
+
 
   public function clear_filter()
   {

@@ -84,47 +84,95 @@
     </div>
   </div>
 
-<script id="edit-template" type="text/x-handlebarsTemplate">
-  <div class="row">
-    <div class="col-sm-12">
-      <table class="table table-striped">
-        <thead>
+  <script id="edit-template" type="text/x-handlebarsTemplate">
+    <div class="row">
+      <div class="col-sm-12">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th class="width-20">รหัส</th>
+              <th class="width-40">กล่อง</th>
+              <th class="width-15 text-center">ในกล่อง</th>
+              <th class="width-15 text-center">เอาออก</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+        {{#each this}}
           <tr>
-            <th class="width-20">รหัส</th>
-            <th class="width-40">กล่อง</th>
-            <th class="width-15 text-center">ในกล่อง</th>
-            <th class="width-15 text-center">เอาออก</th>
-            <th></th>
+            <td>{{barcode}}</td>
+            <td>กล่องที่ {{box_no}}</td>
+            <td class="text-center"><span id="label-{{id_qc}}">{{qty}}</span></td>
+            <td class="text-center">
+              <input type="number" class="form-control input-sm text-center" id="input-{{id_qc}}" />
+            </td>
+            <td class="text-right">
+            <?php if($this->pm->can_delete) : ?>
+              <button type="button" class="btn btn-sm btn-danger" onclick="updateQty({{id_qc}})">Update</button>
+            <?php endif; ?>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-      {{#each this}}
-        <tr>
-          <td>{{barcode}}</td>
-          <td>กล่องที่ {{box_no}}</td>
-          <td class="text-center"><span id="label-{{id_qc}}">{{qty}}</span></td>
-          <td class="text-center">
-            <input type="number" class="form-control input-sm text-center" id="input-{{id_qc}}" />
-          </td>
-          <td class="text-right">
-          <?php if($this->pm->can_delete) : ?>
-            <button type="button" class="btn btn-sm btn-danger" onclick="updateQty({{id_qc}})">Update</button>
-          <?php endif; ?>
-          </td>
-        </tr>
-      {{/each}}
-        </tbody>
-      </table>
+        {{/each}}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
+    </script>
+
+    <div class="modal fade" id="edit-box-modal" tabindex="-1" role="dialog" aria-labelledby="optionModal" aria-hidden="true">
+      <div class="modal-dialog" style="width:600px; max-width:95vw;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="edit-box-title"></h4>
+          </div>
+          <div class="modal-body" id="edit-box-table">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger btn-xs btn-100" onclick="updateEditQty()"> Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <script id="edit-box-template" type="text/x-handlebarsTemplate">
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th class="fix-width-50 text-center">#</th>
+              <th class="min-width-200">รหัสสินค้า</th>
+              <th class="fix-width-100 text-center">จำนวน</th>
+              <th class="fix-width-100 text-center">เอาออก</th>
+            </tr>
+          </thead>
+          <tbody>
+        {{#each this}}
+          <tr id="edit-row-{{id}}">
+            <td class="middle text-center">{{no}}</td>
+            <td class="middle">{{product_code}}</td>
+            <td class="middle text-center"><span id="label-{{id}}">{{qty}}</span></td>
+            <td class="middle text-center">
+              <input type="number" class="width-100 text-center edit-input-qty e" data-item="{{product_code}}" data-qty="{{qty}}" data-id="{{id}}" id="edit-input-{{id}}" onkeyup="checkEditQty({{id}})"/>
+            </td>
+          </tr>
+        {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </script>
+
+
 
 <?php
 if(!empty($barcode_list))
 {
   foreach($barcode_list as $bc)
   {
-    echo '<input type="hidden" class="'.$bc->barcode.'" data-code="'.$bc->product_code.'" value="1" />';
+    echo '<input type="hidden" id="bc-'.$bc->barcode.'" data-code="'.$bc->product_code.'" value="1" />';
   }
 }
  ?>
@@ -132,6 +180,6 @@ if(!empty($barcode_list))
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_process.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_control.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 <?php $this->load->view('include/footer'); ?>

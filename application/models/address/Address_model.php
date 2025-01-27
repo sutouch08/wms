@@ -5,10 +5,11 @@ class Address_model extends CI_Model
   {
     parent::__construct();
   }
-      
+
   public function get_shipping_detail($id)
   {
     $rs = $this->db->where('id', $id)->get('address_ship_to');
+    
     if($rs->num_rows() === 1)
     {
       return $rs->row();

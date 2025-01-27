@@ -101,6 +101,7 @@ class Import_order extends CI_Controller
           {
             $shipping_item_code = getConfig('SHIPPING_ITEM_CODE');
             $shipping_item = ! empty($shipping_item_code) ? $this->products_model->get($shipping_item_code) : NULL;
+            $ix_backorder = is_true(getConfig('IX_BACK_ORDER'));
 
             foreach($ds as $order)
             {
@@ -112,6 +113,9 @@ class Import_order extends CI_Controller
               //---- ถ้ายังไม่มีให้สร้างใหม่
               //---- ถ้ามีแล้วและยังไม่ได้ยกเลิก ไม่สามารถเพิ่มใหม่ได้
               $order_code = $this->orders_model->get_active_order_code_by_reference($order->reference);
+              $is_backorder = 0;
+              $backorderList = [];
+              $total_amount = 0;
 
               if( empty($order_code) )
               {
@@ -191,10 +195,33 @@ class Import_order extends CI_Controller
                         'is_import' => $row->is_import
                       );
 
+
+
                       if( ! $this->orders_model->add_detail($arr))
                       {
                         $res = FALSE;
                         $message = "Failed to add order row of {$order->reference} : {$row->product_code}";
+                      }
+                      else
+                      {
+                        $total_amount += $row->total_amount;
+
+                        if($ix_backorder && $row->is_count)
+                        {
+                          $available = $this->get_available_stock($row->product_code, $order->warehouse_code);
+
+                          if($available < $row->qty)
+                          {
+                            $is_backorder = 1;
+
+                            $backorderList[] = (object) array(
+                              'order_code' => $order_code,
+                              'product_code' => $row->product_code,
+                              'order_qty' => $row->qty,
+                              'available_qty' => $available
+                            );
+                          }
+                        }
                       }
 
                       if($res == FALSE)
@@ -229,6 +256,10 @@ class Import_order extends CI_Controller
                         $sc = FALSE;
                         $message = "Failed to insert shipping item row of {$order->reference}";
                       }
+                      else
+                      {
+                        $total_amount += $order->shipping_fee;
+                      }
                     } //--- end if($order->shipping_fee)
                   } //--- end if ! empty($order->items)
                 } //--- $sc === TRUE
@@ -236,16 +267,36 @@ class Import_order extends CI_Controller
                 //-- add state
                 if($res === TRUE)
                 {
-                  $doc_total = $this->orders_model->get_order_total_amount($order_code);
-                  $this->orders_model->update($order_code, array('doc_total' => $doc_total));
+                  $arr = array(
+                    'doc_total' => $total_amount,
+                    'is_backorder' => $is_backorder
+                  );
+
+                  $this->orders_model->update($order_code, $arr);
 
                   $arr = array(
                     'order_code' => $order_code,
                     'state' => $order->state,
                     'update_user' => $this->_user->uname
                   );
+
                   //--- add state event
                   $this->order_state_model->add_state($arr);
+
+                  if($ix_backorder && ! empty($backorderList))
+                  {
+                    foreach($backorderList as $rs)
+                    {
+                      $backlogs = array(
+                        'order_code' => $rs->order_code,
+                        'product_code' => $rs->product_code,
+                        'order_qty' => $rs->order_qty,
+                        'available_qty' => $rs->available_qty
+                      );
+
+                      $this->orders_model->add_backlogs_detail($backlogs);
+                    }
+                  }
                 }
 
                 if($res === TRUE)
@@ -365,6 +416,27 @@ class Import_order extends CI_Controller
                               $res = FALSE;
                               $message = "Failed to add order row of {$order->reference} : {$row->product_code}";
                             }
+                            else
+                            {
+                              $total_amount += $row->total_amount;
+
+                              if($ix_backorder && $row->is_count)
+                              {
+                                $available = $this->get_available_stock($row->product_code, $order->warehouse_code);
+
+                                if($available < $row->qty)
+                                {
+                                  $is_backorder = 1;
+
+                                  $backorderList[] = (object) array(
+                                    'order_code' => $order_code,
+                                    'product_code' => $row->product_code,
+                                    'order_qty' => $row->qty,
+                                    'available_qty' => $available
+                                  );
+                                }
+                              }
+                            }
 
                             if($res == FALSE)
                             {
@@ -398,6 +470,10 @@ class Import_order extends CI_Controller
                               $sc = FALSE;
                               $message = "Failed to insert shipping item row of {$order->reference}";
                             }
+                            else
+                            {
+                              $total_amount += $order->shipping_fee;
+                            }
                           } //--- end if($order->shipping_fee)
                         } //--- end if ! empty($order->items)
                       } //--- end if remove all detail
@@ -406,8 +482,12 @@ class Import_order extends CI_Controller
                     //-- add state
                     if($res === TRUE)
                     {
-                      $doc_total = $this->orders_model->get_order_total_amount($order_code);
-                      $this->orders_model->update($order_code, array('doc_total' => $doc_total));
+                      $arr = array(
+                        'doc_total' => $total_amount,
+                        'is_backorder' => $is_backorder
+                      );
+
+                      $this->orders_model->update($order_code, $arr);
 
                       $arr = array(
                         'order_code' => $order_code,
@@ -416,6 +496,27 @@ class Import_order extends CI_Controller
                       );
                       //--- add state event
                       $this->order_state_model->add_state($arr);
+
+                      if($ix_backorder)
+                      {
+                        if( $this->orders_model->drop_backlogs_list($order_code))
+                        {
+                          if( ! empty($backorderList))
+                          {
+                            foreach($backorderList as $rs)
+                            {
+                              $backlogs = array(
+                                'order_code' => $rs->order_code,
+                                'product_code' => $rs->product_code,
+                                'order_qty' => $rs->order_qty,
+                                'available_qty' => $rs->available_qty
+                              );
+
+                              $this->orders_model->add_backlogs_detail($backlogs);
+                            }
+                          }
+                        }
+                      }
                     }
 
                     if($res === TRUE)
@@ -1070,6 +1171,20 @@ class Import_order extends CI_Controller
     }
 
     return $sc === TRUE ? $ds : FALSE;
+  }
+
+
+  public function get_available_stock($item_code, $warehouse_code)
+  {
+    //---- สต็อกคงเหลือในคลัง
+    $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse_code);
+
+    //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
+    $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse_code);
+
+    $available = $sell_stock - $reserv_stock;
+
+    return $available < 0 ? 0 : $available;
   }
 
 

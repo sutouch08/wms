@@ -56,9 +56,6 @@ function closeOrder(){
 }
 
 
-
-
-
 function forceClose(){
   swal({
     title: "คุณแน่ใจ ?",
@@ -73,6 +70,7 @@ function forceClose(){
       closeOrder();
   });
 }
+
 
 //--- บันทึกยอดตรวจนับที่ยังไม่ได้บันทึก
 function saveQc(option){
@@ -121,7 +119,6 @@ function saveQc(option){
 
           //---
           if(option == 0){
-
             swal({
               title:'Saved',
               type:'success',
@@ -129,7 +126,6 @@ function saveQc(option){
             });
 
             setTimeout(function(){ $("#barcode-item").focus();}, 2000);
-
           }
 
           //--- รีเซ็ตจำนวนที่ยังไม่ได้บันทึก
@@ -139,26 +135,23 @@ function saveQc(option){
 
 
           //--- ถ้ามาจากการเปลี่ยนกล่อง
-          if( option == 1){
+          if( option == 1) {
 
             swal({
               title:'Saved',
               type:'success',
               timer:1000
             } );
-
-            setTimeout(function(){ changeBox(); }, 1200);
-
           }
 
           //--- ถ้ามาจากการกดปุ่ม ตรวจเสร็จแล้ว หรือ ปุ่มบังคับจบ
           if( option == 2){
             closeOrder();
           }
-
-        }else {
+        }
+        else {
           //--- ถ้าผิดพลาด
-          swal("Error!", rs, "error");
+          showError(rs);
         }
 
       }
@@ -176,6 +169,14 @@ $("#barcode-item").keyup(function(e){
 
 
 function qcProduct() {
+  let id_box = $('#id_box').val();
+
+  if(id_box == "") {
+    beep();
+    swal("กรุณาระบุกล่อง");
+    return false;
+  }
+
   let input_barcode = $("#barcode-item").val();
   let iqty = parseDefault(parseInt($('#qc-qty').val()), 1);
 
@@ -185,9 +186,9 @@ function qcProduct() {
     let barcode = md5(input_barcode); //--- id กับ barcode คือตัวเดียวกัน
     let id = barcode;
 
-    if($('.'+barcode).length == 1) {
-      let pdCode = $('.'+barcode).data('code');
-      let pqty = parseDefault(parseInt($("."+barcode).val()), 1);
+    if($('#bc-'+barcode).length == 1) {
+      let pdCode = $('#bc-'+barcode).data('code');
+      let pqty = parseDefault(parseInt($("#bc-"+barcode).val()), 1);
       let qty = iqty * pqty;
 
       //--- จำนวนที่จัดมา
@@ -261,9 +262,8 @@ function updateBox(){
 }
 
 
-
-function updateBoxList(){
-  let id_box = $("#id_box").val();
+function updateBoxList(box_id){
+  let id_box = box_id != undefined ? box_id : $("#id_box").val();
   let order_code = $("#order_code").val();
 
   $.ajax({
@@ -284,9 +284,12 @@ function updateBoxList(){
             var data = ds.box_list;
             var output = $("#box-row");
             render(source, data, output);
+
+            $('#id_box').val(id_box);
+            $('#barcode-item').focus();
           }
           else {
-            $("#box-row").html('<span id="no-box-label">ยังไม่มีการตรวจสินค้า</span>');
+            $("#box-row").html('<div class="col-lg-12 col-md-12 col-sm-12 col-sm-12 padding-5"><span id="no-box-label">ยังไม่มีการตรวจสินค้า</span></div>');
           }
         }
         else {
@@ -304,7 +307,6 @@ function updateBoxList(){
 }
 
 
-
 //---
 $("#barcode-box").keyup(function(e){
   if(e.keyCode == 13){
@@ -314,6 +316,76 @@ $("#barcode-box").keyup(function(e){
   }
 });
 
+
+function confirmSaveBeforeAddBox() {
+  let current_box_id = $('#id_box').val();
+  var count = 0;
+  $(".hidden-qc").each(function(index, element){
+    if( $(this).val() > 0){
+      count++;
+    }
+  });
+
+  if( count > 0 ){
+    swal({
+  		title: "บันทึกรายการก่อน ?",
+  		text: "คุณจำเป็นต้องบันทึกรายการก่อนที่จะเปลี่ยนกล่องใหม่",
+  		type: "warning",
+  		showCancelButton: true,
+  		confirmButtonColor: "#5FB404",
+  		confirmButtonText: 'บันทึก',
+  		cancelButtonText: 'ยกเลิก',
+  		closeOnConfirm: true
+    },
+    function(){
+        saveQc(1);
+  	});
+  }
+  else {
+    addBox();
+  }
+}
+
+
+function addBox() {
+  let order_code = $('#order_code').val();
+
+  $.ajax({
+    url:HOME + 'add_new_box',
+    type:'POST',
+    cache:false,
+    data:{
+      'order_code' : order_code
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          $("#id_box").val(ds.box_id);
+          $(".item").removeAttr('disabled');
+          $("#barcode-item").focus();
+          updateBoxList(ds.box_id);
+        }
+        else {
+          showError(ds.message);
+        }
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
+}
+
+
+function selectBox(box_id) {
+  $('#id_box').val(box_id)
+  $('#barcode-item').removeAttr('disabled').focus();
+}
 
 
 //--- ดึงไอดีกล่อง
@@ -356,8 +428,8 @@ function getBox(){
 }
 
 
-
-function confirmSaveBeforeChangeBox(){
+function confirmSaveBeforeChangeBox(box_id){
+  let current_box_id = $('#id_box').val();
   var count = 0;
   $(".hidden-qc").each(function(index, element){
     if( $(this).val() > 0){
@@ -375,18 +447,22 @@ function confirmSaveBeforeChangeBox(){
   		confirmButtonText: 'บันทึก',
   		cancelButtonText: 'ยกเลิก',
   		closeOnConfirm: false
-  		}, function(){
-  			saveQc(1);
+    }, function(isConfirm){
+  			if(isConfirm) {
+          saveQc(1);
+          $('#box-'+box_id).prop('checked', false);
+        }
+        else {
+          $('#box-'+current_box_id).prop('checked', true);
+        }
   	});
-  }else {
-    changeBox();
+  }
+  else {
+    selectBox(box_id);
   }
 }
 
-
-
-
-
+/*
 function changeBox(){
 
   $("#id_box").val('');
@@ -396,8 +472,7 @@ function changeBox(){
   $("#barcode-box").val('');
   $("#barcode-box").focus();
 }
-
-
+*/
 
 
 function showCloseButton(){
@@ -410,6 +485,7 @@ function showForceCloseBar(){
   $("#close-bar").addClass('hide');
   $("#force-bar").removeClass('hide');
 }
+
 
 function updateQty(id_qc){
   remove_qty = Math.ceil($('#input-'+id_qc).val());
@@ -446,13 +522,181 @@ function updateQty(id_qc){
 }
 
 
+function editBox(id_box, box_label) {
+  let order_code = $('#order_code').val();
+  load_in();
+
+  $.ajax({
+    url:HOME + 'get_checked_box_details',
+    type:'GET',
+    cache:false,
+    data:{
+      'order_code' : order_code,
+      'id_box' : id_box
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          let source = $('#edit-box-template').html();
+          let output = $('#edit-box-table');
+          render(source, ds.data, output);
+
+          $('#edit-box-title').text(box_label);
+          $('#edit-box-modal').modal('show');
+        }
+        else {
+          showError(ds.message);
+        }
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      load_out();
+      showError(rs);
+    }
+  })
+}
+
+
+function checkEditQty(id_qc) {
+  let input = $('#edit-input-'+id_qc);
+  input.clearError();
+  let preQty = parseDefault(parseFloat(input.val()), 0);
+  let qty = parseDefault(parseInt(input.val()), 0);
+  let limit = parseDefault(parseInt(input.data('qty')), 0);
+
+  if(qty > limit || qty < 0 || preQty != qty) {
+    input.hasError();
+  }
+}
+
+
+function updateEditQty() {
+  clearErrorByClass('e');
+  let err = 0;
+  let h = [];
+
+  $('.edit-input-qty').each(function() {
+    let input = $(this);
+    let id = input.data('id');
+    let preQty = parseDefault(parseFloat(input.val()), 0);
+    let qty = parseDefault(parseInt(input.val()), 0);
+    let limit = parseDefault(parseInt(input.data('qty')), 0);
+    let product_code = input.data('item');
+
+    if(qty > limit || qty < 0 || preQty != qty) {
+      input.hasError();
+      err++;
+    }
+    else {
+      if(qty > 0) {
+        h.push({'id' : id, 'remove_qty' : qty, 'product_code' : product_code});
+      }
+    }
+  });
+
+  if(err > 0) {
+    return false;
+  }
+
+  if(h.length == 0) {
+    swal("กรุณาระบุจำนวน");
+    return false;
+  }
+
+  load_in();
+
+  $.ajax({
+    url:HOME + 'update_check_qty',
+    type:'POST',
+    cache:false,
+    data:{
+      "data" : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
+
+      if(rs.trim() == 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
+}
+
+
+function removeBox(id_box, box_label) {
+  let order_code = $('#order_code').val();
+
+  swal({
+    title:'Are you sure ?',
+    text:'คุณแน่ใจว่าต้องการลบ '+box_label+' ? <br/>รายการตรวจนับสำหรับกล่องนี้จะถูกลบไปด้วย และไม่สามารถกู้คืนได้<br/>ต้องการดำเนินการหรือไม่ ?',
+    type:'warning',
+    html:true,
+    showCancelButton:true,
+    confirmButtonText:'ดำเนินการ',
+    confirmButtonColor:'red',
+    cancelButtonText:'ยกเลิก',
+    closeOnConfirm:true
+  }, function() {
+    load_in();
+    setTimeout(() => {
+      $.ajax({
+        url:HOME + 'remove_checked_box',
+        type:'POST',
+        cache:false,
+        data:{
+          "order_code" : order_code,
+          "box_id" : id_box
+        },
+        success:function(rs) {
+          load_out();
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+            if(ds.status == 'success') {
+              window.location.reload();
+            }
+            else {
+              showError(ds.message);
+            }
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          load_out();
+          showError(rs);
+        }
+      })
+    }, 100);
+  });
+}
 
 function showEditOption(order_code, product_code){
   $('#edit-title').text(product_code);
   load_in();
   $.ajax({
     url:HOME + 'get_checked_table',
-    //url:'controller/qcController.php?getCheckedTable',
     type:'GET',
     cache:'false',
     data:{

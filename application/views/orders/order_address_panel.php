@@ -247,8 +247,8 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
               <thead>
                 <tr>
                   <th class="min-width-200">Item</th>
-                  <th class="fix-width-100">Order Qty</th>
-                  <th class="fix-width-100">Available</th>
+                  <th class="fix-width-100 text-center">Order Qty</th>
+                  <th class="fix-width-100 text-center">Available</th>
                 </tr>
               </thead>
               <tbody>
@@ -256,8 +256,8 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
             <?php foreach($backlogs as $rs) : ?>
               <tr>
                 <td><?php echo $rs->product_code; ?></td>
-                <td><?php echo number($rs->order_qty); ?></td>
-                <td><?php echo number($rs->available_qty); ?></td>
+                <td class="text-center"><?php echo number($rs->order_qty); ?></td>
+                <td class="text-center"><?php echo number($rs->available_qty); ?></td>
               </tr>
             <?php endforeach; ?>
           <?php else : ?>

@@ -40,18 +40,16 @@ class Address extends PS_Controller
     $this->load->library('printer');
     $adr = $this->address_model->get_shipping_detail($id);
     $order = $this->orders_model->get($code);
-    if(!empty($order))
+
+    if( ! empty($order))
     {
       $order->total_qty = $this->invoice_model->get_total_sold_qty($code);
-    }
+    }    
 
-    $details = $order->state == 8 ? $this->invoice_model->get_details($code) : FALSE;
-
-    if(!empty($adr))
+    if( ! empty($adr))
     {
       $ds = array(
         'order' => $order,
-        'details' => $details,
         'cusName' => $adr->name,
         'cusAdr1' => $adr->address,
         'cusAdr2' => ('ต.'.$adr->sub_district.' อ. '.$adr->district),

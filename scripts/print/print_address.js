@@ -7,20 +7,6 @@ var center    = ($(document).width() - 800)/2;
 function printAddress(id, order_code) {
 	printOnlineAddress(id, order_code);
 }
-// function printAddress()
-// {
-// 	var order_code = $('#order_code').val();
-// 	var customer_code = $('#customer_code').val();
-// 	var customer_ref = $('#customer_ref').val();
-// 	if( customer_ref != '' ){
-// 		getOnlineAddress()
-// 	}else{
-// 		getAddressForm();
-// 	}
-// }
-
-
-
 
 
 //--- เอา id address online
@@ -42,8 +28,6 @@ function getOnlineAddress()
 		}
 	});
 }
-
-
 
 
 //--- ตรวจสอบว่าลูกค้ามีที่อยู่มากกว่า 1 ที่อยู่หรือไม่
@@ -77,9 +61,6 @@ function getAddressForm()
 }
 
 
-
-
-
 function printPackingSheet()
 {
   var order_code = $("#order_code").val();
@@ -89,18 +70,12 @@ function printPackingSheet()
 }
 
 
-
-
-
 function printOnlineAddress(id, code)
 {
 	var center 	= ($(document).width() - 800)/2;
 	var target 	= BASE_URL + 'masters/address/print_online_address/'+id+'/' + code;
 	window.open(target, "_blank", prop );
 }
-
-
-
 
 
 function printSelectAddress()
@@ -128,14 +103,10 @@ function printSelectAddress()
 }
 
 
-
-
 function noAddress()
 {
 	swal("ข้อผิดพลาด", "ไม่พบที่อยู่ของลูกค้า กรุณาตรวจสอบว่าลูกค้ามีที่อยู่ในระบบแล้วหรือยัง", "warning");
 }
-
-
 
 
 function noSender()

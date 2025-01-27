@@ -437,6 +437,18 @@ class Qc_model extends CI_Model
   }
 
 
+  public function get_details_in_box($order_code, $box_id)
+  {
+    $rs = $this->db->where('order_code', $order_code)->where('box_id', $box_id)->get('qc');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 
   public function get_box_no($id)
   {
@@ -489,9 +501,32 @@ class Qc_model extends CI_Model
   }
 
 
+  public function delete_box($box_id)
+  {
+    return $this->db->where('id', $box_id)->delete('qc_box');
+  }
+  
+
   public function clear_qc($code)
   {
     return $this->db->where('order_code', $code)->delete('qc');
+  }
+
+
+  public function get_max_code($code)
+  {
+    $rs = $this->db
+    ->select_max('code')
+    ->like('code', $code, 'after')
+    ->order_by('code', 'desc')
+    ->get('qc_box');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->code;
+    }
+
+    return NULL;
   }
 
 

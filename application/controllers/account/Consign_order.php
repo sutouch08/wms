@@ -1399,13 +1399,14 @@ class Consign_order extends PS_Controller
   public function export_consign($code)
   {
     $rs = $this->export_consign_sold($code);
+
     if($rs === FALSE)
     {
       echo $this->error;
     }
     else
     {
-      $this->consign_order_model->update($code, array('inv_code', NULL));
+      $this->consign_order_model->update($code, array('inv_code' => NULL));
       echo 'success';
     }
   }

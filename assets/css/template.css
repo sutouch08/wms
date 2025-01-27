@@ -1369,6 +1369,10 @@ hr.padding-5 {
   min-width: 100px;
 }
 
+.btn-50 {
+  min-width: 50px;
+}
+
 
 .btn-block + .btn-block {
   margin-top:0px !important;

@@ -1132,12 +1132,6 @@ class Orders extends PS_Controller
 
     $arr['cod_amount'] = $cod_amount < 0 ? 0 : get_zero($cod_amount);
 
-		if(! empty($arr))
-		{
-			$this->orders_model->update($code, $arr);
-		}
-
-
     $order = $this->orders_model->get($code);
 
     //--- ถ้าออเดอร์เป็นแบบเครดิต
@@ -1157,7 +1151,6 @@ class Orders extends PS_Controller
           $diff = $credit_used - $credit_balance;
           $sc = FALSE;
           $this->error = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
-					//$message = 'เครดิตคงเหลือไม่พอ ยอด :'.$credit_used.', คงเหลือ : '.$credit_balance.', (ขาด : '.$diff.')';
         }
       }
     }
@@ -1219,17 +1212,11 @@ class Orders extends PS_Controller
 				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
 			}
 
-			if(!empty($id_address))
+			if( ! empty($id_address))
 			{
-				$arr = array(
-					'id_address' => $id_address
-				);
-
-				$this->orders_model->update($order->code, $arr);
+        $arr['id_address'] = $id_address;
 			}
 		}
-
-
 
 		if(empty($order->id_sender))
 		{
@@ -1246,26 +1233,67 @@ class Orders extends PS_Controller
 				}
 			}
 
-			if(!empty($id_sender))
+			if( ! empty($id_sender))
 			{
-				$arr = array(
-					'id_sender' => $id_sender
-				);
-
-				$this->orders_model->update($order->code, $arr);
+        $arr['id_sender'] = $id_sender;
 			}
-
 		}
 
 
+    if(is_true(getConfig('IX_BACK_ORDER')) && $order->state <= 4 && $order->is_pre_order == 0)
+    {
+      $is_backorder = 0;
+      $total_amount = 0;
+
+      $this->orders_model->drop_backlogs_list($order->code);
+
+      $details = $this->orders_model->get_order_details($order->code);
+
+      if( ! empty($details))
+      {
+        foreach($details as $rs)
+        {
+          if($rs->is_count)
+          {
+            //---- สต็อกคงเหลือในคลัง
+            $sell_stock = $this->stock_model->get_sell_stock($rs->product_code, $order->warehouse_code);
+
+            //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
+            $reserv_stock = $this->orders_model->get_reserv_stock_exclude($rs->product_code, $order->warehouse_code, $rs->id);
+
+            $available = $sell_stock - $reserv_stock;
+
+            if($available < $rs->qty)
+            {
+              $is_backorder = 1;
+
+              $backlogs = array(
+                'order_code' => $rs->order_code,
+                'product_code' => $rs->product_code,
+                'order_qty' => $rs->qty,
+                'available_qty' => $available
+              );
+
+              $this->orders_model->add_backlogs_detail($backlogs);
+            }
+          }
+
+          $total_amount += $rs->total_amount;
+        }
+      }
+
+      $arr['doc_total'] = $total_amount;
+      $arr['is_backorder'] = $is_backorder;
+    }
 
     if($sc === TRUE)
     {
-      $rs = $this->orders_model->set_status($code, 1);
-      if($rs === FALSE)
+      $arr['status'] = 1;
+
+      if( ! $this->orders_model->update($code, $arr))
       {
         $sc = FALSE;
-        $this->error = 'บันทึกออเดอร์ไม่สำเร็จ';
+        $this->error = "บันทึกออเดอร์ไม่สำเร็จ";
       }
     }
 

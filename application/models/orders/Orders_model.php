@@ -897,8 +897,6 @@ class Orders_model extends CI_Model
       }
 
       $this->db->like('code', $code, 'after');
-
-      // $this->db->like('code', $ds['code']);
     }
 
     if(!empty($ds['qt_no']))

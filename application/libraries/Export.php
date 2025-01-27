@@ -103,7 +103,21 @@ class Export
           'F_E_CommerceDate' => sap_date(now(), TRUE),
           'U_WhsCode' => $U_WhsCode,
           'U_BinCode' => $U_BinCode,
-          'U_Consignment' => $U_Consignment
+          'U_Consignment' => $U_Consignment,
+          'U_TAX_STATUS' => $order->tax_status == 1 ? 'Y' : 'N',
+          'U_E_TAX' => $order->is_etax == 1 ? 'Y' : 'N',
+          'U_TAX_TYPE' => $order->tax_type,
+          'U_TAX_ID' => $order->tax_id,
+          'U_NAME' => $order->name,
+          'U_BRANCH_CODE' => $order->branch_code,
+          'U_BRANCH_NAME' => $order->branch_name,
+          'U_ADDRESS' => $order->address,
+          'U_SUB_DISTRICT' => $order->sub_district,
+          'U_DISTRICT' => $order->district,
+          'U_PROVINCE' => $order->province,
+          'U_POSTCODE' => $order->postcode,
+          'U_PHONE' => $order->phone,
+          'U_EMAIL' => $order->email
         );
 
         $this->ci->mc->trans_begin();
@@ -260,6 +274,20 @@ class Export
           'U_BOOKCODE' => $order->bookcode,
           'F_E_Commerce' => 'A',
           'F_E_CommerceDate' => sap_date(now(), TRUE),
+          'U_TAX_STATUS' => $order->tax_status == 1 ? 'Y' : 'N',
+          'U_E_TAX' => $order->is_etax == 1 ? 'Y' : 'N',
+          'U_TAX_TYPE' => $order->tax_type,
+          'U_TAX_ID' => $order->tax_id,
+          'U_NAME' => $order->name,
+          'U_BRANCH_CODE' => $order->branch_code,
+          'U_BRANCH_NAME' => $order->branch_name,
+          'U_ADDRESS' => $order->address,
+          'U_SUB_DISTRICT' => $order->sub_district,
+          'U_DISTRICT' => $order->district,
+          'U_PROVINCE' => $order->province,
+          'U_POSTCODE' => $order->postcode,
+          'U_PHONE' => $order->phone,
+          'U_EMAIL' => $order->email
         );
 
         $this->ci->mc->trans_begin();
@@ -717,9 +745,6 @@ public function export_transfer_draft($code)
   return $sc;
 }
 //--- end export transfer draf
-
-
-
 
 
 public function export_transfer($code)
