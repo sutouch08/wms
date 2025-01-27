@@ -965,6 +965,42 @@ function set_ix_warehouse(wh_code) {
 }
 
 
+$('#ix-return-warehouse').autocomplete({
+	source: BASE_URL + 'auto_complete/get_warehouse_by_role/1',
+	autoFocus:true,
+	close:function(){
+		let rs = $(this).val();
+		let arr = rs.split(' | ');
+
+		if(arr[0] === 'not found'){
+			$(this).val('');
+		}else{
+			$(this).val(arr[0]);
+			set_ix_return_warehouse(arr[0]);
+		}
+	}
+})
+
+
+function set_ix_return_warehouse(wh_code) {
+	$('#ix-return-zone').autocomplete({
+		source: BASE_URL + 'auto_complete/get_zone_code_and_name/'+ wh_code,
+		autoFocus:true,
+		close:function() {
+			let rs = $(this).val();
+			let arr = rs.split(' | ');
+
+			if(arr[0] === 'ไม่พบรายการ') {
+				$(this).val('');
+			}
+			else {
+				$(this).val(arr[0]);
+			}
+		}
+	})
+}
+
+
 function toggleIxSyncStock(option) {
 
 	$('#sync-ix-stock').val(option);

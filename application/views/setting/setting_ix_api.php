@@ -71,6 +71,22 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="col-sm-4">
+        <span class="form-control left-label">รหัสคลังรับคืน IX</span>
+      </div>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm input-large" id="ix-return-warehouse" name="IX_RETURN_WAREHOUSE" value="<?php echo $IX_RETURN_WAREHOUSE; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+        <span class="form-control left-label">รหัสโซนรับคืน IX</span>
+      </div>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm input-large" id="ix-return-zone" name="IX_RETURN_ZONE" value="<?php echo $IX_RETURN_ZONE; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
 
 			<div class="col-sm-4">
         <span class="form-control left-label">SYNC API STOCK</span>
