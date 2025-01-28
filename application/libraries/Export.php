@@ -84,7 +84,7 @@ class Export
           'DocDate' => sap_date($date_add, TRUE), //--- วันที่เอกสาร
           'DocDueDate' => sap_date($date_add,TRUE), //--- วันที่เอกสาร
           'CardCode' => $order->customer_code, //--- รหัสลูกค้า
-          'CardName' => $cust->name, //--- ชื่อลูกค้า
+          'CardName' => $order->is_etax ? $order->name : $order->customer_name, //--- ชื่อลูกค้า
           'DiscPrcnt' => $order->bDiscText,
           'DiscSum' => $order->bDiscAmount,
           'DiscSumFC' => $order->bDiscAmount,
@@ -104,6 +104,7 @@ class Export
           'U_WhsCode' => $U_WhsCode,
           'U_BinCode' => $U_BinCode,
           'U_Consignment' => $U_Consignment,
+          'U_OLDTAX' => NULL,
           'U_TAX_STATUS' => $order->tax_status == 1 ? 'Y' : 'N',
           'U_E_TAX' => $order->is_etax == 1 ? 'Y' : 'N',
           'U_TAX_TYPE' => $order->tax_type,
@@ -260,7 +261,7 @@ class Export
           'DocDate' => sap_date($date_add, TRUE), //--- วันที่เอกสาร
           'DocDueDate' => sap_date($date_add,TRUE), //--- วันที่เอกสาร
           'CardCode' => $order->customer_code, //--- รหัสลูกค้า
-          'CardName' => $cust->name, //--- ชื่อลูกค้า
+          'CardName' => $order->is_etax ? $order->name : $order->customer_name, //--- ชื่อลูกค้า
           'DocCur' => $currency,
           'DocRate' => 1.000000,
           'DocTotal' => $total_amount,
@@ -274,6 +275,7 @@ class Export
           'U_BOOKCODE' => $order->bookcode,
           'F_E_Commerce' => 'A',
           'F_E_CommerceDate' => sap_date(now(), TRUE),
+          'U_OLDTAX' => $order->is_etax ? $order->pos_ref : NULL,
           'U_TAX_STATUS' => $order->tax_status == 1 ? 'Y' : 'N',
           'U_E_TAX' => $order->is_etax == 1 ? 'Y' : 'N',
           'U_TAX_TYPE' => $order->tax_type,
