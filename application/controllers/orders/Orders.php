@@ -78,7 +78,9 @@ class Orders extends PS_Controller
       'endTime' => get_filter('endTime', 'endTime', ''),
 			'wms_export' => get_filter('wms_export', 'wms_export', 'all'),
       'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all'),
-      'is_backorder' => get_filter('is_backorder', 'is_backorder', 'all')
+      'is_backorder' => get_filter('is_backorder', 'is_backorder', 'all'),
+      'tax_status' => get_filter('tax_status', 'tax_status', 'all'),
+      'is_etax' => get_filter('is_etax', 'is_etax', 'all')
     );
 
     $state = array(
@@ -4327,7 +4329,9 @@ class Orders extends PS_Controller
       'endTime',
 			'wms_export',
       'is_pre_order',
-      'is_backorder'
+      'is_backorder',
+      'tax_status',
+      'is_etax'
     );
 
     clear_filter($filter);

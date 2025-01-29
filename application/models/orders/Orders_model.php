@@ -853,6 +853,16 @@ class Orders_model extends CI_Model
 			}
 		}
 
+    if( isset($ds['tax_status']) && $ds['tax_status'] != 'all')
+    {
+      $this->db->where('tax_status', $ds['tax_status']);
+    }
+
+    if( isset($ds['is_etax'])  && $ds['is_etax'] != 'all')
+    {
+      $this->db->where('is_etax', $ds['is_etax']);
+    }
+
     return $this->db->count_all_results('orders');
   }
 
@@ -1121,6 +1131,16 @@ class Orders_model extends CI_Model
 				->group_end();
 			}
 		}
+
+    if( isset($ds['tax_status']) && $ds['tax_status'] != 'all')
+    {
+      $this->db->where('tax_status', $ds['tax_status']);
+    }
+
+    if( isset($ds['is_etax'])  && $ds['is_etax'] != 'all')
+    {
+      $this->db->where('is_etax', $ds['is_etax']);
+    }
 
     if(!empty($ds['order_by']))
     {
