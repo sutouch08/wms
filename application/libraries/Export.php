@@ -77,6 +77,21 @@ class Export
         $vat_rate = getConfig('SALE_VAT_RATE');
         $vat_code = getConfig('SALE_VAT_CODE');
 				$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : (empty($order->shipped_date) ? now() : $order->shipped_date);
+        $address = NULL;
+
+        if($order->tax_status)
+        {
+          $adr = trim($order->address);
+          $province = parseProvince($order->province);
+          $district = parseDistrict($order->district, $province);
+          $sub_district = parseSubDistrict($order->sub_district, $province);
+          $address = $adr;
+          $address .= empty($sub_district) ? "" : " {$sub_district}";
+          $address .= empty($district) ? "" : " {$district}";
+          $address .= empty($province) ? "" : " {$province}";
+          $address .= empty($order->postcode) ? "" : " {$order->postcode}";
+        }
+
         //--- header
         $ds = array(
           'DocType' => 'I', //--- I = item, S = Service
@@ -84,7 +99,8 @@ class Export
           'DocDate' => sap_date($date_add, TRUE), //--- วันที่เอกสาร
           'DocDueDate' => sap_date($date_add,TRUE), //--- วันที่เอกสาร
           'CardCode' => $order->customer_code, //--- รหัสลูกค้า
-          'CardName' => $order->is_etax ? $order->name : $order->customer_name, //--- ชื่อลูกค้า
+          'CardName' => $order->tax_status ? (empty($order->name) ? $order->customer_name : $order->name) : $order->customer_name, //--- ชื่อลูกค้า
+          'Address' => $address,
           'DiscPrcnt' => $order->bDiscText,
           'DiscSum' => $order->bDiscAmount,
           'DiscSumFC' => $order->bDiscAmount,
@@ -254,6 +270,23 @@ class Export
         $vat_rate = getConfig('SALE_VAT_RATE');
         $vat_code = getConfig('SALE_VAT_CODE');
 				$date_add = $order->date_add;
+
+        $address = NULL;
+
+        if($order->tax_status)
+        {
+          $adr = trim($order->address);
+          $province = parseProvince($order->province);
+          $district = parseDistrict($order->district, $province);
+          $sub_district = parseSubDistrict($order->sub_district, $province);
+          $address = $adr;
+          $address .= empty($sub_district) ? "" : " {$sub_district}";
+          $address .= empty($district) ? "" : " {$district}";
+          $address .= empty($province) ? "" : " {$province}";
+          $address .= empty($order->postcode) ? "" : " {$order->postcode}";
+        }
+
+
         //--- header
         $ds = array(
           'DocType' => 'I', //--- I = item, S = Service
@@ -261,7 +294,8 @@ class Export
           'DocDate' => sap_date($date_add, TRUE), //--- วันที่เอกสาร
           'DocDueDate' => sap_date($date_add,TRUE), //--- วันที่เอกสาร
           'CardCode' => $order->customer_code, //--- รหัสลูกค้า
-          'CardName' => $order->is_etax ? $order->name : $order->customer_name, //--- ชื่อลูกค้า
+          'CardName' => $order->tax_status ? (empty($order->name) ? $order->customer_name : $order->name) : $order->customer_name,
+          'Address' => $address,
           'DocCur' => $currency,
           'DocRate' => 1.000000,
           'DocTotal' => $total_amount,
@@ -275,7 +309,7 @@ class Export
           'U_BOOKCODE' => $order->bookcode,
           'F_E_Commerce' => 'A',
           'F_E_CommerceDate' => sap_date(now(), TRUE),
-          'U_OLDTAX' => $order->is_etax ? $order->pos_ref : NULL,
+          'U_OLDTAX' => NULL,
           'U_TAX_STATUS' => $order->tax_status == 1 ? 'Y' : 'N',
           'U_E_TAX' => $order->is_etax == 1 ? 'Y' : 'N',
           'U_TAX_TYPE' => $order->tax_type,

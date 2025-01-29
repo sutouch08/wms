@@ -336,6 +336,16 @@ class Consign_order_model extends CI_Model
       }
     }
 
+    if(isset($ds['tax_status']) && $ds['tax_status'] != 'all')
+    {
+      $this->db->where('tax_status', $ds['tax_status']);
+    }
+
+    if(isset($ds['is_etax']) && $ds['is_etax'] != 'all')
+    {
+      $this->db->where('is_etax', $ds['is_etax']);
+    }
+
     $this->db->order_by('date_add', 'DESC');
 
     if(!empty($perpage))
@@ -353,8 +363,6 @@ class Consign_order_model extends CI_Model
 
     return FALSE;
   }
-
-
 
 
   public function count_rows(array $ds = array())
@@ -418,6 +426,16 @@ class Consign_order_model extends CI_Model
       {
         $this->db->where('inv_code IS NULL', NULL, FALSE);
       }
+    }
+
+    if(isset($ds['tax_status']) && $ds['tax_status'] != 'all')
+    {
+      $this->db->where('tax_status', $ds['tax_status']);
+    }
+
+    if(isset($ds['is_etax']) && $ds['is_etax'] != 'all')
+    {
+      $this->db->where('is_etax', $ds['is_etax']);
     }
 
     return $this->db->count_all_results('consign_order');

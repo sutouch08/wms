@@ -68,6 +68,16 @@
 			</select>
 	  </div>
 		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		 	<label>Tax Status</label>
+		  <input type="text" class="form-control input-sm text-center" value="<?php echo $order->tax_status ? 'Y' : 'N'; ?>" disabled />
+		</div>
+
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		 	<label>E-TAX</label>
+		  <input type="text" class="form-control input-sm text-center" value="<?php echo $order->is_etax ? 'Y' : 'N'; ?>" disabled />
+		</div>
+
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		 	<label>SAP No.</label>
 		  <input type="text" class="form-control input-sm" value="<?php echo $order->inv_code; ?>" disabled />
 		</div>

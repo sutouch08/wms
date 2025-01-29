@@ -56,11 +56,15 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
 				<li>
           <a href="#sender" aria-expanded="false" aria-controls="sender" role="tab" data-toggle="tab">ผู้จัดส่ง</a>
         </li>
+      <?php if($order->tax_status) : ?>        
+        <li>
+          <a href="#tax" aria-expanded="false" aria-controls="tax" role="tab" data-toggle="tab">ใบกำกับภาษี</a>
+        </li>
+      <?php endif; ?>
       </ul>
 
       <!-- Tab panes -->
       <div class="tab-content" style="margin:0px; padding:0px;">
-
 				<div role="tabpanel" class="tab-pane fade" id="address">
           <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -122,6 +126,7 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
       <div role="tabpanel" class="tab-pane active" id="state">
 				<?php $this->load->view("orders/order_state"); ?>
       </div>
+
 			<div role="tabpanel" class="tab-pane fade" id="sender">
         <div class="row" style="padding:15px;">
 					<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
@@ -159,6 +164,57 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
           </div>
 				</div>
 			</div>
+
+    <?php if($order->tax_status) : ?>
+      <div role="tabpanel" class="tab-pane" id="tax" style="padding:15px 15px;">
+        <div class="row">
+      		<div class="col-lg-5 col-md-5 col-sm-5 col-xs-8 padding-5">
+      			<label>ชื่อสำหรับออกใบกำกับภาษี</label>
+      			<input type="text" class="width-100" id="name" value="<?php echo $order->name; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+      			<label>Tax ID</label>
+      			<input type="text" class="width-100 text-center" id="tax-id" value="<?php echo $order->tax_id; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-1-harf col-md-1-harf col-sm-1 col-xs-4 padding-5">
+      			<label>รหัสสาขา</label>
+      			<input type="text" class="width-100 text-center" id="branch-code" value="<?php echo $order->branch_code; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+      			<label>ชื่อสาขา</label>
+      			<input type="text" class="width-100 text-center" id="branch-name" value="<?php echo $order->branch_name; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+      			<label>เบอร์โทร</label>
+      			<input type="text" class="width-100 text-center" id="phone" value="<?php echo $order->phone; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-4 col-md-7 col-sm-4-harf col-xs-12 padding-5">
+      			<label>ที่อยุ่</label>
+      			<input type="text" class="width-100" id="address" value="<?php echo $order->address; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-6 padding-5">
+      			<label>ตำบล</label>
+      			<input type="text" class="width-100" id="sub-district" value="<?php echo $order->sub_district; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-6 padding-5">
+      			<label>อำเภอ</label>
+      			<input type="text" class="width-100" id="district" value="<?php echo $order->district; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-6 padding-5">
+      			<label>จังหวัด</label>
+      			<input type="text" class="width-100" id="province" value="<?php echo $order->province; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+      			<label>ไปรษณีย์</label>
+      			<input type="text" class="width-100" id="postcode" value="<?php echo $order->postcode; ?>" disabled/>
+      		</div>
+      		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+      			<label>Email</label>
+      			<input type="text" class="width-100 text-center" value="<?php echo $order->email; ?>" disabled />
+      		</div>
+      	</div>
+      </div>
+    <?php endif; ?>
 
     </div>
   </div>

@@ -1,16 +1,14 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-  <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12 padding-5">
+  <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12 padding-5">
-    <p class="pull-right top-p">
-<?php if( $this->pm->can_add ) : ?>
+  <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12 padding-5 text-right">
+    <?php if( $this->pm->can_add ) : ?>
       <button type="button" class="btn btn-xs btn-success top-btn" onclick="goAdd()">
         <i class="fa fa-plus"></i> สร้างใหม่
       </button>
-<?php endif; ?>
-    </p>
+    <?php endif; ?>
   </div>
 </div>
 <hr/>
@@ -70,6 +68,24 @@
       <option value="all" <?php echo is_selected($sap, 'all'); ?>>ทั้งหมด</option>
       <option value="0" <?php echo is_selected($sap, '0'); ?>>ยังไม่เข้า</option>
       <option value="1" <?php echo is_selected($sap, '1'); ?>>เข้าแล้ว</option>
+    </select>
+  </div>
+
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label>ใบกำกับภาษี</label>
+    <select class="form-control input-sm" name="tax_status" onchange="getSearch()">
+      <option value="all" <?php echo is_selected($tax_status, 'all'); ?>>ทั้งหมด</option>
+      <option value="1" <?php echo is_selected($tax_status, '1'); ?>>Yes</option>
+      <option value="0" <?php echo is_selected($tax_status, '0'); ?>>No</option>
+    </select>
+  </div>
+
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+    <label>E-Tax</label>
+    <select class="form-control input-sm" name="is_etax" onchange="getSearch()">
+      <option value="all" <?php echo is_selected($is_etax, 'all'); ?>>ทั้งหมด</option>
+      <option value="1" <?php echo is_selected($is_etax, '1'); ?>>Yes</option>
+      <option value="0" <?php echo is_selected($is_etax, '0'); ?>>No</option>
     </select>
   </div>
 

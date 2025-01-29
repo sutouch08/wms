@@ -29,8 +29,10 @@ class Consign_order extends PS_Controller
       'zone' => get_filter('zone', 'consign_zone', ''),
       'from_date' => get_filter('from_date', 'consign_from_date', ''),
       'to_date' => get_filter('to_date', 'consign_to_date', ''),
-      'status' => get_filter('status', 'consign_status', 'all'),
       'ref_code' => get_filter('ref_code', 'consign_ref_code', ''),
+      'tax_status' => get_filter('tax_status', 'consign_tax_status', 'all'),
+      'is_etax' => get_filter('is_etax', 'consign_is_etax', 'all'),
+      'status' => get_filter('status', 'consign_status', 'all'),
       'is_api' => get_filter('is_api', 'consign_is_api', 'all'),
       'sap' => get_filter('sap', 'consign_sap', 'all')
     );
@@ -1494,8 +1496,11 @@ class Consign_order extends PS_Controller
       'consign_status',
       'consign_ref_code',
       'consign_is_api',
-      'consign_sap'
+      'consign_sap',
+      'consign_tax_status',
+      'consign_is_etax'
     );
+    
     clear_filter($filter);
   }
 
