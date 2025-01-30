@@ -6,11 +6,11 @@ use BarcodeBakery\Common\BCGDrawing;
 use BarcodeBakery\Common\BCGFontFile;
 use BarcodeBakery\Barcode\BCGcode93;
 
-// Loading Font
-$font = new BCGFontFile(__DIR__ . '/../font/Arial.ttf', 18);
+/$size = isset($_GET['font_size']) ? intval($_GET['font_size']) : 18;
+$text = isset($_GET['text']) ? $_GET['text'] : 'Nobarcode';
 
-// Don't forget to sanitize user inputs
-$text = isset($_GET['text']) ? $_GET['text'] : 'A123';
+// Loading Font
+$font = new BCGFontFile(__DIR__ . '/../font/Arial.ttf', $size);
 
 // The arguments are R, G, B for color.
 $color_black = new BCGColor(0, 0, 0);

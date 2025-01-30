@@ -3,7 +3,7 @@
 <html>
   <head>
   	<meta charset="utf-8">
-  	<meta name="viewport" content="width=device-width, initial-scale=1.0">  	
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="<?php echo base_url(); ?>assets/img/favicon.ico">
   	<title><?php echo $this->title; ?></title>
   	<link href="<?php echo base_url(); ?>assets/fonts/fontawesome-5/css/all.css" rel="stylesheet" />
@@ -82,7 +82,7 @@
             <div class="sticker-content">
               <table class="width-100">
                 <tr><td class="text-center"><image src="<?php echo base_url().$rs->file; ?>" style="width:55mm;"/></td></tr>
-                <tr><td class="text-center"><image src="<?php echo base_url().'assets/barcode/barcode.php?text='.$rs->code; ?>" style="width:70mm;" /></td></tr>
+                <tr><td class="text-center"><image src="<?php echo base_url().'assets/barcode/barcode.php?text='.$rs->code.'&font_size=22'; ?>" style="width:70mm;" /></td></tr>
               </table>
             </div>
           </div>
