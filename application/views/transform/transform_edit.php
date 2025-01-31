@@ -124,7 +124,7 @@
 				closeOnConfirm: false
 				}, function(){
 					$.ajax({
-						url: HOME + 'closeTransform',
+						url: BASE_URL + 'inventory/transform/closeTransform',
 						type:"POST",
 						cache:"false",
 						data:{
@@ -157,7 +157,7 @@
 				closeOnConfirm: false
 				}, function(){
 					$.ajax({
-						url: HOME + 'unCloseTransform',
+						url: BASE_URL + 'inventory/transform/unCloseTransform',
 						type:"POST",
 		        cache:"false",
 						data:{
