@@ -74,12 +74,15 @@ class Zone extends PS_Controller
           'data' => $rs->code,
           'size' => 8,
           'level' => 'H',
-          'savename' => $path
+          'savename' => NULL
         );
 
+        ob_start();
         $this->ixqrcode->generate($qr);
+        $qr = base64_encode(ob_get_contents());
+        ob_end_clean();
 
-        $list[] = (object)['file' => $path, 'code' => $rs->code];
+        $list[] = (object)['file' => $qr, 'code' => $rs->code, 'name' => $rs->name];
       }
 
       $this->load->library('printer');
@@ -89,7 +92,6 @@ class Zone extends PS_Controller
 
       $this->load->view('print/print_qr_code', $ds);
     }
-
   }
 
   public function edit($code)
@@ -393,7 +395,7 @@ class Zone extends PS_Controller
     ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
     ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
-    
+
     $last_sync = $this->zone_model->get_last_sync_date();
     $newData = $this->zone_model->get_new_data($last_sync);
 

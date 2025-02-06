@@ -92,6 +92,11 @@ class Orders extends REST_Controller
 
     if(empty($data))
     {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'empty data'
+      );
+
       if($this->logs_json)
       {
         $logs = array(
@@ -109,11 +114,6 @@ class Orders extends REST_Controller
         $this->ix_api_logs_model->add_logs($logs);
       }
 
-      $arr = array(
-      'status' => FALSE,
-      'error' => 'empty data'
-      );
-
       $this->response($arr, 400);
     }
 
@@ -122,22 +122,22 @@ class Orders extends REST_Controller
       $this->error = 'order_number is required';
 
       $arr = array(
-      'status' => FALSE,
-      'error' => $this->error
+        'status' => FALSE,
+        'error' => $this->error
       );
 
       if($this->logs_json)
       {
         $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' =>'ORDER',
-        'code' => NULL,
-        'action' => 'create',
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => NULL,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -152,22 +152,22 @@ class Orders extends REST_Controller
     if($sc === FALSE)
     {
       $arr = array(
-      'status' => FALSE,
-      'error' => $this->error
+        'status' => FALSE,
+        'error' => $this->error
       );
 
       if($this->logs_json)
       {
         $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' =>'ORDER',
-        'code' => $data->order_number,
-        'action' => 'create',
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => $data->order_number,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -235,22 +235,22 @@ class Orders extends REST_Controller
     if($sc === FALSE)
     {
       $arr = array(
-      'status' => FALSE,
-      'error' => $this->error
+        'status' => FALSE,
+        'error' => $this->error
       );
 
       if($this->logs_json)
       {
         $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' =>'ORDER',
-        'code' => $data->order_number,
-        'action' => 'create',
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' =>'ORDER',
+          'code' => $data->order_number,
+          'action' => 'create',
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
