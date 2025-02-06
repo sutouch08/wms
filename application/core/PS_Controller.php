@@ -27,66 +27,74 @@ class PS_Controller extends CI_Controller
   {
     parent::__construct();
 
-
-    //--- check is user has logged in ?
-    _check_login();
-
     $uid = get_cookie('uid');
 
-		$this->_user = $this->user_model->get_user_by_uid($uid);
-		$this->isViewer = $this->_user->is_viewer == 1 ? TRUE : FALSE;
-		$this->_SuperAdmin = $this->_user->id_profile == -987654321 ? TRUE : FALSE;
-
-		$this->close_system   = getConfig('CLOSE_SYSTEM'); //--- ปิดระบบทั้งหมดหรือไม่
-
-    if($this->close_system == 1 && $this->_SuperAdmin === FALSE)
+    //--- check is user has logged in ?
+    if(empty($uid) OR ! $this->user_model->verify_uid($uid))
     {
-      redirect(base_url().'setting/maintenance');
+      redirect(base_url().'users/authentication');
+      exit();
     }
-
-		if(!$this->isViewer && $this->is_expire_password($this->_user->last_pass_change))
-		{
-			redirect(base_url().'change_password');
-		}
-
-
-
-    //--- get permission for user
-    $this->pm = get_permission($this->menu_code, $uid, get_cookie('id_profile'));
-
-    $this->ms = $this->load->database('ms', TRUE); //--- SAP database
-    $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
-    $this->cn = $this->load->database('cn', TRUE); //--- consign Database
-
-    $dataDate = getConfig('DATA_DATE');
-    if( ! empty($dataDate))
+    else
     {
-      $this->_dataDate = $dataDate;
-    }
 
+      $this->_user = $this->user_model->get_user_by_uid($uid);
+      $this->isViewer = $this->_user->is_viewer == 1 ? TRUE : FALSE;
+      $this->_SuperAdmin = $this->_user->id_profile == -987654321 ? TRUE : FALSE;
 
-    if(empty($this->menu_code) && $this->isViewer === FALSE)
-    {
-			$this->notibars = getConfig('NOTI_BAR');
-			if($this->notibars == 1 )
-			{
-				$this->WC = get_permission('SOCCSO', $uid);
-	  		$this->WT = get_permission('SOCCTR', $uid);
-	  		$this->WS = get_permission('SOODSP', $uid);
-	  		$this->WU = get_permission('ICSUPP', $uid);
-	  		$this->WQ = get_permission('ICTRFM', $uid);
-	      $this->WV = get_permission('ICTRFS', $uid);
-	      $this->RR = get_permission('ICRQRC', $uid);
-	      $this->WL = get_permission('ICLEND', $uid);
-			}
+      $this->close_system   = getConfig('CLOSE_SYSTEM'); //--- ปิดระบบทั้งหมดหรือไม่
 
+      if($this->close_system == 1 && $this->_SuperAdmin === FALSE)
+      {
+        redirect(base_url().'setting/maintenance');
+        exit();
+      }
+
+      if(!$this->isViewer && $this->is_expire_password($this->_user->last_pass_change))
+      {
+        redirect(base_url().'change_password');
+        exit();
+      }
+
+      //--- get permission for user
+      $this->pm = get_permission($this->menu_code, $uid, get_cookie('id_profile'));
+
+      $this->ms = $this->load->database('ms', TRUE); //--- SAP database
+      $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
+      $this->cn = $this->load->database('cn', TRUE); //--- consign Database
+
+      $dataDate = getConfig('DATA_DATE');
+
+      if( ! empty($dataDate))
+      {
+        $this->_dataDate = $dataDate;
+      }
+
+      if(empty($this->menu_code) && $this->isViewer === FALSE)
+      {
+        $this->notibars = getConfig('NOTI_BAR');
+        if($this->notibars == 1 )
+        {
+          $this->WC = get_permission('SOCCSO', $uid);
+          $this->WT = get_permission('SOCCTR', $uid);
+          $this->WS = get_permission('SOODSP', $uid);
+          $this->WU = get_permission('ICSUPP', $uid);
+          $this->WQ = get_permission('ICTRFM', $uid);
+          $this->WV = get_permission('ICTRFS', $uid);
+          $this->RR = get_permission('ICRQRC', $uid);
+          $this->WL = get_permission('ICLEND', $uid);
+        }
+
+      }
     }
   }
+
 
   public function _response($sc = TRUE)
   {
     echo $sc === TRUE ? 'success' : $this->error;
   }
+
 
   public function deny_page()
   {
@@ -100,11 +108,13 @@ class PS_Controller extends CI_Controller
     return $this->load->view('page_error', $error);
   }
 
+
 	public function page_error($err = NULL)
   {
 		$error = array('error_message' => $err);
     return $this->load->view('page_error', $error);
   }
+
 
 	public function is_expire_password($last_pass_change)
 	{
