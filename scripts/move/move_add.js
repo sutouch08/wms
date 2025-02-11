@@ -1,10 +1,54 @@
-function add(){
-  var isManual = $('#manualCode').length;
-  if(isManual === 1){
-    getValidate();
-  }else{
-    addMove();
+function add() {
+  clearErrorByClass('e');
+
+  let h = {
+    'date_add' : $('#date').val().trim(),
+    'warehouse_code' : $('#warehouse').val(),
+    'reference' : $('#reference').val().trim(),
+    'remark' : $('#remark').val().trim()
+  };
+
+  if( ! isDate(h.date_add)) {
+    $('#date_add').hasError();
+    showError('วันที่ไม่ถูกต้อง');
+    return false;
   }
+
+  if(h.warehouse_code == "") {
+    $('#warehouse').hasError();
+    showError('กรุณาระบุคลัง');
+    return false;
+  }
+
+  load_in();
+
+  $.ajax({
+    url:HOME + 'add',
+    type:'POST',
+    cache:false,
+    data:{
+      "data" : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status == 'success') {
+          goEdit(ds.code);
+        }
+        else {
+          showError(ds.message);
+        }
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
 }
 
 

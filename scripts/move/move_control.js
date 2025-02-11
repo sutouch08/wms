@@ -159,7 +159,6 @@ function newToZone(){
 	$('#zoneName-label').val('');
 	$("#to_zone_code").val("");
 	$("#toZone-barcode").val("");
-	$("#zone-table").addClass('hide');
 	$("#toZone-barcode").focus();
 }
 
@@ -328,8 +327,7 @@ function getMoveOut() {
 //---	เปลี่ยนโซนต้นทาง
 function newFromZone(){
 	$("#from_zone_code").val("");
-	$("#fromZone-barcode").val("");
-	$("#zone-table").addClass('hide');
+	$("#fromZone-barcode").val("");	
 	$('#fromZone-barcode').removeAttr('disabled');
 	$('#btn-new-zone').attr('disabled', 'disabled');
 	$('#qty-from').attr('disabled', 'disabled');

@@ -29,7 +29,7 @@ function doExport()
 
 function deleteMoveItem(id, code)
 {
-	var code = $('#move_code').val();
+	var move_code = $('#move_code').val();
 
   swal({
 		title: 'คุณแน่ใจ ?',
@@ -46,7 +46,7 @@ function deleteMoveItem(id, code)
 			type:"POST",
       cache:false,
 			data:{
-				'code' : code,
+				'code' : move_code,
 				'id' : id
 			},
 			success: function(rs) {

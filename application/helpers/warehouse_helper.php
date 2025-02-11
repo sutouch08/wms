@@ -21,9 +21,9 @@ function select_warehouse_role($se = 0)
 function select_warehouse($se = 0)
 {
   $sc = '';
-  $CI =& get_instance();
-  $CI->load->model('masters/warehouse_model');
-  $options = $CI->warehouse_model->get_list();
+  $ci =& get_instance();
+  $ci->load->model('masters/warehouse_model');
+  $options = $ci->warehouse_model->get_list();
 
   if(!empty($options))
   {
@@ -89,7 +89,7 @@ function select_common_warehouse($se = NULL)
 	{
 		foreach($option as $rs)
 		{
-			$sc .= '<option value="'.$rs->code.'" '.is_selected($se, $rs->code).'>'.$rs->name.'</option>';
+			$sc .= '<option value="'.$rs->code.'" '.is_selected($se, $rs->code).'>'.$rs->code.' | '.$rs->name.'</option>';
 		}
 	}
 

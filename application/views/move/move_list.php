@@ -1,17 +1,12 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-sm-6 col-sm-6 hidden-xs padding-5">
+	<div class="col-lg-6 col-sm-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-xs-12 padding-5 visible-xs">
-		<h3 class="title-xs"><?php echo $this->title; ?></h3>
-	</div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-  	<p class="pull-right top-p">
-    <?php if($this->pm->can_add) : ?>
-      <button type="button" class="btn btn-sm0 btn-success btn-top" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
-    <?php endif; ?>
-    </p>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+		<?php if($this->pm->can_add) : ?>
+			<button type="button" class="btn btn-sm0 btn-success btn-top" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+		<?php endif; ?>
   </div>
 </div><!-- End Row -->
 <hr class=""/>
@@ -19,25 +14,26 @@
 <div class="row">
   <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
+    <input type="text" class="width-100 search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>คลังต้นทาง</label>
-    <input type="text" class="form-control input-sm search" name="from_warehouse" value="<?php echo $from_warehouse; ?>" />
+  <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 padding-5">
+    <label>คลัง</label>
+		<select class="width-100 filter" name="warehouse" id="warehouse">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_common_warehouse($warehouse); ?>
+		</select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>คลังปลายทาง</label>
-    <input type="text" class="form-control input-sm search" name="to_warehouse" value="<?php echo $to_warehouse; ?>" />
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+    <label>พนักงาน</label>
+    <select class="width-100 filter" name="user" id="user">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_user($user); ?>
+		</select>
   </div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-    <label>พนักงาน</label>
-    <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
-  </div>
-
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>การยืนยัน</label>
 		<select class="form-control input-sm" name="must_accept" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -46,7 +42,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -58,7 +54,7 @@
 		</select>
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>SAP</label>
     <select class="form-control input-sm" name="is_export" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -77,16 +73,16 @@
 
   <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+    <button type="submit" class="btn btn-xs btn-primary btn-block">Search</button>
   </div>
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>
 </div>
-
-<hr class="margin-top-15">
+<input type="hidden" name="search" value="1" />
 </form>
+<hr class="margin-top-15">
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
@@ -105,15 +101,14 @@
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
-					<th class="min-width-200 middle">ต้นทาง</th>
-					<th class="min-width-200 middle">ปลายทาง</th>
+					<th class="min-width-200 middle">คลัง</th>
 					<th class="min-width-100 middle">พนักงาน</th>
 				</tr>
 			</thead>
 			<tbody>
-        <?php if(!empty($docs)) : ?>
+        <?php if(!empty($list)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
-          <?php foreach($docs as $rs) : ?>
+          <?php foreach($list as $rs) : ?>
             <tr id="row-<?php echo $rs->code; ?>">
 							<td class="middle">
 								<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
@@ -131,7 +126,7 @@
 									<?php else : ?>
 										<span class="dark">EXP</span>
 									<?php endif; ?>
-								<?php else : ?>									
+								<?php else : ?>
 									<?php if($rs->status == 0) : ?>
 										<span class="blue">NC</span>
 									<?php endif; ?>
@@ -143,8 +138,7 @@
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle"><?php echo $rs->code; ?></td>
-              <td class="middle" style="max-width:250px !important;"><?php echo $rs->from_warehouse_name; ?></td>
-              <td class="middle" style="max-width:250px !important;"><?php echo $rs->to_warehouse_name; ?></td>
+              <td class="middle" style="max-width:250px !important;"><?php echo $rs->warehouse_name; ?></td>
               <td class="middle"><?php echo $rs->display_name; ?></td>
             </tr>
             <?php $no++; ?>
@@ -161,6 +155,9 @@
 
 <script src="<?php echo base_url(); ?>scripts/move/move.js?v=<?php echo date('Ymd'); ?>"></script>
 <script>
+	$('#warehouse').select2();
+	$('#user').select2();
+
 	function export_to_sap(code)
 	{
 		load_in();

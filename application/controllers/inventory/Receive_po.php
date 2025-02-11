@@ -32,6 +32,8 @@ class Receive_po extends PS_Controller
   public function index()
   {
     $this->load->helper('channels');
+    $this->load->helper('warehouse');
+
     $filter = array(
       'code'    => get_filter('code', 'receive_code', ''),
       'invoice' => get_filter('invoice', 'receive_invoice', ''),
@@ -40,6 +42,7 @@ class Receive_po extends PS_Controller
       'user' => get_filter('user', 'receive_user', ''),
       'from_date' => get_filter('from_date', 'receive_from_date', ''),
       'to_date' => get_filter('to_date', 'receive_to_date', ''),
+      'warehouse' => get_filter('warehouse', 'receive_warehouse', 'all'),
       'status' => get_filter('status', 'receive_status', 'all'),
 			'is_wms' => get_filter('is_wms', 'receive_is_wms', 'all'),
       'wms_export' => get_filter('wms_export', 'receive_wms_export', 'all'),
@@ -1408,6 +1411,7 @@ class Receive_po extends PS_Controller
       'receive_from_date',
       'receive_to_date',
       'receive_status',
+      'receive_warehouse',
       'receive_sap',
 			'receive_is_wms',
       'receive_wms_export',

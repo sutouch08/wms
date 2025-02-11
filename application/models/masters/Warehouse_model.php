@@ -38,7 +38,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-
   public function add(array $ds = array())
   {
     if(!empty($ds))
@@ -68,7 +67,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-
   public function get_all_role()
   {
     $rs = $this->db->get('warehouse_role');
@@ -79,7 +77,6 @@ class Warehouse_model extends CI_Model
 
     return NULL;
   }
-
 
 
   public function count_rows(array $ds = array())
@@ -223,8 +220,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-
-  //--- เอาเฉพาะคลังซื้อขาย
   public function get_sell_warehouse_list()
   {
     $rs = $this->db
@@ -259,6 +254,7 @@ class Warehouse_model extends CI_Model
     return NULL;
   }
 
+
   public function get_all_warehouse_list()
   {
     $rs = $this->db
@@ -286,6 +282,7 @@ class Warehouse_model extends CI_Model
 
     return NULL;
   }
+
 
   //---- เอาเฉพาะคลังฝากขายแท้
   public function get_consign_list()
@@ -358,7 +355,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-
   public function get_last_sync_date()
   {
     $rs = $this->db->select_max('last_sync')->get('warehouse');
@@ -413,7 +409,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-
   public function is_exists($code)
   {
     $rs = $this->db->where('code', $code)->get('warehouse');
@@ -424,7 +419,6 @@ class Warehouse_model extends CI_Model
 
     return FALSE;
   }
-
 
 
   public function is_sap_exists($code)
@@ -481,7 +475,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-
   public function get_balance_amount($role = 'N', $whsCode)
   {
     $qr  = "SELECT SUM(Amount) AS Amount FROM ";
@@ -506,7 +499,6 @@ class Warehouse_model extends CI_Model
 
     return 0.00;
   }
-
 
 
   public function get_limit_amount($whsCode)

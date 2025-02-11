@@ -1,12 +1,14 @@
 <?php
 class Move_model extends CI_Model
 {
+  private $tb = "move";
+  private $td = "move_detail";
+  private $tm = "move_temp";
+
   public function __construct()
   {
     parent::__construct();
   }
-
-
 
   public function get_sap_move_doc($code)
   {
@@ -56,7 +58,6 @@ class Move_model extends CI_Model
   }
 
 
-
   public function add_sap_move_doc(array $ds = array())
   {
     if(!empty($ds))
@@ -71,6 +72,7 @@ class Move_model extends CI_Model
     return FALSE;
   }
 
+
   public function update_sap_move_doc($code, $ds = array())
   {
     if(! empty($code) && ! empty($ds))
@@ -81,6 +83,7 @@ class Move_model extends CI_Model
     return FALSE;
   }
 
+
   public function add_sap_move_detail(array $ds = array())
   {
     if(!empty($ds))
@@ -90,8 +93,6 @@ class Move_model extends CI_Model
 
     return FALSE;
   }
-
-
 
 
   public function drop_sap_exists_details($code)
@@ -111,13 +112,11 @@ class Move_model extends CI_Model
   }
 
 
-
-
   public function add(array $ds = array())
   {
     if(!empty($ds))
     {
-      return $this->db->insert('move', $ds);
+      return $this->db->insert($this->tb, $ds);
     }
 
     return FALSE;
@@ -129,7 +128,7 @@ class Move_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->where('code', $code)->update('move', $ds);
+      return $this->db->where('code', $code)->update($this->tb, $ds);
     }
 
     return FALSE;
@@ -141,7 +140,7 @@ class Move_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('move_detail', $ds);
+      return $this->db->insert($this->td, $ds);
     }
 
     return FALSE;
@@ -218,7 +217,7 @@ class Move_model extends CI_Model
     ->where('product_code', $product_code)
     ->where('from_zone', $from_zone)
     ->where('to_zone', $to_zone)
-    ->get('move_detail');
+    ->get($this->td);
 
     if($rs->num_rows() === 1)
     {
@@ -257,7 +256,7 @@ class Move_model extends CI_Model
     ->where('move_code', $code)
     ->where('must_accept', 1)
     ->where('is_accept', 0)
-    ->count_all_results('move_detail');
+    ->count_all_results($this->td);
 
     if($count == 0)
     {
@@ -281,7 +280,7 @@ class Move_model extends CI_Model
     ->where('must_accept', 1)
     ->where('is_accept', 0);
 
-    return $this->db->update('move_detail', $arr);
+    return $this->db->update($this->td, $arr);
   }
 
 
@@ -312,7 +311,7 @@ class Move_model extends CI_Model
       'accept_on' => now()
     );
 
-    return $this->db->where('move_code', $code)->where('to_zone', $zone_code)->update('move_detail', $arr);
+    return $this->db->where('move_code', $code)->where('to_zone', $zone_code)->update($this->td, $arr);
   }
 
 
@@ -339,7 +338,7 @@ class Move_model extends CI_Model
 
   public function update_qty($id, $qty)
   {
-    return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('move_detail');
+    return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update($this->td);
   }
 
 
@@ -349,6 +348,7 @@ class Move_model extends CI_Model
     if(!empty($ds))
     {
       $id = $this->get_temp_id($ds['move_code'], $ds['product_code'], $ds['zone_code']);
+
       if(!empty($id))
       {
         return $this->update_temp_qty($id, $ds['qty']);
@@ -358,6 +358,7 @@ class Move_model extends CI_Model
         return $this->add_temp($ds);
       }
     }
+
     return FALSE;
   }
 
@@ -369,7 +370,7 @@ class Move_model extends CI_Model
     ->where('move_code', $code)
     ->where('product_code', $product_code)
     ->where('zone_code', $zone_code)
-    ->get('move_temp');
+    ->get($this->tm);
 
     if($rs->num_rows() === 1)
     {
@@ -382,7 +383,7 @@ class Move_model extends CI_Model
 
   public function get_sum_temp_stock($product_code)
   {
-    $rs = $this->db->select_sum('qty')->where('product_code', $product_code)->get('move_temp');
+    $rs = $this->db->select_sum('qty')->where('product_code', $product_code)->get($this->tm);
     if($rs->num_rows() === 1)
     {
       return $rs->row()->qty;
@@ -396,7 +397,7 @@ class Move_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('move_temp', $ds);
+      return $this->db->insert($this->tm, $ds);
     }
 
     return FALSE;
@@ -405,7 +406,7 @@ class Move_model extends CI_Model
 
   public function update_temp_qty($id, $qty)
   {
-    return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('move_temp');
+    return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update($this->tm);
   }
 
 
@@ -415,7 +416,7 @@ class Move_model extends CI_Model
   {
     $rs = $this->db
     ->select('move_temp.*, products.barcode')
-    ->from('move_temp')
+    ->from($this->tm)
     ->join('products', 'products.code = move_temp.product_code', 'left')
     ->where('move_code', $code)
     ->get();
@@ -435,7 +436,7 @@ class Move_model extends CI_Model
     $rs = $this->db
     ->where('move_code', $code)
     ->where('product_code', $product_code)
-    ->get('move_temp');
+    ->get($this->tm);
 
     if($rs->num_rows() > 0)
     {
@@ -453,7 +454,7 @@ class Move_model extends CI_Model
     ->where('move_code', $move_code)
     ->where('product_code', $product_code)
     ->where('zone_code', $zone_code)
-    ->get('move_temp');
+    ->get($this->tm);
 
     if($rs->num_rows() === 1)
     {
@@ -473,7 +474,7 @@ class Move_model extends CI_Model
     ->where('product_code', $product_code)
     ->where('from_zone', $from_zone)
     ->where('valid', 0)
-    ->get('move_detail');
+    ->get($this->td);
 
     return intval($rs->row()->qty);
   }
@@ -481,37 +482,37 @@ class Move_model extends CI_Model
 
   public function drop_zero_temp()
   {
-    return $this->db->where('qty <', 1)->delete('move_temp');
+    return $this->db->where('qty <', 1)->delete($this->tm);
   }
 
 
   public function drop_all_temp($code)
   {
-    return $this->db->where('move_code', $code)->delete('move_temp');
+    return $this->db->where('move_code', $code)->delete($this->td);
   }
 
 
   public function drop_temp($id)
   {
-    return $this->db->where('id', $id)->delete('move_temp');
+    return $this->db->where('id', $id)->delete($this->tm);
   }
 
 
   public function drop_all_detail($code)
   {
-    return $this->db->where('move_code', $code)->delete('move_detail');
+    return $this->db->where('move_code', $code)->delete($this->td);
   }
 
 
   public function drop_detail($id)
   {
-    return $this->db->where('id', $id)->delete('move_detail');
+    return $this->db->where('id', $id)->delete($this->td);
   }
 
 
   public function delete($code)
   {
-    return $this->db->where('code', $code)->delete('move');
+    return $this->db->where('code', $code)->delete($this->tb);
   }
 
 
@@ -523,7 +524,7 @@ class Move_model extends CI_Model
       $this->db->where('code !=', $old_code);
     }
 
-    $rs = $this->db->where('code', $code)->get('move');
+    $rs = $this->db->where('code', $code)->get($this->tb);
     if($rs->num_rows() === 1)
     {
       return TRUE;
@@ -535,7 +536,7 @@ class Move_model extends CI_Model
 
   public function is_exists_detail($code)
   {
-    $rs = $this->db->select('id')->where('move_code', $code)->get('move_detail');
+    $rs = $this->db->select('id')->where('move_code', $code)->get($this->td);
     if($rs->num_rows() > 0)
     {
       return TRUE;
@@ -548,7 +549,7 @@ class Move_model extends CI_Model
 
   public function is_exists_temp($code)
   {
-    $rs = $this->db->select('id')->where('move_code', $code)->get('move_temp');
+    $rs = $this->db->select('id')->where('move_code', $code)->get($this->tm);
     if($rs->num_rows() > 0)
     {
       return TRUE;
@@ -560,99 +561,78 @@ class Move_model extends CI_Model
 
   public function set_status($code, $status)
   {
-    return $this->db->set('status', $status)->where('code', $code)->update('move');
+    return $this->db->set('status', $status)->where('code', $code)->update($this->tb);
   }
 
 
 
   public function valid_all_detail($code, $valid)
   {
-    return $this->db->set('valid', $valid)->where('move_code', $code)->update('move_detail');
+    return $this->db->set('valid', $valid)->where('move_code', $code)->update($this->td);
   }
 
 
   public function count_rows(array $ds = array())
   {
-    $this->db
-    ->from('move AS m')
-    ->join('warehouse AS fw', 'm.from_warehouse = fw.code', 'left')
-    ->join('warehouse AS tw', 'm.to_warehouse = tw.code', 'left')
-    ->join('user AS u', 'm.user = u.uname', 'left');
-
     if( ! empty($ds['code']))
     {
-      $this->db->like('m.code', $ds['code']);
+      $this->db->like('code', $ds['code']);
     }
 
-    if( ! empty($ds['from_warehouse']))
+    if( ! empty($ds['warehouse']) && $ds['warehouse'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('m.from_warehouse', $ds['from_warehouse'])
-      ->or_like('fw.name', $ds['from_warehouse'])
-      ->group_end();
+      $this->db->where('from_warehouse', $ds['warehouse']);
     }
 
-    if( ! empty($ds['to_warehouse']))
+    if( ! empty($ds['user']) && $ds['user'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('m.to_warehouse', $ds['to_warehouse'])
-      ->or_like('tw.name', $ds['to_warehouse'])
-      ->group_end();
-    }
-
-    if( ! empty($ds['user']))
-    {
-      $this->db
-      ->group_start()
-      ->like('u.uname', $ds['user'])
-      ->or_like('u.name', $ds['user'])
-      ->group_end();
+      $this->db->where('user', $ds['user']);
     }
 
     if($ds['status'] != 'all')
     {
       if( $ds['status'] == 5)
       {
-        $this->db->where('m.is_expire', 1);
+        $this->db->where('is_expire', 1);
       }
       else
       {
-        $this->db->where('m.status', $ds['status']);
+        $this->db->where('is_expire', 0)->where('status', $ds['status']);
       }
     }
 
     if(isset($ds['must_accept']) && $ds['must_accept'] != 'all')
     {
-      $this->db->where('m.must_accept', $ds['must_accept']);
+      $this->db->where('must_accept', $ds['must_accept']);
     }
 
     if($ds['is_export'] != 'all')
     {
-      $this->db->where('m.is_exported', $ds['is_export']);
+      $this->db->where('is_exported', $ds['is_export']);
     }
 
-
-    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    if( ! empty($ds['from_date']))
     {
-      $this->db->where('m.date_add >=', from_date($ds['from_date']));
-      $this->db->where('m.date_add <=', to_date($ds['to_date']));
+      $this->db->where('date_add >=', from_date($ds['from_date']));
     }
 
-    return $this->db->count_all_results();
+    if( ! empty($ds['to_date']))
+    {
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    return $this->db->count_all_results($this->tb);
   }
 
 
-  public function get_data(array $ds = array(), $perpage = 20, $offset = 0)
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     $this->db
     ->select('m.*')
-    ->select('fw.name AS from_warehouse_name, tw.name AS to_warehouse_name')
+    ->select('w.name AS warehouse_name')
     ->select('u.name AS display_name')
     ->from('move AS m')
-    ->join('warehouse AS fw', 'm.from_warehouse = fw.code', 'left')
-    ->join('warehouse AS tw', 'm.to_warehouse = tw.code', 'left')
+    ->join('warehouse AS w', 'm.from_warehouse = w.code', 'left')
     ->join('user AS u', 'm.user = u.uname', 'left');
 
     if( ! empty($ds['code']))
@@ -660,31 +640,14 @@ class Move_model extends CI_Model
       $this->db->like('m.code', $ds['code']);
     }
 
-    if( ! empty($ds['from_warehouse']))
+    if( ! empty($ds['warehouse']) && $ds['warehouse'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('m.from_warehouse', $ds['from_warehouse'])
-      ->or_like('fw.name', $ds['from_warehouse'])
-      ->group_end();
+      $this->db->where('m.from_warehouse', $ds['warehouse']);
     }
 
-    if( ! empty($ds['to_warehouse']))
+    if( ! empty($ds['user']) && $ds['user'] != 'all')
     {
-      $this->db
-      ->group_start()
-      ->like('m.to_warehouse', $ds['to_warehouse'])
-      ->or_like('tw.name', $ds['to_warehouse'])
-      ->group_end();
-    }
-
-    if( ! empty($ds['user']))
-    {
-      $this->db
-      ->group_start()
-      ->like('u.uname', $ds['user'])
-      ->or_like('u.name', $ds['user'])
-      ->group_end();
+      $this->db->where('m.user', $ds['user']);
     }
 
     if($ds['status'] != 'all')
@@ -695,7 +658,7 @@ class Move_model extends CI_Model
       }
       else
       {
-        $this->db->where('m.status', $ds['status']);
+        $this->db->where('m.is_expire', 0)->where('m.status', $ds['status']);
       }
     }
 
@@ -709,10 +672,13 @@ class Move_model extends CI_Model
       $this->db->where('m.is_exported', $ds['is_export']);
     }
 
-
-    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    if( ! empty($ds['from_date']))
     {
       $this->db->where('m.date_add >=', from_date($ds['from_date']));
+    }
+
+    if( ! empty($ds['to_date']))
+    {
       $this->db->where('m.date_add <=', to_date($ds['to_date']));
     }
 
@@ -757,7 +723,7 @@ class Move_model extends CI_Model
     ->select_max('code')
     ->like('code', $code, 'after')
     ->order_by('code', 'DESC')
-    ->get('move');
+    ->get($this->tb);
 
     return $rs->row()->code;
   }
@@ -765,7 +731,7 @@ class Move_model extends CI_Model
 
   public function exported($code)
   {
-    return $this->db->set('is_exported', 1)->where('code', $code)->update('move');
+    return $this->db->set('is_exported', 1)->where('code', $code)->update($this->tb);
   }
 
 
@@ -779,7 +745,7 @@ class Move_model extends CI_Model
     ->where('is_exported', 0)
     ->order_by('date_add', 'ASC')
     ->limit($limit)
-    ->get('move');
+    ->get($this->tb);
 
     if($rs->num_rows() > 0)
     {
@@ -797,7 +763,7 @@ class Move_model extends CI_Model
     ->where('status', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
     ->limit($limit)
-    ->get('move');
+    ->get($this->tb);
 
     if($rs->num_rows() > 0)
     {
@@ -827,7 +793,7 @@ class Move_model extends CI_Model
 
   public function update_inv($code, $doc_num)
   {
-    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('move');
+    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update($this->tb);
   }
 
 

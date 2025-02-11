@@ -452,6 +452,11 @@ class Receive_po_model extends CI_Model
       ->group_end();
     }
 
+    if( isset($ds['warehouse']) && $ds['warehouse'] != 'all')
+    {
+      $this->db->where('r.warehouse_code', $ds['warehouse']);
+    }
+
     return $this->db->count_all_results();
   }
 
@@ -557,6 +562,11 @@ class Receive_po_model extends CI_Model
       ->group_end();
     }
 
+    if( isset($ds['warehouse']) && $ds['warehouse'] != 'all')
+    {
+      $this->db->where('r.warehouse_code', $ds['warehouse']);
+    }
+
     $this->db->order_by('r.date_add', 'DESC');
     $this->db->order_by('code', 'DESC');
 
@@ -633,7 +643,7 @@ class Receive_po_model extends CI_Model
   public function get_sap_doc_num($code)
   {
     $rs = $this->ms->select('DocNum')->where('U_ECOMNO', $code)->where('CANCELED', 'N')->get('OPDN');
-    
+
     if($rs->num_rows() === 1)
     {
       return $rs->row()->DocNum;

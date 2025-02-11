@@ -8,6 +8,9 @@ hr {
     margin-right: -7px;
 }
 
+input.width-100 {
+  height: 30px;
+}
 
 .container {
   padding-right: 15px;
@@ -16,23 +19,17 @@ hr {
   margin-left: auto;
 }
 
-.input-label
-{
-background-color:White;
-border:none;
-color:#999;
+.input-label {
+  background-color:White;
+  border:none;
+  color:#999;
 }
 
-
-
-.input-label-textarea
-{
-background-color:White;
-border:none;
-width:100%;
+.input-label-textarea {
+  background-color:White;
+  border:none;
+  width:100%;
 }
-
-
 
 input[type=date]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -41,19 +38,17 @@ input[type=date]::-webkit-inner-spin-button {
 
 
 
-input[type=date]::-webkit-clear-button
-{
+input[type=date]::-webkit-clear-button {
     display: none; /* Hide the button */
     -webkit-appearance: none; /* turn off default browser styling */
 }
-
-
 
 /* Framework start from here */
 
 .tree:before{
   border: 0;
 }
+
 ul.tree,
 ul.tree ul {
   list-style:none;
@@ -61,16 +56,12 @@ ul.tree ul {
   padding:0;
 }
 
-
-
 ul.tree ul {
   margin-left:5px; /* indentation */
   margin-top:-5px !important;
   padding-top:10px;
   position:relative;
 }
-
-
 
 ul.tree ul:before {
   content:"";
@@ -84,8 +75,6 @@ ul.tree ul:before {
   z-index: 20
 }
 
-
-
 ul.tree li {
   margin:0;
   padding:0 12px; /* indentation + 2 */
@@ -95,8 +84,6 @@ ul.tree li {
   font-weight:bold;
   position:relative;
 }
-
-
 
 ul.tree ul li:before {
   content:"";
@@ -110,8 +97,6 @@ ul.tree ul li:before {
   z-index: 20
 }
 
-
-
 ul.tree ul li:last-child:before {
   background:#FFF;/* same with body background */
   height:auto;
@@ -119,13 +104,9 @@ ul.tree ul li:last-child:before {
   bottom:0;
 }
 
-
-
 ul.tree ul li label {
 	margin-bottom:0px !important;
 }
-
-
 
 .title {
 	margin-top:10px;
@@ -145,15 +126,11 @@ h4.title {
   margin-top:14px;
 }
 
-
-
 .label-left{
 	text-align:right;
 	border:0px;
 	padding-right:0px;
 }
-
-
 
 .label-right{
 	text-align:left;
@@ -161,13 +138,9 @@ h4.title {
 	padding-right:0px;
 }
 
-
-
 p > button{
 	margin-left: 5px;
 }
-
-
 
 hr{
 	border-color:#CCC;
@@ -185,8 +158,6 @@ hr.padding-5 {
   margin-bottom:30px;
 }
 
-
-
 .input-xs {
   height: 22px;
   padding: 5px 5px;
@@ -195,44 +166,31 @@ hr.padding-5 {
   border-radius: 3px;
 }
 
-
-
 .input-label {
 	margin-top: 15px;
 	margin-bottom:0px;
 	display:block;
 }
 
-
 .input-400 {
 	width: 400px !important
 }
-
-
 
 .input-450 {
 	width: 450px !important
 }
 
-
-
 .input-500 {
 	width: 500px !important
 }
-
-
 
 .input-550 {
 	width: 550px !important
 }
 
-
-
 .input-600 {
 	width: 600px !important
 }
-
-
 
 .input-line {
 	border-radius:0px;
@@ -243,17 +201,14 @@ hr.padding-5 {
 	transition:linear 0.1s;
 }
 
-
-
 .input-line:focus {
 	border-bottom:solid 2px #06F;
 }
+
 .input-line:hover {
 	border-bottom:solid 2px #06F;
 	transition:linear 0.1s;
 }
-
-
 
 .required {
 	float:right;
@@ -262,51 +217,35 @@ hr.padding-5 {
 	margin-right:-10px;
 }
 
-
-
 .padding-0 {
 	padding: 0px !important;
 }
-
-
 
 .padding-left-0 {
 	padding-left:0px;
 }
 
-
-
 .padding-right-0 {
 	padding-right:0px;
 }
-
-
 
 .padding-left-5 {
 	padding-left:5px;
 }
 
-
-
 .padding-right-5 {
 	padding-right:5px;
 }
-
-
 
 .padding-5 {
 	padding-left:5px;
 	padding-right:5px;
 }
 
-
-
 .padding-10 {
 	padding-left:10px;
 	padding-right:10px;
 }
-
-
 
 .padding-20 {
 	padding-left:20px;
@@ -325,41 +264,29 @@ hr.padding-5 {
   padding-bottom: 20px;
 }
 
-
 .first {
 	padding-left:15px !important;
 }
-
-
 
 .last {
 	padding-right:15px !important;
 }
 
-
-
 .width-100 {
 	width:100%;
 }
-
-
 
 .width-80 {
 	width:80%;
 }
 
-
-
 .width-75 {
 	width:75%;
 }
 
-
-
 .width-60 {
   width:60%;
 }
-
 
 .width-55 {
   width: 55%;
@@ -369,64 +296,45 @@ hr.padding-5 {
 	width:50%;
 }
 
-
-
 .width-45 {
 	width:45%;
 }
-
-
 
 .width-40 {
 	width:40%;
 }
 
-
-
 .width-35 {
 	width:35%;
 }
-
-
 
 .width-33 {
 	width:33%;
 }
 
-
-
 .width-30 {
 	width:30%;
 }
 
-
-
 .width-25 {
 	width:25%;
 }
+
 .width-20 {
 	width:20%;
 }
-
-
 
 .width-15 {
 	width:15%;
 }
 
-
-
 .width-10 {
 	width:10%;
 }
 
-
-
 .width-8 {
 	width:8%;
 }
-
-
 
 .width-5 {
 	width:5%;
@@ -435,8 +343,6 @@ hr.padding-5 {
 .width-3 {
   width:3%;
 }
-
-
 
 .input-discount {
 	width:50% !important;
@@ -449,8 +355,6 @@ hr.padding-5 {
 	padding-left:5px;
 }
 
-
-
 .input-unit {
 	width:50% !important;
 	border-top-left-radius:0px !important;
@@ -459,26 +363,18 @@ hr.padding-5 {
 	padding-left:5px;
 }
 
-
-
 .top-row {
 	min-height:30px;
 }
-
-
 
 .top-col {
 	margin-top:10px;
 }
 
-
-
 .top-p{
 	margin-bottom:0px;
   margin-right:0px !important;
 }
-
-
 
 	dl {
     float:left;
@@ -487,23 +383,17 @@ hr.padding-5 {
     padding-top:5px;
   }
 
-
-
 	dt {
     float:left;
     margin:0px;
     padding-right:10px;
   }
 
-
-
 	dd {
     float:left;
     margin:0px;
     padding-right:10px;
   }
-
-
 
 .image {
 	display: block;
@@ -519,14 +409,10 @@ hr.padding-5 {
 	-o-transition: all 0.5s ease 0s;
 }
 
-
-
 .image a {
 	display: block;
 	overflow: hidden;
 }
-
-
 
 .image a img {
 	transition: all 0.5s ease 0s;
@@ -538,13 +424,9 @@ hr.padding-5 {
 	margin: 0 auto;
 }
 
-
-
 .img-responsive {
 	width: 100%;
 }
-
-
 
 .divider{
 	width:100%;
@@ -554,8 +436,6 @@ hr.padding-5 {
 	margin-top:15px;
 	margin-bottom:15px;
 }
-
-
 
 .divider-hidden{
 	width:100%;
@@ -567,23 +447,12 @@ hr.padding-5 {
 	visibility: hidden;
 }
 
-
-/*
-.li-block {
-	float:none !important;
-	display:block;
-}
-*/
-
-
 .li-block > a:hover {
 	border-top:solid 1px #4c8fbd;
 	background-color: #EEE;
 	transition: border 0.1s ease;
   text-decoration: none;
 }
-
-
 
 .li-block a {
 	position:relative;
@@ -593,14 +462,10 @@ hr.padding-5 {
 	color:#434a54;
 }
 
-
-
  .active > a {
 	border-left:solid 5px lightsalmon;
   background-color: #f5f7fa;
 }
-
-
 
 .active > a:hover {
   text-decoration: none;
@@ -609,12 +474,9 @@ hr.padding-5 {
 	transition:linear 0.1s;
 }
 
-
 .nav .open > a, .nav .open > a:hover, .nav .open > a:focus{
 	border-color: lightsalmon;
 }
-
-
 
 .setting-tabs {
 	padding-left:0px;
@@ -623,21 +485,15 @@ hr.padding-5 {
 	background-color:White;
 }
 
-
-
 .left-label{
 	font-weight:bold;
 	padding-left:0px;
 	border:0px;
 }
 
-
-
 .no-border{
 	border:0px !important;
 }
-
-
 
 .border-1 {
 	border: solid 1px #CCC !important;
@@ -659,8 +515,6 @@ hr.padding-5 {
 	border-top: solid 2px #333 !important;
 }
 
-
-
 .help-block {
 	color:#AAA;
 	display:block;
@@ -673,43 +527,29 @@ hr.padding-5 {
 	min-height: 34px !important;
 }
 
-
-
 .inline-block{
 	display:inline-block;
 }
-
-
 
 .inline {
 	display:inline;
 }
 
-
-
 .red {
 	color:red;
 }
-
-
 
 .blue {
 	color:blue;
 }
 
-
-
 .green {
 	color:green;
 }
 
-
-
 .yellow {
 	color:yellow;
 }
-
-
 
 .has-error{
 	border: solid 1px red !important;
@@ -718,8 +558,6 @@ hr.padding-5 {
 .has-success {
   border: solid 1px green !important;
 }
-
-
 
 .bg-green {
   background-color: #ebf1e2;
@@ -732,8 +570,6 @@ hr.padding-5 {
 .bg-light-grey {
   background-color: #eee;
 }
-
-
 
 .img-tool-box{
 	position: absolute;
@@ -749,9 +585,7 @@ hr.padding-5 {
 	text-align:center;
 	vertical-align:middle;
 	background-color:rgba(255,255,255,0.1);
-
 }
-
 
 .margin-5 {
   margin-left:5px !important;
@@ -762,35 +596,26 @@ hr.padding-5 {
   margin-left:7px !important;
   margin-right:7px !important;
 }
+
 .margin-right-5 {
 	margin-right:5px !important;
 }
-
-
 
 .margin-right-10{
 	margin-right:10px !important;
 }
 
-
-
 .margin-right-15 {
 	margin-right:15px !important;
 }
-
-
 
 .margin-top-5{
 	margin-top:5px !important;
 }
 
-
-
 .margin-top-10{
 	margin-top:10px !important;
 }
-
-
 
 .margin-top-15{
 	margin-top:15px !important;
@@ -800,92 +625,65 @@ hr.padding-5 {
 	margin-top:20px !important;
 }
 
-
 .margin-top-25{
 	margin-top:25px !important;
 }
-
 
 .margin-top-30{
 	margin-top:30px !important;
 }
 
-
-
 .margin-left-5 {
 	margin-left:5px !important;
 }
-
-
 
 .margin-left-10 {
 	margin-left:10px !important;
 }
 
-
-
 .margin-left-15 {
 	margin-left:15px !important;
 }
-
-
 
 .margin-bottom-5 {
 	margin-bottom:5px;
 }
 
-
-
 .margin-bottom-10 {
 	margin-bottom:10px !important;
 }
-
-
 
 .margin-bottom-15 {
 	margin-bottom:15px !important;
 }
 
-
 .margin-bottom-20 {
 	margin-bottom:20px !important;
 }
-
 
 .margin-bottom-25 {
 	margin-bottom:25px !important;
 }
 
-
 .margin-bottom-30 {
 	margin-bottom:30px !important;
 }
-
-
 
 .middle {
 	vertical-align:middle !important;
 }
 
-
-
 .hide {
 	display:none;
 }
-
-
 
 .not-show{
 	visibility:hidden;
 }
 
-
-
 .display-block{
 	display:block;
 }
-
-
 
 .display-inline{
 	display:inline;
@@ -894,7 +692,6 @@ hr.padding-5 {
 .col-1-harf, .col-2-harf, .col-3-harf, .col-4-harf, .col-5-harf, .col-6-harf, .col-7-harf, .col-8-harf, .col-9-harf, .col-10-harf, .col-11-harf {
 	float:left;
 }
-
 
 @media (min-width: 768px){
 

@@ -5,11 +5,9 @@ function goBack(){
 }
 
 
-
 function addNew(){
   window.location.href = HOME + 'add_new';
 }
-
 
 
 function goEdit(code){
@@ -22,8 +20,6 @@ function goDetail(code){
 }
 
 
-
-
 //--- สลับมาใช้บาร์โค้ดในการคีย์สินค้า
 function goUseBarcode(){
   var code = $('#move_code').val();
@@ -31,16 +27,11 @@ function goUseBarcode(){
 }
 
 
-
-
 //--- สลับมาใช้การคื่ย์มือในการย้ายสินค้า
 function goUseKeyboard(){
   var code = $('#move_code').val();
   window.location.href = HOME + 'edit/'+code+'/N';
 }
-
-
-
 
 
 function goDelete(code, status){
@@ -112,6 +103,7 @@ function cancle(code)
   });
 }
 
+
 function doCancle() {
 	let code = $('#cancle-code').val();
 	let reason = $.trim($('#cancle-reason').val());
@@ -127,11 +119,9 @@ function doCancle() {
 }
 
 
-
 $('#cancle-modal').on('shown.bs.modal', function() {
 	$('#cancle-reason').focus();
 });
-
 
 
 function clearFilter(){
@@ -141,13 +131,9 @@ function clearFilter(){
 }
 
 
-
-
 function getSearch(){
   $('#searchForm').submit();
 }
-
-
 
 
 $('.search').keyup(function(e){
@@ -157,14 +143,12 @@ $('.search').keyup(function(e){
 });
 
 
-
 $('#fromDate').datepicker({
   dateFormat:'dd-mm-yy',
   onClose:function(sd){
     $('#toDate').datepicker('option', 'minDate', sd);
   }
 });
-
 
 
 $('#toDate').datepicker({
@@ -178,7 +162,6 @@ $('#toDate').datepicker({
 $('#date').datepicker({
   dateFormat:'dd-mm-yy'
 });
-
 
 
 function printMove(){
