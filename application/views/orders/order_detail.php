@@ -71,9 +71,9 @@
 										data-count="<?php echo $rs->is_count; ?>"
 										onchange="recalItem(<?php echo $rs->id; ?>, '<?php echo $rs->is_count ? 'N' : 'Y'; ?>')"/>
 								<?php endif; ?>
-								<?php if($rs->is_count == 1 OR $order->state > 8) : ?>
+								<?php if($rs->is_count == 1 OR $order->state >= 8) : ?>
 								<span class="price-label" id="price-label-<?php echo $rs->id; ?>">	<?php echo number($rs->price, 2); ?></span>
-								<?php endif; ?>
+								<?php endif; ?>								
 							</td>
 
               <td class="middle text-center">
