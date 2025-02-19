@@ -23,7 +23,7 @@
 		<label>คลังสินค้า</label>
 		<select class="width-100 e" id="warehouse">
 			<option value="">เลือกคลัง</option>
-			<?php echo select_common_warehouse(); ?>
+			<?php echo select_warehouse(); ?>
 		</select>
 	</div>
 	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-12 padding-5">
