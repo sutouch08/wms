@@ -26,7 +26,7 @@ class Xprinter
 	public $font_size 		= 12;
 	public $text_color = "";
 
-	public $title_size 		= "h4";
+	public $title_size 		= "24";
 	public $content_border = 0;
 	public $pattern			= array();
 	public $footer			= true;
@@ -35,6 +35,9 @@ class Xprinter
 	public $header_row	= array();
 
 	public $sub_header	= "";
+	public $table_class = "";
+	public $table_style = "border:none; width:100%;";
+	public $row_style = "border:none;";
 
 
 	public function __construct()
@@ -156,7 +159,7 @@ class Xprinter
 
 	public function thead(array $dataset)
 	{
-		$thead	= "<table class='table' style='margin-bottom:0px; margin-top:5px;'>";
+		$thead	= "<table class='table {$this->table_class}' style='margin-bottom:0px; margin-top:5px;'>";
 		$thead 	.= "<thead>";
 		$thead	.= "<tr style='line-height:".$this->row_height."mm; font-size:".$this->font_size."px; background:none;'>";
 		foreach($dataset as $data)
@@ -389,10 +392,10 @@ class Xprinter
 		$top  = "";
 		$top .= "<table class='' style='width:40%; border:none; float:left;'>";
 		$top .= "<tr>";
-		$top .= "<td colspan='2' class='{$this->text_color}' style='width:30%; height:10mm; font-size:24px; text-align:center; border-bottom:solid 2px #333;'>";
-		$top .= $this->title;
-		$top .= "<span style='font-size:10px; float:right; text-align:right; color:black; margin-top:-15px;'>";
+		$top .= "<td colspan='2' class='{$this->text_color}' style='font-size:{$this->title_size}px; width:30%; height:10mm; text-align:center; vertical-align:bottom; border-bottom:solid 2px #333;'>";
+		$top .= "<span style='position:absolute; top:15px; right:15px; font-size:10px; text-align:right; color:black;'>";
 		$top .= "หน้า {$this->current_page}/{$this->total_page}</span>";
+		$top .= $this->title;
 		$top .= "</td>";
 		$top .= "</tr>";
 
@@ -463,7 +466,7 @@ class Xprinter
 
 		foreach($data as $n=>$value)
 		{
-			$row .= "<td class='middle' style='border:none; {$pattern[$n]}'>".$value."</td>";
+			$row .= "<td class='middle' style='{$this->row_style} {$pattern[$n]}'>".$value."</td>";
 		}
 		$row .= "</tr>";
 		return $row;
@@ -518,8 +521,9 @@ class Xprinter
 			$row4 = 10;
 			$row3 = $height - ($row1+$row2+$row4) - 2;
 			$row5 = 8;
-		
+
 			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:10mm; left:5mm;'>";
+
 			foreach($data as $n=>$value)
 			{
 				$footer .="<div style='width:".$box_width."%; height:".$height."mm; text-align:center; float:right; padding-left:{$margin}mm; padding-right:{$margin}mm;'>";
@@ -529,14 +533,17 @@ class Xprinter
 				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height: ".$row3."mm; text-align:center; padding-left:5px; padding-right:5px; ".(is_null($value[1]) ? "" : "border-bottom:dotted 1px #333;")." float:left; padding:10px;'></span>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:20%; height: ".$row4."mm; text-align:right; vertical-align:bottom; float:left; padding-top: 25px;'>".$value[2]."</span>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:70%; height: ".$row4."mm; text-align:left; float:left; padding-top: 10px;".(is_null($value[2]) ? "" : " border-bottom:dotted 1px #333;")."'></span>";
+
 				if(!empty($value[3]))
 				{
 					$footer .="<span style='font-size:{$this->font_size}px; width:20%; height: ".$row5."mm; text-align:right; vertical-align:bottom; float:left; padding-top: 20px;'>".$value[3]."</span>";
 					$footer .="<span style='font-size:{$this->font_size}px; width:70%; height: ".$row5."mm; text-align:left; float:left; padding-top: 10px;".(is_null($value[3]) ? "" : " border-bottom:dotted 1px #333;")."'></span>";
 				}
+
 				$footer .="</div>";
 				$footer .="</div>";
 			}
+
 			$footer .="</div>";
 			$this->footer = $footer;
 		}

@@ -312,15 +312,63 @@ function removeChecked() {
 }
 
 
-function reCal(){
-	var total = 0;
-	$('.qty').each(function(){
-		var qty = parseInt(removeCommas($(this).text()));
-		if(!isNaN(qty))
-		{
-			total += qty;
+function updateTransferQty(id) {
+	let el = $('#trans-qty-'+id);
+	let prevQty = parseDefault(parseFloat(el.data('qty')), 0);
+	let qty = parseDefault(parseFloat(el.val()), 0);
+	let wmsQty = parseDefault(parseFloat(el.data('wms')), 0);
+
+	if(qty < wmsQty) {
+		beep();
+		showError('ยอดตั้งต้องไม่น้อยกว่ายอดที่รับแล้ว');
+		el.val(prevQty);
+		return false;
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'update_transfer_qty',
+		type:'POST',
+		cache:false,
+		data:{
+			'id' : id,
+			'qty' : qty
+		},
+		success:function(rs) {
+			load_out();
+
+			if(rs.trim() === 'success') {
+				el.data('qty', qty);
+				reCal(-1);
+			}
+			else {
+				beep();
+				el.val(prevQty);
+				showError(rs);
+			}
+		},
+		error:function(rs) {
+			beep();
+			showError(rs);
 		}
 	});
+}
+
+
+function reCal(is_wms) {
+	var total = 0;
+
+	if(is_wms == -1) {
+		$('.trans-qty').each(function(){
+			total += parseDefault(parseFloat($(this).val()), 0);			
+		});
+	}
+	else {
+		$('.qty').each(function(){
+			total += parseDefault(parseInt(removeCommas($(this).text())), 0);
+		});
+	}
 
 	$('#total').text(addCommas(total));
 }
@@ -649,4 +697,38 @@ function acceptConfirm() {
 			}
 		}
 	});
+}
+
+
+function pullBack(code) {
+	load_in();
+
+  $.ajax({
+    url:HOME + '/pull_back',
+    type:'POST',
+    cache:'false',
+    data:{
+      'transfer_code' : code
+    },
+    success:function(rs) {
+			load_out();
+      if(rs.trim() == 'success') {
+        swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(() => {
+					window.location.reload();
+				}, 1200);
+      }
+			else {
+      showError(rs);
+      }
+    },
+		error:function(rs) {
+			showError(rs);
+		}
+  });
 }

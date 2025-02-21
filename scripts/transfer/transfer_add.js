@@ -312,6 +312,65 @@ function save(){
 }
 
 
+function saveAsRequest()
+{
+  let code = $('#transfer_code').val().trim();
+  load_in();
+
+  $.ajax({
+    url:HOME + 'save_as_request',
+    type:'POST',
+    cache:false,
+    data:{
+      'code' : code
+    },
+    success:function(rs) {
+      load_out();
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+        if(ds.status == 'success') {
+          swal({
+            title:'Saved',
+            text: 'บันทึกเอกสารเรียบร้อยแล้ว',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(function() {
+            goDetail(code);
+          }, 1200);
+        }
+        else if(ds.status == 'warning') {
+          swal({
+            title:'Warning',
+            text:ds.message,
+            type:'warning',
+            html:true
+          }, () => {
+            goDetail(code);
+          });
+        }
+        else {
+          swal({
+            title:'Error!',
+            text:ds.message,
+            type:'error',
+            html:true
+          });
+        }
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error',
+          html:true
+        });
+      }
+    }
+  });
+}
+
 
 function saveTransfer(code)
 {

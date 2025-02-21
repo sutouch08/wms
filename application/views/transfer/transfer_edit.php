@@ -1,42 +1,47 @@
 <?php $this->load->view('include/header'); ?>
 <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-<div class="row">
-	<div class="col-sm-3 col-xs-12 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-    <div class="col-sm-9 col-xs-12 padding-5">
-    	<p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-		    <?php if($doc->status == 1) : ?>
-		      <button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-					<?php if($this->pm->can_edit) : ?>
-						<button type="button" class="btn btn-sm btn-danger" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
+	<div class="row">
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5 margin-top-5">
+			<h3 class="title"><?php echo $this->title; ?></h3>
+		</div>
+		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 padding-5 text-right">
+			<button type="button" class="btn btn-sm btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+			<?php if($doc->status == 1) : ?>
+				<button type="button" class="btn btn-sm btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+				<?php if($this->pm->can_edit) : ?>
+					<button type="button" class="btn btn-sm btn-danger top-btn" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
+				<?php endif; ?>
+			<?php endif; ?>
+			<?php if(($doc->status == -1 OR $doc->status == 0) && $this->pm->can_add OR $this->pm->can_edit) : ?>
+
+				<?php if(($doc->status == -1 OR $doc->status == 0) && $barcode === TRUE) : ?>
+					<button type="button" class="btn btn-sm btn-primary top-btn" onclick="goUseKeyboard()">คีย์มือ</button>
+				<?php endif; ?>
+
+
+				<?php if(($doc->status == -1 OR $doc->status == 0) && $barcode === FALSE) : ?>
+					<!-- <button type="button" class="btn btn-sm btn-primary" onclick="goUseBarcode()">ใช้บาร์โค้ด</button> -->
+				<?php endif; ?>
+
+				<?php if(($doc->status == -1 OR $doc->status == 0) && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
+					<?php if(getConfig('ALLOW_IMPORT_TRANSFER')) : ?>
+						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="getUploadFile()"><i class="fa fa-file-excel-o"></i> Import Excel</button>
+						<button type="button" class="btn btn-sm btn-purple top-btn" onclick="getTemplate()"><i class="fa fa-download"></i> ไฟล์ Template</button>
 					<?php endif; ?>
-		    <?php endif; ?>
-		    <?php if(($doc->status == -1 OR $doc->status == 0) && $this->pm->can_add OR $this->pm->can_edit) : ?>
-
-		      <?php if(($doc->status == -1 OR $doc->status == 0) && $barcode === TRUE) : ?>
-		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseKeyboard()">คีย์มือ</button>
-		      <?php endif; ?>
-
-
-		      <?php if(($doc->status == -1 OR $doc->status == 0) && $barcode === FALSE) : ?>
-		        <!-- <button type="button" class="btn btn-sm btn-primary" onclick="goUseBarcode()">ใช้บาร์โค้ด</button> -->
-		      <?php endif; ?>
-
-					<?php if(($doc->status == -1 OR $doc->status == 0) && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
-						<?php if(getConfig('ALLOW_IMPORT_TRANSFER')) : ?>
-							<button type="button" class="btn btn-sm btn-primary" onclick="getUploadFile()"><i class="fa fa-file-excel-o"></i> Import Excel</button>
-							<button type="button" class="btn btn-sm btn-purple" onclick="getTemplate()"><i class="fa fa-download"></i> ไฟล์ Template</button>
-						<?php endif; ?>
-		      	<button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> บันทึก</button>
+					<?php if($doc->is_wms == '-1') : ?>
+						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="saveAsRequest()">บันทึกรอรับ</button>
 					<?php endif; ?>
-		    <?php endif; ?>
-      </p>
-    </div>
-</div><!-- End Row -->
+					<?php if($doc->is_wms == 0) : ?>
+						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="saveAsRequest()">บันทึกรอรับ</button>
+						<button type="button" class="btn btn-sm btn-success top-btn" onclick="save()">บันทึกรับทันที</button>
+					<?php endif; ?>
+					<?php if($doc->is_wms >= 1) : ?>
+						<button type="button" class="btn btn-sm btn-success top-btn" onclick="save()">บันทึก</button>
+					<?php endif; ?>
+				<?php endif; ?>
+			<?php endif; ?>
+		</div>
+	</div><!-- End Row -->
 <hr/>
 <?php
 	$this->load->view('transfer/transfer_edit_header');

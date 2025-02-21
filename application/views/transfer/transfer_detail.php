@@ -27,6 +27,9 @@
 									<th class="fix-width-200">ต้นทาง</th>
 									<th class="fix-width-200">ปลายทาง</th>
 									<th class="fix-width-100 text-center">จำนวน</th>
+								<?php if($doc->is_wms == -1) : ?>
+									<th class="fix-width-80 text-center">รับแล้ว</th>
+								<?php endif; ?>
 								</tr>
 							</thead>
 
@@ -34,6 +37,7 @@
 								<?php if(!empty($details)) : ?>
 									<?php		$no = 1;						?>
 									<?php   $total_qty = 0; ?>
+									<?php   $total_wms = 0; ?>
 									<?php		foreach($details as $rs) : 	?>
 										<tr class="font-size-12" id="row-<?php echo $rs->id; ?>">
 											<td class="middle text-center">
@@ -68,16 +72,34 @@
 												<?php 	echo $rs->to_zone_name; 	?>
 											</td>
 
+										<?php if($doc->is_wms == '-1') : ?>
+											<td class="middle text-center qty">
+													<input type="number" class="width-100 e text-center trans-qty"
+													id="trans-qty-<?php echo $rs->id; ?>"
+													data-qty="<?php echo $rs->qty; ?>"
+													data-wms="<?php echo $rs->wms_qty; ?>"
+													onchange="updateTransferQty(<?php echo $rs->id; ?>)"
+													value="<?php echo $rs->qty; ?>" />
+											</td>
+											<td class="middle text-center wms-qty">
+												<?php echo number($rs->wms_qty); ?>
+											</td>
+										<?php else : ?>
 											<td class="middle text-center qty">
 												<?php echo number($rs->qty); ?>
 											</td>
+										<?php endif; ?>
 										</tr>
-										<?php			$no++;			?>
-										<?php     $total_qty += $rs->qty; ?>
+										<?php  $no++;			?>
+										<?php  $total_qty += $rs->qty; ?>
+										<?php $total_wms += $rs->wms_qty; ?>
 									<?php		endforeach;			?>
 									<tr>
 										<td colspan="6" class="middle text-right"><strong>รวม</strong></td>
 										<td class="middle text-center" id="total"><?php echo number($total_qty); ?></td>
+									<?php if($doc->is_wms == -1) : ?>
+										<td class="middle text-center" id="total-wms"><?php echo number($total_wms); ?></td>
+									<?php endif; ?>
 									</tr>
 								<?php	else : ?>
 									<tr>
@@ -125,12 +147,12 @@
 						</div>
 
 						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="min-width:100px; max-height:600px; overflow:auto; padding-left:0; padding-right:0;">
-							<table class="table table-striped table-bordered tableFixHead" style="margin-bottom:0px;">
+							<table class="table table-striped table-bordered tableFixHead" style="min-width:440px; margin-bottom:0px;">
 								<thead>
 									<tr>
 										<th class="fix-width-40 text-center fix-header">ลำดับ</th>
 										<th class="fix-width-200 fix-header">รหัส</th>
-										<th class="min-width-200 fix-header">สินค้า</th>
+										<th class="min-width-200 fix-header hidden-xs">สินค้า</th>
 										<th class="fix-width-100 text-center fix-header">จำนวน</th>
 										<th class="fix-width-100 text-center fix-header">ย้ายออก</th>
 									</tr>
@@ -159,7 +181,7 @@
 		<tr id="zone-row-{{no}}">
 			<td class="text-center zone-no">{{ no }}</td>
 		  <td>{{ product_code }}</td>
-		  <td>{{ product_name }}</td>
+		  <td class="hide-text hidden-xs">{{ product_name }}</td>
 		  <td class="text-center qty-label" id="qty-label-{{no}}">{{ qty }}</td>
 		  <td class="text-center">
 		  	<input type="number" class="form-control input-sm text-center input-qty" max="{{qty}}" id="{{product_code}}" data-no="{{no}}" data-limit="{{qty}}" data-sku="{{product_code}}" />
@@ -181,7 +203,10 @@
 		{{#if @last}}
 			<tr>
 				<td colspan="6" class="text-right"><strong>รวม</strong></td>
-				<td class="middle text-center" id="total">{{ total }}</td>
+				<td class="middle text-center" id="total">{{ totalQty }}</td>
+			<?php if($doc->is_wms == -1) : ?>
+				<td class="middle text-center" id="total-wms">{{ totalWms }}</td>
+			<?php endif; ?>
 			</tr>
 		{{else}}
 		<tr class="font-size-12" id="row-{{id}}">
@@ -196,7 +221,19 @@
 			<td class="middle">{{ product_name }}</td>
 			<td class="middle">{{ from_zone }}</td>
 			<td class="middle">{{{ to_zone }}}</td>
+		<?php if($doc->is_wms == -1) : ?>
+			<td class="middle text-center qty">
+					<input type="number" class="width-100 e text-center trans-qty"
+					id="trans-qty-{{id}}"
+					data-qty="{{qty}}"
+					data-wms="{{wms_qty}}"
+					onchange="updateTransferQty({{id}})"
+					value="{{qty}}" />
+			</td>
+			<td class="middle text-center wms-qty">{{wms_qty_label}}</td>
+		<?php else : ?>
 			<td class="middle text-center qty">{{ qty }}</td>
+		<?php endif; ?>
 		</tr>
 		{{/if}}
 	{{/if}}

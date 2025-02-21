@@ -40,6 +40,7 @@
 				<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
 			<?php endif; ?>
 			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>WARRIX</option>
+      <option value="-1" <?php echo is_selected('-1', $doc->is_wms); ?>>ย้ายคลัง</option>
 		</select>
 	</div>
 

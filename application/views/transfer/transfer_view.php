@@ -63,12 +63,12 @@
 					<?php endif; ?>
 				<?php endif; ?>
 		    <?php if($doc->status == 1) : ?>
-		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+		      <button type="button" class="btn btn-xs btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> Send to SAP</button>
 					<?php if($pos_api && ! $doc->is_pos) : ?>
 						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPos()"><i class="fa fa-send"></i> Send to POS</button>
 					<?php endif; ?>
 		    <?php endif; ?>
-				<?php if($doc->is_wms != 0 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
+				<?php if($doc->is_wms > 0 && $doc->api == 1 && $doc->is_expire == 0 && $doc->status != 2 && ($doc->status == 3 OR $this->_SuperAdmin)) : ?>
 					<?php if($this->wmsApi && ($doc->from_warehouse == $this->wmsWh OR $doc->to_warehouse == $this->wmsWh)) : ?>
 						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToPlc()"><i class="fa fa-send"></i> Send to PLC</button>
 					<?php endif; ?>
@@ -77,13 +77,17 @@
 					<?php endif; ?>
 				<?php endif; ?>
 
+				<?php if($doc->is_wms < 1 && $doc->is_expire == 0 && $doc->status == 3 && $this->_SuperAdmin) : ?>
+					<button type="button" class="btn btn-xs btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ย้อนสถานะกลับมาแก้ไข</button>
+				<?php endif; ?>
+
 				<?php if($doc->status == 0 && $doc->must_approve == 1 && $doc->is_approve == 0 && ($this->pm->can_approve OR $this->_SuperAdmin)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="doApprove()"><i class="fa fa-check-circle"></i> อนุมัติ</button>
 					<button type="button" class="btn btn-xs btn-danger top-btn" onclick="doReject()"><i class="fa fa-times-circle"></i> ไม่อนุมัติ</button>
 				<?php endif; ?>
-				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="printTransfer()"><i class="fa fa-print"></i> ใบโอน</button>
-				<?php if($doc->is_wms == 1) : ?>
-				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="printWmsTransfer()"><i class="fa fa-print"></i> ใบส่งของ</button>
+				<!-- <button type="button" class="btn btn-xs btn-primary top-btn" onclick="printTransfer()"><i class="fa fa-print"></i> ใบโอน</button> -->
+				<?php if($doc->is_wms == '-1') : ?>
+				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="printWmsTransfer()"><i class="fa fa-print"></i> Reconcile</button>
 				<?php endif; ?>
       </p>
     </div>
@@ -120,8 +124,10 @@
 			$this->load->view('accept_watermark');
 		}
 	}
+
 	$this->load->view('transfer/transfer_view_header');
 	?>
+
 	<?php if($doc->is_pos == 1) : ?>
 		<div class="row">
 			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">

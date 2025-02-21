@@ -857,7 +857,7 @@ public function export_transfer($code)
 
               foreach($details as $rs)
               {
-                $qty = ($doc->is_wms != 0 && $doc->api == 1) ? $rs->wms_qty : $rs->qty;
+                $qty = $rs->wms_qty; //($doc->is_wms != 0 && $doc->api == 1) ? $rs->wms_qty : $rs->qty;
 
                 if($qty > 0)
                 {

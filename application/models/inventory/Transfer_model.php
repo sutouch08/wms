@@ -26,6 +26,38 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_incomplete_details($code)
+  {
+    $rs = $this->db
+    ->where('transfer_code', $code)
+    ->where('valid', 0)
+    ->get('transfer_detail');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_completed_details($code)
+  {
+    $rs = $this->db
+    ->where('transfer_code', $code)
+    ->where('valid', 1)
+    ->get('transfer_detail');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_sap_transfer_doc($code)
   {
     $rs = $this->ms
@@ -329,6 +361,18 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_detail_by_id($id)
+  {
+    $rs = $this->db->where('id', $id)->get('transfer_detail');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
 
   public function get_detail($id)
   {
@@ -379,6 +423,32 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_detail_row($code, $product_code, $from_zone = NULL, $to_zone = NULL)
+  {
+    $this->db
+    ->where('transfer_code', $code)
+    ->where('product_code', $product_code);
+
+    if( ! empty($from_zone))
+    {
+      $this->db->where('from_zone', $from_zone);
+    }
+
+    if( ! empty($to_zone))
+    {
+      $this->db->where('to_zone', $to_zone);
+    }
+
+    $rs = $this->db->order_by('wms_qty', 'DESC')->limit(1)->get('transfer_detail');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+		return NULL;
+  }
+
 
   public function get_id($transfer_code, $product_code, $from_zone, $to_zone)
   {
@@ -405,12 +475,18 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function update_wms_qty($id, $wms_qty)
+  {
+    return $this->db->set("wms_qty", "wms_qty + {$wms_qty}", FALSE)->where('id', $id)->update('transfer_detail');
+  }
+
 
   public function update_temp(array $ds = array())
   {
     if(!empty($ds))
     {
       $id = $this->get_temp_id($ds['transfer_code'], $ds['product_code'], $ds['zone_code']);
+      
       if(!empty($id))
       {
         return $this->update_temp_qty($id, $ds['qty']);
@@ -438,7 +514,24 @@ class Transfer_model extends CI_Model
       return $rs->row()->id;
     }
 
-    return FALSE;
+    return NULL;
+  }
+
+
+  public function get_temp_row($code, $product_code, $zone_code)
+  {
+    $rs = $this->db
+    ->where('transfer_code', $code)
+    ->where('product_code', $product_code)
+    ->where('zone_code', $zone_code)
+    ->get('transfer_temp');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
   }
 
 
@@ -457,8 +550,6 @@ class Transfer_model extends CI_Model
   {
     return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('transfer_temp');
   }
-
-
 
 
   public function get_transfer_temp($code)
@@ -492,7 +583,7 @@ class Transfer_model extends CI_Model
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -538,6 +629,12 @@ class Transfer_model extends CI_Model
     ->get('transfer_detail');
 
     return intval($rs->row()->qty);
+  }
+
+
+  public function delete_temp($id)
+  {
+    return $this->db->where('id', $id)->delete('transfer_temp');
   }
 
 
@@ -859,7 +956,7 @@ class Transfer_model extends CI_Model
 		return NULL;
   }
 
-  
+
   public function get_warehouse_in($txt)
   {
     $rs = $this->ms

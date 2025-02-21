@@ -29,7 +29,7 @@
 		<input type="text" class="form-control input-sm edit" name="to_warehouse" id="to_warehouse" value="<?php echo $doc->to_warehouse_name; ?>" disabled/>
   </div>
 
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-6 padding-5">
 		<label>การดำเนินการ</label>
 		<select class="form-control input-sm edit h" name="is_wms" id="is_wms" disabled>
 			<option value="">เลือก</option>
@@ -40,10 +40,11 @@
 				<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
 			<?php endif; ?>
 			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>WARRIX</option>
+      <option value="-1" <?php echo is_selected('-1', $doc->is_wms); ?>>ย้ายคลัง</option>
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>Interface</label>
 		<select class="form-control input-sm edit" name="api" id="api" disabled>
 			<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
@@ -51,7 +52,7 @@
 		</select>
 	</div>
 
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+  <div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-4 padding-5">
 		<label>สถานะ</label>
 		<select class="form-control input-sm edit" disabled>
 			<option>Unknow</option>
@@ -64,19 +65,21 @@
 		</select>
 	</div>
 
-  <div class="col-xs-4 padding-5 visible-xs">
+  <div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-4 padding-5">
+		<label>Pallet No</label>
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled >
+	</div>
+
+  <div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>SAP</label>
 		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled >
 	</div>
 
-  <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12 padding-5">
+
+  <div class="col-lg-5 col-md-12 col-sm-6 col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 padding-5 hidden-xs">
-		<label>SAP</label>
-		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled >
-	</div>
 
   <?php if($doc->status == 2 && ! empty($doc->cancle_reason)) : ?>
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">

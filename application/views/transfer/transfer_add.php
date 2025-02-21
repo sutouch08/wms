@@ -56,6 +56,7 @@
 				<option value="2">SOKOCHAN</option>
 			<?php endif; ?>
 			<option value="0">WARRIX</option>
+			<option value="-1">ย้ายคลัง</option>
 		</select>
 	</div>
 

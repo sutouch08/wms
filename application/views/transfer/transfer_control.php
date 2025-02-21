@@ -62,7 +62,7 @@
     <label class="display-block not-show">ok</label>
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductInZone()">แสดงสินค้า</button>
   </div>
-  
+
   <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
     <label>ปลายทาง</label>
     <input type="text" class="form-control input-sm" id="to-zone" placeholder="ค้นหาชื่อโซน" />
