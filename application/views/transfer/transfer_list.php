@@ -62,6 +62,7 @@
 			<option value="0" <?php echo is_selected('0', $is_wms); ?>>Warrix</option>
 			<option value="1" <?php echo is_selected('1', $is_wms); ?>>Pioneer</option>
 			<option value="2" <?php echo is_selected('2', $is_wms); ?>>Sokochan</option>
+			<option value="-1" <?php echo is_selected('-1', $is_wms); ?>>ย้ายคลัง</option>
 		</select>
 	</div>
 
@@ -217,7 +218,7 @@
 								<?php endif; ?>
 							</td>
 							<td class="middle">
-								<?php echo $rs->is_wms == 2 ? "Soko" : ($rs->is_wms == 1 ? "PLC" : "Warrix"); ?>
+								<?php echo $rs->is_wms == 2 ? "Soko" : ($rs->is_wms == 1 ? "PLC" : ($rs->is_wms == -1 ? "ย้ายคลัง" : "Warrix")); ?>
 							</td>
 							<td class="middle text-center">
 								<?php if($rs->is_expire == 1) : ?>
