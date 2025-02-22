@@ -26,7 +26,7 @@
 			<div class="width-100" id="to-zone-bc">
 				<span class="width-100">
 					<input type="text" class="form-control input-lg focus"
-					style="padding-left:15px; padding-right:40px;" id="to-barcode-zone" inputmode="none" placeholder="Barcode Zone" autocomplete="off">
+					style="padding-left:15px; padding-right:40px;" id="to-barcode-zone" placeholder="Barcode Zone" autocomplete="off">
 					<i class="ace-icon fa fa-qrcode fa-2x" style="position:absolute; top:15px; right:22px; color:grey;"></i>
 				</span>
 			</div>
