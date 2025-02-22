@@ -83,5 +83,24 @@
 		{{/if}}
 	{{/if}}
 {{/each}}
+</script>
+<script>
+	$('#to-barcode-zone').autocomplete({
+		source:BASE_URL + 'auto_complete/get_zone_code_and_name',
+		autoFocus:true,
+		close:function() {
+			let arr = $(this).val().split(' | ');
 
+			if(arr.length == 2) {
+				$(this).val(arr[0]);
+
+				setTimeout(() => {
+					getToZone();
+				});
+			}
+			else {
+				$(this).val('');
+			}
+		}
+	})
 </script>
