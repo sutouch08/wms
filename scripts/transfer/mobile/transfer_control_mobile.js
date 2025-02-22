@@ -434,7 +434,7 @@ function moveToZone() {
     return false;
   }
 
-  // load_in();
+  load_in();
 
   $.ajax({
     url: HOME + 'move_to_zone',
@@ -448,7 +448,7 @@ function moveToZone() {
       "barcode" : barcode
     },
     success: function(rs) {
-      // load_out();
+      load_out();
 
       if(isJson(rs)) {
         let ds = JSON.parse(rs);
