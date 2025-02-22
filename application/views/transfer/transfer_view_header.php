@@ -72,7 +72,7 @@
 
   <div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>SAP</label>
-		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->inv_code; ?>" disabled >
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->pallet_no; ?>" disabled >
 	</div>
 
 
