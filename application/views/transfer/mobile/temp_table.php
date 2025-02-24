@@ -30,10 +30,10 @@
 					<i class="ace-icon fa fa-qrcode fa-2x" style="position:absolute; top:15px; right:22px; color:grey;"></i>
 				</span>
 			</div>
-			<div class="width-100 padding-right-5 margin-bottom-10 text-center hide not-show" id="to-item-qty">
-				<button type="button" class="btn btn-default btn-qty" id="btn-to-decrese" disabled><i class="fa fa-minus"></i></button>
-				<input type="number" class="width-30 input-lg focus text-center" style="padding-left:10px; padding-right:10px;" id="to-qty" inputmode="numeric" autocomplete="off" placeholder="QTY" value="1" disabled>
-				<button type="button" class="btn btn-default btn-qty" id="btn-to-increse" disabled><i class="fa fa-plus"></i></button>
+			<div class="width-100 padding-right-5 margin-bottom-10 text-center hide" id="to-item-qty">
+				<button type="button" class="btn btn-default btn-qty" id="btn-to-decrese"><i class="fa fa-minus"></i></button>
+				<input type="number" class="width-30 input-lg focus text-center" style="padding-left:10px; padding-right:10px;" id="to-qty" inputmode="numeric" autocomplete="off" placeholder="QTY" value="1">
+				<button type="button" class="btn btn-default btn-qty" id="btn-to-increse"><i class="fa fa-plus"></i></button>
 			</div>
 
 			<div class="width-100 e-item hide" id="to-item-bc">
@@ -96,7 +96,7 @@
 
 				setTimeout(() => {
 					getToZone();
-				});
+				}, 100);
 			}
 			else {
 				$(this).val('');

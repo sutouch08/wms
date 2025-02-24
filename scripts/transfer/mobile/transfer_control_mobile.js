@@ -27,6 +27,15 @@ function setFocus(table) {
 
   $('#active-focus').val(table);
 
+  if(table == 'B') {
+    if($('#box-item-bc').hasClass('hide')) {
+      $('#box-barcode-zone').focus();
+    }
+    else {
+      $('#box-barcode-item').focus();
+    }
+  }
+
   if(table == 'F') {
     if($('#from-item-bc').hasClass('hide')) {
       $('#from-barcode-zone').focus();

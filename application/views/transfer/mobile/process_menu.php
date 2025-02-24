@@ -16,6 +16,11 @@
           <i class="fa fa-upload fa-2x white"></i><span class="fon-size-12">ย้ายออก</span>
         </span>
       </div>
+      <!-- <div class="footer-menu width-20">
+        <span class="width-100" onclick="showBoxTable('B')">
+          <i class="fa fa-download fa-2x white"></i><span class="fon-size-12">ย้ายเป็นกล่อง</span>
+        </span>
+      </div> -->
       <div class="footer-menu width-20">
         <span class="width-100" onclick="showMoveTable('T')">
           <i class="fa fa-download fa-2x white"></i><span class="fon-size-12">ย้ายเข้า</span>
