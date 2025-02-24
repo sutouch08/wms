@@ -13,12 +13,18 @@ function focus_init() {
 			if(autoFocus == 1) {
 				setFocus();
 			}
-		}, 2000)
+		}, 1000)
 	})
 
 	$('.focus').focusin(function() {
 		autoFocus = 0;
 	});
+}
+
+
+function editBoxQty(el) {
+  focus_init();
+  el.focus();
 }
 
 
@@ -58,6 +64,7 @@ function setFocus(table) {
 
 function showMoveTable(table) {
   $('.move-table').addClass('hide');
+  closeExtraMenu();
 
   if(table === 'L') {
     getMoveTable();
@@ -77,10 +84,17 @@ function showMoveTable(table) {
     $('#temp-table').removeClass('hide');
     setFocus('T');
   }
+
+  if(table === 'B') {
+
+    $('#box-table').removeClass('hide');
+    setFocus('B');
+  }
 }
 
 
 function toggleHeader() {
+  closeExtraMenu();
   let pad = $('#header-pad');
   if(pad.hasClass('move-in')) {
     pad.removeClass('move-in');
@@ -94,6 +108,27 @@ function toggleHeader() {
 function closeHeader() {
   $('#header').val('hide');
   $('#header-pad').removeClass('move-in');
+}
+
+
+function toggleExtraMenu() {
+  let hd = $('#extra');
+  let pad = $('#extra-menu');
+
+  if(hd.val() == "hide") {
+    hd.val("show");
+    pad.addClass('slide-in');
+  }
+  else {
+    hd.val("hide");
+    pad.removeClass('slide-in');
+  }
+}
+
+
+function closeExtraMenu() {
+  $('#extra').val('hide');
+  $('#extra-menu').removeClass('slide-in');
 }
 
 
@@ -349,6 +384,15 @@ $('#to-barcode-item').keyup(function(e) {
 });
 
 
+$('#box-barcode-item').keyup(function(e) {
+  if(e.keyCode === 13) {
+    if($(this).val().trim() != "") {
+      addToBox();
+    }
+  }
+});
+
+
 $('#btn-to-increse').click(function() {
   let qty = parseDefault(parseFloat($('#to-qty').val()), 0);
   qty++;
@@ -369,6 +413,29 @@ $('#btn-to-decrese').click(function() {
 
   $('#to-qty').val(qty);
   $('#to-barcode-item').focus();
+})
+
+
+$('#btn-box-increse').click(function() {
+  let qty = parseDefault(parseFloat($('#box-qty').val()), 0);
+  qty++;
+  $('#box-qty').val(qty);
+  $('#box-barcode-item').focus();
+})
+
+
+$('#btn-box-decrese').click(function() {
+  let qty = parseDefault(parseFloat($('#box-qty').val()), 0);
+
+  if(qty > 0) {
+    qty--;
+  }
+  else {
+    qty = 0;
+  }
+
+  $('#box-qty').val(qty);
+  $('#box-barcode-item').focus();
 })
 
 
@@ -427,6 +494,62 @@ function getToZone() {
 }
 
 
+function getBoxZone() {
+  let code = $('#transfer-code').val().trim();
+  let bZone = $('#box-barcode-zone').val().trim();
+  let whsCode = $('#to-warehouse-code').val();
+
+  if(bZone != "" && bZone !== undefined && bZone !== null) {
+    load_in();
+
+    $.ajax({
+      url:HOME + 'get_to_zone',
+      type:'GET',
+      cache:false,
+      data:{
+        'transfer_code' : code,
+        'warehouse_code' : whsCode,
+        'zone_code' : bZone
+      },
+      success:function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+          if(ds.status === 'success') {
+            $('#box-zone-code').val(ds.zone.code);
+            $('#box-zone-name').text(ds.zone.name);
+            $('#box-zone-bc').addClass('hide');
+            $('#box-item-qty').removeClass('hide');
+            $('#box-item-bc').removeClass('hide');
+            $('#box-qty').val(1);
+            $('#box-barcode-item').val('').focus();
+            $('#box-total').text(0);
+          }
+          else {
+            beep();
+
+            $('#box-barcode-zone').val('');
+
+            showError(ds.message);
+          }
+        }
+        else {
+          beep();
+          $('#box-barcode-zone').val('');
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        $('#box-barcode-zone').val('');
+        showError(rs);
+      }
+    })
+  }
+}
+
+
 function moveToZone() {
   let bc = $('#to-barcode-item');
   let transfer_code = $('#transfer-code').val();
@@ -435,11 +558,15 @@ function moveToZone() {
   let product_code = $('#bc-'+barcode).val();
   let qty = parseDefault(parseFloat($('#to-qty').val()), 1);
 
-  bc.val('').blur();
-
   if(product_code == "" | product_code === null || product_code === undefined) {
     beep();
-    showError('สินค้าไม่ถูกต้อง');
+    swal({
+      title:'สินค้าไม่ถูกต้อง',
+      type:'error'
+    }, function() {
+      $('#to-barcode-item').val('').focus();
+    });
+
     return false;
   }
 
@@ -483,7 +610,7 @@ function moveToZone() {
             recalTemp();
 
             $("#to-qty").val(1);
-            bc.focus();
+            $('#to-barcode-item').val('').focus();
           }
           else {
             showError("No temp data response");
@@ -510,6 +637,131 @@ function moveToZone() {
       showError(rs);
       $("#to-qty").val(1);
       bc.focus();
+    }
+  });
+}
+
+
+function addToBox() {
+  let barcode = $('#box-barcode-item').val().trim();
+
+  if(barcode.length) {
+    let product_code = $('#box-item-'+barcode).val();
+    let qty = parseDefault(parseFloat($('#box-qty').val()), 1);
+
+    if(product_code == "" || product_code == null || product_code == undefined) {
+      beep();
+      swal({
+        title:'Error!',
+        text:'ไม่พบรายการสินค้า',
+        type:'error'
+      }, function() {
+        $('#box-barcode-item').val('').focus();
+      });
+    }
+    else {
+      $('.box-table-item').removeClass('highlight');
+
+      if($('#box-'+barcode).length) {
+        let cQty = parseDefault(parseFloat($('#box-qty-'+barcode).val()), 0);
+        let nQty = cQty + qty;
+        $('#box-qty-'+barcode).val(nQty);
+        $('#box-list').prepend($('#box-'+barcode));
+        $('#box-'+barcode).addClass('highlight');
+        $('#box-qty').val(1);
+        $('#box-barcode-item').val('').focus();
+      }
+      else {
+        let source = $('#boxTemplate').html();
+        let data = {
+          'barcode' : barcode,
+          'product_code' : product_code,
+          'qty' : qty
+        };
+        let output = $('#box-list');
+        render_prepend(source, data, output);
+        $('#box-'+barcode).addClass('highlight');
+        $('#box-barcode-item').val('').focus();
+      }
+
+      reIndex('box-no');
+
+      recalBox();
+    }
+  } //--- endif barcode.length
+}
+
+
+function saveBox() {
+  closeExtraMenu();
+
+  let h = {
+    'transfer_code' : $('#transfer-code').val(),
+    'zone_code' : $('#box-barcode-zone').val().trim(),
+    'items' : []
+  };
+
+  if(h.zone_code.length == 0) {
+    beep();
+    showError('กรุณาระบุโซน');
+    return false;
+  }
+
+  $('.box-item').each(function() {
+    let qty = parseDefault(parseFloat($(this).val()), 0);
+
+    if(qty > 0) {
+      let pdCode = $(this).data('code');
+      h.items.push({'product_code' : pdCode, 'qty' : qty});
+    }
+  });
+
+  if(h.items.length === 0) {
+    beep();
+    showError('ไม่พบรายการ');
+    return false;
+  }
+
+  load_in();
+
+  $.ajax({
+    url: HOME + 'save_to_zone',
+    type:"POST",
+    cache:"false",
+    data:{
+      "data" : JSON.stringify(h)
+    },
+    success: function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status === 'success') {
+          $('#box-list').html('');
+          $('#box-qty').val(1);
+          $('#box-total').text(0);
+          $('#box-barcode-item').val('').focus();
+        }
+        else {
+          beep();
+          showError(ds.message);
+          $("#box-qty").val(1);
+          $('#box-barcode-item').val('').focus();
+        }
+      }
+      else {
+        beep();
+        showError(rs);
+        $("#box-qty").val(1);
+        $('#box-barcode-item').val('').focus();
+      }
+    },
+    error:function(rs) {
+      beep();
+      showError(rs);
+      $("#box-qty").val(1);
+      $('#box-barcode-item').val('').focus();
     }
   });
 }
@@ -640,6 +892,17 @@ function recalTemp() {
 }
 
 
+function recalBox() {
+  let total = 0;
+  $('.box-item').each(function() {
+    let qty = parseDefault(parseFloat($(this).val()), 0);
+    total += qty;
+  })
+
+  $('#box-total').text(addCommas(total));
+}
+
+
 function changeZone() {
   let table = $('#active-focus').val();
 
@@ -660,5 +923,28 @@ function changeZone() {
     $('#to-item-bc').addClass('hide');
     $('#to-zone-bc').removeClass('hide');
     $('#to-barcode-zone').val('').focus();
+  }
+
+  if(table == 'B') {
+    if($('.box-item').length) {
+      beep();
+
+      swal({
+        title:'Warning',
+        text:'กรุณาบันทึกปิดกล่องก่อนเปลี่ยนโซน',
+        type:'warning'
+      }, function() {
+        setFocus(table);
+      });
+
+      return false;
+    }
+
+    $('#box-zone-code').val('');
+    $('#box-zone-name').text('กรุณาระบุโซน');
+    $('#box-item-qty').addClass('hide');
+    $('#box-item-bc').addClass('hide');
+    $('#box-zone-bc').removeClass('hide');
+    $('#box-barcode-zone').val('').focus();
   }
 }

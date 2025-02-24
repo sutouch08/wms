@@ -674,19 +674,20 @@ class Transfer extends PS_Controller
           if(empty($bcList[$rs->product_code]))
           {
             $barcode = $this->products_model->get_barcode($rs->product_code);
-            $bcList[$rs->product_code] = $barcode;
+            $bcList[$rs->product_code] = (object)['barcode' => $barcode, 'product_code' => $rs->product_code];
           }
 
           $rs->from_zone_name = $this->zone_model->get_name($rs->from_zone);
           $rs->to_zone_name = $this->zone_model->get_name($rs->to_zone);
           $rs->temp_qty = $this->transfer_model->get_temp_qty($code, $rs->product_code, $rs->from_zone);
-          $rs->barcode = $bcList[$rs->product_code];
+          $rs->barcode = $bcList[$rs->product_code]->barcode;
         }
 
         $ds = array(
           'title' => $doc->code . (empty($doc->pallet_no) ? NULL : "  [{$doc->pallet_no}]") . "<br/>".$doc->from_warehouse." | ".$doc->to_warehouse,
           'doc' => $doc,
-          'details' => $details
+          'details' => $details,
+          'bcList' => $bcList
         );
 
         $this->load->view('transfer/mobile/transfer_process_mobile', $ds);
@@ -3070,6 +3071,139 @@ class Transfer extends PS_Controller
       'status' => $sc === TRUE ? 'success' : 'failed',
       'message' => $sc === TRUE ? 'success' : $this->error,
       'data' => $res
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function save_to_zone()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
+    {
+      $this->load->model('masters/products_model');
+
+      $code = $ds->transfer_code;
+      $to_zone = $ds->zone_code;
+      $items = $ds->items;
+      $zone = $this->zone_model->get($to_zone);
+
+      if( ! empty($items))
+      {
+        $this->db->trans_begin();
+
+        foreach($items as $rs)
+        {
+          $qty = $rs->qty;
+          //---- ดึงรายการตั้นต้นมาเช็ค
+          $detail = $this->transfer_model->get_detail_row($code, $rs->product_code, NULL, $to_zone);
+
+          if( ! empty($detail))
+          {
+            $balance = $detail->qty - $detail->wms_qty;
+
+            if($balance <= 0)
+            {
+              $sc = FALSE;
+              $this->error = "{$rs->product_code} : ยอดตั้งต้นถูกรับครบแล้ว";
+            }
+
+            if($sc === TRUE && $balance < $qty)
+            {
+              $sc = FALSE;
+              $this->error = "{$rs->product_code} : ยอดค้างรับน้อยกว่า จำนวนที่ระบุ ค้าง ({$balance}) ระบ ุ({$qty})";
+            }
+
+            if($sc === TRUE)
+            {
+              $temp = $this->transfer_model->get_temp_row($code, $rs->product_code, $detail->from_zone);
+
+              if( ! empty($temp))
+              {
+                if($temp->qty < $qty)
+                {
+                  $sc = FALSE;
+                  $this->error = "{$rs->product_code} : จำนวนใน Temp ไม่เพียงพอ";
+                }
+
+                if($sc === TRUE)
+                {
+                  if($temp->qty == $qty)
+                  {
+                    if( ! $this->transfer_model->delete_temp($temp->id))
+                    {
+                      $sc = FALSE;
+                      $this->error = "{$rs->product_code} : Failed to delete temp id : {$temp->id}";
+                    }
+                    else
+                    {
+                      $res = ['id' => $temp->id, 'qty' => 0];
+                    }
+                  }
+                  else
+                  {
+                    if( ! $this->transfer_model->update_temp_qty($temp->id, ($qty * -1)))
+                    {
+                      $sc = FALSE;
+                      $this->error = "{$rs->product_code} : Failed to update temp id : {$temp->id}";
+                    }
+                    else
+                    {
+                      $res = ['id' => $temp->id, 'qty' => $temp->qty - $qty];
+                    }
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    if( ! $this->transfer_model->update_wms_qty($detail->id, $qty))
+                    {
+                      $sc = FALSE;
+                      $this->error = "{$rs->product_code} : Failed to update wms_qty id : {$detail->id}";
+                    }
+                  }
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "ไม่พบรายการใน temp";
+              }
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "ไม่พบรายการตั้งต้นที่ตรงกับโซนต้นทาง-ปลายทาง";
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบรายการสินค้า";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error
     );
 
     echo json_encode($arr);

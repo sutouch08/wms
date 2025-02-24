@@ -2,7 +2,17 @@
   <a class="goback-icon pull-left" onclick="goBack()"><i class="fa fa-angle-left fa-2x"></i></a>
 </div>
 <div class="toggle-header">
-  <a class="toggle-header-icon" onclick="toggleHeader()"><i class="fa fa-ellipsis-v fa-2x"></i></a>
+  <!-- <a class="toggle-header-icon" onclick="toggleHeader()"><i class="fa fa-bars fa-2x"></i></a> -->
+  <div class="btn-group">
+    <button data-toggle="dropdown" class="btn btn-link dropdown-toggle" aria-expanded="false">
+      <i class="ace-icon fa fa-bars fa-2x white"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+      <li>
+        <a href="javascript:save()"><i class="fa fa-save"></i>&nbsp;&nbsp;&nbsp;ปิดเอกสาร</a>
+      </li>      
+    </ul>
+  </div>
 </div>
 <div class="form-horizontal filter-pad move-out" id="header-pad">
   <div class="nav-title">

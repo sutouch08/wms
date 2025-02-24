@@ -51,7 +51,7 @@
 	</div>
   <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5">
     	<p class="pull-right top-p">
-				<button type="button" class="btn btn-xs btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+				<button type="button" class="btn btn-xs btn-default top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 				<?php if($doc->status == 4 && ($accept_user OR $canAccept)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="accept()"><i class="fa fa-check-circle"></i> ยืนยันการรับสินค้า</button>
 				<?php endif; ?>
@@ -77,10 +77,12 @@
 					<?php endif; ?>
 				<?php endif; ?>
 
-				<?php if($doc->is_wms < 1 && $doc->is_expire == 0 && $doc->status == 3 && $this->_SuperAdmin) : ?>
+				<?php if($doc->is_wms < 1 && $doc->is_expire == 0 && $doc->status == 3 && $this->pm->can_approve) : ?>
 					<button type="button" class="btn btn-xs btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ย้อนสถานะกลับมาแก้ไข</button>
 				<?php endif; ?>
-
+				<?php if($doc->is_wms < 1 && $doc->is_expire == 0 && $doc->status == -1 && $this->pm->can_edit) : ?>
+					<button type="button" class="btn btn-xs btn-warning" onclick="goEdit('<?php echo $doc->code; ?>')"><i class="fa fa-pencil"></i> &nbsp; แก้ไข</button>
+				<?php endif; ?>
 				<?php if($doc->status == 0 && $doc->must_approve == 1 && $doc->is_approve == 0 && ($this->pm->can_approve OR $this->_SuperAdmin)) : ?>
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="doApprove()"><i class="fa fa-check-circle"></i> อนุมัติ</button>
 					<button type="button" class="btn btn-xs btn-danger top-btn" onclick="doReject()"><i class="fa fa-times-circle"></i> ไม่อนุมัติ</button>

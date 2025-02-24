@@ -74,7 +74,7 @@
     position: fixed;
     top: 0px;
     right: 0px;
-    z-index: 8;
+    z-index: 9;
   }
 
   .toggle-header-icon {
