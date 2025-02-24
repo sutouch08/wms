@@ -948,3 +948,24 @@ function changeZone() {
     $('#box-barcode-zone').val('').focus();
   }
 }
+
+
+function removeBoxItem(barcode, pdCode) {
+  swal({
+    title:"คุณแน่ใจ ?",
+    text:'ต้องการลบรายการ '+pdCode+' หรือไม่ ?',
+    type:'warning',
+    html:true,
+    showCancelButton:true,
+    confirmButtonText:'Yes',
+    cancelButtonText:'No',
+    closeOnConfirm:true
+  }, function() {
+    $('#box-'+barcode).remove();
+    reIndex('box-no');
+    recalBox();
+    setTimeout(() => {
+      $('#box-barcode-item').val('').focus();
+    }, 100);
+  })
+}

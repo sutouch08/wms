@@ -51,7 +51,7 @@
 <script id="boxTemplate" type="text/x-handlebars-template">
 	<tr class="box-table-item" id="box-{{barcode}}">
 		<td class="text-center box-no"></td>
-		<td>{{ product_code }} <a href="javascript:removeBoxItem('{{barcode}}')" class="pull-right"><i class="fa fa-times red"></i></a></td>
+		<td>{{ product_code }} <a href="javascript:removeBoxItem('{{barcode}}', '{{product_code}}')" class="pull-right"><i class="fa fa-times red"></i></a></td>
 		<td  class="middle text-center padding-0">
 			<input type="number" class="width-100 text-center box-item focus"
 				inputmode="numeric"
