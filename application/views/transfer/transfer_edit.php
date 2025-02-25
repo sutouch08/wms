@@ -32,7 +32,7 @@
 						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="saveAsRequest()">บันทึกรอรับ</button>
 					<?php endif; ?>
 					<?php if($doc->is_wms == 0) : ?>
-						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="saveAsRequest()">บันทึกรอรับ</button>
+						<!-- <button type="button" class="btn btn-sm btn-primary top-btn" onclick="saveAsRequest()">บันทึกรอรับ</button> -->
 						<button type="button" class="btn btn-sm btn-success top-btn" onclick="save()">บันทึกรับทันที</button>
 					<?php endif; ?>
 					<?php if($doc->is_wms >= 1) : ?>
