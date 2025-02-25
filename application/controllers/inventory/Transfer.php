@@ -796,7 +796,7 @@ class Transfer extends PS_Controller
 
       if( ! empty($doc))
       {
-        if($doc->status == 3 && $doc->is_wms == -1)
+        if($doc->status == 3 && $doc->is_wms < 1)
         {
           $this->db->trans_begin();
 
