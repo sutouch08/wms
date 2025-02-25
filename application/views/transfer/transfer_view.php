@@ -87,7 +87,7 @@
 					<button type="button" class="btn btn-xs btn-success top-btn" onclick="doApprove()"><i class="fa fa-check-circle"></i> อนุมัติ</button>
 					<button type="button" class="btn btn-xs btn-danger top-btn" onclick="doReject()"><i class="fa fa-times-circle"></i> ไม่อนุมัติ</button>
 				<?php endif; ?>
-				<!-- <button type="button" class="btn btn-xs btn-primary top-btn" onclick="printTransfer()"><i class="fa fa-print"></i> ใบโอน</button> -->
+				<button type="button" class="btn btn-xs btn-primary top-btn hidden-xs" onclick="printTransfer()"><i class="fa fa-print"></i> ใบโอน</button>
 				<?php if($doc->is_wms == '-1') : ?>
 				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="printWmsTransfer()"><i class="fa fa-print"></i> Reconcile</button>
 				<?php endif; ?>
