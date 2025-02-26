@@ -11,7 +11,7 @@
       <a class="pull-left margin-left-10" onclick="closeHeader()"><i class="fa fa-angle-left fa-2x"></i></a>
       <div class="font-size-18 text-center">ข้อมูลเอกสาร</div>
     </div>
-    <div class="form-group margin-top-20">
+    <div class="form-group" style="margin-top:50px;">
       <div class="col-xs-12 padding-5">
         <label>เลขที่เอกสาร</label>
         <input type="text" class="width-100" value="<?php echo $order->code . $ref; ?> " readonly/>

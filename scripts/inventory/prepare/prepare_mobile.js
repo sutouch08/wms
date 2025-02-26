@@ -410,10 +410,12 @@ function toggleExtraMenu() {
   }
 }
 
+
 function closeExtraMenu() {
   $('#extra').val('hide');
   $('#extra-menu').removeClass('slide-in');
 }
+
 
 function toggleComplete() {
   closeExtraMenu();
@@ -430,6 +432,7 @@ function toggleComplete() {
     pad.removeClass('move-in');
   }
 }
+
 
 function closeCompleteBox() {
   $('#complete').val('hide');
@@ -506,6 +509,41 @@ function hideKeyboard(input) {
   }
 
   setCookie('showKeyboard', 0, 60);
+}
+
+
+function reloadStockInZone(id, pdCode, whsCode) {
+  load_in();
+
+  $.ajax({
+    url:HOME + '/reload_stock_in_zone',
+    type:'GET',
+    cache:false,
+    data:{
+      'product_code' : pdCode,
+      'warehouse_code' : whsCode
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status === 'success') {
+          $('#stock-'+id).html('Location : '+ds.result);
+        }
+        else {
+          showError(ds.message);
+        }
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
 }
 
 

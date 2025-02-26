@@ -34,6 +34,13 @@
     margin-bottom: 10px;
   }
 
+  .stock-reload {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color:blue;
+  }
+
   .incomplete-item.heighlight {
     background-color: #d1ffff;
   }

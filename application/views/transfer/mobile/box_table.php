@@ -1,6 +1,6 @@
-<div class="move-table hide" id="box-table" style="padding-bottom:250px;">
-	<div class="nav-title" style="background-color:#232323; color:#ccc;"><span class="pull-left">Total</span> <span id="box-total">0</span></div>
-	<table class="table table-bordered">
+<div class="move-table hide" id="box-table" style="padding-bottom:350px;">
+	<div class="nav-title" style="position: fixed; background-color:#232323; color:#ccc;"><span class="pull-left">Total</span> <span id="box-total">0</span></div>
+	<table class="table table-bordered" style="margin-top:45px;">
 		<thead>
 			<tr class="">
 				<th class="fix-width-50 text-center">#</th>
@@ -9,7 +9,21 @@
 			</tr>
 		</thead>
 		<tbody id="box-list">
-
+			<?php $i = 15; ?>
+			<?php while($i > 0) : ?>
+			<tr class="box-table-item" id="box-{{barcode}}">
+				<td class="text-center box-no"></td>
+				<td>{{ product_code }} <a href="javascript:removeBoxItem('{{barcode}}', '{{product_code}}')" class="pull-right"><i class="fa fa-times red"></i></a></td>
+				<td  class="middle text-center padding-0">
+					<input type="number" class="width-100 text-center box-item focus"
+						inputmode="numeric"
+					 style="border:0px; background-color:transparent;"
+					 id="box-qty-{{barcode}}"
+					 data-code="{{product_code}}" value="{{qty}}" onclick="editBoxQty($(this))"/>
+				</td>
+			</tr>
+			<?php $i--; ?>
+		<?php endwhile; ?>
 		</tbody>
 	</table>
 

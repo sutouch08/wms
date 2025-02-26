@@ -294,6 +294,7 @@ class Warehouse_model extends CI_Model
     ->or_where('is_consignment', 0)
     ->group_end()
     ->where('active', 1)
+    ->order_by('code', 'ASC')
     ->get('warehouse');
     if($rs->num_rows() > 0)
     {

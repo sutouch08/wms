@@ -145,7 +145,7 @@ class Prepare extends PS_Controller
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $order->channels_name = $this->channels_model->get_name($order->channels_code);
-    
+
     $whs = $this->warehouse_model->get($order->warehouse_code);
     $order->warehouse_name = empty($whs) ? NULL : $whs->name;
     $order->allow_prepare = $whs->prepare;
@@ -526,6 +526,23 @@ class Prepare extends PS_Controller
     return empty($sc) ? 'ไม่พบสินค้า' : $sc;
   }
 
+
+  public function reload_stock_in_zone()
+  {
+    $sc = TRUE;
+    $item_code = $this->input->get('product_code');
+    $whs_code = $this->input->get('warehouse_code');
+
+    $result = $this->get_stock_in_zone($item_code, $whs_code);
+
+    $arr = array(
+      'status' => 'success',
+      'message' => 'success',
+      'result' => $result
+    );
+
+    echo json_encode($arr);
+  }
 
   //---- สินค้าคงเหลือในโซน ลบด้วย สินค้าที่จัดไปแล้ว
   public function get_stock_zone($zone_code, $item_code)

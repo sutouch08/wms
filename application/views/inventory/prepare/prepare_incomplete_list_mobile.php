@@ -12,7 +12,9 @@
             <div class="width-33 float-left">จัดแล้ว : <span class="width-30" id="prepared-qty-<?php echo $rs->id; ?>"><?php echo number($rs->prepared); ?></span></div>
             <div class="width-33 float-left">คงเหลือ : <span class="width-30" id="balance-qty-<?php echo $rs->id; ?>"><?php echo number($rs->qty - $rs->prepared); ?></span></div>
           </div>
-          <div class="margin-bottom-3 pre-wrap">Location : <?php echo $rs->stock_in_zone; ?></div>
+          <div class="divider margin-top-10 margin-bottom-10"></div>
+          <span class="stock-reload"  onclick="reloadStockInZone(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>','<?php echo $order->warehouse_code; ?>')"><i class="fa fa-refresh"></i></span>
+          <div class="margin-bottom-3 pre-wrap" id="stock-<?php echo $rs->id; ?>">Location : <?php echo $rs->stock_in_zone; ?></div>
         </div>
         <span class="badge-qty" id="badge-qty-<?php echo $rs->id; ?>"><?php echo number($rs->qty - $rs->prepared); ?></span>
       </div>
