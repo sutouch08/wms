@@ -9,21 +9,7 @@
 			</tr>
 		</thead>
 		<tbody id="box-list">
-			<?php $i = 15; ?>
-			<?php while($i > 0) : ?>
-			<tr class="box-table-item" id="box-{{barcode}}">
-				<td class="text-center box-no"></td>
-				<td>{{ product_code }} <a href="javascript:removeBoxItem('{{barcode}}', '{{product_code}}')" class="pull-right"><i class="fa fa-times red"></i></a></td>
-				<td  class="middle text-center padding-0">
-					<input type="number" class="width-100 text-center box-item focus"
-						inputmode="numeric"
-					 style="border:0px; background-color:transparent;"
-					 id="box-qty-{{barcode}}"
-					 data-code="{{product_code}}" value="{{qty}}" onclick="editBoxQty($(this))"/>
-				</td>
-			</tr>
-			<?php $i--; ?>
-		<?php endwhile; ?>
+			
 		</tbody>
 	</table>
 
