@@ -1,6 +1,6 @@
 <div class="move-table" id="move-table">
 	<div class="nav-title">รายการโอนย้าย</div>
-	<div class="col-xs-12 padding-0 table-responsive" style="margin-bottom:80px; border-bottom:solid 1px #ccc;">
+	<div class="col-xs-12 padding-0 table-responsive" style="margin-bottom:180px; border-bottom:solid 1px #ccc;">
 		<table class="table table-striped table-bordered" style="min-width:630px;">
 			<thead>
 				<tr>

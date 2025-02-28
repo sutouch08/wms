@@ -141,6 +141,27 @@ class Invoice_model extends CI_Model
     return FALSE;
   }
 
+
+  //--- for print order
+  public function get_sum_details($code)
+  {
+    $rs = $this->db
+    ->select('reference, product_code, product_name, price, discount_label')
+    ->select_sum('discount_amount')
+    ->select_sum('qty')
+    ->select_sum('total_amount')
+    ->where('reference', $code)
+    ->group_by('order_detail_id')
+    ->get('order_sold');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
   //-- use in API
   public function get_details_summary_group_by_item($code)
   {

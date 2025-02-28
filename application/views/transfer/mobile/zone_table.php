@@ -1,4 +1,4 @@
-<div class="move-table hide" id="zone-table" style="padding-bottom:250px;">
+<div class="move-table hide" id="zone-table" style="padding-bottom:350px;">
 	<div class="nav-title">ย้ายสินค้าออก</div>
 	<table class="table table-bordered">
 		<thead>

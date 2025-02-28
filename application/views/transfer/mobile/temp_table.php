@@ -1,6 +1,6 @@
 <div class="move-table hide" id="temp-table">
 	<div class="nav-title">รายการใน Temp</div>
-	<div class="col-xs-12 padding-0 table-responsive" style="margin-bottom:120px; border-bottom:solid 1px #ccc;">
+	<div class="col-xs-12 padding-0 table-responsive" style="margin-bottom:220px; border-bottom:solid 1px #ccc;">
 		<table class="table table-bordered" style="min-width:430px;">
 			<thead>
 				<tr class="">

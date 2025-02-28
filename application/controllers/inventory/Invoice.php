@@ -107,7 +107,7 @@ class Invoice extends PS_Controller
     $this->load->library('printer');
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
-    $details = $this->invoice_model->get_details($code); //--- รายการที่มีการบันทึกขายไป
+    $details = $this->invoice_model->get_sum_details($code); //--- รายการที่มีการบันทึกขายไป
 
     if(!empty($details))
     {
