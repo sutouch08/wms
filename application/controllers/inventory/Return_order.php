@@ -1307,6 +1307,44 @@ class Return_order extends PS_Controller
   }
 
 
+  public function update_shipped_date()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $shipped_date = $this->input->post('shipped_date');
+
+    if( ! empty($code) && ! empty($shipped_date))
+    {
+      $doc = $this->return_order_model->get($code);
+
+      if( ! empty($doc))
+      {
+        $arr = array(
+          'shipped_date' => empty($shipped_date) ? NULL : db_date($shipped_date, TRUE)
+        );
+
+        if( ! $this->return_order_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          set_error('update');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
+
   public function view_detail($code)
   {
     $this->load->model('approve_logs_model');

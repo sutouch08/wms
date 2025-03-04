@@ -53,96 +53,112 @@
   </div>
 </div>
 <hr />
-
-
-	<div class="row">
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
-    	<label>เลขที่เอกสาร</label>
-      <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
-    </div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-    	<label>วันที่</label>
-      <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
-    </div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-	  	<label>Posting Date</label>
-	    <input type="text" class="form-control input-sm text-center edit" name="shipped_date" id="shipped-date" value="<?php echo empty($doc->shipped_date) ? "" : thai_date($doc->shipped_date, FALSE); ?>" disabled/>
-	  </div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-			<label>เลขที่บิล[SAP]</label>
-			<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
-		</div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-			<label>รหัสลูกค้า</label>
-			<input type="text" class="form-control input-sm text-center edit" name="customer_code" id="customer_code" value="<?php echo $doc->customer_code; ?>" disabled />
-		</div>
-		<div class="col-lg-4-harf col-md-4 col-sm-4 col-xs-12 padding-5">
-			<label>ชื่อลูกค้า</label>
-			<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
-		</div>
-		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
-			<label>คลัง[รับคืน]</label>
-			<input type="text" class="form-control input-sm edit" name="warehouse" id="warehouse" value="<?php echo $doc->warehouse_name; ?>" disabled />
-		</div>
-		<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
-			<label>รหัสโซน</label>
-			<input type="text" class="form-control input-sm text-center edit" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" disabled />
-		</div>
-		<div class="col-lg-6-harf col-md-6-harf col-sm-6-harf col-xs-12 padding-5">
-			<label>ชื่อโซน]</label>
-			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
-		</div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-			<label>สถานะ</label>
-			<select class="form-control input-sm" name="status" disabled>
-  			<option value="all">ทั้งหมด</option>
-  			<option value="0" <?php echo is_selected('0', $doc->status); ?>>ยังไม่บันทึก</option>
-  			<option value="1" <?php echo is_selected('1', $doc->status); ?>>บันทึกแล้ว</option>
-  			<option value="2" <?php echo is_selected('2', $doc->status); ?>>ยกเลิก</option>
-				<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
-				<option value="4" <?php echo is_selected('4', $doc->status); ?>>รอยืนยัน</option>
-  		</select>
-		</div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-			<label>รับที่</label>
-			<select class="form-control input-sm" disabled>
-				<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</option>
-				<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
-				<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
-			</select>
-		</div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-			<label>Interface</label>
-			<select class="form-control input-sm" disabled>
-				<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
-				<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
-			</select>
-		</div>
-		<?php if($doc->status == 1) : ?>
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
-    	<label>หมายเหตุ</label>
-      <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
-    </div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-			<label>SAP No.</label>
-			<input type="text" class="form-control input-sm" value="<?php echo $doc->inv_code; ?>" disabled/>
-		</div>
-	<?php elseif($doc->status == 2) : ?>
-		<div class="col-lg-4-harf col-md-4-harf col-sm-4-harf col-xs-6 padding-5">
-    	<label>หมายเหตุ</label>
-      <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
-    </div>
-		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
-			<label>เหตุผลในการยกเลิก</label>
-			<input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled/>
-		</div>
-	<?php else : ?>
-		<div class="col-lg-7-harf col-7-harf col-sm-7-harf col-xs-12 padding-5">
-    	<label>หมายเหตุ</label>
-      <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
-    </div>
-	<?php endif; ?>
+<div class="row">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>เลขที่เอกสาร</label>
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
 	</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>วันที่</label>
+		<input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
+	</div>
+	<?php $disabled = $this->pm->can_edit ? "" : 'disabled'; ?>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>Posting Date</label>
+		<div class="input-group width-100">
+			<input type="text" class="form-control input-sm text-center" id="ship-date" value="<?php echo empty($doc->shipped_date) ? NULL : thai_date($doc->shipped_date); ?>" disabled />
+			<span class="input-group-btn">
+				<button type="button"
+				class="btn btn-xs btn-warning btn-block" style="height:30px;"
+				id="btn-edit-ship-date" <?php echo $disabled; ?>
+				<?php if($this->pm->can_edit) : ?> onclick="activeShipDate()" <?php endif; ?>>
+				<i class="fa fa-pencil" style="min-width:20px;"></i>
+			</button>
+			<button type="button"
+			class="btn btn-xs btn-success btn-block hide" style="height:30px;"
+			id="btn-update-ship-date" <?php echo $disabled; ?>
+			<?php if($this->pm->can_edit) : ?> onclick="updateShipDate()" <?php endif; ?> >
+			<i class="fa fa-save" style="min-width:20px;"></i></button>
+		</span>
+	</div>
+</div>
+<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<label>เลขที่บิล[SAP]</label>
+	<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
+</div>
+<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<label>รหัสลูกค้า</label>
+	<input type="text" class="form-control input-sm text-center edit" name="customer_code" id="customer_code" value="<?php echo $doc->customer_code; ?>" disabled />
+</div>
+<div class="col-lg-4-harf col-md-4 col-sm-4 col-xs-12 padding-5">
+	<label>ชื่อลูกค้า</label>
+	<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
+</div>
+<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+	<label>คลัง[รับคืน]</label>
+	<input type="text" class="form-control input-sm edit" name="warehouse" id="warehouse" value="<?php echo $doc->warehouse_name; ?>" disabled />
+</div>
+<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
+	<label>รหัสโซน</label>
+	<input type="text" class="form-control input-sm text-center edit" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" disabled />
+</div>
+<div class="col-lg-6-harf col-md-6-harf col-sm-6-harf col-xs-12 padding-5">
+	<label>ชื่อโซน]</label>
+	<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
+</div>
+<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<label>สถานะ</label>
+	<select class="form-control input-sm" name="status" disabled>
+		<option value="all">ทั้งหมด</option>
+		<option value="0" <?php echo is_selected('0', $doc->status); ?>>ยังไม่บันทึก</option>
+		<option value="1" <?php echo is_selected('1', $doc->status); ?>>บันทึกแล้ว</option>
+		<option value="2" <?php echo is_selected('2', $doc->status); ?>>ยกเลิก</option>
+		<option value="3" <?php echo is_selected('3', $doc->status); ?>>WMS Process</option>
+		<option value="4" <?php echo is_selected('4', $doc->status); ?>>รอยืนยัน</option>
+	</select>
+</div>
+<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<label>รับที่</label>
+	<select class="form-control input-sm" disabled>
+		<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</option>
+		<option value="2" <?php echo is_selected('2', $doc->is_wms); ?>>SOKOCHAN</option>
+		<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
+	</select>
+</div>
+<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<label>Interface</label>
+	<select class="form-control input-sm" disabled>
+		<option value="1" <?php echo is_selected('1', $doc->api); ?>>ปกติ</option>
+		<option value="0" <?php echo is_selected('0', $doc->api); ?>>ไม่ส่ง</option>
+	</select>
+</div>
+<?php if($doc->status == 1) : ?>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
+		<label>หมายเหตุ</label>
+		<input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
+	</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>SAP No.</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $doc->inv_code; ?>" disabled/>
+	</div>
+<?php elseif($doc->status == 2) : ?>
+	<div class="col-lg-4-harf col-md-4-harf col-sm-4-harf col-xs-6 padding-5">
+		<label>หมายเหตุ</label>
+		<input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>เหตุผลในการยกเลิก</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $doc->cancle_reason; ?>" disabled/>
+	</div>
+<?php else : ?>
+	<div class="col-lg-7-harf col-7-harf col-sm-7-harf col-xs-12 padding-5">
+		<label>หมายเหตุ</label>
+		<input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
+	</div>
+<?php endif; ?>
+</div>
+
+
 
 <input type="hidden" id="return_code" value="<?php echo $doc->code; ?>" />
 <input type="hidden" id="customer_code" value="<?php echo $doc->customer_code; ?>" />
@@ -261,6 +277,46 @@ else
 <?php $this->load->view('cancle_modal'); ?>
 <?php $this->load->view('accept_modal'); ?>
 
+<script>
+	$('#ship-date').datepicker({
+		'dateFormat' : 'dd-mm-yy'
+	});
+
+	function activeShipDate() {
+		$('#ship-date').removeAttr('disabled');
+		$('#btn-edit-ship-date').addClass('hide');
+		$('#btn-update-ship-date').removeClass('hide');
+	}
+
+	function updateShipDate() {
+		let shipDate = $('#ship-date').val();
+		let code = $('#return_code').val();
+
+		$.ajax({
+			url:BASE_URL + 'inventory/return_order/update_shipped_date',
+			type:'POST',
+			cache:false,
+			data:{
+				'code' : code,
+				'shipped_date' : shipDate
+			},
+			success:function(rs) {
+				if(rs.trim() === 'success') {
+					$('#ship-date').attr('disabled', 'disabled');
+					$('#btn-update-ship-date').addClass('hide');
+					$('#btn-edit-ship-date').removeClass('hide');
+				}
+				else {
+					swal({
+						title:'Error!',
+						type:'error',
+						text:rs
+					});
+				}
+			}
+		})
+	}
+</script>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js?v=<?php echo date('YmdH');?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order_add.js?v=<?php echo date('YmdH');?>"></script>
