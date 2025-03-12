@@ -115,7 +115,7 @@ function recalTotal() {
 		totalAmount += amount;
 	});
 
-	$('#total-qty').val(addCommas(totalQty.toFixed(2)));
+	$('#total-receive').val(addCommas(totalQty.toFixed(2)));
 	$('#total-amount').val(addCommas(totalAmount.toFixed(2)));
 }
 
@@ -364,8 +364,8 @@ function clearPo() {
 			$('#poCode').removeAttr('disabled');
 			$('#btn-get-po').addClass('hide');
 			$('#btn-confirm-po').removeClass('hide');
-			$('#total-qty').text('0.00');
-			$('#total-amount').text('0.00');
+			$('#total-receive').val('0.00');
+			$('#total-amount').val('0.00');
 
 			setTimeout(() => {
 				$('#poCode').focus();
