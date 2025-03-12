@@ -412,14 +412,9 @@ class Customers_model extends CI_Model
       $this->db->where('code !=', $old_code);
     }
 
-    $rs = $this->db->where('code', $code)->get('customers');
+    $count = $this->db->where('code', $code)->count_all_results('customers');
 
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $count > 0 ? TRUE : FALSE;
   }
 
 

@@ -21,9 +21,7 @@ function goDelete(code){
 }
 
 
-
-function cancle_received(code)
-{
+function cancle_received(code){
 	let reason = $.trim($('#cancle-reason').val());
 	let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
@@ -88,15 +86,12 @@ function doCancle() {
 }
 
 
-
 $('#cancle-modal').on('shown.bs.modal', function() {
 	$('#cancle-reason').focus();
 });
 
 
-
-function addNew()
-{
+function addNew(){
 	$('.e').removeClass('has-error');
 
   let date_add = $('#doc-date').val();
@@ -173,7 +168,6 @@ function addNew()
 }
 
 
-
 function goAdd(){
   window.location.href = HOME + 'add_new';
 }
@@ -181,6 +175,16 @@ function goAdd(){
 
 function goEdit(code){
 	window.location.href = HOME + 'edit/'+ code;
+}
+
+
+function goProcess(code) {
+	window.location.href = HOME + 'process/'+code;
+}
+
+
+function processMobile(code) {
+	window.location.href = HOME + 'process_mobile/'+code;
 }
 
 
@@ -346,4 +350,53 @@ function clearFilter(){
   $.get(url, function(rs){
     goBack();
   });
+}
+
+function pullBack(code) {
+	swal({
+		title:'ย้อนสถานะ',
+		text:'ต้องการย้อนสถานะเอกสารกลับมาแก้ไขหรือไม่',
+		type:'warning',
+		html:true,
+		showCancelButton:true,
+		cancelButtonText:'No',
+		confirmButtonText:'Yes',
+		closeOnConfirm:true
+	}, function() {
+		load_in();
+
+		setTimeout(() => {
+			$.ajax({
+			url:HOME + 'pull_back',
+			type:'POST',
+			cache:false,
+			data:{
+				"code" : code
+			},
+			success:function(rs) {
+				load_out();
+
+				if(rs == 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function() {
+						window.location.reload();
+					}, 1200);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error',
+						html:true
+					});
+				}
+			}
+		});
+		}, 100);
+	})
 }

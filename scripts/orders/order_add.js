@@ -372,6 +372,52 @@ function addItemToOrder(){
 }
 
 
+function addFreeItemToOrder(){
+	var orderCode = $('#order_code').val();
+	var qty = parseDefault(parseInt($('#input-qty').val()), 0);
+	var limit = parseDefault(parseInt($('#stock-qty').val()), 0);
+	var itemCode = $('#item-code').val();
+  var data = [{'code':itemCode, 'qty' : qty}];
+
+	if(qty > 0 && qty <= limit) {
+		load_in();
+		$.ajax({
+			url:BASE_URL + 'orders/orders/add_free_detail/'+orderCode,
+			type:"POST",
+			cache:"false",
+			data:{
+				'data' : data
+			},
+			success: function(rs){
+				load_out();
+				var rs = $.trim(rs);
+				if( rs == 'success' ){
+					swal({
+						title: 'success',
+						type: 'success',
+						timer: 1000
+					});
+
+					$("#btn-save-order").removeClass('hide');
+					updateDetailTable(); //--- update list of order detail
+
+					setTimeout(function(){
+						$('#item-code').val('');
+						$('#stock-qty').val('');
+						$('#input-qty').val('');
+						$('#item-code').focus();
+					},1200);
+
+
+				}else{
+					swal("Error", rs, "error");
+				}
+			}
+		});
+	}
+}
+
+
 // JavaScript Document
 function updateDetailTable(){
 	var order_code = $("#order_code").val();

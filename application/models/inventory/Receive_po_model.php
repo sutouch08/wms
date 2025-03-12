@@ -1,30 +1,31 @@
 <?php
 class Receive_po_model extends CI_Model
 {
+  private $tb = "receive_product";
+  private $td = "receive_product_detail";
+
   public function __construct()
   {
     parent::__construct();
   }
 
 
-
   public function add(array $ds = array())
   {
     if(!empty($ds))
     {
-      return $this->db->insert('receive_product', $ds);
+      return $this->db->insert($this->tb, $ds);
     }
 
     return FALSE;
   }
 
 
-
   public function update($code, array $ds = array())
   {
     if(!empty($ds))
     {
-      return $this->db->where('code', $code)->update('receive_product', $ds);
+      return $this->db->where('code', $code)->update($this->tb, $ds);
     }
 
     return FALSE;
@@ -35,7 +36,7 @@ class Receive_po_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('receive_product_detail', $ds);
+      return $this->db->insert($this->td, $ds);
     }
 
     return FALSE;
@@ -61,16 +62,54 @@ class Receive_po_model extends CI_Model
   }
 
 
+  public function get_detail($id)
+  {
+    $rs = $this->db->where('id', $id)->get($this->td);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
 
   public function get_details($code)
   {
-		$rs = $this->db
-		->select('rd.*')
-		->select('pd.unit_code')
-		->from('receive_product_detail AS rd')
-		->join('products AS pd', 'rd.product_code = pd.code', 'left')
-		->where('rd.receive_code', $code)
-		->get();
+    $rs = $this->db
+    ->select('rd.*')
+    ->select('pd.unit_code')
+    ->from('receive_product_detail AS rd')
+    ->join('products AS pd', 'rd.product_code = pd.code', 'left')
+    ->where('rd.receive_code', $code)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_in_complete_list($code)
+  {
+    $rs = $this->db->where('receive_code', $code)->where('valid', 0)->get($this->td);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_complete_list($code)
+  {
+    $rs = $this->db->where('receive_code', $code)->where('valid', 1)->get($this->td);
 
     if($rs->num_rows() > 0)
     {
@@ -83,7 +122,7 @@ class Receive_po_model extends CI_Model
 
 	public function get_detail_by_product($code, $product_code)
 	{
-		$rs = $this->db->where('receive_code', $code)->where('product_code', $product_code)->get('receive_product_detail');
+		$rs = $this->db->where('receive_code', $code)->where('product_code', $product_code)->get($this->td);
 
 		if($rs->num_rows() > 0)
 		{
@@ -98,30 +137,63 @@ class Receive_po_model extends CI_Model
 	{
 		if(!empty($ds))
 		{
-			return $this->db->where('id', $id)->update('receive_product_detail', $ds);
+			return $this->db->where('id', $id)->update($this->td, $ds);
 		}
 
 		return FALSE;
 	}
 
+
+  public function update_receive_qty($id, $qty)
+  {
+    return $this->db->set("receive_qty", "receive_qty + {$qty}", FALSE)->where('id', $id)->update($this->td);
+  }
+
+
+  public function update_details($code, $ds = array())
+	{
+		if( ! empty($ds))
+		{
+			return $this->db->where('receive_code', $code)->update($this->td, $ds);
+		}
+
+		return FALSE;
+	}
+
+
   public function drop_details($code)
   {
-    return $this->db->where('receive_code', $code)->delete('receive_product_detail');
+    return $this->db->where('receive_code', $code)->delete($this->td);
   }
 
 
 	public function drop_not_valid_details($code)
 	{
-		return $this->db->where('receive_code', $code)->where('valid', 0)->delete('receive_product_detail');
+		return $this->db->where('receive_code', $code)->where('valid', 0)->delete($this->td);
 	}
-
 
 
   public function cancle_details($code)
   {
-    return $this->db->set('is_cancle', 1)->where('receive_code', $code)->update('receive_product_detail');
+    return $this->db->set('is_cancle', 1)->where('receive_code', $code)->update($this->td);
   }
 
+
+  public function get_po($po_code)
+  {
+    $rs = $this->ms
+    ->select('DocEntry, DocNum, DocStatus, CardCode, CardName, DocCur, DocRate, DiscPrcnt')
+    ->where('DocNum', $po_code)
+    ->where('CANCELED', 'N')
+    ->get('OPOR');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
 
   public function get_po_details($po_code)
@@ -143,7 +215,6 @@ class Receive_po_model extends CI_Model
 
     return NULL;
   }
-
 
 
 	public function get_po_detail($po_code, $item_code)
@@ -186,7 +257,6 @@ class Receive_po_model extends CI_Model
 
     return NULL;
   }
-
 
 
   public function get_po_data($po_code)
@@ -312,16 +382,15 @@ class Receive_po_model extends CI_Model
   {
     $rs = $this->db->select_sum('qty', 'qty')
     ->where('receive_code', $code)
-    ->get('receive_product_detail');
+    ->get($this->td);
 
     return intval($rs->row()->qty);
   }
 
 
-
   public function get_sum_amount($code)
   {
-    $rs = $this->db->select_sum('amount')->where('receive_code', $code)->get('receive_product_detail');
+    $rs = $this->db->select_sum('amount')->where('receive_code', $code)->get($this->td);
     return $rs->row()->amount === NULL ? 0.00 : $rs->row()->amount;
   }
 
@@ -341,17 +410,17 @@ class Receive_po_model extends CI_Model
 		return NULL;
 	}
 
+
   public function set_status($code, $status)
   {
-    return $this->db->set('status', $status)->where('code', $code)->update('receive_product');
+    return $this->db->set('status', $status)->where('code', $code)->update($this->tb);
   }
 
 
 	public function set_cancle_reason($code, $reason)
 	{
-		return $this->db->set('cancle_reason', $reason)->where('code', $code)->update('receive_product');
+		return $this->db->set('cancle_reason', $reason)->where('code', $code)->update($this->tb);
 	}
-
 
 
   public function count_rows(array $ds = array())
@@ -459,9 +528,6 @@ class Receive_po_model extends CI_Model
 
     return $this->db->count_all_results();
   }
-
-
-
 
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
@@ -587,7 +653,7 @@ class Receive_po_model extends CI_Model
     ->select_max('code')
     ->like('code', $code)
     ->order_by('code', 'DESC')
-    ->get('receive_product');
+    ->get($this->tb);
 
     if($rs->num_rows() == 1)
     {
@@ -612,7 +678,7 @@ class Receive_po_model extends CI_Model
 
   public function is_exists($code)
   {
-    $rs = $this->db->select('status')->where('code', $code)->get('receive_product');
+    $rs = $this->db->select('status')->where('code', $code)->get($this->tb);
     if($rs->num_rows() > 0)
     {
       return TRUE;
@@ -629,7 +695,7 @@ class Receive_po_model extends CI_Model
 		->where('status', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
     ->limit($limit)
-    ->get('receive_product');
+    ->get($this->tb);
 
     if($rs->num_rows() > 0)
     {
@@ -655,9 +721,32 @@ class Receive_po_model extends CI_Model
 
   public function update_inv($code, $doc_num)
   {
-    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('receive_product');
+    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update($this->tb);
   }
 
+
+  public function get_on_order_qty($itemCode, $poCode, $baseEntry, $baseLine)
+  {
+    $rs = $this->db
+    ->select_sum('rd.receive_qty')
+    ->from('receive_product_detail AS rd')
+    ->join('receive_product AS ro', 'rd.receive_code = ro.code', 'left')
+    ->where('ro.po_code', $poCode)
+    ->where('ro.status !=', 2)
+    ->where('ro.inv_code IS NULL', NULL, FALSE)
+    ->where('ro.is_expire', 0)
+    ->where('rd.baseEntry', $baseEntry)
+    ->where('rd.baseLine', $baseLine)
+    ->where('rd.product_code', $itemCode)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->receive_qty > 0 ? $rs->row()->receive_qty : 0;
+    }
+
+    return 0;
+  }
 
 }
 

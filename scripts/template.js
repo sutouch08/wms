@@ -297,6 +297,17 @@ function parseDefault(value, def){
 	return value;
 }
 
+function roundNumber(num, digit)
+{
+	if(digit === undefined) {
+		digit = 2;
+	}
+	else {
+		ditit = parseDefault(parseInt(digit), 2);
+	}
+
+	return Number(parseFloat(num).toFixed(digit));
+}
 
 function parseDiscountAmount(discount_label, price) {
 	var discAmount = 0;

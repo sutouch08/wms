@@ -15,7 +15,12 @@
        </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">ยกเลิก</button>
-        <button type="button" class="btn btn-sm btn-info btn-100" onclick="acceptConfirm()">ยืนยัน</button>
+      <?php if( ! empty($op)) : ?>
+        <button type="button" class="btn btn-sm btn-primary btn-100" onclick="acceptConfirm(1)">ยืนยันรับเข้าทันที</button>
+        <button type="button" class="btn btn-sm btn-purple btn-100" onclick="acceptConfirm(3)">ยืนยันรอการรับเข้า</button>
+      <?php else : ?>
+        <button type="button" class="btn btn-sm btn-primary btn-100" onclick="acceptConfirm()">ยืนยัน</button>
+      <?php endif; ?>
       </div>
    </div>
  </div>

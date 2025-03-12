@@ -13,6 +13,7 @@ class Receive_po extends PS_Controller
   public $wmsApi = FALSE;
   public $sokoApi = FALSE;
   public $required_remark = 1;
+  public $is_mobile = FALSE;
 
   public function __construct()
   {
@@ -22,10 +23,12 @@ class Receive_po extends PS_Controller
     $this->load->model('stock/stock_model');
     $this->load->model('orders/orders_model');
     $this->load->model('masters/products_model');
+    $this->load->library('user_agent');
 
 		$this->isAPI = is_true(getConfig('WMS_API'));
     $this->wmsApi = is_true(getConfig('WMS_API'));
     $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
+    $this->is_mobile = $this->agent->is_mobile();
   }
 
 
@@ -35,44 +38,582 @@ class Receive_po extends PS_Controller
     $this->load->helper('warehouse');
 
     $filter = array(
-      'code'    => get_filter('code', 'receive_code', ''),
+      'code' => get_filter('code', 'receive_code', ''),
       'invoice' => get_filter('invoice', 'receive_invoice', ''),
-      'po'      => get_filter('po', 'receive_po', ''),
-      'vendor'  => get_filter('vendor', 'receive_vendor', ''),
+      'po' => get_filter('po', 'receive_po', ''),
+      'vendor' => get_filter('vendor', 'receive_vendor', ''),
       'user' => get_filter('user', 'receive_user', ''),
       'from_date' => get_filter('from_date', 'receive_from_date', ''),
       'to_date' => get_filter('to_date', 'receive_to_date', ''),
       'warehouse' => get_filter('warehouse', 'receive_warehouse', 'all'),
-      'status' => get_filter('status', 'receive_status', 'all'),
-			'is_wms' => get_filter('is_wms', 'receive_is_wms', 'all'),
+      'status' => get_filter('status', 'receive_status', ($this->is_mobile ? '3' : 'all')),
+			'is_wms' => get_filter('is_wms', 'receive_is_wms', ($this->is_mobile ? '0' : 'all')),
       'wms_export' => get_filter('wms_export', 'receive_wms_export', 'all'),
       'sap' => get_filter('sap', 'receive_sap', 'all'),
       'must_accept' => get_filter('must_accept', 'receive_must_accept', 'all')
     );
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
 
-		$segment  = 4; //-- url segment
-		$rows     = $this->receive_po_model->count_rows($filter);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$document = $this->receive_po_model->get_list($filter, $perpage, $this->uri->segment($segment));
-
-    if(!empty($document))
+    if($this->input->post('search'))
     {
-      foreach($document as $rs)
+      redirect($this->home);
+    }
+    else
+    {
+      //--- แสดงผลกี่รายการต่อหน้า
+      $perpage = get_rows();
+
+      $segment  = 4; //-- url segment
+      $rows     = $this->receive_po_model->count_rows($filter);
+      //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+      $init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+      $document = $this->receive_po_model->get_list($filter, $perpage, $this->uri->segment($segment));
+
+      if(!empty($document))
       {
-        $rs->qty = $this->receive_po_model->get_sum_qty($rs->code);
+        foreach($document as $rs)
+        {
+          $rs->qty = $this->receive_po_model->get_sum_qty($rs->code);
+        }
+      }
+
+      $filter['document'] = $document;
+
+      $this->pagination->initialize($init);
+
+      if($this->is_mobile)
+      {
+        $this->load->view('inventory/receive_po/mobile/receive_po_list_mobile', $filter);
+      }
+      else
+      {
+        $this->load->view('inventory/receive_po/receive_po_list', $filter);
       }
     }
-
-    $filter['document'] = $document;
-
-		$this->pagination->initialize($init);
-    $this->load->view('inventory/receive_po/receive_po_list', $filter);
   }
 
+
+  public function process($code)
+  {
+    $this->load->model('masters/zone_model');
+    $this->load->helper('warehouse');
+		$this->load->helper('currency');
+
+    $doc = $this->receive_po_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->is_wms == 0 && $doc->status == 3)
+      {
+        $details = $this->receive_po_model->get_details($code);
+
+        if( ! empty($details))
+        {
+          foreach($details as $rs)
+          {
+            $rs->barcode = $this->products_model->get_barcode($rs->product_code);
+          }
+        }
+
+        $ds = array(
+          'doc' => $doc,
+          'details' => $details,
+          'allow_over_po' => getConfig('ALLOW_RECEIVE_OVER_PO'),
+          'zone' => empty($doc->zone_code) ? NULL : $this->zone_model->get($doc->zone_code)
+        );
+
+        $this->load->view('inventory/receive_po/receive_po_process', $ds);
+      }
+      else
+      {
+        redirect($this->home . '/view_detail/' . $code);
+      }
+    }
+    else
+    {
+      $this->page_error();
+    }
+  }
+
+
+  public function process_mobile($code)
+  {
+    $this->load->model('masters/zone_model');
+    $this->load->helper('warehouse');
+		$this->load->helper('currency');
+
+    $doc = $this->receive_po_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->is_wms == 0 && $doc->status == 3)
+      {
+        $totalQty = 0;
+        $totalReceive = 0;
+
+        $uncomplete = $this->receive_po_model->get_in_complete_list($code);
+
+        if(!empty($uncomplete))
+        {
+          foreach($uncomplete as $rs)
+          {
+            $rs->barcode = $this->products_model->get_barcode($rs->product_code);
+            $totalQty += $rs->qty;
+            $totalReceive += $rs->receive_qty;
+          }
+        }
+
+        $complete = $this->receive_po_model->get_complete_list($code);
+
+        if( ! empty($complete))
+        {
+          foreach($complete as $rs)
+          {
+            $rs->barcode = $this->products_model->get_barcode($rs->product_code);
+            $totalQty += $rs->qty;
+            $totalReceive += $rs->receive_qty;
+          }
+        }
+
+        $ds = array(
+          'title' => $doc->code . "  [PO{$doc->po_code}]"  . "<br/>".$doc->vendor_name,
+          'doc' => $doc,
+          'uncomplete' => $uncomplete,
+          'complete' => $complete,
+          'allQty' => $totalQty,
+          'totalReceive' => $totalReceive,
+          'finished' => empty($uncomplete) ? TRUE : FALSE,
+          'allow_over_po' => getConfig('ALLOW_RECEIVE_OVER_PO'),
+          'zone' => empty($doc->zone_code) ? NULL : $this->zone_model->get($doc->zone_code)
+        );
+
+        $this->load->view('inventory/receive_po/mobile/receive_po_process_mobile', $ds);
+      }
+      else
+      {
+        redirect($this->home . '/view_detail/' . $code);
+      }
+    }
+    else
+    {
+      $this->page_error();
+    }
+  }
+
+
+  public function save_receive_rows()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds) && ! empty($ds->code) && ! empty($ds->rows))
+    {
+      $doc = $this->receive_po_model->get($ds->code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 3)
+        {
+          $this->db->trans_begin();
+
+          foreach($ds->rows as $rs)
+          {
+            if($sc === FALSE)
+            {
+              break;
+            }
+
+            $detail = $this->receive_po_model->get_detail($rs->id);
+
+            if( ! empty($detail))
+            {
+              $newQty = $rs->qty + $detail->receive_qty;
+
+              if($detail->qty < $newQty)
+              {
+                $sc = FALSE;
+                $this->error = "{$detail->product_code} : จำนวนที่รับ เกินจำนวนที่ส่ง กรุณาตรวจสอบ <br/> จำนวนส่ง : {$detail->qty}<br/>รับแล้ว : {$detail->receive_qty}<br/>บันทึกเพิ่ม : {$rs->qty}";
+              }
+
+              if($sc === TRUE)
+              {
+                $af = $detail->before_backlogs - $newQty;  //--- ยอดค้างรับหลังรับแล้ว
+                $amount = round($newQty * $detail->price, 6);
+
+                $arr = array(
+                  'receive_qty' => $newQty,
+                  'amount' => $amount,
+                  'after_backlogs' => $af,
+                  'valid' => $detail->qty <= $newQty ? 1 : 0
+                );
+
+                if( ! $this->receive_po_model->update_detail($rs->id, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to update receive qty at {$detail->product_code}";
+                }
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "No item row id {$rs->id} for {$rs->product_code}";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('status');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
+
+  //---- to finish receive in mobile mode
+  public function save_and_close()
+  {
+    $sc = TRUE;
+    $ex = 1;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds) && ! empty($ds->code))
+    {
+      $doc = $this->receive_po_model->get($ds->code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 3)
+        {
+          if( ! empty($ds->rows))
+          {
+            $this->db->trans_begin();
+
+            foreach($ds->rows as $rs)
+            {
+              if($sc === FALSE)
+              {
+                break;
+              }
+
+              $detail = $this->receive_po_model->get_detail($rs->id);
+
+              if( ! empty($detail))
+              {
+                $newQty = $rs->qty + $detail->receive_qty;
+
+                if($detail->qty < $newQty)
+                {
+                  $sc = FALSE;
+                  $this->error = "{$detail->product_code} : จำนวนที่รับ เกินจำนวนที่ส่ง กรุณาตรวจสอบ <br/> จำนวนส่ง : {$detail->qty}<br/>รับแล้ว : {$detail->receive_qty}<br/>บันทึกเพิ่ม : {$rs->qty}";
+                }
+
+                if($sc === TRUE)
+                {
+                  $af = $detail->before_backlogs - $newQty;  //--- ยอดค้างรับหลังรับแล้ว
+                  $amount = round($newQty * $detail->price, 6);
+
+                  $arr = array(
+                    'receive_qty' => $newQty,
+                    'amount' => $amount,
+                    'after_backlogs' => $af,
+                    'valid' => $detail->qty <= $newQty ? 1 : 0
+                  );
+
+                  if( ! $this->receive_po_model->update_detail($rs->id, $arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Failed to update receive qty at {$detail->product_code}";
+                  }
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "No item row id {$rs->id} for {$rs->product_code}";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_begin();
+
+            $details = $this->receive_po_model->get_details($ds->code);
+
+            if( ! empty($details))
+            {
+              $this->load->model('inventory/movement_model');
+
+              $movement_date = getConfig('ORDER_SOLD_DATE') == 'D' ? db_date($ds->doc_date, TRUE) : now();
+
+              foreach($details as $rs)
+              {
+                if($sc === FALSE)
+                {
+                  break;
+                }
+                //--- insert Movement in
+                $arr = array(
+                  'reference' => $ds->code,
+                  'warehouse_code' => $doc->warehouse_code,
+                  'zone_code' => $doc->zone_code,
+                  'product_code' => $rs->product_code,
+                  'move_in' => $rs->receive_qty,
+                  'move_out' => 0,
+                  'date_add' => $movement_date
+                );
+
+                if( ! $this->movement_model->add($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Insert Movement Failed";
+                }
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $posting_date = empty($ds->posting_date) ? NULL : db_date($ds->posting_date, TRUE);
+
+              $arr = array(
+                'status' => 1,
+                'shipped_date' => empty($doc->shipped_date) ? now() : $doc->shipped_date,
+                'update_user' => $this->_user->uname
+              );
+
+              if( ! $this->receive_po_model->update($doc->code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to close document";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+
+            if($sc === TRUE)
+            {
+              $this->load->library('export');
+
+              if(! $this->export->export_receive($doc->code))
+              {
+                $sc = FALSE;
+                $ex = 0;
+                $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ <br/> ".trim($this->export->error);
+              }
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('status');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : ($ex == 0 ? 'warning' : 'failed'),
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+  }
+
+  //---- to finish receive in desktop mode
+  public function finish_receive()
+  {
+    $this->load->model('inventory/movement_model');
+    $sc = TRUE;
+    $ex = 1;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
+    {
+      $doc = $this->receive_po_model->get($ds->code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 3)
+        {
+          $shipped_date = getConfig('ORDER_SOLD_DATE') == 'D' ? db_date($doc->date_add, TRUE) : (empty($doc->shipped_date) ? $doc->shipped_date : now());
+
+          if($doc->is_wms == 0)
+          {
+            $this->db->trans_begin();
+
+            if( ! empty($ds->rows))
+            {
+              foreach($ds->rows as $rs)
+              {
+                if($sc === FALSE)
+                {
+                  break;
+                }
+
+                $row = $this->receive_po_model->get_detail($rs->id);
+
+                if( ! empty($row))
+                {
+                  $amount = $row->price * $rs->receive_qty;
+                  $after_backlogs = $row->before_backlogs - $rs->receive_qty;
+                  $valid = $row->qty <= $rs->receive_qty ? 1 : 0;
+
+                  $arr = array(
+                    'receive_qty' => $rs->receive_qty,
+                    'amount' => $amount,
+                    'valid' => $valid
+                  );
+
+                  if( ! $this->receive_po_model->update_detail($rs->id, $arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Failed to update item row";
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    //--- insert Movement in
+                    $arr = array(
+                      'reference' => $doc->code,
+                      'warehouse_code' => $doc->warehouse_code,
+                      'zone_code' => $doc->zone_code,
+                      'product_code' => $row->product_code,
+                      'move_in' => $rs->receive_qty,
+                      'move_out' => 0,
+                      'date_add' => $shipped_date
+                    );
+
+                    if( ! $this->movement_model->add($arr))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Failed to create movemnt";;
+                    }
+                  }
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "Invalid row item or row item has been deleted";
+                }
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $arr = array(
+                'status' => 1,
+                'shipped_date' => $shipped_date,
+                'update_user' => $this->_user->uname
+              );
+
+              if( ! $this->receive_po_model->update($doc->code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Faiiled to update document status";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+
+
+            if($sc === TRUE)
+            {
+              $this->load->library('export');
+              if(! $this->export->export_receive($doc->code))
+              {
+                $sc = FALSE;
+                $ex = 0;
+                $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ <br/> ".trim($this->export->error);
+              }
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "เอกสารนี้ต้องรับเข้าที่ SOKO";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('status');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid document number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : ($ex == 0 ? 'warning' : 'failed'),
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+  }
 
 
 	public function import_data()
@@ -149,45 +690,35 @@ class Receive_po extends PS_Controller
 								if(!empty($detail))
 								{
 									$dif = $detail->Quantity - $detail->OpenQty;
-									$barcode = $this->products_model->get_barcode($detail->ItemCode);
-									$arr = array(
-					          'no' => $no,
-										'uid' => $detail->DocEntry.$detail->LineNum,
-                    'docEntry' => $detail->DocEntry,
-                    'lineNum' => $detail->LineNum,
-					          'barcode' => empty($barcode) ? $detail->ItemCode : $barcode,
-					          'pdCode' => $detail->ItemCode,
-					          'pdName' => $detail->Dscription,
-					          'price' => $detail->price,
-										'currency' => $detail->Currency,
-										'Rate' => $detail->Rate,
-										'vatGroup' => $detail->VatGroup,
-										'vatRate' => $detail->VatPrcnt,
-					          'qty' => number($detail->Quantity),
-					          'limit' => ($detail->Quantity + ($detail->Quantity * $rate)) - $dif,
-										'receive_qty' => $rs['E'],
-					          'backlog' => number($detail->OpenQty),
-					          'isOpen' => $detail->LineStatus === 'O' ? TRUE : FALSE
-					        );
+
+                  $arr = array(
+                    'no' => $no,
+                    'uid' => $detail->DocEntry.$detail->LineNum,
+                    'baseCode' => $po_code,
+                    'baseEntry' => $detail->DocEntry,
+                    'baseLine' => $detail->LineNum,
+                    'pdCode' => $detail->ItemCode,
+                    'pdName' => $detail->Dscription,
+                    'price' => round($detail->price, 4),
+                    'priceLabel' => number($detail->price, 4),
+                    'currency' => $detail->Currency,
+                    'Rate' => empty($detail->Rate) ? 1 : round($detail->Rate, 2),
+                    'vatGroup' => $detail->VatGroup,
+                    'vatRate' => $detail->VatPrcnt,
+                    'qty' => floatval($rs['E']),
+                    'limit' => ($detail->Quantity + ($detail->Quantity * $rate)) - $dif,
+                    'backLogsLabel' => number($detail->OpenQty),
+                    'backlogs' => round($detail->OpenQty, 2),
+                    'isOpen' => $detail->LineStatus === 'O' ? TRUE : FALSE
+                  );
 
 									array_push($line, $arr);
 									$no++;
-									$totalQty += $detail->Quantity;
-					        $totalBacklog += $detail->OpenQty;
-									$totalReceive += $rs['E'];
 								}
 							}
 
 							$i++;
 						} //--- endforeach
-
-						$arr = array(
-			        'qty' => number($totalQty),
-			        'backlog' => number($totalBacklog),
-							'receive' => number($totalReceive)
-			      );
-
-			      array_push($line, $arr);
 
 						$ds['details'] = $line;
 					}
@@ -207,7 +738,6 @@ class Receive_po extends PS_Controller
 
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
-
 
 
   public function get_sample_file()
@@ -268,7 +798,6 @@ class Receive_po extends PS_Controller
   }
 
 
-
   public function print_detail($code)
   {
     $this->load->library('printer');
@@ -303,117 +832,116 @@ class Receive_po extends PS_Controller
   }
 
 
-
-	public function save()
+  public function save()
   {
     $sc = TRUE;
     $ex = 1;
+    $isSoko = FALSE;
 
-    if($this->input->post('receive_code'))
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
     {
       $this->load->model('masters/products_model');
       $this->load->model('masters/zone_model');
       $this->load->model('masters/warehouse_model');
       $this->load->model('inventory/movement_model');
-      $this->load->model('inventory/receive_po_request_model');
 
-      $code = $this->input->post('receive_code');
+      $doc = $this->receive_po_model->get($ds->code);
 
-			$doc = $this->receive_po_model->get($code);
-			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+      $movement_date = getConfig('ORDER_SOLD_DATE') == 'D' ? db_date($ds->doc_date, TRUE) : now();
 
-			$header = json_decode($this->input->post('header'));
+      if( ! empty($ds->rows))
+      {
+        $isSoko = ($ds->is_wms == 2 && $this->sokoApi) ? TRUE : FALSE;
+        $sokoZone = getConfig('SOKOJUNG_ZONE');
 
-			if(!empty($header))
-			{
-				$items = json_decode($this->input->post('items'));
+        $zone = $this->zone_model->get($ds->zone_code);
 
-				if(!empty($items))
-				{
-					$vendor_code = $header->vendor_code;
-		      $vendor_name = $header->vendorName;
-		      $po_code = $header->poCode;
-		      $invoice = $header->invoice;
+        if(empty($zone))
+        {
+          $sc = FALSE;
+          $this->error = "รหัสโซนไม่ถูกต้อง";
+        }
 
-          $wmsZone = getConfig('WMS_ZONE');
-          $sokoZone = getConfig('SOKOJUNG_ZONE');
+        if($sc === TRUE && ($ds->is_wms == 2 && $zone->code != $sokoZone))
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารต้องรับเข้าที่โซน {$sokoZone}";
+        }
 
-          $zone = $this->zone_model->get($header->zone_code);
+        if($sc === TRUE && ($ds->is_wms == 0 && $zone->code == $sokoZone))
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารต้องรับเข้าที่โซนของ WARRIX";
+        }
 
-          if($doc->is_wms == 1 && $zone->code != $wmsZone)
-  				{
-  					$sc = FALSE;
-  					$this->error = "เอกสารต้องรับเข้าที่โซน {$wmsZone}";
-  				}
+        $date_add = db_date($ds->doc_date, TRUE);
+        $due_date = empty($ds->due_date) ? $date_add : db_date($ds->due_date, FALSE);
+        $posting_date = empty($ds->posting_date) ? NULL : db_date($ds->posting_date, TRUE);
+        $remark = get_null(trim($ds->remark));
+    		$is_wms = $ds->is_wms;
 
-  				if($doc->is_wms == 2 && $zone->code != $sokoZone)
-  				{
-  					$sc = FALSE;
-  					$this->error = "เอกสารต้องรับเข้าที่โซน {$sokoZone}";
-  				}
+        if($sc === TRUE)
+        {
+          $approver = get_null($ds->approver);
+          $must_accept = empty($zone->user_id) ? 0 : 1;
 
-          if($doc->is_wms == 0 && ($zone->code == $wmsZone OR $zone->code == $sokoZone))
-  				{
-  					$sc = FALSE;
-  					$this->error = "เอกสารต้องรับเข้าที่โซนของ WARRIX";
-  				}
+          $arr = array(
+            'date_add' => $date_add,
+            'due_date' => $due_date,
+            'shipped_date' => $posting_date,
+            'vendor_code' => $ds->vendor_code,
+            'vendor_name' => $ds->vendor_name,
+            'po_code' => $ds->po_code,
+            'invoice_code' => $ds->invoice,
+            'zone_code' => $zone->code,
+            'warehouse_code' => $zone->warehouse_code,
+            'update_user' => $this->_user->uname,
+            'approver' => $ds->approver,
+            'currency' => empty($ds->DocCur) ? "THB" : $ds->DocCur,
+            'rate' => empty($ds->DocRate) ? 1 : $ds->DocRate,
+            'is_wms' => $is_wms,
+            'must_accept' => $must_accept
+          );
+
+          $this->db->trans_begin();
+
+          if( ! $this->receive_po_model->update($doc->code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = 'Update Document Fail';
+          }
 
           if($sc === TRUE)
           {
-            $zone_code = $zone->code;
-            $warehouse_code = $zone->warehouse_code;
-            $approver = get_null($header->approver);
-            $request_code = get_null($header->requestCode);
-            $DocCur = $header->DocCur;
-            $DocRate = $header->DocRate;
-            $must_accept = empty($zone->user_id) ? 0 : 1;
-
-            $arr = array(
-              'vendor_code' => $vendor_code,
-              'vendor_name' => $vendor_name,
-              'po_code' => $po_code,
-              'invoice_code' => $invoice,
-              'zone_code' => $zone_code,
-              'warehouse_code' => $warehouse_code,
-              'update_user' => $this->_user->uname,
-              'approver' => $approver,
-              'request_code' => $request_code,
-              'currency' => empty($DocCur) ? "THB" : $DocCur,
-              'rate' => empty($DocRate) ? 1 : $DocRate,
-              'must_accept' => $must_accept
-            );
-
-            $this->db->trans_begin();
-
-            if($this->receive_po_model->update($code, $arr) === FALSE)
+            //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
+            if( ! $this->receive_po_model->drop_details($doc->code))
             {
               $sc = FALSE;
-              $this->error = 'Update Document Fail';
+              $this->error = "Failed to delete prevoius item rows";
             }
-            else
+
+            if($sc === TRUE)
             {
-              if(!empty($items))
+              $details = [];
+
+              foreach($ds->rows as $rs)
               {
-                //--- ลบรายการเก่าก่อนเพิ่มรายการใหม่
-                $this->receive_po_model->drop_details($code);
+                if($sc === FALSE) { break; }
 
-                $details = array();
-
-                foreach($items as $rs)
+                if($rs->qty != 0)
                 {
-                  if($sc === FALSE) { break; }
+                  $pd = $this->products_model->get($rs->product_code);
 
-                  if($rs->qty != 0)
+                  if( ! empty($pd))
                   {
-                    $pd = $this->products_model->get($rs->product_code);
+                    $bf = $rs->backlogs; ///--- ยอดค้ารับ ก่อนรับ
+                    $af = ($bf - $rs->qty) > 0 ? ($bf - $rs->qty) : 0;  //--- ยอดค้างรับหลังรับแล้ว
+                    $amount = round($rs->qty * $rs->price, 6);
 
-                    if(!empty($pd))
-                    {
-                      $bf = $rs->backlogs; ///--- ยอดค้ารับ ก่อนรับ
-                      $af = ($bf - $rs->qty) > 0 ? ($bf - $rs->qty) : 0;  //--- ยอดค้างรับหลังรับแล้ว
-
-                      $ds = array(
-                      'receive_code' => $code,
+                    $de = array(
+                      'receive_code' => $ds->code,
                       'baseEntry' => $rs->baseEntry,
                       'baseLine' => $rs->baseLine,
                       'style_code' => $pd->style_code,
@@ -421,141 +949,118 @@ class Receive_po extends PS_Controller
                       'product_name' => $pd->name,
                       'price' => $rs->price,
                       'qty' => $rs->qty,
-                      'receive_qty' => ($this->isAPI && $doc->is_wms) ? 0 : $rs->qty,
-                      'amount' => $rs->qty * $rs->price,
+                      'receive_qty' => (! $isSoko && $ds->save_type == 1 ) ? $rs->qty : 0,
+                      'amount' => $amount,
                       'before_backlogs' => $bf,
                       'after_backlogs' => $af,
-                      'currency' => empty($DocCur) ? "THB" : $DocCur,
-                      'rate' => empty($DocRate) ? 1 : $DocRate,
+                      'currency' => empty($ds->DocCur) ? "THB" : $ds->DocCur,
+                      'rate' => empty($ds->DocRate) ? 1 : $ds->DocRate,
                       'vatGroup' => $rs->vatGroup,
                       'vatRate' => $rs->vatRate
+                    );
+
+                    if($must_accept == 0 && $isSoko && $ds->save_type != 0)
+                    {
+                      $details[] = (object) array(
+                        'receive_code' => $ds->code,
+                        'style_code' => $pd->style_code,
+                        'product_code' => $pd->code,
+                        'product_name' => $pd->name,
+                        'unit_code' => $pd->unit_code,
+                        'price' => $rs->price,
+                        'qty' => $rs->qty,
+                        'amount' => $amount,
+                        'before_backlogs' => $bf,
+                        'after_backlogs' => $af
                       );
+                    }
 
-                      if($must_accept == 0 && $doc->is_wms != 0 && ($this->wmsApi OR $this->sokoApi))
+                    if( ! $this->receive_po_model->add_detail($de))
+                    {
+                      $sc = FALSE;
+                      $this->error = 'Add Receive Row Fail';
+                      break;
+                    }
+
+                    if($sc === TRUE)
+                    {
+                      if($must_accept == 0 && ! $isSoko && $ds->save_type == 1)
                       {
-                        $de = new stdClass;
-                        $de->receive_code = $code;
-                        $de->style_code = $pd->style_code;
-                        $de->product_code = $pd->code;
-                        $de->product_name = $pd->name;
-                        $de->unit_code = $pd->unit_code;
-                        $de->price = $rs->price;
-                        $de->qty = $rs->qty;
-                        $de->amount = $rs->qty * $rs->price;
-                        $de->before_backlogs = $bf;
-                        $de->after_backlogs = $af;
-
-                        $details[] = $de;
-                      }
-
-                      if( ! $this->receive_po_model->add_detail($ds))
-                      {
-                        $sc = FALSE;
-                        $this->error = 'Add Receive Row Fail';
-                        break;
-                      }
-
-                      if($sc === TRUE)
-                      {
-                        if($must_accept == 0 && $doc->is_wms == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
-                        {
-                          //--- insert Movement in
-                          $arr = array(
-                          'reference' => $code,
-                          'warehouse_code' => $warehouse_code,
-                          'zone_code' => $zone_code,
+                        //--- insert Movement in
+                        $arr = array(
+                          'reference' => $ds->code,
+                          'warehouse_code' => $zone->warehouse_code,
+                          'zone_code' => $zone->code,
                           'product_code' => $rs->product_code,
                           'move_in' => $rs->qty,
                           'move_out' => 0,
-                          'date_add' => $date_add
-                          );
+                          'date_add' => $movement_date
+                        );
 
-                          if( ! $this->movement_model->add($arr))
-                          {
-                            $sc = FALSE;
-                            $this->error = "Insert Movement Failed";
-                          }
+                        if( ! $this->movement_model->add($arr))
+                        {
+                          $sc = FALSE;
+                          $this->error = "Insert Movement Failed";
                         }
                       }
                     }
-                    else
-                    {
-                      $sc = FALSE;
-                      $this->error = 'ไม่พบรหัสสินค้า : '.$item.' ในระบบ';
-                    }
                   }
-                }
-
-                if($sc === TRUE)
-                {
-                  $arr = array(
-                  'status' => $must_accept == 1 ? 4 : (($this->wmsApi OR $this->sokoApi) && $doc->is_wms != 0 ? 3 : 1)
-                  );
-
-                  if( ! $this->receive_po_model->update($code, $arr))
+                  else
                   {
                     $sc = FALSE;
-                    $this->error = "Update Document Status Failed";
+                    $this->error = 'ไม่พบรหัสสินค้า : '.$item.' ในระบบ';
                   }
-                }
+                } //--- end if qty != 0
+              } //-- end foreach
 
-                if($sc === TRUE && $must_accept == 0 && ! empty($request_code))
+              if($sc === TRUE)
+              {
+                $arr = array(
+                  'status' => $ds->save_type == 0 ? 0 : ($must_accept == 1 ? 4 : (($isSoko OR $ds->save_type == 3) ? 3 : 1))
+                );
+
+                if( ! $this->receive_po_model->update($ds->code, $arr))
                 {
-                  $this->receive_po_request_model->update_receive_code($request_code, $code);
+                  $sc = FALSE;
+                  $this->error = "Update Document Status Failed";
                 }
+              }
+            }//--- end if $sc === TRUE
+          } //--- $sc == TRUE
 
-              } //--- items
-            }
-
-
-            if($sc === TRUE)
-            {
-              $this->db->trans_commit();
-            }
-            else
-            {
-              $this->db->trans_rollback();
-            }
-
-          }
-
-
-          if($sc === TRUE && $must_accept == 0)
+          if($sc === TRUE)
           {
-            if(($this->wmsApi && $doc->is_wms == 1) OR ($this->sokoApi && $doc->is_wms == 2))
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+        } //-- $sc == TRUE
+
+        if($sc === TRUE && $must_accept == 0 && $ds->save_type != 0)
+        {
+          if($isSoko)
+          {
+            $this->wms = $this->load->database('wms', TRUE);
+            $this->load->library('soko_receive_api');
+            $doc->vendor_code = $ds->vendor_code;
+            $doc->vendor_name = $ds->vendor_name;
+            $doc->is_wms = $ds->is_wms;
+
+            if( ! $this->soko_receive_api->create_receive_po($doc, $ds->po_code, $ds->invoice, $details))
             {
-              $this->wms = $this->load->database('wms', TRUE);
-              $doc->vendor_code = $vendor_code;
-              $doc->vendor_name = $vendor_name;
-
-              if($doc->is_wms == 1)
-              {
-                $this->load->library('wms_receive_api');
-
-                if( ! $this->wms_receive_api->export_receive_po($doc, $po_code, $invoice, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ <br/> ".$this->wms_receive_api->error;
-                }
-              }
-
-              if($doc->is_wms == 2)
-              {
-                $this->load->library('soko_receive_api');
-
-                if( ! $this->soko_receive_api->create_receive_po($doc, $po_code, $invoice, $details))
-                {
-                  $sc = FALSE;
-                  $ex = 0;
-                  $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Soko jung ไม่สำเร็จ <br/> ".$this->soko_receive_api->error;
-                }
-              }
+              $sc = FALSE;
+              $ex = 0;
+              $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Soko jung ไม่สำเร็จ <br/> ".$this->soko_receive_api->error;
             }
-            else
+          }
+          else
+          {
+            if($ds->save_type == 1)
             {
               $this->load->library('export');
-              if(! $this->export->export_receive($code))
+              if(! $this->export->export_receive($doc->code))
               {
                 $sc = FALSE;
                 $ex = 0;
@@ -563,23 +1068,18 @@ class Receive_po extends PS_Controller
               }
             }
           }
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "Items rows not found!";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Header data not found!";
-			}
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Items rows not found!";
+      }
     }
     else
     {
       $sc = FALSE;
-      $this->error = 'ไม่พบข้อมูล';
+      set_error('required');
     }
 
     $arr = array(
@@ -591,7 +1091,6 @@ class Receive_po extends PS_Controller
   }
 
 
-
   public function accept_confirm()
   {
     $sc = TRUE;
@@ -600,11 +1099,14 @@ class Receive_po extends PS_Controller
     $this->load->model('inventory/movement_model');
 
     $code = $this->input->post('code');
+    $save_type = $this->input->post('save_type') == 3 ? 3 : 1;
     $remark = $this->input->post('accept_remark');
 
     $doc = $this->receive_po_model->get($code);
 
-    $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+    $movement_date = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
+
+    $isSoko = ($doc->is_wms == 2 && $this->sokoApi) ? TRUE : FALSE;
 
     if( ! empty($doc))
     {
@@ -616,55 +1118,98 @@ class Receive_po extends PS_Controller
 
         if( ! empty($details))
         {
-          //--- update movement
-          foreach($details as $rs)
+          if($save_type == 1 && ! $isSoko)
           {
-            if($sc === FALSE) { break; }
-
-            if($rs->receive_qty > 0)
+            //--- update movement
+            foreach($details as $rs)
             {
-              if($doc->is_wms == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
+              if($sc === FALSE) { break; }
+
+              if($rs->qty > 0)
               {
-                //--- insert Movement in
+                $af = $rs->before_backlogs - $rs->qty;
+                $amount = $rs->qty * $rs->price;
+
                 $arr = array(
-                  'reference' => $code,
-                  'warehouse_code' => $doc->warehouse_code,
-                  'zone_code' => $doc->zone_code,
-                  'product_code' => $rs->product_code,
-                  'move_in' => $rs->receive_qty,
-                  'move_out' => 0,
-                  'date_add' => $date_add
+                  'receive_qty' => $rs->qty,
+                  'after_backlogs' => $af,
+                  'amount' => round($amount, 4),
+                  'valid' => 1
                 );
 
-                if( ! $this->movement_model->add($arr))
+                if( ! $this->receive_po_model->update_detail($rs->id, $arr))
                 {
                   $sc = FALSE;
-                  $this->error = "Insert Movement Failed";
+                  $this->error = "Failed to update receive qty";
                 }
-              } //-- is_wms = 0
-            } //-- receive_qty > 0
-          } //--- foreach
+
+                if($sc === TRUE)
+                {
+                  //--- insert Movement in
+                  $arr = array(
+                    'reference' => $code,
+                    'warehouse_code' => $doc->warehouse_code,
+                    'zone_code' => $doc->zone_code,
+                    'product_code' => $rs->product_code,
+                    'move_in' => $rs->qty,
+                    'move_out' => 0,
+                    'date_add' => $movement_date
+                  );
+
+                  if( ! $this->movement_model->add($arr))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Insert Movement Failed";
+                  }
+                }
+              } //-- receive_qty > 0
+            } //--- foreach
+          }
+
+          if($save_type == 3)
+          {
+            foreach($details as $rs)
+            {
+              if($sc === FALSE) { break; }
+
+              if($rs->receive_qty > 0)
+              {
+                $arr = array(
+                  'receive_qty' => 0,
+                  'valid' => 0
+                );
+
+                if( ! $this->receive_po_model->update_detail($rs->id, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to reset receive qty";
+                }
+              }
+            }
+          }
         } //-- details
 
         if($sc === TRUE)
         {
+          $status = $isSoko ? 3 : ($save_type == 3 ? 3 : 1);
+
           $arr = array(
-          'status' => $doc->is_wms == 0 ? 1 : (($doc->is_wms == 1 && $this->wmsApi ? 3 : ($doc->is_wms == 2 && $this->sokoApi ? 3 : 1))),
-          'is_accept' => 1,
-          'accept_by' => $this->_user->uname,
-          'accept_on' => now(),
-          'accept_remark' => $remark
+            'status' => $status,
+            'is_accept' => 1,
+            'accept_by' => $this->_user->uname,
+            'accept_on' => now(),
+            'accept_remark' => $remark
           );
+
+          if($status == 1)
+          {
+            $arr['shipped_date'] = empty($doc->shipped_date) ? now() : $doc->shipped_date;
+          }
 
           if( ! $this->receive_po_model->update($code, $arr))
           {
             $sc = FALSE;
             $this->error = "Update Document Status Failed";
-          }
-
-          if($sc === TRUE && ! empty($doc->request_code))
-          {
-            $this->receive_po_request_model->update_receive_code($doc->request_code, $code);
           }
         }
 
@@ -685,48 +1230,35 @@ class Receive_po extends PS_Controller
 
       if($sc === TRUE)
       {
-        if(($this->wmsApi && $doc->is_wms == 1) OR ($this->sokoApi && $doc->is_wms == 2))
+        if($isSoko)
         {
           $this->wms = $this->load->database('wms', TRUE);
+          $this->load->library('soko_receive_api');
           $doc->vendor_code = $vendor_code;
           $doc->vendor_name = $vendor_name;
 
-          if($doc->is_wms == 1)
+          if( ! $this->soko_receive_api->create_receive_po($doc, $po_code, $invoice, $details))
           {
-            $this->load->library('wms_receive_api');
-
-            if( ! $this->wms_receive_api->export_receive_po($doc, $po_code, $invoice, $details))
-            {
-              $sc = FALSE;
-              $ex = 0;
-              $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Pioneer ไม่สำเร็จ <br/> ".$this->wms_receive_api->error;
-            }
-          }
-
-          if($doc->is_wms == 2)
-          {
-            $this->load->library('soko_receive_api');
-
-            if( ! $this->soko_receive_api->create_receive_po($doc, $po_code, $invoice, $details))
-            {
-              $sc = FALSE;
-              $ex = 0;
-              $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Soko jung ไม่สำเร็จ <br/> ".$this->soko_receive_api->error;
-            }
+            $sc = FALSE;
+            $ex = 0;
+            $this->error = "บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป Soko jung ไม่สำเร็จ <br/> ".$this->soko_receive_api->error;
           }
         }
         else
         {
-          $this->load->library('export');
-          if(! $this->export->export_receive($code))
+          if($save_type == 1)
           {
-            $sc = FALSE;
-            $ex = 0;
-            $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ <br/> ".trim($this->export->error);
+            $this->load->library('export');
+
+            if(! $this->export->export_receive($code))
+            {
+              $sc = FALSE;
+              $ex = 0;
+              $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ <br/> ".trim($this->export->error);
+            }
           }
         }
       }
-
     }
     else
     {
@@ -742,6 +1274,113 @@ class Receive_po extends PS_Controller
     echo json_encode($arr);
   }
 
+
+  public function pull_back()
+	{
+		$sc = TRUE;
+		$code = trim($this->input->post('code'));
+
+		if($this->_SuperAdmin)
+		{
+			$doc = $this->receive_po_model->get($code);
+
+			if( ! empty($doc))
+			{
+        if($doc->status == 1)
+        {
+          $sap = $this->receive_po_model->get_sap_receive_doc($code);
+
+          if( ! empty($sap))
+          {
+            $sc = FALSE;
+            $this->error = "เอกสารถูกนำเข้า SAP แล้ว หากต้องการเปลี่ยนแปลงกรุณายกเลิกเอกสารใน SAP ก่อน";
+          }
+          else
+          {
+            $middle = $this->receive_po_model->get_middle_receive_po($code);
+
+            if(!empty($middle))
+            {
+              foreach($middle as $rows)
+              {
+                if( ! $this->receive_po_model->drop_sap_received($rows->DocEntry))
+                {
+                  $sc = FALSE;
+                  $this->error = "ลบรายการที่ค้างใน temp ไม่สำเร็จ";
+                }
+              }
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_begin();
+
+          if($doc->status == 2)
+          {
+            $arr = array(
+              'is_cancle' => 0
+            );
+
+            if( ! $this->receive_po_model->update_details($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to roll back transections";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->load->model('inventory/movement_model');
+
+            if( ! $this->movement_model->drop_movement($code))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to remove movement";
+            }
+          }
+
+
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'status' => 0,
+              'inv_code' => NULL
+            );
+
+            if( ! $this->receive_po_model->update($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to update document status";
+            }
+          }
+
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+        }
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document number";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			set_error('permission');
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 	public function send_to_wms($code)
@@ -1011,196 +1650,152 @@ class Receive_po extends PS_Controller
   }
 
 
-
   public function get_po_detail()
   {
-    $sc = '';
-    $this->load->model('masters/products_model');
-    $po_code = $this->input->get('po_code');
-    $details = $this->receive_po_model->get_po_details($po_code);
-    $ro = getConfig('RECEIVE_OVER_PO');
-    $rate = ($ro * 0.01);
+    $sc = TRUE;
     $ds = array();
-    if(!empty($details))
+
+    $po_code = $this->input->get('po_code');
+
+    $po = $this->receive_po_model->get_po($po_code);
+
+    if( ! empty($po))
     {
-      $no = 1;
-      $totalQty = 0;
-      $totalBacklog = 0;
+      $ro = getConfig('RECEIVE_OVER_PO');
 
-      foreach($details as $rs)
-      {
-				if($rs->OpenQty > 0)
-				{
-					$dif = $rs->Quantity - $rs->OpenQty;
-					$barcode = $this->products_model->get_barcode($rs->ItemCode);
-	        $arr = array(
-	          'no' => $no,
-						'uid' => $rs->DocEntry.$rs->LineNum,
-            'docEntry' => $rs->DocEntry,
-            'lineNum' => $rs->LineNum,
-	          'barcode' => empty($barcode) ? $rs->ItemCode : $barcode,
-	          'pdCode' => $rs->ItemCode,
-	          'pdName' => $rs->Dscription,
-	          'price' => round($rs->price, 4),
-            'price_label' => number($rs->price, 4),
-						'currency' => $rs->Currency,
-						'Rate' => $rs->Rate,
-						'vatGroup' => $rs->VatGroup,
-						'vatRate' => $rs->VatPrcnt,
-	          'qty_label' => number($rs->Quantity),
-            'qty' => $rs->Quantity,
-	          'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
-	          'backlog_label' => number($rs->OpenQty),
-            'backlog' => round($rs->OpenQty, 2),
-	          'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE
-	        );
-	        array_push($ds, $arr);
-	        $no++;
-	        $totalQty += $rs->Quantity;
-	        $totalBacklog += $rs->OpenQty;
-				}
-      }
+      $rate = ($ro * 0.01);
 
-      $arr = array(
-        'qty' => number($totalQty),
-        'backlog' => number($totalBacklog)
-      );
-      array_push($ds, $arr);
+      $details = $this->receive_po_model->get_po_details($po_code);
 
-      $sc = json_encode($ds);
-    }
-    else
-    {
-      $sc = 'ใบสั่งซื้อไม่ถูกต้อง หรือ ใบสั่งซื้อถูกปิดไปแล้ว';
-    }
-
-    echo $sc;
-  }
-
-
-
-  public function get_receive_request_po_detail()
-  {
-    $this->load->model('inventory/receive_po_request_model');
-    $this->load->model('masters/products_model');
-
-    $sc = '';
-    $code = $this->input->get('request_code');
-    $doc  = $this->receive_po_request_model->get($code);
-
-    if(!empty($doc))
-    {
-      $details = $this->receive_po_request_model->get_details($code);
-
-      $data = array(
-        'code' => $doc->code,
-        'vendor_code' => $doc->vendor_code,
-        'vendor_name' => $doc->vendor_name,
-        'invoice_code' => $doc->invoice_code,
-        'po_code' => $doc->po_code,
-        'currency' => $doc->currency,
-        'rate' => $doc->rate
-      );
-
-      $ds = array();
-      if(!empty($details))
+      if( ! empty($details))
       {
         $no = 1;
-        $totalQty = 0;
-        $totalRequest = 0;
-        $totalBacklog = 0;
 
         foreach($details as $rs)
         {
-          //$backlogs = $this->receive_po_request_model->get_backlogs($doc->po_code, $rs->product_code);
-          $row = $this->receive_po_model->get_po_row($rs->baseEntry, $rs->baseLine);
+  				if($rs->OpenQty > 0)
+  				{
+            $dif = $rs->Quantity - $rs->OpenQty;
+            $onOrder = $this->receive_po_model->get_on_order_qty($rs->ItemCode, $po_code, $rs->DocEntry, $rs->LineNum);
 
-          if( ! empty($row))
-          {
+            $qty = $rs->OpenQty - $onOrder;
+
             $arr = array(
               'no' => $no,
-              'uid' => $rs->baseEntry.$rs->baseLine,
-              'docEntry' => $rs->baseEntry,
-              'lineNum' => $rs->baseLine,
-              'barcode' => $row->barcode,
-              'pdCode' => $rs->product_code,
-              'pdName' => $rs->product_name,
-              'price' => $rs->price,
-              'currency' => $rs->currency,
-              'rate' => $rs->rate,
-              'vatGroup' => $rs->vatGroup,
-              'vatRate' => $rs->vatRate,
-              'qty_label' => number($row->Quantity),
-              'qty' => $row->Quantity,
-              'request_qty_label' => number($rs->qty),
-              'request_qty' => $rs->qty,
-              'receive_qty' => $row->OpenQty < $rs->qty ? $row->OpenQty : $rs->qty,
-              'limit' => $row->OpenQty < $rs->qty ? $row->OpenQty : $rs->qty,
-              'backlog_label' => number($row->OpenQty),
-              'backlog' => $row->OpenQty,
-              'isOpen' => $row->LineStatus == 'O' ? TRUE : FALSE
+              'uid' => $rs->DocEntry.$rs->LineNum,
+              'baseCode' => $po_code,
+              'baseEntry' => $rs->DocEntry,
+              'baseLine' => $rs->LineNum,
+              'pdCode' => $rs->ItemCode,
+              'pdName' => $rs->Dscription,
+              'price' => round($rs->price, 4),
+              'price_label' => number($rs->price, 4),
+              'currency' => $rs->Currency,
+              'Rate' => empty($rs->Rate) ? 1 : $rs->Rate,
+              'vatGroup' => $rs->VatGroup,
+              'vatRate' => $rs->VatPrcnt,
+              'qty_label' => number($qty),
+              'qty' => $qty,
+              'onOrder' => $onOrder,
+              'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
+              'backlog_label' => number($rs->OpenQty),
+              'backlog' => round($rs->OpenQty, 2),
+              'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE
             );
 
             array_push($ds, $arr);
             $no++;
-            $totalQty += $row->Quantity;
-            $totalRequest += $rs->qty;
-            $totalBacklog += $row->OpenQty;
-          }
+  				}
         }
-
-        $arr = array(
-          'totalQty' => number($totalQty),
-          'totalRequest' => number($totalRequest),
-          'totalBacklog' => number($totalBacklog)
-        );
-        array_push($ds, $arr);
-
-        $data['data'] = $ds;
-
-        $sc = json_encode($data);
       }
       else
       {
-        $sc = 'ใบสั่งซื้อไม่ถูกต้อง หรือ ใบสั่งซื้อถูกปิดไปแล้ว';
+        $sc = FALSE;
+        $this->error = "ใบสั่งซื้อไม่ถูกต้อง หรือ ใบสั่งซื้อถูกปิดไปแล้ว";
       }
     }
     else
     {
-      $sc = "ใบขออนุมัติไม่ถูกต้อง";
+      $sc = FALSE;
+      $this->error = "ไม่พบใบสั่งซื้อ";
     }
 
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'DocNum' => $sc === TRUE ? $po->DocNum : NULL,
+      'DocCur' => $sc === TRUE ? $po->DocCur : NULL,
+      'DocRate' => $sc === TRUE ? $po->DocRate : NULL,
+      'CardCode' => $sc === TRUE ? $po->CardCode : NULL,
+      'CardName' => $sc === TRUE ? $po->CardName : NULL,
+      'DiscPrcnt' => $sc === TRUE ? $po->DiscPrcnt : NULL,
+      'details' => $sc === TRUE ? $ds : NULL
+    );
 
-    echo $sc;
+    echo json_encode($arr);
   }
-
 
 
   public function edit($code)
   {
+    $this->load->model('masters/zone_model');
+    $this->load->helper('warehouse');
 		$this->load->helper('currency');
+
     $doc = $this->receive_po_model->get($code);
-    $ds['doc'] = $doc;
-    $ds['is_strict'] = getConfig('STRICT_RECEIVE_PO');
-    $ds['allow_over_po'] = getConfig('ALLOW_RECEIVE_OVER_PO');
-    $zone_code = $doc->is_wms == 1 ? getConfig('WMS_ZONE') : ($doc->is_wms == 2 ? getConfig('SOKOJUNG_ZONE') : "");
-    $zone_name = "";
-    $zone = NULL;
 
-    if($zone_code != "" && $zone_code != NULL)
+    if( ! empty($doc))
     {
-      $this->load->model('masters/zone_model');
-      $zone = $this->zone_model->get($zone_code);
-      $zone_code = empty($zone) ? "" : $zone->code;
-      $zone_name = empty($zone) ? "" : $zone->name;
+      if($doc->status == 0 OR ($doc->is_wms == 0 && $doc->status == 3))
+      {
+        $details = $this->receive_po_model->get_details($code);
+
+        if( ! empty($details))
+        {
+          $ro = getConfig('RECEIVE_OVER_PO');
+    	    $rate = ($ro * 0.01);
+
+          foreach($details as $rs)
+          {
+            //-- get Quantity, Openqty
+            $row = $this->receive_po_model->get_po_row($rs->baseEntry, $rs->baseLine);
+
+            if( ! empty($row))
+            {
+              $diff = $row->Quantity - $row->OpenQty;
+              $rs->backlogs = $row->OpenQty;
+              $rs->limit = ($row->Quantity + ($row->Quantity * $rate)) - $diff;
+              $rs->line_status = $row->LineStatus;
+            }
+            else
+            {
+              $rs->backlogs = 0;
+              $rs->limit = 0;
+              $rs->line_status = 'D';
+            }
+          }
+        }
+
+
+        $ds = array(
+          'doc' => $doc,
+          'details' => $details,
+          'allow_over_po' => getConfig('ALLOW_RECEIVE_OVER_PO'),
+          'zone' => empty($doc->zone_code) ? NULL : $this->zone_model->get($doc->zone_code)
+        );
+
+        $this->load->view('inventory/receive_po/receive_po_edit', $ds);
+      }
+      else
+      {
+        redirect($this->home . '/view_detail/' . $code);
+      }
     }
-
-    $ds['zone_code'] = $zone_code;
-    $ds['zone_name'] = $zone_name;
-
-    $this->load->view('inventory/receive_po/receive_po_edit', $ds);
+    else
+    {
+      $this->page_error();
+    }
   }
-
 
 
 	public function get_po_currency()
@@ -1220,12 +1815,10 @@ class Receive_po extends PS_Controller
 	}
 
 
-
   public function add_new()
   {
     $this->load->view('inventory/receive_po/receive_po_add');
   }
-
 
 
   //--- check exists document code
@@ -1241,8 +1834,6 @@ class Receive_po extends PS_Controller
       echo 'not_exists';
     }
   }
-
-
 
 
   public function add()
@@ -1293,7 +1884,6 @@ class Receive_po extends PS_Controller
 
     echo json_encode($arr);
   }
-
 
 
   public function update_header()
@@ -1348,9 +1938,6 @@ class Receive_po extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
-
-
 
 
   public function get_sell_stock($item_code, $warehouse = NULL, $zone = NULL)

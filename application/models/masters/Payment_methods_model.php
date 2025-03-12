@@ -177,14 +177,9 @@ class Payment_methods_model extends CI_Model
       $this->db->where('id !=', $id);
     }
 
-    $rs = $this->db->where('code', $code)->get('payment_method');
+    $count = $this->db->where('code', $code)->count_all_results('payment_method');
 
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $count > 0 ? TRUE : FALSE;
   }
 
 

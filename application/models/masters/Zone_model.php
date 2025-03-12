@@ -445,7 +445,7 @@ class Zone_model extends CI_Model
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

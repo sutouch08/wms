@@ -201,6 +201,23 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_exists_free_detail($order_code, $item_code)
+  {
+    $rs = $this->db
+    ->where('order_code', $order_code)
+    ->where('product_code', $item_code)
+    ->where('is_free', 1)
+    ->get('order_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_unvalid_order_detail($order_code, $item_code)
   {
     $rs = $this->db

@@ -536,6 +536,145 @@ class Orders extends PS_Controller
   }
 
 
+  public function add_free_detail($order_code)
+  {
+    $sc = TRUE;
+    $auz = getConfig('ALLOW_UNDER_ZERO');
+		$this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
+		$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
+		$sync_stock = array();
+    $err = 0;
+    $data = $this->input->post('data');
+    $order = $this->orders_model->get($order_code);
+
+    if( empty($order))
+    {
+      $sc = FALSE;
+      $this->error = "Invalid order code";
+    }
+    else
+    {
+      if($order->state != 1)
+      {
+        $sc = FALSE;
+        $this->error = "สถานะออเดอร์ไม่ถูกต้อง กรุณาตรวจสอบ";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      if( ! empty($data))
+      {
+        foreach($data as $rs)
+        {
+          $code = $rs['code']; //-- รหัสสินค้า
+          $qty = $rs['qty'];
+          $item = $this->products_model->get($code);
+
+          if( $qty > 0 && !empty($item))
+          {
+            $qty = ceil($qty);
+
+            //---- ยอดสินค้าที่่สั่งได้
+            $sumStock = $this->get_sell_stock($item->code, $order->warehouse_code);
+
+
+            //--- ถ้ามีสต็อกมากว่าที่สั่ง หรือ เป็นสินค้าไม่นับสต็อก
+            if( $sumStock >= $qty OR $item->count_stock == 0 OR $auz == 1)
+            {
+              //---- ถ้ายังไม่มีรายการในออเดอร์
+              //--- อาจจะได้มากกกว่า 1 บรรทัด แต่จะเอามาแค่บรรทัดเดียว
+              $detail = $this->orders_model->get_exists_free_detail($order_code, $item->code);
+
+              if(empty($detail))
+              {
+                $arr = array(
+                  "order_code" => $order_code,
+                  "style_code" => $item->style_code,
+                  "product_code" => $item->code,
+                  "product_name" => addslashes($item->name),
+                  "cost"  => $item->cost,
+                  "price"	=> $item->price,
+                  "qty" => $qty,
+                  "discount1"	=> '100%',
+                  "discount2" => 0,
+                  "discount3" => 0,
+                  "discount_amount" => $item->price * $qty,
+                  "total_amount"	=> 0.00,
+                  "id_rule"	=> NULL,
+                  "is_count" => $item->count_stock
+                );
+
+                if( $this->orders_model->add_detail($arr) === FALSE )
+                {
+                  $sc = FALSE;
+                  $this->error = "Error : Insert fail";
+                  $err++;
+                }
+                else
+                {
+                  //---- update chatbot stock
+                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                  {
+                    if($order->warehouse_code == $chatbot_warehouse_code)
+                    {
+                      $sync_stock[] = $item->code;
+                    }
+                  }
+                }
+              }
+              else  //--- ถ้ามีรายการในออเดอร์อยู่แล้ว
+              {
+                $qty = $qty + $detail->qty;
+
+                $arr = array(
+                  "qty"		=> $qty,
+                  "discount_amount" => $item->price * $qty,
+                  "total_amount"	=> 0.00,
+                  "valid" => 0,
+                  "valid_qc" => 0
+                );
+
+                if( ! $this->orders_model->update_detail($detail->id, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Error : Update Fail";
+                  $err++;
+                }
+                else
+                {
+                  //---- update chatbot stock
+                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                  {
+                    if($order->warehouse_code == $chatbot_warehouse_code)
+                    {
+                      $sync_stock[] = $item->code;
+                    }
+                  }
+                }
+
+              }	//--- end if isExistsDetail
+            }
+            else 	// if getStock
+            {
+              $sc = FALSE;
+              $this->error = "Error : สินค้าไม่เพียงพอ : {$item->code}";
+              $err++;
+            } 	//--- if getStock
+          }	//--- if qty > 0
+        } //--- end foreach
+        
+        if($this->sync_chatbot_stock && !empty($sync_stock))
+        {
+          $this->update_chatbot_stock($sync_stock);
+        }
+      }
+    }
+
+
+    echo $sc === TRUE ? 'success' : ( $err > 0 ? $this->error.' : '.$err.' item(s)' : $this->error);
+  }
+
   //--- update item qty
   public function update_item()
 	{

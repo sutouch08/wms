@@ -34,7 +34,7 @@
       <div class="input-group width-100">
         <input type="text" class="width-100 text-center" value="<?php echo $order->code; ?>" disabled />
         <span class="input-group-btn">
-          <button type="button" class="btn btn-xs btn-info" onclick="viewOrderDetail('<?php echo $order->code; ?>', '<?php echo $order->role; ?>')" style="min-width:20px;">
+          <button type="button" class="btn btn-xs btn-info" style="height:30px;" onclick="viewOrderDetail('<?php echo $order->code; ?>', '<?php echo $order->role; ?>')" style="min-width:20px;">
             <i class="fa fa-external-link"></i>
           </button>
         </span>
@@ -67,8 +67,8 @@
       <div class="input-group width-100">
         <input type="text" class="form-control input-sm text-center" id="ship-date" value="<?php echo empty($order->shipped_date) ? NULL : thai_date($order->shipped_date); ?>" disabled />
         <span class="input-group-btn">
-          <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
-          <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save"></i></button>
+          <button type="button" class="btn btn-xs btn-warning btn-block" style="height:30px;" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
+          <button type="button" class="btn btn-xs btn-success btn-block hide" style="height:30px;" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save"></i></button>
         </span>
       </div>
     </div>
@@ -102,8 +102,8 @@
         <div class="input-group width-100">
           <input type="text" class="width-100 text-center" id="ship-date" value="<?php echo empty($order->shipped_date) ? NULL : thai_date($order->shipped_date); ?>" disabled />
           <span class="input-group-btn">
-            <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
-            <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save" style="min-width:20px;"></i></button>
+            <button type="button" class="btn btn-xs btn-warning btn-block" style="height:30px;" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
+            <button type="button" class="btn btn-xs btn-success btn-block hide" style="height:30px;" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save" style="min-width:20px;"></i></button>
           </span>
         </div>
       </div>

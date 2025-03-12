@@ -1,50 +1,68 @@
 <?php $this->load->view('include/header'); ?>
 <script src="<?php echo base_url(); ?>assets/js/xlsx.full.min.js"></script>
-<?php if($doc->status == 0) : ?>
+<style>
+	.text-label {
+		border:0px !important;
+		background-color: transparent !important;
+		color:#333333 !important;
+	}
+</style>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 hidden-xs padding-5">
+	<div class="col-lg-6 col-md-4 col-sm-4 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-xs-12 padding-5 visible-xs">
-		<h3 class="title-xs"><?php echo $this->title; ?> </h3>
-	</div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-    <p class="pull-right top-p text-right">
-			<button type="button" class="btn btn-xs btn-warning top-btn" onclick="leave()"><i class="fa fa-arrow-left"></i> กลับ</button>
-			<?php if($this->pm->can_edit && $doc->status == 0) : ?>
-        <button type="button" class="btn btn-xs btn-danger top-btn" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-exclamation-triangle"></i> ยกเลิก</button>
-      <?php endif; ?>
-			<button type="button" class="btn btn-xs btn-purple top-btn" onclick="getSample()"><i class="fa fa-download"></i> ไฟล์ตัวอย่าง</button>
-    <?php if($this->pm->can_add) : ?>
-			<button type="button" class="btn btn-xs btn-primary top-btn" onclick="getUploadFile()"><i class="fa fa-upload"></i> Import</button>
-			<button type="button" class="btn btn-xs btn-success top-btn" onclick="checkLimit()"><i class="fa fa-save"></i> บันทึก</button>
-    <?php	endif; ?>
+  <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 padding-5 text-right">
+		<button type="button" class="btn btn-white btn-warning top-btn" onclick="leave()"><i class="fa fa-arrow-left"></i> กลับ</button>
+		<?php if($this->pm->can_edit && $doc->status == 0) : ?>
+			<button type="button" class="btn btn-sm btn-danger top-btn" onclick="goDelete('<?php echo $doc->code; ?>')"><i class="fa fa-exclamation-triangle"></i> ยกเลิก</button>
+		<?php endif; ?>
+		<button type="button" class="btn btn-sm btn-purple top-btn hidden-xs" onclick="getSample()"><i class="fa fa-download"></i> ไฟล์ตัวอย่าง</button>
+		<?php if($this->pm->can_add) : ?>
+			<button type="button" class="btn btn-sm btn-primary top-btn hidden-xs" onclick="getUploadFile()"><i class="fa fa-upload"></i> Import</button>
 
-    </p>
+			<div class="btn-group">
+        <button data-toggle="dropdown" class="btn btn-success btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+          <i class="ace-icon fa fa-save icon-on-left"></i>
+          บันทึก
+          <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li class="primary">
+            <a href="javascript:checkLimit(0)">บันทึกเป็นดราฟท์</a>
+          </li>
+					<li class="success">
+            <a href="javascript:checkLimit(1)">บันทึกรับเข้าทันที</a>
+          </li>
+					<li class="purple">
+            <a href="javascript:checkLimit(3)">บันทึกรอรับ</a>
+          </li>
+        </ul>
+      </div>
+		<?php	endif; ?>
   </div>
 </div>
 <hr />
 
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
   	<label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
   </div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>วันที่เอกสาร</label>
-    <input type="text" class="form-control input-sm text-center e" id="doc-date" value="<?php echo thai_date($doc->date_add); ?>" disabled />
+    <input type="text" class="form-control input-sm text-center h" id="doc-date" value="<?php echo thai_date($doc->date_add); ?>" />
   </div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>วันที่สินค้าเข้า</label>
-		<input type="text" class="form-control input-sm text-center e" id="due-date" value="<?php echo empty($doc->due_date) ? NULL : thai_date($doc->due_date); ?>" disabled/>
+		<input type="text" class="form-control input-sm text-center h" id="due-date" value="<?php echo empty($doc->due_date) ? NULL : thai_date($doc->due_date); ?>" />
 	</div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>Posting date</label>
-		<input type="text" class="form-control input-sm text-center e" id="posting-date" value="<?php echo empty($doc->shipped_date) ? NULL : thai_date($doc->shipped_date); ?>" disabled/>
+		<input type="text" class="form-control input-sm text-center h" id="posting-date" value="<?php echo empty($doc->shipped_date) ? NULL : thai_date($doc->shipped_date); ?>" />
 	</div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>ช่องทางการรับ</label>
-		<select class="form-control input-sm e" name="is_wms" id="is_wms" disabled>
+		<select class="form-control input-sm h" name="is_wms" id="is_wms">
 			<option value="">เลือก</option>
 			<?php if($this->wmsApi OR $doc->is_wms == 1) : ?>
 			<option value="1" <?php echo is_selected('1', $doc->is_wms); ?>>Pioneer</option>
@@ -55,305 +73,281 @@
 			<option value="0" <?php echo is_selected('0', $doc->is_wms); ?>>Warrix</option>
 		</select>
 	</div>
-	<div class="col-lg-10-harf col-md-10-harf col-sm-10-harf col-xs-8 padding-5">
-		<label>หมายเหตุ</label>
-		<input type="text" class="form-control input-sm e" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled />
-	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-<?php if($this->pm->can_edit && $doc->status == 0) : ?>
-		<label class="display-block not-show">edit</label>
-		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">
-			<i class="fa fa-pencil"></i> แก้ไข
-		</button>
-		<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="updateHeader()">
-			<i class="fa fa-save"></i> อัพเดต
-		</button>
-<?php endif; ?>
-	</div>
+	<?php $c_hide = empty($doc->po_code) ? '' : 'hide'; ?>
+	<?php $p_hide = empty($doc->po_code) ? 'hide' : '' ; ?>
+	<?php $p_disabled = empty($doc->po_code) ? '' : 'disabled'; ?>
 
-</div>
-<hr class="margin-top-10 margin-bottom-10"/>
-<form id="receiveForm" method="post" action="<?php echo $this->home; ?>/save">
-<div class="row">
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
-		<label>ผู้จำหน่าย</label>
-		<input type="text" class="form-control input-sm" name="vendor_code" id="vendor_code" placeholder="รหัสผู้จำหน่าย" />
-	</div>
-	<div class="col-lg-4-harf col-md-4-harf col-sm-4 col-xs-8 padding-5">
-	 	<label class="not-show">vendor</label>
-	  <input type="text" class="form-control input-sm" name="vendorName" id="vendorName" placeholder="ระบุผู้จำหน่าย" />
-	</div>
-
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-8 padding-5">
-	 	<label>ใบอนุมัติรับสินค้า</label>
-	  <input type="text" class="form-control input-sm text-center" name="requestCode" id="requestCode" placeholder="ค้นหาใบอนุมัติ" />
+	<div class="col-lg-2 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>ใบสั่งซื้อ</label>
+		<input type="text" class="form-control input-sm text-center h" name="poCode" id="poCode" value="<?php echo $doc->po_code; ?>" placeholder="ค้นหาใบสั่งซื้อ" <?php echo $p_disabled; ?>/>
 	</div>
 	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5">
 		<label class="display-block not-show">clear</label>
-		<button type="button" class="btn btn-xs btn-info btn-block hide" id="btn-change-request" onclick="changeRequestPo()">เปลี่ยน</button>
-		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-get-request" onclick="getRequestData()">ยืนยัน</button>
+		<button type="button" class="btn btn-xs btn-info btn-block <?php echo $c_hide; ?> h" id="btn-confirm-po" onclick="confirmPo()">ยืนยัน</button>
+		<button type="button" class="btn btn-xs btn-primary btn-block <?php echo $p_hide; ?> h" id="btn-get-po" onclick="getPoDetail()">แสดง</button>
+	</div>
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5">
+		<label class="display-block not-show">clear</label>
+		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-clear-po" onclick="clearPo()">Clear</button>
 	</div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
-    	<label>ใบสั่งซื้อ</label>
-        <input type="text" class="form-control input-sm text-center"
-				name="poCode" id="poCode" <?php echo ($is_strict) ? 'disabled' : ''; ?>
-				placeholder="ค้นหาใบสั่งซื้อ" />
-    </div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>ผู้จำหน่าย</label>
+		<input type="text" class="form-control input-sm text-center h" name="vendor_code" id="vendor_code" value="<?php echo $doc->vendor_code; ?>" placeholder="รหัสผู้จำหน่าย" />
+	</div>
 
-		<?php if(! $is_strict) : ?>
-		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
-			<label class="display-block not-show">clear</label>
-			<button type="button" class="btn btn-xs btn-info btn-block hide" id="btn-change-po" onclick="changePo()">เปลี่ยน</button>
-			<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-get-po" onclick="getData()">ยืนยัน</button>
-		</div>
-		<?php else : ?>
-			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
-				<label class="display-block not-show">clear</label>
-				<button type="button" class="btn btn-xs btn-primary btn-block" disabled>ยืนยัน</button>
-			</div>
-		<?php endif; ?>
+	<div class="col-lg-4-harf col-md-4-harf col-sm-4 col-xs-8 padding-5">
+	 	<label class="not-show">vendor</label>
+	  <input type="text" class="form-control input-sm h" name="vendorName" id="vendorName" value="<?php echo $doc->vendor_name; ?>" placeholder="ระบุผู้จำหน่าย" />
+	</div>
 
-    <div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-5 padding-5">
-    	<label>ใบส่งสินค้า</label>
-        <input type="text" class="form-control input-sm text-center" name="invoice" id="invoice" placeholder="อ้างอิงใบส่งสินค้า" />
-    </div>
-		<div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
-			<label>โซนรับสินค้า</label>
-      <input type="text" class="form-control input-sm" name="zone_code" id="zone_code" placeholder="รหัสโซน" value="<?php echo $zone_code; ?>" />
-		</div>
-    <div class="col-lg-7 col-md-7 col-sm-6 col-xs-6 padding-5">
-    	<label class="not-show">zone</label>
-      <input type="text" class="form-control input-sm zone" name="zoneName" id="zoneName" placeholder="ชื่อโซน" value="<?php echo $zone_name; ?>" />
-    </div>
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-4 padding-5">
+		<label>ใบส่งสินค้า</label>
+		<input type="text" class="form-control input-sm text-center h" name="invoice" id="invoice" value="<?php echo $doc->invoice_code; ?>" placeholder="อ้างอิงใบส่งสินค้า" />
+	</div>
+	<div class="col-lg-4 col-md-3 col-sm-3 col-xs-8 padding-5">
+		<label>คลัง</label>
+		<select class="width-100 h" id="warehouse" onchange="warehouse_init()">
+			<option value="">เลือก</option>
+			<?php echo select_warehouse($doc->warehouse_code); ?>
+		</select>
+	</div>
 
-</div>
-<hr class="margin-top-15 padding-5"/>
-<div class="row">
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+		<label>โซนรับสินค้า</label>
+		<input type="text" class="form-control input-sm h" name="zone_code" id="zone_code" placeholder="รหัสโซน" value="<?php echo empty($zone) ? NULL : $zone->code; ?>" />
+	</div>
+	<div class="col-lg-7 col-md-6-harf col-sm-6 col-xs-6 padding-5">
+		<label class="not-show">zone</label>
+		<input type="text" class="form-control input-sm zone h" name="zoneName" id="zoneName" placeholder="ชื่อโซน" value="<?php echo empty($zone) ? NULL : $zone->name; ?>" />
+	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>Currency</label>
 		<select class="form-control input-sm width-100" id="DocCur" onchange="changeRate()" disabled>
-			<?php echo select_currency("THB"); ?>
+			<?php echo select_currency($doc->currency); ?>
 		</select>
 	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>Rate</label>
-		<input type="number" class="form-control input-sm text-center" id="DocRate" value="1.00" disabled/>
+		<input type="number" class="form-control input-sm text-center" id="DocRate" value="<?php echo round($doc->rate, 4); ?>" disabled/>
 	</div>
-	<div class="col-lg-3-harf col-md-3-harf col-sm-3-harf col-xs-12 hidden-xs text-cetner">&nbsp;</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 hidden-xs padding-5">
-    	<label>จำนวน</label>
-        <input type="number" class="form-control input-sm text-center" id="qty" value="1.00" />
-  </div>
-  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 hidden-xs padding-5">
-    	<label>บาร์โค้ดสินค้า</label>
-      <input type="text" class="form-control input-sm text-center" id="barcode" placeholder="ยิงบาร์โค้ดเพื่อรับสินค้า" autocomplete="off"  />
-  </div>
-  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 hidden-xs padding-5">
-    	<label class="display-block not-show">ok</label>
-        <button type="button" class="btn btn-xs btn-primary btn-block" onclick="checkBarcode()"><i class="fa fa-check"></i> ตกลง</button>
-  </div>
-    <input type="hidden" name="receive_code" id="receive_code" value="<?php echo $doc->code; ?>" />
-    <input type="hidden" name="approver" id="approver" value="" />
-		<input type="hidden" id="allow_over_po" value="<?php echo $allow_over_po; ?>">
-		<input type="hidden" id="is_strict_request" value="<?php echo $is_strict; ?>" />
-
-</div>
-<hr class="margin-top-15"/>
-
-<div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-right margin-bottom-5">
-		<button type="button" class="btn btn-xs btn-primary" onclick="receiveAll()">รับทั้งหมด</button>
-		<button type="button" class="btn btn-xs btn-warning" onclick="clearAll()">เคลียร์ทั้งหมด</button>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<label>หมายเหตุ</label>
+		<input type="text" class="form-control input-sm h" name="remark" id="remark" value="<?php echo $doc->remark; ?>"  />
 	</div>
 </div>
-<hr class="padding-5"/>
+<hr class="margin-top-15 padding-5"/>
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="receiveTable">
-
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-right">
+		<button type="button" class="btn btn-xs btn-danger btn-100" onclick="removeChecked()">ลบรายการ</button>
+	</div>
+	<input type="hidden" name="receive_code" id="receive_code" value="<?php echo $doc->code; ?>" />
+	<input type="hidden" name="approver" id="approver" value="" />
+	<input type="hidden" id="allow_over_po" value="<?php echo $allow_over_po; ?>">
+	<input type="hidden" id="save-type" value="1" /> <!-- 1 = บันทึกรับทันที, 3 = บันทึกรอรับ -->
+</div>
+<hr class=""/>
+<div class="row" style="margin-left:-8px;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive border-1 padding-0" style="min-height:200px; max-height:500px; overflow:auto;">
+		<table class="table table-bordered" style="margin-bottom:0px; min-width:940px;">
+			<thead>
+				<tr class="font-size-12">
+					<th class="fix-width-50 text-center">
+						<label>
+							<input type="checkbox" class="ace" id="check-all" onchange="toggleCheckAll($(this))">
+							<span class="lbl"></span>
+						</label>
+					</th>
+					<th class="fix-width-40 text-center">#</th>
+					<th class="fix-width-200">รหัสสินค้า</th>
+					<th class="min-width-250">ชื่อสินค้า</th>
+					<th class="fix-width-100 text-center">ราคา (PO)</th>
+					<th class="fix-width-100 text-center">ค้างรับ</th>
+					<th class="fix-width-100 text-center">จำนวน</th>
+					<th calss="fix-width-120 text-center">มูลค่า</th>
+				</tr>
+			</thead>
+			<tbody id="receive-table">
+  <?php $no = 1; ?>
+	<?php $totalQty = 0; ?>
+	<?php $totalAmount = 0; ?>
+	<?php if( ! empty($details)) : ?>
+		<?php foreach($details as $rs) : ?>
+			<?php $uid = $rs->baseEntry.$rs->baseLine; ?>
+			<tr class="font-size-11" id="row-<?php echo $uid; ?>">
+				<td class="middle text-center">
+					<label>
+						<input type="checkbox" class="ace chk" value="<?php echo $uid; ?>" />
+						<span class="lbl"></span>
+					</label>
+				</td>
+				<td class="middle text-center no"><?php echo $no; ?></td>
+				<td class="middle"><?php echo $rs->product_code; ?></td>
+				<td class="middle"><?php echo $rs->product_name; ?></td>
+				<td class="middle">
+					<input type="text" class="form-control input-sm text-right text-label row-price e" id="row-price-<?php echo $uid; ?>" value="<?php echo number($rs->price, 4); ?>" readonly />
+				</td>
+				<td class="middle text-center">
+					<input type="text" class="form-control input-sm text-right text-label" id="backlogs-<?php echo $uid; ?>" data-backlogs="<?php echo $rs->backlogs; ?>" value="<?php echo number($rs->backlogs); ?>" readonly />
+				</td>
+				<td class="middle text-center">
+					<input type="number"
+						class="form-control input-sm text-center receive-qty"
+						id="receive-qty-<?php echo $uid; ?>"
+						data-uid="<?php echo $uid; ?>"
+						data-limit="<?php echo $rs->limit; ?>"
+						data-backlogs="<?php echo $rs->backlogs; ?>"
+						data-price="<?php echo $rs->price; ?>"
+						data-baseentry="<?php echo $rs->baseEntry; ?>"
+						data-baseline="<?php echo $rs->baseLine; ?>"
+						data-code="<?php echo $rs->product_code; ?>"
+						data-name="<?php echo $rs->product_name; ?>"
+						data-vatcode="<?php echo $rs->vatGroup; ?>"
+						data-vatrate="<?php echo $rs->vatRate; ?>"
+						data-currency="<?php echo $rs->currency; ?>"
+						data-rate="<?php echo $rs->rate; ?>"
+						value="<?php echo round($rs->qty, 2); ?>"
+						onchange="recalAmount(<?php echo $uid; ?>)" />
+				</td>
+				<td class="fix-width-120 middle">
+					<input type="text" class="form-control input-sm text-right text-label" id="line-total-<?php echo $uid; ?>" value="<?php echo number($rs->amount, 4); ?>" readonly/>
+				</td>
+			</tr>
+			<?php $no++; ?>
+			<?php $totalQty += $rs->qty; ?>
+			<?php $totalAmount += $rs->amount; ?>
+		<?php endforeach; ?>
+	<?php endif; ?>
+			</tbody>
+		</table>
   </div>
 </div>
-</form>
 
-<div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-	<div class="modal-dialog input-xlarge">
-    <div class="modal-content">
-      <div class="modal-header">
-      	<button type='button' class='close' data-dismiss='modal' aria-hidden='true'> &times; </button>
-		    <h4 class='modal-title-site text-center' > ผู้มีอำนาจอนุมัติรับสินค้าเกิน </h4>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-sm-12">
-          	<input type="password" class="form-control input-sm text-center" id="sKey" />
-            <span class="help-block red text-center" id="approvError">&nbsp;</span>
-          </div>
-          <div class="col-sm-12">
-            <button type="button" class="btn btn-sm btn-primary btn-block" onclick="doApprove()">อนุมัติ</button>
-          </div>
+<div class="divider-hidden"></div>
+<div class="divider-hidden"></div>
+
+<div class="row">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+		<div class="form-horizontal">
+			<div class="form-group" style="margin-bottom:5px;">
+				<label class="col-lg-2 col-md-4 col-sm-4 col-xs-6 control-label no-padding-right">User</label>
+				<div class="col-lg-5 col-md-6 col-sm-6 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm input-large" value="<?php echo $doc->user; ?>" disabled>
         </div>
-    	 </div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+		<div class="form-horizontal">
+			<div class="form-group" style="margin-bottom:5px;">
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">จำนวนรวม</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-receive" value="<?php echo number($totalQty); ?>" disabled>
+        </div>
       </div>
-    </div>
+			<div class="form-group" style="margin-bottom:5px;">
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">มูลค่ารวม</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-amount" value="<?php echo number($totalAmount, 4); ?>" disabled>
+        </div>
+      </div>
+		</div>
+	</div>
 </div>
 
-<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="width:500px;">
-	 <div class="modal-content">
-			 <div class="modal-header">
-			 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			 <h4 class="modal-title">Import File</h4>
-			</div>
-			<div class="modal-body">
-				<form id="upload-form" name="upload-form" method="post" enctype="multipart/form-data">
-				<div class="row">
-					<div class="col-sm-9">
-						<button type="button" class="btn btn-sm btn-primary btn-block" id="show-file-name" onclick="getFile()">กรุณาเลือกไฟล์ Excel</button>
-					</div>
 
-					<div class="col-sm-3">
-						<button type="button" class="btn btn-sm btn-info" onclick="uploadfile()"><i class="fa fa-cloud-upload"></i> นำเข้า</button>
-					</div>
-				</div>
-				<input type="file" class="hide" name="uploadFile" id="uploadFile" accept=".xlsx" />
-				</form>
-			 </div>
-			<div class="modal-footer">
 
-			</div>
-	 </div>
- </div>
-</div>
-
+<?php $this->load->view('inventory/receive_po/receive_modal'); ?>
 
 <?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/validate_credentials.js"></script>
-<script id="template" type="text/x-handlebarsTemplate">
-<table class="table table-striped table-bordered" style="min-width:1110px;">
-	<thead>
-		<tr class="font-size-12">
-			<th class="fix-width-40 text-center">ลำดับ</th>
-			<th class="fix-width-200">รหัสสินค้า</th>
-			<th class="" style="min-width:250px; max-width:350px;">ชื่อสินค้า</th>
-			<th class="fix-width-100 text-center">ราคา (PO)</th>
-			<th class="fix-width-100 text-center">สั่งซื้อ</th>
-			<th class="fix-width-100 text-center">ค้างรับ</th>
-			<th class="fix-width-100 text-center" style="width:100px !important;">จำนวน</th>
-			<th calss="fix-width-120 text-center" style="width:120px !important;">มูลค่า</th>
-		</tr>
-	</thead>
-	<tbody>
+
+<script id="receive-template" type="text/x-handlebarsTemplate">
 	{{#each this}}
-	{{#if @last}}
-		<tr>
-			<td colspan="4" class="middle text-right"><strong>รวม</strong></td>
-			<td class="middle text-center">{{qty}}</td>
-			<td class="middle text-center">{{backlog}}</td>
-			<td class="middle text-center"><span id="total-receive"></span></td>
-			<td class="middle text-right"><span id="total-amount"></span></td>
-		</tr>
-	{{else}}
-		<tr class="font-size-12">
+		<tr class="font-size-11" id="row-{{uid}}">
+			<td class="middle text-center">
+				<label>
+					<input type="checkbox" class="ace chk" value="{{uid}}" />
+					<span class="lbl"></span>
+				</label>
+			</td>
 			<td class="middle text-center no">{{no}}</td>
 			<td class="middle">{{pdCode}}</td>
 			<td class="middle">{{pdName}}</td>
-			<td class="middle text-right">{{price_label}} <span style="font-size:10px;">{{currency}}</span></td>
-			<td class="middle text-center" id="qty_{{uid}}">{{qty_label}}</td>
-			<td class="middle text-center">{{backlog_label}}</td>
-			<td class="middle text-center">
-				<input type="number" class="form-control input-sm text-center receive-box pdCode" name="receive[{{uid}}]" id="receive_{{uid}}" data-uid="{{uid}}" value="" />
+			<td class="middle">
+				<input type="text" class="form-control input-sm text-right text-label row-price e" id="row-price-{{uid}}" value="{{priceLabel}}" readonly />
 			</td>
-			<td class="middle text-right" id="line_total_{{uid}}">0.00</td>
-				<input type="hidden" id="limit_{{uid}}" value="{{limit}}"/>
-				<input type="hidden" id="backlog_{{uid}}" value="{{backlog}}" />
-				{{#if barcode}}
-					<input type="hidden" class="{{barcode}}" id="bc-{{uid}}" data-limit="{{limit}}" value="{{uid}}" />
-				{{/if}}
-				{{#if isOpen}}
-					<input type="hidden" name="items[{{uid}}]" id="item_{{uid}}" value="{{pdCode}}" />
-					<input type="hidden" name="prices[{{uid}}]" id="price_{{uid}}" value="{{price}}" />
-					<input type="hidden" name="currency[{{uid}}]" id="currency_{{uid}}" value="{{currency}}" />
-					<input type="hidden" name="rate[{{uid}}]" id="rate_{{uid}}" value="{{Rate}}" />
-					<input type="hidden" name="vatGroup[{{uid}}]" id="vatGroup_{{uid}}" value="{{vatGroup}}">
-					<input type="hidden" name="vatRate[{{uid}}]" id="vatRate_{{uid}}" value="{{vatRate}}">
-					<input type="hidden" name="docEntry-{{uid}}" id="docEntry_{{uid}}" value="{{docEntry}}" />
-					<input type="hidden" name="lineNum-{{uid}}" id="lineNum_{{uid}}" value="{{lineNum}}" />
-				{{/if}}
-		</tr>
-	{{/if}}
-	{{/each}}
-	</tbody>
-</table>
-</script>
-
-<script id="request-template" type="text/x-handlebarsTemplate">
-<table class="table table-striped table-bordered" style="min-width:1000px;">
-	<thead>
-		<tr class="font-size-12">
-			<th class="fix-width-40 text-center">ลำดับ</th>
-			<th class="fix-width-120 text-center">บาร์โค้ด</th>
-			<th class="fix-width-150">รหัสสินค้า</th>
-			<th class="min-width-200">ชื่อสินค้า</th>
-			<th class="fix-width-100 text-center">สั่งซื้อ</th>
-			<th class="fix-width-100 text-center">อนุมัติรับ</th>
-			<th class="fix-width-100 text-center">ค้างรับ</th>
-			<th class="fix-width-100 text-center">จำนวน</th>
-		</tr>
-	</thead>
-	<tbody id="receiveTable">
-	{{#each this}}
-	{{#if @last}}
-		<tr>
-			<td colspan="4" class="middle text-right"><strong>รวม</strong></td>
-			<td class="middle text-center">{{totalQty}}</td>
-			<td class="middle text-center">{{totalRequest}}</td>
-			<td class="middle text-center">{{totalBacklog}}</td>
-			<td class="middle text-center"><span id="total-receive"></span></td>
-		</tr>
-	{{else}}
-		<tr class="font-size-12">
-			<td class="middle text-center no">{{ no }}</td>
-			<td class="middle barcode" id="barcode_{{uid}}">{{barcode}}</td>
-			<td class="middle">{{pdCode}}</td>
-			<td class="middle">{{pdName}}</td>
-			<td class="middle text-center" id="qty_{{uid}}">{{qty_label}}</td>
-			<td class="middle text-center">{{request_qty_label}}</td>
-			<td class="middle text-center">{{backlog_label}}</td>
 			<td class="middle text-center">
-				<input type="hidden" id="backlog_{{uid}}" value="{{backlog}}" />
-				<input type="hidden" id="limit_{{uid}}" value="{{limit}}"/>
-				{{#if barcode}}
-					<input type="hidden" class="{{barcode}}" id="bc-{{uid}}" data-limit="{{limit}}" value="{{uid}}" />
-				{{/if}}
-
-				{{#if isOpen}}
-					<input type="number" class="form-control input-sm text-center receive-box pdCode" name="receive[{{uid}}]" id="receive_{{uid}}" data-uid="{{uid}}" value="{{receive_qty}}" />
-					<input type="hidden" name="items[{{uid}}]" id="item_{{uid}}" value="{{pdCode}}" />
-					<input type="hidden" name="prices[{{uid}}]" id="price_{{uid}}" value="{{price}}" />
-					<input type="hidden" name="currency[{{uid}}]" id="currency_{{uid}}" value="{{currency}}" />
-					<input type="hidden" name="rate[{{uid}}]" id="rate_{{uid}}" value="{{Rate}}" />
-					<input type="hidden" name="vatGroup[{{uid}}]" id="vatGroup_{{uid}}" value="{{vatGroup}}">
-					<input type="hidden" name="vatRate[{{uid}}]" id="vatRate_{{uid}}" value="{{vatRate}}">
-					<input type="hidden" name="docEntry-{{uid}}" id="docEntry_{{uid}}" value="{{docEntry}}" />
-					<input type="hidden" name="lineNum-{{uid}}" id="lineNum_{{uid}}" value="{{lineNum}}" />
-				{{/if}}
+				<input type="text" class="form-control input-sm text-right text-label"
+					id="backlogs-{{uid}}" data-backlogs="{{backlogs}}" value="{{backLogsLabel}}" readonly />
+			</td>
+			<td class="middle">
+				<input type="number"
+					class="form-control input-sm text-center receive-qty"
+					id="receive-qty-{{uid}}"
+					data-uid="{{uid}}"
+					data-limit="{{limit}}"
+					data-backlogs="{{backlogs}}"
+					data-price="{{price}}"
+					data-baseentry="{{baseEntry}}"
+					data-baseline="{{baseLine}}"
+					data-code="{{pdCode}}"
+					data-name="{{pdName}}"
+					data-vatcode="{{vatCode}}"
+					data-vatrate="{{vatRate}}"
+					data-currency="{{currency}}"
+					value="{{qty}}" onchange="recalAmount({{uid}})" />
+			</td>
+			<td class="middle fix-width-120">
+				<input type="text" class="form-contorl input-sm text-right text-label" id="line-total-{{uid}}" data-amount="{{amount}}" value="{{amountLabel}}" readonly/>
 			</td>
 		</tr>
-	{{/if}}
 	{{/each}}
-
-	</tbody>
-</table>
 </script>
 
+<script id="po-template" type="text/x-handlebarsTemplate">
+  {{#each this}}
+    <tr id="row-{{uid}}">
+		<td class="middle text-center no">{{no}}</td>
+		<td class="middle">{{pdCode}}</td>
+		<td class="middle">{{pdName}}</td>
+		<td class="middle text-right">{{price_label}} <span style="font-size:10px;">{{currency}}</span></td>
+		<td class="middle text-center">{{backlog_label}}</td>
+		<td class="middle">
+			<input type="number"
+				class="form-control input-sm text-center po-qty"
+				id="po-qty-{{uid}}"
+				data-uid="{{uid}}"
+				data-code="{{pdCode}}"
+				data-name="{{pdName}}"
+				data-basecode="{{baseCode}}"
+				data-baseentry="{{baseEntry}}"
+				data-baseline="{{baseLine}}"
+				data-limit="{{limit}}"
+				data-backlogs="{{backlog}}"
+				data-qty="{{qty}}"
+				data-price="{{price}}"
+				data-vatcode="{{vatGroup}}"
+				data-vatrate="{{vatRate}}"
+				data-currency="{{currency}}"
+				data-rate="{{Rate}}"
+				data-no="{{no}}"
+				value="" />
+		</td>
+    </tr>
+  {{/each}}
+</script>
 
-<?php else : ?>
-  <?php redirect($this->home.'/view_detail/'.$doc->code); ?>
-<?php endif; ?>
+<script>
+	$('#warehouse').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_control.js?v=<?php echo date('Ymd'); ?>"></script>
+
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>

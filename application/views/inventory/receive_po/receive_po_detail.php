@@ -19,6 +19,12 @@
     <p class="pull-right top-p">
 			<button type="button" class="btn btn-xs btn-warning btn-top" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
       <button type="button" class="btn btn-xs btn-info btn-top" onclick="printReceived()"><i class="fa fa-print"></i> พิมพ์</button>
+			<?php if($this->pm->can_edit && $doc->status == 0) : ?>
+				<button type="button" class="btn btn-xs btn-warning btn-top" onclick="goEdit('<?php echo $doc->code; ?>')"><i class="fa fa-pencil"></i> แก้ไข</button>
+			<?php endif; ?>
+			<?php if($this->pm->can_edit && $doc->status != 2 && $doc->status != 0 && ($doc->is_wms == 0 OR $this->_SuperAdmin)) : ?>
+				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="pullBack('<?php echo $doc->code; ?>')">ดึงสถานะกลับมาแก้ไข</button>
+			<?php endif; ?>
 			<?php if($doc->status == 1) : ?>
 			<button type="button" class="btn btn-xs btn-success btn-top" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 			<?php endif; ?>
@@ -224,7 +230,7 @@ else
 
 
 <?php $this->load->view('cancle_modal'); ?>
-<?php $this->load->view('accept_modal'); ?>
+<?php $this->load->view('accept_modal', ['op' => TRUE]); ?>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>

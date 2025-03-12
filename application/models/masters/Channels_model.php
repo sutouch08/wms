@@ -154,14 +154,9 @@ class Channels_model extends CI_Model
       $this->db->where('code !=', $old_code);
     }
 
-    $rs = $this->db->where('code', $code)->get('channels');
+    $count = $this->db->where('code', $code)->count_all_results('channels');
 
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $count > 0 ? TRUE : FALSE;
   }
 
 

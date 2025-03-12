@@ -138,6 +138,12 @@ h4.title {
 	padding-right:0px;
 }
 
+.text-label {
+  border:0px !important;
+  background-color: transparent !important;
+  color:#333333 !important;
+}
+
 p > button{
 	margin-left: 5px;
 }
@@ -553,11 +559,13 @@ hr.padding-5 {
 
 .has-error{
 	border: solid 1px red !important;
+  color:red !important;
 }
 
 .has-success {
   border: solid 1px green !important;
 }
+
 
 .bg-green {
   background-color: #ebf1e2;
@@ -1239,6 +1247,9 @@ hr.padding-5 {
 }
 
 
+.font-size-11 {
+  font-size:11px;
+}
 
 
 .font-size-12 {

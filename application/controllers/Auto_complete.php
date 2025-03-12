@@ -468,7 +468,7 @@ public function get_prepare_item_code()
     $txt = $_REQUEST['term'];
     $this->db->select('code, name')->where('active', 1);
 
-    if(!empty($warehouse))
+    if( ! empty($warehouse))
     {
       $warehouse = urldecode($warehouse);
       $arr = explode('|', $warehouse);

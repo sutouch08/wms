@@ -289,6 +289,7 @@ class Orders extends REST_Controller
       $sender = $this->sender_model->get_id($data->shipping);
 
       $id_sender = empty($sender) ? NULL : $sender;
+      $id_address = NULL;
 
       //--- order code gen จากระบบ
       $order_code = empty($order) ? $this->get_new_code($date_add) : $order->code;
@@ -303,6 +304,8 @@ class Orders extends REST_Controller
       $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
       $is_etax = empty($data->ETAX) ? 0 : ($data->ETAX == 'Y' && $tax_status == 1 ? 1 : 0);
       $bill_to = empty($data->bill_to) ? NULL : $data->bill_to;
+      $ship_to = empty($data->ship_to) ? NULL : get_null($data->ship_to);
+      $customer_ref = empty(trim($data->customer_ref)) ? NULL : get_null(trim($data->customer_ref));
 
       $taxType = array(
         'NIDN' => 'NIDN', //-- บุคคลธรรมดา
@@ -321,7 +324,7 @@ class Orders extends REST_Controller
           'reference' => $data->order_number,
           'customer_code' => $data->customer_code,
           'customer_name' => $data->customer_name,
-          'customer_ref' => $data->customer_ref,
+          'customer_ref' => $customer_ref,
           'channels_code' => $data->channel,
           'payment_code' => $data->payment_method,
           'sale_code' => $sale_code,
@@ -392,7 +395,7 @@ class Orders extends REST_Controller
         $ds = array(
           'customer_code' => $data->customer_code,
           'customer_name' => $data->customer_name,
-          'customer_ref' => $data->customer_ref,
+          'customer_ref' => $customer_ref,
           'channels_code' => $data->channel,
           'payment_code' => $data->payment_method,
           'sale_code' => $sale_code,
@@ -483,15 +486,15 @@ class Orders extends REST_Controller
         if($this->logs_json)
         {
           $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' =>'ORDER',
-          'code' => $data->order_number,
-          'action' => 'create',
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
+            'trans_id' => genUid(),
+            'api_path' => $this->api_path,
+            'type' =>'ORDER',
+            'code' => $data->order_number,
+            'action' => 'create',
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
           );
 
           $this->ix_api_logs_model->add_logs($logs);
@@ -532,28 +535,32 @@ class Orders extends REST_Controller
         //--- add state event
         $this->order_state_model->add_state($arr);
 
-        $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
 
-        if($id_address === FALSE)
-        {
-          $arr = array(
-            'code' => $data->customer_ref,
-            'name' => $data->ship_to->name,
-            'address' => $data->ship_to->address,
-            'sub_district' => $data->ship_to->sub_district,
-            'district' => $data->ship_to->district,
-            'province' => $data->ship_to->province,
-            'postcode' => $data->ship_to->postcode,
-            'phone' => $data->ship_to->phone,
-            'email' => $data->ship_to->email,
-            'alias' => empty($data->alias) ? 'Home' : $data->alias,
-            'is_default' => 1
-          );
+        if( ! empty($customer_ref) && ! empty($ship_to) && ! empty($ship_to->address))
+        {          
+          $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
 
-          $id_address = $this->address_model->add_shipping_address($arr);
+          if($id_address === FALSE)
+          {
+            $arr = array(
+              'code' => $data->customer_ref,
+              'name' => $data->ship_to->name,
+              'address' => $data->ship_to->address,
+              'sub_district' => $data->ship_to->sub_district,
+              'district' => $data->ship_to->district,
+              'province' => $data->ship_to->province,
+              'postcode' => $data->ship_to->postcode,
+              'phone' => $data->ship_to->phone,
+              'email' => $data->ship_to->email,
+              'alias' => empty($data->alias) ? 'Home' : $data->alias,
+              'is_default' => 1
+            );
+
+            $id_address = $this->address_model->add_shipping_address($arr);
+          }
+
+          $this->orders_model->set_address_id($order_code, $id_address);
         }
-
-        $this->orders_model->set_address_id($order_code, $id_address);
 
         //---- add order details
         $details = $data->details;
@@ -1181,8 +1188,6 @@ class Orders extends REST_Controller
   } //--- end cancel
 
 
-
-
   public function get_new_code($date, $prefix = 'WO', $run_digit = 5)
   {
     $date = empty($date) ? date('Y-m-d') : $date;
@@ -1211,110 +1216,35 @@ class Orders extends REST_Controller
 
   public function verify_data($data)
 	{
-    $paymentList = [
-      'COD' => 'COD',
-      'CARD' => 'CARD',
-      '2C2P' => '2C2P'
-    ];
-
-    $channelsList = [
-      'LAZADA' => 'LAZADA',
-      'SHOPEE' => 'Shopee',
-      '0009' => 'TIKTOK',
-      'WRX12' => 'WRX12'
-    ];
-
-    $custList = [
-      'CLON04-0001' => 'บริษัท ช้อปปี้ (ประเทศไทย) จำกัด สำนักงานใหญ่',
-      'CLON01-0001' => 'บริษัท ลาซาด้า จำกัด (สำนักงานใหญ่)',
-      'CLON13-0001' => 'TIK TOK PTE. LTD.',
-      'CLON16-0001' => 'TIKTok Shop (Thailand) Ltd.',
-      'CLON03-0001' => 'COD ลูกค้า เว็บไซต์',
-      'CLON03-0002' => '2C2P ลูกค้า เว็บไซต์'
-    ];
-
     if(! property_exists($data, 'customer_code') OR $data->customer_code == '')
     {
       $this->error = 'customer_code is required';
 			return FALSE;
     }
 
-
-		if(! property_exists($data, 'customer_ref') OR $data->customer_ref == '')
-		{
-			$this->error = "customer_ref is required";
-			return FALSE;
-		}
-
-    if(! property_exists($data, 'channel') OR (empty($channelsList[$data->channel])))
-    {
-      $this->error = "Invalid channels code : {$data->channel}";
-			return FALSE;
-    }
-
-    if( ! property_exists($data, 'payment_method') OR (empty($paymentList[$data->payment_method])))
-    {
-      $this->error = 'Invalic payment_method code';
-			return FALSE;
-    }
-
-		if( ! empty($data->customer_code) && (empty($custList[$data->customer_code])))
+    if( ! empty($data->customer_code) && ! $this->customers_model->is_exists($data->customer_code))
 		{
       $this->error = "Invalid Customer Code";
       return FALSE;
 		}
 
-
-		if(! property_exists($data, 'shipping'))
-		{
-			$this->error = "Invalid Shipping is required";
-			return FALSE;
-		}
-
-    if(! property_exists($data, 'ship_to'))
+    if(! property_exists($data, 'channel') OR ! $this->channels_model->is_exists($data->channel))
     {
-      $this->error = 'ship_to is required';
-			return FALSE;
+      $this->error = "Invalid channels code : {$data->channel}";
+      return FALSE;
     }
 
-    if(! property_exists($data->ship_to, 'name'))
+    if( ! property_exists($data, 'payment_method') OR ! $this->payment_methods_model->is_exists($data->payment_method))
     {
-      $this->error = 'shipping name is required';
+      $this->error = 'Invalid payment_method code';
 			return FALSE;
     }
-
-    if(! property_exists($data->ship_to, 'address'))
-    {
-      $this->error = 'shipping address is required';
-			return FALSE;
-    }
-
-    if(! property_exists($data->ship_to, 'district'))
-    {
-      $this->error = 'district is required';
-			return FALSE;
-    }
-
-
-    if(! property_exists($data->ship_to, 'province'))
-    {
-      $this->error = 'province is required';
-			return FALSE;
-    }
-
-    if(! property_exists($data->ship_to, 'phone'))
-    {
-      $this->error = 'phone is required';
-			return FALSE;
-    }
-
 
     if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
     {
       $this->error = 'Order number already exists';
 			return FALSE;
     }
-
 
 		return TRUE;
 	}
