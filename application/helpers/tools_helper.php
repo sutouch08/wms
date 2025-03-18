@@ -6,6 +6,7 @@ function is_api($is_wms = 0, $wmsApi = FALSE, $sokoApi = FALSE)
 	return $is_api;
 }
 
+
 function setToken($token)
 {
 	$CI =& get_instance();
@@ -37,6 +38,7 @@ function parsePhoneNumber($phone, $length = 10)
 
   return NULL;
 }
+
 
 function parseSubDistrict($ad, $province)
 {
@@ -139,6 +141,7 @@ function isBangkok($province)
 	return FALSE;
 }
 
+
 //---	ตัดข้อความแล้วเติม ... ข้างหลัง
 function limitText($str, $length)
 {
@@ -154,14 +157,10 @@ function limitText($str, $length)
 }
 
 
-
-
 function is_selected($val, $select)
 {
   return $val === $select ? 'selected' : '';
 }
-
-
 
 
 function is_checked($val1, $val2)
@@ -170,13 +169,17 @@ function is_checked($val1, $val2)
 }
 
 
-
-function is_active($val)
+function is_active($val, $showX = TRUE)
 {
-  return $val == 1 ? '<i class="fa fa-check green"></i>' : '<i class="fa fa-times red"></i>';
+	if($val == 1 OR $val == '1' OR $val == 'Y' OR $val == 'y' OR $val === TRUE)
+	{
+		return '<i class="fa fa-check green"></i>';
+	}
+	else
+	{
+		return $showX ? '<i class="fa fa-times red"></i>' : NULL;
+	}
 }
-
-
 
 
 function get_filter($postName, $cookieName, $defaultValue = "")
@@ -202,8 +205,6 @@ function get_filter($postName, $cookieName, $defaultValue = "")
 }
 
 
-
-
 function clear_filter($cookies)
 {
   if(is_array($cookies))
@@ -218,8 +219,6 @@ function clear_filter($cookies)
     delete_cookie($cookies);
   }
 }
-
-
 
 
 function set_rows($value = 20)
@@ -237,9 +236,6 @@ function set_rows($value = 20)
 }
 
 
-
-
-
 function get_rows()
 {
   $rows = get_cookie('rows');
@@ -248,14 +244,10 @@ function get_rows()
 }
 
 
-
-
 function number($val, $digit = 0)
 {
   return number_format($val, $digit);
 }
-
-
 
 
 function ac_format($val, $digit = 0)
@@ -275,7 +267,6 @@ function getConfig($code)
 
 	return NULL;
 }
-
 
 
 function get_vat_amount($amount, $vat = NULL, $type = 'I')
@@ -300,10 +291,8 @@ function get_vat_amount($amount, $vat = NULL, $type = 'I')
 		}
 	}
 
-
 	return round($re_vat,6);
 }
-
 
 
 function remove_vat($amount, $vat = NULL)
@@ -321,6 +310,7 @@ function remove_vat($amount, $vat = NULL)
 
 	return round($amount, 6);
 }
+
 
 //---- remove discount percent return price after discount
 function get_price_after_discount($price, $disc = 0)
@@ -356,8 +346,6 @@ function get_discount_amount($price, $disc = 0)
 
 	return $amount;
 }
-
-
 
 
 function add_vat($amount, $vat = NULL)
@@ -410,6 +398,7 @@ function get_null($value)
 	return $value === '' ? NULL : $value;
 }
 
+
 //--- return TRUE if value ==  1 else return FALSE;
 function is_true($value)
 {
@@ -421,6 +410,7 @@ function is_true($value)
 	return FALSE;
 }
 
+
 //---- check permission for add edit delete
 function can_do($pm)
 {
@@ -431,6 +421,7 @@ function can_do($pm)
 
 	return FALSE;
 }
+
 
 function get_zero($value)
 {
@@ -470,7 +461,7 @@ function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment 
 	$config['per_page']			= $perpage;
 	$config['total_rows']			= $total_rows != false ? $total_rows : 0 ;
 	$config['base_url']				= $base_url;
-	
+
 	return $config;
 }
 
@@ -480,6 +471,7 @@ function convert($txt)
 	//return iconv('UTF-8', 'CP850', $txt);
 	return $txt;
 }
+
 
 function statusBackgroundColor($is_expire, $status, $is_approve = 1)
 {
@@ -517,18 +509,40 @@ function statusBackgroundColor($is_expire, $status, $is_approve = 1)
 	return "background-color:{$bk_color};";
 }
 
+function textStatusColor($status = 'P')
+{
+	$bk_color = "";
+
+	$arr = [
+		'P' => "#fff4d5",
+		'S' => "#e1f0ff",
+		'C' => "#f4ffe7",
+		'D' => "#f7c3bf"
+	];
+
+	$bk_color = empty($arr[$status]) ? "" : $arr[$status];
+
+	return "background-color:{$bk_color};";
+}
+
+
 function genUid($lenght = 13)
 {
-    // uniqid gives 13 chars, but you could adjust it to your needs.
-    if (function_exists("random_bytes")) {
-        $bytes = random_bytes(ceil($lenght / 2));
-    } elseif (function_exists("openssl_random_pseudo_bytes")) {
-        $bytes = openssl_random_pseudo_bytes(ceil($lenght / 2));
-    } else {
-        $bytes = uniqid('', TRUE);
-    }
+	// uniqid gives 13 chars, but you could adjust it to your needs.
+	if (function_exists("random_bytes"))
+	{
+		$bytes = random_bytes(ceil($lenght / 2));
+	}
+	elseif (function_exists("openssl_random_pseudo_bytes"))
+	{
+		$bytes = openssl_random_pseudo_bytes(ceil($lenght / 2));
+	}
+	else
+	{
+		$bytes = uniqid('', TRUE);
+	}
 
-    return substr(bin2hex($bytes), 0, $lenght);
+	return substr(bin2hex($bytes), 0, $lenght);
 }
 
 

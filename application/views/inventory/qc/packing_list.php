@@ -11,17 +11,20 @@ $this->printer->add_title('Packing List');
 //---  Define custom header
 $header	 = '<table style="width:100%; border:0px;">';
 $header .= '<tr>';
-$header .= '<td style="width:80%; height:10mm; line-height:10mm; padding-left:10px;">';
+$header .= '<td style="width:60%; height:10mm; line-height:10mm; padding-left:10px;">';
 $header .= 'เลขที่เอกสาร : <span class="font-size-18 blod">'.$order->code.'</span>';
+$header .= '</td>';
+$header .= '<td rowspan="3" style="width:20%; text-align:center;">';
+$header .= '<image src="data:image/png;base64, '.$qrcode.'" style="width:30mm;"/>';
 $header .= '</td>';
 $header .= '<td class="text-center font-size-12" style="border-left:solid 1px #CCC;">กล่องที่</td>';
 $header .= '</tr>';
 $header .= '<tr>';
-$header .= '<td style="width:80%; height:10mm; line-height:10mm; padding-left:10px;">วันที่ : '.thai_date($order->date_add, FALSE, '/').'</td>';
+$header .= '<td style="width:60%; height:10mm; line-height:10mm; padding-left:10px;">วันที่ : '.thai_date($order->date_add, FALSE, '/').'</td>';
 $header .= '<td rowspan="2" class="middle text-center font-size-48 blod" style="border-left:solid 1px #CCC;">'.$box_no.'/'.$all_box.'</td>';
 $header .= '</tr>';
 $header .= '<tr>';
-$header .= '<td style="width:80%; height:10mm; line-height:10mm; padding-left:10px;">';
+$header .= '<td style="width:60%; height:10mm; line-height:10mm; padding-left:10px;">';
 $header .= '<input type="text" style="border:0px; width:100%; padding-right:5px;" value="ลูกค้า : '.($order->customer_ref != '' ? $order->customer_ref : $order->customer_name).'" />';
 $header .= '</td>';
 $header .= '</tr>';
@@ -35,12 +38,12 @@ $total_row = count($details);
 
 //--- initial config for print page
 $config = array(
-          "total_row" => $total_row,
-          "font_size" => 16,
-          "sub_total_row" => 5,
-          "header_rows" => 3,
-          "footer" => false
-        );
+  "total_row" => $total_row,
+  "font_size" => 14,
+  "sub_total_row" => 7,
+  "header_rows" => 3,
+  "footer" => false
+);
 
 $this->printer->config($config);
 

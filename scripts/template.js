@@ -402,6 +402,12 @@ $('.filter').change(function() {
 })
 
 
+$('.search').keyup(function(e){
+  if(e.keyCode == 13){
+    getSearch();
+  }
+})
+
 function generateUID() {
     return Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15);

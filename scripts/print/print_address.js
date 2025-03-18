@@ -1,11 +1,23 @@
 
 //--- properties for print
-var prop 			= "width=800, height=900, left="+center+", scrollbars=yes";
 var center    = ($(document).width() - 800)/2;
+var prop 			= "width=800, height=900, left="+center+", scrollbars=yes";
 
 //--- พิมพ์ใบนำส่งสำหรับแปะหน้ากล่อง
-function printAddress(id, order_code) {
-	printOnlineAddress(id, order_code);
+// function printAddress(id, order_code) {
+// 	printOnlineAddress(id, order_code);
+// }
+
+function printAddress(id, order_code)
+{
+	var customer_code = $('#customer_code').val();
+	var customer_ref = $('#customer_ref').val();
+	if( customer_ref != '' ){
+		printOnlineAddress(id, order_code);
+	}
+	else{
+		getAddressForm();
+	}
 }
 
 

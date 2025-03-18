@@ -127,11 +127,12 @@ class Orders extends PS_Controller
       $perpage = get_rows();
       $segment  = 4; //-- url segment
       $startTime = now();
-      $rows     = $this->orders_model->count_rows($filter);
+      $rows = $this->orders_model->count_rows($filter);
       //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
       $init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
       $offset = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
       $orders = $this->orders_model->get_data($filter, $perpage, $offset);
+      // $orders = $this->orders_model->get_list($filter, $perpage, $offset);
 
       $endTime = now();
 
@@ -663,7 +664,7 @@ class Orders extends PS_Controller
             } 	//--- if getStock
           }	//--- if qty > 0
         } //--- end foreach
-        
+
         if($this->sync_chatbot_stock && !empty($sync_stock))
         {
           $this->update_chatbot_stock($sync_stock);

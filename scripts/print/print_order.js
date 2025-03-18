@@ -1,7 +1,7 @@
 
 //--- properties for print
-var prop 			= "width=800, height=900. left="+center+", scrollbars=yes";
 var center    = ($(document).width() - 800)/2;
+var prop 			= "width=800, height=900. left="+center+", scrollbars=yes";
 
 
 

@@ -198,5 +198,17 @@ class Channels_model extends CI_Model
 	}
 
 
+  public function get_all()
+  {
+    $rs = $this->db->order_by('position', 'ASC')->order_by('code', 'ASC')->get('channels');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 }
 ?>

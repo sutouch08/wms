@@ -795,67 +795,37 @@ class Qc extends PS_Controller
     echo json_encode($arr);
   }
 
-  // public function remove_check_qty()
-  // {
-  //   $sc = TRUE;
-  //   $id = $this->input->post('id'); //--- id qc
-  //   $qty = $this->input->post('qty'); //--- remove qty
-  //
-  //   $qc = $this->qc_model->get($id);
-  //
-  //   if(!empty($qc))
-  //   {
-  //     if($qty == $qc->qty)
-  //     {
-  //       if(! $this->qc_model->delete_qc($id))
-  //       {
-  //         $sc = FALSE;
-  //         $this->error = "ลบรายการไม่สำเร็จ";
-  //       }
-  //       else
-  //       {
-  //
-  //       }
-  //     }
-  //     else
-  //     {
-  //       if(! $this->qc_model->update_qty($id, (-1) * $qty))
-  //       {
-  //         $sc = FALSE;
-  //         $this->error = "ปรับปรุงยอดตรวจนับไม่สำเร็จ";
-  //       }
-  //     }
-  //
-  //     if($sc === TRUE)
-  //     {
-  //       $this->orders_model->unvalid_detail($qc->order_detail_id);
-  //     }
-  //   }
-  //   else
-  //   {
-  //     $sc = FALSE;
-  //     $this->error = "ไม่พบรายการตรวจนับ";
-  //   }
-  //
-  //   echo $sc === TRUE ? 'success' : $this->error;
-  // }
-
 
   public function print_box($code, $box_id)
   {
     $this->load->library('printer');
     $this->load->model('masters/customers_model');
+    $this->load->library('ixqrcode');
 
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $details = $this->qc_model->get_box_details($code, $box_id);
     $box_no = $this->qc_model->get_box_no($box_id);
     $all_box = $this->qc_model->count_box($code);
+
+    $qr = array(
+      'data' => $code,
+      'size' => 8,
+      'level' => 'H',
+      'savename' => NULL
+    );
+
+    ob_start();
+    $this->ixqrcode->generate($qr);
+    $qr = base64_encode(ob_get_contents());
+    ob_end_clean();
+
     $ds = array();
     $ds['order'] = $order;
     $ds['details'] = $details;
     $ds['box_no'] = $box_no;
     $ds['all_box'] = $all_box;
+    $ds['qrcode'] = $qr;
 
     $this->load->view('inventory/qc/packing_list', $ds);
   }

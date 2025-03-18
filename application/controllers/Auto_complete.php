@@ -99,6 +99,89 @@ class Auto_complete extends CI_Controller
   }
 
 
+  public function get_carplate()
+  {
+    $txt = trim($_REQUEST['term']);
+
+    $sc = [];
+
+    if($txt != '*')
+    {
+      $this->db->like('plate_no', $txt)->or_like('province', $txt);
+    }
+
+    $rs = $this->db
+    ->order_by('id', 'DESC')
+    ->limit(50)
+    ->get('dispatch_cars');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $sc[] = $rd->plate_no.' | '.$rd->province;
+      }
+    }
+    else
+    {
+      $sc[] = 'not found';
+    }
+
+    echo json_encode($sc);
+  }
+
+
+  public function get_driver_name()
+  {
+    $txt = trim($_REQUEST['term']);
+    $sc = [];
+
+    if($txt != '*')
+    {
+      $this->db->like('name', $txt);
+    }
+
+    $rs = $this->db->order_by('name', 'ASC')->limit(50)->get('dispatch_driver');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $sc[] = $rd->name;
+      }
+    }
+    else
+    {
+      $sc[] = 'not found';
+    }
+
+    echo json_encode($sc);
+  }
+
+
+  public function plate_province()
+  {
+    $sc = array();
+    $adr = $this->db->select("province")
+    ->like('province', $_REQUEST['term'])
+    ->group_by('province')
+    ->limit(20)->get('address_info');
+
+    if($adr->num_rows() > 0)
+    {
+      foreach($adr->result() as $rs)
+      {
+        $sc[] = str_replace('จังหวัด', '', $rs->province);
+      }
+    }
+    else
+    {
+      $sc[] = 'not found';
+    }
+
+    echo json_encode($sc);
+  }
+
 
   public function get_customer_code_and_name()
   {
@@ -280,9 +363,6 @@ public function get_prepare_item_code()
 
     echo json_encode($sc);
   }
-
-
-
 
   public function get_vendor_code_and_name()
   {
@@ -1064,36 +1144,6 @@ public function get_prepare_item_code()
 
     echo json_encode($sc);
   }
-
-  // public function get_warehouse_code_and_name()
-  // {
-  //   $txt = $_REQUEST['term'];
-  //   $sc  = array();
-  //   $qr  = "SELECT WhsCode, WhsName FROM OWHS ";
-  //
-  //   if($txt != '*')
-  //   {
-  //     $qr .= "WHERE WhsCode LIKE N'%{$txt}%' OR WhsName LIKE N'%{$txt}%' ";
-  //   }
-  //
-  //   $qr .= "ORDER BY WhsCode ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
-  //
-  //   $rs = $this->ms->query($qr);
-  //
-  //   if($rs->num_rows() > 0)
-  //   {
-  //     foreach($rs->result() as $wh)
-  //     {
-  //       $sc[] = $wh->WhsCode.' | '.$wh->WhsName;
-  //     }
-  //   }
-  //   else
-  //   {
-  //     $sc[] = 'not found';
-  //   }
-  //
-  //   echo json_encode($sc);
-  // }
 
 
   public function get_color_code_and_name()

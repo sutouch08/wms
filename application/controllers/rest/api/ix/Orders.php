@@ -294,7 +294,7 @@ class Orders extends REST_Controller
       //--- order code gen จากระบบ
       $order_code = empty($order) ? $this->get_new_code($date_add) : $order->code;
 
-      $tracking = $data->tracking_no;
+      $tracking = get_null($data->tracking_no);
 
       $total_amount = 0;
       $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
@@ -537,7 +537,7 @@ class Orders extends REST_Controller
 
 
         if( ! empty($customer_ref) && ! empty($ship_to) && ! empty($ship_to->address))
-        {          
+        {
           $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
 
           if($id_address === FALSE)

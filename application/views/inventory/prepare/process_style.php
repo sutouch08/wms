@@ -47,7 +47,7 @@
 
   .incomplete-box {
     margin-top:78px;
-    margin-bottom: 120px;
+    margin-bottom: 220px;
   }
 
   .complete-item {

@@ -44,7 +44,7 @@ class Address extends PS_Controller
     if( ! empty($order))
     {
       $order->total_qty = $this->invoice_model->get_total_sold_qty($code);
-    }    
+    }
 
     if( ! empty($adr))
     {
@@ -73,8 +73,15 @@ class Address extends PS_Controller
   {
     $this->load->library('printer');
     $this->load->model('inventory/qc_model');
+    $this->load->model('orders/orders_model');
+    $order = $this->orders_model->get($code);
     $id_address = empty($id_address) ? $this->address_model->get_id($customer_code) : $id_address;
+    $id_address = empty($id_address) ? $order->id_address : $id_address;
+    $ad = $this->address_model->get_shipping_detail($id_address);
     $id_sender = empty($id_sender) ? $this->transport_model->get_id($customer_code) : $id_sender;
+    $id_sender = empty($id_sender) ? $order->id_sender : $id_sender;
+    $id_sender = empty($id_sender) ? 1 : $id_sender;
+
     $ds = array(
       'reference' => $code,
       'boxes' => $this->qc_model->count_box($code),
@@ -110,6 +117,12 @@ class Address extends PS_Controller
         $senders->main = $this->transport_model->get_name($senders->main_sender);
         $senders->second = $this->transport_model->get_name($senders->second_sender);
         $senders->third = $this->transport_model->get_name($senders->third_sender);
+      }
+      else
+      {
+        $senders = $this->transport_model->get_sender(1); //--- deafult ส่งเอง
+        $senders->main = $senders->name;
+        $sdn++;
       }
 
       echo get_address_form($adn, $sdn, $adrs, $senders);
