@@ -54,6 +54,18 @@ class Qc extends PS_Controller
   }
 
 
+  public function test()
+  {
+    $code = $this->input->post('code');
+    $this->wms = $this->load->database('wms', TRUE);
+    $this->load->library('wrx_api');
+
+    $res = $this->wrx_api->get_shipping_param($code);
+
+    echo $res;
+  }
+
+
   public function view_process()
   {
     $this->title = "รายการกำลังตรวจ";
@@ -78,9 +90,9 @@ class Qc extends PS_Controller
       $perpage = get_rows();
 
       $state = 6; //---- รอตรวจ
-      $this->segment  = 5; //-- url segment
+      $this->segment  = 4; //-- url segment
       $rows = $this->qc_model->count_rows($filter, $state);
-      $init = pagination_config($this->home.'/view_process/index/', $rows, $perpage, $this->segment);
+      $init = pagination_config($this->home.'/view_process/', $rows, $perpage, $this->segment);
       $filter['orders'] = $this->qc_model->get_list($filter, $state, $perpage, $this->uri->segment($this->segment));
       $this->pagination->initialize($init);
       $this->load->view('inventory/qc/qc_view_process_list', $filter);

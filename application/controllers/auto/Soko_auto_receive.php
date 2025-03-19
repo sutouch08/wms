@@ -876,7 +876,7 @@ class Soko_auto_receive extends CI_Controller
 
 						$this->receive_transform_model->update($order->code, $arr);
 
-						if($this->transform_model->is_complete($order->order_code) === TRUE)
+						if($this->transform_model->is_complete($order->order_code))
 						{
 							$this->transform_model->close_transform($order->order_code);
 						}

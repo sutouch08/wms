@@ -94,7 +94,8 @@ class Soko_auto_delivery extends CI_Controller
                   if($this->orders_model->has_zero_price($order->code))
                   {
                     //---- ทำให้เป็นรอเปิดบิล
-                    $this->process_pre_delivery($order, $details);
+                    $is_hold = 1;
+                    $this->process_pre_delivery($order, $details, $is_hold);
                   }
                   else
                   {
@@ -173,7 +174,7 @@ class Soko_auto_delivery extends CI_Controller
 
 
 	//---- set state to 7 รอจัดส่ง
-	public function process_pre_delivery($order, $details)
+	public function process_pre_delivery($order, $details, $is_hold = 0)
 	{
 		$sc = TRUE;
 
@@ -183,7 +184,8 @@ class Soko_auto_delivery extends CI_Controller
     $arr = array(
       'state' => 7,
       'shipped_date' => $order->shipped_date,
-      'update_user' => $this->user
+      'update_user' => $this->user,
+      'is_hold' => $is_hold
     );
 
     $this->orders_model->update($order->code, $arr);

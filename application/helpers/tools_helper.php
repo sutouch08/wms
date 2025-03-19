@@ -269,6 +269,28 @@ function getConfig($code)
 }
 
 
+function getWrxApiConfig()
+{
+	$fields = ['WRX_API', 'WRX_API_HOST', 'WRX_API_CREDENTIAL', 'WRX_TEST', 'WRX_LOG_JSON'];
+	$ci =& get_instance();
+	$rs = $ci->db->select('code, value')->where_in('code', $fields)->get('config');
+
+	if($rs->num_rows() >  0)
+	{
+		$ds = [];
+
+		foreach($rs->result() as $ro)
+		{
+			$ds[$ro->code] = $ro->value;
+		}
+
+		return $ds;
+	}
+
+	return NULL;
+}
+
+
 function get_vat_amount($amount, $vat = NULL, $type = 'I')
 {
 	//--- type I = include, E = exclude

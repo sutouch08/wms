@@ -165,6 +165,7 @@
           <?php $no = $this->uri->segment(4) + 1; ?>
 					<?php $whName = []; ?>
           <?php foreach($orders as $rs) : ?>
+						<?php $rs->qty = $this->prepare_model->get_sum_order_qty($rs->code); ?>
 						<?php if( empty($whName[$rs->warehouse_code])) : ?>
 							<?php $whName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
 						<?php endif; ?>

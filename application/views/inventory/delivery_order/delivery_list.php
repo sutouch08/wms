@@ -47,6 +47,14 @@
       <?php echo select_sell_warehouse($warehouse); ?>
     </select>
   </div>
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>Flag</label>
+		<select class="form-control input-sm" name="is_hold" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_hold); ?>>On Hold</option>
+			<option value="0" <?php echo is_selected('0', $is_hold); ?>>Ready</option>
+		</select>
+	</div>
 
 	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
@@ -68,6 +76,7 @@
 </div>
 <input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
 <input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
+<input type="hidden" name="search" value="1" />
 
 <hr class="margin-top-15">
 </form>
@@ -97,8 +106,8 @@
 <?php if(!empty($orders))  : ?>
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
-
-        <tr class="font-size-12" id="row-<?php echo $rs->code; ?>">
+			<?php $bg = $rs->is_hold ? 'background-color:#fde4e4;' : ''; ?>
+        <tr class="font-size-12" id="row-<?php echo $rs->code; ?>" style="<?php echo $bg; ?>">
 
           <td class="text-center pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
             <?php echo $no; ?>
@@ -146,7 +155,9 @@
           </td>
 					<td class="text-right">
             <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-							<button type="button" class="btn btn-xs btn-primary" onclick="confirmBill('<?php echo $rs->code; ?>')">เปิดบิล</button>
+							<?php if($rs->is_hold ==0 OR $this->_SuperAdmin) : ?>
+								<button type="button" class="btn btn-xs btn-primary" onclick="confirmBill('<?php echo $rs->code; ?>')">เปิดบิล</button>
+							<?php endif; ?>
 						<?php endif; ?>
           </td>
 

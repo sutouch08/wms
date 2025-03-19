@@ -108,7 +108,7 @@ class Prepare extends PS_Controller
   		$segment  = 4; //-- url segment
   		$rows     = $this->prepare_model->count_rows($filter, 4, $this->full_mode);
   		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-  		$init	    = pagination_config($this->home.'/veiw_process/', $rows, $perpage, $segment);
+  		$init	= pagination_config($this->home.'/view_process/', $rows, $perpage, $segment);
   		$orders   = $this->prepare_model->get_list($filter, $perpage, $this->uri->segment($segment), 4, $this->full_mode);
 
       $filter['orders'] = $orders;

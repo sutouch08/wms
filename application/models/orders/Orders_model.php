@@ -300,6 +300,19 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_detail_by_product($order_code, $product_code)
+  {
+    $rs = $this->db->where('order_code', $order_code)->where('product_code', $product_code)->order_by('id', 'ASC')->get('order_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 
 	public function get_only_count_stock_details($order_code)
 	{
@@ -1191,14 +1204,51 @@ class Orders_model extends CI_Model
   {
     $this->db
     ->select('code, role, reference, customer_code, customer_name, customer_ref')
-    ->select('channels_code, payment_code, state, status, date_add, is_expired, doc_total')
-    ->select('is_wms, wms_export, is_backorder')
+    ->select('channels_code, payment_code, state, status, warehouse_code, zone_code, date_add, is_expired, doc_total')
+    ->select('is_wms, wms_export, is_backorder, is_approved, user, empName')
     ->where('role', $role);
 
     //---- เลขที่เอกสาร
+    // if( ! empty($ds['code']))
+    // {
+    //   $this->db->like('code', $ds['code']);
+    // }
+
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $ds['code'] = preg_replace("/\D/", "", $ds['code']);
+
+      $code = NULL;
+
+      switch($role)
+      {
+        case 'S' :
+          $code = "WO-{$ds['code']}";
+        break;
+        case 'P' :
+          $code = "WS-{$ds['code']}";
+        break;
+        case 'U' :
+          $code = "WU-{$ds['code']}";
+        break;
+        case 'C' :
+          $code = "WC-{$ds['code']}";
+        break;
+        case 'N' :
+          $code = "WT-{$ds['code']}";
+        break;
+        case 'T' :
+          $code = "WQ-{$ds['code']}";
+        break;
+        case 'Q' :
+          $code = "WV-{$ds['code']}";
+        break;
+        case 'L' :
+          $code = "WL-{$ds['code']}";
+        break;
+      }
+
+      $this->db->like('code', $code, 'after');
     }
 
     if(!empty($ds['qt_no']))

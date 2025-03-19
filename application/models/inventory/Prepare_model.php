@@ -262,8 +262,11 @@ class Prepare_model extends CI_Model
     $this->db
     ->select('o.state')
     ->from('orders AS o')
-    ->join('channels AS ch', 'ch.code = o.channels_code','left')
-    ->join('order_details AS od', 'o.code = od.order_code','left');
+    ->join('channels AS ch', 'ch.code = o.channels_code','left');
+    if( ! empty($ds['item_code']))
+    {
+      $this->db->join('order_details AS od', 'o.code = od.order_code','left');
+    }
 
     if($state == 4)
     {
@@ -399,17 +402,34 @@ class Prepare_model extends CI_Model
   }
 
 
+  public function get_sum_order_qty($code)
+  {
+    $rs =  $this->db->select_sum('qty')->where('order_code', $code)->get('order_details');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $state = 3, $full_mode = TRUE)
   {
     $this->db
-		->select('o.*')
+		->select('o.code, o.role, o.reference, o.customer_code, o.customer_name, o.customer_ref, o.date_add, o.channels_code')
+    ->select('o.warehouse_code, o.empName, o.user')
     ->select('ch.name AS channels_name')
     ->select('u.name AS display_name')
-    ->select_sum('od.qty', 'qty')
+    // ->select_sum('od.qty', 'qty')
     ->from('orders AS o')
-    ->join('channels AS ch', 'ch.code = o.channels_code','left')
-    ->join('order_details AS od', 'o.code = od.order_code','left');
+    ->join('channels AS ch', 'ch.code = o.channels_code','left');
+
+    if( ! empty($ds['item_code']))
+    {
+      $this->db->join('order_details AS od', 'o.code = od.order_code','left');
+    }
 
 		if($full_mode === TRUE)
 		{

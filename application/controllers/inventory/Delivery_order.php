@@ -24,41 +24,47 @@ class Delivery_order extends PS_Controller
 
   public function index()
   {
-    $this->load->model('masters/customers_model');
-    $this->load->helper('channels');
-    $this->load->helper('order');
-    $this->load->helper('warehouse');
+
+
     $filter = array(
-      'code'          => get_filter('code', 'ic_code', ''),
-      'customer'      => get_filter('customer', 'ic_customer', ''),
-      'user'          => get_filter('user', 'ic_user', ''),
-      'role'          => get_filter('role', 'ic_role', ''),
-      'channels'      => get_filter('channels', 'ic_channels', ''),
-      'from_date'     => get_filter('from_date', 'ic_from_date', ''),
-      'to_date'       => get_filter('to_date', 'ic_to_date', ''),
-      'sort_by'       => get_filter('sort_by', 'ic_sort_by', ''),
-      'order_by'      => get_filter('order_by', 'ic_order_by', ''),
-      'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all')
+      'code' => get_filter('code', 'ic_code', ''),
+      'customer' => get_filter('customer', 'ic_customer', ''),
+      'user' => get_filter('user', 'ic_user', ''),
+      'role' => get_filter('role', 'ic_role', ''),
+      'channels' => get_filter('channels', 'ic_channels', ''),
+      'from_date' => get_filter('from_date', 'ic_from_date', ''),
+      'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
+      'order_by' => get_filter('order_by', 'ic_order_by', ''),
+      'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
+      'is_hold' => get_filter('is_hold', 'ic_is_hold', 'all')
     );
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
+    if($this->input->post('search'))
+    {
+      redirect($this->home);
+    }
+    else
+    {
+      $this->load->model('masters/customers_model');
+      $this->load->helper('channels');
+      $this->load->helper('order');
+      $this->load->helper('warehouse');
 
-		$segment  = 4; //-- url segment
-		$rows     = $this->delivery_order_model->count_rows($filter, 7);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->delivery_order_model->get_list($filter, $perpage, $this->uri->segment($segment), 7);
+      //--- แสดงผลกี่รายการต่อหน้า
+      $perpage = get_rows();
 
-    $filter['orders'] = $orders;
+      $segment  = 4; //-- url segment
+      $rows     = $this->delivery_order_model->count_rows($filter, 7);
+      //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+      $init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+      $orders   = $this->delivery_order_model->get_list($filter, $perpage, $this->uri->segment($segment), 7);
 
-		$this->pagination->initialize($init);
-    $this->load->view('inventory/delivery_order/delivery_list', $filter);
+      $filter['orders'] = $orders;
+
+      $this->pagination->initialize($init);
+      $this->load->view('inventory/delivery_order/delivery_list', $filter);
+    }
   }
 
 
@@ -636,7 +642,8 @@ class Delivery_order extends PS_Controller
       'ic_to_date',
       'ic_sort_by',
       'ic_order_by',
-      'ic_warehouse'
+      'ic_warehouse',
+      'ic_is_hold'
     );
 
     clear_filter($filter);

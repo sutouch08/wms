@@ -106,7 +106,7 @@ class Consign_tr extends PS_Controller
 		$rows     = $this->orders_model->count_rows($filter, 'N');
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->orders_model->get_data($filter, $perpage, $this->uri->segment($segment), 'N');
+		$orders   = $this->orders_model->get_list($filter, $perpage, $this->uri->segment($segment), 'N');
     $ds       = array();
     if(!empty($orders))
     {

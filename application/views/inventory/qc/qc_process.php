@@ -7,6 +7,7 @@
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-cubes"></i> รอตรวจ</button>
     <button type="button" class="btn btn-white btn-info top-btn" onclick="viewProcess()"><i class="fa fa-cube"></i> กำลังตรวจ</button>
+    <button type="button" class="btn btn-white btn-info top-btn hide" onclick="testApi('<?php echo $order->reference; ?>')"><i class="fa fa-cube"></i> ทดสอบ API</button>
   </div>
 </div>
 <hr/>
@@ -182,4 +183,24 @@ if(!empty($barcode_list))
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_control.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
+
+<script>
+  function testApi(code) {
+    $.ajax({
+      url: HOME + 'test',
+      type:'POST',
+      cache:false,
+      data:{
+        'code' : code
+      },
+      success:function(rs) {
+        console.log(rs);
+      },
+      error:function(rs) {
+        console.log(rs);
+      }
+    })
+  }
+
+</script>
 <?php $this->load->view('include/footer'); ?>

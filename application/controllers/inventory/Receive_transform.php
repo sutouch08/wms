@@ -255,7 +255,7 @@ class Receive_transform extends PS_Controller
           {
             if($doc->is_wms == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
             {
-              if($this->transform_model->is_complete($doc->order_code) === TRUE)
+              if($this->transform_model->is_complete($doc->order_code))
               {
                 $this->transform_model->close_transform($doc->order_code);
               }
@@ -654,7 +654,7 @@ class Receive_transform extends PS_Controller
                 {
                   if($doc->is_wms == 0 OR (($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi)))
                   {
-                    if($this->transform_model->is_complete($doc->order_code) === TRUE)
+                    if($this->transform_model->is_complete($doc->order_code))
                     {
                       $this->transform_model->close_transform($data->order_code);
                     }

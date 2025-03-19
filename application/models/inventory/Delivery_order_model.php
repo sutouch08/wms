@@ -110,6 +110,11 @@ class Delivery_order_model extends CI_Model
       $this->db->where('shipped_date <=', to_date($ds['ship_to_date']));
     }
 
+    if(isset($ds['is_hold']) && $ds['is_hold'] != 'all')
+    {
+      $this->db->where('is_hold', $ds['is_hold']);
+    }
+
     return $this->db->count_all_results('orders');
   }
 
@@ -201,6 +206,11 @@ class Delivery_order_model extends CI_Model
     if(isset($ds['ship_to_date']) && $ds['ship_to_date'] != '')
     {
       $this->db->where('shipped_date <=', to_date($ds['ship_to_date']));
+    }
+
+    if(isset($ds['is_hold']) && $ds['is_hold'] != 'all')
+    {
+      $this->db->where('is_hold', $ds['is_hold']);
     }
 
     $rs = $this->db->order_by('date_add', 'DESC')->limit($perpage, $offset)->get('orders');

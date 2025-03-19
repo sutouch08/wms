@@ -1,9 +1,6 @@
-$(document).ready(function(){
-  var intv = setInterval(function(){ goBack();}, 60000);
-});
-
-
-
+// $(document).ready(function(){
+//   var intv = setInterval(function(){ goBack();}, 60000);
+// });
 
 
 

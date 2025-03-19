@@ -1051,3 +1051,53 @@ function toggleIxTest(option) {
 		return;
 	}
 }
+
+//================================================== WRX API ==========================//
+
+//--- เปิด/ปิด SOKOJUNG API
+function toggleWrxApi(option){
+	$('#wrx-api').val(option);
+	if(option == 1){
+		$('#btn-wrx-api-on').addClass('btn-success');
+		$('#btn-wrx-api-off').removeClass('btn-primary');
+		return;
+	}
+	else if(option == 0){
+		$('#btn-wrx-api-on').removeClass('btn-success');
+		$('#btn-wrx-api-off').addClass('btn-primary');
+		return;
+	}
+}
+
+function toggleWrxLogJson(option) {
+
+	$('#wrx-log-json').val(option);
+
+	if(option == 1) {
+		$('#btn-wrx-log-off').removeClass('btn-primary');
+		$('#btn-wrx-log-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-wrx-log-on').removeClass('btn-success');
+		$('#btn-wrx-log-off').addClass('btn-primary');
+		return;
+	}
+}
+
+function toggleWrxTest(option) {
+	$('#wrx-api-test').val(option);
+
+	if(option == 1) {
+		$('#btn-wrx-test-off').removeClass('btn-primary');
+		$('#btn-wrx-test-on').addClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-wrx-test-on').removeClass('btn-success');
+		$('#btn-wrx-test-off').addClass('btn-primary');
+		return;
+	}
+}

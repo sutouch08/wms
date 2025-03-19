@@ -131,8 +131,8 @@ class Orders extends PS_Controller
       //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
       $init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
       $offset = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
-      $orders = $this->orders_model->get_data($filter, $perpage, $offset);
-      // $orders = $this->orders_model->get_list($filter, $perpage, $offset);
+      // $orders = $this->orders_model->get_data($filter, $perpage, $offset);
+      $orders = $this->orders_model->get_list($filter, $perpage, $offset);
 
       $endTime = now();
 

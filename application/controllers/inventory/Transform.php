@@ -106,7 +106,7 @@ class Transform extends PS_Controller
 		$rows     = $this->orders_model->count_rows($filter, $role);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->orders_model->get_data($filter, $perpage, $this->uri->segment($segment), $role);
+		$orders   = $this->orders_model->get_list($filter, $perpage, $this->uri->segment($segment), $role);
     $ds       = array();
     if(!empty($orders))
     {

@@ -145,16 +145,12 @@ class Transform_model extends CI_Model
 
   public function is_complete($order_code)
   {
-    $rs = $this->db
+    $count = $this->db
     ->where('order_code', $order_code)
-    ->where('receive_qty < sold_qty')
+    ->where('receive_qty < sold_qty', NULL, FALSE)
     ->count_all_results('order_transform_detail');
-    if($rs === 0)
-    {
-      return TRUE;
-    }
 
-    return FALSE;
+    return $count <= 0 ? TRUE : FALSE;    
   }
 
 
@@ -272,7 +268,7 @@ class Transform_model extends CI_Model
     }
   }
 
-  
+
 
   public function get_closed_transform_order($code, $limit = 50)
   {

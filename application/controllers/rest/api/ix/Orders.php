@@ -14,6 +14,7 @@ class Orders extends REST_Controller
 	public $log_json = FALSE;
 	public $api = FALSE;
   public $checkBackorder = FALSE;
+  private $type = 'ORDER';
 
   public function __construct()
   {
@@ -57,6 +58,7 @@ class Orders extends REST_Controller
 
   public function create_post()
   {
+    $action = 'create';
     $this->api_path = $this->api_path."/create";
     //--- Get raw post data
     $json = file_get_contents("php://input");
@@ -73,9 +75,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => NULL,
-          'action' => 'create',
+          'action' => $action,
           'status' => 'failed',
           'message' => 'API Not Enabled',
           'request_json' => $json,
@@ -102,9 +104,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => NULL,
-          'action' => 'create',
+          'action' => $action,
           'status' => 'failed',
           'message' => 'empty data',
           'request_json' => $json,
@@ -131,9 +133,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => NULL,
-          'action' => 'create',
+          'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -161,9 +163,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => $data->order_number,
-          'action' => 'create',
+          'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -194,9 +196,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => $data->order_number,
-          'action' => 'create',
+          'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -244,9 +246,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => $data->order_number,
-          'action' => 'create',
+          'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -488,9 +490,9 @@ class Orders extends REST_Controller
           $logs = array(
             'trans_id' => genUid(),
             'api_path' => $this->api_path,
-            'type' =>'ORDER',
+            'type' => $this->type,
             'code' => $data->order_number,
-            'action' => 'create',
+            'action' => $action,
             'status' => 'failed',
             'message' => $this->error,
             'request_json' => $json,
@@ -699,9 +701,9 @@ class Orders extends REST_Controller
           $logs = array(
             'trans_id' => genUid(),
             'api_path' => $this->api_path,
-            'type' =>'ORDER',
+            'type' => $this->type,
             'code' => $data->order_number,
-            'action' => 'create',
+            'action' => $action,
             'status' => 'success',
             'message' => 'success',
             'request_json' => $json,
@@ -727,9 +729,9 @@ class Orders extends REST_Controller
           $logs = array(
             'trans_id' => genUid(),
             'api_path' => $this->api_path,
-            'type' =>'ORDER',
+            'type' => $this->type,
             'code' => $data->order_number,
-            'action' => 'create',
+            'action' => $action,
             'status' => 'failed',
             'message' => $this->error,
             'request_json' => $json,
@@ -748,6 +750,7 @@ class Orders extends REST_Controller
   public function cancel_put()
   {
     $sc = TRUE;
+    $action = 'cancel';
 
     if( ! $this->api)
     {
@@ -761,9 +764,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => NULL,
-          'action' => 'cancel',
+          'action' => $action,
           'status' => 'failed',
           'message' => 'API Not Enabled',
           'request_json' => $json,
@@ -794,9 +797,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => NULL,
-          'action' => 'cancel',
+          'action' => $action,
           'status' => 'failed',
           'message' => 'empty data',
           'request_json' => $json,
@@ -824,9 +827,9 @@ class Orders extends REST_Controller
         $logs = array(
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
-          'type' =>'ORDER',
+          'type' => $this->type,
           'code' => NULL,
-          'action' => 'cancel',
+          'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -1145,7 +1148,7 @@ class Orders extends REST_Controller
 					'api_path' => $this->api_path,
 					'type' => 'ORDER',
 					'code' => $code,
-					'action' => 'cancel',
+					'action' => $action,
 					'status' => 'success',
 					'message' => 'success',
 					'request_json' => $json,
@@ -1173,7 +1176,7 @@ class Orders extends REST_Controller
 					'api_path' => $this->api_path,
 					'type' => 'ORDER',
 					'code' => $code,
-					'action' => 'cancel',
+					'action' => $action,
 					'status' => 'failed',
 					'message' => $this->error,
 					'request_json' => $json,
@@ -1186,6 +1189,291 @@ class Orders extends REST_Controller
 			$this->response($arr, 200);
     }
   } //--- end cancel
+
+
+  public function update_price_put()
+  {
+    $sc = TRUE;
+
+    $action = 'update';
+
+    $this->api_path = $this->api_path."/update_price";
+    //--- Get raw post data
+    $json = file_get_contents("php://input");
+
+    if( ! $this->api)
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'API Not Enabled'
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => NULL,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => 'API Not Enabled',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $data = json_decode($json);
+
+    if(empty($data))
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => 'empty data'
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => NULL,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => 'empty data',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 400);
+      }
+
+      if(! property_exists($data, 'order_number') OR $data->order_number == '')
+      {
+        $this->error = 'order_number is required';
+
+        $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => NULL,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 400);
+      }
+
+      // $order = $this->orders_model->get($data->order_number); //--- WO
+      // $order_code = empty($order) ? NULL : $order->code;
+      $order_code = $this->orders_model->get_active_order_code_by_reference($data->order_number);
+
+      if(empty($order_code))
+      {
+        $this->error = "Active order number not found for {$data->order_number}";
+
+        $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 400);
+      }
+
+      //--- check each item code
+      $details = $data->details;
+
+      if(empty($details))
+      {
+        $sc = FALSE;
+        $this->error = "Items not found";
+
+        $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 400);
+      }
+
+      $this->db->trans_begin();
+
+      if( ! empty($details))
+      {
+        $row_change = 0;
+
+        foreach($details as $rs)
+        {
+          if($sc === FALSE) { break; }
+
+          $row = $this->orders_model->get_detail_by_product($order_code, $rs->item);
+
+          if(empty($row))
+          {
+            $sc = FALSE;
+            $this->error = "Order item {$rs->item} not found in {$order_code}";
+          }
+
+          if($sc === TRUE)
+          {
+            if($row->qty != $rs->qty)
+            {
+              $sc = FALSE;
+              $this->error = "Quantity mismatch - try to update price with Qty : {$rs->qty} but order qty is {$row->qty} on {$rs->item}";
+            }
+          }
+
+          if($sc === TRUE && $rs->price != $row->price)
+          {
+            $disc = $rs->discount > 0 ? $rs->discount/$rs->qty : 0;
+
+            $arr = array(
+            'price' => $rs->price,
+            'discount1' => round($disc, 2),
+            'discount_amount' => $rs->discount,
+            'total_amount' => round($rs->amount)
+            );
+
+            if( ! $this->orders_model->update_detail($row->id, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to update order row";
+            }
+
+            $row_change++;
+          }
+        }
+
+        if($sc === TRUE && $row_change > 0)
+        {
+          $doc_total = $this->orders_model->get_order_total_amount($order_code);
+          $arr = array(
+          'doc_total' => $doc_total,
+          'is_hold' => 0
+          );
+
+          if( ! $this->orders_model->update($order_code, $arr))
+          {
+            $sc = FALSE;
+            $this->error = "Price update Successful but failed to remove is_hold flag from order {$order_code} transection has been roll back";
+          }
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+
+        $arr = array(
+        'status' => 'success',
+        'message' => 'success',
+        'order_code' => $order_code
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'action' => $action,
+          'status' => 'success',
+          'message' => 'success',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 200);
+      }
+      else
+      {
+        $this->db->trans_rollback();
+
+        $arr = array(
+        'status' => FALSE,
+        'error' => $this->error
+        );
+
+        if($this->logs_json)
+        {
+          $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+          );
+
+          $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        $this->response($arr, 200);
+      }
+    } //--- end update price
 
 
   public function get_new_code($date, $prefix = 'WO', $run_digit = 5)
