@@ -26,7 +26,7 @@ class Delivery_order_model extends CI_Model
 
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('code', $ds['code'], 'after');
     }
 
     if(! empty($ds['customer']))
@@ -121,11 +121,14 @@ class Delivery_order_model extends CI_Model
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $state = 7)
   {
-    $this->db->where('state', $state);
+    $this->db
+    ->select('code, role, reference, customer_code, customer_name, customer_ref')
+    ->select('channels_code, payment_code, date_add, shipped_date, user, doc_total, inv_code, empName, is_hold')
+    ->where('state', $state);
 
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code']);
+      $this->db->like('code', $ds['code'], 'after');
     }
 
     if(! empty($ds['customer']))
@@ -190,7 +193,6 @@ class Delivery_order_model extends CI_Model
         $this->db->where('inv_code IS NULL', NULL, FALSE);
       }
     }
-
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')
     {
