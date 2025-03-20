@@ -299,6 +299,7 @@ class Orders extends REST_Controller
       $tracking = get_null($data->tracking_no);
 
       $total_amount = 0;
+      $is_hold = 0;
       $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
       $is_backorder = FALSE;
       $backorderList = [];
@@ -593,6 +594,11 @@ class Orders extends REST_Controller
                 $item = $rs->item;
                 $disc = $rs->discount > 0 ? $rs->discount/$rs->qty : 0;
 
+                if($data->channel == 'SHOPEE' && $rs->price == 0)
+                {
+                  $is_hold = 1;
+                }
+
                 //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
                 $arr = array(
                   "order_code"	=> $order_code,
@@ -647,7 +653,8 @@ class Orders extends REST_Controller
           {
             $arr = array(
               'doc_total' => $total_amount,
-              'is_backorder' => $is_backorder == TRUE ? 1 : 0
+              'is_backorder' => $is_backorder == TRUE ? 1 : 0,
+              'is_hold' => $is_hold
             );
 
             $this->orders_model->update($order_code, $arr);
@@ -1269,15 +1276,15 @@ class Orders extends REST_Controller
         if($this->logs_json)
         {
           $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' => $this->type,
-          'code' => NULL,
-          'action' => $action,
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
+            'trans_id' => genUid(),
+            'api_path' => $this->api_path,
+            'type' => $this->type,
+            'code' => NULL,
+            'action' => $action,
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
           );
 
           $this->ix_api_logs_model->add_logs($logs);
@@ -1302,15 +1309,15 @@ class Orders extends REST_Controller
         if($this->logs_json)
         {
           $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' => $this->type,
-          'code' => $data->order_number,
-          'action' => $action,
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
+            'trans_id' => genUid(),
+            'api_path' => $this->api_path,
+            'type' => $this->type,
+            'code' => $data->order_number,
+            'action' => $action,
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
           );
 
           $this->ix_api_logs_model->add_logs($logs);
@@ -1335,15 +1342,15 @@ class Orders extends REST_Controller
         if($this->logs_json)
         {
           $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $this->api_path,
-          'type' => $this->type,
-          'code' => $data->order_number,
-          'action' => $action,
-          'status' => 'failed',
-          'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
+            'trans_id' => genUid(),
+            'api_path' => $this->api_path,
+            'type' => $this->type,
+            'code' => $data->order_number,
+            'action' => $action,
+            'status' => 'failed',
+            'message' => $this->error,
+            'request_json' => $json,
+            'response_json' => json_encode($arr)
           );
 
           $this->ix_api_logs_model->add_logs($logs);

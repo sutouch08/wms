@@ -19,7 +19,7 @@ function get_address_form($adds, $sds, $ds, $dd)
     else
     {
       //--- มีที่อยู่มากกว่า 1 ที่
-      if( $adds >= 1 )
+      if( $adds > 1 )
       {
         $add  = '<tr>';
         $add .=   '<td colspan="2">';
@@ -27,7 +27,7 @@ function get_address_form($adds, $sds, $ds, $dd)
         $add .=   '</td>';
         $add .= '<tr>';
 
-        $n    = 1;
+        $n  = 1;
         if(!empty($ds))
         {
           foreach($ds as $rs)
@@ -51,7 +51,7 @@ function get_address_form($adds, $sds, $ds, $dd)
 
 
       //--- มีผู้จัดส่งมากกว่า 1
-      if( $sds >= 1 )
+      if( $sds > 1 )
       {
         $dds  = '<tr>';
         $dds .=   '<td colspan="2">';
@@ -105,7 +105,7 @@ function get_address_form($adds, $sds, $ds, $dd)
       }
 
       //--- ประกอบร่าง
-      if( $adds >= 1 && $sds >= 1 )
+      if( $adds > 1 && $sds > 1 )
       {
         $sc = '<table class="table table-bordered">';
         $sc .= $add;

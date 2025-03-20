@@ -812,42 +812,32 @@ class Qc extends PS_Controller
   {
     $this->load->library('printer');
     $this->load->model('masters/customers_model');
-    // $this->load->library('ixqrcode');
+    $this->load->library('ixqrcode');
 
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     $details = $this->qc_model->get_box_details($code, $box_id);
     $box_no = $this->qc_model->get_box_no($box_id);
     $all_box = $this->qc_model->count_box($code);
-    $totalQc = 0;
 
-    if( ! empty($details))
-    {
-      foreach($details as $rs)
-      {        
-        $totalQc += $rs->qty;
-      }
-    }
+    $qr = array(
+      'data' => $code,
+      'size' => 8,
+      'level' => 'H',
+      'savename' => NULL
+    );
 
-    // $qr = array(
-    //   'data' => $code,
-    //   'size' => 8,
-    //   'level' => 'H',
-    //   'savename' => NULL
-    // );
-    //
-    // ob_start();
-    // $this->ixqrcode->generate($qr);
-    // $qr = base64_encode(ob_get_contents());
-    // ob_end_clean();
+    ob_start();
+    $this->ixqrcode->generate($qr);
+    $qr = base64_encode(ob_get_contents());
+    ob_end_clean();
 
     $ds = array();
     $ds['order'] = $order;
     $ds['details'] = $details;
     $ds['box_no'] = $box_no;
-    $ds['all_box'] = $all_box;
-    $ds['totalQc'] = $totalQc;
-    // $ds['qrcode'] = $qr;
+    $ds['all_box'] = $all_box;    
+    $ds['qrcode'] = $qr;
 
     $this->load->view('inventory/qc/packing_list', $ds);
   }

@@ -8,15 +8,16 @@ var prop 			= "width=800, height=900, left="+center+", scrollbars=yes";
 // 	printOnlineAddress(id, order_code);
 // }
 
-function printAddress(id, order_code)
+function printAddress(id, order_code, id_sender)
 {
 	var customer_code = $('#customer_code').val();
 	var customer_ref = $('#customer_ref').val();
+
 	if( customer_ref != '' ){
 		printOnlineAddress(id, order_code);
 	}
 	else{
-		getAddressForm();
+		getAddressForm(id, id_sender);
 	}
 }
 
@@ -26,6 +27,7 @@ function getOnlineAddress()
 {
 	var code = $("#customer_ref").val();
 	var order_code = $("#order_code").val();
+
 	$.ajax({
 		url: BASE_URL + 'masters/address/get_online_address/'+ code,
 		type:"GET",
@@ -44,17 +46,20 @@ function getOnlineAddress()
 
 //--- ตรวจสอบว่าลูกค้ามีที่อยู่มากกว่า 1 ที่อยู่หรือไม่
 //--- ถ้ามีมากกว่า 1 ที่อยู่ จะให้เลือกก่อนว่าจะให้ส่งที่ไหน ใช้ขนส่งอะไร
-function getAddressForm()
+function getAddressForm(id, id_sender)
 {
 	var order_code     = $("#order_code").val();
 	var customer_code  = $("#customer_code").val();
+
 	$.ajax({
 		url: BASE_URL + 'masters/address/get_address_form',
 		type:"POST",
     cache: "false",
     data:{
         "order_code" : order_code,
-        "customer_code" : customer_code
+        "customer_code" : customer_code,
+				"id" : id,
+				"id_sender" : id_sender
     },
 		success: function(rs){
 			var rs = $.trim(rs);
@@ -63,7 +68,7 @@ function getAddressForm()
 			}else if( rs == 'no_sender' ){
 				noSender();
 			}else if( rs == 1 ){
-				printPackingSheet();
+				printPackingSheet(id, id_sender);
 			}else{
 				$("#info_body").html(rs);
 				$("#infoModal").modal("show");
@@ -73,11 +78,13 @@ function getAddressForm()
 }
 
 
-function printPackingSheet()
+function printPackingSheet(id, id_sender)
 {
   var order_code = $("#order_code").val();
 	var customer_code = $('#customer_code').val();
-	var target = BASE_URL + 'masters/address/print_address_sheet/'+order_code+'/'+customer_code;
+	id = (id === undefined || id === null || id === "") ? 0 : id;
+	id_sender = (id_sender === undefined || id_sender === null || id_sender == "") ? 1 : id_sender;
+	var target = BASE_URL + 'masters/address/print_address_sheet/'+order_code+'/'+customer_code+'/'+id+'/'+id_sender;	
 	window.open(target, "_blank", prop);
 }
 

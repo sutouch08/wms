@@ -11,7 +11,7 @@
 
 
 	/*********** Receiver  **********/
-	$receiver		= '<div class="col-lg-12" style="font-size:24px; padding-left: 200px; padding-top:15px; padding-bottom:40px;">';
+	$receiver		= '<div class="col-lg-12" style="font-size:24px; padding-left: 100px; padding-right:100px; padding-top:15px; padding-bottom:40px;">';
 	$receiver		.= '<span style="display:block; margin-bottom:10px;">'.$ad->name.'</span>';
 	$receiver		.= '<span style="display:block;">'.$ad->address.'</span>';
 	$receiver		.= '<span style="display:block;"> ต. '.$ad->sub_district.' อ. '.$ad->district.'</span>';
@@ -40,7 +40,8 @@
 	$config = array("row" => 16, "header_row" => 0, "footer_row" => 0, "sub_total_row" => 0);
 	$this->printer->config($config);
 
-	$barcode	= "<img src='".base_url()."assets/barcode/barcode.php?text=".$reference."' style='height:15mm; margin-top:10px;' />";
+	// $barcode	= "<img src='".base_url()."assets/barcode/barcode.php?text=".$reference."' style='height:15mm; margin-top:10px;' />";
+	$barcode = '<image src="data:image/png;base64, '.$qrcode.'" class="pull-right" style="width:20mm;"/>';
 	$Page .= $this->printer->doc_header();
 	$n = 1;
 	while($total_page > 0 )
@@ -50,9 +51,12 @@
 		if( $n < ($boxes+1) )
 		{
 			$Page .= $this->printer->content_start();
-			$Page .= '<table style="width:100%; border:0px;"><tr><td style="width:50%;">';
-			$Page .= $sender;
-			$Page .= '</td><td style="vertical-align:text-top; text-align:center; font-size:18px; padding-top:25px; padding-right:15px;">'.$reference.' : กล่องที่ '.$n.' / '.$boxes.' '.$barcode.'</td></tr></table>';
+			$Page .= '<div class="col-lg-6-harf col-md-6-harf col-sm-6-harf col-xs-6-harf padding-5">'.$sender.'</div>';
+			$Page .= '<div class="col-lg-3-harf col-md-3-harf col-sm-3-harf col-xs-3-harf padding-5 text-right margin-top-10">
+								<span class="font-size-24 pull-right text-right">'.$reference.'</span>
+								<br/><span class="pull-right font-size-24">กล่องที่ '.$n.' / '.$boxes.'</span></div>';
+			$Page .= '<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right margin-top-10">'.$barcode.'</div>';
+			$Page .= '<div class="divider-hidden"></div>';
 			$Page .= $receiver;
 			$Page .= $transport;
 			$Page .= $this->printer->content_end();
@@ -62,61 +66,17 @@
 		if( $n < ($boxes+1) )
 		{
 			$Page .= $this->printer->content_start();
-			$Page .= '<table style="width:100%; border:0px;"><tr><td style="width:50%;">';
-			$Page .= $sender;
-			$Page .= '</td><td style=" vertical-align:text-top; text-align:right; font-size:18px; padding-top:25px; padding-right:15px;">'.$reference.' : กล่องที่ '.$n.' / '.$boxes.' '.$barcode.'</td></tr></table>';
+			$Page .= '<div class="col-lg-6-harf col-md-6-harf col-sm-6-harf col-xs-6-harf padding-5">'.$sender.'</div>';
+			$Page .= '<div class="col-lg-3-harf col-md-3-harf col-sm-3-harf col-xs-3-harf padding-5 text-right margin-top-10">
+								<span class="font-size-24 pull-right text-right">'.$reference.'</span>
+								<br/><span class="pull-right font-size-24">กล่องที่ '.$n.' / '.$boxes.'</span></div>';
+			$Page .= '<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right margin-top-10">'.$barcode.'</div>';
+			$Page .= '<div class="divider-hidden"></div>';
 			$Page .= $receiver;
 			$Page .= $transport;
 			$Page .= $this->printer->content_end();
 			$n++;
 		}
-
-
-		// if( $n > $boxes ){
-		// 	if( $n > $boxes && ($n % 2) == 0 )
-		// 	{
-		// 		$Page .= '
-		// 		<style>.table-bordered > tbody > tr > td { border : solid 1px #333 !important;  }</style>
-		// 		<table class="table table-bordered" >
-		// 			<tr style="font-size:10px">
-		// 				<td style="width:8%;">ใบสั่งงาน</td>
-		// 				<td style="width:25%;">
-    //           <input type="checkbox" style="margin-left:10px; margin-right:5px;"> รับ
-    //           <input type="checkbox" checked style="margin-left:10px; margin-right:5px;"> ส่ง
-    //         </td>
-		// 				<td style="width:27%;">
-    //           วันที่ '.date("d/m/Y").'
-    //           <input type="checkbox" style="margin-left:10px; margin-right:5px;">เช้า
-    //           <input type="checkbox" style="margin-left:10px; margin-right:5px;"> บ่าย
-    //         </td>
-		// 				<td style="width:20%;">
-    //           จำนวน '.$boxes.' กล่อง
-    //         </td>
-		// 				<td style="width:20%;">
-    //           ออเดอร์ :  '.$reference.'
-    //         </td>
-		// 			</tr>
-		// 			<tr style="font-size:10px;">
-    //         <td>ขนส่ง</td>
-    //         <td>'.$sd->name.'</td>
-    //         <td colspan="3">'.$sd->address1.' '.$sd->address2.' ('.$sd->phone.')</td>
-    //       </tr>
-		// 			<tr style="font-size:10px;">
-    //         <td>ผู้รับ</td>
-    //         <td>'.$ad->name.'</td>
-    //         <td colspan="3">'.$ad->address.' ต. '.$ad->sub_district.' อ. '.$ad->district.' จ. '.$ad->province.' '.$ad->postcode.'</td>
-    //       </tr>
-		// 			<tr style="font-size:10px;">
-    //         <td>ผู้ติดต่อ</td>
-    //         <td>'.$ad->name.'</td>
-    //         <td>โทร. '.$ad->phone.'</td>
-    //         <td>ผู้สั่งงาน '.get_cookie('uname').'</td>
-    //         <td>โทร. </td>
-    //       </tr>
-		// 		</table>';
-		// 	}
-		// 	$n++;
-		// }
 
 		$Page .= $this->printer->page_end();
 

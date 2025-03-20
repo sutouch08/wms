@@ -57,7 +57,7 @@
 
 <div class="row">
   <div class="col-sm-12 text-right">
-    <button type="button" class="btn btn-sm btn-info" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>')"><i class="fa fa-print"></i> ใบนำส่ง</button>
+    <button type="button" class="btn btn-sm btn-info" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)"><i class="fa fa-print"></i> ใบนำส่ง</button>
     <button type="button" class="btn btn-sm btn-primary" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
     <button type="button" class="btn btn-sm btn-success" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
     <button type="button" class="btn btn-sm btn-warning" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>

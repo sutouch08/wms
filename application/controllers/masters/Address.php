@@ -72,6 +72,7 @@ class Address extends PS_Controller
   public function print_address_sheet($code, $customer_code, $id_address = '', $id_sender = '')
   {
     $this->load->library('printer');
+    $this->load->library('ixqrcode');
     $this->load->model('inventory/qc_model');
     $this->load->model('orders/orders_model');
     $order = $this->orders_model->get($code);
@@ -82,6 +83,18 @@ class Address extends PS_Controller
     $id_sender = empty($id_sender) ? $order->id_sender : $id_sender;
     $id_sender = empty($id_sender) ? 1 : $id_sender;
 
+    $qr = array(
+      'data' => $code,
+      'size' => 8,
+      'level' => 'H',
+      'savename' => NULL
+    );
+
+    ob_start();
+    $this->ixqrcode->generate($qr);
+    $qr = base64_encode(ob_get_contents());
+    ob_end_clean();
+
     $ds = array(
       'reference' => $code,
       'boxes' => $this->qc_model->count_box($code),
@@ -90,7 +103,8 @@ class Address extends PS_Controller
       'cName' => getConfig('COMPANY_FULL_NAME'),
       'cAddress' => getConfig('COMPANY_ADDRESS1').'<br>'.getConfig('COMPANY_ADDRESS2'),
       'cPostCode' => getConfig('COMPANY_POST_CODE'),
-      'cPhone' => getConfig('COMPANY_PHONE')
+      'cPhone' => getConfig('COMPANY_PHONE'),
+      'qrcode' => $qr
     );
 
     $this->load->view('print/print_address_sheet', $ds);
@@ -100,38 +114,48 @@ class Address extends PS_Controller
   public function get_address_form()
   {
     $this->load->helper('address');
+    $id = $this->input->post('id');
+
     $customer_code = $this->input->post('customer_code');
-    if($customer_code)
+
+    if($id)
     {
-      //--- จำนวนที่อยู่
-      $adn = $this->address_model->count_address($customer_code);
-      //--- จำนวนผู้จัดส่ง
-      $sdn = $this->transport_model->count_sender($customer_code);
-      //--- ที่อยู่ลูกค้าทั้งหมด
-      $adrs = $adn > 0 ? $this->address_model->get_shipping_address($customer_code) : FALSE;
-      //--- รายชื่อผู้ให้บริการจัดส่ง
-      $senders = $sdn > 0 ? $this->transport_model->get_senders($customer_code) : FALSE;
-
-      if(!empty($senders))
-      {
-        $senders->main = $this->transport_model->get_name($senders->main_sender);
-        $senders->second = $this->transport_model->get_name($senders->second_sender);
-        $senders->third = $this->transport_model->get_name($senders->third_sender);
-      }
-      else
-      {
-        $senders = $this->transport_model->get_sender(1); //--- deafult ส่งเอง
-        $senders->main = $senders->name;
-        $sdn++;
-      }
-
-      echo get_address_form($adn, $sdn, $adrs, $senders);
+      echo 1;
     }
     else
     {
-      echo 'noaddress';
-    }
+      if($customer_code)
+      {
+        //--- จำนวนที่อยู่
+        $adn = empty($id) ? $this->address_model->count_address($customer_code) : 1;
+        //--- จำนวนผู้จัดส่ง
+        $sdn = $this->transport_model->count_sender($customer_code);
+        //--- ที่อยู่ลูกค้าทั้งหมด
+        $adrs = $adn > 0 ? $this->address_model->get_shipping_address($customer_code) : FALSE;
+        //--- รายชื่อผู้ให้บริการจัดส่ง
+        $senders = $sdn > 0 ? $this->transport_model->get_senders($customer_code) : FALSE;
 
+        if( ! empty($senders))
+        {
+          $senders->main = $this->transport_model->get_name($senders->main_sender);
+          $senders->second = $this->transport_model->get_name($senders->second_sender);
+          $senders->third = $this->transport_model->get_name($senders->third_sender);
+        }
+        else
+        {
+          $senders = $this->transport_model->get_sender(1); //--- deafult ส่งเอง
+          $senders->main_sender = 1;
+          $senders->main = $senders->name;
+          $sdn++;
+        }
+
+        echo get_address_form($adn, $sdn, $adrs, $senders);
+      }
+      else
+      {
+        echo 'noaddress';
+      }
+    }
   }
 
 

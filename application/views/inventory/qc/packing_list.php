@@ -10,23 +10,16 @@ $this->printer->add_title('Packing List');
 
 $header	 = '<table style="width:100%; border:0px;">';
 $header .= '<tr>';
-$header .= '<td colspan="3" style="width:100%; height:20mm; font-size:45px; font-weight:bold; padding-left:10px; text-align:center; border-bottom:solid 1px #ccc;">';
-$header .=  $order->code;
+$header .= '<td style="width:65%; height:20mm; font-size:50px; font-weight:bold; padding-left:10px; border-bottom:solid 1px #ccc; text-align:center;">'.$order->code.'</td>';
+$header .= '<td class="middle text-center font-size-48 blod" style="width:20%; border-left:solid 1px #CCC; border-bottom:solid 1px #ccc;"><span class="display-block" style="font-size:12px; text-align:center">กล่องที่</span>'.$box_no.'/'.$all_box.'</td>';
+$header .= '<td style="width:15%; border-left:solid 1px #ccc; border-bottom:solid 1px #ccc; text-align:center;">';
+$header .= '<image src="data:image/png;base64, '.$qrcode.'" style="width:20mm;"/>';
 $header .= '</td>';
 $header .= '</tr>';
 $header .= '<tr>';
-$header .= '<td colspan="3" style="width:100%; height:20mm; font-size:40px; padding-left:10px; text-align:center; border-bottom:solid 1px #ccc;">';
+$header .= '<td colspan="3" style="width:100%; height:30mm; font-size:40px; padding-left:10px; text-align:center;">';
 $header .=  ($order->customer_ref != '' ? $order->customer_ref : $order->customer_name);
 $header .= '</td>';
-$header .= '</tr>';
-$header .= '<tr>';
-$header .=  '<td  style="width:20%; font-size:24px;" class="middle text-center blod"><span class="display-block" style="font-size:12px; text-align:center">วันที่</span>'.thai_date($order->date_add, FALSE, '/').'</td>';
-$header .=  '<td style="width:60%; text-align:center; border-left:solid 1px #CCC;">';
-$header .=    '<img src="'.base_url().'assets/barcode/barcode.php?text='.$order->code.'" style="height:18mm;" />';
-$header .=  '</td>';
-$header .= '<td class="middle text-center font-size-48 blod" style="border-left:solid 1px #CCC;"><span class="display-block" style="font-size:12px; text-align:center">กล่องที่</span>'.$box_no.'/'.$all_box.'</td>';
-$header .= '</tr>';
-$header .= '<tr>';
 $header .= '</tr>';
 $header .= '</table>';
 
@@ -38,10 +31,10 @@ $total_row = count($details);
 
 //--- initial config for print page
 $config = array(
-  "row" => 18,
+  "row" => 19,
   "total_row" => $total_row,
   "font_size" => 14,
-  "sub_total_row" => 7,
+  "sub_total_row" => 6,
   "header_rows" => 6,
   "footer" => false
 );
@@ -74,9 +67,9 @@ $this->printer->set_pattern($pattern);
 
 $n = 1;
 $i = 0;
+$total_qty = 0;
 while( $total_page > 0 )
 {
-  $total_qty = 0;
   $sc .= $this->printer->page_start();
   $sc .= $this->printer->top_page();
   $sc .= $this->printer->content_start();
@@ -120,8 +113,7 @@ while( $total_page > 0 )
 
 
   $sub  = '<td class="subtotal-first subtotal-last text-right" style="height:20mm; font-size:36px;">';
-  $sub .= '<span class="pull-left bold">ทั้งกล่อง : '.number($totalQc).'</span>';
-  $sub .= '<span class="blod">ใบนี้  : '.number($total_qty).'</span>';
+  $sub .= '<span class="blod">รวม  : '.number($total_qty).'</span>';
   $sub .= '</td>';
 
   $sub2  = '<td class="subtotal-first subtotal-last font-size-14" style="height:'.($this->printer->row_height *2).'mm;">';
