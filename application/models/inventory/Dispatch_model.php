@@ -395,17 +395,16 @@ class Dispatch_model extends CI_Model
   }
 
 
-  public function count_orders_by_channels($channels_code, $role = 'S')
+  public function count_orders_by_channels($channels_code)
   {
-    $count = $this->db
-    ->where('is_wms', 1)
-    ->where_in('state', ['8', '7'])
-    ->where('role', $role)
-    ->where('dispatch_id IS NULL', NULL, FALSE)
-    ->where('channels_code', $channels_code)
-    ->count_all_results($this->to);
+    $this->db->where('is_wms', 0)->where_in('state', ['8', '7'])->where('dispatch_id IS NULL', NULL, FALSE);
 
-    return $count;
+    if( ! empty($channels))
+    {
+      $this->db->where('channels_code', $channels_code);
+    }
+
+    return $this->db->count_all_results($this->to);
   }
 
 

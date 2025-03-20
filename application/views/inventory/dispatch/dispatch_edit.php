@@ -24,8 +24,8 @@
 	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>ช่องทางขาย</label>
 		<select class="form-control input-sm e" id="channels" disabled>
-			<option value="">เลือก</option>
-			<?php echo select_dispatch_channels($doc->channels_code); ?>			
+			<option value="" data-name="">เลือก</option>
+			<?php echo select_dispatch_channels($doc->channels_code); ?>
 		</select>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">

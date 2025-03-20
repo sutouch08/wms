@@ -20,8 +20,8 @@
 	<div class="col-lg-3 col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
 		<label>ช่องทางขาย</label>
 		<select class="width-100 e" id="channels">
-			<option value="">เลือก</option>
-			<?php echo select_dispatch_channels(); ?>					
+			<option value="" data-name="">เลือก</option>			
+			<?php echo select_dispatch_channels(); ?>
 		</select>
 	</div>
 	<div class="col-lg-3 col-md-3-harf col-sm-3 col-xs-6 padding-5">

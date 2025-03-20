@@ -76,9 +76,8 @@ class Dispatch extends PS_Controller
 
         $arr = array(
           'code' => $code,
-          'channels_code' => $ds->channels_code,
-          'channels_name' => $ds->channels_name,
-          'role' => $ds->role,
+          'channels_code' => get_null($ds->channels_code),
+          'channels_name' => get_null($ds->channels_name),
           'sender_code' => $ds->sender_code,
           'sender_name' => $ds->sender_name,
           'plate_no' => $ds->plate_no,
@@ -146,9 +145,8 @@ class Dispatch extends PS_Controller
         $code = $ds->code;
 
         $arr = array(
-          'channels_code' => $ds->channels_code,
-          'channels_name' => $ds->channels_name,
-          'role' => $ds->role,
+          'channels_code' => get_null($ds->channels_code),
+          'channels_name' => get_null($ds->channels_name),
           'sender_code' => $ds->sender_code,
           'sender_name' => $ds->sender_name,
           'plate_no' => $ds->plate_no,
@@ -360,7 +358,6 @@ class Dispatch extends PS_Controller
     $code = $this->input->post('code');
     $channels_code = $this->input->post('channels');
     $channels_name = $this->input->post('channels_name');
-    $role = $this->input->post('role');
     $order_code = $this->input->post('order_code');
     $row = [];
 
@@ -373,16 +370,14 @@ class Dispatch extends PS_Controller
       {
         if($order->state == 8 OR ($order->channels_code == 'SHOPEE' && $order->state == 7))
         {
-          if(empty($order->channels_code) && ($order->role != $role))
-          {
-            $sc = FALSE;
-            $this->error = "ออเดอร์ไม่ตรงช่องทางขาย";
-          }
 
-          if( ! empty($order->channels_code) && $order->channels_code != $channels_code)
+          if( ! empty($channels_code))
           {
-            $sc = FALSE;
-            $this->error = "ออเดอร์ไม่ตรงช่องทางขาย";
+            if( ! empty($order->channels_code) && $order->channels_code != $channels_code)
+            {
+              $sc = FALSE;
+              $this->error = "ออเดอร์ไม่ตรงช่องทางขาย";
+            }
           }
 
           if($this->orders_model->is_cancel_request($order->code))
@@ -400,8 +395,8 @@ class Dispatch extends PS_Controller
               'dispatch_code' => $code,
               'order_code' => $order->code,
               'reference' => get_null($order->reference),
-              'channels_code' => $channels_code,
-              'channels_name' => $channels_name,
+              'channels_code' => get_null($channels_code),
+              'channels_name' => get_null($channels_name),
               'customer_code' => get_null($order->customer_code),
               'customer_name' => empty($order->customer_ref) ? get_null($order->customer_name) : $order->customer_ref,
               'user' => $this->_user->uname
@@ -496,7 +491,7 @@ class Dispatch extends PS_Controller
         $details = $this->dispatch_model->get_details($doc->code);
 
         //---- order state = 8 and dispatch id IS NULL
-        $totalOrder = $this->dispatch_model->count_orders_by_channels($doc->channels_code, $doc->role);
+        $totalOrder = $this->dispatch_model->count_orders_by_channels($doc->channels_code);
 
         $ds = array(
           'doc' => $doc,
@@ -882,22 +877,6 @@ class Dispatch extends PS_Controller
     }
   }
 
-
-  public function role_name($role = 'xxx')
-  {
-    $ds = array(
-  		'C' => 'WC',
-  		'L'	=> 'WL',
-  		'N' => 'WT',
-  		'P'	=> 'WS',
-  		'S'	=> 'WO',
-  		'T'	=> 'WQ',
-      'Q' => 'WV',
-  		'U'	=> 'WU'
-  	);
-
-  	return isset($ds[$role]) ? $ds[$role] : NULL;
-  }
 
 
   private function get_new_code($date = NULL)

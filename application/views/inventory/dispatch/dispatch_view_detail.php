@@ -79,6 +79,7 @@
           <th class="fix-width-150 fix-header">อ้างอิง</th>
           <th class="min-width-200 fix-header">ลูกค้า</th>
           <th class="fix-width-150 fix-header">ช่องทางขาย</th>
+					<th class="fix-width-100 fix-header">จำนวน(กล่อง)</th>
         </tr>
       </thead>
       <tbody id="dispatch-table">
@@ -92,6 +93,7 @@
               <td><?php echo $rs->reference; ?></td>
               <td><?php echo $rs->customer_code." : ".$rs->customer_name; ?></td>
               <td><?php echo empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?></td>
+							<td class="text-center"><?php echo $rs->carton_shipped; ?></td>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>

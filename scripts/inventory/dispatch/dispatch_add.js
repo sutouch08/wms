@@ -5,7 +5,6 @@ function add() {
     'date_add' : $('#date-add').val(),
     'channels_code' : $('#channels').val(),
     'channels_name' : $('#channels option:selected').data('name'),
-    'role' : $('#channels option:selected').data('role'),
     'sender_code' : $('#sender').val(),
     'sender_name' : $('#sender option:selected').text(),
     'plate_no' : $('#plate-no').val().trim(),
@@ -13,11 +12,6 @@ function add() {
     'driver_name' : $('#driver-name').val().trim(),
     'remark' : $('#remark').val().trim()
   };
-
-  if(h.channels_code == "") {
-    $('#channels').hasError();
-    return false;
-  }
 
   if(h.sender_code == "") {
     $('#sender').hasError();
@@ -75,8 +69,7 @@ function update() {
     'code' : $('#code').val(),
     'date_add' : $('#date-add').val(),
     'channels_code' : $('#channels').val(),
-    'channels_name' : $('#channels option:selected').data('name'),
-    'role' : $('#channels option:selected').data('role'),
+    'channels_name' : $('#channels option:selected').data('name'),    
     'sender_code' : $('#sender').val(),
     'sender_name' : $('#sender option:selected').text(),
     'plate_no' : $('#plate-no').val().trim(),
@@ -84,11 +77,6 @@ function update() {
     'driver_name' : $('#driver-name').val().trim(),
     'remark' : $('#remark').val().trim()
   };
-
-  if(h.channels_code == "") {
-    $('#channels').hasError();
-    return false;
-  }
 
   if(h.sender_code == "") {
     $('#sender').hasError();
@@ -238,7 +226,6 @@ function addToDispatch() {
   let code = $('#code').val();
   let channels = $('#channels').val();
   let channels_name = $('#channels option:selected').data('name');
-  let role = $('#channels option:selected').data('role');
   let order_code = $('#order-no').val();
 
   $('#order-no').val('').attr('disabled', 'disabled');
@@ -255,7 +242,6 @@ function addToDispatch() {
         'code' : code,
         'channels' : channels,
         'channels_name' : channels_name,
-        'role' : role,
         'order_code' : order_code
       },
       success:function(rs) {
