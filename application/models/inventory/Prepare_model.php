@@ -418,11 +418,10 @@ class Prepare_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $state = 3, $full_mode = TRUE)
   {
     $this->db
-		->select('o.code, o.role, o.reference, o.customer_code, o.customer_name, o.customer_ref, o.date_add, o.channels_code')
+		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name, o.customer_ref, o.date_add, o.channels_code')
     ->select('o.warehouse_code, o.empName, o.user')
     ->select('ch.name AS channels_name')
     ->select('u.name AS display_name')
-    // ->select_sum('od.qty', 'qty')
     ->from('orders AS o')
     ->join('channels AS ch', 'ch.code = o.channels_code','left');
 
@@ -555,7 +554,7 @@ class Prepare_model extends CI_Model
     }
     else
     {
-      $this->db->order_by('o.date_add', 'DESC');
+      $this->db->order_by('o.id', 'DESC');
     }
 
     $rs = $this->db->limit($perpage, $offset)->get();

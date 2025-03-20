@@ -623,42 +623,20 @@ class Orders_model extends CI_Model
   {
     $this->db->where('role', $role);
 
+    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+    else
+    {
+      $this->db->where('date_add >=', from_date($this->_dataDate));
+    }
+
     //---- เลขที่เอกสาร
     if( ! empty($ds['code']))
     {
-      $ds['code'] = preg_replace("/\D/", "", $ds['code']);
-      $code = NULL;
-
-      switch($role)
-      {
-        case 'S' :
-          $code = "WO-{$ds['code']}";
-        break;
-        case 'P' :
-          $code = "WS-{$ds['code']}";
-        break;
-        case 'U' :
-          $code = "WU-{$ds['code']}";
-        break;
-        case 'C' :
-          $code = "WC-{$ds['code']}";
-        break;
-        case 'N' :
-          $code = "WT-{$ds['code']}";
-        break;
-        case 'T' :
-          $code = "WQ-{$ds['code']}";
-        break;
-        case 'Q' :
-          $code = "WV-{$ds['code']}";
-        break;
-        case 'L' :
-          $code = "WL-{$ds['code']}";
-        break;
-      }
-
-      $this->db->like('code', $code, 'after');
-      // $this->db->like('code', $ds['code']);
+      $this->db->like('code', $ds['code']);
     }
 
     if(!empty($ds['qt_no']))
@@ -737,16 +715,6 @@ class Orders_model extends CI_Model
     if(!empty($ds['empName']))
     {
       $this->db->like('empName', $ds['empName']);
-    }
-
-    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
-    {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
-    }
-    else
-    {
-      $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     if(!empty($ds['warehouse']))
@@ -1207,53 +1175,27 @@ class Orders_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $role = 'S')
   {
     $this->db
-    ->select('code, role, reference, customer_code, customer_name, customer_ref')
+    ->select('id, code, role, reference, customer_code, customer_name, customer_ref')
     ->select('channels_code, payment_code, state, status, warehouse_code, zone_code, date_add, is_expired, doc_total')
     ->select('is_wms, wms_export, is_backorder, is_approved, user, empName')
     ->where('role', $role);
 
-    //---- เลขที่เอกสาร
-    // if( ! empty($ds['code']))
-    // {
-    //   $this->db->like('code', $ds['code']);
-    // }
+    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+    else
+    {
+      $this->db->where('date_add >=', from_date($this->_dataDate));
+    }
 
+    //---- เลขที่เอกสาร
     if( ! empty($ds['code']))
     {
-      $ds['code'] = preg_replace("/\D/", "", $ds['code']);
-
-      $code = NULL;
-
-      switch($role)
-      {
-        case 'S' :
-          $code = "WO-{$ds['code']}";
-        break;
-        case 'P' :
-          $code = "WS-{$ds['code']}";
-        break;
-        case 'U' :
-          $code = "WU-{$ds['code']}";
-        break;
-        case 'C' :
-          $code = "WC-{$ds['code']}";
-        break;
-        case 'N' :
-          $code = "WT-{$ds['code']}";
-        break;
-        case 'T' :
-          $code = "WQ-{$ds['code']}";
-        break;
-        case 'Q' :
-          $code = "WV-{$ds['code']}";
-        break;
-        case 'L' :
-          $code = "WL-{$ds['code']}";
-        break;
-      }
-
-      $this->db->like('code', $code, 'after');
+      $this->db->like('code', $ds['code']);
     }
+    
 
     if(!empty($ds['qt_no']))
     {
@@ -1332,16 +1274,6 @@ class Orders_model extends CI_Model
     if( ! empty($ds['empName']))
     {
       $this->db->like('empName', $ds['empName']);
-    }
-
-    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
-    {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
-    }
-    else
-    {
-      $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     if(!empty($ds['warehouse']))
@@ -1499,7 +1431,7 @@ class Orders_model extends CI_Model
     }
     else
     {
-      $this->db->order_by('code', 'DESC');
+      $this->db->order_by('id', 'DESC');
     }
 
     if($perpage != '')

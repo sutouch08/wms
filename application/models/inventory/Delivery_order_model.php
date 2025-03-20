@@ -24,9 +24,19 @@ class Delivery_order_model extends CI_Model
   {
     $this->db->where('state', $state);
 
+    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+    else
+    {
+      $this->db->where('date_add >=', from_date($this->_dataDate));
+    }
+
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code'], 'after');
+      $this->db->like('code', $ds['code']);
     }
 
     if(! empty($ds['customer']))
@@ -91,13 +101,6 @@ class Delivery_order_model extends CI_Model
       {
         $this->db->where('inv_code IS NULL', NULL, FALSE);
       }
-    }
-
-
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
-    {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
     if(isset($ds['ship_from_date']) && $ds['ship_from_date'] != '')
@@ -122,13 +125,23 @@ class Delivery_order_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $state = 7)
   {
     $this->db
-    ->select('code, role, reference, customer_code, customer_name, customer_ref')
+    ->select('id, code, role, reference, customer_code, customer_name, customer_ref')
     ->select('channels_code, payment_code, date_add, shipped_date, user, doc_total, inv_code, empID, empName, is_hold')
     ->where('state', $state);
 
+    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+    else
+    {
+      $this->db->where('date_add >=', from_date($this->_dataDate));
+    }
+
     if( ! empty($ds['code']))
     {
-      $this->db->like('code', $ds['code'], 'after');
+      $this->db->like('code', $ds['code']);
     }
 
     if(! empty($ds['customer']))
@@ -194,12 +207,6 @@ class Delivery_order_model extends CI_Model
       }
     }
 
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
-    {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
-    }
-
     if(isset($ds['ship_from_date']) && $ds['ship_from_date'] != '')
     {
       $this->db->where('shipped_date >=', from_date($ds['ship_from_date']));
@@ -215,7 +222,7 @@ class Delivery_order_model extends CI_Model
       $this->db->where('is_hold', $ds['is_hold']);
     }
 
-    $rs = $this->db->order_by('date_add', 'DESC')->limit($perpage, $offset)->get('orders');
+    $rs = $this->db->order_by('id', 'DESC')->limit($perpage, $offset)->get('orders');
 
     if($rs->num_rows() > 0)
     {

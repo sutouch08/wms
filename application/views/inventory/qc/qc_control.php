@@ -26,7 +26,7 @@
     </div>
     <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-3 padding-5">
       <label class="display-block not-show">print</label>
-      <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-print-address" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>')">พิมพ์ใบปะหน้า</button>
+      <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-print-address" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)">พิมพ์ใบปะหน้า</button>
     </div>
   </div>
 
