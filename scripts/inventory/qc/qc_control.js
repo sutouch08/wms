@@ -84,23 +84,25 @@ function saveQc(option){
 
   let ds = {
     'order_code' : order_code,
-    'id_box' : id_box
+    'id_box' : id_box,
+    'rows' : []
   };
 
   let rows = [];
 
   $(".hidden-qc").each(function(index, element){
-    let row = {
-      'product_code' : $(this).data('code'),
-      'qty' : $(this).val()
-    }
+    let qty = parseDefault(parseFloat($(this).val()), 0);
 
-    rows.push(row);
+    if(qty > 0) {
+      ds.rows.push({
+        'product_code' : $(this).data('code'),
+        'qty' : qty
+      });
+    }
   });
 
-  ds.rows = rows;
-
-  if(Object.keys(ds).length > 2) {
+  // if(Object.keys(ds).length > 2) {
+  if(ds.rows.length) {
     load_in();
     $.ajax({
       url: HOME + 'save_qc',

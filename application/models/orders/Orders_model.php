@@ -744,6 +744,10 @@ class Orders_model extends CI_Model
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
+    else
+    {
+      $this->db->where('date_add >=', from_date($this->_dataDate));
+    }
 
     if(!empty($ds['warehouse']))
     {
@@ -1334,6 +1338,10 @@ class Orders_model extends CI_Model
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+    else
+    {
+      $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     if(!empty($ds['warehouse']))
