@@ -402,7 +402,7 @@ function toggleExtraMenu() {
 
   if(hd.val() == "hide") {
     hd.val("show");
-    pad.addClass('slide-in');
+    pad.addClass('slide-in');    
   }
   else {
     hd.val("hide");

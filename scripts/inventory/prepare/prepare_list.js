@@ -58,6 +58,9 @@ function toggleExtraMenu() {
   if(hd.val() == "hide") {
     hd.val("show");
     pad.addClass('slide-in');
+    setTimeout(() => {
+      $('#barcode-order').focus();
+    }, 500);
   }
   else {
     hd.val("hide");
@@ -65,7 +68,7 @@ function toggleExtraMenu() {
   }
 }
 
-// 
+//
 // //---- Reload page every 5 minute
 // $(document).ready(function(){
 //   setInterval(function(){ goBack();}, 300000);

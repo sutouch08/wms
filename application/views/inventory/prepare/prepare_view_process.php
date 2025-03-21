@@ -287,7 +287,7 @@
 			</div>
 			<div class="footer-menu width-20">
         <span class="width-100" onclick="toggleExtraMenu()">
-          <i class="fa fa-bars fa-2x white"></i><span class="fon-size-12">เพิ่มเติม</span>
+          <i class="fa fa-qrcode fa-2x white"></i><span class="fon-size-12">Order</span>
         </span>
       </div>
 		</div>
@@ -296,31 +296,13 @@
 </div>
 
 <div class="extra-menu slide-out" id="extra-menu">
-  <div class="footer-menu width-20 not-show">
-    <span class="width-100">
-      <i class="fa fa-tasks fa-2x white"></i><span class="fon-size-12">รายการรอจัด</span>
-    </span>
-  </div>
-  <div class="footer-menu width-20 not-show">
-    <span class="width-100" >
-      <i class="fa fa-shopping-basket fa-2x white"></i><span class="fon-size-12">รายการกำลังจัด</span>
-    </span>
-  </div>
-  <div class="footer-menu width-20 not-show">
-    <span class="width-100" onclick="goToBuffer()">
-      <i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
-    </button>
-  </div>
-  <div class="footer-menu width-20 not-show">
-    <span class="width-100" onclick="confirmClose()">
-      <i class="fa fa-exclamation-triangle fa-2x white"></i><span class="fon-size-12">Force Close</span>
-    </span>
-  </div>
-  <div class="footer-menu width-20">
-    <span class="width-100" onclick="clearCache()">
-      <i class="fa fa-bolt fa-2x white"></i><span class="fon-size-12">Clear cache</span>
-    </span>
-  </div>
+	<div class="width-100">
+		<span class="width-100">
+			<input type="text" class="form-control input-lg focus"
+			style="padding-left:15px; padding-right:40px;" id="barcode-order" inputmode="none" placeholder="Barcode Order" autocomplete="off">
+			<i class="ace-icon fa fa-qrcode fa-2x" style="position:absolute; top:15px; right:22px; color:grey;"></i>
+		</span>
+	</div>
 	<input type="hidden" id="extra" value="hide" />
 </div>
 

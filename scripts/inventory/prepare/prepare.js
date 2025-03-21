@@ -60,6 +60,17 @@ $('#order-code').keyup(function(e) {
 })
 
 
+$('#barcode-order').keyup(function(e) {
+  if(e.keyCode === 13) {
+    let code = $(this).val().trim();
+    if(code.length) {
+      goPrepare(code, 'mobile');
+    }
+  }
+})
+
+
+
 function genPickList() {
   let limit = 20;
   let count = $('.pc:checked').length;
