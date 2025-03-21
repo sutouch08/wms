@@ -554,7 +554,7 @@ class Zone_model extends CI_Model
     $rs = $this->db->select_max('last_sync')->get('zone');
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->last_sync === NULL ? date('2019-01-01 00:00:00') : db_date($rs->row()->last_sync);
+      return $rs->row()->last_sync === NULL ? date('2019-01-01 00:00:00') : $rs->row()->last_sync;
     }
 
     return date('2019-01-01 00:00:00');
@@ -563,19 +563,21 @@ class Zone_model extends CI_Model
 
   public function get_new_data($last_sync)
   {
-    $this->ms->select('AbsEntry AS id, BinCode AS code, Descr AS name, WhsCode AS warehouse_code, SL1Code AS old_code, Disabled');
-    //$this->ms->where('SysBin', 'N');
-    //$this->ms->group_start();
-    $this->ms->where('createDate <=', sap_date($last_sync));
-    $this->ms->or_where('updateDate >=', sap_date($last_sync));
-    //$this->ms->group_end();
-    $rs = $this->ms->get('OBIN');
+    $rs = $this->ms
+    ->select('AbsEntry AS id, BinCode AS code, Descr AS name, WhsCode AS warehouse_code, SL1Code AS old_code, Disabled')
+    ->where('createDate >=', $last_sync)
+    ->group_start()
+    ->where('updateDate IS NOT NULL', NULL, FALSE)
+    ->or_where('updateDate >=', $last_sync)
+    ->group_end()
+    ->get('OBIN');
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
