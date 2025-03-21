@@ -292,14 +292,14 @@
  </div>
 </div>
 
-<div class="extra-menu slide-out" id="extra-menu">
+<div class="extra-menu slide-out visible-xs" id="extra-menu">
 	<div class="width-100">
 		<span class="width-100">
 			<input type="text" class="form-control input-lg focus"
 			style="padding-left:15px; padding-right:40px;" id="barcode-order" inputmode="none" placeholder="Barcode Order" autocomplete="off">
-			<i class="ace-icon fa fa-qrcode fa-2x" style="position:absolute; top:15px; right:22px; color:grey;"></i>
+			<i class="ace-icon fa fa-qrcode fa-2x" style="position:absolute; top:20px; right:22px; color:grey;"></i>
 		</span>
-	</div>  
+	</div>
 	<input type="hidden" id="extra" value="hide" />
 </div>
 
