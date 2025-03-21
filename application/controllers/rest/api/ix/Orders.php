@@ -299,7 +299,7 @@ class Orders extends REST_Controller
       $tracking = get_null($data->tracking_no);
 
       $total_amount = 0;
-      $is_hold = $data->on_hold == 'Y' ? 1 : 0;
+      $is_hold = empty($data->on_hold) ? 0 : ($data->on_hold == 'Y' ? 1 : 0);
       $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
       $is_backorder = FALSE;
       $backorderList = [];
