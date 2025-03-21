@@ -10,11 +10,11 @@ var prop 			= "width=800, height=900, left="+center+", scrollbars=yes";
 
 function printAddress(id, order_code, id_sender)
 {
-	var customer_code = $('#customer_code').val();
 	var customer_ref = $('#customer_ref').val();
 
 	if( customer_ref != '' ){
-		printOnlineAddress(id, order_code);
+		// printOnlineAddress(id, order_code);
+		printPackingSheet(id, id_sender);
 	}
 	else{
 		getAddressForm(id, id_sender);
@@ -51,30 +51,35 @@ function getAddressForm(id, id_sender)
 	var order_code     = $("#order_code").val();
 	var customer_code  = $("#customer_code").val();
 
-	$.ajax({
-		url: BASE_URL + 'masters/address/get_address_form',
-		type:"POST",
-    cache: "false",
-    data:{
-        "order_code" : order_code,
-        "customer_code" : customer_code,
+	if(customer_code != null && customer_code != undefined && customer_code != "") {
+		$.ajax({
+			url: BASE_URL + 'masters/address/get_address_form',
+			type:"POST",
+			cache: "false",
+			data:{
+				"order_code" : order_code,
+				"customer_code" : customer_code,
 				"id" : id,
 				"id_sender" : id_sender
-    },
-		success: function(rs){
-			var rs = $.trim(rs);
-			if( rs == 'no_address' ){
-				noAddress();
-			}else if( rs == 'no_sender' ){
-				noSender();
-			}else if( rs == 1 ){
-				printPackingSheet(id, id_sender);
-			}else{
-				$("#info_body").html(rs);
-				$("#infoModal").modal("show");
+			},
+			success: function(rs){
+				var rs = $.trim(rs);
+				if( rs == 'no_address' ){
+					noAddress();
+				}else if( rs == 'no_sender' ){
+					noSender();
+				}else if( rs == 1 ){
+					printPackingSheet(id, id_sender);
+				}else{
+					$("#info_body").html(rs);
+					$("#infoModal").modal("show");
+				}
 			}
-		}
-	});
+		});
+	}
+	else {
+		printPackingSheet(id, id_sender);
+	}
 }
 
 
@@ -82,9 +87,11 @@ function printPackingSheet(id, id_sender)
 {
   var order_code = $("#order_code").val();
 	var customer_code = $('#customer_code').val();
+	customer_code = customer_code == "" ? 0 : customer_code;
+
 	id = (id === undefined || id === null || id === "") ? 0 : id;
 	id_sender = (id_sender === undefined || id_sender === null || id_sender == "") ? 1 : id_sender;
-	var target = BASE_URL + 'masters/address/print_address_sheet/'+order_code+'/'+customer_code+'/'+id+'/'+id_sender;	
+	var target = BASE_URL + 'masters/address/print_address_sheet/'+order_code+'/'+customer_code+'/'+id+'/'+id_sender;
 	window.open(target, "_blank", prop);
 }
 

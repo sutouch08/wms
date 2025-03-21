@@ -44,6 +44,8 @@
 </div>
 
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
+<input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
+<input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
 <input type="hidden" id="id_box" value="" />
 <hr />
 

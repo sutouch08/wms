@@ -630,7 +630,8 @@ class Orders_model extends CI_Model
     }
     else
     {
-      $this->db->where('date_add >=', from_date($this->_dataDate));
+      $this->db->where('id >', $this->get_max_id());
+      // $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     //---- เลขที่เอกสาร
@@ -1187,7 +1188,8 @@ class Orders_model extends CI_Model
     }
     else
     {
-      $this->db->where('date_add >=', from_date($this->_dataDate));
+      $this->db->where('id >', $this->get_max_id());
+      // $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     //---- เลขที่เอกสาร
@@ -1195,7 +1197,7 @@ class Orders_model extends CI_Model
     {
       $this->db->like('code', $ds['code']);
     }
-    
+
 
     if(!empty($ds['qt_no']))
     {
@@ -2242,6 +2244,18 @@ class Orders_model extends CI_Model
     ->count_all_results('order_details');
 
     return $count > 0 ? TRUE : FALSE;
+  }
+
+  private function get_max_id()
+  {
+    $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id - 200000;
+    }
+
+    return 2000000;
   }
 } //--- End class
 

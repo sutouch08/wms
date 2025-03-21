@@ -31,7 +31,8 @@ class Delivery_order_model extends CI_Model
     }
     else
     {
-      $this->db->where('date_add >=', from_date($this->_dataDate));
+      $this->db->where('id >', $this->get_max_id());
+      // $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     if( ! empty($ds['code']))
@@ -136,7 +137,8 @@ class Delivery_order_model extends CI_Model
     }
     else
     {
-      $this->db->where('date_add >=', from_date($this->_dataDate));
+      $this->db->where('id >', $this->get_max_id());
+      // $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     if( ! empty($ds['code']))
@@ -523,7 +525,17 @@ class Delivery_order_model extends CI_Model
       return FALSE;
     }
 
+    private function get_max_id()
+    {
+      $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
 
+      if($rs->num_rows() === 1)
+      {
+        return $rs->row()->id - 200000;
+      }
+
+      return 2000000;
+    }
 }
 
  ?>

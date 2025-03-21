@@ -1,22 +1,21 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Prepare extends PS_Controller
+class Pick_list extends PS_Controller
 {
-  public $menu_code = 'ICODPR';
+  public $menu_code = 'ICODPL';
 	public $menu_group_code = 'IC';
   public $menu_sub_group_code = 'PICKPACK';
-	public $title = 'จัดสินค้า';
+	public $title = 'Pick List';
   public $filter;
   public $full_mode = TRUE;
 
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'inventory/prepare';
-    $this->load->model('inventory/prepare_model');
+    $this->home = base_url().'inventory/pick_list';
+    $this->load->model('inventory/pick_list_model');
     $this->load->model('orders/orders_model');
-    $this->load->model('orders/order_state_model');
     $this->load->model('masters/warehouse_model');
 
     $this->full_mode = is_true(getConfig('WMS_FULL_MODE'));
@@ -119,117 +118,6 @@ class Prepare extends PS_Controller
   }
 
 
-  public function gen_pick_list()
-  {
-    $ds = json_decode($this->input->post('data'));
-
-    $orders = [];
-    $items = [];
-
-    if( ! empty($ds))
-    {
-      $this->load->library('ixqrcode');
-
-      foreach($ds as $rs)
-      {
-        $order = $this->orders_model->get($rs->code);
-
-        if( ! empty($order))
-        {
-          $qr = array(
-            'data' => $rs->code,
-            'size' => 8,
-            'level' => 'H',
-            'savename' => NULL
-          );
-
-          ob_start();
-          $this->ixqrcode->generate($qr);
-          $qr = base64_encode(ob_get_contents());
-          ob_end_clean();
-
-          $orders[] = (object)['file' => $qr, 'code' => $rs->code];
-
-          $uncomplete = $this->orders_model->get_unvalid_details($rs->code);
-
-          if( ! empty($uncomplete))
-          {
-            foreach($uncomplete as $ro)
-            {
-              $prepared = $this->prepare_model->get_prepared($ro->order_code, $ro->product_code, $ro->id);
-              $qty = $ro->qty - $prepared;
-
-              if($qty > 0)
-              {
-                if(isset($items[$ro->product_code]))
-                {
-                  $items[$ro->product_code]->qty += $qty;
-                }
-                else
-                {
-                  $items[$ro->product_code] = (object) array(
-                    'whsCode' => $order->warehouse_code,
-                    'code' => $ro->product_code,
-                    'name' => $ro->product_name,
-                    'qty' => $qty
-                  );
-                }
-              }
-            } //-- foreach uncompleted
-          }// if uncomplete
-
-          $this->add_print_logs($order->code);
-        }
-      } //-- foreach orders
-
-      if( ! empty($items))
-      {
-        //--- get_stock in_zone
-        foreach($items as $rs)
-        {
-          $rs->stock_in_zone = $this->get_inline_stock_in_zone($rs->code, $rs->whsCode);
-        }
-      }
-
-      $this->load->library('printer');
-
-      $pl = array(
-        'orders' => $orders,
-        'items' => $items
-      );
-
-      $this->load->view('print/print_gen_pick_list', $pl);
-    }
-  }
-
-
-  public function add_print_logs($code)
-  {
-    return $this->db->query("REPLACE INTO print_pick_list_logs (order_code) VALUES ('{$code}')");      
-  }
-
-
-  public function get_inline_stock_in_zone($item_code, $warehouse = NULL)
-  {
-    $sc = "ไม่มีสินค้า";
-    $this->load->model('stock/stock_model');
-    $stock = $this->stock_model->get_stock_in_zone($item_code, $warehouse);
-    if(!empty($stock))
-    {
-      $sc = "";
-      foreach($stock as $rs)
-      {
-        $prepared = $this->prepare_model->get_buffer_zone($item_code, $rs->code);
-        $qty = $rs->qty - $prepared;
-        if($qty > 0)
-        {
-          $sc .= $rs->name.' : '.($rs->qty - $prepared).' | ';
-        }
-      }
-    }
-
-    return empty($sc) ? 'ไม่พบสินค้า' : $sc;
-  }
 
   public function process($code, $view = NULL)
   {

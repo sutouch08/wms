@@ -21,8 +21,6 @@ class Prepare_model extends CI_Model
   }
 
 
-
-
   public function get_warehouse_code($zone_code)
   {
     $rs = $this->db->select('warehouse_code')->where('code', $zone_code)->get('zone');
@@ -34,6 +32,7 @@ class Prepare_model extends CI_Model
 
     return  NULL;
   }
+
 
   public function update_buffer($order_code, $product_code, $zone_code, $qty, $detail_id = NULL)
   {
@@ -98,7 +97,6 @@ class Prepare_model extends CI_Model
 	}
 
 
-
 	public function drop_prepare($order_code)
 	{
 		return $this->db->where('order_code', $order_code)->delete('prepare');
@@ -139,7 +137,6 @@ class Prepare_model extends CI_Model
   }
 
 
-
   public function is_exists_prepare($order_code, $item_code, $zone_code, $detail_id = NULL)
   {
     $this->db
@@ -158,6 +155,11 @@ class Prepare_model extends CI_Model
     return FALSE;
   }
 
+
+  public function is_exists_print_logs($code)
+  {
+    return $this->db->where('order_code', $code)->count_all_results('print_pick_list_logs') > 0 ? TRUE : FALSE;
+  }
 
 
   public function get_prepared($order_code, $product_code, $detail_id = NULL)

@@ -6,6 +6,7 @@
 		<h3 class="title"><?php echo $this->title; ?></h3>
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hidden-xs">
+		<button type="button" class="btn btn-white btn-primary top-btn" onclick="genPickList()">พิมพ์ใบจัด(ชั่วคราว)</button>
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="goProcess()"><i class="fa fa-external-link-square"></i> รายการกำลังจัด</button>
 	</div>
 </div><!-- End Row -->
@@ -145,12 +146,31 @@
 </div>
 <?php $sort_date = $order_by == '' ? "" : ($order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
+
+<div class="row">
+	<div class="col-lg-3 col-md-4 col-sm-4 padding-5 hidden-xs">
+		<div class="input-group width-100">
+			<span class="input-group-addon">จัดออเดอร์</span>
+			<input type="text" class="form-control input-sm text-center" id="order-code" autofocus />
+		</div>
+	</div>
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5 hidden-xs">
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="goToProcess()">จัดสินค้า</button>
+	</div>
+</div>
+<hr class="margin-top-15 hidden-xs">
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-hover border-1 no-border-xs table-listing">
 			<thead>
 				<tr>
 					<th class="fix-width-100 hidden-xs"></th>
+					<th class="fix-width-50 hidden-xs">
+						<label>
+							<input type="checkbox" class="ace" id="pc-all" onchange="toggleAllPc($(this))" />
+							<span class="lbl"></span>
+						</label>
+					</th>
 					<th class="fix-width-40 middle text-center hidden-xs">#</th>
 					<th class="fix-width-100 middle text-center hidden-xs">วันที่</th>
 					<th class="fix-width-300 middle hidden-xs">เลขที่เอกสาร</th>
@@ -176,6 +196,12 @@
                 <button type="button" class="btn btn-white btn-info" onClick="goPrepare('<?php echo $rs->code; ?>')">จัดสินค้า</button>
           <?php endif; ?>
               </td>
+							<td class="middle hidden-xs">
+								<label>
+									<input type="checkbox" class="ace pc" value="<?php echo $rs->code; ?>" />
+									<span class="lbl"><?php echo $this->prepare_model->is_exists_print_logs($rs->code) ? '&nbsp;<i class="fa fa-check green"></i>' : ''; ?>	</span>
+								</label>
+							</td>
               <td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
 							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
               <td class="middle  hidden-xs">
