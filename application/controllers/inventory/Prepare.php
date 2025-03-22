@@ -129,6 +129,7 @@ class Prepare extends PS_Controller
     if( ! empty($ds))
     {
       $this->load->library('ixqrcode');
+      $this->load->model('masters/products_model');
 
       foreach($ds as $rs)
       {
@@ -154,6 +155,8 @@ class Prepare extends PS_Controller
 
           if( ! empty($uncomplete))
           {
+            $bc = [];
+
             foreach($uncomplete as $ro)
             {
               $prepared = $this->prepare_model->get_prepared($ro->order_code, $ro->product_code, $ro->id);
@@ -170,6 +173,7 @@ class Prepare extends PS_Controller
                   $items[$ro->product_code] = (object) array(
                     'whsCode' => $order->warehouse_code,
                     'code' => $ro->product_code,
+                    'barcode' => $this->products_model->get_barcode($ro->product_code),
                     'name' => $ro->product_name,
                     'qty' => $qty
                   );
@@ -205,7 +209,7 @@ class Prepare extends PS_Controller
 
   public function add_print_logs($code)
   {
-    return $this->db->query("REPLACE INTO print_pick_list_logs (order_code) VALUES ('{$code}')");      
+    return $this->db->query("REPLACE INTO print_pick_list_logs (order_code) VALUES ('{$code}')");
   }
 
 

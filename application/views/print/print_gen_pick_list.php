@@ -46,6 +46,7 @@ if( ! empty($items))
             <tr>
               <th class="fix-width-40 text-center">#</th>
               <th class="fix-width-200">SKU</th>
+              <th class="fix-width-120">Barcode</th>
               <th class="fix-width-100 text-center">Qty</th>
               <th class="min-width-100">Stock In Zone</th>
             </tr>
@@ -56,6 +57,7 @@ if( ! empty($items))
     $sc .= '<tr>
               <td class="text-center">'.$no.'</td>
               <td>'.$rs->code.'</td>
+              <td>'.$rs->barcode.'</td>
               <td class="text-center">'.number($rs->qty).'</td>
               <td>'.$rs->stock_in_zone.'</td>
             </tr>';
