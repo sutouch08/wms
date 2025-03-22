@@ -121,7 +121,8 @@
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-right">
     <?php if( $this->pm->can_edit || $this->pm->can_add ) : ?>
-      <button type="button" class="btn btn-sm btn-primary" id="btn-confirm-order" onclick="confirmOrder()">เปิดบิลและตัดสต็อก</button>
+			<?php $disabled = $this->_SuperAdmin ? '' : ($order->is_hold ? 'disabled' : '') ; ?>
+      <button type="button" class="btn btn-sm btn-primary" id="btn-confirm-order" onclick="confirmOrder()" <?php echo $disabled; ?>>เปิดบิลและตัดสต็อก</button>
     <?php endif; ?>
   </div>
 </div>

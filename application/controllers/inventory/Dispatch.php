@@ -24,6 +24,8 @@ class Dispatch extends PS_Controller
     $this->load->helper('sender');
     $this->load->helper('order');
     $this->load->helper('warehouse');
+
+    $this->load->library('user_agent');
   }
 
 
@@ -482,6 +484,8 @@ class Dispatch extends PS_Controller
 
   public function edit($code)
   {
+    $this->load->library('user_agent');
+
     if($this->pm->can_add OR $this->pm->can_edit)
     {
       $doc = $this->dispatch_model->get($code);
@@ -500,7 +504,15 @@ class Dispatch extends PS_Controller
           'total_qty' => empty($details) ? 0 : count($details)
         );
 
-        $this->load->view('inventory/dispatch/dispatch_edit', $ds);
+        if($this->agent->is_mobile())
+        {
+          $ds['title'] = "Dispatch<br/>".$doc->code." | ".$this->channels_model->get_name($doc->channels_code);
+          $this->load->view('inventory/dispatch/dispatch_edit_mobile', $ds);
+        }
+        else
+        {
+          $this->load->view('inventory/dispatch/dispatch_edit', $ds);
+        }
       }
       else
       {
@@ -510,6 +522,36 @@ class Dispatch extends PS_Controller
     else
     {
       $this->deny_page();
+    }
+  }
+
+
+  public function view_pending_order($code)
+  {
+    $doc = $this->dispatch_model->get($code);
+
+    if( ! empty($doc))
+    {
+      $this->title = "Pending Orders";
+
+      $ds = array(
+        'doc' => $doc,
+        'orders' => $this->dispatch_model->get_peding_order_by_channels($doc->channels_code)
+      );
+
+      if($this->agent->is_mobile())
+      {
+        $ds['title'] = "Pending Orders<br/>{$doc->code} | {$this->channels_model->get_name($doc->channels_code)}";
+        $this->load->view('inventory/dispatch/mobile/view_pending_mobile', $ds);
+      }
+      else
+      {
+        $this->load->view('inventory/dispatch/dispatch_view_pending', $ds);
+      }
+    }
+    else
+    {
+      $this->error_page();
     }
   }
 

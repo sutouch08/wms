@@ -25,6 +25,7 @@ if( ! empty($orders))
     $sc .= '<td class="text-center width-20">
               <image src="data:image/png;base64,'.$rs->file.'" style="width:20mm;"/>
               <span class="display-block font-size-18">'.$rs->code.'</span>
+              <span class="display-block font-size-18">'.$rs->channels.'</span>
             </td>';
 
     $c++;

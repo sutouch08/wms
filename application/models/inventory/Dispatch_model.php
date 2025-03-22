@@ -397,14 +397,50 @@ class Dispatch_model extends CI_Model
 
   public function count_orders_by_channels($channels_code)
   {
-    $this->db->where('is_wms', 0)->where_in('state', ['8', '7'])->where('dispatch_id IS NULL', NULL, FALSE);
+    $state_in = $channels_code === 'SHOPEE' ? ['8', '7'] : ['8'];
+
+    $this->db->where('is_wms', 0)->where_in('state', $state_in)->where('dispatch_id IS NULL', NULL, FALSE);
 
     if( ! empty($channels_code))
     {
       $this->db->where('channels_code', $channels_code);
     }
+    else
+    {
+      $this->db->where_not_in('channels_code', ['0009', 'LAZADA', 'SHOPEE']);
+    }
 
     return $this->db->count_all_results($this->to);
+  }
+
+
+  public function get_peding_order_by_channels($channels_code)
+  {
+    $state_in = $channels_code === 'SHOPEE' ? ['8', '7'] : ['8'];
+
+    $this->db
+    ->select('code, reference, customer_code, customer_name, channels_code')
+    ->where('is_wms', 0)
+    ->where_in('state', $state_in)
+    ->where('dispatch_id IS NULL', NULL, FALSE);
+
+    if( ! empty($channels_code))
+    {
+      $this->db->where('channels_code', $channels_code);
+    }
+    else
+    {
+      $this->db->where_not_in('channels_code', ['0009', 'LAZADA', 'SHOPEE']);
+    }
+
+    $rs = $this->db->get($this->to);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

@@ -130,7 +130,8 @@ class Prepare extends PS_Controller
     {
       $this->load->library('ixqrcode');
       $this->load->model('masters/products_model');
-
+      $this->load->model('masters/channels_model');
+      
       foreach($ds as $rs)
       {
         $order = $this->orders_model->get($rs->code);
@@ -149,7 +150,7 @@ class Prepare extends PS_Controller
           $qr = base64_encode(ob_get_contents());
           ob_end_clean();
 
-          $orders[] = (object)['file' => $qr, 'code' => $rs->code];
+          $orders[] = (object)['file' => $qr, 'code' => $rs->code, 'channels' => $this->channels_model->get_name($order->channels_code)];
 
           $uncomplete = $this->orders_model->get_unvalid_details($rs->code);
 

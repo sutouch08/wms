@@ -61,14 +61,15 @@
 </div>
 <hr class=""/>
 <div class="row">
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-12 padding-5">
+	<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-12 padding-5">
 		<div class="input-group width-100">
 			<span class="input-group-addon">Pending</span>
 			<input type="text" class="form-control input-lg text-center" id="order-qty"  value="<?php echo number($total_orders); ?>" readonly/>
+			<span class="input-group-addon"><a href="javascript:viewPending()"><i class="fa fa-external-link"></i></a></span>
 		</div>
 	</div>
 
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-12 padding-5">
+	<div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-12 padding-5">
 		<div class="input-group width-100">
 			<span class="input-group-addon">Total</span>
 			<input type="text" class="form-control input-lg text-center" id="total-qty"  value="<?php echo number($total_qty); ?>" readonly/>
@@ -78,7 +79,7 @@
 	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
 		<input type="text" class="form-control input-lg text-center focus" placeholder="สแกนเพื่อเพิ่มออเดอร์" id="order-no" autofocus />
 	</div>
-	<div class="col-lg-5 col-md-2 col-sm-2 col-xs-12 padding-5 text-right">
+	<div class="col-lg-4-harf col-md-2 col-sm-2 col-xs-12 padding-5 text-right">
 		<button type="button" class="btn btn-lg btn-danger" onclick="removeChecked()">ลบรายการ</button>
 	</div>
 </div>
@@ -110,11 +111,13 @@
 				</tr>
       </thead>
       <tbody id="dispatch-table">
+				<?php $totalQty = 0; ?>
+				<?php $totalShipped = 0; ?>
         <?php if( ! empty($details)) : ?>
           <?php $no = 1; ?>
           <?php $channels = get_channels_array(); ?>
           <?php foreach($details as $rs) : ?>
-            <tr id="dispatch-<?php echo $rs->id; ?>" class="font-size-11">
+            <tr id="dispatch-<?php echo $rs->id; ?>" class="font-size-11 dispatch-row" data-id="<?php echo $rs->id; ?>">
 							<td class="text-center">
                 <label>
                   <input type="checkbox" class="ace dp"
@@ -133,15 +136,24 @@
 							<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="carton-shipped-<?php echo $rs->id; ?>" value="<?php echo $rs->carton_shipped; ?>" readonly/></td>
             </tr>
             <?php $no++; ?>
+						<?php $totalQty += $rs->carton_qty; ?>
+						<?php $totalShipped += $rs->carton_shipped; ?>
           <?php endforeach; ?>
         <?php endif; ?>
       </tbody>
+			<tfoot>
+				<tr>
+					<td colspan="6" class="text-right">รวม</td>
+					<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="total-carton" value="<?php echo $totalQty; ?>" readonly/></td>
+					<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="total-shipped" value="<?php echo $totalShipped; ?>" readonly/></td>
+				</tr>
+			</tfoot>
     </table>
   </div>
 </div>
 
 <script id="row-template" type="text/x-handlebarsTemplate">
-	<tr id="dispatch-{{id}}" class="font-size-11">
+	<tr id="dispatch-{{id}}" class="font-size-11 dispatch-row" data-id="{{id}}">
 		<td class="text-center">
 			<label>
 				<input type="checkbox" class="ace dp" value="{{id}}" data-code="{{order_code}}" data-ref="{{reference}}" />
@@ -165,7 +177,7 @@
         <td colspan="6" class="text-center">---- ไม่พบรายการ ----</td>
       </tr>
     {{else}}
-      <tr id="dispatch-{{id}}" class="font-size-11">
+      <tr id="dispatch-{{id}}" class="font-size-11 dispatch-row" data-id="{{id}}">
         <td class="text-center">
           <label>
             <input type="checkbox" class="ace dp" value="{{id}}" data-code="{{order_code}}" data-ref="{{reference}}" />
@@ -185,8 +197,8 @@
 </script>
 
 
-<script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 <script>
 	var autoFocus = 1;
@@ -210,7 +222,7 @@
 	}
 
 
-	function setFocus() {
+	function setFocus() {		
 	  $('#order-no').focus();
 	}
 

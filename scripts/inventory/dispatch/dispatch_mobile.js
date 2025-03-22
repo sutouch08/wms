@@ -1,3 +1,58 @@
+var autoFocus = 1;
+
+window.addEventListener('load',  () => {
+  focus_init();
+});
+
+function focus_init() {
+	$('.focus').focusout(function() {
+		autoFocus = 1
+		setTimeout(() => {
+			if(autoFocus == 1) {
+				setFocus();
+			}
+		}, 1000)
+	})
+
+	$('.focus').focusin(function() {
+		autoFocus = 0;
+	});
+}
+
+function setFocus() {
+  if($('#order-add').hasClass('hide')) {
+    $('#del-order-no').focus();
+  }
+  else {
+    $('#order-no').focus();
+  }
+}
+
+function showHeader() {
+  $('#header-pad').addClass('move-in');
+  autoFocus = 0;
+}
+
+
+function closeHeader() {
+  $('#header-pad').removeClass('move-in');
+  autoFocus = 1;
+}
+
+function showRemoveOrder() {
+  $('#order-add').addClass('hide')
+  $('#order-del').removeClass('hide');
+
+  $('#del-order-no').val('').focus();
+}
+
+function showAddOrder() {
+  $('#order-del').addClass('hide');
+  $('#order-add').removeClass('hide');
+  $('#order-no').val('').focus();
+}
+
+
 function add() {
   clearErrorByClass('e');
 
@@ -257,25 +312,30 @@ function addToDispatch() {
               let cartons = parseDefault(parseInt($('#carton-qty-'+data.id).val()), 1);
 
               $('#carton-shipped-'+data.id).val(shipped);
-              $('#dispatch-'+data.id).prependTo($('#dispatch-table'));
+              $('#dispatch-'+data.id).prependTo($('#incomplete-box'));
             }
             else {
               let source = $('#row-template').html();
-              let output = $('#dispatch-table');
+              let output = $('#incomplete-box');
 
               render_prepend(source, ds.data, output);
 
               let orderQty = parseDefault(parseInt(removeCommas($('#order-qty').val())), 0);
               let totalQty = parseDefault(parseInt(removeCommas($('#total-qty').val())), 0);
 
-              orderQty--;
+              if(orderQty > 0) {
+                orderQty--;
+              }
+
               totalQty++;
 
               $('#order-qty').val(addCommas(orderQty));
               $('#total-qty').val(addCommas(totalQty));
             }
 
-            reIndex('dp-no');
+            $('.dispatch-row').removeClass('heighlight');
+            $('#dispatch-'+data.id).addClass('heighlight');
+
             recalBox();
             $('#order-no').focus();
           }
@@ -353,91 +413,9 @@ function recalBox() {
 }
 
 
-function checkOrderAll(el) {
-  if(el.is(':checked')) {
-    $('.od').prop('checked', true);
-  }
-  else {
-    $('.od').prop('checked', false);
-  }
-}
-
-
-function checkDispatchrAll(el) {
-  if(el.is(':checked')) {
-    $('.dp').prop('checked', true);
-  }
-  else {
-    $('.dp').prop('checked', false);
-  }
-}
-
-
 function viewPending() {
   let code = $('#code').val();
-  let target = HOME + 'view_pending_order/'+code;
-
-  window.open(target);
-}
-
-
-function removeChecked() {
-  if($('.dp:checked').length) {
-    let h = {
-      'code' : $('#code').val(),
-      'rows' : []
-    }
-
-    $('.dp:checked').each(function() {
-      let el = $(this);
-      h.rows.push({'id' : el.val(), 'order_code' : el.data('code')});
-    });
-
-    swal({
-      title:'ลบรายการ',
-      text:'ต้องการลบรายการที่เลือกหรือไม่ ?',
-      type:'warning',
-      html:true,
-      showCancelButton:true,
-      cancelButtonText:'No',
-      confirmButtonText:'Yes',
-      closeOnConfirm:true
-    }, function() {
-      load_in();
-
-      setTimeout(() => {
-        $.ajax({
-          url:HOME + 'delete_dispatch_details',
-          type:'POST',
-          cache:false,
-          data:{
-            'data' : JSON.stringify(h)
-          },
-          success:function(rs) {
-            load_out();
-
-            if(rs.trim() === 'success') {
-              swal({
-                title:'Success',
-                type:'success',
-                timer:1000
-              });
-
-              setTimeout(() => {
-                window.location.reload();
-              }, 1200);
-            }
-            else {
-              showError(rs);
-            }
-          },
-          error:function(rs) {
-            showError(rs);
-          }
-        })
-      }, 100);
-    })
-  }
+  window.location.href = HOME + 'view_pending_order/'+code;
 }
 
 
@@ -485,34 +463,28 @@ function removeOrder() {
             $('#order-qty').val(addCommas(orderQty));
             $('#total-qty').val(addCommas(totalQty));
 
-            reIndex('dp-no');
+            recalBox();
+
             $('#del-order-no').focus();
           }
           else {
+            beep();
             showError(ds.message);
           }
         }
         else {
+          beep();
           showError(rs);
         }
       },
       error:function(rs) {
+        beep();
         showError(rs);
       }
     })
   }
 }
 
-
-function printDispatch(code) {
-  let width = 800;
-  let height = 900;
-  let center = ($(document).width() - width) / 2;
-  let target = HOME + 'print_dispatch/'+code;
-  let prop = "width="+width+", height="+height+", left="+center+", scrollbars=yes";
-
-  window.open(target, "_blank", prop);
-}
 
 
 $('#order-no').keyup(function(e) {
