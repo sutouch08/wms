@@ -399,7 +399,7 @@ class Dispatch_model extends CI_Model
   {
     $this->db->where('is_wms', 0)->where_in('state', ['8', '7'])->where('dispatch_id IS NULL', NULL, FALSE);
 
-    if( ! empty($channels))
+    if( ! empty($channels_code))
     {
       $this->db->where('channels_code', $channels_code);
     }
