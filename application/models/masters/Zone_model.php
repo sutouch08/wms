@@ -30,7 +30,6 @@ class Zone_model extends CI_Model
   }
 
 
-
   //--- add new customer to zone
   public function add_customer(array $ds = array())
   {
@@ -43,7 +42,6 @@ class Zone_model extends CI_Model
   }
 
 
-
   //--- add new customer to zone
   public function add_employee(array $ds = array())
   {
@@ -54,7 +52,6 @@ class Zone_model extends CI_Model
 
     return FALSE;
   }
-
 
 
   //--- remove customer from connected zone
@@ -76,6 +73,7 @@ class Zone_model extends CI_Model
   {
     return $this->db->where('code', $code)->delete('zone');
   }
+
 
   //--- check zone exists or not
   public function is_exists($code)
@@ -146,7 +144,6 @@ class Zone_model extends CI_Model
   }
 
 
-
   public function count_rows(array $ds = array())
   {
 
@@ -196,8 +193,6 @@ class Zone_model extends CI_Model
   }
 
 
-
-
   private function count_rows_customer(array $ds = array())
   {
     $this->db
@@ -236,6 +231,12 @@ class Zone_model extends CI_Model
       $this->db->where('zone.is_pos_api', $ds['is_pos_api']);
     }
 
+    if(isset($ds['is_pickface']) && $ds['is_pickface'] != 'all')
+    {
+      $this->db->where('zone.is_pickface', $ds['is_pickface']);
+    }
+
+
     if(isset($ds['active']) && $ds['active'] != 'all')
     {
       $this->db->where('zone.active', $ds['active']);
@@ -243,9 +244,6 @@ class Zone_model extends CI_Model
 
     return $this->db->count_all_results();
   }
-
-
-
 
 
   public function get_list(array $ds = array(), $perpage = NULL, $offset = NULL)
@@ -258,7 +256,7 @@ class Zone_model extends CI_Model
 
     $this->db
     ->select('zone.id, zone.code AS code, zone.name AS name, zone.warehouse_code, zone.is_pos_api')
-    ->select('zone.old_code, zone.active')
+    ->select('zone.old_code, zone.active, zone.is_pickface')
     ->select('warehouse.name AS warehouse_name, user.uname, user.name AS display_name')
     ->from('zone')
     ->join('warehouse', 'warehouse.code = zone.warehouse_code', 'left')
@@ -292,6 +290,11 @@ class Zone_model extends CI_Model
       $this->db->where('zone.is_pos_api', $ds['is_pos_api']);
     }
 
+    if(isset($ds['is_pickface']) && $ds['is_pickface'] != 'all')
+    {
+      $this->db->where('zone.is_pickface', $ds['is_pickface']);
+    }
+
     if(isset($ds['active']) && $ds['active'] != 'all')
     {
       $this->db->where('zone.active', $ds['active']);
@@ -315,7 +318,6 @@ class Zone_model extends CI_Model
 
     return FALSE;
   }
-
 
 
   private function get_list_customer(array $ds = array(), $perpage = NULL, $offset = NULL)
@@ -386,10 +388,6 @@ class Zone_model extends CI_Model
   }
 
 
-
-
-
-
   public function count_customer($code)
   {
     return $this->db->where('zone_code', $code)->count_all_results('zone_customer');
@@ -410,7 +408,6 @@ class Zone_model extends CI_Model
   }
 
 
-
   public function get_employee($zone_code)
   {
 
@@ -425,12 +422,10 @@ class Zone_model extends CI_Model
   }
 
 
-
-
   public function get($code)
   {
     $rs = $this->db
-    ->select('zone.id, zone.code, zone.name, zone.warehouse_code, zone.user_id, zone.is_pos_api')
+    ->select('zone.id, zone.code, zone.name, zone.warehouse_code, zone.user_id, zone.is_pos_api, zone.is_pickface')
     ->select('warehouse.name AS warehouse_name, warehouse.role, warehouse_role.name AS role_name, warehouse.is_consignment')
     ->select('user.uname, user.name AS display_name')
     ->from('zone')
@@ -462,10 +457,6 @@ class Zone_model extends CI_Model
   }
 
 
-
-
-
-
   public function get_name($code)
   {
     $rs = $this->db->select('name')->where('code', $code)->get('zone');
@@ -476,7 +467,6 @@ class Zone_model extends CI_Model
 
     return NULL;
   }
-
 
 
   public function get_zone_detail_in_warehouse($code, $warehouse)
@@ -496,6 +486,7 @@ class Zone_model extends CI_Model
 
     return FALSE;
   }
+
 
   public function get_zone($code, $warehouse_code = NULL)
   {
@@ -548,7 +539,6 @@ class Zone_model extends CI_Model
   }
 
 
-
   public function get_last_sync_date()
   {
     $rs = $this->db->select_max('last_sync')->get('zone');
@@ -563,14 +553,9 @@ class Zone_model extends CI_Model
 
   public function get_new_data($last_sync)
   {
-    $rs = $this->ms
-    ->select('AbsEntry AS id, BinCode AS code, Descr AS name, WhsCode AS warehouse_code, SL1Code AS old_code, Disabled')
-    ->where('createDate >=', $last_sync)
-    ->group_start()
-    ->where('updateDate IS NOT NULL', NULL, FALSE)
-    ->or_where('updateDate >=', $last_sync)
-    ->group_end()
-    ->get('OBIN');
+    $qr = "SELECT AbsEntry AS id, BinCode AS code, Descr AS name, WhsCode AS warehouse_code, SL1Code AS old_code, Disabled ";
+    $qr .= "FROM OBIN WHERE CreateDate >= '{$last_sync}' OR (UpdateDate IS NOT NULL AND UpdateDate >= '{$last_sync}')";
+    $rs = $this->ms->query($qr);    
 
     if($rs->num_rows() > 0)
     {
@@ -606,6 +591,19 @@ class Zone_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_pickface_zone()
+  {
+    $rs = $this->db->where('is_pickface', 1)->where('active', 1)->get('zone');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 } //--- end class
 
