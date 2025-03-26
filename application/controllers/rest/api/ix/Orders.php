@@ -820,7 +820,7 @@ class Orders extends REST_Controller
     }
 
 
-    if(empty($data->order_number))
+    if(empty($data->order_number) && empty($data->order_code))
     {
       $this->error = 'order_number is required';
 
@@ -849,9 +849,9 @@ class Orders extends REST_Controller
       $this->response($arr, 400);
     }
 
-    $code = $data->order_number;
+    $code = empty($data->order_number) ? $data->order_code : $data->order_number;
 
-    $order = $this->orders_model->get_order_by_reference($code);
+    $order = empty($data->order_number) ? $this->orders_model->get($code) : $this->orders_model->get_order_by_reference($code);
 
     if( ! empty($order))
     {
