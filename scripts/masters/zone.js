@@ -67,10 +67,46 @@ function togglePosApi(id) {
 }
 
 
+function togglePickface(id) {
+  let is_pickface = $('#is-pickface-'+id).val();
+
+  is_pickface = is_pickface == '1' ? '0' : '1';
+
+  $.ajax({
+    url:HOME + '/update_pickface/',
+    type:'POST',
+    cache:false,
+    data:{
+      'id' : id,
+      'is_pickface' : is_pickface
+    },
+    success:function(rs) {
+      if(rs == 'success') {
+        $('#is-pickface-'+id).val(is_pickface);
+        if(is_pickface == '1') {
+          $('#pickface-label-'+id).text('Yes');
+        }
+        else {
+          $('#pickface-label-'+id).html('No');
+        }
+      }
+      else {
+        swal({
+          title:'Failed !',
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
+
+
 function saveUpdate() {
   let code = $('#zone_code').val();
   let user_id = $('#user_id').val();
   let pos_api = $('#pos-api').val();
+  let is_pickface = $('#is-pickface').val();
 
   $.ajax({
     url:HOME + '/update',
@@ -79,7 +115,8 @@ function saveUpdate() {
     data:{
       'zone_code' : code,
       'user_id' : user_id,
-      'pos_api' : pos_api
+      'pos_api' : pos_api,
+      'is_pickface' : is_pickface
     },
     success:function(rs) {
       if(rs == 'success') {
@@ -91,6 +128,7 @@ function saveUpdate() {
 
         $('#user_id').attr('disabled', 'disabled');
         $('#pos-api').attr('disabled', 'disabled');
+        $('#is-pickface').attr('disabled', 'disabled');
         $('#btn-u-update').addClass('hide');
         $('#btn-u-edit').removeClass('hide');
       }
@@ -411,6 +449,7 @@ function exportFilter(){
 function editZone() {
   $('#user_id').removeAttr('disabled').focus();
   $('#pos-api').removeAttr('disabled');
+  $('#is-pickface').removeAttr('disabled');
   $('#btn-u-edit').addClass('hide');
   $('#btn-u-update').removeClass('hide');
 }
@@ -429,7 +468,7 @@ function generateQrcode() {
     });
 
     if(h.length) {
-      
+
       var mapForm = document.createElement('form');
       mapForm.target = "Map";
       mapForm.method = "POST";

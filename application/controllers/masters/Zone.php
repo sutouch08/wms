@@ -25,7 +25,8 @@ class Zone extends PS_Controller
       'warehouse' => get_filter('warehouse', 'z_warehouse', ''),
       'customer' => get_filter('customer', 'z_customer', ''),
       'active' => get_filter('active', 'z_active', 'all'),
-      'is_pos_api' => get_filter('is_pos_api', 'z_pos_api', 'all')
+      'is_pos_api' => get_filter('is_pos_api', 'z_pos_api', 'all'),
+      'is_pickface' => get_filter('is_pickface', 'z_pickface', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -128,6 +129,7 @@ class Zone extends PS_Controller
       $zone_code = $this->input->post('zone_code');
       $user_id = get_null($this->input->post('user_id'));
       $pos_api = $this->input->post('pos_api') == 1 ? 1 : 0;
+      $pickface = $this->input->post('is_pickface') == 1 ? 1 : 0;
 
       $zone = $this->zone_model->get($zone_code);
 
@@ -135,7 +137,8 @@ class Zone extends PS_Controller
       {
         $arr = array(
           'user_id' => $user_id,
-          'is_pos_api' => $pos_api
+          'is_pos_api' => $pos_api,
+          'is_pickface' => $pickface
         );
 
         if( ! $this->zone_model->update($zone->id, $arr))
@@ -167,6 +170,24 @@ class Zone extends PS_Controller
     $is_pos_api = $this->input->post('is_api') == 1 ? 1 : 0;
 
     $arr = array('is_pos_api' => $is_pos_api);
+
+    if( ! $this->zone_model->update($id, $arr))
+    {
+      $sc = FALSE;
+      $this->error = "Update failed";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+  public function update_pickface()
+  {
+    $sc = TRUE;
+    $id = $this->input->post('id');
+    $is_pickface = $this->input->post('is_pickface') == 1 ? 1 : 0;
+
+    $arr = array('is_pickface' => $is_pickface);
 
     if( ! $this->zone_model->update($id, $arr))
     {
@@ -605,7 +626,7 @@ class Zone extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('z_code', 'z_uname', 'z_customer', 'z_warehouse', 'z_active', 'z_pos_api');
+    $filter = array('z_code', 'z_uname', 'z_customer', 'z_warehouse', 'z_active', 'z_pos_api', 'z_pickface');
     clear_filter($filter);
   }
 

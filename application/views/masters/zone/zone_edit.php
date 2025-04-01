@@ -42,6 +42,14 @@
 			<option value="1" <?php echo is_selected('1', $ds->is_pos_api); ?>>Yes</option>
 		</select>
 	</div>
+
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-4 padding-5">
+		<label>Pickface</label>
+		<select class="form-control input-sm" id="is-pickface" disabled>
+			<option value="0" <?php echo is_selected('0', $ds->is_pickface); ?>>No</option>
+			<option value="1" <?php echo is_selected('1', $ds->is_pickface); ?>>Yes</option>
+		</select>
+	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">x</label>
 		<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-u-update" onclick="saveUpdate()">Save</button>

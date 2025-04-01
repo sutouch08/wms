@@ -447,13 +447,13 @@ class Zone_model extends CI_Model
   public function get_warehouse_code($zone_code)
   {
     $rs = $this->db->select('warehouse_code')->where('code', $zone_code)->get('zone');
-    //$rs = $this->ms->select('WhsCode AS warehouse_code')->where('BinCode', $zone_code)->get('OBIN');
+
     if($rs->num_rows() == 1)
     {
       return $rs->row()->warehouse_code;
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -555,7 +555,7 @@ class Zone_model extends CI_Model
   {
     $qr = "SELECT AbsEntry AS id, BinCode AS code, Descr AS name, WhsCode AS warehouse_code, SL1Code AS old_code, Disabled ";
     $qr .= "FROM OBIN WHERE CreateDate >= '{$last_sync}' OR (UpdateDate IS NOT NULL AND UpdateDate >= '{$last_sync}')";
-    $rs = $this->ms->query($qr);    
+    $rs = $this->ms->query($qr);
 
     if($rs->num_rows() > 0)
     {

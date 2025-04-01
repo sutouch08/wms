@@ -505,13 +505,11 @@ class Users extends PS_Controller{
 
 						$arr['menus'] = $items;
 					}
+					
+					$ds[] = $arr;
 				}
-
-				$ds[] = $arr;
 			}
-
 		}
-
 
     //--- load excel library
     $this->load->library('excel');

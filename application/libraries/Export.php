@@ -1114,6 +1114,176 @@ public function export_move($code)
 }
 
 
+//--- export move
+public function export_pick_list($code)
+{
+  $sc = TRUE;
+  $this->ci->load->model('inventory/pick_list_model');
+  $this->ci->load->model('masters/zone_model');
+
+  $doc = $this->ci->pick_list_model->get($code);
+
+  $sap = $this->ci->pick_list_model->get_sap_move_doc($code);
+
+  if(!empty($doc))
+  {
+    if(empty($sap))
+    {
+      if($doc->status == 'C')
+      {
+        //--- เช็คของเก่าก่อนว่ามีในถังกลางหรือยัง
+        $middle = $this->ci->pick_list_model->get_middle_move_doc($code);
+        if(!empty($middle))
+        {
+          foreach($middle as $rows)
+          {
+            if($this->ci->pick_list_model->drop_middle_exits_data($rows->DocEntry) === FALSE)
+            {
+              $sc = FALSE;
+              $this->error = "ลบรายที่ค้างใน temp ไม่สำเร็จ";
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $currency = getConfig('CURRENCY');
+          $vat_rate = getConfig('SALE_VAT_RATE');
+          $vat_code = getConfig('SALE_VAT_CODE');
+					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
+          $to_warehouse_code = $this->ci->zone_model->get_warehouse_code($doc->zone_code);
+          $from_warehouse_code = $doc->warehouse_code;
+
+          $ds = array(
+            'U_ECOMNO' => $doc->code,
+            'DocType' => 'I',
+            'CANCELED' => 'N',
+            'DocDate' => sap_date($date_add),
+            'DocDueDate' => sap_date($date_add),
+            'CardCode' => NULL,
+            'CardName' => NULL,
+            'VatPercent' => 0.000000,
+            'VatSum' => 0.000000,
+            'VatSumFc' => 0.000000,
+            'DiscPrcnt' => 0.000000,
+            'DiscSum' => 0.000000,
+            'DiscSumFC' => 0.000000,
+            'DocCur' => $currency,
+            'DocRate' => 1,
+            'DocTotal' => 0.000000,
+            'DocTotalFC' => 0.000000,
+            'Filler' => $from_warehouse_code,
+            'ToWhsCode' => $to_warehouse_code,
+            'Comments' => limitText($doc->remark, 250),
+            'F_E_Commerce' => 'A' ,
+            'F_E_CommerceDate' => sap_date(now(), TRUE),
+            'U_BOOKCODE' => $doc->bookcode
+          );
+
+          $this->ci->mc->trans_begin();
+
+          $docEntry = $this->ci->pick_list_model->add_sap_move_doc($ds);
+
+          if($docEntry !== FALSE)
+          {
+            $details = $this->ci->pick_list_model->get_pick_transections($code);
+
+            if( ! empty($details))
+            {
+              $line = 0;
+
+              foreach($details as $rs)
+              {
+                $arr = array(
+                  'DocEntry' => $docEntry,
+                  'U_ECOMNO' => $rs->pick_code,
+                  'LineNum' => $line,
+                  'ItemCode' => $rs->product_code,
+                  'Dscription' => limitText($rs->product_name, 95),
+                  'Quantity' => $rs->qty,
+                  'unitMsr' => NULL,
+                  'PriceBefDi' => 0.000000,
+                  'LineTotal' => 0.000000,
+                  'ShipDate' => $date_add,
+                  'Currency' => $currency,
+                  'Rate' => 1,
+                  'DiscPrcnt' => 0.000000,
+                  'Price' => 0.000000,
+                  'TotalFrgn' => 0.000000,
+                  'FromWhsCod' => $from_warehouse_code,
+                  'WhsCode' => $to_warehouse_code,
+                  'F_FROM_BIN' => $rs->zone_code,
+                  'F_TO_BIN' => $doc->zone_code,
+                  'TaxStatus' => 'Y',
+                  'VatPrcnt' => 0.000000,
+                  'VatGroup' => NULL,
+                  'PriceAfVAT' => 0.000000,
+                  'VatSum' => 0.000000,
+                  'TaxType' => 'Y',
+                  'F_E_Commerce' => 'A',
+                  'F_E_CommerceDate' => sap_date(now(), TRUE)
+                );
+
+                if( ! $this->ci->pick_list_model->add_sap_move_detail($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
+                }
+
+                $line++;
+              }
+
+              if($sc === TRUE)
+              {
+                //---- set exported = 1
+                $this->ci->pick_list_model->update($doc->code, ['is_exported' => 1]);
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "ไม่พบรายการสินค้า";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "เพิ่มเอกสารไม่สำเร็จ";
+          }
+
+          if($sc === TRUE)
+          {
+            $this->ci->mc->trans_commit();
+          }
+          else
+          {
+            $this->ci->mc->trans_rollback();
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "สถานะเอกสารไม่ถูกต้อง";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "เอกสารถูกนำเข้า SAP แล้ว หากต้องการเปลี่ยนแปลงกรุณายกเลิกเอกสารใน SAP ก่อน";
+    }
+
+  }
+  else
+  {
+    $sc = FALSE;
+    $this->error = "ไม่พบเอกสาร {$code}";
+  }
+
+  return $sc;
+}
+
+
 public function export_transform($code)
 {
   $sc = TRUE;

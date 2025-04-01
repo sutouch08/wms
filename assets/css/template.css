@@ -1927,3 +1927,11 @@ input[type=number]::-webkit-outer-spin-button {
 .highlight {
   background-color: #cff1f1 !important;
 }
+
+.select2-container.has-error {
+  border:0 !important;
+}
+
+.select2-container.has-error > .select2-choice {
+  border:solid 1px red !important;
+}

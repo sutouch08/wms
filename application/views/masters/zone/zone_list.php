@@ -14,22 +14,22 @@
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-4 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label>Zone</label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-4 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label>Customer</label>
     <input type="text" class="form-control input-sm" name="customer" id="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-4 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label>User</label>
     <input type="text" class="form-control input-sm" name="uname" id="u-name" value="<?php echo $uname; ?>" />
   </div>
 
-	<div class="col-lg-3-harf col-md-6 col-sm-5 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-6 col-sm-4-harf col-xs-6 padding-5">
     <label>Warehouse</label>
     <select class="width-100 filter" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -47,6 +47,15 @@
   </div>
 
 	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+    <label>Pickface</label>
+    <select class="form-control input-sm filter" name="is_pickface" id="is_pickface" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_pickface); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $is_pickface); ?>>No</option>
+		</select>
+  </div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>Status</label>
     <select class="form-control input-sm filter" name="active" id="active" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -55,12 +64,12 @@
 		</select>
   </div>
 
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="submit" class="btn btn-xs btn-primary btn-block">Search</button>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>
@@ -78,7 +87,7 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1" style="min-width:1360px;">
+		<table class="table table-striped table-hover border-1" style="min-width:1440px;">
 			<thead>
 				<tr>
 					<th class="fix-width-60 middle text-center">
@@ -94,6 +103,7 @@
 					<th class="fix-width-300 middle">Warehosue</th>
 					<th class="fix-width-100 middle">Owner</th>
 					<th class="fix-width-80 middle">POS API</th>
+					<th class="fix-width-80 middle">Pickface</th>
 					<th class="fix-width-80 middle text-center">Status</th>
 					<th class="fix-width-80 middle text-center">Customer</th>
 					<th class="fix-width-200 middle text-center">Old code</th>
@@ -130,7 +140,7 @@
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->warehouse_name; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
-						<td class="middle">
+						<td class="middle text-center">
 							<?php if($this->_SuperAdmin) : ?>
 								<span class="pointer" id="pos-api-label-<?php echo $rs->id; ?>" onclick="togglePosApi(<?php echo $rs->id; ?>)">
 									<?php echo $rs->is_pos_api ? 'Yes' : 'No'; ?>
@@ -138,6 +148,16 @@
 								<input type="hidden" id="is-api-<?php echo $rs->id; ?>" value="<?php echo $rs->is_pos_api; ?>" />
 							<?php else : ?>
 								<?php echo $rs->is_pos_api ? 'Yes' : 'No'; ?>
+							<?php endif; ?>
+						</td>
+						<td class="middle text-center">
+							<?php if($this->_SuperAdmin) : ?>
+								<span class="pointer" id="pickface-label-<?php echo $rs->id; ?>" onclick="togglePickface(<?php echo $rs->id; ?>)">
+									<?php echo $rs->is_pickface ? 'Yes' : 'No'; ?>
+								</span>
+								<input type="hidden" id="is-pickface-<?php echo $rs->id; ?>" value="<?php echo $rs->is_pickface; ?>" />
+							<?php else : ?>
+								<?php echo $rs->is_pickface ? 'Yes' : 'No'; ?>
 							<?php endif; ?>
 						</td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
@@ -161,6 +181,6 @@
 <script>
 	$('#warehouse').select2();
 </script>
-<script src="<?php echo base_url(); ?>scripts/masters/zone.js?v=<?php echo date('YmdHis'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/zone.js?v=<?php echo date('YmdH'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

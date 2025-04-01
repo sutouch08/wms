@@ -468,5 +468,6 @@ function clearCache() {
 }
 
 function refresh() {
+  load_in();
   window.location.reload();
 }

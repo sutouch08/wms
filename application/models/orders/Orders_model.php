@@ -492,7 +492,7 @@ class Orders_model extends CI_Model
     $rs = $this->db
     ->select('code')
     ->where('reference', $reference)
-    ->where_in('state', [7,8])
+    ->where_in('state', [4, 5, 6, 7,8])
     ->get('orders');
 
     if($rs->num_rows() > 0)

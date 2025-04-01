@@ -72,12 +72,12 @@ $('#barcode-order').keyup(function(e) {
 
 
 function genPickList() {
-  let limit = 20;
+  let limit = 100;
   let count = $('.pc:checked').length;
 
   if(count > limit) {
     beep();
-    swal("เลือกได้ไม่เกิน 20 ออเดอร์");
+    swal("เลือกได้ไม่เกิน "+limit+" ออเดอร์");
     return false;
   }
 

@@ -29,14 +29,15 @@ function setFocus() {
 }
 
 function showHeader() {
-  $('#header-pad').addClass('move-in');
   autoFocus = 0;
+  $('#header-pad').addClass('move-in');
 }
 
 
 function closeHeader() {
-  $('#header-pad').removeClass('move-in');
   autoFocus = 1;
+  $('#header-pad').removeClass('move-in');
+  setFocus();
 }
 
 function showRemoveOrder() {

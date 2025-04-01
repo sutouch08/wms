@@ -48,7 +48,8 @@ class Orders extends REST_Controller
 		{
 			$arr = array(
 				'status' => FALSE,
-				'error' => "Access denied"
+				'error' => "Access denied",
+        'retry' => FALSE
 			);
 
 			$this->response($arr, 400);
@@ -67,7 +68,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => 'API Not Enabled'
+        'error' => 'API Not Enabled',
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -96,7 +98,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => 'empty data'
+        'error' => 'empty data',
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -125,7 +128,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -155,7 +159,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -188,7 +193,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -238,7 +244,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -306,8 +313,8 @@ class Orders extends REST_Controller
 
       $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
       $is_etax = empty($data->ETAX) ? 0 : ($data->ETAX == 'Y' && $tax_status == 1 ? 1 : 0);
-      $bill_to = empty($data->bill_to) ? NULL : $data->bill_to;
-      $ship_to = empty($data->ship_to) ? NULL : get_null($data->ship_to);
+      $bill_to = empty($data->bill_to) ? NULL : (array) $data->bill_to;
+      $ship_to = empty($data->ship_to) ? NULL : (array) $data->ship_to;
       $customer_ref = empty(trim($data->customer_ref)) ? NULL : get_null(trim($data->customer_ref));
 
       $taxType = array(
@@ -351,6 +358,8 @@ class Orders extends REST_Controller
         {
           if( ! empty($bill_to))
           {
+            $bill_to = (object) $bill_to;
+
             if(
                 empty($bill_to->tax_id)
                 OR empty($bill_to->name)
@@ -421,6 +430,8 @@ class Orders extends REST_Controller
         {
           if( ! empty($bill_to))
           {
+            $bill_to = (object) $bill_to;
+
             if(
                 empty($bill_to->tax_id)
                 OR empty($bill_to->name)
@@ -482,8 +493,9 @@ class Orders extends REST_Controller
       if($sc === FALSE)
       {
         $arr = array(
-        'status' => FALSE,
-        'error' => $this->error
+          'status' => FALSE,
+          'error' => $this->error,
+          'retry' => FALSE
         );
 
         if($this->logs_json)
@@ -728,7 +740,8 @@ class Orders extends REST_Controller
 
         $arr = array(
           'status' => FALSE,
-          'error' => $this->error
+          'error' => $this->error,
+          'retry' => TRUE
         );
 
         if($this->logs_json)
@@ -765,7 +778,8 @@ class Orders extends REST_Controller
       {
         $arr = array(
           'status' => FALSE,
-          'error' => 'API Not Enabled'
+          'error' => 'API Not Enabled',
+          'retry' => FALSE
         );
 
         $logs = array(
@@ -796,7 +810,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => 'empty data'
+        'error' => 'empty data',
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -826,7 +841,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -853,7 +869,69 @@ class Orders extends REST_Controller
 
     $order = empty($data->order_number) ? $this->orders_model->get($code) : $this->orders_model->get_order_by_reference($code);
 
-    if( ! empty($order))
+    if(empty($order))
+    {
+      $this->error = "Invalid order_number: {$code}";
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error,
+        'retry' => FALSE
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => NULL,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+
+    if($order->is_wms != 0)
+    {
+      $this->error = "This order cannot cancel by this api";
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error,
+        'retry' => FALSE
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => NULL,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+
+    if($sc === TRUE)
     {
       if($order->state < 8 && $order->state != 9)
       {
@@ -1133,11 +1211,6 @@ class Orders extends REST_Controller
         }
       }
     }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "Invalid order_number: {$code}";
-    }
 
     if($sc === TRUE)
     {
@@ -1173,7 +1246,8 @@ class Orders extends REST_Controller
       $arr = array(
         'status' => FALSE,
         'message' => $this->error,
-        'order_number' => $code
+        'order_number' => $code,
+        'retry' => TRUE
       );
 
       if($this->logs_json)
@@ -1212,7 +1286,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => 'API Not Enabled'
+        'error' => 'API Not Enabled',
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1241,7 +1316,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => 'empty data'
+        'error' => 'empty data',
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1270,7 +1346,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1303,7 +1380,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1336,7 +1414,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1391,10 +1470,10 @@ class Orders extends REST_Controller
           $disc = $rs->discount > 0 ? $rs->discount/$rs->qty : 0;
 
           $arr = array(
-          'price' => $rs->price,
-          'discount1' => round($disc, 2),
-          'discount_amount' => $rs->discount,
-          'total_amount' => round($rs->amount)
+            'price' => $rs->price,
+            'discount1' => round($disc, 2),
+            'discount_amount' => $rs->discount,
+            'total_amount' => round($rs->amount)
           );
 
           if( ! $this->orders_model->update_detail($row->id, $arr))
@@ -1410,7 +1489,12 @@ class Orders extends REST_Controller
       if($sc === TRUE && $row_change > 0)
       {
         $doc_total = $this->orders_model->get_order_total_amount($order_code);
-        $arr = array('doc_total' => $doc_total);
+        $arr = array(
+          'doc_total' => $doc_total,
+          'is_hold' => 0,
+          'update_user' =>  $this->user
+        );
+
         $this->orders_model->update($order_code, $arr);
       }
     }
@@ -1428,15 +1512,15 @@ class Orders extends REST_Controller
       if($this->logs_json)
       {
         $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' => $this->type,
-        'code' => $data->order_number,
-        'action' => $action,
-        'status' => 'success',
-        'message' => 'success',
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'action' => $action,
+          'status' => 'success',
+          'message' => 'success',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1449,22 +1533,23 @@ class Orders extends REST_Controller
       $this->db->trans_rollback();
 
       $arr = array(
-      'status' => FALSE,
-      'error' => $this->error
+        'status' => FALSE,
+        'error' => $this->error,
+        'retry' => TRUE
       );
 
       if($this->logs_json)
       {
         $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' => $this->type,
-        'code' => $data->order_number,
-        'action' => $action,
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1489,7 +1574,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => 'API Not Enabled'
+        'error' => 'API Not Enabled',
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1519,7 +1605,8 @@ class Orders extends REST_Controller
       $this->error = 'Missing required parameter : order_number';
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1550,7 +1637,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1582,27 +1670,28 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
       {
         $logs = array(
-        'trans_id' => genUid(),
-        'api_path' => $this->api_path,
-        'type' => $this->type,
-        'code' => $order_number,
-        'action' => $action,
-        'status' => 'failed',
-        'message' => $this->error,
-        'request_json' => $json,
-        'response_json' => json_encode($arr)
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $order_number,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
       }
 
-      $this->response($arr, 200);
+      $this->response($arr, 400);
     }
 
     if($order->state != 7)
@@ -1614,7 +1703,8 @@ class Orders extends REST_Controller
 
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => FALSE
       );
 
       if($this->logs_json)
@@ -1634,7 +1724,7 @@ class Orders extends REST_Controller
         $this->ix_api_logs_model->add_logs($logs);
       }
 
-      $this->response($arr, 200);
+      $this->response($arr, 400);
     }
 
     if($sc === TRUE && ! empty($order))
@@ -1691,7 +1781,8 @@ class Orders extends REST_Controller
     {
       $arr = array(
         'status' => FALSE,
-        'error' => $this->error
+        'error' => $this->error,
+        'retry' => TRUE
       );
 
       if($this->logs_json)
@@ -1744,6 +1835,12 @@ class Orders extends REST_Controller
 
   public function verify_data($data)
 	{
+    if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
+    {
+      $this->error = 'Order number already exists';
+			return FALSE;
+    }
+
     if(! property_exists($data, 'customer_code') OR $data->customer_code == '')
     {
       $this->error = 'customer_code is required';
@@ -1765,12 +1862,6 @@ class Orders extends REST_Controller
     if( ! property_exists($data, 'payment_method') OR ! $this->payment_methods_model->is_exists($data->payment_method))
     {
       $this->error = 'Invalid payment_method code';
-			return FALSE;
-    }
-
-    if($this->orders_model->is_active_order_reference($data->order_number) !== FALSE)
-    {
-      $this->error = 'Order number already exists';
 			return FALSE;
     }
 
