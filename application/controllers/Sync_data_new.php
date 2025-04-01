@@ -57,6 +57,8 @@ class Sync_data_new extends CI_Controller
 
 		$this->syncMoveInvCode();
 
+    $this->syncPickListInvCode();
+
 		$this->syncTransformGoodsIssueCode();
 
 		$this->syncAdjustGoodsIssueCode();
@@ -291,8 +293,6 @@ class Sync_data_new extends CI_Controller
   }
 
 
-
-
   public function syncReceiveTransformInvCode()
   {
     $this->load->model('inventory/receive_transform_model');
@@ -401,7 +401,6 @@ class Sync_data_new extends CI_Controller
     $this->sync_data_model->add_logs($logs);
 
   }
-
 
 
   public function syncConsignmentInvCode()
@@ -628,7 +627,6 @@ class Sync_data_new extends CI_Controller
   }
 
 
-
   public function syncMoveInvCode()
   {
     $this->load->model('inventory/move_model');
@@ -663,6 +661,43 @@ class Sync_data_new extends CI_Controller
   }
 
 
+  public function syncPickListInvCode()
+  {
+    $this->load->model('inventory/pick_list_model');
+    $ds = $this->pick_list_model->get_non_inv_code($this->limit);
+    $count = 0;
+    $update = 0;
+
+    if(!empty($ds))
+    {
+      foreach($ds as $rs)
+      {
+        $count++;
+        $inv = $this->pick_list_model->get_sap_doc_num($rs->code);
+
+        if(!empty($inv))
+        {
+          if( $this->pick_list_model->update_inv($rs->code, $inv))
+          {
+            $this->pick_list_model->set_complete($rs->code);
+          }
+
+          $update++;
+        }
+      }
+    }
+
+
+    $logs = array(
+      'sync_item' => 'PL',
+      'get_item' => $count,
+      'update_item' => $update
+    );
+
+    //--- add logs
+    $this->sync_data_model->add_logs($logs);
+
+  }
 
 
   public function syncTransformGoodsIssueCode()
@@ -699,8 +734,6 @@ class Sync_data_new extends CI_Controller
     $this->sync_data_model->add_logs($logs);
 
   }
-
-
 
 
   public function syncAdjustGoodsIssueCode()
@@ -775,7 +808,6 @@ class Sync_data_new extends CI_Controller
   }
 
 
-
   public function syncReturnOrderCode()
   {
     $this->load->model('inventory/return_order_model');
@@ -844,6 +876,7 @@ class Sync_data_new extends CI_Controller
     //--- add logs
     $this->sync_data_model->add_logs($logs);
   }
+
 
 	public function syncConsignmentSoldInvCode()
   {
