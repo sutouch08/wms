@@ -460,6 +460,25 @@ class Orders_model extends CI_Model
   }
 
 
+  //---- for dispatch TikTok
+  public function get_order_by_tracking($tracking_number)
+  {
+    $rs = $this->db
+    ->where('shipping_code IS NOT NULL', NULL, FALSE)
+    ->where('shipping_code', $tracking_number)
+    ->order_by('id', 'DESC')
+    ->limit(1)
+    ->get('orders');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_order_code_by_reference($reference)
   {
     $rs = $this->db->select('code')->where('reference', $reference)->get('orders');

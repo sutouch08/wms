@@ -281,6 +281,8 @@ class Orders extends REST_Controller
       $role = 'S';
 
       $date_add = date('Y-m-d H:i:s');
+      $doc_date = empty($data->doc_date) ? NULL : db_date($data->doc_date);
+      $due_date = empty($data->due_date) ? NULL : db_date($data->due_date);
 
       $ref_code = $data->order_number;
 
@@ -344,6 +346,8 @@ class Orders extends REST_Controller
           'shipping_code' => $tracking,
           'user' => $this->user,
           'date_add' => $date_add,
+          'doc_date' => $doc_date,
+          'due_date' => $due_date,
           'warehouse_code' => $warehouse_code,
           'is_api' => 1,
           'is_pre_order' => $is_pre_order ? 1 : 0,
@@ -416,6 +420,8 @@ class Orders extends REST_Controller
           'shipping_code' => $tracking,
           'user' => $this->user,
           'date_add' => $date_add,
+          'doc_date' => $doc_date,
+          'due_date' => $due_date,
           'warehouse_code' => $warehouse_code,
           'is_api' => 1,
           'is_pre_order' => $is_pre_order ? 1 : 0,

@@ -131,7 +131,7 @@ class Prepare extends PS_Controller
       $this->load->library('ixqrcode');
       $this->load->model('masters/products_model');
       $this->load->model('masters/channels_model');
-      
+
       foreach($ds as $rs)
       {
         $order = $this->orders_model->get($rs->code);
@@ -236,91 +236,141 @@ class Prepare extends PS_Controller
     return empty($sc) ? 'ไม่พบสินค้า' : $sc;
   }
 
+
+  public function is_cancel($reference, $channels)
+  {
+    $is_cancel = FALSE;
+
+    if($channels == '0009')
+    {
+      $this->load->library('wrx_tiktok_api');
+
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference);
+
+      if($order_status == '140')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
+    return $is_cancel;
+  }
+
+
+
   public function process($code, $view = NULL)
   {
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
     $this->load->helper('warehouse');
 
-    $state = $this->orders_model->get_state($code);
-
-    if($state == 3)
-    {
-      $rs = $this->orders_model->change_state($code, 4);
-      if($rs)
-      {
-        $arr = array(
-          'order_code' => $code,
-          'state' => 4,
-          'update_user' => $this->_user->uname
-        );
-        $this->order_state_model->add_state($arr);
-      }
-    }
+    $is_cancel = FALSE;
 
     $order = $this->orders_model->get($code);
-    $order->customer_name = $this->customers_model->get_name($order->customer_code);
-    $order->channels_name = $this->channels_model->get_name($order->channels_code);
 
-    $whs = $this->warehouse_model->get($order->warehouse_code);
-    $order->warehouse_name = empty($whs) ? NULL : $whs->name;
-    $order->allow_prepare = $whs->prepare;
-
-    $orderQty = 0;
-    $pickedQty = 0;
-
-    $uncomplete = $this->orders_model->get_unvalid_details($code);
-
-    if(!empty($uncomplete))
+    if( ! empty($order))
     {
-      foreach($uncomplete as $rs)
+      //--- check cancel request
+      $is_cancel = $this->orders_model->is_cancel_request($order->code);
+
+      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009'))
       {
-        $orderQty += $rs->qty;
-        $rs->barcode = $this->get_barcode($rs->product_code);
-        $rs->prepared = $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id);
-        $rs->stock_in_zone = $this->get_stock_in_zone($rs->product_code, get_null($order->warehouse_code));
+        $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
       }
-    }
 
-    $complete = $this->orders_model->get_valid_details($code);
-
-    if(!empty($complete))
-    {
-      foreach($complete as $rs)
+      if( ! $is_cancel)
       {
-        $rs->barcode = $this->get_barcode($rs->product_code);
-        $rs->prepared = $rs->is_count == 1 ? $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id) : $rs->qty;
-        $orderQty += $rs->qty;
-        $pickedQty += $rs->prepared;
+        $state = $this->orders_model->get_state($code);
 
-        $arr = array(
-          'order_code' => $rs->order_code,
-          'product_code' => $rs->product_code,
-          'order_detail_id' => $rs->id,
-          'is_count' => $rs->is_count
+        if($state == 3)
+        {
+          $rs = $this->orders_model->change_state($code, 4);
+
+          if($rs)
+          {
+            $arr = array(
+              'order_code' => $code,
+              'state' => 4,
+              'update_user' => $this->_user->uname
+            );
+
+            $this->order_state_model->add_state($arr);
+            $order->state = 4;
+          }
+        }
+
+        $order->customer_name = $this->customers_model->get_name($order->customer_code);
+        $order->channels_name = $this->channels_model->get_name($order->channels_code);
+
+        $whs = $this->warehouse_model->get($order->warehouse_code);
+        $order->warehouse_name = empty($whs) ? NULL : $whs->name;
+        $order->allow_prepare = $whs->prepare;
+
+        $orderQty = 0;
+        $pickedQty = 0;
+
+        $uncomplete = $this->orders_model->get_unvalid_details($code);
+
+        if(!empty($uncomplete))
+        {
+          foreach($uncomplete as $rs)
+          {
+            $orderQty += $rs->qty;
+            $rs->barcode = $this->get_barcode($rs->product_code);
+            $rs->prepared = $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id);
+            $rs->stock_in_zone = $this->get_stock_in_zone($rs->product_code, get_null($order->warehouse_code));
+          }
+        }
+
+        $complete = $this->orders_model->get_valid_details($code);
+
+        if(!empty($complete))
+        {
+          foreach($complete as $rs)
+          {
+            $rs->barcode = $this->get_barcode($rs->product_code);
+            $rs->prepared = $rs->is_count == 1 ? $this->prepare_model->get_prepared($rs->order_code, $rs->product_code, $rs->id) : $rs->qty;
+            $orderQty += $rs->qty;
+            $pickedQty += $rs->prepared;
+
+            $arr = array(
+              'order_code' => $rs->order_code,
+              'product_code' => $rs->product_code,
+              'order_detail_id' => $rs->id,
+              'is_count' => $rs->is_count
+            );
+
+            $rs->from_zone = $this->get_prepared_from_zone($arr);
+          }
+        }
+
+        $ds = array(
+          'order' => $order,
+          'uncomplete_details' => $uncomplete,
+          'complete_details' => $complete,
+          'finished' => empty($uncomplete) ? TRUE : FALSE,
+          'orderQty' => number($orderQty),
+          'pickedQty' => number($pickedQty)
         );
 
-        $rs->from_zone = $this->get_prepared_from_zone($arr);
+        if( ! empty($view))
+        {
+          $ds['title'] = $order->code . '<br/>' . $order->warehouse_code .' : '.$order->warehouse_name;
+          $this->load->view('inventory/prepare/prepare_process_mobile', $ds);
+        }
+        else
+        {
+          $this->load->view('inventory/prepare/prepare_process', $ds);
+        }
       }
-    }
-
-    $ds = array(
-      'order' => $order,
-      'uncomplete_details' => $uncomplete,
-      'complete_details' => $complete,
-      'finished' => empty($uncomplete) ? TRUE : FALSE,
-      'orderQty' => number($orderQty),
-      'pickedQty' => number($pickedQty)
-    );
-
-    if( ! empty($view))
-    {
-      $ds['title'] = $order->code . '<br/>' . $order->warehouse_code .' : '.$order->warehouse_name;
-      $this->load->view('inventory/prepare/prepare_process_mobile', $ds);
+      else
+      {
+        $this->load->view('inventory/prepare/order_cancelled', ['order' => $order]);
+      }
     }
     else
     {
-      $this->load->view('inventory/prepare/prepare_process', $ds);
+      $this->error_page();
     }
   }
 

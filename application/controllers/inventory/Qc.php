@@ -56,13 +56,110 @@ class Qc extends PS_Controller
 
   public function test()
   {
-    $code = $this->input->post('code');
-    $this->wms = $this->load->database('wms', TRUE);
-    $this->load->library('wrx_api');
 
-    $res = $this->wrx_api->get_shipping_param($code);
+  }
 
-    echo $res;
+
+  public function ship_order_tiktok($reference)
+  {
+    $sc = TRUE;
+    $logs = [];
+    $shipment = NULL;
+    $this->load->library('wrx_tiktok_api');
+    $order = $this->orders_model->get_order_by_reference($reference);
+
+    if( ! empty($order))
+    {
+      $ds = $this->wrx_tiktok_api->get_order_detail($reference);
+
+      if( ! empty($ds))
+      {
+        $logs[1] = $ds;
+
+        if($ds->order_status == '140')
+        {
+          $sc = FALSE;
+          $this->error = "ออเดอร์ถูกยกเลิกในระบบ TIKTOK แล้ว";
+        }
+
+        if($sc === TRUE)
+        {
+          //--- update package id , tracking number
+          if(empty($order->package_id) OR empty($order->shipping_code))
+          {
+            $arr = array(
+              'shipping_code' => $ds->tracking_number
+            );
+
+            $this->orders_model->update($order->code, $arr);
+          }
+        }
+
+        //---  ship package
+        if($sc === TRUE)
+        {
+          $ship = $this->wrx_tiktok_api->ship_package($ds->package_id);
+          $logs[2] = $ship;
+        }
+
+        if($sc === TRUE)
+        {
+          $res = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+
+          $logs[3]  = $res;
+
+          if( ! empty($res) && ! empty($res->code))
+          {
+            if($res->code == 200 && $res->status == 'success')
+            {
+              if( ! empty($res->data))
+              {
+                $shipment = $res->data;
+
+                if(empty($ds->tracking_number))
+                {
+                  $this->orders_model->update($order->code, ['shipping_code' => $shipment->tracking_number]);
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = $res->serviceMessage;
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = $res->serviceMessage;
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "ไม่สามารถดึงข้อมูลจาก API ได้";
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่สามารถดึงข้อมูลออเดอร์จาก API ได้";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Order {$reference} not found";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $shipment,
+      'logs' => $logs
+    );
+
+    echo json_encode($arr);
   }
 
 
@@ -344,105 +441,149 @@ class Qc extends PS_Controller
   }
 
 
+  public function is_cancel($reference, $channels)
+  {
+    $is_cancel = FALSE;
+
+    if($channels == '0009')
+    {
+      $this->load->library('wrx_tiktok_api');
+
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference);
+
+      if($order_status == '140')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
+    return $is_cancel;
+  }
+
+
   public function process($code, $view = NULL)
   {
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
     $this->load->model('inventory/buffer_model');
 
-    $state = $this->orders_model->get_state($code);
-
-    if($state == 5)
-    {
-      $rs = $this->orders_model->change_state($code, 6);
-      if($rs)
-      {
-        $arr = array(
-          'order_code' => $code,
-          'state' => 6,
-          'update_user' => get_cookie('uname')
-        );
-        $this->order_state_model->add_state($arr);
-      }
-    }
+    $is_cancel = FALSE;
 
     $order = $this->orders_model->get($code);
 
     if( ! empty($order))
     {
-      $order->customer_name = $this->customers_model->get_name($order->customer_code);
-      $order->channels_name = $this->channels_model->get_name($order->channels_code);
-      $order->warehouse_name = warehouse_name($order->warehouse_code);
-    }
+      //--- check cancel request
+      $is_cancel = $this->orders_model->is_cancel_request($order->code);
 
-    $barcode_list = array();
-
-    $uncomplete = $this->qc_model->get_in_complete_list($code);
-
-    if(!empty($uncomplete))
-    {
-      foreach($uncomplete as $rs)
+      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009'))
       {
-        $barcode = $this->get_barcode($rs->product_code);
-        $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
-        $bc = new stdClass();
-        $bc->barcode = md5($rs->barcode);
-        $bc->product_code = $rs->product_code;
-        $barcode_list[] = $bc;
-        $arr = array(
-          'order_code' => $code,
-          'product_code' => $rs->product_code,
-          'is_count' => $rs->is_count
+        $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
+      }
+
+      if( ! $is_cancel)
+      {
+        $state = $this->orders_model->get_state($code);
+
+        if($state == 5)
+        {
+          $rs = $this->orders_model->change_state($code, 6);
+
+          if($rs)
+          {
+            $arr = array(
+              'order_code' => $code,
+              'state' => 6,
+              'update_user' => get_cookie('uname')
+            );
+
+            $this->order_state_model->add_state($arr);
+            $order->state = 6;
+          }
+        }
+
+        $order->customer_name = $this->customers_model->get_name($order->customer_code);
+        $order->channels_name = $this->channels_model->get_name($order->channels_code);
+        $order->warehouse_name = warehouse_name($order->warehouse_code);
+
+        $barcode_list = array();
+
+        $uncomplete = $this->qc_model->get_in_complete_list($code);
+
+        if(!empty($uncomplete))
+        {
+          foreach($uncomplete as $rs)
+          {
+            $barcode = $this->get_barcode($rs->product_code);
+            $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
+            $bc = new stdClass();
+            $bc->barcode = md5($rs->barcode);
+            $bc->product_code = $rs->product_code;
+            $barcode_list[] = $bc;
+            $arr = array(
+              'order_code' => $code,
+              'product_code' => $rs->product_code,
+              'is_count' => $rs->is_count
+            );
+
+            $rs->from_zone = $this->get_prepared_from_zone($arr);
+          }
+        }
+
+        $complete = $this->qc_model->get_complete_list($code);
+
+        if(!empty($complete))
+        {
+          foreach($complete as $rs)
+          {
+            $barcode = $this->get_barcode($rs->product_code);
+            $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
+            $bc = new stdClass();
+            $bc->barcode = md5($rs->barcode);
+            $bc->product_code = $rs->product_code;
+            $barcode_list[] = $bc;
+
+            $arr = array(
+              'order_code' => $code,
+              'product_code' => $rs->product_code,
+              'is_count' => $rs->is_count
+            );
+
+            $rs->from_zone = $this->get_prepared_from_zone($arr);
+          }
+        }
+
+        $ds = array(
+          'order' => $order,
+          'uncomplete_details' => $uncomplete,
+          'complete_details' => $complete,
+          'barcode_list' => $barcode_list,
+          'box_list' => $this->qc_model->get_box_list($code),
+          'qc_qty' => $this->qc_model->total_qc($code),
+          'all_qty' => $this->get_sum_qty($code),
+          'finished' => empty($uncomplete) ? TRUE : FALSE,
+          'disActive' => $order->state == 6 ? '' : 'disabled',
+          'allow_input_qty' => getConfig('ALLOW_QC_INPUT_QTY') == 1 ? TRUE : FALSE
         );
 
-        $rs->from_zone = $this->get_prepared_from_zone($arr);
+        if( ! empty($view))
+        {
+          $ds['title'] = $order->code;
+          $this->load->view('inventory/qc/qc_process_mobile', $ds);
+        }
+        else
+        {
+          $this->load->view('inventory/qc/qc_process', $ds);
+        }
       }
-    }
-
-    $complete = $this->qc_model->get_complete_list($code);
-
-    if(!empty($complete))
-    {
-      foreach($complete as $rs)
+      else
       {
-        $barcode = $this->get_barcode($rs->product_code);
-        $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
-        $bc = new stdClass();
-        $bc->barcode = md5($rs->barcode);
-        $bc->product_code = $rs->product_code;
-        $barcode_list[] = $bc;
-
-        $arr = array(
-          'order_code' => $code,
-          'product_code' => $rs->product_code,
-          'is_count' => $rs->is_count
-        );
-
-        $rs->from_zone = $this->get_prepared_from_zone($arr);
+        $this->load->view('inventory/prepare/order_cancelled', ['order' => $order]);
       }
-    }
-
-    $ds = array(
-      'order' => $order,
-      'uncomplete_details' => $uncomplete,
-      'complete_details' => $complete,
-      'barcode_list' => $barcode_list,
-      'box_list' => $this->qc_model->get_box_list($code),
-      'qc_qty' => $this->qc_model->total_qc($code),
-      'all_qty' => $this->get_sum_qty($code),
-      'finished' => empty($uncomplete) ? TRUE : FALSE,
-      'disActive' => $order->state == 6 ? '' : 'disabled',
-      'allow_input_qty' => getConfig('ALLOW_QC_INPUT_QTY') == 1 ? TRUE : FALSE
-    );
-
-    if( ! empty($view))
-    {
-      $ds['title'] = $order->code;
-      $this->load->view('inventory/qc/qc_process_mobile', $ds);
     }
     else
     {
-      $this->load->view('inventory/qc/qc_process', $ds);
+      $this->error_page();
     }
   }
 
@@ -836,7 +977,7 @@ class Qc extends PS_Controller
     $ds['order'] = $order;
     $ds['details'] = $details;
     $ds['box_no'] = $box_no;
-    $ds['all_box'] = $all_box;    
+    $ds['all_box'] = $all_box;
     $ds['qrcode'] = $qr;
 
     $this->load->view('inventory/qc/packing_list', $ds);

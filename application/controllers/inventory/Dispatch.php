@@ -365,8 +365,17 @@ class Dispatch extends PS_Controller
 
     if( ! empty($order_code) && ! empty($code))
     {
-      $order = $this->orders_model->get($order_code);
-      $order = empty($order) ? $this->orders_model->get_order_by_reference($order_code) : $order;
+      $order = $this->orders_model->get_order_by_tracking($order_code);
+
+      if(empty($order))
+      {
+        $order = $this->orders_model->get_order_by_reference($order_code);
+      }
+
+      if(empty($order))
+      {
+        $order = $this->orders_model->get($order_code);
+      }
 
       if( ! empty($order))
       {

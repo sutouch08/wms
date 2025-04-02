@@ -121,6 +121,9 @@
 
   <div class="row hidden-xs">
     <div class="col-sm-12 text-right">
+      <?php if($order->channels_code == '0009' && ! empty($order->reference)) : ?>
+        <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
+      <?php endif; ?>
       <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)"><i class="fa fa-print"></i> ใบนำส่ง</button>
       <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
       <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
@@ -439,6 +442,39 @@
           }
         }
       })
+    })
+  }
+
+  function shipOrderTiktok(reference) {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'inventory/qc/ship_order_tiktok/'+reference,
+      type:'POST',
+      cache:false,
+      success:function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status === 'success') {
+            window.open(target_url, "_blank");
+          }
+          else {
+            beep();
+            showError(ds.message);
+          }
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
     })
   }
 </script>

@@ -24,8 +24,6 @@ class Delivery_order extends PS_Controller
 
   public function index()
   {
-
-
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
       'customer' => get_filter('customer', 'ic_customer', ''),
@@ -68,6 +66,26 @@ class Delivery_order extends PS_Controller
   }
 
 
+  public function is_cancel($reference, $channels)
+  {
+    $is_cancel = FALSE;
+
+    if($channels == '0009')
+    {
+      $this->load->library('wrx_tiktok_api');
+
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference);
+
+      if($order_status == '140')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
+    return $is_cancel;
+  }
+
+
   public function confirm_order()
   {
     $sc = TRUE;
@@ -84,7 +102,33 @@ class Delivery_order extends PS_Controller
 
     if( ! empty($order))
     {
+      //--- check cancel request
+      if($this->orders_model->is_cancel_request($order->code))
+      {
+        $sc = FALSE;
+        $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
+      }
 
+      if($sc === TRUE)
+      {
+        if( ! empty($order->reference) && ($order->channels_code == '0009'))
+        {
+          if($this->is_cancel($order->reference, $order->channels_code))
+          {
+            $sc = FALSE;
+            $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
+          }
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Order Not Found";
+    }
+
+    if($sc === TRUE)
+    {
 			$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : now();
 
       if($order->role == 'T' OR $order->role == 'Q')
@@ -422,11 +466,6 @@ class Delivery_order extends PS_Controller
         $this->error = "Invalid order status";
       }
     }
-    else
-    {
-      $sc = FALSE;
-      $this->error = 'order code not found';
-    }
 
     if($sc === TRUE)
     {
@@ -435,7 +474,7 @@ class Delivery_order extends PS_Controller
     else
     {
       //--- ถ้า error
-      $this->orders_model->set_exported($code, 3, $message);
+      $this->orders_model->set_exported($code, 3, $this->error);
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
