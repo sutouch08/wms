@@ -172,32 +172,9 @@ class Dispatch_model extends CI_Model
 
     if(isset($ds['channels']) && $ds['channels'] != 'all')
     {
-      switch($ds['channels'])
+      if(isset($ds['channels']) && $ds['channels'] != 'all')
       {
-        case "WU" :
-          $this->db->where('role', 'U');
-        break;
-        case "WS" :
-          $this->db->where('role', 'P');
-        break;
-        case "WC" :
-          $this->db->where('role', 'C');
-        break;
-        case "WT" :
-          $this->db->where('role', 'N');
-        break;
-        case "WQ" :
-          $this->db->where('role', 'T');
-        break;
-        case "WV" :
-          $this->db->where('role', 'Q');
-        break;
-        case "WL" :
-          $this->db->where('role', 'L');
-        break;
-        default :
-          $this->db->where('role', 'S')->where('channels_code', $ds['channels']);
-        break;
+        $this->db->where('channels_code', $ds['channels']);
       }
     }
 
@@ -249,33 +226,7 @@ class Dispatch_model extends CI_Model
 
     if(isset($ds['channels']) && $ds['channels'] != 'all')
     {
-      switch($ds['channels'])
-      {
-        case "WU" :
-          $this->db->where('role', 'U');
-        break;
-        case "WS" :
-          $this->db->where('role', 'P');
-        break;
-        case "WC" :
-          $this->db->where('role', 'C');
-        break;
-        case "WT" :
-          $this->db->where('role', 'N');
-        break;
-        case "WQ" :
-          $this->db->where('role', 'T');
-        break;
-        case "WV" :
-          $this->db->where('role', 'Q');
-        break;
-        case "WL" :
-          $this->db->where('role', 'L');
-        break;
-        default :
-          $this->db->where('role', 'S')->where('channels_code', $ds['channels']);
-        break;
-      }
+      $this->db->where('channels_code', $ds['channels']);
     }
 
     if( ! empty($ds['status']) && $ds['status'] != 'all')
