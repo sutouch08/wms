@@ -164,7 +164,7 @@
 		<table class="table table-hover border-1 no-border-xs table-listing">
 			<thead>
 				<tr>
-					<th class="fix-width-100 hidden-xs"></th>
+					<th class="fix-width-60 hidden-xs"></th>
 					<th class="fix-width-50 hidden-xs">
 						<label>
 							<input type="checkbox" class="ace" id="pc-all" onchange="toggleAllPc($(this))" />
@@ -173,10 +173,11 @@
 					</th>
 					<th class="fix-width-40 middle text-center hidden-xs">#</th>
 					<th class="fix-width-100 middle text-center hidden-xs">วันที่</th>
-					<th class="fix-width-300 middle hidden-xs">เลขที่เอกสาร</th>
-					<th class="min-width-250 middle hidden-xs">ลูกค้า/ผู้เบิก</th>
+					<th class="fix-width-150 middle hidden-xs">เลขที่เอกสาร</th>
+					<th class="fix-width-150 middle hidden-xs">เลขที่อ้างอิง</th>
+					<th class="fix-width-150 middle hidden-xs">ช่องทาง</th>
 					<th class="fix-width-100 middle text-center hidden-xs">จำนวน</th>
-          <th class="fix-width-150 middle hidden-xs">ช่องทาง</th>
+					<th class="min-width-300 middle hidden-xs">ลูกค้า/ผู้เบิก</th>
 					<th class="width-100 text-center hide">รายการรอจัด</th>
 				</tr>
 			</thead>
@@ -190,10 +191,11 @@
 							<?php $whName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
 						<?php endif; ?>
             <?php $customer_name = (!empty($rs->customer_ref)) ? $rs->customer_ref : $rs->customer_name; ?>
-            <tr id="row-<?php echo $rs->code; ?>">
+						<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
+            <tr id="row-<?php echo $rs->code; ?>" class="font-size-12">
 							<td class="middle hidden-xs">
           <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-                <button type="button" class="btn btn-white btn-info" onClick="goPrepare('<?php echo $rs->code; ?>')">จัดสินค้า</button>
+                <button type="button" class="btn btn-white btn-xs btn-info" onClick="goPrepare('<?php echo $rs->code; ?>')">จัดสินค้า</button>
           <?php endif; ?>
               </td>
 							<td class="middle hidden-xs">
@@ -204,19 +206,17 @@
 							</td>
               <td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
 							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
-              <td class="middle  hidden-xs">
-								<?php echo $rs->code; ?>
-								<?php echo (empty($rs->reference) ? "" : "[".$rs->reference."]"); ?>
-							</td>
-              <td class="middle  hidden-xs">
+							<td class="middle hidden-xs"><?php echo $rs->code . $cn_text; ?></td>
+							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
+							<td class="middle  hidden-xs"><?php echo $rs->channels_name; ?></td>
+							<td class="middle text-center  hidden-xs"><?php echo number($rs->qty); ?></td>
+							<td class="middle  hidden-xs">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>
 								<?php else : ?>
 									<?php echo $customer_name; ?>
 								<?php endif; ?>
 							</td>
-							<td class="middle text-center  hidden-xs"><?php echo number($rs->qty); ?></td>
-              <td class="middle  hidden-xs"><?php echo $rs->channels_name; ?></td>
 
 							<td class="visible-xs" style="border:0px; padding:3px; font-size:14px;">
 								<div class="col-xs-12" style="border:solid 1px #ccc; border-radius:5px; box-shadow:0px 1px 2px #f3ecec; padding:5px;">
@@ -225,6 +225,7 @@
 										<p class="margin-bottom-3 pre-wrap"><b>เลขที่ : </b>
 											<?php echo $rs->code; ?>
 											<?php echo (empty($rs->reference) ? "" : "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[".$rs->reference."]"); ?>
+											<?php echo $cn_text; ?>
 										</p>
 										<p class="margin-bottom-3 pre-wrap"><b>ลูกค้า : </b>
 											<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>

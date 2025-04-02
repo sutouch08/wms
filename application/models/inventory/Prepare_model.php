@@ -420,7 +420,7 @@ class Prepare_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $state = 3, $full_mode = TRUE)
   {
     $this->db
-		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name, o.customer_ref, o.date_add, o.channels_code')
+		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name, o.customer_ref, o.date_add, o.channels_code, o.is_cancled')
     ->select('o.warehouse_code, o.empName, o.user')
     ->select('ch.name AS channels_name')
     ->select('u.name AS display_name')

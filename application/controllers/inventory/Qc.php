@@ -578,6 +578,7 @@ class Qc extends PS_Controller
       }
       else
       {
+        $this->orders_model->update($code, ['is_cancled' => 1]);
         $this->load->view('inventory/prepare/order_cancelled', ['order' => $order]);
       }
     }

@@ -1197,7 +1197,7 @@ class Orders_model extends CI_Model
     $this->db
     ->select('id, code, role, reference, customer_code, customer_name, customer_ref')
     ->select('channels_code, payment_code, state, status, warehouse_code, zone_code, date_add, is_expired, doc_total')
-    ->select('is_wms, wms_export, is_backorder, is_approved, user, empName')
+    ->select('is_wms, wms_export, is_backorder, is_approved, user, empName, is_cancled')
     ->where('role', $role);
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))

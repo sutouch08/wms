@@ -206,7 +206,7 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="order-table" style="overflow:auto;">
-		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1280px; margin-bottom:20px;">
+		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1330px; margin-bottom:20px;">
 			<thead>
 				<tr>
 			<?php if($this->sokoApi OR $this->wmsApi) : ?>
@@ -219,7 +219,8 @@
 			<?php endif; ?>
 					<th class="fix-width-40 middle text-center fix-header">ลำดับ</th>
 					<th class="fix-width-100 middle text-center fix-header sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
-					<th class="fix-width-250 middle fix-header sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
+					<th class="fix-width-150 middle fix-header sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
+					<th class="fix-width-150 middle fix-header">เลขที่อ้างอิง</th>
 					<th class="fix-width-350 middle fix-header">ลูกค้า</th>
 					<th class="fix-width-100 middle text-right fix-header">ยอดเงิน</th>
 					<th class="fix-width-150 middle fix-header">ช่องทางขาย</th>
@@ -234,9 +235,9 @@
         <?php if(!empty($orders)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
           <?php foreach($orders as $rs) : ?>
-						<?php $ref = empty($rs->reference) ? '' :' ['.$rs->reference.']'; ?>
 						<?php $cus_ref = empty($rs->customer_ref) ? '' : ' ['.$rs->customer_ref.']'; ?>
-            <tr class="<?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>" id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
+						<?php $cn_text = $rs->state != 9 && $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
+            <tr class="font-size-12 <?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>" id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
 					<?php if($this->sokoApi OR $this->wmsApi) : ?>
 							<td class="middle text-center">
 								<?php if($rs->state == 3 && $rs->is_wms != 0 && $rs->wms_export != 1) : ?>
@@ -249,7 +250,8 @@
 					<?php endif; ?>
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code.$ref; ?></td>
+              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code . $cn_text; ?></td>
+							<td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
               <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>

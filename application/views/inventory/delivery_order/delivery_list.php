@@ -87,13 +87,14 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1150px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1300px;">
       <thead>
         <tr>
           <th class="fix-width-50 text-center">#</th>
           <th class="fix-width-100">วันที่</th>
 					<th class="fix-width-100">วันที่จัดส่ง</th>
-          <th class="fix-width-150">เลขที่เอกสาร </th>
+          <th class="fix-width-150">เลขที่เอกสาร</th>
+					<th class="fix-width-150">เลขที่อ้างอิง</th>
 					<th class="fix-width-100">รหัสลูกค้า</th>
           <th class="min-width-250">ลูกค้า</th>
           <th class="fix-width-100 text-center">ยอดเงิน</th>
@@ -107,6 +108,7 @@
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 			<?php $bg = $rs->is_hold ? 'background-color:#fde4e4;' : ''; ?>
+			<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
         <tr class="font-size-12" id="row-<?php echo $rs->code; ?>" style="<?php echo $bg; ?>">
 
           <td class="text-center pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
@@ -122,8 +124,10 @@
           </td>
 
           <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->code; ?>
-            <?php echo ($rs->reference != '' ? ' ['.$rs->reference.']' : ''); ?>
+            <?php echo $rs->code . $cn_text; ?>            
+          </td>
+					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
+            <?php echo $rs->reference; ?>
           </td>
 
 					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
