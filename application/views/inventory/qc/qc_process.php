@@ -196,7 +196,7 @@ if(!empty($barcode_list))
            let ds = JSON.parse(rs);
 
            if(ds.status === 'success') {
-             window.open(ds.data.target_url, "_blank");
+             window.open(ds.data.fileUrl, "_blank");
            }
            else {
              beep();
