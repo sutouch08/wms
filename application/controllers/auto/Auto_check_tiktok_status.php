@@ -45,6 +45,57 @@ class Auto_check_tiktok_status extends CI_Controller
   }
 
 
+  public function pick($show = NULL)
+  {
+    if($show) { echo "start : " . now() . "<br/>";}
+    $list = $this->get_orders_list([3, 4]);
+
+    if( ! empty($list))
+    {
+      $this->load->library('wrx_tiktok_api');
+
+      foreach($list as $rs)
+      {
+        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
+
+        if($order_status == '140')
+        {
+          $this->orders_model->update($rs->code, ['is_cancled' => 1]);
+        }
+      }
+    }
+
+    if($show) { echo "end : " . now(); }
+  }
+
+
+  public function pack($show = NULL)
+  {
+    if($show) { echo "start : " . now() . "<br/>";}
+    
+    $list = $this->get_orders_list([5, 6]);
+
+    if( ! empty($list))
+    {
+      $this->load->library('wrx_tiktok_api');
+
+      foreach($list as $rs)
+      {
+        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
+
+        if($order_status == '140')
+        {
+          $this->orders_model->update($rs->code, ['is_cancled' => 1]);
+        }
+      }
+    }
+
+    if($show) { echo "end : " . now(); }
+  }
+
+
   public function get_max_order_id()
   {
     $rs = $this->db->select_max('id')->get('orders');
@@ -58,7 +109,7 @@ class Auto_check_tiktok_status extends CI_Controller
   }
 
 
-  public function get_orders_list()
+  public function get_orders_list(array $state = array())
   {
     $max_id = $this->get_max_order_id();
 
@@ -70,7 +121,7 @@ class Auto_check_tiktok_status extends CI_Controller
     ->where('role', 'S')
     ->where('channels_code', '0009')
     ->where('is_cancled', 0)
-    ->where_in('state', [3, 4, 5, 6])
+    ->where_in('state', $state)
     ->order_by('id', 'ASC')
     ->limit(100)
     ->get('orders');
@@ -82,6 +133,7 @@ class Auto_check_tiktok_status extends CI_Controller
 
     return NULL;
   }
+
 
   public function update_status()
 	{
