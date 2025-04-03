@@ -90,7 +90,7 @@ class Qc_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
-    $this->db->order_by('date_add', 'DESC');
+    $this->db->order_by('id', 'ASC');
 
     $rs = $this->db->limit($perpage, $offset)->get('orders');
 
@@ -505,7 +505,7 @@ class Qc_model extends CI_Model
   {
     return $this->db->where('id', $box_id)->delete('qc_box');
   }
-  
+
 
   public function clear_qc($code)
   {

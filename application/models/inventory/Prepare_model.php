@@ -556,7 +556,7 @@ class Prepare_model extends CI_Model
     }
     else
     {
-      $this->db->order_by('o.id', 'DESC');
+      $this->db->order_by('o.id', 'ASC');
     }
 
     $rs = $this->db->limit($perpage, $offset)->get();

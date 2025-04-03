@@ -568,6 +568,7 @@ class Pick_list_model extends CI_Model
     ->from('orders AS o')
     ->join('channels AS c', 'o.channels_code = c.code', 'left')
     ->where('o.state', 3)
+    ->where('o.is_cancled', 0)
     ->where('o.warehouse_code', $ds['warehouse_code']);
 
     if( ! empty($ds['from_date']))
@@ -624,7 +625,7 @@ class Pick_list_model extends CI_Model
 
   public function is_order_in_correct_state($order_code)
   {
-    $count = $this->db->where('code', $order_code)->where('state', '3')->count_all_results('orders');
+    $count = $this->db->where('code', $order_code)->where('state', '3')->where('is_cancled', 0)->count_all_results('orders');
 
     return $count === 1 ? TRUE : FALSE;
   }
