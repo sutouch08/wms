@@ -908,7 +908,7 @@ class Orders extends REST_Controller
 
     if($order->is_wms != 0)
     {
-      $this->error = "This order cannot cancel by this api";
+      $this->error = "This order belong to other fulfilment cannot cancel by this api";
 
       $arr = array(
         'status' => FALSE,

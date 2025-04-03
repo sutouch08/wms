@@ -20,22 +20,28 @@ class Auto_check_tiktok_status extends CI_Controller
     $this->pm->can_view = 1;
   }
 
-  public function index()
+  public function index($show = NULL)
   {
-    $max_id = $this->get_max_order_id();
+    if($show) { echo "start : " . now() . "<br/>";}
+    $list = $this->get_orders_list();
 
-    $id = $max_id > 100000 ? $max_id - 10000;
+    if( ! empty($list))
+    {
+      $this->load->library('wrx_tiktok_api');
 
-    $this->db
-    ->select('code, reference')
-    ->where('id >', $id)
-    ->where('role', 'S')
-    ->where('channels_code', '0009')
-    ->where('is_cancled', 0)
-    ->where_in('state', [3, 4, 5, 6, 7])
-    ->order_by('id', 'DESC')
-    ->limit(100)
-    ->
+      foreach($list as $rs)
+      {
+        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
+
+        if($order_status == '140')
+        {
+          $this->orders_model->update($rs->code, ['is_cancled' => 1]);
+        }
+      }
+    }
+
+    if($show) { echo "end : " . now(); }
   }
 
 
@@ -49,6 +55,32 @@ class Auto_check_tiktok_status extends CI_Controller
     }
 
     return 1000000;
+  }
+
+
+  public function get_orders_list()
+  {
+    $max_id = $this->get_max_order_id();
+
+    $id = $max_id > 100000 ? $max_id - 10000 : $id;
+
+    $rs = $this->db
+    ->select('code, reference')
+    ->where('id >', $id)
+    ->where('role', 'S')
+    ->where('channels_code', '0009')
+    ->where('is_cancled', 0)
+    ->where_in('state', [3, 4, 5, 6])
+    ->order_by('id', 'ASC')
+    ->limit(100)
+    ->get('orders');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
   public function update_status()
