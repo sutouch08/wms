@@ -172,7 +172,7 @@
 						</label>
 					</th>
 					<th class="fix-width-40 middle text-center hidden-xs">#</th>
-					<th class="fix-width-100 middle text-center hidden-xs">วันที่</th>
+					<th class="fix-width-150 middle text-center hidden-xs">วันที่</th>
 					<th class="fix-width-150 middle hidden-xs">เลขที่เอกสาร</th>
 					<th class="fix-width-150 middle hidden-xs">เลขที่อ้างอิง</th>
 					<th class="fix-width-150 middle hidden-xs">ช่องทาง</th>
@@ -205,7 +205,7 @@
 								</label>
 							</td>
               <td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
-							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
+							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, TRUE,'/'); ?></td>
 							<td class="middle hidden-xs"><?php echo $rs->code . $cn_text; ?></td>
 							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
 							<td class="middle  hidden-xs"><?php echo $rs->channels_name; ?></td>
