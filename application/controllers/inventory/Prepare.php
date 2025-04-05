@@ -253,6 +253,18 @@ class Prepare extends PS_Controller
       }
     }
 
+    if($channels == 'SHOPEE')
+    {
+      $this->load->library('wrx_shopee_api');
+
+      $order_status = $this->wrx_shopee_api->get_order_status($reference);
+
+      if($order_status == 'CANCELLED' OR $order_status == 'IN_CANCEL')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
     return $is_cancel;
   }
 
@@ -273,7 +285,7 @@ class Prepare extends PS_Controller
       //--- check cancel request
       $is_cancel = $this->orders_model->is_cancel_request($order->code);
 
-      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009'))
+      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE'))
       {
         $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
       }
