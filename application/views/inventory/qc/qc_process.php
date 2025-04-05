@@ -10,7 +10,7 @@
     <?php if($order->channels_code == '0009' && ! empty($order->reference)) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php elseif($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
-      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print xLabel</button>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php endif; ?>
   </div>
 </div>
