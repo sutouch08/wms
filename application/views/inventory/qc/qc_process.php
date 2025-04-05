@@ -9,6 +9,8 @@
     <button type="button" class="btn btn-white btn-info top-btn" onclick="viewProcess()"><i class="fa fa-cube"></i> กำลังตรวจ</button>
     <?php if($order->channels_code == '0009' && ! empty($order->reference)) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
+    <?php elseif($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print xLabel</button>
     <?php endif; ?>
   </div>
 </div>
@@ -181,12 +183,48 @@ if(!empty($barcode_list))
   }
 }
  ?>
+
+
  <script>
    function shipOrderTiktok(reference) {
      load_in();
 
      $.ajax({
        url:HOME + 'ship_order_tiktok/'+reference,
+       type:'POST',
+       cache:false,
+       success:function(rs) {
+         load_out();
+
+         if(isJson(rs)) {
+           let ds = JSON.parse(rs);
+
+           if(ds.status === 'success') {
+             window.open(ds.data.fileUrl, "_blank");
+           }
+           else {
+             beep();
+             showError(ds.message);
+           }
+         }
+         else {
+           beep();
+           showError(rs);
+         }
+       },
+       error:function(rs) {
+         beep();
+         showError(rs);
+       }
+     })
+   }
+
+
+   function shipOrderShopee(reference) {
+     load_in();
+
+     $.ajax({
+       url:HOME + 'ship_order_shopee/'+reference,
        type:'POST',
        cache:false,
        success:function(rs) {

@@ -23,7 +23,8 @@ class Auto_check_tiktok_status extends CI_Controller
   public function index($show = NULL)
   {
     if($show) { echo "start : " . now() . "<br/>";}
-    $list = $this->get_orders_list();
+
+    $list = $this->get_orders_list([3,4,5,6]);
 
     if( ! empty($list))
     {
@@ -73,7 +74,7 @@ class Auto_check_tiktok_status extends CI_Controller
   public function pack($show = NULL)
   {
     if($show) { echo "start : " . now() . "<br/>";}
-    
+
     $list = $this->get_orders_list([5, 6]);
 
     if( ! empty($list))
@@ -123,7 +124,7 @@ class Auto_check_tiktok_status extends CI_Controller
     ->where('is_cancled', 0)
     ->where_in('state', $state)
     ->order_by('id', 'ASC')
-    ->limit(100)
+    ->limit(300)
     ->get('orders');
 
     if($rs->num_rows() > 0)

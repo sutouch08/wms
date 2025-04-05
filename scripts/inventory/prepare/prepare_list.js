@@ -67,9 +67,3 @@ function toggleExtraMenu() {
     pad.removeClass('slide-in');
   }
 }
-
-//
-// //---- Reload page every 5 minute
-// $(document).ready(function(){
-//   setInterval(function(){ goBack();}, 300000);
-// });

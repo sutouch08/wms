@@ -1,5 +1,5 @@
 
-var chk = setInterval(function () { checkState(); }, 10000);
+var chk = setInterval(function () { checkState(); }, 90000);
 
 
 

@@ -304,7 +304,7 @@ var intv = setInterval(function() {
       }
     }
   })
-}, 10000);
+}, 90000);
 
 
 function removeBuffer(orderCode, pdCode, order_detail_id) {

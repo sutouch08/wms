@@ -224,7 +224,9 @@ class Delivery_order_model extends CI_Model
       $this->db->where('is_hold', $ds['is_hold']);
     }
 
-    $rs = $this->db->order_by('id', 'DESC')->limit($perpage, $offset)->get('orders');
+    $order_by = $state == '7' ? 'ASC' : 'DESC';
+
+    $rs = $this->db->order_by('date_add', $order_by)->order_by('id', $order_by)->limit($perpage, $offset)->get('orders');
 
     if($rs->num_rows() > 0)
     {

@@ -56,7 +56,188 @@ class Qc extends PS_Controller
 
   public function test()
   {
+    $pickup_data = [
+      'address_id' => 200081907,
+      'pickup_time_id' => 100000,
+      'tracking_number' => ""
+    ];
 
+    $arr = array(
+      "orderSN" => "xxxxxx",
+      "packageNumber" => "",
+      "pickup" => array(
+        "addressID" => $pickup_data['address_id'],
+        "pickupTimeID" => $pickup_data['pickup_time_id'],
+        "trackingNumber" => ""
+      )
+    );
+
+    echo "<pre>". json_encode($arr)."</pre>";
+  }
+
+
+  public function ship_order_shopee($reference)
+  {
+    $sc = TRUE;
+    $logs = [];
+    $shipment = NULL;
+    $tracking = NULL;
+    $this->load->library('wrx_shopee_api');
+    $order = $this->orders_model->get_order_by_reference($reference);
+
+    if( ! empty($order))
+    {
+      $status = $this->wrx_shopee_api->get_order_status($reference);
+      $logs['status'] = $status;
+
+      if($status === 'CANCELLED' OR $status === 'IN_CANCEL')
+      {
+        $sc = FALSE;
+        $this->error = "ออเดอร์ถูกยกเลิกในระบบ Shopee แล้ว";
+      }
+
+      if($sc === TRUE)
+      {
+        $pickup_data = $this->wrx_shopee_api->get_shipping_param($reference);
+
+        if(empty($pickup_data))
+        {
+          sleep(1);  //--- wait 1 second and retry to request again
+
+          $pickup_data = $this->wrx_shopee_api->get_shipping_param($reference);
+
+          if(empty($pickup_data))
+          {
+            $sc = FALSE;
+            $this->error = "Cannot get param from api";
+          }
+        }
+
+        $logs['shipping_param'] = $pickup_data;
+      }
+
+
+      if($sc === TRUE && $status === 'READY_TO_SHIP')
+      {
+        //--- ship order
+        if( ! empty($pickup_data))
+        {
+          if( ! $this->wrx_shopee_api->ship_order($reference, $pickup_data))
+          {
+            $sc = FALSE;
+            $this->error = $this->wrx_shopee_api->error;
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Pickup data not found";
+        }
+
+        $logs['ship_order'] = $sc === TRUE ? 'success' : $this->error;
+      }
+
+      //--- get tracking_number
+      if($sc === TRUE)
+      {
+        $tracking_number = $this->wrx_shopee_api->get_tracking_number($reference);
+
+        if(empty($tracking_number))
+        {
+          $retry = 5;
+
+          while($retry > 0)
+          {
+            sleep(1);
+
+            $tracking_number = $this->wrx_shopee_api->get_tracking_number($reference);
+
+            if( ! empty($tracking_number))
+            {
+              break;
+            }
+
+            $retry--;
+          }
+
+          if(empty($tracking_number))
+          {
+            $sc = FALSE;
+            $this->error = "Cannot get tracking number after try {$retry} times";
+          }
+        }
+
+        if( ! empty($tracking_number))
+        {
+          $tracking = $tracking_number;
+          $this->orders_model->update($order->code, ['shipping_code' => $tracking_number]);
+        }
+
+        $logs['get_tracking'] = $sc === TRUE ? $tracking : $this->error;
+      }
+
+
+      //--- cereate shipping document
+      if($sc === TRUE)
+      {
+        if( ! $this->wrx_shopee_api->create_shipping_document($reference, $tracking))
+        {
+          $sc = FALSE;
+          $this->error = $this->wrx_shopee_api->error;
+        }
+
+        $logs['create'] = $sc === TRUE ? 'success' : $this->error;
+      }
+
+      //--- get create document result
+      if($sc === TRUE)
+      {
+        if( ! $this->wrx_shopee_api->shipping_document_result($reference))
+        {
+          sleep(1);
+
+          if( ! $this->wrx_shopee_api->shipping_document_result($reference))
+          {
+            $sc = FALSE;
+            $this->error = $this->wrx_shopee_api->error;
+          }
+        }
+
+        $logs[] = $sc === TRUE ? 'success' : $this->error;
+      }
+
+      //--- download_shipping_document
+      if($sc === TRUE)
+      {
+        $res = $this->wrx_shopee_api->shipping_document_download($reference);
+
+        if( ! empty($res))
+        {
+          $shipment = $res;
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Failed to download shipping label";
+        }
+
+        $logs[] = $sc === TRUE ? $res : $this->error;
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Order {$reference} not found";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $shipment,
+      'logs' => $logs
+    );
+
+    echo json_encode($arr);
   }
 
 
