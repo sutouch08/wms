@@ -1029,6 +1029,7 @@ class Orders extends PS_Controller
 
   public function edit_order($code)
   {
+    $start = now();
     $this->load->model('address/address_model');
     $this->load->model('masters/bank_model');
     $this->load->model('orders/order_payment_model');
@@ -1079,6 +1080,8 @@ class Orders extends PS_Controller
 	    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
 	    $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
       $ds['is_api'] = $is_api;
+      $ds['start'] = $start;
+      $ds['end'] = now();
 	    $this->load->view('orders/order_edit', $ds);
     }
 		else
