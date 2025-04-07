@@ -1837,30 +1837,32 @@ class Orders extends PS_Controller
 
   public function test_get_item_grid()
   {
-    $start = now();
-    $sc = "";
+    $sc = "Start : ".now()."<br/>";
     $item_code = $this->input->get('itemCode');
     $warehouse_code = get_null($this->input->get('warehouse_code'));
+    $sc .= "Get Configh : ".now();
     $filter = getConfig('MAX_SHOW_STOCK');
     $auz = getConfig('ALLOW_UNDER_ZERO') ? TRUE : FALSE;
+    $sc .= " - ".now()."<br/>";
+    $sc .= "Get Item Master: ".now();
     $item = $this->products_model->get_with_old_code($item_code);
+    $sc .= " - ".now()."<br/>";
 
     if(!empty($item))
     {
       if(! is_array($item))
       {
-        $qty = ($item->count_stock == 1 &&  ! $auz) ? ($item->active == 1 ? $this->showStock($this->get_sell_stock($item->code, $warehouse_code)) : 0) : ($item->active == 1 ? 1000000 : 0);
-        $sc = "success | {$item_code} | {$qty}";
+        $sc .= "Get stock from SAP : ".now();
+        $sell_stock = $this->stock_model->get_sell_stock($item->code, $warehouse_code);
+        $sc .= " - ".now()." : Result : {$sell_stock} <br/>";
+        $sc .= "Get Reserv stock : ".now();
+        $reserv_stock = $this->orders_model->get_reserv_stock($item->code, $warehouse_code);
+        $sc .= " - ".now()." : Result : {$reserv_stock}<br/>";
+        $sc .= "Available stock = ".($sell_stock - $reserv_stock)."<br/>";
       }
       else
       {
-        $this->error = "รหัสซ้ำ ";
-        foreach($item as $rs)
-        {
-          $this->error .= " :{$rs->code}";
-        }
-
-        echo "Error : {$this->error} | {$item_code}";
+        $sc .= "ไม่พบสินค้า.";
       }
 
     }
@@ -1869,9 +1871,7 @@ class Orders extends PS_Controller
       $sc = "Error | ไม่พบสินค้า | {$item_code}";
     }
 
-    $end = now();
-    $res = $sc ." | Start: {$start} | End : {$end}";
-    echo $res;
+    echo $sc;
   }
 
 
