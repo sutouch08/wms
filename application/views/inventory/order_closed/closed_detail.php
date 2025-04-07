@@ -127,7 +127,7 @@
       <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
         <button type="button" class="btn btn-white btn-info" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
       <?php endif; ?>
-      <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)"><i class="fa fa-print"></i> ใบนำส่ง</button>
+      <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress('<?php echo $order->id_address; ?>', '<?php echo $order->code; ?>', '<?php echo $order->id_sender; ?>')"><i class="fa fa-print"></i> ใบนำส่ง</button>
       <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
       <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
       <button type="button" class="btn btn-sm btn-warning top-btn" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>

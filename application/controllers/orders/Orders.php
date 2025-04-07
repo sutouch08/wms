@@ -1835,6 +1835,45 @@ class Orders extends PS_Controller
     echo $sc === TRUE ? json_encode($ds) : $this->error;
   }
 
+  public function test_get_item_grid()
+  {
+    $start = now();
+    $sc = "";
+    $item_code = $this->input->get('itemCode');
+    $warehouse_code = get_null($this->input->get('warehouse_code'));
+    $filter = getConfig('MAX_SHOW_STOCK');
+    $auz = getConfig('ALLOW_UNDER_ZERO') ? TRUE : FALSE;
+    $item = $this->products_model->get_with_old_code($item_code);
+
+    if(!empty($item))
+    {
+      if(! is_array($item))
+      {
+        $qty = ($item->count_stock == 1 &&  ! $auz) ? ($item->active == 1 ? $this->showStock($this->get_sell_stock($item->code, $warehouse_code)) : 0) : ($item->active == 1 ? 1000000 : 0);
+        $sc = "success | {$item_code} | {$qty}";
+      }
+      else
+      {
+        $this->error = "รหัสซ้ำ ";
+        foreach($item as $rs)
+        {
+          $this->error .= " :{$rs->code}";
+        }
+
+        echo "Error : {$this->error} | {$item_code}";
+      }
+
+    }
+    else
+    {
+      $sc = "Error | ไม่พบสินค้า | {$item_code}";
+    }
+
+    $end = now();
+    $res = $sc ." | Start: {$start} | End : {$end}";
+    echo $res;
+  }
+
 
   public function get_item_grid()
   {
