@@ -654,7 +654,7 @@ function recalDiscount(){
 function changeState(){
   var order_code = $("#order_code").val();
   var state = $("#stateList").val();
-  var is_wms = $('#is_wms').val();
+  var is_wms = parseDefault(parseInt($('#is_wms').val()), 0);
   var trackingNo = $('#trackingNo').val();
   var tracking = $('#tracking').val();
   var id_address = $('#address_id').val();
@@ -664,7 +664,7 @@ function changeState(){
   let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
 
-  if(is_wms) {
+  if(is_wms != '0') {
     if(state == 3 && id_address == "") {
       swal("กรุณาระบุที่อยู่จัดส่ง");
       return false;
