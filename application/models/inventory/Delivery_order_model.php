@@ -40,6 +40,11 @@ class Delivery_order_model extends CI_Model
       $this->db->like('code', $ds['code']);
     }
 
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('reference', $ds['reference']);
+    }
+
     if(! empty($ds['customer']))
     {
       $this->db
@@ -144,6 +149,11 @@ class Delivery_order_model extends CI_Model
     if( ! empty($ds['code']))
     {
       $this->db->like('code', $ds['code']);
+    }
+
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('reference', $ds['reference']);
     }
 
     if(! empty($ds['customer']))

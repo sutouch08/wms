@@ -14,6 +14,11 @@
     <input type="text" class="form-control input-sm search-box" name="code"  value="<?php echo $code; ?>" />
   </div>
 
+	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+    <label>เลขที่อ้างอิง</label>
+    <input type="text" class="form-control input-sm search-box" name="reference"  value="<?php echo $reference; ?>" />
+  </div>
+
   <div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search-box" name="customer" value="<?php echo $customer; ?>" />
@@ -24,7 +29,7 @@
     <input type="text" class="form-control input-sm search-box" name="user" value="<?php echo $user; ?>" />
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>รูปแบบ</label>
 		<select class="form-control input-sm" name="role" onchange="getSearch()">
       <option value="">ทั้งหมด</option>
@@ -32,7 +37,7 @@
     </select>
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
 		<select class="form-control input-sm" name="channels" onchange="getSearch()">
       <option value="">ทั้งหมด</option>
@@ -40,7 +45,7 @@
     </select>
   </div>
 
-	<div class="col-lg-3-harf col-md-2 col-sm-5 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-5 col-sm-6 col-xs-6 padding-5">
     <label>คลังสินค้า</label>
 		<select class="width-100 filter" id="warehouse" name="warehouse">
       <option value="all">ทั้งหมด</option>
@@ -112,13 +117,14 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1090px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1210px;">
       <thead>
         <tr>
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
 					<th class="fix-width-100 text-center">วันที่จัดส่ง</th>
-          <th class="fix-width-150">เลขที่เอกสาร</th>
+          <th class="fix-width-120">เลขที่เอกสาร</th>
+					<th class="fix-width-150">เลขที่อ้างอิง</th>
 					<th class="fix-width-100">SAP NO</th>
           <th class="min-width-200">ลูกค้า/ผู้รับ/ผู้เบิก</th>
           <th class="fix-width-100 text-right">ยอดเงิน</th>
@@ -148,7 +154,10 @@
 
           <td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->code; ?>
-            <?php echo ($rs->reference != '' ? ' ['.$rs->reference.']' : ''); ?>
+          </td>
+
+					<td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
+            <?php echo $rs->reference; ?>
           </td>
 
 					<td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
@@ -182,7 +191,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="9" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="10" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>

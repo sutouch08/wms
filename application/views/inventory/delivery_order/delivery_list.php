@@ -14,6 +14,11 @@
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>เลขที่อ้างอิง</label>
+    <input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
+  </div>
+
   <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า/ผู้เบิก</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
@@ -124,7 +129,7 @@
           </td>
 
           <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->code . $cn_text; ?>            
+            <?php echo $rs->code . $cn_text; ?>
           </td>
 					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->reference; ?>
