@@ -25,7 +25,7 @@ class Transfer_acception extends PS_Controller
 
   public function get_report()
   {
-    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 2048M
     ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
 
@@ -110,10 +110,10 @@ class Transfer_acception extends PS_Controller
 
   public function do_export()
   {
-    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 2048M
     ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
-    
+
     $token = $this->input->post('token');
 		$roles = $this->input->post('role');
 		$all  = $this->input->post('allRole') ? TRUE : FALSE;
@@ -163,7 +163,7 @@ class Transfer_acception extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('C2', 'เลขที่');
     $this->excel->getActiveSheet()->setCellValue('D2', 'เจ้าของโซน');
     $this->excel->getActiveSheet()->setCellValue('E2', 'การกดรับ');
-    $this->excel->getActiveSheet()->setCellValue('F2', 'กดรับโดย');
+    ini_set('memory_limit','2048M');>setCellValue('F2', 'กดรับโดย');
     $this->excel->getActiveSheet()->setCellValue('G2', 'วันที่กดรับ');
     $this->excel->getActiveSheet()->setCellValue('H2', 'หมายเหตุ');
 
