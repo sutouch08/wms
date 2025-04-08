@@ -10,7 +10,7 @@ class Auto_check_backorder extends CI_Controller
   public $menu_group_code = NULL;
   public $pm;
   public $error;
-  public $limit = 100;
+  public $limit = 1000;
 
   public function __construct()
   {
@@ -26,10 +26,9 @@ class Auto_check_backorder extends CI_Controller
 
   public function index()
   {
-    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
-    ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
-    ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
-
+    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('sqlsrv.ClientBufferMaxKBSize','2097152'); // Setting to 512M
+    ini_set('sqlsrv.client_buffer_max_kb_size','2097152'); // Setting to 512M - for pdo_sqlsrv
 
     $count = 0;
     $update = 0;
