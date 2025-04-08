@@ -33,7 +33,7 @@ class Order_channels_items extends PS_Controller
 
   public function do_export()
   {
-    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 2048M
     ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
 
