@@ -197,6 +197,7 @@ class Prepare_model extends CI_Model
     return $this->db->delete('prepare');
   }
 
+
   public function get_total_prepared($order_code)
   {
     $rs = $this->db
@@ -245,9 +246,6 @@ class Prepare_model extends CI_Model
   }
 
 
-
-
-
   public function get_buffer_zone($item_code, $zone_code)
   {
     $rs = $this->db->select_sum('qty')
@@ -288,6 +286,11 @@ class Prepare_model extends CI_Model
 		{
 			$this->db->where('o.is_wms', 0);
 		}
+
+    if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
+    {
+      $this->db->where('is_backorder', $ds['is_backorder']);
+    }
 
     if(!empty($ds['code']))
     {
@@ -420,7 +423,8 @@ class Prepare_model extends CI_Model
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $state = 3, $full_mode = TRUE)
   {
     $this->db
-		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name, o.customer_ref, o.date_add, o.channels_code, o.is_cancled')
+		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
+    ->select('o.customer_ref, o.date_add, o.channels_code, o.is_backorder, o.is_cancled')
     ->select('o.warehouse_code, o.empName, o.user')
     ->select('ch.name AS channels_name')
     ->select('u.name AS display_name')
@@ -450,6 +454,11 @@ class Prepare_model extends CI_Model
     $this->db
     ->where('o.state', $state)
     ->where('o.status', 1);
+
+    if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
+    {
+      $this->db->where('is_backorder', $ds['is_backorder']);
+    }
 
     if(!empty($ds['code']))
     {
@@ -597,6 +606,16 @@ class Prepare_model extends CI_Model
     return $this->db->where('order_code', $code)->delete('prepare');
   }
 
+
+  public function update_back_order($option, array  $order_list = array())
+  {
+    if( ! empty($order_list))
+    {
+      return $this->db->set('is_backorder', $option)->where_in('code', $order_list)->update('orders');
+    }
+
+    return FALSE;
+  }
 
 
 } //--- end class

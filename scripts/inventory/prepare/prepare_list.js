@@ -67,3 +67,74 @@ function toggleExtraMenu() {
     pad.removeClass('slide-in');
   }
 }
+
+
+function updateBackorder(option) {
+  let count = $('.pc:checked').length;
+
+  if(count) {
+    let msg = "";
+    if(option == '1') {
+      msg = "ต้องการเปลี่ยนรายการที่เลือกให้เป็น Backorder หรือไม่ ?";
+    }
+    else {
+      msg = "ต้องการเปลี่ยนรายการที่เลือกออกจากสถานะ Backorder หรือไม่ ?";
+    }
+
+    let h = {
+      'option' : option,
+      'orders' : []
+    };
+
+    $('.pc:checked').each(function() {
+      h.orders.push($(this).val());
+    });
+
+
+    swal({
+      title:'Backorder',
+      text:msg,
+      type:'warning',
+      showCancelButton:true,
+      cancelButtonText:'No',
+      confirmButtonText:'Yes',
+      closeOnConfirm:true
+    }, function() {
+      setTimeout(() => {
+        load_in();
+
+        $.ajax({
+          url:HOME + '/update_back_order',
+          type:'POST',
+          cache:false,
+          data:{
+            'data' : JSON.stringify(h)
+          },
+          success:function(rs) {
+            load_out();
+
+            if(rs.trim() === 'success') {
+              swal({
+                title:'Success',
+                type:'success',
+                timer:1000
+              });
+
+              setTimeout(() => {
+                refresh();
+              }, 1200);
+            }
+            else {
+              beep();
+              showError(rs);
+            }
+          },
+          error:function(rs) {
+            beep();
+            showError(rs);
+          }
+        })
+      }, 100);
+    });
+  }
+}

@@ -8,6 +8,23 @@
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hidden-xs">
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="genPickList()">พิมพ์ใบจัด(ชั่วคราว)</button>
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="goProcess()"><i class="fa fa-external-link-square"></i> รายการกำลังจัด</button>
+	<?php if($this->pm->can_edit) : ?>
+		<div class="btn-group">
+			<button data-toggle="dropdown" class="btn btn-danger btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+				<i class="ace-icon fa fa-exclamation-triangle icon-on-left"></i>
+				Backorder
+				<i class="ace-icon fa fa-angle-down icon-on-right"></i>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-right">
+				<li class="danger">
+					<a href="javascript:updateBackorder(1)">Backorder</a>
+				</li>
+				<li class="purple">
+					<a href="javascript:updateBackorder(0)">Not Backorder</a>
+				</li>
+			</ul>
+		</div>
+	<?php endif; ?>
 	</div>
 </div><!-- End Row -->
 <hr class=""/>
@@ -42,7 +59,7 @@
 
 		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-12 padding-5 fi">
 			<label>ช่องทางขาย</label>
-			<select class="form-control input-sm" name="channels">
+			<select class="width-100" name="channels" id="channels">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_channels($channels); ?>
 			</select>
@@ -72,11 +89,20 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-2 col-xs-12 padding-5 fi">
+		<div class="col-lg-1-harf col-md-3 col-sm-2 col-xs-12 padding-5 fi hide">
 			<label>ช่องทางการชำระเงิน</label>
 			<select class="form-control input-sm" name="payment">
-				<option value="">ทั้งหมด</option>
+				<option value="all">ทั้งหมด</option>
 				<?php echo select_payment_method($payment); ?>
+			</select>
+		</div>
+
+		<div class="col-lg-1-harf col-md-3 col-sm-2 col-xs-12 padding-5 fi">
+			<label>Backorder</label>
+			<select class="form-control input-sm" name="is_backorder">
+				<option value="all">ทั้งหมด</option>
+				<option value="1" <?php echo is_selected('1', $is_backorder);?>>Yes</option>
+				<option value="0" <?php echo is_selected('0', $is_backorder); ?>>No</option>
 			</select>
 		</div>
 
@@ -192,7 +218,8 @@
 						<?php endif; ?>
             <?php $customer_name = (!empty($rs->customer_ref)) ? $rs->customer_ref : $rs->customer_name; ?>
 						<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
-            <tr id="row-<?php echo $rs->code; ?>" class="font-size-12">
+						<?php $color = $rs->is_backorder ? 'red' : ''; ?>
+            <tr id="row-<?php echo $rs->code; ?>" class="font-size-12 <?php echo $color; ?>">
 							<td class="middle hidden-xs">
           <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
                 <button type="button" class="btn btn-white btn-xs btn-info" onClick="goPrepare('<?php echo $rs->code; ?>')">จัดสินค้า</button>
@@ -304,6 +331,10 @@
 	<input type="hidden" id="extra" value="hide" />
 </div>
 
+<script>
+	$('#warehouse').select2();
+	$('#channels').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=<?php echo date('YmdHis'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_list.js?v=<?php echo date('YmdHis'); ?>"></script>
 

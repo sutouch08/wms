@@ -46,7 +46,8 @@ class Prepare extends PS_Controller
       'endTime' => get_filter('endTime', 'ic_endTime', ''),
       'item_code' => get_filter('item_code', 'ic_item_code', ''),
       'payment' => get_filter('payment', 'ic_payment', 'all'),
-      'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all')
+      'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all')
     );
 
     if($this->input->post('search'))
@@ -94,7 +95,8 @@ class Prepare extends PS_Controller
       'endTime' => get_filter('endTime', 'ic_endTime', ''),
       'item_code' => get_filter('item_code', 'ic_item_code', ''),
       'payment' => get_filter('payment', 'ic_payment', 'all'),
-      'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all')
+      'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
+      'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all')
     );
 
     if($this->input->post('search'))
@@ -116,6 +118,29 @@ class Prepare extends PS_Controller
   		$this->pagination->initialize($init);
       $this->load->view('inventory/prepare/prepare_view_process', $filter);
     }
+  }
+
+
+  public function update_back_order()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
+    {
+      if( ! $this->prepare_model->update_back_order($ds->option, $ds->orders))
+      {
+        $sc = FALSE;
+        $this->error = "Change backorder status failed";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
   }
 
 
@@ -892,7 +917,8 @@ class Prepare extends PS_Controller
       'ic_item_code',
       'ic_display_name',
       'ic_payment',
-      'ic_warehouse'
+      'ic_warehouse',
+      'ic_is_backorder'
     );
 
     clear_filter($filter);
