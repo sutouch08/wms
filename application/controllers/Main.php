@@ -16,7 +16,7 @@ class Main extends PS_Controller
 		$this->pm->can_view = 1;
     $this->load->model('main_model');
 		$this->load->helper('warehouse');
-		$this->load->helper('product_color');	
+		$this->load->helper('product_color');
 	}
 
 

@@ -26,6 +26,10 @@ class Document_running extends PS_Controller
 
   public function do_export()
   {
+    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 2048M
+    ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
+    
     $token = $this->input->post('token');
 		$role = $this->input->post('role');
 		$all  = $this->input->post('allRole') ? TRUE : FALSE;
@@ -688,7 +692,7 @@ class Document_running extends PS_Controller
 	        $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_add, FALSE, '/'));
 					$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
 	        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->inv_code);
-	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $this->statusLabel($rs->status, $rs->is_expire));          
+	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $this->statusLabel($rs->status, $rs->is_expire));
 
 					$no++;
 					$row++;

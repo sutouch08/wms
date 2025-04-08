@@ -26,6 +26,10 @@ class Stock_balance_year extends PS_Controller
 
   public function get_report()
   {
+    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 2048M
+    ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
+
     $sc = TRUE;
     $allProduct = $this->input->get('allProduct');
     $pdFrom = $this->input->get('pdFrom');
@@ -56,55 +60,55 @@ class Stock_balance_year extends PS_Controller
 
     $this->stock_balance_year_report_model->get_data($ds);
 
-    // if($allProduct == 0)
-    // {
-    //   $qr .= "AND pd.code >= '".$pdFrom."' ";
-    //   $qr .= "AND pd.code <= '".$pdTo."' ";
-    // }
-    //
-    // $qr .= "GROUP BY st.id_product ";
-    // $qr .= "ORDER BY ps.code ASC , co.code ASC, si.position ASC ";
-    //
-    // $qs = dbQuery($qr);
-    //
-    // if(dbNumRows($qs) < 2001)
-    // {
-    //   $ds = array();
-    //   $no = 1;
-    //   $total = array();
-    //   foreach($Years as $year)
-    //   {
-    //     $total[$year.'_sum'] = 0;
-    //   }
-    //
-    //   while($rs = dbFetchObject($qs))
-    //   {
-    //     $arr = array(
-    //       'no' => $no,
-    //       'pdCode' => $rs->code,
-    //       'pdName' => $rs->name
-    //     );
-    //
-    //     foreach($Years as $year)
-    //     {
-    //       $arr[$year.'_qty'] = $rs->year == $year ? number($rs->qty) : '-';
-    //       $total[$year.'_sum'] += $rs->year == $year ? $rs->qty : 0;
-    //     }
-    //
-    //     $no++;
-    //     array_push($ds, $arr);
-    //     unset($arr);
-    //   }
-    //
-    //   array_push($ds, $total);
-    // }
-    // else
-    // {
-    //   $sc = FALSE;
-    //   $message = 'ผลลัพธ์มีมากกว่า 2000 รายการ กรุณาส่งออกข้อมูลแทนการแสดงผลหน้าจอ';
-    // }
-    //
-    // echo $sc === TRUE ? json_encode($ds) : $message;
+    if($allProduct == 0)
+    {
+      $qr .= "AND pd.code >= '".$pdFrom."' ";
+      $qr .= "AND pd.code <= '".$pdTo."' ";
+    }
+
+    $qr .= "GROUP BY st.id_product ";
+    $qr .= "ORDER BY ps.code ASC , co.code ASC, si.position ASC ";
+
+    $qs = dbQuery($qr);
+
+    if(dbNumRows($qs) < 2001)
+    {
+      $ds = array();
+      $no = 1;
+      $total = array();
+      foreach($Years as $year)
+      {
+        $total[$year.'_sum'] = 0;
+      }
+
+      while($rs = dbFetchObject($qs))
+      {
+        $arr = array(
+          'no' => $no,
+          'pdCode' => $rs->code,
+          'pdName' => $rs->name
+        );
+
+        foreach($Years as $year)
+        {
+          $arr[$year.'_qty'] = $rs->year == $year ? number($rs->qty) : '-';
+          $total[$year.'_sum'] += $rs->year == $year ? $rs->qty : 0;
+        }
+
+        $no++;
+        array_push($ds, $arr);
+        unset($arr);
+      }
+
+      array_push($ds, $total);
+    }
+    else
+    {
+      $sc = FALSE;
+      $message = 'ผลลัพธ์มีมากกว่า 2000 รายการ กรุณาส่งออกข้อมูลแทนการแสดงผลหน้าจอ';
+    }
+
+    echo $sc === TRUE ? json_encode($ds) : $message;
   }
 
 
@@ -113,6 +117,10 @@ class Stock_balance_year extends PS_Controller
 
   public function do_export()
   {
+    ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+    ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 2048M
+    ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
+    
     $allProduct = $this->input->post('allProduct');
     $pdFrom = $this->input->post('pdFrom');
     $pdTo = $this->input->post('pdTo');
