@@ -148,6 +148,15 @@
 		</select>
 	</div>
 
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>Canceled</label>
+		<select class="form-control input-sm" name="is_cancled" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_cancled); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $is_cancled); ?>>No</option>
+		</select>
+	</div>
+
 	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
 		<label>คลัง</label>
 		<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">

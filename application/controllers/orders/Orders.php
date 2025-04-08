@@ -80,7 +80,8 @@ class Orders extends PS_Controller
       'is_pre_order' => get_filter('is_pre_order', 'is_pre_order', 'all'),
       'is_backorder' => get_filter('is_backorder', 'is_backorder', 'all'),
       'tax_status' => get_filter('tax_status', 'tax_status', 'all'),
-      'is_etax' => get_filter('is_etax', 'is_etax', 'all')
+      'is_etax' => get_filter('is_etax', 'is_etax', 'all'),
+      'is_cancled' => get_filter('is_cancled', 'is_cancled', 'all')
     );
 
     $state = array(
@@ -4513,7 +4514,8 @@ class Orders extends PS_Controller
       'is_pre_order',
       'is_backorder',
       'tax_status',
-      'is_etax'
+      'is_etax',
+      'is_cancled'
     );
 
     clear_filter($filter);
