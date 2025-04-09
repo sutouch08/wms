@@ -1642,6 +1642,7 @@ class Orders_model extends CI_Model
     ->where('is_cancled', 0)
     ->where('is_expired', 0)
     ->where('inv_code IS NULL', NULL, FALSE)
+    ->order_by('last_sync', 'ASC')
     ->limit($limit)
     ->get('orders');
 
@@ -1787,7 +1788,7 @@ class Orders_model extends CI_Model
 
   public function update_inv($code, $doc_num)
   {
-    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('orders');
+    return $this->db->set('inv_code', $doc_num)->set('last_sync', now())->where('code', $code)->update('orders');
   }
 
 

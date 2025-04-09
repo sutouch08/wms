@@ -342,13 +342,19 @@ class Sync_data_new extends CI_Controller
       {
         $count++;
         $inv = $this->orders_model->get_sap_doc_num($rs->code);
-        if(!empty($inv))
+
+        if( ! empty($inv))
         {
           if($this->orders_model->update_inv($rs->code, $inv))
           {
             $this->orders_model->set_complete($rs->code);
           }
+
           $update++;
+        }
+        else
+        {
+          $this->orders_model->update($rs->code, ['last_sync' => now()]);
         }
       }
     }
