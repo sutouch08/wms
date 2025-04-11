@@ -25,7 +25,7 @@ class Product_tab_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $qr  = "SELECT COUNT(t.id) AS rows ";
+    $qr  = "SELECT COUNT(t.id) AS num_rows ";
     $qr .= "FROM product_tab AS t ";
     $qr .= "LEFT JOIN product_tab AS p ON t.id_parent = p.id ";
     $qr .= "WHERE t.name IS NOT NULL ";
