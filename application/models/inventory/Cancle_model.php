@@ -221,6 +221,74 @@ class Cancle_model extends CI_Model
   }
 
 
+  public function restore_buffer_and_prepare($code)
+  {
+    $sc = TRUE;
+
+    $rs = $this->db->where('order_code', $code)->get('cancle');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        if($sc === FALSE)
+        {
+          break;
+        }
+
+        if( ! $this->is_buffer_exists($rd->order_code, $rd->product_code, $rd->zone_code, $rd->order_detail_id))
+        {
+          $arr = array(
+            'order_code' => $rd->order_code,
+            'product_code' => $rd->product_code,
+            'warehouse_code' => $rd->warehouse_code,
+            'zone_code' => $rd->zone_code,
+            'qty' => $rd->qty,
+            'user' => $rd->user,
+            'order_detail_id' => $rd->order_detail_id
+          );
+
+          if( ! $this->db->insert('buffer', $arr))
+          {
+            $sc = FALSE;
+          }
+        }
+
+        //--- restore prepare
+        if($sc === TRUE)
+        {
+          if(! $this->is_prepare_exists($rd->order_code, $rd->product_code, $rd->zone_code, $rd->order_detail_id))
+          {
+            $arr = array(
+              'order_code' => $rd->order_code,
+              'product_code' => $rd->product_code,
+              'zone_code' => $rd->zone_code,
+              'qty' => $rd->qty,
+              'user' => $rd->user,
+              'order_detail_id' => $rd->order_detail_id
+            );
+
+            if( ! $this->db->insert('prepare', $arr))
+            {
+              $sc = FALSE;
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          if( ! $this->db->where('id', $rd->id)->delete('cancle'))
+          {
+            $sc = FALSE;
+          }
+        }
+      } //--- end foreach
+    }
+
+    return $sc;
+  }
+
+
   public function restore_buffer($code)
   {
     $sc = TRUE;
@@ -239,14 +307,11 @@ class Cancle_model extends CI_Model
         if($this->is_buffer_exists($rd->order_code, $rd->product_code, $rd->zone_code, $rd->order_detail_id))
         {
           $this->db
-          ->set("qty", "qty + {$rs->qty}", FALSE)
+          ->set("qty", "qty + {$rd->qty}", FALSE)
           ->where('order_code', $rd->order_code)
           ->where('product_code', $rd->product_code)
           ->where('zone_code', $rd->zone_code)
-          ->group_start()
-          ->where('order_detail_id', $rd->order_detail_id)
-          ->or_where('order_detail_id IS NULL', NULL, FALSE)
-          ->group_end();
+          ->where('order_detail_id', $rd->order_detail_id);
 
           if( ! $this->db->update('buffer'))
           {
@@ -265,14 +330,15 @@ class Cancle_model extends CI_Model
             'order_detail_id' => $rd->order_detail_id
           );
 
-          if($this->db->insert('buffer', $arr))
+          if( ! $this->db->insert('buffer', $arr))
           {
-            if(! $this->delete($rd->id) )
-            {
-              $sc = FALSE;
-            }
+            $sc = FALSE;
           }
-          else
+        }
+
+        if($sc === TRUE)
+        {
+          if( ! $this->delete($rd->id) )
           {
             $sc = FALSE;
           }
@@ -286,21 +352,26 @@ class Cancle_model extends CI_Model
 
   public function is_buffer_exists($code, $pd_code, $zone_code, $detail_id = NULL)
   {
-    $this->db
+    $count = $this->db
     ->where('order_code', $code)
     ->where('product_code', $pd_code)
     ->where('zone_code', $zone_code)
-    ->group_start()
     ->where('order_detail_id', $detail_id)
-    ->or_where('order_detail_id IS NULL', NULL, FALSE)
-    ->group_end();
-    
-    if( $this->db->count_all_results('buffer') > 0)
-    {
-      return TRUE;
-    }
+    ->count_all_results('buffer');
 
-    return FALSE;
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+  public function is_prepare_exists($code, $pd_code, $zone_code, $detail_id = NULL)
+  {
+    $count = $this->db
+    ->where('order_code', $code)
+    ->where('product_code', $pd_code)
+    ->where('zone_code', $zone_code)
+    ->where('order_detail_id', $detail_id)
+    ->count_all_results('prepare');
+
+    return $count > 0 ? TRUE : FALSE;
   }
 
 }

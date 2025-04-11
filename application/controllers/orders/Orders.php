@@ -3137,6 +3137,20 @@ class Orders extends PS_Controller
             }
           }
 
+          /****** new code *****/
+          //---- ถ้ายกเลิกไปแล้ว จะชุบกลับมา
+          if($sc === TRUE && $order->state == 9)
+          {
+            if($state < 8)
+            {
+              if( ! $this->rollback_prepare($code, $order->role))
+              {
+                $sc = FALSE;
+              }
+            }
+          }
+          /****** end code *****/
+
           if($sc === TRUE)
           {
 						if($is_api && $state == 3 && $order->is_wms)
@@ -3747,6 +3761,67 @@ class Orders extends PS_Controller
 			}
     }
 
+
+    return $sc;
+  }
+
+
+  //--- roll back from canceled
+  public function rollback_prepare($code, $role)
+  {
+    $this->load->model('inventory/movement_model');
+    $this->load->model('inventory/buffer_model');
+    $this->load->model('inventory/cancle_model');
+    $this->load->model('inventory/invoice_model');
+    $this->load->model('inventory/transform_model');
+    $this->load->model('inventory/transfer_model');
+    $this->load->model('inventory/lend_model');
+    $this->load->model('inventory/delivery_order_model');
+
+    $sc = TRUE;
+
+    //---- set is_complete = 0
+    $arr = array(
+      'is_cancle' => 0,
+      'is_complete' => 0,
+      'valid_qc' => 0
+    );
+
+    if( ! $this->orders_model->update_details($code, $arr) )
+    {
+      $sc = FALSE;
+      $this->error = "Failed to update details";
+    }
+
+    //--- set inv_code to NULL
+    if($sc === TRUE)
+    {
+      $arr = array(
+        'status' => 1,
+        'is_cancled' => 0,
+        'is_valid' => 0,
+        'is_exported' => 0,
+        'is_report' => NULL,
+        'inv_code' => NULL
+      );
+
+      if(! $this->orders_model->update($code, $arr))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to update order status";
+      }
+    }
+
+
+    //---- move cancle product back to  buffer
+    if($sc === TRUE)
+    {
+      if( ! $this->cancle_model->restore_buffer_and_prepare($code))
+      {
+        $sc = FALSE;
+        $this->error = "Restore buffer failed";
+      }
+    }
 
     return $sc;
   }

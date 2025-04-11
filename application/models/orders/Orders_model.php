@@ -97,6 +97,12 @@ class Orders_model extends CI_Model
   }
 
 
+  public function update_details($code, array $ds = array())
+  {
+    return $this->db->where('order_code', $code)->update('order_details', $ds);
+  }
+
+
   public function remove_detail($id)
   {
     return $this->db->where('id', $id)->delete('order_details');
