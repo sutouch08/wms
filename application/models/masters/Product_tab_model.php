@@ -41,7 +41,7 @@ class Product_tab_model extends CI_Model
     }
 
     $rs = $this->db->query($qr);
-    return $rs->row()->rows;
+    return $rs->row()->num_rows;
   }
 
 
