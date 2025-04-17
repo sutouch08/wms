@@ -24,7 +24,7 @@ class Transport extends PS_Controller{
   {
 		$filter = array(
 			'name' => get_filter('name', 'name', ''),
-			'sender' => get_filter('sender', 'sender', '')
+			'sender' => get_filter('sender', 'sender', 'all')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า

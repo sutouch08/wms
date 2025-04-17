@@ -17,6 +17,24 @@ function sender_in($txt)
   return $sc;
 }
 
+function select_all_sender($id = NULL)
+{
+  $sc = "";
+  $ci =& get_instance();
+  $ci->load->model('masters/sender_model');
+  $list = $ci->sender_model->get_all();
+
+  if( ! empty($list))
+  {
+    foreach($list as $rs)
+    {
+      $sc .= '<option value="'.$rs->id.'" '.is_selected($rs->id, $id).'>'.$rs->name.'</option>';
+    }
+  }
+
+  return $sc;
+}
+
 
 function select_sender($id = NULL)
 {

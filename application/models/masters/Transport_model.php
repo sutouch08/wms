@@ -84,61 +84,67 @@ class Transport_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $qr  = "SELECT COUNT(id) AS rows FROM address_transport AS t ";
-    $qr .= "LEFT JOIN customers AS c ON t.customer_code = c.code ";
-    $qr .= "WHERE t.id != 0 ";
+    $this->db
+    ->from('address_transport AS t')
+    ->join('customers AS c', 't.customer_code = c.code', 'left');
 
-    if(!empty($ds['name']))
+    if( ! empty($ds['name']))
     {
-      $qr .= "AND (t.customer_code LIKE '%{$ds['name']}%' OR c.name LIKE '%{$ds['name']}%') ";
+      $this->db
+      ->group_start()
+      ->like('t.customer_code', $ds['name'])
+      ->or_like('c.name', $ds['name'])
+      ->group_end();
     }
 
-    if(!empty($ds['sender']))
+    if(isset($ds['sender']) && $ds['sender'] != 'all')
     {
-      $sender = sender_in($ds['sender']);
-      $qr .= "AND (t.main_sender IN({$sender}) OR t.second_sender IN({$sender}) OR t.third_sender IN({$sender})) ";
+      $this->db
+      ->group_start()
+      ->where('main_sender', $ds['sender'])
+      ->or_where('second_sender', $ds['sender'])
+      ->or_where('third_sender', $ds['sender'])
+      ->group_end();
     }
 
-    $rs = $this->db->query($qr);
-
-    return $rs->row()->rows;
+    return $this->db->count_all_results();
   }
 
 
-  public function get_list(array $ds = array(), $perpage, $offset)
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
-    $qr  = "SELECT c.name AS customer_name, t.id, t.main_sender, t.second_sender, t.third_sender ";
-    $qr .= "FROM address_transport AS t ";
-    $qr .= "LEFT JOIN customers AS c ON t.customer_code = c.code ";
-    $qr .= "WHERE t.id != 0 ";
+    $this->db
+    ->select('t.*, c.name AS customer_name')
+    ->from('address_transport AS t')
+    ->join('customers AS c', 't.customer_code = c.code', 'left');
 
-    if(!empty($ds['name']))
+    if( ! empty($ds['name']))
     {
-      $qr .= "AND (t.customer_code LIKE '%{$ds['name']}%' OR c.name LIKE '%{$ds['name']}%') ";
+      $this->db
+      ->group_start()
+      ->like('t.customer_code', $ds['name'])
+      ->or_like('c.name', $ds['name'])
+      ->group_end();
     }
 
-    if(!empty($ds['sender']))
+    if(isset($ds['sender']) && $ds['sender'] != 'all')
     {
-      $sender = sender_in($ds['sender']);
-      $qr .= "AND (t.main_sender IN({$sender}) OR t.second_sender IN({$sender}) OR t.third_sender IN({$sender})) ";
+      $this->db
+      ->group_start()
+      ->where('t.main_sender', $ds['sender'])
+      ->or_where('t.second_sender', $ds['sender'])
+      ->or_where('t.third_sender', $ds['sender'])
+      ->group_end();
     }
 
-    if(empty($offset))
-    {
-      $offset = 0;
-    }
-
-    $qr .= "LIMIT {$perpage} OFFSET {$offset}";
-
-    $rs = $this->db->query($qr);
+    $rs = $this->db->limit($perpage, $offset)->get();
 
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-
-    return FALSE;
+    return NULL;
   }
 
 

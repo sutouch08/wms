@@ -60,6 +60,18 @@ class Sender_model extends CI_Model
 	}
 
 
+  public function get_all()
+  {
+    $rs = $this->db->get('address_sender');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+  
 
 	public function get_common_list($list =  array())
 	{
