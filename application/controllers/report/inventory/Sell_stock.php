@@ -118,48 +118,36 @@ class Sell_stock extends PS_Controller
 
     $sc['bs'] = $bs;
 
-    echo json_encode($sc);    
+    echo json_encode($sc);
   }
 
 
   public function countStockItems()
   {
     $count = 0;
-
+    // print_r($this->input->post('filter'));
     $option = json_decode($this->input->post('filter'));
+
+    // print_r($option);
 
     if( ! empty($option))
     {
-      $qr = "SELECT COUNT(DISTINCT ItemCode) AS numrows FROM OITW WHERE OnHand > 0 ";
+      $this->ms
+      ->from('OITW')
+      ->join('OITM', 'OITW.ItemCode = OITM.ItemCode')
+      ->where('OITW.OnHand >', 0);
 
       if($option->allProduct == 0 && ! empty($option->pdFrom) && ! empty($option->pdTo))
       {
-        $qr .= "AND OITW.ItemCode >= '{$option->pdFrom}' ";
-        $qr .= "AND OITW.ItemCode <= '{$option->pdTo}' ";
+        $this->ms->where('OITM.U_MODEL >=', $option->pdFrom)->where('OITM.U_MODEL <=', $option->pdTo);
       }
 
       if($option->allWhouse == 0 && ! empty($option->whsList))
       {
-        $whsCode = "";
-
-        $i = 1;
-
-        foreach($option->whsList as $whs)
-        {
-          $whsCode .= $i == 1 ? "'{$whs}'" : ", '{$whs}'";
-          $i++;
-        }
-
-        $qr .= "AND WhsCode IN({$whsCode}) ";
+        $this->ms->where_in('OITW.WhsCode', $option->whsList);
       }
 
-      $qs = $this->ms->query($qr);
-
-      if($qs->num_rows() === 1)
-      {
-        $count = $qs->row()->numrows;
-      }
-
+      $count = $this->ms->count_all_results();    
     }
 
     echo $count;

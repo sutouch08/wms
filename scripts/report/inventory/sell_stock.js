@@ -225,13 +225,14 @@ function doExport() {
   $('#progressModal').modal('show');
 
   countStockItems(data);
-
 }
+
 
 function activeButton() {
   click = 0;
   $('.btn-report').removeAttr('disabled');
 }
+
 
 function countStockItems(data) {
   label.text('Getting data...');
@@ -253,6 +254,11 @@ function countStockItems(data) {
         $('#txt-percent').removeClass('hide');
 
         getData(data);
+      }
+      else {
+        label.text("ไม่พบรายการตามเงื่อนไขที่กำหนด");
+        load_out();
+        activeButton();        
       }
     }
   })
