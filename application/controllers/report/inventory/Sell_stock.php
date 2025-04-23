@@ -40,6 +40,7 @@ class Sell_stock extends PS_Controller
 
 
     $wh_list = '';
+
     if(!empty($warehouse))
     {
       $i = 1;
@@ -117,7 +118,7 @@ class Sell_stock extends PS_Controller
 
     $sc['bs'] = $bs;
 
-    ini_set('memory_limit','2048M');
+    echo json_encode($sc);    
   }
 
 
