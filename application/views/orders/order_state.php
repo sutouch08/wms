@@ -86,8 +86,26 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
       </table>
 	</div>
 
-  <?php $link = $order->state == 9 ? 'onclick="showReason()"' : ''; ?>
-  <?php $pointer = $order->state == 9 ? 'pointer' : ''; ?>
+  <?php
+    $link = "";
+    switch($order->state)
+    {
+      case '9' :
+      $link = 'onclick="showReason()"';
+      break;
+      case '7' :
+      $link = 'onclick="view_delivery()"';
+      break;
+      case '8' :
+      $link = 'onclick="view_closed()"';
+      break;
+      default :
+      $line = "";
+      break;
+    }
+
+    $pointer = empty($link) ? '' : 'pointer';
+  ?>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5 font-size-14 <?php echo $pointer; ?>"
     <?php echo $link; ?>	style="height: 49px; border:solid 2px white; <?php echo state_color($order->state); ?>"	>
@@ -149,3 +167,20 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
    </div>
  </div>
 </div>
+
+<script>
+  function view_delivery() {
+    let code = $('#order_code').val();
+    let target = BASE_URL + 'inventory/delivery_order/view_detail/'+code;
+
+    window.open(target, "_blank", "width=1000, height=800, scrollbars=yes");
+  }
+
+  function view_closed() {
+    let code = $('#order_code').val();
+    let target = BASE_URL + 'inventory/invoice/view_detail/'+code;
+
+    window.open(target, "_blank", "width=1000, height=800, scrollbars=yes");
+  }
+
+</script>
