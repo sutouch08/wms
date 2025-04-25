@@ -86,11 +86,8 @@
 					<label>โซนยืมสินค้า</label>
 					<input type="text" class="form-control input-sm" value="<?php echo $order->zone_name; ?>" disabled />
 				</div>
-
 			<?php endif; ?>
 		<?php endif; ?>
-
-
 
 		<div class="col-lg-2 col-md-4 col-sm-3 col-xs-6 padding-5">
 			<label>คลัง</label>
@@ -121,8 +118,7 @@
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-right">
     <?php if( $this->pm->can_edit || $this->pm->can_add ) : ?>
-			<?php $disabled = $this->_SuperAdmin ? '' : ($order->is_hold ? 'disabled' : '') ; ?>
-      <button type="button" class="btn btn-sm btn-primary" id="btn-confirm-order" onclick="confirmOrder()" <?php echo $disabled; ?>>เปิดบิลและตัดสต็อก</button>
+      <button type="button" class="btn btn-sm btn-primary" id="btn-confirm-order" onclick="confirmOrder()">เปิดบิลและตัดสต็อก</button>
     <?php endif; ?>
   </div>
 </div>

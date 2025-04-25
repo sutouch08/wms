@@ -164,9 +164,7 @@
           </td>
 					<td class="text-right">
             <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-							<?php if($rs->is_hold ==0 OR $this->_SuperAdmin) : ?>
-								<button type="button" class="btn btn-xs btn-primary" onclick="confirmBill('<?php echo $rs->code; ?>')">เปิดบิล</button>
-							<?php endif; ?>
+							<button type="button" class="btn btn-xs btn-primary" onclick="confirmBill('<?php echo $rs->code; ?>')">เปิดบิล</button>							
 						<?php endif; ?>
           </td>
 
@@ -184,8 +182,8 @@
 </div>
 
 <script>
-function confirmBill(order_code){
 
+function confirmBill(order_code){
 	load_in();
 
 	$.ajax({
@@ -195,7 +193,7 @@ function confirmBill(order_code){
 		data:{
 			'order_code' : order_code
 		},
-		success:function(rs){
+		success:function(rs) {
 			load_out();
 			var rs = $.trim(rs);
 			if( rs == 'success'){
@@ -206,10 +204,15 @@ function confirmBill(order_code){
 				});
 
 				$('#row-'+order_code).remove();
-
-			}else {
-				swal('Error!', rs, 'error');
 			}
+			else {
+				beep();
+				showError(rs);
+			}
+		},
+		error:function(rs) {
+			beep();
+			showError(rs);
 		}
 	});
 }
