@@ -241,6 +241,19 @@ class Qc_model extends CI_Model
   }
 
 
+  //--- for print all box
+  public function get_boxes($code)
+  {
+    $rs = $this->db->where('order_code', $code)->get('qc_box');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
   //--- รายการกล่องทั้งหมดที่ตรวจในออเดอร์ที่กำหนด
   public function get_box_list($order_code)
   {

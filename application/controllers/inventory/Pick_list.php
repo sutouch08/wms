@@ -1449,6 +1449,20 @@ class Pick_list extends PS_Controller
       $this->load->model('masters/products_model');
       $this->load->model('masters/channels_model');
 
+      $qr = array(
+        'data' => $doc->code,
+        'size' => 8,
+        'level' => 'H',
+        'savename' => NULL
+      );
+
+      ob_start();
+      $this->ixqrcode->generate($qr);
+      $qr = base64_encode(ob_get_contents());
+      ob_end_clean();
+
+      $doc->qrcode = $qr;
+
       $channels_name = $this->channels_model->get_name($doc->channels_code);
 
       foreach($ds as $rs)
@@ -1473,6 +1487,7 @@ class Pick_list extends PS_Controller
 
     $pl = array(
       'orders' => $orders,
+      'doc' => $doc
     );
 
     $this->load->view('print/print_pick_order_list', $pl);

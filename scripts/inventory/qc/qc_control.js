@@ -309,7 +309,6 @@ function updateBoxList(box_id){
 }
 
 
-//---
 $("#barcode-box").keyup(function(e){
   if(e.keyCode == 13){
     if( $(this).val() != ""){
@@ -463,18 +462,6 @@ function confirmSaveBeforeChangeBox(box_id){
     selectBox(box_id);
   }
 }
-
-/*
-function changeBox(){
-
-  $("#id_box").val('');
-  $("#barcode-item").val('');
-  $(".item").attr('disabled', 'disabled');
-  $("#barcode-box").removeAttr('disabled');
-  $("#barcode-box").val('');
-  $("#barcode-box").focus();
-}
-*/
 
 
 function showCloseButton(){
@@ -693,6 +680,7 @@ function removeBox(id_box, box_label) {
     }, 100);
   });
 }
+
 
 function showEditOption(order_code, product_code){
   $('#edit-title').text(product_code);

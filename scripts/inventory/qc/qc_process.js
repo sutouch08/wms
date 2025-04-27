@@ -13,3 +13,10 @@ function printBox(id){
   var target = HOME + 'print_box/'+code+'/'+id;
 	window.open(target, "_blank", "width=800, height=900. left="+center+", scrollbars=yes");
 }
+
+
+function printAllBox(code) {
+  var center = ($(document).width() - 800) /2;
+  var target = HOME + 'print_all_box/'+code;
+	window.open(target, "_blank", "width=800, height=900. left="+center+", scrollbars=yes");
+}

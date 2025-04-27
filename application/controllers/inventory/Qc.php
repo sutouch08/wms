@@ -1178,6 +1178,54 @@ class Qc extends PS_Controller
   }
 
 
+  public function print_all_box($code)
+  {
+    $ds = [];
+
+    $this->load->library('printer');
+    $this->load->model('masters/customers_model');
+    $this->load->library('ixqrcode');
+
+    $order = $this->orders_model->get($code);
+
+    $qr = array(
+      'data' => $code,
+      'size' => 8,
+      'level' => 'H',
+      'savename' => NULL
+    );
+
+    ob_start();
+    $this->ixqrcode->generate($qr);
+    $order->qrcode = base64_encode(ob_get_contents());
+    ob_end_clean();
+
+    $order->customer_name = $this->customers_model->get_name($order->customer_code);
+    $all_box = $this->qc_model->count_box($code);
+    $boxes = $this->qc_model->get_boxes($code);
+
+    $ds = array(
+      'order' => $order,
+      'all_box' => $all_box,
+      'boxes' => []
+    );
+
+    if( ! empty($boxes))
+    {
+      foreach($boxes as $box)
+      {
+        $ds['boxes'][] = (object) array(
+          'box_no' => $box->box_no,
+          'box_id' => $box->id,
+          'details' => $this->qc_model->get_box_details($code, $box->id)
+        );
+      }
+    }
+
+    $this->load->view('inventory/qc/packing_list_all', $ds);
+  }
+
+
   public function get_box_details()
   {
     $order_code = $this->input->post('order_code');

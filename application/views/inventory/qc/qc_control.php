@@ -28,6 +28,11 @@
       <label class="display-block not-show">print</label>
       <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-print-address" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)">พิมพ์ใบปะหน้า</button>
     </div>
+
+    <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-3 padding-5">
+      <label class="display-block not-show">Packing List</label>
+      <button type="button" class="btn btn-xs btn-info btn-block" id="btn-print-all" onclick="printAllBox('<?php echo $order->code; ?>')">พิมพ์ทั้งหมด</button>
+    </div>
   </div>
 
   <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-12 padding-5">

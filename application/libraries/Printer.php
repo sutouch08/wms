@@ -42,13 +42,16 @@ public function config(array $data)
 	{
 		$this->$key = $val;
 	}
-	if(!$this->footer)
+
+	if( !  $this->footer)
 	{
 		$this->row += $this->footer_row;
 		$this->footer_row = 0;
 	}
+
 	$this->row -= ($this->sub_total_row + $this->ex_row + $this->header_rows);
 	$this->total_page = ceil($this->total_row/$this->row);
+	$this->current_page = 1;
 	return true;
 }
 
