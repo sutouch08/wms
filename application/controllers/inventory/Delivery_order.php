@@ -144,7 +144,7 @@ class Delivery_order extends PS_Controller
 
       if($order->state == 7)
       {
-        if($this->orders_model->has_zero_price($code))
+        if($order->role == 'S' && $this->orders_model->has_zero_price($code))
         {
           $sc = FALSE;
           $this->error = "ราคาสินค้าไม่ถูกต้อง";
