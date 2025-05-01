@@ -11,7 +11,10 @@
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php elseif($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
+    <?php elseif($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php endif; ?>
+
   </div>
 </div>
 <hr/>
@@ -225,6 +228,40 @@ if(!empty($barcode_list))
 
      $.ajax({
        url:HOME + 'ship_order_shopee/'+reference,
+       type:'POST',
+       cache:false,
+       success:function(rs) {
+         load_out();
+
+         if(isJson(rs)) {
+           let ds = JSON.parse(rs);
+
+           if(ds.status === 'success') {
+             window.open(ds.data.fileUrl, "_blank");
+           }
+           else {
+             beep();
+             showError(ds.message);
+           }
+         }
+         else {
+           beep();
+           showError(rs);
+         }
+       },
+       error:function(rs) {
+         beep();
+         showError(rs);
+       }
+     })
+   }
+
+
+   function shipOrderLazada(reference) {
+     load_in();
+
+     $.ajax({
+       url:HOME + 'ship_order_lazada/'+reference,
        type:'POST',
        cache:false,
        success:function(rs) {

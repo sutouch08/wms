@@ -290,9 +290,20 @@ class Prepare extends PS_Controller
       }
     }
 
+    if($channels == 'LAZADA')
+    {
+      $this->load->library('wrx_lazada_api');
+
+      $order_status = $this->wrx_lazada_api->get_order_status($reference);
+
+      if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
     return $is_cancel;
   }
-
 
 
   public function process($code, $view = NULL)
@@ -310,7 +321,7 @@ class Prepare extends PS_Controller
       //--- check cancel request
       $is_cancel = $this->orders_model->is_cancel_request($order->code);
 
-      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE'))
+      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
       {
         $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
       }

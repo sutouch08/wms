@@ -127,6 +127,9 @@
       <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
         <button type="button" class="btn btn-white btn-info" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
       <?php endif; ?>
+      <?php if($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
+        <button type="button" class="btn btn-white btn-info" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
+      <?php endif; ?>
       <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress('<?php echo $order->id_address; ?>', '<?php echo $order->code; ?>', '<?php echo $order->id_sender; ?>')"><i class="fa fa-print"></i> ใบนำส่ง</button>
       <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
       <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
@@ -487,6 +490,39 @@
 
     $.ajax({
       url:BASE_URL + 'inventory/qc/ship_order_shopee/'+reference,
+      type:'POST',
+      cache:false,
+      success:function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status === 'success') {
+            window.open(ds.data.fileUrl, "_blank");
+          }
+          else {
+            beep();
+            showError(ds.message);
+          }
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
+
+  function shipOrderLazada(reference) {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'inventory/qc/ship_order_lazada/'+reference,
       type:'POST',
       cache:false,
       success:function(rs) {

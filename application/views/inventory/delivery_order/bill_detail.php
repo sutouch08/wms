@@ -61,11 +61,45 @@
     })
   }
 
+
   function shipOrderShopee(reference) {
     load_in();
 
     $.ajax({
       url:BASE_URL + 'inventory/qc/ship_order_shopee/'+reference,
+      type:'POST',
+      cache:false,
+      success:function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status === 'success') {
+            window.open(ds.data.fileUrl, "_blank");
+          }
+          else {
+            beep();
+            showError(ds.message);
+          }
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
+
+  function shipOrderLazada(reference) {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'inventory/qc/ship_order_lazada/'+reference,
       type:'POST',
       cache:false,
       success:function(rs) {
