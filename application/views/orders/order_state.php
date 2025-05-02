@@ -152,7 +152,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 									<tr>
                     <td><?php echo $reason->reason_group; ?></td>
 										<td><?php echo $reason->reason; ?></td>
-										<td><?php echo $this->user_model->get_name($reason->user); ?></td>
+										<td><?php echo $reason->user; ?></td>
 										<td><?php echo thai_date($reason->cancle_date, TRUE); ?></td>
 									</tr>
 								<?php endforeach; ?>
