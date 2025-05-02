@@ -612,7 +612,7 @@ class Pick_list_model extends CI_Model
       ->group_end();
     }
 
-    $rs = $this->db->order_by('o.id', 'ASC')->limit(100)->get();
+    $rs = $this->db->order_by('o.id', 'ASC')->limit(20)->get();
 
     if($rs->num_rows() > 0)
     {

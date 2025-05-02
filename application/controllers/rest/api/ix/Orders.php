@@ -1195,6 +1195,8 @@ class Orders extends REST_Controller
           }
           else
           {
+            $this->orders_model->update($order->code, ['is_cancled' => 1]);
+
             $arr = array(
               'order_code' => $order->code,
               'state' => 36, //-- Cancelled
@@ -1275,7 +1277,8 @@ class Orders extends REST_Controller
 
 			$this->response($arr, 200);
     }
-  } //--- end cancel
+  }
+  //--- end cancel
 
 
   public function update_price_put()
