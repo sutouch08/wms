@@ -93,7 +93,14 @@ class Wrx_lazada_api
       {
         if( ! empty($res->data))
         {
-          return $res->data[0]->order_item_id;
+          $arr = [];
+
+          foreach($res->data as $rs)
+          {
+            $arr[] = $rs->order_item_id;
+          }
+
+          return $arr; //$res->data[0]->order_item_id;
         }
       }
     }
@@ -102,7 +109,7 @@ class Wrx_lazada_api
   }
 
 
-  public function packed($reference, $order_item_id)
+  public function packed($reference, $order_item_ids)
   {
     $action = "order packed";
     $type = "shipping";
@@ -117,13 +124,13 @@ class Wrx_lazada_api
       'packOrderList' => array(
         array(
           'orderID' => intval($reference),
-          'orderItemIDs' => [$order_item_id]
+          'orderItemIDs' => $order_item_ids
         )
       )
     );
 
     $json = json_encode($req);
-  
+
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
@@ -140,17 +147,28 @@ class Wrx_lazada_api
     {
       if($res->code == 200 &&  ! empty($res->data->pack_order_list[0]->order_item_list[0]))
       {
-        $pk = $res->data->pack_order_list[0]->order_item_list[0];
+        $pk = [];
 
-        if( ! empty($pk->tracking_number) && ! empty($pk->package_id))
+        foreach($res->data->pack_order_list[0]->order_item_list as $rs)
         {
-          return $pk;
+
+          $pk[$rs->package_id] = (object) array('package_id' => $rs->package_id, 'tracking_number' => $rs->tracking_number);
         }
-        else
-        {
-          $sc = FALSE;
-          $this->error = "Trakcing Number or packge_id not found";
-        }
+
+        return $pk;
+
+
+        // $pk = $res->data->pack_order_list[0]->order_item_list[0];
+
+        // if( ! empty($pk->tracking_number) && ! empty($pk->package_id))
+        // {
+        //   return $pk;
+        // }
+        // else
+        // {
+        //   $sc = FALSE;
+        //   $this->error = "Trakcing Number or packge_id not found";
+        // }
       }
       else
       {
@@ -162,7 +180,7 @@ class Wrx_lazada_api
   }
 
 
-  public function ship_package($package_id)
+  public function ship_package($packages)
   {
     $action = "ship_order";
     $type = "shipping";
@@ -175,11 +193,7 @@ class Wrx_lazada_api
     $method = 'POST';
 
     $req = array(
-      "packages" => array(
-        array(
-          'packageID' => $package_id
-        )
-      )
+      "packages" => array($packages)
     );
 
     $json = json_encode($req);
@@ -212,7 +226,7 @@ class Wrx_lazada_api
   }
 
 
-  public function get_shipping_label($package_id)
+  public function get_shipping_label($packages)
   {
     $action = "get_shipping_label";
     $type = "shipping";
@@ -225,11 +239,7 @@ class Wrx_lazada_api
     $method = 'POST';
 
     $req = array(
-      "packages" => array(
-        array(
-          'packageID' => $package_id
-        )
-      ),
+      "packages" => array($packages),
       "printItemList" => FALSE
     );
 
@@ -249,7 +259,7 @@ class Wrx_lazada_api
 
     if( ! empty($res) && ! empty($res->code))
     {
-      if($res->code == 200 && ! empty($res->data) && ! empty($res->data->fileUrl))
+      if($res->code == 200 && ! empty($res->data))
       {
         return $res->data;
       }
