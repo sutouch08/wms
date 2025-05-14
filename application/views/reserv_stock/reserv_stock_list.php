@@ -1,15 +1,14 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-8 col-xs-9 padding-5">
-    <h3 class="title"><?php echo $this->title; ?></h3>
-    </div>
-    <div class="col-lg-6 col-md-6 col-sm-4 col-xs-3 padding-5">
-    	<p class="pull-right top-p">
-      <?php if($this->pm->can_add) : ?>
-        <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
-      <?php endif; ?>
-      </p>
-    </div>
+	<div class="col-lg-6 col-md-6 col-sm-8 col-xs-12 padding-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-4 col-xs-3 padding-5 text-right">
+		<button type="button" class="btn btn-white btn-purple top-btn" onclick="getTemplate()"><i class="fa fa-download"></i> Download Template</button>
+		<?php if($this->pm->can_add) : ?>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+		<?php endif; ?>
+	</div>
 </div><!-- End Row -->
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
@@ -139,6 +138,11 @@
 	</div>
 </div>
 
+<script>
+	function getTemplate() {
+		window.location.href = BASE_URL + 'orders/reserv_stock/get_template_file';
+	}
+</script>
 <script src="<?php echo base_url(); ?>scripts/reserv_stock/reserv_stock.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>
