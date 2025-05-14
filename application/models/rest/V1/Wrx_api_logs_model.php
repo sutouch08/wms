@@ -3,10 +3,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Wrx_api_logs_model extends CI_Model
 {
 	private $td = 'wrx_api_logs';
+	public $wms;
 
   public function __construct()
   {
     parent::__construct();
+		$this->wms = $this->load->database('wms', TRUE);
   }
 
 	public function add_logs($ds = array())

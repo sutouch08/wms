@@ -3736,22 +3736,17 @@ class Orders extends PS_Controller
 
 			if($sc === TRUE)
 			{
-				//--- update chatbot stock
-        $this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
-
-				if($this->sync_chatbot_stock)
+				if($this->sync_api_stock)
 				{
-					$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
 					$order = $this->orders_model->get($code);
 					$warehouse_code = empty($order) ? "" : $order->warehouse_code;
 
-					if($chatbot_warehouse_code == $warehouse_code)
+					if($this->ix_warehouse == $warehouse_code && ! $order->is_pre_order)
 					{
 						$details = $this->orders_model->get_order_details($code);
 
-						if(!empty($details))
+						if( ! empty($details))
 						{
-
 							$sync_stock = array();
 
 							foreach($details as $detail)
@@ -3759,24 +3754,23 @@ class Orders extends PS_Controller
 								if($detail->is_count == 1)
 								{
 									$item = $this->products_model->get($detail->product_code);
-									if(!empty($item) && $item->is_api)
+
+									if( ! empty($item) && $item->is_api)
 									{
-										$sync_stock[] = $item->code;
+										$sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
 									}
 								}
 							}
 
-							if(!empty($sync_stock))
+							if( ! empty($sync_stock))
 							{
-								$this->update_chatbot_stock($sync_stock);
+								$this->update_api_stock($sync_stock);
 							}
 						}
 					}
-
 				}
 			}
     }
-
 
     return $sc;
   }
@@ -4575,15 +4569,17 @@ class Orders extends PS_Controller
       $this->load->library('wrx_stock_api');
       $warehouse_code = getConfig('IX_WAREHOUSE');
 
-      foreach($ds as $item)
-      {
-        $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
-        $available = $this->get_sell_stock($item->code, $warehouse_code);
+      $this->wrx_stock_api->update_available_stock($ds, $warehouse_code);
 
-        $qty = floor($available * $rate);
-
-        $this->wrx_stock_api->update_available_stock($item->code, $qty);
-      }
+      // foreach($ds as $item)
+      // {
+      //   $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
+      //   $available = $this->get_sell_stock($item->code, $warehouse_code);
+      //
+      //   $qty = floor($available * $rate);
+      //
+      //   $this->wrx_stock_api->update_available_stock($item->code, $qty);
+      // }
     }
   }
 
