@@ -16,6 +16,11 @@ function getEdit(id){
 }
 
 
+function viewDetail(id) {
+  window.location.href = HOME + 'view_detail/'+id;
+}
+
+
 function add() {
   $('.r').removeClass('has-error');
   $('.e').text('');
@@ -44,6 +49,7 @@ function add() {
 	data.type_code = $('#type').val();
   data.collection_code = $('#collection').val();
 	data.year = $('#year').val();
+  data.api_rate = $('#api-rate').val();
 	data.count_stock = $('#count_stock').is(':checked') ? 1 : 0;
 	data.can_sell = $('#can_sell').is(':checked') ? 1 : 0;
 	data.is_api = $('#is_api').is(':checked') ? 1 : 0;
@@ -160,6 +166,7 @@ function update() {
 	data.type_code = $('#type').val();
   data.collection_code = $('#collection').val();
 	data.year = $('#year').val();
+  data.api_rate = $('#api-rate').val();
 	data.count_stock = $('#count_stock').is(':checked') ? 1 : 0;
 	data.can_sell = $('#can_sell').is(':checked') ? 1 : 0;
 	data.is_api = $('#is_api').is(':checked') ? 1 : 0;
@@ -271,6 +278,7 @@ function addDuplicate() {
 	data.type_code = $('#type').val();
   data.collection_code = $('#collection').val();
 	data.year = $('#year').val();
+  data.api_rate = $('#api-rate').val();
 	data.count_stock = $('#count_stock').is(':checked') ? 1 : 0;
 	data.can_sell = $('#can_sell').is(':checked') ? 1 : 0;
 	data.is_api = $('#is_api').is(':checked') ? 1 : 0;
@@ -407,6 +415,21 @@ $('#size').autocomplete({
     }
   }
 });
+
+
+$('#api-rate').change(function() {
+  let rate = parseDefault(parseFloat($(this).val()), 0);
+
+  if(rate < 0) {
+    rate = 0;
+  }
+
+  if(rate > 100) {
+    rate = 100;
+  }
+
+  $(this).val(rate.toFixed(2));
+})
 
 
 function clearFilter(){

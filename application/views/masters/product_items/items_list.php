@@ -163,42 +163,16 @@
 				<?php foreach($data as $rs) : ?>
 					<tr id="row-<?php echo $no; ?>" class="font-size-12">
 						<td class="middle text-center">
-							<div class="btn-group">
-								<button data-toggle="dropdown" class="btn btn-sm btn-primary btn-white dropdown-toggle" aria-expanded="false">
-									Action
-									<i class="ace-icon fa fa-angle-down icon-on-right"></i>
-								</button>
-
-								<ul class="dropdown-menu">
-									<?php if($this->wmsApi) : ?>
-										<li>
-											<a href="javascript:sendToWms('<?php echo $rs->code; ?>')"><i class="fa fa-send green"></i> Send To WMS</a>
-										</li>
-									<?php endif; ?>
-									<?php if($this->sokoApi) : ?>
-										<li>
-											<a href="javascript:sendToSoko('<?php echo $rs->code; ?>')"><i class="fa fa-send blue"></i> Send To Soko Jung</a>
-										</li>
-									<?php endif; ?>
-									<?php if($this->pm->can_add) : ?>
-										<li>
-											<a href="javascript:duplicate('<?php echo $rs->id; ?>')"><i class="fa fa-copy purple"></i> Duplicate</a>
-										</li>
-									<?php endif; ?>
-
-									<?php if($this->pm->can_edit) : ?>
-										<li>
-											<a href="javascript:getEdit('<?php echo $rs->id; ?>')"><i class="fa fa-pencil orange"></i> Edit</a>
-										</li>
-									<?php endif; ?>
-
-									<?php if($this->pm->can_delete) : ?>
-										<li>
-											<a href="javascript:getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>', <?php echo $no; ?>)"><i class="fa fa-trash red"></i> Delete</a>
-										</li>
-									<?php endif; ?>
-								</ul>
-							</div>
+							<button type="button" class="btn btn-minier btn-info" onclick="viewDetail(<?php echo $rs->id; ?>)"><i class="fa fa-eye"></i></button>
+							<?php if($this->pm->can_add) : ?>
+								<button type="button" class="btn btn-minier btn-purple hide" onclick="duplicate(<?php echo $rs->id; ?>)"><i class="fa fa-copy"></i></button>
+							<?php endif; ?>
+							<?php if($this->pm->can_edit) : ?>
+								<button type="button" class="btn btn-minier btn-warning" onclick="getEdit(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>
+							<?php endif; ?>
+							<?php if($this->pm->can_delete) : ?>
+								<button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>', <?php echo $no; ?>)"><i class="fa fa-trash"></i></button>
+							<?php endif; ?>
 						</td>
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->barcode; ?></td>

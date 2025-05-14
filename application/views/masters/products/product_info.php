@@ -150,6 +150,13 @@
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="year-error"></div>
 	</div>
 
+	<div class="form-group">
+		<label class="col-sm-3 control-label no-padding-right">API Stock Rate (%)</label>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-12">
+			<input type="number" class="width-100 text-center" name="api_rate" id="api-rate" min="0" max="100" value="0.00" />
+		</div>
+		<div class="help-block col-xs-12 col-sm-reset inline red e" id="api-rate-error"></div>
+	</div>
 
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">แถบแสดงสินค้า</label>

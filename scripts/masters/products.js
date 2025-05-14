@@ -36,6 +36,20 @@ function toggleTab(tabName) {
 }
 
 
+$('#api-rate').change(function() {
+  let rate = parseDefault(parseFloat($(this).val()), 0);
+
+  if(rate < 0) {
+    rate = 0;
+  }
+
+  if(rate > 100) {
+    rate = 100;
+  }
+
+  $(this).val(rate.toFixed(2));
+})
+
 
 function newItems(){
   var style = $('#style').val();

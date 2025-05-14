@@ -14,6 +14,7 @@ class Orders extends REST_Controller
 	public $log_json = FALSE;
 	public $api = FALSE;
   public $checkBackorder = FALSE;
+  public $sync_api_stock = FALSE;
   private $type = 'ORDER';
 
   public function __construct()
@@ -38,11 +39,13 @@ class Orders extends REST_Controller
 			$this->load->model('masters/warehouse_model');
 	    $this->load->model('address/address_model');
       $this->load->model('stock/stock_model');
+      $this->load->model('orders/reserv_stock_model');
 			$this->load->helper('sender');
 
 	    $this->user = 'api@warrix';
 			$this->logs_json = is_true(getConfig('IX_LOG_JSON'));
       $this->checkBackorder = is_true(getConfig('IX_BACK_ORDER'));
+      $this->sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
 		}
 		else
 		{
@@ -312,6 +315,7 @@ class Orders extends REST_Controller
       $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
       $is_backorder = FALSE;
       $backorderList = [];
+      $sync_stock = []; //--- keep product to sync stock
 
       $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
       $is_etax = empty($data->ETAX) ? 0 : ($data->ETAX == 'Y' && $tax_status == 1 ? 1 : 0);
@@ -646,10 +650,13 @@ class Orders extends REST_Controller
                 {
                   $total_amount += round($rs->amount, 2);
 
-                  if($this->checkBackorder && $item->count_stock && ! $is_pre_order)
+                  if($item->count_stock && ! $is_pre_order && ($this->sync_api_stock OR $this->checkBackorder))
                   {
                     $available = $this->get_available_stock($item->code, $warehouse_code);
+                  }
 
+                  if($this->checkBackorder && $item->count_stock && ! $is_pre_order)
+                  {
                     if($available < $rs->qty)
                     {
                       $is_backorder = TRUE;
@@ -662,6 +669,11 @@ class Orders extends REST_Controller
                       );
                     }
                   }
+
+                  if($this->sync_api_stock && $item->count_stock && ! $is_pre_order)
+          				{
+                    $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+          				}
                 }
               } //--- end if item
             }  //--- endforeach add details
@@ -691,6 +703,23 @@ class Orders extends REST_Controller
                 $this->orders_model->add_backlogs_detail($backlogs);
               }
             }
+
+            if($this->sync_api_stock && ! empty($sync_stock))
+            {
+              $this->load->library('wrx_stock_api');
+              $warehouse_code = getConfig('IX_WAREHOUSE');
+
+              foreach($sync_stock as $item)
+              {
+                $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
+                $available = $this->get_available_stock($item->code, $warehouse_code);
+
+                $qty = floor($available * $rate);
+
+                $this->wrx_stock_api->update_available_stock($item->code, $qty);
+              }
+            }
+            
 
             if($this->orders_model->change_state($order_code, 3))
             {
@@ -1176,6 +1205,8 @@ class Orders extends REST_Controller
         {
           $this->db->trans_rollback();
         }
+
+
       }
       else
       {
@@ -1884,9 +1915,11 @@ class Orders extends REST_Controller
     $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse_code);
 
     //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
-    $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse_code);
+    $ordered = $this->orders_model->get_reserv_stock($item_code, $warehouse_code);
 
-    $available = $sell_stock - $reserv_stock;
+    $reserv_stock = $this->reserv_stock_model->get_reserv_stock($item_code, $warehouse_code);
+
+    $available = $sell_stock - $ordered - $reserv_stock;
 
     return $available < 0 ? 0 : $available;
   }

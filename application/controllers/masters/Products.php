@@ -156,7 +156,7 @@ class Products extends PS_Controller
     $header = array(
       'Code', 'Name', 'Barcode', 'Model', 'Color', 'Size', 'Group', 'MainGroup',
       'SubGroup', 'Category', 'Kind', 'Type', 'Brand', 'Collection', 'Year','Cost','Price',
-      'Unit', 'CountStock', 'IsAPI', 'OldModel', 'OldCode', 'IsActive', 'Sell'
+      'Unit', 'CountStock', 'IsAPI', 'OldModel', 'OldCode', 'IsActive', 'Sell', 'ApiRate'
     );
 
     $products = $this->products_model->get_products_list($ds);
@@ -201,7 +201,8 @@ class Products extends PS_Controller
           $rs->old_style,
           $rs->old_code,
           $is_active,
-          $is_sell
+          $is_sell,
+          $rs->api_rate
         );
 
         fputcsv($f, $arr, $delimiter);
@@ -259,6 +260,7 @@ class Products extends PS_Controller
       $count_stock = $this->input->post('count_stock') === NULL ? 0 :1;
       $can_sell = $this->input->post('can_sell') === NULL ? 0 : 1;
       $is_api   = $this->input->post('is_api') === NULL ? 0 : 1;
+      $api_rate = $this->input->post('api_rate') === NULL ? 0 : $this->input->post('api_rate');
       $active   = $this->input->post('active')=== NULL ? 0 : 1;
       $tabs     = $this->input->post('tabs');
 
@@ -281,6 +283,7 @@ class Products extends PS_Controller
         'can_sell' => $can_sell,
         'active' => $active,
         'is_api' => $is_api,
+        'api_rate' => $api_rate < 0 ? 0 : ($api_rate > 100 ? 100 : $api_rate),
         'update_user' => get_cookie('uname'),
         'old_code' => $old_code
       );
@@ -345,7 +348,6 @@ class Products extends PS_Controller
   }
 
 
-
   public function edit($code, $tab = 'styleTab')
   {
     $code = urldecode($code);
@@ -369,8 +371,6 @@ class Products extends PS_Controller
       redirect($this->home);
     }
   }
-
-
 
 
   //--- update item data
@@ -411,11 +411,6 @@ class Products extends PS_Controller
   }
 
 
-
-
-
-
-
   public function update_style()
   {
     if($this->input->post('code'))
@@ -439,6 +434,7 @@ class Products extends PS_Controller
       $count = $this->input->post('count_stock');
       $sell = $this->input->post('can_sell');
       $api = $this->input->post('is_api');
+      $api_rate = $this->input->post('api_rate');
       $active = $this->input->post('active');
       $user = get_cookie('uname');
 
@@ -465,6 +461,7 @@ class Products extends PS_Controller
         'can_sell' => ($sell === NULL ? 0 : 1),
         'active' => ($active === NULL ? 0 : 1),
         'is_api' => ($api === NULL ? 0 : 1),
+        'api_rate' => $api_rate < 0 ? 0 : ($api_rate > 100 ? 100 : $api_rate),
         'update_user' => get_cookie('uname'),
         'old_code' => $old_code
       );
@@ -503,6 +500,7 @@ class Products extends PS_Controller
             'can_sell' => ($sell === NULL ? 0 : 1),
             'active' => ($active === NULL ? 0 : 1),
             'is_api' => ($api === NULL ? 0 : 1),
+            'api_rate' => $api_rate,
             'update_user' => get_cookie('uname'),
             'old_style' => $old_code
           );
@@ -541,7 +539,6 @@ class Products extends PS_Controller
       redirect($this->home);
     }
   }
-
 
 
   //---- update style data
@@ -605,8 +602,6 @@ class Products extends PS_Controller
 
     redirect($this->home.'/edit/'.$code);
   }
-
-
 
 
   public function update_cost_price_by_size()
@@ -691,6 +686,7 @@ class Products extends PS_Controller
     redirect($this->home.'/edit/'.$code.'/priceTab');
   }
 
+
   public function toggle_can_sell($id)
   {
     $status = $this->products_model->get_status('can_sell', $id);
@@ -723,7 +719,6 @@ class Products extends PS_Controller
   }
 
 
-
   public function toggle_api($id)
   {
     $status = $this->products_model->get_status('is_api', $id);
@@ -752,7 +747,6 @@ class Products extends PS_Controller
 
     $this->load->view('masters/products/product_generater', $data);
   }
-
 
 
   public function gen_items()
@@ -820,7 +814,6 @@ class Products extends PS_Controller
   }
 
 
-
   public function gen_color_and_size($style, $colors, $sizes, $cost, $price, $old_code)
   {
     $sc = TRUE;
@@ -878,8 +871,6 @@ class Products extends PS_Controller
   }
 
 
-
-
   public function gen_color_only($style, $colors)
   {
     $sc = TRUE;
@@ -925,8 +916,6 @@ class Products extends PS_Controller
   }
 
 
-
-
   public function gen_size_only($style, $sizes)
   {
     $sc = TRUE;
@@ -970,8 +959,6 @@ class Products extends PS_Controller
       }
     }
   }
-
-
 
 
   public function generate_old_code_item()
@@ -1059,8 +1046,6 @@ class Products extends PS_Controller
   }
 
 
-
-
   public function delete_style($style)
   {
     $sc = TRUE;
@@ -1093,7 +1078,6 @@ class Products extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $message;
   }
-
 
 
   //--- ดึง items และรูปภาพ เพื่อทำการเชื่อมโยงรูปภาพ
@@ -1168,9 +1152,6 @@ class Products extends PS_Controller
   }
 
 
-
-
-
   public function mapping_image()
   {
     $sc = TRUE;
@@ -1196,9 +1177,6 @@ class Products extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
-
-
 
 
   public function generate_barcode()
@@ -1255,8 +1233,6 @@ class Products extends PS_Controller
   }
 
 
-
-
   public function is_style_exists($code)
   {
     $rs = $this->product_style_model->is_exists($code);
@@ -1269,7 +1245,6 @@ class Products extends PS_Controller
       echo 'ok';
     }
   }
-
 
 
   public function do_export($code, $method = 'A')
@@ -1365,7 +1340,6 @@ class Products extends PS_Controller
 
     echo $sc === TRUE ? 'success' : "Success : {$success}, Fail : {$fail}";
   }
-
 
 
 	public function send_to_wms()
@@ -1476,7 +1450,6 @@ class Products extends PS_Controller
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
-
 
 
   public function export_barcode($code, $token)

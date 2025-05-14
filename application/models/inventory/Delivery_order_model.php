@@ -124,6 +124,11 @@ class Delivery_order_model extends CI_Model
       $this->db->where('is_hold', $ds['is_hold']);
     }
 
+    if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
+    {
+      $this->db->where('is_cancled', $ds['is_cancled']);
+    }
+
     return $this->db->count_all_results('orders');
   }
 
@@ -132,7 +137,7 @@ class Delivery_order_model extends CI_Model
   {
     $this->db
     ->select('id, code, role, reference, customer_code, customer_name, customer_ref')
-    ->select('channels_code, payment_code, date_add, shipped_date, user, doc_total, inv_code, empID, empName, is_cancled, is_hold')
+    ->select('channels_code, payment_code, date_add, shipped_date, user, doc_total, inv_code, empID, empName, is_cancled, is_hold, is_cancled')
     ->where('state', $state);
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')
@@ -232,6 +237,11 @@ class Delivery_order_model extends CI_Model
     if(isset($ds['is_hold']) && $ds['is_hold'] != 'all')
     {
       $this->db->where('is_hold', $ds['is_hold']);
+    }
+
+    if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
+    {
+      $this->db->where('is_cancled', $ds['is_cancled']);
     }
 
     $order_by = $state == '7' ? 'ASC' : 'DESC';

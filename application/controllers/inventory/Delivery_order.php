@@ -36,7 +36,8 @@ class Delivery_order extends PS_Controller
       'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
       'order_by' => get_filter('order_by', 'ic_order_by', ''),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
-      'is_hold' => get_filter('is_hold', 'ic_is_hold', 'all')
+      'is_hold' => get_filter('is_hold', 'ic_is_hold', 'all'),
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
     );
 
     if($this->input->post('search'))
@@ -83,6 +84,30 @@ class Delivery_order extends PS_Controller
       }
     }
 
+    if($channels == 'SHOPEE')
+    {
+      $this->load->library('wrx_shopee_api');
+
+      $order_status = $this->wrx_shopee_api->get_order_status($reference);
+
+      if($order_status == 'CANCELLED' OR $order_status == 'IN_CANCEL')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
+    if($channels == 'LAZADA')
+    {
+      $this->load->library('wrx_lazada_api');
+
+      $order_status = $this->wrx_lazada_api->get_order_status($reference);
+
+      if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
     return $is_cancel;
   }
 
@@ -112,12 +137,14 @@ class Delivery_order extends PS_Controller
 
       if($sc === TRUE)
       {
-        if( ! empty($order->reference) && ($order->channels_code == '0009'))
+        if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
         {
           if($this->is_cancel($order->reference, $order->channels_code))
           {
             $sc = FALSE;
             $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
+
+            $this->orders_model->update($order->code, ['is_cancled' => 1]);
           }
         }
       }
@@ -699,7 +726,8 @@ class Delivery_order extends PS_Controller
       'ic_sort_by',
       'ic_order_by',
       'ic_warehouse',
-      'ic_is_hold'
+      'ic_is_hold',
+      'ic_is_cancled'
     );
 
     clear_filter($filter);

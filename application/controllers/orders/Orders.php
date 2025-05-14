@@ -13,10 +13,11 @@ class Orders extends PS_Controller
   public $sokoApi;
 	public $wms; //--- wms database;
 	public $logs; //--- logs database;
-  public $sync_chatbot_stock = FALSE;
+  public $sync_api_stock = FALSE;
   public $log_delete = TRUE;
   public $soko_user = 'api@sokochan';
   public $wms_user = 'api@wms';
+  public $ix_warehouse = NULL;
 
   public function __construct()
   {
@@ -29,6 +30,7 @@ class Orders extends PS_Controller
     $this->load->model('orders/order_state_model');
     $this->load->model('masters/product_tab_model');
     $this->load->model('stock/stock_model');
+    $this->load->model('orders/reserv_stock_model');
     $this->load->model('masters/product_style_model');
     $this->load->model('masters/products_model');
     $this->load->model('orders/discount_model');
@@ -48,6 +50,8 @@ class Orders extends PS_Controller
     $this->filter = getConfig('STOCK_FILTER');
     $this->wmsApi = is_true(getConfig('WMS_API'));
     $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
+    $this->sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+    $this->ix_warehouse = getConfig('IX_WAREHOUSE');
   }
 
 
@@ -326,8 +330,6 @@ class Orders extends PS_Controller
   {
     $sc = TRUE;
     $auz = getConfig('ALLOW_UNDER_ZERO');
-		$this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
-		$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
 		$sync_stock = array();
     $err = 0;
     $data = $this->input->post('data');
@@ -445,20 +447,20 @@ class Orders extends PS_Controller
                 }
                 else
                 {
-                  //---- update chatbot stock
-                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                  //---- update api stock
+                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_api_stock && ! $order->is_pre_order)
                   {
-                    if($order->warehouse_code == $chatbot_warehouse_code)
+                    if($order->warehouse_code == $this->ix_warehouse)
                     {
-                      $sync_stock[] = $item->code;
+                      $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
                     }
                   }
+                  //--- end api stock
                 }
-
               }
               else  //--- ถ้ามีรายการในออเดอร์อยู่แล้ว
               {
-                $qty			= $qty + $detail->qty;
+                $qty = $qty + $detail->qty;
 
                 $discount = array(
                   'amount' => 0,
@@ -495,11 +497,11 @@ class Orders extends PS_Controller
                 else
                 {
                   //---- update chatbot stock
-                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_api_stock && ! $order->is_pre_order)
                   {
-                    if($order->warehouse_code == $chatbot_warehouse_code)
+                    if($order->warehouse_code == $this->ix_warehouse)
                     {
-                      $sync_stock[] = $item->code;
+                      $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
                     }
                   }
                 }
@@ -526,9 +528,9 @@ class Orders extends PS_Controller
           $this->orders_model->update($order_code, $arr);
         }
 
-        if($this->sync_chatbot_stock && !empty($sync_stock))
+        if($this->sync_api_stock && ! empty($sync_stock))
         {
-          $this->update_chatbot_stock($sync_stock);
+          $this->update_api_stock($sync_stock);
         }
       }
     }
@@ -542,8 +544,6 @@ class Orders extends PS_Controller
   {
     $sc = TRUE;
     $auz = getConfig('ALLOW_UNDER_ZERO');
-		$this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
-		$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
 		$sync_stock = array();
     $err = 0;
     $data = $this->input->post('data');
@@ -616,11 +616,11 @@ class Orders extends PS_Controller
                 else
                 {
                   //---- update chatbot stock
-                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_api_stock && ! $order->is_pre_order)
                   {
-                    if($order->warehouse_code == $chatbot_warehouse_code)
+                    if($order->warehouse_code == $this->ix_warehouse)
                     {
-                      $sync_stock[] = $item->code;
+                      $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
                     }
                   }
                 }
@@ -646,11 +646,11 @@ class Orders extends PS_Controller
                 else
                 {
                   //---- update chatbot stock
-                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_chatbot_stock)
+                  if($item->count_stock == 1 && $item->is_api == 1 && $this->sync_api_stock && ! $order->is_pre_order)
                   {
-                    if($order->warehouse_code == $chatbot_warehouse_code)
+                    if($order->warehouse_code == $this->ix_warehouse)
                     {
-                      $sync_stock[] = $item->code;
+                      $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
                     }
                   }
                 }
@@ -666,9 +666,9 @@ class Orders extends PS_Controller
           }	//--- if qty > 0
         } //--- end foreach
 
-        if($this->sync_chatbot_stock && !empty($sync_stock))
+        if($this->sync_api_stock && ! empty($sync_stock))
         {
-          $this->update_chatbot_stock($sync_stock);
+          $this->update_api_stock($sync_stock);
         }
       }
     }
@@ -676,6 +676,7 @@ class Orders extends PS_Controller
 
     echo $sc === TRUE ? 'success' : ( $err > 0 ? $this->error.' : '.$err.' item(s)' : $this->error);
   }
+
 
   //--- update item qty
   public function update_item()
@@ -781,6 +782,24 @@ class Orders extends PS_Controller
               );
 
               $this->orders_model->update($code, $arr);
+
+              //--- update api stock
+              if($this->sync_api_stock && $detail->is_count == 1 && ! $order->is_pre_order && $order->warehouse_code == $this->ix_warehouse)
+              {
+                $sync_stock = array();
+                $item = $this->products_model->get($detail->product_code);
+
+                if( ! empty($item))
+                {
+                  if($item->is_api)
+                  {
+                    $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+
+                    $this->update_api_stock($sync_stock);
+                  }
+                }
+              }
+              //--- end update api stock
             }
     			}
     			else
@@ -984,24 +1003,21 @@ class Orders extends PS_Controller
                 $this->orders_model->log_delete($arr);
               }
 
-							$this->sync_chatbot_stock = getConfig('SYNC_CHATBOT_STOCK') == 1 ? TRUE : FALSE;
-
-							$sync_stock = array();
-
-							if($this->sync_chatbot_stock && $detail->is_count == 1)
+							if($this->sync_api_stock && $detail->is_count == 1 && ! $order->is_pre_order && $order->warehouse_code == $this->ix_warehouse)
 							{
 								$item = $this->products_model->get($detail->product_code);
 
-								if(!empty($item))
+								if(! empty($item))
 								{
 									if($item->is_api == 1)
 									{
-										$chatbot_warehouse_code = getConfig('CHATBOT_WAREHOUSE_CODE');
-										$arr = array($item->code);
-										$this->update_chatbot_stock($arr);
+                    $sync_stock = array();
+                    $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+										$this->update_api_stock($sync_stock);
 									}
 								}
 							}
+              //--- sync api stock
             }
 					}
 				}
@@ -1405,9 +1421,10 @@ class Orders extends PS_Controller
             $sell_stock = $this->stock_model->get_sell_stock($rs->product_code, $order->warehouse_code);
 
             //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
-            $reserv_stock = $this->orders_model->get_reserv_stock_exclude($rs->product_code, $order->warehouse_code, $rs->id);
+            $ordered = $this->orders_model->get_reserv_stock_exclude($rs->product_code, $order->warehouse_code, $rs->id);
+            $reserv_stock = $this->reserv_stock_model->get_reserv_stock($rs->product_code, $order->warehouse_code);
 
-            $available = $sell_stock - $reserv_stock;
+            $available = $sell_stock - $ordered - $reserv_stock;
 
             if($available < $rs->qty)
             {
@@ -1716,9 +1733,10 @@ class Orders extends PS_Controller
                 $sell_stock = $this->stock_model->get_sell_stock($item->code, $order->warehouse_code);
 
                 //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
-                $reserv_stock = $this->orders_model->get_reserv_stock_exclude($item->code, $order->warehouse_code, $row->id);
+                $ordered = $this->orders_model->get_reserv_stock_exclude($item->code, $order->warehouse_code, $row->id);
+                $reserv_stock = $this->reserv_stock_model->get_reserv_stock($item->code, $order->warehouse_code);
 
-                $availableStock = $sell_stock - $reserv_stock;
+                $availableStock = $sell_stock - $ordered - $reserv_stock;
 
                 $rs[] = array(
                   'id' => $row->id,
@@ -1836,6 +1854,7 @@ class Orders extends PS_Controller
     echo $sc === TRUE ? json_encode($ds) : $this->error;
   }
 
+
   public function test_get_item_grid()
   {
     $sc = "Start : ".now()."<br/>";
@@ -1857,9 +1876,10 @@ class Orders extends PS_Controller
         $sell_stock = $this->stock_model->get_sell_stock($item->code, $warehouse_code);
         $sc .= " - ".now()." : Result : {$sell_stock} <br/>";
         $sc .= "Get Reserv stock : ".now();
-        $reserv_stock = $this->orders_model->get_reserv_stock($item->code, $warehouse_code);
-        $sc .= " - ".now()." : Result : {$reserv_stock}<br/>";
-        $sc .= "Available stock = ".($sell_stock - $reserv_stock)."<br/>";
+        $ordered = $this->orders_model->get_reserv_stock($item->code, $warehouse_code);
+        $reserv_stock = $this->reserv_stock_model->get_reserv_stock($item->code, $warehouse_code);
+        $sc .= " - ".now()." : Result : ".($ordered + $reserv_stock)."<br/>";
+        $sc .= "Available stock = ".($sell_stock - $ordered - $reserv_stock)."<br/>";
       }
       else
       {
@@ -2278,18 +2298,14 @@ class Orders extends PS_Controller
 		$this->load->view('print/print_wms_return_request', $ds);
 	}
 
+
   public function get_sell_stock($item_code, $warehouse = NULL, $zone = NULL)
   {
-    // $transfer_stock = $warehouse == 'AFG-0010' ? $this->transfer_model->get_uncomplete_transfer_qty($item_code, $warehouse) : 0;
-    // $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
-    // $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
-    // $availableStock = $sell_stock - $reserv_stock - $transfer_stock;
-		// return $availableStock < 0 ? 0 : $availableStock;
-
     //---- Orignal
     $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse, $zone);
-    $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
-    $availableStock = $sell_stock - $reserv_stock;
+    $ordered = $this->orders_model->get_reserv_stock($item_code, $warehouse, $zone);
+    $reserv_stock = $this->reserv_stock_model->get_reserv_stock($item_code, $warehouse);
+    $availableStock = $sell_stock - $ordered - $reserv_stock;
 		return $availableStock < 0 ? 0 : $availableStock;
   }
 
@@ -4504,7 +4520,6 @@ class Orders extends PS_Controller
 	}
 
 
-
   public function get_summary()
   {
     $this->load->model('masters/bank_model');
@@ -4519,12 +4534,12 @@ class Orders extends PS_Controller
   }
 
 
-
   public function get_available_stock($item)
   {
     $sell_stock = $this->stock_model->get_sell_stock($item);
-    $reserv_stock = $this->orders_model->get_reserv_stock($item);
-    $availableStock = $sell_stock - $reserv_stock;
+    $ordered = $this->orders_model->get_reserv_stock($item);
+    $reserv_stock = $this->reserv_stock_model->get_reserv_stock($item);
+    $availableStock = $sell_stock - $ordered - $reserv_stock;
     return $availableStock < 0 ? 0 : $availableStock;
   }
 
@@ -4540,6 +4555,7 @@ class Orders extends PS_Controller
     }
   }
 
+
 	public function update_chatbot_stock(array $ds = array())
   {
     if($this->sync_chatbot_stock && !empty($ds))
@@ -4547,6 +4563,27 @@ class Orders extends PS_Controller
 			$this->logs = $this->load->database('logs', TRUE);
       $this->load->library('chatbot_api');
       $this->chatbot_api->sync_stock($ds);
+    }
+  }
+
+
+  //---- send calcurated stock to marketplace
+  public function update_api_stock(array $ds = array())
+  {
+    if($this->sync_api_stock && ! empty($ds))
+    {
+      $this->load->library('wrx_stock_api');
+      $warehouse_code = getConfig('IX_WAREHOUSE');
+
+      foreach($ds as $item)
+      {
+        $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
+        $available = $this->get_sell_stock($item->code, $warehouse_code);
+
+        $qty = floor($available * $rate);
+
+        $this->wrx_stock_api->update_available_stock($item->code, $qty);
+      }
     }
   }
 
@@ -4869,62 +4906,6 @@ class Orders extends PS_Controller
 		}
 
 		echo $sc === TRUE ? 'success' : $this->error;
-	}
-
-
-  public function test_send_to_wms($code)
-	{
-		$sc = TRUE;
-    $res = "";
-		$order = $this->orders_model->get($code);
-
-		if( ! empty($order))
-		{
-      //---- export to fulfillment
-      if($order->is_wms != 0)
-      {
-        $this->wms = $this->load->database('wms', TRUE);
-
-        if($order->is_wms == 1)
-        {
-          $this->load->library('wms_order_api');
-
-          $res = $this->wms_order_api->test_export_order($code);
-
-          echo '<pre>'.htmlentities($res).'</pre>';
-        } //--- if($order->is_wms == 1)
-
-        //---- export to soko
-        if($order->is_wms == 2)
-        {
-          $this->load->library('soko_order_api');
-
-          $res = $this->soko_order_api->test_export_order($code);
-
-          if(is_array($res))
-          {
-            echo "<pre>";
-            print_r($res);
-            echo "</pre>";
-          }
-          else
-          {
-            echo $res;
-          }
-        } //--- if($order->is_wms == 2)
-      } //--- export fulfillment
-      else
-      {
-        echo "ORDER NOT FOR WMS";
-      }
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Missing required parameter : code";
-		}
-
-		echo $sc === TRUE ? "" : $this->error;
 	}
 
 

@@ -39,7 +39,7 @@
 <hr class="margin-top-15 margin-bottom-15"/>
 
 <div class="row">
-  <div class="col-sm-12" id="result">
+  <div class="col-sm-12" id="result">    
   </div>
 </div>
 <script id="order-template" type="text/x-handlebarsTemplate">

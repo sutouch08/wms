@@ -47,11 +47,10 @@
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-striped table-hover" style="min-width:1130px;">
 			<thead>
-				<tr>
+				<tr class="font-size-11">
 					<th class="fix-width-80"></th>
 					<th class="fix-width-60 text-center">รูปภาพ</th>
 					<th class="min-width-200">รหัสสินค้า</th>
-					<th class="fix-width-200">รหัสเก่า</th>
 					<th class="fix-width-120">บาร์โค้ด</th>
 					<th class="fix-width-60 text-center">สี</th>
 					<th class="fix-width-60 text-center">ไซส์</th>
@@ -60,6 +59,7 @@
 					<th class="fix-width-50 text-center">ขาย</th>
 					<th class="fix-width-50 text-center">เปิด</th>
 					<th class="fix-width-50 text-center">API</th>
+          <th class="fix-width-80 text-center">API Rate</th>
 
 				</tr>
 			</thead>
@@ -67,7 +67,7 @@
 <?php if(!empty($items)) : ?>
 	<?php foreach($items as $item) : ?>
 		<?php $img = get_product_image($item->code, 'mini'); ?>
-				<tr id="row-<?php echo $item->id; ?>" style="font-size:12px;">
+				<tr class="font-size-11" id="row-<?php echo $item->id; ?>">
 					<td class="middle text-right">
 						<?php if($this->pm->can_edit) : ?>
 							<button type="button" class="btn btn-mini btn-warning lb" id="btn-edit-<?php echo $item->id; ?>" onclick="editItem('<?php echo $item->id; ?>')">
@@ -84,13 +84,12 @@
 						<?php endif; ?>
 					</td>
 					<td class="middle text-center">
-						<img src="<?php echo $img; ?>" style="width:50px;" />
+						<img src="<?php echo $img; ?>" style="width:40px;" />
 					</td>
 					<td class="middle">
 						<?php echo $item->code; ?>
 						<input type="hidden" id="code-<?php echo $item->id; ?>" value="<?php echo $item->code; ?>" />
 					</td>
-					<td class="middle"><?php echo $item->old_code; ?></td>
 
 					<td class="middle">
 						<span class="lb" id="bc-lbl-<?php echo $item->id; ?>"><?php echo $item->barcode; ?></span>
@@ -156,6 +155,10 @@
 						<?php else : ?>
 						<?php echo is_active($item->is_api); ?>
 						<?php endif; ?>
+					</td>
+
+          <td class="middle text-center">
+						<?php echo $item->api_rate; ?>
 					</td>
 
 				</tr>

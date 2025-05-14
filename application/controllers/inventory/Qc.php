@@ -337,96 +337,6 @@ class Qc extends PS_Controller
   }
 
 
-  // public function ship_order_lazada($reference)
-  // {
-  //   $sc = TRUE;
-  //   $shipment = NULL;
-  //   $this->load->library('wrx_lazada_api');
-  //   $order = $this->orders_model->get_order_by_reference($reference);
-  //
-  //   if( ! empty($order))
-  //   {
-  //     $status = $this->wrx_lazada_api->get_order_status($reference);
-  //
-  //     $logs['status'] = $status;
-  //
-  //     if($status === 'canceled')
-  //     {
-  //       $sc = FALSE;
-  //       $this->error = "ออเดอร์ถูกยกเลิกในระบบ Lazada แล้ว";
-  //     }
-  //
-  //     if($sc === TRUE)
-  //     {
-  //       $order_item_id = $this->wrx_lazada_api->get_order_item_id($reference);
-  //
-  //       if( ! empty($order_item_id))
-  //       {
-  //         //---- change order status to packed and retrive pack data include tracking number
-  //         $pk = $this->wrx_lazada_api->packed($reference, $order_item_id);
-  //
-  //         if( ! empty($pk))
-  //         {
-  //           //---- update tracking number
-  //           if( ! empty($pk->tracking_number))
-  //           {
-  //              $this->orders_model->update($order->code, ['shipping_code' => $pk->tracking_number, 'package_id' => $pk->package_id]);
-  //           }
-  //
-  //           //---- ready to ship order
-  //           if( ! empty($pk->package_id))
-  //           {
-  //             if($this->wrx_lazada_api->ship_package($pk->package_id) === TRUE)
-  //             {
-  //               //---- download document
-  //               $data = $this->wrx_lazada_api->get_shipping_label($pk->package_id);
-  //
-  //               if( ! empty($data))
-  //               {
-  //                 $shipment = $data;
-  //               }
-  //               else
-  //               {
-  //                 $sc = FALSE;
-  //                 $this->error = "Cannt get file from api";
-  //               }
-  //             }
-  //             else
-  //             {
-  //               $sc = FALSE;
-  //               $this->error = "Failed to set order status to ready to ship : {$this->wrx_lazada_api->error}";
-  //             }
-  //           }
-  //         }
-  //         else
-  //         {
-  //           $sc = FALSE;
-  //           $this->error = "Failed to set ordet status to packed";
-  //         }
-  //       }
-  //       else
-  //       {
-  //         $sc = FALSE;
-  //         $this->error = "Cannot Get Order Item ID from Lazada";
-  //       }
-  //     }
-  //   }
-  //   else
-  //   {
-  //     $sc = FALSE;
-  //     $this->error = "Order {$reference} not found";
-  //   }
-  //
-  //   $arr = array(
-  //     'status' => $sc === TRUE ? 'success' : 'failed',
-  //     'message' => $sc === TRUE ? 'success' : $this->error,
-  //     'data' => $shipment
-  //   );
-  //
-  //   echo json_encode($arr);
-  // }
-
-
   public function ship_order_lazada($reference)
   {
     $sc = TRUE;
@@ -455,7 +365,7 @@ class Qc extends PS_Controller
           //---- change order status to packed and retrive pack data include tracking number
           $pk = $this->wrx_lazada_api->packed($reference, $order_item_ids);
           $packages = [];
-          
+
           if( ! empty($pk))
           {
             foreach($pk as $p)

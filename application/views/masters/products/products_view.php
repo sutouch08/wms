@@ -160,7 +160,7 @@
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="max-height:900px; min-height:400px; overflow:auto;">
 		<table class="table table-striped table-bordered table-hover tableFixHead" style="min-width:2100px;">
 			<thead>
-				<tr>
+				<tr class="font-size-11">
 					<th class="fix-width-100 fix-header"></th>
 					<th class="fix-width-50 middle text-center fix-header">#</th>
 					<th class="fix-width-60 middle text-center fix-header">รูปภาพ</th>
@@ -184,9 +184,16 @@
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(4) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr id="row-<?php echo $no; ?>">
+					<tr class="font-size-11" id="row-<?php echo $no; ?>">
 						<td class="middle text-center">
-							<div class="btn-group">
+							<button type="button" class="btn btn-minier btn-info" onclick="sendToSap('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
+						<?php if($this->pm->can_edit) : ?>
+							<button type="button" class="btn btn-minier btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+						<?php endif; ?>
+						<?php if($this->pm->can_delete) : ?>
+							<button type="button" class="btn btn-minier btn-danger" onclick="getDelete('<?php echo $rs->code; ?>', '<?php echo $rs->name; ?>', <?php echo $no; ?>)"><i class="fa fa-trash"></i></button>
+						<?php endif; ?>
+							<div class="btn-group hide">
 								<button data-toggle="dropdown" class="btn btn-sm btn-primary btn-white dropdown-toggle" aria-expanded="false">
 									Action
 									<i class="ace-icon fa fa-angle-down icon-on-right"></i>
@@ -222,7 +229,7 @@
 						</td>
 						<td class="middle text-center"><?php echo number($no); ?></td>
 						<td class="middle text-center">
-							<img src="<?php echo get_cover_image($rs->code, 'mini'); ?>" width="50" />
+							<img src="<?php echo get_cover_image($rs->code, 'mini'); ?>" width="40" />
 						</td>
 						<td class="middle">	<?php echo $rs->code; ?></td>
 						<td class="middle text-right"><?php echo number($rs->price, 2); ?></td>

@@ -24,11 +24,11 @@
 </div>
 
 <div class="incomplete-box" id="incomplete-box">
+	<?php $totalQty = 0; ?>
+	<?php $totalShipped = 0; ?>
   <?php  if( ! empty($details)) : ?>
 		<?php $channels = get_channels_array(); ?>
     <?php $no = 1; ?>
-		<?php $totalQty = 0; ?>
-		<?php $totalShipped = 0; ?>
     <?php   foreach($details as $rs) : ?>
 			<?php $channels_name = empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?>
 			<div class="col-xs-12 incomplete-item dispatch-row" data-id="<?php echo $rs->id; ?>" id="dispatch-<?php echo $rs->id; ?>">

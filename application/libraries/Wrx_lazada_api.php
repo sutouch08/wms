@@ -156,19 +156,6 @@ class Wrx_lazada_api
         }
 
         return $pk;
-
-
-        // $pk = $res->data->pack_order_list[0]->order_item_list[0];
-
-        // if( ! empty($pk->tracking_number) && ! empty($pk->package_id))
-        // {
-        //   return $pk;
-        // }
-        // else
-        // {
-        //   $sc = FALSE;
-        //   $this->error = "Trakcing Number or packge_id not found";
-        // }
       }
       else
       {

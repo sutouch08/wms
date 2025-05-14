@@ -205,7 +205,7 @@ class Items extends PS_Controller
               $rs['D'] = str_replace(array("\n", "\r"), '', $rs['D']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
 
               $style = preg_replace($code_pattern, '', get_null(trim($rs['D'])));
-              $old_style = NULL; //get_null(trim($rs['T'])) === NULL ? $style : trim($rs['T']);
+              $old_style = NULL;
               $color_code = get_null(trim($rs['E']));
               $size_code = get_null(trim($rs['F']));
               $group_code = get_null(trim($rs['G']));
@@ -217,6 +217,9 @@ class Items extends PS_Controller
               $brand_code = get_null(trim($rs['M']));
               $collection_code = get_null(trim($rs['N']));
               $year = empty($rs['O']) ? '0000' : trim($rs['O']);
+              $is_api = empty($rs['T']) ? 0 : ((trim($rs['T']) == 'Y' OR trim($rs['T'] == 1)) ? 1 : 0);
+              $api_rate = empty($rs['W']) ? 0 : (floatval(trim($rs['W'])));
+              $api_rate = $api_rate < 0 ? 0 : ($api_rate > 100 ? 100 : $api_rate);
 
               if(!empty($color_code) && ! $this->product_color_model->is_exists($color_code))
               {
@@ -294,7 +297,8 @@ class Items extends PS_Controller
                     'price' => round(trim($rs['Q']), 2),
                     'unit_code' => trim($rs['R']),
                     'count_stock' => trim($rs['S']) === 'N' ? 0:1,
-                    'is_api' => trim($rs['T']) === 'N' ? 0 : 1,
+                    'is_api' => $is_api,
+                    'api_rate' => $api_rate,
                     'update_user' => $this->_user->uname,
                     'old_code' => $old_style
                   );
@@ -309,7 +313,7 @@ class Items extends PS_Controller
 
               $rs['A'] = str_replace(array("\n", "\r"), '', $rs['A']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
               $code = preg_replace($code_pattern, '', trim($rs['A']));
-              $old_code = NULL; //get_null(trim($rs['U'])) === NULL ? $code : trim($rs['U']);
+              $old_code = NULL; 
               $arr = array(
                 'code' => $code,
                 'name' => trim($rs['B']),
@@ -330,7 +334,8 @@ class Items extends PS_Controller
                 'price' => round(trim($rs['Q']), 2),
                 'unit_code' => empty(trim($rs['R'])) ? 'PCS' : trim($rs['R']),
                 'count_stock' => trim($rs['S']) === 'N' ? 0:1,
-                'is_api' => trim($rs['T']) === 'N' ? 0 : 1,
+                'is_api' => $is_api,
+                'api_rate' => $api_rate,
                 'update_user' => $this->_user->uname,
                 'old_style' => $old_style,
                 'old_code' => $old_code
@@ -406,6 +411,7 @@ class Items extends PS_Controller
           'brand_code' => get_null($ds->brand_code),
           'collection_code' => get_null($ds->collection_code),
           'year' => $ds->year,
+          'api_rate' => $ds->api_rate,
           'cost' => round($ds->cost, 2),
           'price' => round($ds->price, 2),
           'unit_code' => $ds->unit_code,
@@ -479,14 +485,14 @@ class Items extends PS_Controller
   }
 
 
-	public function update()
+  public function update()
   {
-		$sc = TRUE;
-		$ds = json_decode($this->input->post('data'));
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
 
-		if(! empty($ds))
-		{
-			$code = $ds->code;
+    if(! empty($ds))
+    {
+      $code = $ds->code;
 
       $arr = array(
         'name' => trim($ds->name),
@@ -495,7 +501,7 @@ class Items extends PS_Controller
         'color_code' => get_null($ds->color_code),
         'size_code' => get_null($ds->size_code),
         'group_code' => get_null($ds->group_code),
-  			'main_group_code' => get_null($ds->main_group_code),
+        'main_group_code' => get_null($ds->main_group_code),
         'sub_group_code' => get_null($ds->sub_group_code),
         'category_code' => get_null($ds->category_code),
         'kind_code' => get_null($ds->kind_code),
@@ -503,6 +509,7 @@ class Items extends PS_Controller
         'brand_code' => get_null($ds->brand_code),
         'collection_code' => get_null($ds->collection_code),
         'year' => $ds->year,
+        'api_rate' => $ds->api_rate,
         'cost' => round($ds->cost, 2),
         'price' => round($ds->price, 2),
         'unit_code' => $ds->unit_code,
@@ -517,19 +524,19 @@ class Items extends PS_Controller
 
       if(! $this->products_model->update($code, $arr))
       {
-  			$sc = FALSE;
-  			$this->error = "Update failed";
+        $sc = FALSE;
+        $this->error = "Update failed";
       }
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Missing form data";
-		}
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing form data";
+    }
 
-		if($sc === TRUE)
-		{
-			$this->do_export($code);
+    if($sc === TRUE)
+    {
+      $this->do_export($code);
 
       if($this->sokoApi)
       {
@@ -538,9 +545,24 @@ class Items extends PS_Controller
           $this->soko_product_api->update_item($ds->code, $ds);
         }
       }
-		}
+    }
 
-		echo $sc === TRUE ? 'success' : $this->error;
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+  public function view_detail($id)
+  {
+    $item = $this->products_model->get_by_id($id);
+
+    if(! empty($item))
+    {
+      $this->load->view('masters/product_items/items_view_detail', $item);
+    }
+    else
+    {
+      $this->page_error();
+    }
   }
 
 
@@ -590,7 +612,6 @@ class Items extends PS_Controller
   }
 
 
-
   public function toggle_api($code)
   {
     $status = $this->products_model->get_status('is_api', $code);
@@ -637,8 +658,6 @@ class Items extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
-
 
 
 	public function send_to_wms()
@@ -735,7 +754,6 @@ class Items extends PS_Controller
 	}
 
 
-
   public function do_export($code, $method = 'A')
   {
 		$sc = TRUE;
@@ -810,7 +828,6 @@ class Items extends PS_Controller
   }
 
 
-
   public function export_style($style_code)
   {
     $style = $this->product_style_model->get($style_code);
@@ -831,47 +848,48 @@ class Items extends PS_Controller
   }
 
 
-    public function download_template($token)
-    {
-      //--- load excel library
-      $this->load->library('excel');
+  public function download_template($token)
+  {
+    //--- load excel library
+    $this->load->library('excel');
 
-      $this->excel->setActiveSheetIndex(0);
-      $this->excel->getActiveSheet()->setTitle('Items Master Template');
+    $this->excel->setActiveSheetIndex(0);
+    $this->excel->getActiveSheet()->setTitle('Items Master Template');
 
-      //--- set report title header
-      $this->excel->getActiveSheet()->setCellValue('A1', 'Code');
-      $this->excel->getActiveSheet()->setCellValue('B1', 'Name');
-      $this->excel->getActiveSheet()->setCellValue('C1', 'Barcode');
-      $this->excel->getActiveSheet()->setCellValue('D1', 'Model');
-      $this->excel->getActiveSheet()->setCellValue('E1', 'Color');
-      $this->excel->getActiveSheet()->setCellValue('F1', 'Size');
-      $this->excel->getActiveSheet()->setCellValue('G1', 'Group');
-      $this->excel->getActiveSheet()->setCellValue('H1', 'MainGroup');
-      $this->excel->getActiveSheet()->setCellValue('I1', 'SubGroup');
-      $this->excel->getActiveSheet()->setCellValue('J1', 'Category');
-      $this->excel->getActiveSheet()->setCellValue('K1', 'Kind');
-      $this->excel->getActiveSheet()->setCellValue('L1', 'Type');
-      $this->excel->getActiveSheet()->setCellValue('M1', 'Brand');
-      $this->excel->getActiveSheet()->setCellValue('N1', 'Collection');
-      $this->excel->getActiveSheet()->setCellValue('O1', 'Year');
-      $this->excel->getActiveSheet()->setCellValue('P1', 'Cost');
-      $this->excel->getActiveSheet()->setCellValue('Q1', 'Price');
-      $this->excel->getActiveSheet()->setCellValue('R1', 'Unit');
-      $this->excel->getActiveSheet()->setCellValue('S1', 'CountStock');
-      $this->excel->getActiveSheet()->setCellValue('T1', 'IsAPI');
-      $this->excel->getActiveSheet()->setCellValue('U1', 'OldModel');
-      $this->excel->getActiveSheet()->setCellValue('V1', 'OldCode');
+    //--- set report title header
+    $this->excel->getActiveSheet()->setCellValue('A1', 'Code');
+    $this->excel->getActiveSheet()->setCellValue('B1', 'Name');
+    $this->excel->getActiveSheet()->setCellValue('C1', 'Barcode');
+    $this->excel->getActiveSheet()->setCellValue('D1', 'Model');
+    $this->excel->getActiveSheet()->setCellValue('E1', 'Color');
+    $this->excel->getActiveSheet()->setCellValue('F1', 'Size');
+    $this->excel->getActiveSheet()->setCellValue('G1', 'Group');
+    $this->excel->getActiveSheet()->setCellValue('H1', 'MainGroup');
+    $this->excel->getActiveSheet()->setCellValue('I1', 'SubGroup');
+    $this->excel->getActiveSheet()->setCellValue('J1', 'Category');
+    $this->excel->getActiveSheet()->setCellValue('K1', 'Kind');
+    $this->excel->getActiveSheet()->setCellValue('L1', 'Type');
+    $this->excel->getActiveSheet()->setCellValue('M1', 'Brand');
+    $this->excel->getActiveSheet()->setCellValue('N1', 'Collection');
+    $this->excel->getActiveSheet()->setCellValue('O1', 'Year');
+    $this->excel->getActiveSheet()->setCellValue('P1', 'Cost');
+    $this->excel->getActiveSheet()->setCellValue('Q1', 'Price');
+    $this->excel->getActiveSheet()->setCellValue('R1', 'Unit');
+    $this->excel->getActiveSheet()->setCellValue('S1', 'CountStock');
+    $this->excel->getActiveSheet()->setCellValue('T1', 'IsAPI');
+    $this->excel->getActiveSheet()->setCellValue('U1', 'OldModel');
+    $this->excel->getActiveSheet()->setCellValue('V1', 'OldCode');
+    $this->excel->getActiveSheet()->setCellValue('W1', 'API Rate');
 
 
-      setToken($token);
+    setToken($token);
 
-      $file_name = "Items_master_template.xlsx";
-      header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
-      header('Content-Disposition: attachment;filename="'.$file_name.'"');
-      $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
-      $writer->save('php://output');
-    }
+    $file_name = "Items_master_template.xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
+    header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+    $writer->save('php://output');
+  }
 
   public function clear_filter()
 	{
