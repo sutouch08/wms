@@ -708,18 +708,9 @@ class Orders extends REST_Controller
             {
               $this->load->library('wrx_stock_api');
               $warehouse_code = getConfig('IX_WAREHOUSE');
-
-              foreach($sync_stock as $item)
-              {
-                $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
-                $available = $this->get_available_stock($item->code, $warehouse_code);
-
-                $qty = floor($available * $rate);
-
-                $this->wrx_stock_api->update_available_stock($item->code, $qty);
-              }
+              $this->wrx_stock_api->update_available_stock($sync_stock, $warehouse_code);              
             }
-            
+
 
             if($this->orders_model->change_state($order_code, 3))
             {
