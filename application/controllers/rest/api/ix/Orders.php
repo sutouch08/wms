@@ -670,7 +670,7 @@ class Orders extends REST_Controller
                     }
                   }
 
-                  if($this->sync_api_stock && $item->count_stock && ! $is_pre_order)
+                  if($this->sync_api_stock && $item->count_stock && $item->is_api && ! $is_pre_order)
           				{
                     $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
           				}
@@ -708,7 +708,7 @@ class Orders extends REST_Controller
             {
               $this->load->library('wrx_stock_api');
               $warehouse_code = getConfig('IX_WAREHOUSE');
-              $this->wrx_stock_api->update_available_stock($sync_stock, $warehouse_code);              
+              $this->wrx_stock_api->update_available_stock($sync_stock, $warehouse_code);
             }
 
 

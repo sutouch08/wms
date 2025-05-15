@@ -4569,17 +4569,7 @@ class Orders extends PS_Controller
       $this->load->library('wrx_stock_api');
       $warehouse_code = getConfig('IX_WAREHOUSE');
 
-      $this->wrx_stock_api->update_available_stock($ds, $warehouse_code);
-
-      // foreach($ds as $item)
-      // {
-      //   $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
-      //   $available = $this->get_sell_stock($item->code, $warehouse_code);
-      //
-      //   $qty = floor($available * $rate);
-      //
-      //   $this->wrx_stock_api->update_available_stock($item->code, $qty);
-      // }
+      $this->wrx_stock_api->update_available_stock($ds, $warehouse_code);    
     }
   }
 
