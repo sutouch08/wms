@@ -25,6 +25,7 @@ class Find_stock extends PS_Controller
     $this->load->model('masters/product_image_model');
     $this->load->model('stock/stock_model');
     $this->load->model('orders/orders_model');
+    $this->load->model('orders/reserv_stock_model');
 
     //---- load helper
     $this->load->helper('product_tab');
@@ -93,21 +94,24 @@ class Find_stock extends PS_Controller
 
         if($sell_stock > 0)
         {
-          $reserv_stock = $this->orders_model->get_reserv_stock($rs->code, $warehouse, NULL);
-          $availableStock = $sell_stock - $reserv_stock;
+          $ordered = $this->orders_model->get_reserv_stock($rs->code, $warehouse, NULL);
+          $reserv_stock = $this->reserv_stock_model->get_reserv_stock($rs->code, $warehouse);
+          $availableStock = $sell_stock - $ordered - $reserv_stock;
+
           if($availableStock > 0)
           {
             $rs->OnHand = $sell_stock;
-            $rs->ordered = $reserv_stock;
+            $rs->ordered = $ordered;
+            $rs->reserved = $reserv_stock;
             $rs->balance = $availableStock;
-            $data[] = $rs;
+            // $data[] = $rs;
             $rows++;
           }
         }
       }
     }
 
-    $filter['data'] = $data;
+    $filter['data'] = $products;
     $init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 		$this->pagination->initialize($init);
     $this->load->view('find_stock_view', $filter);

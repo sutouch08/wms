@@ -704,14 +704,6 @@ class Orders extends REST_Controller
               }
             }
 
-            if($this->sync_api_stock && ! empty($sync_stock))
-            {
-              $this->load->library('wrx_stock_api');
-              $warehouse_code = getConfig('IX_WAREHOUSE');
-              $this->wrx_stock_api->update_available_stock($sync_stock, $warehouse_code);
-            }
-
-
             if($this->orders_model->change_state($order_code, 3))
             {
               $arr = array(
@@ -756,6 +748,34 @@ class Orders extends REST_Controller
           );
 
           $this->ix_api_logs_model->add_logs($logs);
+        }
+
+        if($this->sync_api_stock && ! empty($sync_stock))
+        {
+          $this->load->library('wrx_stock_api');
+          $warehouse_code = getConfig('IX_WAREHOUSE');
+
+          $i = 0;
+          $j = 0;
+
+          $items = [];
+
+          foreach($sync_stock as $rs)
+          {
+            if($i == 20)
+            {
+              $i = 0;
+              $j++;
+            }
+
+            $items[$j][$i] = $rs;
+            $i++;
+          }
+
+          foreach($items as $item)
+          {
+            $this->wrx_stock_api->update_available_stock($item, $warehouse_code);
+          }
         }
 
         $this->response($arr, 200);
@@ -1191,13 +1211,62 @@ class Orders extends REST_Controller
         if($sc === TRUE)
         {
           $this->db->trans_commit();
+
+
+          if($this->sync_api_stock && ! $order->is_pre_order)
+          {
+            $ix_warehouse = getConfig('IX_WAREHOUSE');
+
+            if($order->warehouse_code == $ix_warehouse)
+            {
+              $details = $this->orders_model->get_order_details($order->code);
+
+              if( ! empty($details))
+              {
+                $sync_stock = [];
+
+                foreach($details as $rs)
+                {
+                  if($rs->is_count && $rs->is_api)
+                  {
+                    $sync_stock[] = (object) array('code' => $rs->product_code, 'rate' => $rs->api_rate);
+                  }
+                }
+
+                if( ! empty($sync_stock))
+                {
+                  $this->load->library('wrx_stock_api');
+
+                  $i = 0;
+                  $j = 0;
+
+                  $items = [];
+
+                  foreach($sync_stock as $rs)
+                  {
+                    if($i == 20)
+                    {
+                      $i = 0;
+                      $j++;
+                    }
+
+                    $items[$j][$i] = $rs;
+                    $i++;
+                  }
+
+                  foreach($items as $item)
+                  {
+                    $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
+                  }
+                }
+              }
+            }
+          }
         }
         else
         {
           $this->db->trans_rollback();
         }
-
-
       }
       else
       {

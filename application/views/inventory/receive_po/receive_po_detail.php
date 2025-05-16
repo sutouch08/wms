@@ -22,7 +22,7 @@
 			<?php if($this->pm->can_edit && $doc->status == 0) : ?>
 				<button type="button" class="btn btn-xs btn-warning btn-top" onclick="goEdit('<?php echo $doc->code; ?>')"><i class="fa fa-pencil"></i> แก้ไข</button>
 			<?php endif; ?>
-			<?php if($this->pm->can_edit && $doc->status != 2 && $doc->status != 0 && ($doc->is_wms == 0 OR $this->_SuperAdmin)) : ?>
+			<?php if($this->pm->can_edit && $doc->status != 2 && $doc->status != 0 OR ($doc->is_wms == 0 OR $this->_SuperAdmin)) : ?>
 				<button type="button" class="btn btn-xs btn-primary top-btn" onclick="pullBack('<?php echo $doc->code; ?>')">ดึงสถานะกลับมาแก้ไข</button>
 			<?php endif; ?>
 			<?php if($doc->status == 1) : ?>

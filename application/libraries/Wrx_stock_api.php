@@ -7,8 +7,8 @@ class Wrx_stock_api
   private $api;
   protected $ci;
   public $error;
-  public $logs_json = FALSE;
-  public $test = FALSE;
+  public $logs_json = TRUE;
+  public $test = TRUE;
 
   public function __construct()
   {
@@ -20,7 +20,7 @@ class Wrx_stock_api
 
     $this->api = getWrxApiConfig();
     $this->logs_json = is_true($this->api['WRX_LOG_JSON']);
-    // $this->test = is_true($this->api['WRX_TEST']);
+    $this->test = is_true($this->api['WRX_API_TEST']);
   }
 
   public function test()
@@ -50,8 +50,9 @@ class Wrx_stock_api
       {
         $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
         $available = $this->get_available_stock($item->code, $warehouse_code);
+        $receive_qty = empty($item->receive_qty) ? 0 : intval(floor($item->receive_qty));
 
-        $qty = intval(floor($available * $rate));
+        $qty = intval(floor(($available + $receive_qty) * $rate));
 
         $data[] = array(
           'sku' => $item->code,
@@ -66,19 +67,7 @@ class Wrx_stock_api
 
         $json = json_encode($req);
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-        $res = json_decode($response);
-
-        if( ! empty($res) && ! empty($res->status))
+        if($this->test === TRUE)
         {
           if($this->logs_json)
           {
@@ -87,30 +76,9 @@ class Wrx_stock_api
               'type' => $type,
               'api_path' => $api_path,
               'code' => NULL,
-              'action' => $action,
-              'status' => $res->status == 'success' ? 'success' : 'failed',
-              'message' => $res->serviceMessage,
-              'request_json' => $json,
-              'response_json' => $response
-            );
-
-            $this->ci->wrx_api_logs_model->add_logs($logs);
-          }
-        }
-        else
-        {
-          $this->error = "No response";
-
-          if($this->logs_json)
-          {
-            $logs = array(
-              'trans_id' => genUid(),
-              'type' => $type,
-              'api_path' => $api_path,
-              'code' => NULL,
-              'action' => $action,
-              'status' => 'failed',
-              'message' => 'No response',
+              'action' => 'test',
+              'status' => 'test',
+              'message' => 'test',
               'request_json' => $json,
               'response_json' => NULL
             );
@@ -118,7 +86,64 @@ class Wrx_stock_api
             $this->ci->wrx_api_logs_model->add_logs($logs);
           }
 
-          return FALSE;
+          return TRUE;
+        }
+        else
+        {
+          $curl = curl_init();
+          curl_setopt($curl, CURLOPT_URL, $url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+          curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+          $response = curl_exec($curl);
+          curl_close($curl);
+          $res = json_decode($response);
+
+          if( ! empty($res) && ! empty($res->status))
+          {
+            if($this->logs_json)
+            {
+              $logs = array(
+                'trans_id' => genUid(),
+                'type' => $type,
+                'api_path' => $api_path,
+                'code' => NULL,
+                'action' => $action,
+                'status' => $res->status == 'success' ? 'success' : 'failed',
+                'message' => $res->serviceMessage,
+                'request_json' => $json,
+                'response_json' => $response
+              );
+
+              $this->ci->wrx_api_logs_model->add_logs($logs);
+            }
+          }
+          else
+          {
+            $this->error = "No response";
+
+            if($this->logs_json)
+            {
+              $logs = array(
+                'trans_id' => genUid(),
+                'type' => $type,
+                'api_path' => $api_path,
+                'code' => NULL,
+                'action' => $action,
+                'status' => 'failed',
+                'message' => 'No response',
+                'request_json' => $json,
+                'response_json' => NULL
+              );
+
+              $this->ci->wrx_api_logs_model->add_logs($logs);
+            }
+
+            return FALSE;
+          }
         }
       }
     }

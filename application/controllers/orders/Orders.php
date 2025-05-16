@@ -1297,27 +1297,30 @@ class Orders extends PS_Controller
     $order = $this->orders_model->get($code);
 
     //--- ถ้าออเดอร์เป็นแบบเครดิต
-    if($order->is_term == 1 && ($order->role === 'S' OR $order->role === 'C') && $order->payment_role == 5)
+    if($order->is_term == 1)
     {
-      //--- creadit used
-      $credit_used = round($this->orders_model->get_sum_not_complete_amount($order->customer_code), 2);
-      //--- credit balance from sap
-      $credit_balance = round($this->customers_model->get_credit($order->customer_code), 2);
-
-      $skip = getConfig('CONTROL_CREDIT');
-
-      if($skip == 1)
+      if(($order->role === 'S' && $order->payment_role == 5) OR $order->role === 'C')
       {
-        if($credit_used > $credit_balance)
+        //--- creadit used
+        $credit_used = round($this->orders_model->get_sum_not_complete_amount($order->customer_code), 2);
+        //--- credit balance from sap
+        $credit_balance = round($this->customers_model->get_credit($order->customer_code), 2);
+
+        $skip = getConfig('CONTROL_CREDIT');
+
+        if($skip == 1)
         {
-          $diff = $credit_used - $credit_balance;
-          $sc = FALSE;
-          $this->error = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+          if($credit_used > $credit_balance)
+          {
+            $diff = $credit_used - $credit_balance;
+            $sc = FALSE;
+            $this->error = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+          }
         }
       }
     }
 
-    if($order->role === 'C' OR $order->role === 'N')
+    if($sc === TRUE && ($order->role === 'C' OR $order->role === 'N'))
     {
       $isLimit = $order->role == 'C' ? is_true(getConfig('LIMIT_CONSIGNMENT')) : is_true(getConfig('LIMIT_CONSIGN'));
 
@@ -4569,7 +4572,27 @@ class Orders extends PS_Controller
       $this->load->library('wrx_stock_api');
       $warehouse_code = getConfig('IX_WAREHOUSE');
 
-      $this->wrx_stock_api->update_available_stock($ds, $warehouse_code);    
+      $i = 0;
+      $j = 0;
+
+      $items = [];
+
+      foreach($ds as $rs)
+      {
+        if($i == 20)
+        {
+          $i = 0;
+          $j++;
+        }
+
+        $items[$j][$i] = $rs;
+        $i++;
+      }
+
+      foreach($items as $item)
+      {
+        $this->wrx_stock_api->update_available_stock($item, $warehouse_code);
+      }
     }
   }
 

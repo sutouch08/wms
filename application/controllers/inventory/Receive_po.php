@@ -431,6 +431,60 @@ class Receive_po extends PS_Controller
 
             if($sc === TRUE)
             {
+              $sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+              $ix_warehouse = getConfig('IX_WAREHOUSE');
+
+              if($sync_api_stock && $doc->warehouse_code == $ix_warehouse)
+              {
+                $details = $this->receive_po_model->get_details($doc->code);
+
+                if( ! empty($details))
+                {
+                  $sync_stock = [];
+
+                  foreach($details as $rs)
+                  {
+                    if($rs->is_api)
+                    {
+                      $sync_stock[] = (object) array('code' => $rs->product_code, 'rate' => $rs->api_rate, 'receive_qty' => $rs->receive_qty);
+                    }
+                  }
+
+                  if( ! empty($sync_stock))
+                  {
+                    $this->load->library('wrx_stock_api');
+
+                    $i = 0;
+                    $j = 0;
+
+                    $items = [];
+
+                    foreach($sync_stock as $rs)
+                    {
+                      if($i == 20)
+                      {
+                        $i = 0;
+                        $j++;
+                      }
+
+                      $items[$j][$i] = $rs;
+                      $i++;
+                    }
+
+                    if( ! empty($items))
+                    {
+                      foreach($items as $item)
+                      {
+                        $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            if($sc === TRUE)
+            {
               $this->load->library('export');
 
               if(! $this->export->export_receive($doc->code))
@@ -571,6 +625,59 @@ class Receive_po extends PS_Controller
               $this->db->trans_rollback();
             }
 
+            if($sc === TRUE)
+            {
+              $sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+              $ix_warehouse = getConfig('IX_WAREHOUSE');
+
+              if($sync_api_stock && $doc->warehouse_code == $ix_warehouse)
+              {
+                $details = $this->receive_po_model->get_details($doc->code);
+
+                if( ! empty($details))
+                {
+                  $sync_stock = [];
+
+                  foreach($details as $rs)
+                  {
+                    if($rs->is_api)
+                    {
+                      $sync_stock[] = (object) array('code' => $rs->product_code, 'rate' => $rs->api_rate, 'receive_qty' => $rs->receive_qty);
+                    }
+                  }
+
+                  if( ! empty($sync_stock))
+                  {
+                    $this->load->library('wrx_stock_api');
+
+                    $i = 0;
+                    $j = 0;
+
+                    $items = [];
+
+                    foreach($sync_stock as $rs)
+                    {
+                      if($i == 20)
+                      {
+                        $i = 0;
+                        $j++;
+                      }
+
+                      $items[$j][$i] = $rs;
+                      $i++;
+                    }
+
+                    if( ! empty($items))
+                    {
+                      foreach($items as $item)
+                      {
+                        $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
+                      }
+                    }
+                  }
+                }
+              }
+            }
 
             if($sc === TRUE)
             {
@@ -837,7 +944,6 @@ class Receive_po extends PS_Controller
     $sc = TRUE;
     $ex = 1;
     $isSoko = FALSE;
-
     $ds = json_decode($this->input->post('data'));
 
     if( ! empty($ds))
@@ -1059,7 +1165,60 @@ class Receive_po extends PS_Controller
           {
             if($ds->save_type == 1)
             {
+              $sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+              $ix_warehouse = getConfig('IX_WAREHOUSE');
+              $sync_stock = [];
+
+              if($sync_api_stock && $zone->warehouse_code == $ix_warehouse)
+              {
+                $details = $this->receive_po_model->get_details($doc->code);
+
+                if( ! empty($details))
+                {
+                  $sync_stock = [];
+
+                  foreach($details as $rs)
+                  {
+                    if($rs->is_api)
+                    {
+                      $sync_stock[] = (object) array('code' => $rs->product_code, 'rate' => $rs->api_rate, 'receive_qty' => $rs->receive_qty);
+                    }
+                  }
+
+                  if( ! empty($sync_stock))
+                  {
+                    $this->load->library('wrx_stock_api');
+
+                    $i = 0;
+                    $j = 0;
+
+                    $items = [];
+
+                    foreach($sync_stock as $rs)
+                    {
+                      if($i == 20)
+                      {
+                        $i = 0;
+                        $j++;
+                      }
+
+                      $items[$j][$i] = $rs;
+                      $i++;
+                    }
+
+                    if( ! empty($items))
+                    {
+                      foreach($items as $item)
+                      {
+                        $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
+                      }
+                    }
+                  }
+                }
+              }
+
               $this->load->library('export');
+
               if(! $this->export->export_receive($doc->code))
               {
                 $sc = FALSE;
@@ -1256,6 +1415,58 @@ class Receive_po extends PS_Controller
               $ex = 0;
               $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลเข้า SAP ไม่สำเร็จ <br/> ".trim($this->export->error);
             }
+
+            $sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+            $ix_warehouse = getConfig('IX_WAREHOUSE');
+            $sync_stock = [];
+
+            if($sync_api_stock && $zone->warehouse_code == $ix_warehouse)
+            {
+              $details = $this->receive_po_model->get_details($doc->code);
+
+              if( ! empty($details))
+              {
+                $sync_stock = [];
+
+                foreach($details as $rs)
+                {
+                  if($rs->is_api)
+                  {
+                    $sync_stock[] = (object) array('code' => $rs->product_code, 'rate' => $rs->api_rate, 'receive_qty' => $rs->receive_qty);
+                  }
+                }
+
+                if( ! empty($sync_stock))
+                {
+                  $this->load->library('wrx_stock_api');
+
+                  $i = 0;
+                  $j = 0;
+
+                  $items = [];
+
+                  foreach($sync_stock as $rs)
+                  {
+                    if($i == 20)
+                    {
+                      $i = 0;
+                      $j++;
+                    }
+
+                    $items[$j][$i] = $rs;
+                    $i++;
+                  }
+
+                  if( ! empty($items))
+                  {
+                    foreach($items as $item)
+                    {
+                      $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1365,6 +1576,61 @@ class Receive_po extends PS_Controller
           {
             $this->db->trans_rollback();
           }
+
+          if($sc === TRUE)
+          {
+            $sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+            $ix_warehouse = getConfig('IX_WAREHOUSE');
+
+            if($sync_api_stock && $doc->warehouse_code == $ix_warehouse)
+            {
+              $details = $this->receive_po_model->get_details($doc->code);
+
+              if( ! empty($details))
+              {
+                $sync_stock = [];
+
+                foreach($details as $rs)
+                {
+                  if($rs->is_api)
+                  {
+                    $sync_stock[] = (object) array('code' => $rs->product_code, 'rate' => $rs->api_rate);
+                  }
+                }
+
+                if( ! empty($sync_stock))
+                {
+                  $this->load->library('wrx_stock_api');
+
+                  $i = 0;
+                  $j = 0;
+
+                  $items = [];
+
+                  foreach($sync_stock as $rs)
+                  {
+                    if($i == 20)
+                    {
+                      $i = 0;
+                      $j++;
+                    }
+
+                    $items[$j][$i] = $rs;
+                    $i++;
+                  }
+
+                  if( ! empty($items))
+                  {
+                    foreach($items as $item)
+                    {
+                      $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
+                    }
+                  }
+                }
+              }
+            }
+          } //- sync api stock
+
         }
 			}
 			else
@@ -1610,6 +1876,61 @@ class Receive_po extends PS_Controller
               $this->error = 'ยกเลิกรายการไม่สำเร็จ';
             }
           }
+
+          if($sc === TRUE)
+          {
+            $sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+            $ix_warehouse = getConfig('IX_WAREHOUSE');
+            $sync_stock = [];
+
+            if($sync_api_stock && $doc->warehouse_code == $ix_warehouse)
+            {
+              $details = $this->receive_po_model->get_details($doc->code);
+
+              if( ! empty($details))
+              {
+                $sync_stock = [];
+
+                foreach($details as $rs)
+                {
+                  if($rs->is_api)
+                  {
+                    $sync_stock[] = (object) array('code' => $rs->product_code, 'rate' => $rs->api_rate);
+                  }
+                }
+
+                if( ! empty($sync_stock))
+                {
+                  $this->load->library('wrx_stock_api');
+
+                  $i = 0;
+                  $j = 0;
+
+                  $items = [];
+
+                  foreach($sync_stock as $rs)
+                  {
+                    if($i == 20)
+                    {
+                      $i = 0;
+                      $j++;
+                    }
+
+                    $items[$j][$i] = $rs;
+                    $i++;
+                  }
+
+                  if( ! empty($items))
+                  {
+                    foreach($items as $item)
+                    {
+                      $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
         else
         {
@@ -1763,8 +2084,8 @@ class Receive_po extends PS_Controller
             if( ! empty($row))
             {
               $diff = $row->Quantity - $row->OpenQty;
-              $rs->backlogs = $row->OpenQty;
-              $rs->limit = ($row->Quantity + ($row->Quantity * $rate)) - $diff;
+              $rs->backlogs = 100; //$row->OpenQty;
+              $rs->limit = 100; //($row->Quantity + ($row->Quantity * $rate)) - $diff;
               $rs->line_status = $row->LineStatus;
             }
             else

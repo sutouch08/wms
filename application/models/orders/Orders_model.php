@@ -336,7 +336,7 @@ class Orders_model extends CI_Model
   public function get_order_details($code)
   {
     $rs = $this->db
-    ->select('order_details.*, products.unit_code')
+    ->select('order_details.*, products.unit_code, products.is_api, products.api_rate')
     ->from('order_details')
     ->join('products', 'order_details.product_code = products.code', 'left')
     ->join('product_size', 'products.size_code = product_size.code', 'left')
@@ -1420,7 +1420,7 @@ class Orders_model extends CI_Model
     ->select_sum('order_details.total_amount', 'amount')
     ->from('order_details')
     ->join('orders', 'orders.code = order_details.order_code', 'left')
-    ->where_in('orders.role', array('S', 'C', 'N'))
+    ->where_in('orders.role', array('S', 'C'))
 		->where('orders.state !=', 9)
     ->where('orders.customer_code', $customer_code)
     ->where('order_details.is_complete', 0)

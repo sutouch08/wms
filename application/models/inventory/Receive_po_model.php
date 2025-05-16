@@ -79,7 +79,7 @@ class Receive_po_model extends CI_Model
   {
     $rs = $this->db
     ->select('rd.*')
-    ->select('pd.unit_code')
+    ->select('pd.unit_code, pd.is_api, pd.api_rate')
     ->from('receive_product_detail AS rd')
     ->join('products AS pd', 'rd.product_code = pd.code', 'left')
     ->where('rd.receive_code', $code)
