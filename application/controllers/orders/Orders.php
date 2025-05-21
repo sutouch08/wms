@@ -3908,7 +3908,7 @@ class Orders extends PS_Controller
 
     if( ! empty($order))
     {
-      if( $order->state == 1)
+      if( $order->state == 1 OR $this->_SuperAdmin)
       {
         if( ! empty($discount))
       	{

@@ -168,33 +168,6 @@ $hide = $order->status == 1 ? 'hide' : '';
 <?php endif; ?>
 
 <hr class="margin-top-15 margin-bottom-0 visible-lg" />
-<!--- Category Menu ---------------------------------->
-<!-- <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-		<div class="widget-box widget-color-blue2 collapsed" onclick="toggleCate()" id="cate-widget">
-			<div class="widget-header widget-header-small">
-				<h6 class="widget-title">Categories</h6>
-			</div>
-			<div class="widget-body">
-				<div class="widget-main">
-					<ul class='nav navbar-nav' role='tablist' style="float:none;">
-					<?php //echo productTabMenu('order'); ?>
-					</ul>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<hr class=""/>
-<div class='row'>
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-		<div class='tab-content' style="min-height:1px; padding:0px; border:0px;">
-		<?php //echo getProductTabs(); ?>
-		</div>
-	</div>
-</div> -->
-<!-- End Category Menu ------------------------------------>
 <?php endif;  //--- end if( $order->is_pre_order) ?>
 
 <?php $this->load->view('orders/order_detail');  ?>

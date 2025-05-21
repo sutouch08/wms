@@ -61,7 +61,7 @@
       				</td>
 
 							<td class="middle text-right">
-								<?php if( ($allowEditPrice && $order->state < 4) OR ($rs->is_count == 0 && $order->state < 8)  ) : ?>
+								<?php if($this->_SuperAdmin OR ($allowEditPrice && $order->state < 4) OR ($rs->is_count == 0 && $order->state < 8)  ) : ?>
 									<input type="number"
 										class="form-control input-sm text-right price-box e <?php echo $rs->is_count ? "hide" : ""; ?>"
 										id="price_<?php echo $rs->id; ?>"
@@ -73,11 +73,11 @@
 								<?php endif; ?>
 								<?php if($rs->is_count == 1 OR $order->state >= 8) : ?>
 								<span class="price-label" id="price-label-<?php echo $rs->id; ?>">	<?php echo number($rs->price, 2); ?></span>
-								<?php endif; ?>								
+								<?php endif; ?>
 							</td>
 
               <td class="middle text-center">
-								<?php if($order->state == 1 OR ($rs->is_count == 0 && $order->state < 8)) : ?>
+								<?php if($this->_SuperAdmin OR ($order->state == 1 OR ($rs->is_count == 0 && $order->state < 8))) : ?>
 									<input type="number" class="form-control input-sm text-center line-qty e"
 										id="qty_<?php echo $rs->id; ?>"
 										data-code="<?php echo $rs->product_code; ?>"
@@ -101,7 +101,7 @@
       				</td>
 
               <td class="middle text-center">
-              <?php if( $order->state < 4 ) : ?>
+              <?php if($this->_SuperAdmin OR $order->state < 4 ) : ?>
                 <input type="text"
 									class="form-control input-sm text-center discount-box hide e"
 									id="disc_<?php echo $rs->id; ?>"
