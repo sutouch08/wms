@@ -163,22 +163,7 @@ function saveOrder() {
 	let id_sender = $('#id_sender').val();
 	let tracking = $('#tracking').val();
   let payment_role = $('#payment option:selected').data('role');
-  let cod_amount = parseDefault(parseFloat($('#cod-amount').val()), 0);
-
-  if(payment_role == '4' && cod_amount <= 0) {
-    swal({
-      title:"กรุณาระบุยอด COD Amount",
-      text:"การชำระเงินแบบ เก็บเงินปลายทางจำเป็นต้องระบุยอดเก็บเงิน",
-      type:"warning"
-    }, function() {
-      setTimeout(() => {
-        $('#cod-amount').focus().select();
-      }, 200)
-    });
-
-    return false;
-  }
-
+  let cod_amount = parseDefault(parseFloat($('#cod-amount').val()), 0);  
   load_in();
 
 	$.ajax({
