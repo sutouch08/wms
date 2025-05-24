@@ -4591,7 +4591,7 @@ class Orders extends PS_Controller
 
       foreach($items as $item)
       {
-        $this->wrx_stock_api->update_available_stock($item, $warehouse_code);
+        $this->wrx_stock_api->update_available_stock($item, $warehouse_code);      
       }
     }
   }

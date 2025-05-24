@@ -23,13 +23,8 @@ class Wrx_stock_api
     $this->test = is_true($this->api['WRX_API_TEST']);
   }
 
-  public function test()
-  {
-    print_r($this->api);
-  }
 
-
-  //--- for shopee
+  //--- Full function
   public function update_available_stock(array $items = array(), $warehouse_code)
   {
     $action = "update stock";
@@ -154,6 +149,92 @@ class Wrx_stock_api
     }
   }
 
+
+  //--- TEST
+  /*
+  public function update_available_stock(array $items = array(), $warehouse_code)
+  {
+    $action = "update stock";
+    $type = "Stock";
+    $url = $this->api['WRX_API_HOST'];
+    $url .= "wms/updateStock";
+    $api_path = $url;
+
+    $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
+    $apiUrl = str_replace(" ","%20",$url);
+    $method = 'POST';
+
+    if( ! empty($items) && ! empty($warehouse_code))
+    {
+      $data = [];
+
+      foreach($items as $item)
+      {
+        $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
+        $available = $this->get_available_stock($item->code, $warehouse_code);
+        $receive_qty = empty($item->receive_qty) ? 0 : intval(floor($item->receive_qty));
+
+        $qty = intval(floor(($available + $receive_qty) * $rate));
+
+        $data[] = array(
+          'sku' => $item->code,
+          'stock' => $qty,
+          'sellableStock' => $qty
+        );
+      }
+
+      if( ! empty($data))
+      {
+        $req = array("stockList" => $data);
+
+        $json = json_encode($req);
+
+        if($this->test === TRUE)
+        {
+          if($this->logs_json)
+          {
+            $logs = array(
+              'trans_id' => genUid(),
+              'type' => $type,
+              'api_path' => $api_path,
+              'code' => NULL,
+              'action' => 'test',
+              'status' => 'test',
+              'message' => 'test',
+              'request_json' => $json,
+              'response_json' => NULL
+            );
+
+            $this->ci->wrx_api_logs_model->add_logs($logs);
+          }
+
+          return TRUE;
+        }
+        else
+        {
+          $curl = curl_init();
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          curl_setopt($curl, CURLOPT_URL, $url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+          curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+          curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+          curl_setopt($curl, CURLOPT_HEADER, 0);
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
+          curl_setopt($curl, CURLOPT_TIMEOUT_MS, 100);
+
+          curl_exec($curl);
+          curl_close($curl);
+          return TRUE;
+        }
+      }
+    }
+    else
+    {
+      $this->error = "Missing required parameter";
+      return FALSE;
+    }
+  }
+  */
 
   public function get_available_stock($item_code, $warehouse = NULL)
   {
