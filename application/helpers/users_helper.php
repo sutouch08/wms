@@ -154,7 +154,7 @@ function select_user($uname = NULL)
 	{
 		foreach($option as $rs)
 		{
-			$ds .= '<option value="'.$rs->uname.'" '.is_selected($rs->uname, $uname).'>'.$rs->name.'</option>';
+			$ds .= '<option value="'.$rs->uname.'" '.is_selected($rs->uname, $uname).'>'.$rs->uname." | ".$rs->name.'</option>';
 		}
 	}
 

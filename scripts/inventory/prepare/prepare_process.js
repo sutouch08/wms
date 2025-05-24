@@ -7,6 +7,7 @@ function doPrepare(){
   var order_code = $("#order_code").val();
   var zone_code = $("#zone_code").val();
   var barcode = $("#barcode-item").val();
+  var warehouse_code = $('#warehouse_code').val();
   var qty   = $("#qty").val();
 
   if( zone_code == ""){
@@ -33,6 +34,7 @@ function doPrepare(){
     cache:"false",
     data:{
       "order_code" : order_code,
+      "warehouse_code" : warehouse_code,
       "zone_code" : zone_code,
       "barcode" : barcode,
       "qty" : qty

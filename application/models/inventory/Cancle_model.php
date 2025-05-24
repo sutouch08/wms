@@ -262,6 +262,7 @@ class Cancle_model extends CI_Model
             $arr = array(
               'order_code' => $rd->order_code,
               'product_code' => $rd->product_code,
+              'warehouse_code' => $rd->warehouse_code,
               'zone_code' => $rd->zone_code,
               'qty' => $rd->qty,
               'user' => $rd->user,

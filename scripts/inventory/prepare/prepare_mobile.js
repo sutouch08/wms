@@ -83,6 +83,7 @@ function setFocus() {
 //--- จัดสินค้า ตัดยอดออกจากโซน เพิ่มเข้า buffer
 function doPrepare() {
   let order_code = $("#order_code").val();
+  let warehouse_code = $('#warehouse_code').val();
   let zone_code = $("#zone_code").val();
   let barcode = $("#barcode-item").val();
   let qty   = parseDefault(parseFloat($("#qty").val()), 0);
@@ -111,6 +112,7 @@ function doPrepare() {
     cache:"false",
     data:{
       "order_code" : order_code,
+      "warehouse_code" : warehouse_code,
       "zone_code" : zone_code,
       "barcode" : barcode,
       "qty" : qty

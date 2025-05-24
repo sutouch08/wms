@@ -510,9 +510,10 @@ class Prepare extends PS_Controller
       $this->load->model('masters/products_model');
 
       $order_code = $this->input->post('order_code');
-      $zone_code  = $this->input->post('zone_code');
-      $barcode    = $this->input->post('barcode');
-      $qty        = $this->input->post('qty');
+      $warehouse_code = $this->input->post('warehouse_code');
+      $zone_code = $this->input->post('zone_code');
+      $barcode = $this->input->post('barcode');
+      $qty = $this->input->post('qty');
 
       $state = $this->orders_model->get_state($order_code);
       //--- ตรวจสอบสถานะออเดอร์ 4 == กำลังจัดสินค้า
@@ -561,8 +562,8 @@ class Prepare extends PS_Controller
                 else
                 {
                   $this->db->trans_begin();
-
-                  if( ! $this->prepare_model->update_buffer($order_code, $item->code, $zone_code, $qty, $ds->id))
+                  
+                  if( ! $this->prepare_model->update_buffer($order_code, $item->code, $warehouse_code, $zone_code, $qty, $ds->id))
                   {
                     $sc = FALSE;
                     $this->error = "Failed to update buffer";
@@ -570,7 +571,7 @@ class Prepare extends PS_Controller
 
                   if($sc === TRUE)
                   {
-                    if( ! $this->prepare_model->update_prepare($order_code, $item->code, $zone_code, $qty, $ds->id))
+                    if( ! $this->prepare_model->update_prepare($order_code, $item->code, $warehouse_code, $zone_code, $qty, $ds->id))
                     {
                       $sc = FALSE;
                       $this->error = "Failed to update prepare";

@@ -34,18 +34,18 @@ class Prepare_model extends CI_Model
   }
 
 
-  public function update_buffer($order_code, $product_code, $zone_code, $qty, $detail_id = NULL)
+  public function update_buffer($order_code, $product_code, $warehouse_code, $zone_code, $qty, $detail_id = NULL)
   {
     if( ! $this->is_exists_buffer($order_code, $product_code, $zone_code, $detail_id))
     {
       $arr = array(
         'order_code' => $order_code,
         'product_code' => $product_code,
-        'warehouse_code' => $this->get_warehouse_code($zone_code),
+        'warehouse_code' => $warehouse_code,
         'zone_code' => $zone_code,
         'qty' => $qty,
         'order_detail_id' => $detail_id,
-        'user' => get_cookie('uname')
+        'user' => $this->_user->uname
       );
 
       return $this->db->insert('buffer', $arr);
@@ -57,10 +57,7 @@ class Prepare_model extends CI_Model
       ->where('order_code', $order_code)
       ->where('product_code', $product_code)
       ->where('zone_code', $zone_code)
-      ->group_start()
-      ->where('order_detail_id', $detail_id)
-      ->or_where('order_detail_id IS NULL', NULL, FALSE)
-      ->group_end();
+      ->where('order_detail_id', $detail_id);
 
       return $this->db->update('buffer');
     }
@@ -75,10 +72,7 @@ class Prepare_model extends CI_Model
     ->where('order_code', $order_code)
     ->where('product_code', $item_code)
     ->where('zone_code', $zone_code)
-    ->group_start()
-    ->where('order_detail_id', $detail_id)
-    ->or_where('order_detail_id IS NULL', NULL, FALSE)
-    ->group_end();
+    ->where('order_detail_id', $detail_id);
 
     $count = $this->db->count_all_results('buffer');
 
@@ -103,13 +97,14 @@ class Prepare_model extends CI_Model
 	}
 
 
-  public function update_prepare($order_code, $product_code, $zone_code, $qty, $detail_id = NULL)
+  public function update_prepare($order_code, $product_code, $warehouse_code, $zone_code, $qty, $detail_id = NULL)
   {
     if( ! $this->is_exists_prepare($order_code, $product_code, $zone_code, $detail_id))
     {
       $arr = array(
         'order_code' => $order_code,
         'product_code' => $product_code,
+        'warehouse_code' => $warehouse_code,
         'zone_code' => $zone_code,
         'qty' => $qty,
         'order_detail_id' => $detail_id,
@@ -122,13 +117,11 @@ class Prepare_model extends CI_Model
     {
       $this->db
       ->set("qty", "qty + {$qty}", FALSE)
+      ->set('date_upd', now())
       ->where('order_code', $order_code)
       ->where('product_code', $product_code)
       ->where('zone_code', $zone_code)
-      ->group_start()
-      ->where('order_detail_id', $detail_id)
-      ->or_where('order_detail_id IS NULL', NULL, FALSE)
-      ->group_end();
+      ->where('order_detail_id', $detail_id);
 
       return $this->db->update('prepare');
     }
@@ -142,10 +135,8 @@ class Prepare_model extends CI_Model
     $this->db
     ->where('order_code', $order_code)
     ->where('product_code', $item_code)
-    ->where('zone_code', $zone_code)->group_start()
-    ->where('order_detail_id', $detail_id)
-    ->or_where('order_detail_id IS NULL', NULL, FALSE)
-    ->group_end();
+    ->where('zone_code', $zone_code)
+    ->where('order_detail_id', $detail_id);
 
     if($this->db->count_all_results('prepare') > 0)
     {
