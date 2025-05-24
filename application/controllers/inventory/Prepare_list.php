@@ -64,8 +64,7 @@ class Prepare_list extends PS_Controller
       'to_date' => $this->input->post('to_date'),
       'user' => $this->input->post('user')
     );
-
-
+  
     $header = array(
       'OrderDate', 'Order No', 'Reference', 'Channels', 'Item', 'Qty', 'Status', 'Picking Date', 'Warehouse', 'Zone', 'User'
     );

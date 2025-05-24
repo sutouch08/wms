@@ -58,7 +58,7 @@ function exportFilter() {
   $('#ex-whs-code').val(warehouse_code)
   $('#ex-zone-code').val(zone_code)
   $('#ex-user').val(user)
-  $('#ex-form-date').val(from_date)
+  $('#ex-from-date').val(from_date)
   $('#ex-to-date').val(to_date)
   $('#token').val(token)
 
