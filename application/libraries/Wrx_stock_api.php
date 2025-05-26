@@ -246,12 +246,12 @@ class Wrx_stock_api
           // curl_exec($curl);
           // curl_close($curl);
 
-          // $cmd = "curl -X POST $apiUrl " .
-          // "-H 'Content-Type: application/json' " .
-          // "-H 'Authorization: Bearer {$this->api['WRX_API_CREDENTIAL']}' " .
-          // "-d '" . addslashes($json) . "' " .
-          // "> /dev/null 2>&1 &";          
-          // exec($cmd);
+          $cmd = "curl -X POST $apiUrl " .
+          "-H 'Content-Type: application/json' " .
+          "-H 'Authorization: Bearer {$this->api['WRX_API_CREDENTIAL']}' " .
+          "-d '" . addslashes($json) . "' " .
+          "> /dev/null 2>&1 &";
+          exec($cmd);
           echo "End Api : ".now()."<br/>";
 
           return TRUE;
