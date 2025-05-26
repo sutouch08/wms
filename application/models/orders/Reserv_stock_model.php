@@ -39,6 +39,49 @@ class Reserv_stock_model extends CI_Model
   }
 
 
+  public function get_items_reserv_stock(array $items = array(), $warehouse_code = NULL, $date = NULL)
+  {
+    $date = empty($date) ? date('Y-m-d') : $date;
+
+    if( ! empty($items))
+    {
+      $this->db
+      ->select('d.product_code')
+      ->select_sum('d.qty')
+      ->from('reserv_stock_details AS d')
+      ->join('reserv_stock AS o', 'd.reserv_id = o.id', 'left')
+      ->where('o.status', 'A')
+      ->where('o.active', 1)
+      ->where('o.start_date <=', $date)
+      ->where('o.end_date >=', $date);
+
+      if( ! empty($warehouse_code))
+      {
+        $this->db->where('o.warehouse_code', $warehouse_code);
+      }
+
+      $rs = $this->db
+      ->where_in('d.product_code', $items)
+      ->group_by('d.product_code')
+      ->get();
+
+      if($rs->num_rows() > 0)
+      {
+        $reserv = [];
+
+        foreach($rs->result() as $ro)
+        {
+          $reserv[$ro->product_code] = $ro->qty;
+        }
+
+        return $reserv;
+      }
+    }
+
+    return NULL;
+  }
+
+
   public function get($id)
   {
     $rs = $this->db->where('id', $id)->get($this->tb);

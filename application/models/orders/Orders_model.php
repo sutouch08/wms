@@ -1524,6 +1524,50 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_items_reserv_stock(array $items = array(), $warehouse = NULL, $zone = NULL)
+  {
+    if( ! empty($items))
+    {
+      $this->db
+      ->select('product_code')
+      ->select_sum('order_details.qty', 'qty')
+      ->from('order_details')
+      ->join('orders', 'order_details.order_code = orders.code', 'left')
+      ->where('orders.is_pre_order', 0)
+      ->where('order_details.is_cancle', 0)
+      ->where('order_details.is_complete', 0)
+      ->where('order_details.is_expired', 0)
+      ->where('order_details.is_count', 1)
+      ->where_in('order_details.product_code', $items);
+
+      if($warehouse !== NULL)
+      {
+        $this->db->where('orders.warehouse_code', $warehouse);
+      }
+
+      if($zone !== NULL)
+      {
+        $this->db->where('orders.zone_code', $zone);
+      }
+
+      $rs = $this->db->group_by('order_details.product_code')->get();
+
+      if($rs->num_rows() > 0)
+      {
+        $ordered = [];
+
+        foreach($rs->result() as $ro)
+        {
+          $ordered[$ro->product_code] = $ro->qty;
+        }
+
+        return $ordered;
+      }
+    }
+
+    return NULL;
+  }
+
   public function get_reserv_stock_exclude($item_code, $warehouse, $order_detail_id)
   {
     $this->db

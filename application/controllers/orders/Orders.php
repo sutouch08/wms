@@ -4591,11 +4591,28 @@ class Orders extends PS_Controller
 
       foreach($items as $item)
       {
-        $this->wrx_stock_api->update_available_stock($item, $warehouse_code);      
+        $this->wrx_stock_api->update_available_stock($item, $warehouse_code);
       }
+
+      return TRUE;
     }
   }
 
+  public function test_api_stock()
+  {
+    $items = array(
+      (object) array('code' => 'WA-PLAN15-AA-M', 'rate' => 80),
+      (object) array('code' => 'WA-PLAN15-AA-L', 'rate' => 80),
+      (object) array('code' => 'WA-PLAN15-AA-XL', 'rate' => 80)
+    );
+
+    $this->load->library('wrx_stock_api');
+    $warehouse_code = getConfig('IX_WAREHOUSE');
+
+    echo "Start : ".now()."<br/>";
+    $this->wrx_stock_api->test_update_available_stock($items, $warehouse_code);
+    echo "End : ".now();
+  }
 
   public function clear_filter()
   {

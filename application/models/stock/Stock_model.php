@@ -161,6 +161,56 @@ class stock_model extends CI_Model
   }
 
 
+  //---- ยอดรวมสินค้าในคลังที่สั่งได้ ยอดในโซน
+  public function get_sell_items_stock(array $item = array(), $warehouse = NULL)
+  {
+    $sysBin = getConfig('SYSTEM_BIN_LOCATION');
+
+    $this->ms
+    ->select('OIBQ.ItemCode')
+    ->select_sum('OnHandQty', 'qty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->join('OWHS', 'OWHS.WhsCode = OBIN.WhsCode', 'left')
+    ->where_in('OIBQ.ItemCode', $item);
+    // ->where('OWHS.U_MAIN', 'Y');
+
+		if( $sysBin == 0)
+		{
+			$this->ms->where('OBIN.SysBin', 'N');
+		}
+
+    if( ! empty($warehouse))
+    {
+      $this->ms->where('OWHS.WhsCode', $warehouse);
+    }
+    else
+    {
+      $this->ms->where('OWHS.U_MAIN', 'Y');
+    }
+
+    if( ! empty($zone))
+    {
+      $this->ms->where('OBIN.BinCode', $zone);
+    }
+
+    $rs = $this->ms->group_by('OIBQ.ItemCode')->get();
+
+    if($rs->num_rows() > 0)
+    {
+      $stock = [];
+
+      foreach($rs->result() as $ro)
+      {
+        $stock[$ro->ItemCode] = $ro->qty;
+      }
+
+      return $stock;
+    }
+
+    return NULL;
+  }
+
 	//--- ยอดรวมสินค้าทั้งหมดในคลังฝากขายเทียมเท่านั้น
   public function get_consignment_stock($item)
   {
