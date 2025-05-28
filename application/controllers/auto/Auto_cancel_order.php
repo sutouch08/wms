@@ -2,6 +2,8 @@
 class Auto_cancel_order extends CI_Controller
 {
   public $home;
+  public $sync_api_stock = FALSE;
+  public $ix_warehouse = NULL;
 
   public function __construct()
   {
@@ -14,6 +16,10 @@ class Auto_cancel_order extends CI_Controller
     $this->load->model('inventory/buffer_model');
     $this->load->model('inventory/cancle_model');
 		$this->load->model('inventory/movement_model');
+    $this->load->model('masters/products_model');
+
+    $this->sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+    $this->ix_warehouse = getConfig('IX_WAREHOUSE');
   }
 
   public function index()
@@ -128,6 +134,40 @@ class Auto_cancel_order extends CI_Controller
         if($sc === TRUE)
         {
           $this->db->trans_commit();
+
+          if($this->sync_api_stock)
+          {
+            $order = $this->orders_model->get($code);
+            $warehouse_code = empty($order) ? "" : $order->warehouse_code;
+
+            if($this->ix_warehouse == $warehouse_code && ! $order->is_pre_order)
+            {
+              $details = $this->orders_model->get_order_details($code);
+
+              if( ! empty($details))
+              {
+                $sync_stock = array();
+
+                foreach($details as $detail)
+                {
+                  if($detail->is_count == 1)
+                  {
+                    $item = $this->products_model->get($detail->product_code);
+
+                    if( ! empty($item) && $item->is_api)
+                    {
+                      $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+                    }
+                  }
+                }
+
+                if( ! empty($sync_stock))
+                {
+                  $this->update_api_stock($sync_stock);
+                }
+              }
+            }
+          }
         }
         else
         {
@@ -135,6 +175,41 @@ class Auto_cancel_order extends CI_Controller
         }
       }
       // end foreach
+    }
+  }
+
+
+  //---- send calcurated stock to marketplace
+  private function update_api_stock(array $ds = array())
+  {
+    if($this->sync_api_stock && ! empty($ds))
+    {
+      $this->load->library('wrx_stock_api');
+      $warehouse_code = getConfig('IX_WAREHOUSE');
+
+      $i = 0;
+      $j = 0;
+
+      $items = [];
+
+      foreach($ds as $rs)
+      {
+        if($i == 20)
+        {
+          $i = 0;
+          $j++;
+        }
+
+        $items[$j][$i] = $rs;
+        $i++;
+      }
+
+      foreach($items as $item)
+      {
+        $this->wrx_stock_api->update_available_stock($item, $warehouse_code);
+      }
+
+      return TRUE;
     }
   }
 
