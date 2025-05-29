@@ -114,11 +114,11 @@ class Wrx_stock_api
 
           $this->ci->wrx_api_logs_model->add_logs($logs);
 
-          $cmd = "curl -X POST $apiUrl " .
-          "-H 'Content-Type: application/json' " .
-          "-H 'Authorization: Bearer {$this->api['WRX_API_CREDENTIAL']}' " .
-          "-d '" . addslashes($json) . "' " .
-          "> /dev/null 2>&1 &";
+          $cmd = "curl -X POST {$apiUrl}"
+          ." -H 'Content-Type:application/json'"
+          ." -H 'Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}'"
+          ." -d '" . $json . "'"
+          ." > /dev/null 2>&1 &";
           exec($cmd);
           return TRUE;
         }
@@ -272,12 +272,12 @@ class Wrx_stock_api
           //   return FALSE;
           // }
 
-          $cmd = "curl -X POST {$apiUrl} "
-          ."-H 'Content-Type:application/json' "
-          ."-H 'Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}' "
-          ."-d '" . $json . "'"
+          $cmd = "curl -X POST {$apiUrl}"
+          ." -H 'Content-Type:application/json'"
+          ." -H 'Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}'"
+          ." -d '" . $json . "'"
           ." > /dev/null 2>&1 &";
-          echo $cmd ."<br/>";
+          // echo $cmd ."<br/>";
           exec($cmd, $output, $exit);
           print_r($output);
           echo "End Api : ".now()."<br/>";
