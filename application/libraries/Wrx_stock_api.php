@@ -117,7 +117,7 @@ class Wrx_stock_api
           $cmd = "curl -X POST $apiUrl " .
           "-H 'Content-Type: application/json' " .
           "-H 'Authorization: Bearer {$this->api['WRX_API_CREDENTIAL']}' " .
-          "-d '" . $json . "' " .
+          "-d '" . addslashes($json) . "' " .
           "> /dev/null 2>&1 &";
           exec($cmd);
           return TRUE;
@@ -275,7 +275,7 @@ class Wrx_stock_api
           $cmd = "curl -X POST {$apiUrl} "
           ."-H 'Content-Type:application/json' "
           ."-H 'Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}' "
-          ."-d '" . addslashes($json) . "'";
+          ."-d '" . $json . "'";
           // ." > /dev/null 2>&1 &";
           echo $cmd ."<br/>";
           exec($cmd, $output, $exit);
