@@ -100,6 +100,20 @@ class Wrx_stock_api
         }
         else
         {
+          $logs = array(
+            'trans_id' => genUid(),
+            'type' => $type,
+            'api_path' => $api_path,
+            'code' => NULL,
+            'action' => $action,
+            'status' => 'success',
+            'message' => 'test logs',
+            'request_json' => $json,
+            'response_json' => NULL
+          );
+
+          $this->ci->wrx_api_logs_model->add_logs($logs);
+
           $cmd = "curl -X POST $apiUrl " .
           "-H 'Content-Type: application/json' " .
           "-H 'Authorization: Bearer {$this->api['WRX_API_CREDENTIAL']}' " .
