@@ -8,7 +8,7 @@ class Wrx_stock_api
   protected $ci;
   public $error;
   public $logs_json = TRUE;
-  public $test = TRUE;
+  public $test = FALSE;
 
   public function __construct()
   {
@@ -214,15 +214,75 @@ class Wrx_stock_api
         else
         {
           echo "Start API : ".now()."<br/>";
-          $cmd = "curl -X POST $apiUrl " .
-          "-H 'Content-Type: application/json' " .
-          "-H 'Authorization: Bearer {$this->api['WRX_API_CREDENTIAL']}' " .
-          "-d '" . addslashes($json) . "' " .
-          "> /dev/null 2>&1 &";
-          exec($cmd);
+          // $curl = curl_init();
+          // curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          // curl_setopt($curl, CURLOPT_URL, $url);
+          // curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+          // curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+          // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+          // // curl_setopt($curl, CURLOPT_HEADER, 0);
+          // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          // // curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
+          // // curl_setopt($curl, CURLOPT_TIMEOUT, 1);
+          // $response = curl_exec($curl);
+          // curl_close($curl);
+          // echo $response;
+          // $res = json_decode($response);
+          //
+          // if( ! empty($res) && ! empty($res->status))
+          // {
+          //   if($this->logs_json)
+          //   {
+          //     $logs = array(
+          //       'trans_id' => genUid(),
+          //       'type' => $type,
+          //       'api_path' => $api_path,
+          //       'code' => NULL,
+          //       'action' => $action,
+          //       'status' => $res->status == 'success' ? 'success' : 'failed',
+          //       'message' => $res->serviceMessage,
+          //       'request_json' => $json,
+          //       'response_json' => $response
+          //     );
+          //
+          //     $this->ci->wrx_api_logs_model->add_logs($logs);
+          //   }
+          // }
+          // else
+          // {
+          //   $this->error = "No response";
+          //
+          //   if($this->logs_json)
+          //   {
+          //     $logs = array(
+          //       'trans_id' => genUid(),
+          //       'type' => $type,
+          //       'api_path' => $api_path,
+          //       'code' => NULL,
+          //       'action' => $action,
+          //       'status' => 'failed',
+          //       'message' => 'No response',
+          //       'request_json' => $json,
+          //       'response_json' => NULL
+          //     );
+          //
+          //     $this->ci->wrx_api_logs_model->add_logs($logs);
+          //   }
+          //
+          //   return FALSE;
+          // }
+
+          $cmd = "curl -X POST {$apiUrl} "
+          ."-H 'Content-Type:application/json' "
+          ."-H 'Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}' "
+          ."-d '" . addslashes($json) . "'";
+          // ." > /dev/null 2>&1 &";
+          echo $cmd ."<br/>";
+          exec($cmd, $output, $exit);
+          print_r($output);
           echo "End Api : ".now()."<br/>";
 
-          return TRUE;
+          // return TRUE;
         }
 
         return TRUE;
