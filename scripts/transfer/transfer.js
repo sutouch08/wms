@@ -64,6 +64,57 @@ function goUseKeyboard(){
 }
 
 
+function unExpire() {
+  let code = $('#transfer_code').val();
+
+  swal({
+    title:'ต่ออายุ',
+    text:'ต้องการต่ออายุ '+code+' หรือไม่ ?',
+    type:'warning',
+    showCancelButton:true,
+    confirmButtonColor:'#91b784',
+    confirmButtonText:'Yes',
+    cancelButtonText:'No',
+    closeOnConfirm:true
+  },
+  function() {
+    load_in();
+
+    setTimeout(() => {
+      $.ajax({
+        url:HOME + 'unexpire',
+        type:'POST',
+        cache:false,
+        data:{
+          'code' : code
+        },
+        success:function(rs) {
+          load_out();
+
+          if(rs.trim() === 'success') {
+            swal({
+              title:'Success',
+              type:'success',
+              timer:1000
+            });
+
+            setTimeout(() => {
+              refresh();
+            }, 1200);
+          }
+          else {
+            beep();
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          beep();
+          showError(rs);
+        }
+      });
+    }, 100);
+  });
+}
 
 
 function doApprove() {

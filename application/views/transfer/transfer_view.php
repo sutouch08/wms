@@ -76,7 +76,9 @@
 						<button type="button" class="btn btn-xs btn-success top-btn" onclick="sendToSoko()"><i class="fa fa-send"></i> Send to Soko</button>
 					<?php endif; ?>
 				<?php endif; ?>
-
+				<?php if($doc->is_expire == 1 && $this->pm->can_approve) : ?>
+					<button type="button" class="btn btn-xs btn-purple" onclick="unExpire()"><i class="fa fa-flash"></i> ต่ออายุ</button>
+				<?php endif; ?>
 				<?php if($doc->is_wms < 1 && $doc->is_expire == 0 && $doc->status == 3 && $this->pm->can_approve) : ?>
 					<button type="button" class="btn btn-xs btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ย้อนสถานะกลับมาแก้ไข</button>
 				<?php endif; ?>
