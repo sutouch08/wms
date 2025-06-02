@@ -28,16 +28,22 @@
 						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="getUploadFile()"><i class="fa fa-file-excel-o"></i> Import Excel</button>
 						<button type="button" class="btn btn-sm btn-purple top-btn" onclick="getTemplate()"><i class="fa fa-download"></i> ไฟล์ Template</button>
 					<?php endif; ?>
-					<?php if($doc->is_wms == '-1') : ?>
-						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="saveAsRequest()">บันทึกรอรับ</button>
-					<?php endif; ?>
-					<?php if($doc->is_wms == 0) : ?>
-						<!-- <button type="button" class="btn btn-sm btn-primary top-btn" onclick="saveAsRequest()">บันทึกรอรับ</button> -->
-						<button type="button" class="btn btn-sm btn-success top-btn" onclick="save()">บันทึกรับทันที</button>
-					<?php endif; ?>
-					<?php if($doc->is_wms >= 1) : ?>
-						<button type="button" class="btn btn-sm btn-success top-btn" onclick="save()">บันทึก</button>
-					<?php endif; ?>
+
+					<div class="btn-group">
+		        <button data-toggle="dropdown" class="btn btn-success btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+		          <i class="ace-icon fa fa-save icon-on-left"></i>
+		          บันทึก
+		          <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+		        </button>
+		        <ul class="dropdown-menu dropdown-menu-right">
+		          <li class="primary">
+		            <a href="javascript:save()">บันทึกรับเข้าทันที</a>
+		          </li>							
+							<li class="purple">
+		            <a href="javascript:saveAsRequest()">บันทึกรอรับ</a>
+		          </li>
+		        </ul>
+		      </div>
 				<?php endif; ?>
 			<?php endif; ?>
 		</div>
