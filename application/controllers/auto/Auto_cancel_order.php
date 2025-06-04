@@ -4,6 +4,7 @@ class Auto_cancel_order extends CI_Controller
   public $home;
   public $sync_api_stock = FALSE;
   public $ix_warehouse = NULL;
+  public $ms;
 
   public function __construct()
   {
@@ -18,6 +19,7 @@ class Auto_cancel_order extends CI_Controller
 		$this->load->model('inventory/movement_model');
     $this->load->model('masters/products_model');
 
+    $this->ms = $this->load->database('ms', TRUE);
     $this->sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
     $this->ix_warehouse = getConfig('IX_WAREHOUSE');
   }
