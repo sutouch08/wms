@@ -33,7 +33,7 @@ class Qc extends PS_Controller
       'channels'  => get_filter('channels', 'ic_channels', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
-      'is_cancled' => get_filter('is_cancled', 'ic_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
     );
 
     if($this->input->post('search'))
@@ -423,7 +423,7 @@ class Qc extends PS_Controller
       'channels'  => get_filter('channels', 'ic_channels', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
-      'is_cancled' => get_filter('is_cancled', 'ic_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
     );
 
     if($this->input->post('search'))
@@ -1393,7 +1393,7 @@ class Qc extends PS_Controller
       'ic_role',
       'ic_from_date',
       'ic_to_date',
-      'ic_cancled'
+      'ic_is_cancled'
     );
 
     return clear_filter($filter);

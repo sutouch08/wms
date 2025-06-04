@@ -108,7 +108,7 @@
 
 		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>Canceled</label>
-			<select class="form-control input-sm" name="is_cancled" onchange="getSearch()">
+			<select class="form-control input-sm" name="is_cancled">
 				<option value="all">ทั้งหมด</option>
 				<option value="1" <?php echo is_selected('1', $is_cancled); ?>>Yes</option>
 				<option value="0" <?php echo is_selected('0', $is_cancled); ?>>No</option>
@@ -242,7 +242,7 @@
 							</td>
               <td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
 							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, TRUE,'/'); ?></td>
-							<td class="middle hidden-xs"><?php echo $rs->code . $cn_text; ?></td>
+							<td class="middle hidden-xs"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
 							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
 							<td class="middle  hidden-xs"><?php echo $rs->channels_name; ?></td>
 							<td class="middle text-center  hidden-xs"><?php echo number($rs->qty); ?></td>

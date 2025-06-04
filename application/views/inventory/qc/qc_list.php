@@ -119,7 +119,7 @@
 							</td>
 							<td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
 							<td class="middle text-center hidden-xs"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
-							<td class="middle hidden-xs"><?php echo $rs->code . $cn_text; ?></td>
+							<td class="middle hidden-xs"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
 							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
 							<td class="middle hidden-xs"><?php echo $channels_name; ?></td>
 							<td class="middle hidden-xs"><?php echo $customer_name; ?></td>

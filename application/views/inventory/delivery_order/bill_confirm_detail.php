@@ -312,45 +312,5 @@
 				}
 			}
 		})
-	}
-
-	function viewOrderDetail(code, role) {
-    let width = $(document).width() * 0.9;
-    var center = ($(document).width() - width)/2;
-    var prop = "width="+width+", height=900. left="+center+", scrollbars=yes";
-
-    var target = BASE_URL + 'orders/orders/edit_order/'+code+'?nomenu';
-
-    switch (role) {
-      case 'S' :
-        target = BASE_URL + 'orders/orders/edit_order/'+code+'?nomenu';
-      break;
-      case 'P' :
-        target = BASE_URL + 'orders/sponsor/edit_order/'+code+'?nomenu';
-      break;
-      case 'C' :
-        target = BASE_URL + 'orders/consign_so/edit_order/'+code+'?nomenu';
-      break;
-      case 'N' :
-        target = BASE_URL + 'orders/consign_tr/edit_order/'+code+'?nomenu';
-      break;
-      case 'T' :
-        target = BASE_URL + 'inventory/transform/edit_order/'+code+'?nomenu';
-      break;
-      case 'Q' :
-        target = BASE_URL + 'inventory/transform_stock/edit_order/'+code+'?nomenu';
-      break;
-      case 'U' :
-        target = BASE_URL + 'inventory/support/edit_order/'+code+'?nomenu';
-      break;
-      case 'L' :
-        target = BASE_URL + 'inventory/lend/edit_order/'+code+'?nomenu';
-      break;
-      default:
-        target = BASE_URL + 'orders/orders/edit_order/'+code+'?nomenu';
-    }
-
-    window.open(target, '_blank', prop);
-
-  }
+	}	
 </script>
