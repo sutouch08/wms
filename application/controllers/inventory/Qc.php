@@ -32,7 +32,8 @@ class Qc extends PS_Controller
       'role' => get_filter('role', 'ic_role', 'all'),
       'channels'  => get_filter('channels', 'ic_channels', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
-      'to_date' => get_filter('to_date', 'ic_to_date', '')
+      'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'is_cancled' => get_filter('is_cancled', 'ic_cancled', 'all')
     );
 
     if($this->input->post('search'))
@@ -51,28 +52,6 @@ class Qc extends PS_Controller
       $this->pagination->initialize($init);
       $this->load->view('inventory/qc/qc_list', $filter);
     }
-  }
-
-
-  public function test()
-  {
-    $pickup_data = [
-      'address_id' => 200081907,
-      'pickup_time_id' => 100000,
-      'tracking_number' => ""
-    ];
-
-    $arr = array(
-      "orderSN" => "xxxxxx",
-      "packageNumber" => "",
-      "pickup" => array(
-        "addressID" => $pickup_data['address_id'],
-        "pickupTimeID" => $pickup_data['pickup_time_id'],
-        "trackingNumber" => ""
-      )
-    );
-
-    echo "<pre>". json_encode($arr)."</pre>";
   }
 
 
@@ -443,7 +422,8 @@ class Qc extends PS_Controller
       'role' => get_filter('role', 'ic_role', 'all'),
       'channels'  => get_filter('channels', 'ic_channels', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
-      'to_date' => get_filter('to_date', 'ic_to_date', '')
+      'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'is_cancled' => get_filter('is_cancled', 'ic_cancled', 'all')
     );
 
     if($this->input->post('search'))
@@ -1412,7 +1392,8 @@ class Qc extends PS_Controller
       'ic_channels',
       'ic_role',
       'ic_from_date',
-      'ic_to_date'
+      'ic_to_date',
+      'ic_cancled'
     );
 
     return clear_filter($filter);

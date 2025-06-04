@@ -80,6 +80,11 @@ class Qc_model extends CI_Model
       $this->db->where('role', $ds['role']);
     }
 
+    if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
+    {
+      $this->db->where('is_cancled', $ds['is_cancled']);
+    }
+
     if( ! empty($ds['from_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
@@ -138,6 +143,11 @@ class Qc_model extends CI_Model
     if( ! empty($ds['role']) && $ds['role'] != 'all')
     {
       $this->db->where('role', $ds['role']);
+    }
+
+    if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
+    {
+      $this->db->where('is_cancled', $ds['is_cancled']);
     }
 
     if( ! empty($ds['from_date']))

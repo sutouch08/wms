@@ -14,32 +14,32 @@
 		<div class="col-xs-12 padding-5 text-center visible-xs">
 			<h4 class="title">ตัวกรอง</h4>
 		</div>
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>เลขที่เอกสาร</label>
 			<input type="text" class="width-100" name="code"  value="<?php echo $code; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>ลูกค้า</label>
 			<input type="text" class="width-100" name="customer" value="<?php echo $customer; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>พนักงาน</label>
 			<input type="text" class="width-100" name="user" value="<?php echo $user; ?>" />
 		</div>
 
-		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>ช่องทางขาย</label>
-			<select class="width-100" style="height:31px;" name="channels">
+			<select class="width-100" name="channels" id="channels">
 				<option value="">ทั้งหมด</option>
 				<?php echo select_channels($channels); ?>
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>ประเภท</label>
-			<select class="width-100" style="height:31px;" name="role">
+			<select class="width-100" name="role">
 				<option value="all">ทั้งหมด</option>
 				<option value="S" <?php echo is_selected($role, 'S'); ?>>ขาย</option>
 				<option value="C" <?php echo is_selected($role, 'C'); ?>>ฝากขาย(SO)</option>
@@ -51,6 +51,16 @@
 				<option value="L" <?php echo is_selected($role, 'L'); ?>>ยืม</option>
 			</select>
 		</div>
+
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+			<label>Canceled</label>
+			<select class="form-control input-sm" name="is_cancled" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<option value="1" <?php echo is_selected('1', $is_cancled); ?>>Yes</option>
+				<option value="0" <?php echo is_selected('0', $is_cancled); ?>>No</option>
+			</select>
+		</div>
+
 		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>วันที่</label>
 			<div class="input-daterange input-group width-100">
@@ -59,13 +69,13 @@
 			</div>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<label class="not-show">buton</label>
 			<button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
 		</div>
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<label class="not-show">buton</label>
-			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearProcessFilter()"><i class="fa fa-retweet"></i> Reset</button>
+			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
 		</div>
 	</div>
 	<input type="hidden" name="search" value="1" />
