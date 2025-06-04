@@ -283,6 +283,11 @@ class Prepare_model extends CI_Model
       $this->db->where('is_backorder', $ds['is_backorder']);
     }
 
+    if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
+    {
+      $this->db->where('is_cancled', $ds['is_cancled']);
+    }
+
     if(!empty($ds['code']))
     {
       $this->db
@@ -307,12 +312,10 @@ class Prepare_model extends CI_Model
       ->group_end();
     }
 
-
     if($ds['warehouse'] !== 'all' && !empty($ds['warehouse']))
     {
       $this->db->where('o.warehouse_code', $ds['warehouse']);
     }
-
 
     //---- user name / display name
     if($state == 3 && !empty($ds['user']))
@@ -330,7 +333,6 @@ class Prepare_model extends CI_Model
       $this->db->or_like('u.name', $ds['display_name']);
       $this->db->group_end();
     }
-
 
     if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
@@ -352,19 +354,15 @@ class Prepare_model extends CI_Model
       }
     }
 
-
     if(!empty($ds['payment']) && $ds['payment'] !== 'all')
     {
       $this->db->where('o.payment_code', $ds['payment']);
     }
 
-
     if($ds['role'] != 'all')
     {
       $this->db->where('o.role', $ds['role']);
     }
-
-
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
@@ -451,6 +449,11 @@ class Prepare_model extends CI_Model
       $this->db->where('is_backorder', $ds['is_backorder']);
     }
 
+    if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
+    {
+      $this->db->where('is_cancled', $ds['is_cancled']);
+    }
+
     if(!empty($ds['code']))
     {
       $this->db
@@ -475,14 +478,11 @@ class Prepare_model extends CI_Model
       ->group_end();
     }
 
-
     if($ds['warehouse'] !== 'all' && !empty($ds['warehouse']))
     {
       $this->db->where('o.warehouse_code', $ds['warehouse']);
     }
 
-
-    //---- user name / display name
     if($state == 3 && !empty($ds['user']))
     {
       $this->db->group_start();
@@ -519,12 +519,10 @@ class Prepare_model extends CI_Model
       }
     }
 
-
     if(!empty($ds['payment']) && $ds['payment'] !== 'all')
     {
       $this->db->where('o.payment_code', $ds['payment']);
     }
-
 
     if($ds['role'] != 'all')
     {
@@ -560,8 +558,13 @@ class Prepare_model extends CI_Model
     }
 
     $rs = $this->db->limit($perpage, $offset)->get();
-    //echo $this->db->get_compiled_select();
-    return $rs->result();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 
