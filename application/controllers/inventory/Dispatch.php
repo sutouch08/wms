@@ -353,6 +353,50 @@ class Dispatch extends PS_Controller
   }
 
 
+  public function is_cancel($reference, $channels)
+  {
+    $is_cancel = FALSE;
+
+    if($channels == '0009')
+    {
+      $this->load->library('wrx_tiktok_api');
+
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference);
+
+      if($order_status == '140')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
+    if($channels == 'SHOPEE')
+    {
+      $this->load->library('wrx_shopee_api');
+
+      $order_status = $this->wrx_shopee_api->get_order_status($reference);
+
+      if($order_status == 'CANCELLED' OR $order_status == 'IN_CANCEL')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
+    if($channels == 'LAZADA')
+    {
+      $this->load->library('wrx_lazada_api');
+
+      $order_status = $this->wrx_lazada_api->get_order_status($reference);
+
+      if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
+      {
+        $is_cancel = TRUE;
+      }
+    }
+
+    return $is_cancel;
+  }
+
+
   public function add_to_dispatch()
   {
     $sc = TRUE;
@@ -379,9 +423,8 @@ class Dispatch extends PS_Controller
 
       if( ! empty($order))
       {
-        if($order->state == 8 OR ($order->channels_code == 'SHOPEE' && $order->state == 7))
+        if($order->state == 8 OR $order->state == 7)
         {
-
           if( ! empty($channels_code))
           {
             if( ! empty($order->channels_code) && $order->channels_code != $channels_code)
@@ -391,16 +434,26 @@ class Dispatch extends PS_Controller
             }
           }
 
-          if($this->orders_model->is_cancel_request($order->code))
+          //--- check cancel request
+          $is_cancel = $order->is_cancled == 1 ? TRUE : $this->orders_model->is_cancel_request($order->code);
+
+          if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
           {
-            $sc = FALSE;
-            $this->error = "{$order_code} : ออเดอร์นี้ถูกยกเลิกจาก platform";
+            $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
           }
 
-          $customer = $order->customer_code ." : ".(empty($order->customer_ref) ? $order->customer_name : $order->customer_ref);
+          if($is_cancel)
+          {
+            $sc = FALSE;
+            $this->error = "{$order->code} : ออเดอร์นี้ถูกยกเลิกจาก platform";
+            $this->orders_model->update($order->code, ['is_cancled' => 1]);
+          }
+
 
           if($sc === TRUE)
           {
+            $customer = $order->customer_code ." : ".(empty($order->customer_ref) ? $order->customer_name : $order->customer_ref);
+
             $row = array(
               'dispatch_id' => $id,
               'dispatch_code' => $code,
@@ -425,7 +478,13 @@ class Dispatch extends PS_Controller
 
               if($dispatch_detail_id)
               {
-                $this->dispatch_model->update_order($order->code, $id);
+                $arr = array(
+                  'dispatch_id' => $id,
+                  'shipped_date' => empty($order->shipped_date) ? now() : $order->shipped_date
+                );
+
+                $this->orders_model->update($order->code, $arr);
+
                 $row['id'] = $dispatch_detail_id;
                 $row['channels'] = $channels_name;
                 $row['customer'] = $customer;
@@ -620,7 +679,11 @@ class Dispatch extends PS_Controller
 
                   if($sc === TRUE)
                   {
-                    if( ! $this->dispatch_model->update_order($rs->order_code, NULL))
+                    $arr = array(
+                      'dispatch_id' => NULL
+                    );
+
+                    if( ! $this->orders_model->update($rs->order_code, $arr))
                     {
                       $sc = FALSE;
                       $this->error = "Failed to update order dispatch id";
@@ -801,7 +864,11 @@ class Dispatch extends PS_Controller
                     break;
                   }
 
-                  if( ! $this->orders_model->update($rs->order_code, ['dispatch_id' => NULL]))
+                  $arr = array(
+                    'dispatch_id' => NULL
+                  );
+
+                  if( ! $this->orders_model->update($rs->order_code, $arr))
                   {
                     $sc = FALSE;
                     $this->error = "Failed to roll back order dispatch status";

@@ -129,6 +129,12 @@ class Delivery_order extends PS_Controller
 
     if( ! empty($order))
     {
+      if($order->is_cancled == 1)
+      {
+        $sc = FALSE;
+        $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
+      }
+
       //--- check cancel request
       if($this->orders_model->is_cancel_request($order->code))
       {
@@ -177,10 +183,11 @@ class Delivery_order extends PS_Controller
           $sc = FALSE;
           $this->error = "ราคาสินค้าไม่ถูกต้อง";
 
-          if(empty($order->shipped_date))
+          if(empty($order->shipped_date) OR $order->is_hold == 0)
           {
             $arr = array(
-              'shipped_date' => now()
+              'shipped_date' => empty($order->shippped_date) ? now() : $order->shipped_date,
+              'is_hold' => 1
             );
 
             $this->orders_model->update($code, $arr);
@@ -274,7 +281,7 @@ class Delivery_order extends PS_Controller
                       if($this->movement_model->add($arr) === FALSE)
                       {
                         $sc = FALSE;
-                        $message = 'บันทึก movement ขาออกไม่สำเร็จ';
+                        $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
                         break;
                       }
 

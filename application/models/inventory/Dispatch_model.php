@@ -313,7 +313,12 @@ class Dispatch_model extends CI_Model
 
   public function update_order($order_code, $id)
   {
-    return $this->db->set('dispatch_id', $id)->where('code', $order_code)->update($this->to);
+    $ds = array(
+      'dispatch_id' => $id,
+      'shipped_date' => empty($id) ? NULL : now()
+    );
+
+    return $this->db->where('code', $order_code)->update($this->to, $ds);
   }
 
 
