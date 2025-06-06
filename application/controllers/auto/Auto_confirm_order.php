@@ -116,7 +116,7 @@ class Auto_confirm_order extends CI_Controller
     ->where('is_cancled', 0)
     ->where('is_hold', 0)
     ->where('dispatch_id !=', 0)
-    ->where('dispatch_id IS NULL', NULL, FALSE)
+    ->where('dispatch_id IS NOT NULL', NULL, FALSE)
     ->limit($limit)
     ->get('orders');
 
@@ -668,7 +668,7 @@ class Auto_confirm_order extends CI_Controller
 
     if( ! empty($code))
     {
-      switch($order->role)
+      switch($role)
       {
         case 'C' : //--- Consign (SO)
           $sc = $this->export_order($code);
