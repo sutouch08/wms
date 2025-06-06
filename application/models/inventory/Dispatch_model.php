@@ -372,7 +372,7 @@ class Dispatch_model extends CI_Model
 
   public function get_peding_order_by_channels($channels_code)
   {
-    $state_in = $channels_code === 'SHOPEE' ? ['8', '7'] : ['8'];
+    $state_in = ['8', '7'];
 
     $this->db
     ->select('code, reference, customer_code, customer_name, channels_code')
