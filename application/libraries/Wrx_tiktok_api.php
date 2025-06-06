@@ -60,7 +60,7 @@ class Wrx_tiktok_api
           return (object) array(
             'package_id' => $ds->package_list[0]->package_id,
             'order_status' => $ds->order_status,
-            'tracking_number' => $ds->tracking_number
+            'tracking_number' => empty($ds->tracking_number) ? NULL : $ds->tracking_number
           );
         }
       }
@@ -204,7 +204,7 @@ class Wrx_tiktok_api
     }
 
     return FALSE;
-  }  
+  }
 } //-- end class
 
 

@@ -242,10 +242,11 @@ class Qc extends PS_Controller
         if($sc === TRUE)
         {
           //--- update package id , tracking number
-          if(empty($order->package_id) OR empty($order->shipping_code))
+          if( ! empty($ds->package_id) && ! empty($ds->tracking_number))
           {
             $arr = array(
-              'shipping_code' => $ds->tracking_number
+              'shipping_code' => $ds->tracking_number,
+              'package_id' => $ds->package_id
             );
 
             $this->orders_model->update($order->code, $arr);
@@ -272,7 +273,7 @@ class Qc extends PS_Controller
 
                 if(empty($ds->tracking_number))
                 {
-                  $this->orders_model->update($order->code, ['shipping_code' => $shipment->tracking_number]);
+                  $this->orders_model->update($order->code, ['shipping_code' => $shipment->trackingNumber]);
                 }
               }
               else
