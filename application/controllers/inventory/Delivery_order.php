@@ -37,7 +37,8 @@ class Delivery_order extends PS_Controller
       'order_by' => get_filter('order_by', 'ic_order_by', ''),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_hold' => get_filter('is_hold', 'ic_is_hold', 'all'),
-      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
+      'dispatch' => get_filter('dispatch', 'ic_dispatch', 'all')
     );
 
     if($this->input->post('search'))

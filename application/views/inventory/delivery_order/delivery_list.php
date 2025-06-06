@@ -70,6 +70,15 @@
 		</select>
 	</div>
 
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>Dispatch</label>
+		<select class="form-control input-sm" name="dispatch" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $dispatch); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $dispatch); ?>>No</option>
+		</select>
+	</div>
+
 	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">

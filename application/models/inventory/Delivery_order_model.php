@@ -7,7 +7,6 @@ class Delivery_order_model extends CI_Model
   }
 
 
-
   public function get_sold_details($reference)
   {
     $rs = $this->db->where('reference', $reference)->get('order_sold');
@@ -129,6 +128,19 @@ class Delivery_order_model extends CI_Model
       $this->db->where('is_cancled', $ds['is_cancled']);
     }
 
+    if(isset($ds['dispatch']) && $ds['dispatch'] != 'all')
+    {
+      if($ds['dispatch'] == 0)
+      {
+        $this->db->where('dispatch_id IS NULL', NULL, FALSE);
+      }
+
+      if($ds['dispatch'] == 1)
+      {
+        $this->db->where('dispatch_id IS NOT NULL', NULL, FALSE);
+      }
+    }
+
     return $this->db->count_all_results('orders');
   }
 
@@ -242,6 +254,19 @@ class Delivery_order_model extends CI_Model
     if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
     {
       $this->db->where('is_cancled', $ds['is_cancled']);
+    }
+
+    if(isset($ds['dispatch']) && $ds['dispatch'] != 'all')
+    {
+      if($ds['dispatch'] == 0)
+      {
+        $this->db->where('dispatch_id IS NULL', NULL, FALSE);
+      }
+
+      if($ds['dispatch'] == 1)
+      {
+        $this->db->where('dispatch_id IS NOT NULL', NULL, FALSE);
+      }
     }
 
     $order_by = $state == '7' ? 'ASC' : 'DESC';
