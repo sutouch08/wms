@@ -13,7 +13,7 @@ class Auto_clear_api_logs extends CI_Controller
     $this->logs = $this->load->database('logs', TRUE);
   }
 
-  public function clear_old_logs()
+  public function index()
   {
 		$days = 7;
     $date = date('Y-m-d 00:00:00', strtotime("-{$days} days"));
@@ -22,9 +22,10 @@ class Auto_clear_api_logs extends CI_Controller
     $this->clear_wrx_logs($date);
 
     //-- clear IX Logs
-    $this->clear_ix_api_logs($date);
+    $this->clear_ix_logs($date);
 
     //-- clear POS logs
+    $this->clear_pos_logs($date);
   }
 
 
@@ -33,12 +34,12 @@ class Auto_clear_api_logs extends CI_Controller
     return $this->wms->where('date_upd <', $date)->delete('wrx_api_logs');
   }
 
-  public function clear_ix_api_logs($date)
+  public function clear_ix_logs($date)
   {
     return $this->wms->where('date_upd <', $date)->delete('ix_api_logs');
   }
 
-  public function clear_pos_api_logs($date)
+  public function clear_pos_logs($date)
   {
     return $this->logs->where('date_upd <', $date)->delete('pos_api_logs');
   }
