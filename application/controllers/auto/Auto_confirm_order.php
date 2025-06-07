@@ -66,9 +66,16 @@ class Auto_confirm_order extends CI_Controller
 	}
 
 
-  public function ship_orders()
+  public function ship_orders($limit = 0)
   {
-    $list = $this->get_confirm_list();
+    $this->load->model('sync_data_model');
+    $limit = empty($limit) ? getConfig('AUTO_CONFRIM_ORDER_LIMIT') : $limit;
+    $limit = empty($limit) ? 50 : $limit;
+    $list = $this->get_confirm_list($limit);
+
+    $count = 0;
+    $update = 0;
+
 
     if( ! empty($list))
     {
@@ -76,6 +83,8 @@ class Auto_confirm_order extends CI_Controller
 
       foreach($list as $rs)
       {
+        $count++;
+
         if(empty($rs->shipped_date))
         {
           if( ! isset($ship_date[$rs->dispatch_id]))
@@ -98,17 +107,26 @@ class Auto_confirm_order extends CI_Controller
           }
         }
 
-        echo $rs->code."<br/>";
-        $this->confirm_order($rs->code);
+        if( $this->confirm_order($rs->code))
+        {
+          $update++;
+        }
       }
     }
+
+    $logs = array(
+      'sync_item' => 'SHIPORDER',
+      'get_item' => $count,
+      'update_item' => $update
+    );
+
+    //--- add logs
+    $this->sync_data_model->add_logs($logs);
   }
 
 
-  public function get_confirm_list()
+  public function get_confirm_list($limit = 50)
   {
-    $limit = 10;
-
     $rs = $this->db
     ->select('code, role, channels_code, shipped_date, dispatch_id')
     ->where('role', 'S')
@@ -165,7 +183,7 @@ class Auto_confirm_order extends CI_Controller
 
       $order_status = $this->wrx_shopee_api->get_order_status($reference);
 
-      if($order_status == 'CANCELLED' OR $order_status == 'IN_CANCEL')
+      if($order_status == 'CANCELLED')
       {
         $is_cancel = TRUE;
       }
@@ -202,19 +220,6 @@ class Auto_confirm_order extends CI_Controller
 
     if( ! empty($order))
     {
-      if($order->is_cancled == 1)
-      {
-        $sc = FALSE;
-        $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
-      }
-
-      //--- check cancel request
-      if($this->orders_model->is_cancel_request($order->code))
-      {
-        $sc = FALSE;
-        $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
-      }
-
       if($sc === TRUE)
       {
         if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
@@ -225,6 +230,13 @@ class Auto_confirm_order extends CI_Controller
             $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
 
             $this->orders_model->update($order->code, ['is_cancled' => 1]);
+          }
+          else
+          {
+            if($order->is_cancled == 1)
+            {
+              $this->orders_model->update($order->code, ['is_cancled' => 0]);
+            }
           }
         }
       }
@@ -588,6 +600,14 @@ class Auto_confirm_order extends CI_Controller
       {
         $sc = FALSE;
         $this->error = "Invalid order status";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      if($order->is_backorder)
+      {
+        $this->orders_model->drop_backlogs_list($order->code);
       }
     }
 

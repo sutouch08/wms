@@ -91,7 +91,7 @@ class Delivery_order extends PS_Controller
 
       $order_status = $this->wrx_shopee_api->get_order_status($reference);
 
-      if($order_status == 'CANCELLED' OR $order_status == 'IN_CANCEL')
+      if($order_status == 'CANCELLED')
       {
         $is_cancel = TRUE;
       }
@@ -129,19 +129,6 @@ class Delivery_order extends PS_Controller
 
     if( ! empty($order))
     {
-      if($order->is_cancled == 1)
-      {
-        $sc = FALSE;
-        $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
-      }
-
-      //--- check cancel request
-      if($this->orders_model->is_cancel_request($order->code))
-      {
-        $sc = FALSE;
-        $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
-      }
-
       if($sc === TRUE)
       {
         if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
@@ -152,6 +139,13 @@ class Delivery_order extends PS_Controller
             $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
 
             $this->orders_model->update($order->code, ['is_cancled' => 1]);
+          }
+          else
+          {
+            if($order->is_cancled == 1)
+            {
+              $this->orders_model->update($order->code, ['is_cancled' => 0]);
+            }
           }
         }
       }
@@ -515,6 +509,14 @@ class Delivery_order extends PS_Controller
       {
         $sc = FALSE;
         $this->error = "Invalid order status";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      if($order->is_backorder)
+      {
+        $this->orders_model->drop_backlogs_list($order->code);
       }
     }
 

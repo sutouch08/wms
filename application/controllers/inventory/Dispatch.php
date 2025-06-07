@@ -434,21 +434,23 @@ class Dispatch extends PS_Controller
             }
           }
 
-          //--- check cancel request
-          $is_cancel = $order->is_cancled == 1 ? TRUE : $this->orders_model->is_cancel_request($order->code);
-
-          if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
+          if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
           {
-            $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
+            if($this->is_cancel($order->reference, $order->channels_code))
+            {
+              $sc = FALSE;
+              $this->error = "{$order->code} : ออเดอร์นี้ถูกยกเลิกจาก platform";
+              $this->orders_model->update($order->code, ['is_cancled' => 1]);
+            }
+            else
+            {
+              if($order->is_cancled == 1)
+              {
+                $this->orders_model->update($order->code, ['is_cancled' => 0]);
+              }
+            }
           }
-
-          if($is_cancel)
-          {
-            $sc = FALSE;
-            $this->error = "{$order->code} : ออเดอร์นี้ถูกยกเลิกจาก platform";
-            $this->orders_model->update($order->code, ['is_cancled' => 1]);
-          }
-
+        
 
           if($sc === TRUE)
           {

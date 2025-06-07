@@ -41,9 +41,10 @@ class Auto_check_backorder extends CI_Controller
       {
         $count++;
 
-        if($rs->state == '9' OR $rs->is_expired)
+        if($rs->state == '9' OR $rs->state == '8' OR $rs->is_expired)
         {
-          $this->orders_model->update($rs->code, ['is_backorder' => 0]);
+          $this->orders_model->update($rs->code, ['is_backorder' => 0, 'last_sync' => now()]);
+          $this->orders_model->drop_backlogs_list($rs->code);
           $update++;
         }
         else
@@ -63,6 +64,10 @@ class Auto_check_backorder extends CI_Controller
                 if($available < $rd->qty)
                 {
                   $is_backorder = 1;
+                }
+                else
+                {
+                  $this->orders_model->delete_backlogs_item($rs->code, $rd->product_code);
                 }
               }
             }

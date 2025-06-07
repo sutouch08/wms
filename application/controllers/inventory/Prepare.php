@@ -286,7 +286,7 @@ class Prepare extends PS_Controller
 
       $order_status = $this->wrx_shopee_api->get_order_status($reference);
 
-      if($order_status == 'CANCELLED' OR $order_status == 'IN_CANCEL')
+      if($order_status == 'CANCELLED')
       {
         $is_cancel = TRUE;
       }
@@ -320,16 +320,18 @@ class Prepare extends PS_Controller
 
     if( ! empty($order))
     {
-      //--- check cancel request
-      $is_cancel = $this->orders_model->is_cancel_request($order->code);
-
-      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
+      if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
       {
         $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
       }
 
       if( ! $is_cancel)
       {
+        if($order->is_cancled == 1)
+        {
+          $this->orders_model->update($order->code, ['is_cancled' => 0]);
+        }
+
         $state = $this->orders_model->get_state($code);
 
         if($state == 3)

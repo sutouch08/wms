@@ -1963,6 +1963,12 @@ class Orders_model extends CI_Model
   }
 
 
+  public function delete_backlogs_item($order_code, $product_code)
+  {
+    return $this->db->where('order_code', $order_code)->where('product_code', $product_code)->delete('order_backlog_details');
+  }
+
+
   public function add_cancel_request(array $ds = array())
   {
     if( ! empty($ds))
