@@ -256,42 +256,42 @@ class Qc extends PS_Controller
         //---  ship package
         if($sc === TRUE)
         {
-          $ship = $this->wrx_tiktok_api->ship_package($ds->package_id);
+          if( ! $this->wrx_tiktok_api->ship_package($ds->package_id))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to ship package : ".$this->wrx_tiktok_api->error;
+          }
         }
 
         if($sc === TRUE)
         {
-          $res = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+          $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
 
-          if( ! empty($res) && ! empty($res->code))
+          if( ! empty($shipment))
           {
-            if($res->code == 200 && $res->status == 'success')
+            if( empty($shipment->trackingNumber))
             {
-              if( ! empty($res->data))
-              {
-                $shipment = $res->data;
+              sleep(1);
+              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+            }
 
-                if(empty($ds->tracking_number))
-                {
-                  $this->orders_model->update($order->code, ['shipping_code' => $shipment->trackingNumber]);
-                }
-              }
-              else
+            if( ! empty($shipment))
+            {
+              if(empty($ds->tracking_number) && ! empty($shipment->trackingNumber))
               {
-                $sc = FALSE;
-                $this->error = $res->serviceMessage;
+                $this->orders_model->update($order->code, ['shipping_code' => $shipment->trackingNumber]);
               }
             }
             else
             {
               $sc = FALSE;
-              $this->error = $res->serviceMessage;
+              $this->error = $this->wrx_tiktok_api->error;
             }
           }
           else
           {
             $sc = FALSE;
-            $this->error = "ไม่สามารถดึงข้อมูลจาก API ได้";
+            $this->error = $this->wrx_tiktok_api->error;
           }
         }
       }

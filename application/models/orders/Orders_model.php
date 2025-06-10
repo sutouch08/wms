@@ -1437,6 +1437,31 @@ class Orders_model extends CI_Model
   }
 
 
+  //--- ใช้คำนวนยอดเครดิตคงเหลือ
+  public function get_sum_not_complete_amount_exclude($customer_code, $order_code)
+  {
+    $rs = $this->db
+    ->select_sum('order_details.total_amount', 'amount')
+    ->from('order_details')
+    ->join('orders', 'orders.code = order_details.order_code', 'left')
+    ->where_in('orders.role', array('S', 'C'))
+		->where('orders.state !=', 9)
+    ->where('orders.customer_code', $customer_code)
+    ->where('order_details.is_complete', 0)
+    ->where('orders.is_expired', 0)
+		->where('order_details.is_cancle', 0)
+    ->where('order_details.order_code !=', $order_code)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->amount;
+    }
+
+    return 0.00;
+  }
+
+
   //---- คำนวนยอดมูลค่าคงเหลือที่่ยังไม่เข้า complete
   public function get_consign_not_complete_amount($role, $whsCode)
   {

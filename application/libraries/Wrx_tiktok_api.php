@@ -106,6 +106,11 @@ class Wrx_tiktok_api
       {
         return TRUE;
       }
+      else
+      {
+        $this->error = $res->serviceMessage;
+        return FALSE;
+      }
     }
 
     $this->error = $response;
@@ -146,12 +151,29 @@ class Wrx_tiktok_api
     curl_close($curl);
     $res = json_decode($response);
 
+    // if( ! empty($res) && ! empty($res->code))
+    // {
+    //   return $res;
+    // }
+
     if( ! empty($res) && ! empty($res->code))
     {
-      return $res;
+      if($res->code === 200 && $res->status === 'success')
+      {
+        return $res->data;
+      }
+      else
+      {
+        $this->error = $res->serviceMessage;
+        return FALSE;
+      }
     }
-
-    $this->error = $response;
+    else
+    {
+      $this->error = "Cannot get data from Tiktok api at this time";
+      return FALSE;
+    }
+    // $this->error = $response;
 
     return FALSE;
   }

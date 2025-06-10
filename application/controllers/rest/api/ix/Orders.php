@@ -157,6 +157,26 @@ class Orders extends REST_Controller
 
     $sc = $this->verify_data($data);
 
+    //--- check customer
+    $customer = NULL;
+
+    if($sc === TRUE)
+    {
+      $customer = $this->customers_model->get($data->customer_code);
+
+      if(empty($customer))
+      {
+        $sc = FALSE;
+        $this->error = "Invalid customer code or customer not found";
+      }
+
+      if( ! empty($customer) && $customer->active == 0)
+      {
+        $sc = FALSE;
+        $this->error = "Customer code '{$data->customer_code}' is inactive";
+      }
+    }
+
     //---- if any error return
     if($sc === FALSE)
     {
@@ -185,6 +205,7 @@ class Orders extends REST_Controller
 
       $this->response($arr, 400);
     }
+
 
     //--- check each item code
     $details = $data->details;
@@ -220,6 +241,7 @@ class Orders extends REST_Controller
       $this->response($arr, 400);
     }
 
+    $docTotal = 0;
 
     if( ! empty($details))
     {
@@ -237,10 +259,10 @@ class Orders extends REST_Controller
         else
         {
           $rs->item = $item;
+          $docTotal += $rs->amount;
         }
       }
     }
-
 
     //---- if any error return
     if($sc === FALSE)
@@ -271,12 +293,107 @@ class Orders extends REST_Controller
       $this->response($arr, 400);
     }
 
+    //---- for check duplicate order number
+    $order = $this->orders_model->get_active_order_by_reference($data->order_number);
+
+    if($sc === TRUE)
+    {
+      $pm = $this->payment_methods_model->get($data->payment_method);
+
+      if( ! empty($pm))
+      {
+        if($pm->role == 5)
+        {
+          //--- check over due
+          $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
+
+          if($is_strict)
+          {
+            $this->load->model('inventory/invoice_model');
+
+            $overDue = $is_strict ? $this->invoice_model->is_over_due($data->customer_code) : FALSE;
+
+            //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
+            //--- ไม่ให้เพิ่มออเดอร์
+            if($overDue && ! $customer->skip_overdue)
+            {
+              $sc = FALSE;
+              $this->error = 'There is an outstanding balance that is past due. Sales are not permitted.';
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $skip = getConfig('CONTROL_CREDIT') == 1 ? FALSE : TRUE;
+
+            if( ! $skip)
+            {
+              //--- creadit used
+              $credit_used = 0;
+              if(empty($order))
+              {
+                $credit_used = round($this->orders_model->get_sum_not_complete_amount($data->customer_code), 2);
+              }
+              else
+              {
+                $credit_used = round($this->orders_model->get_sum_not_complete_amount_exclude($data->customer_code, $order->code), 2);
+              }
+
+              $credit_used += $docTotal;
+
+              //--- credit balance from sap
+              $credit_balance = round($this->customers_model->get_credit($data->customer_code), 2);
+
+              if($credit_used > $credit_balance)
+              {
+                $sc = FALSE;
+                $diff = $credit_used - $credit_balance;
+                $this->error = "Insufficient credit balance ".number($diff, 2)." more needed.";
+              }
+            }
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid payment_method";
+      }
+    }
+
+    //---- if any error return
+    if($sc === FALSE)
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error,
+        'retry' => FALSE
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 200);
+    }
+
+
     //---- new code start
     if($sc === TRUE)
     {
-      //---- check duplicate order number
-      $order = $this->orders_model->get_active_order_by_reference($data->order_number);
-
       //--- รหัสเล่มเอกสาร [อ้างอิงจาก SAP]
       //--- ถ้าเป็นฝากขายแบบโอนคลัง ยืมสินค้า เบิกแปรสภาพ เบิกสินค้า (ไม่เปิดใบกำกับ เปิดใบโอนคลังแทน) นอกนั้น เปิด SO
       $bookcode = getConfig('BOOK_CODE_ORDER');
@@ -289,13 +406,11 @@ class Orders extends REST_Controller
 
       $ref_code = $data->order_number;
 
-      $customer = $this->customers_model->get($data->customer_code);
-
       $sale_code = empty($customer) ? -1 : $customer->sale_code;
 
       $state = 3;
 
-      $warehouse_code = getConfig('IX_WAREHOUSE');
+      $warehouse_code = (isset($data->warehouse) && ! empty($data->warehouse)) ? $data->warehouse : getConfig('IX_WAREHOUSE');
 
       $is_wms = 0;
 
@@ -1472,8 +1587,6 @@ class Orders extends REST_Controller
       $this->response($arr, 400);
     }
 
-    // $order = $this->orders_model->get($data->order_number); //--- WO
-    // $order_code = empty($order) ? NULL : $order->code;
     $order_code = $this->orders_model->get_active_order_code_by_reference($data->order_number);
 
     if(empty($order_code))
@@ -1948,21 +2061,15 @@ class Orders extends REST_Controller
 			return FALSE;
     }
 
-    if( ! empty($data->customer_code) && ! $this->customers_model->is_exists($data->customer_code))
-		{
-      $this->error = "Invalid Customer Code";
-      return FALSE;
-		}
-
     if(! property_exists($data, 'channel') OR ! $this->channels_model->is_exists($data->channel))
     {
       $this->error = "Invalid channels code : {$data->channel}";
       return FALSE;
     }
 
-    if( ! property_exists($data, 'payment_method') OR ! $this->payment_methods_model->is_exists($data->payment_method))
+    if( ! property_exists($data, 'payment_method') OR $data->payment_method == '')
     {
-      $this->error = 'Invalid payment_method code';
+      $this->error = 'payment_method is required';
 			return FALSE;
     }
 
