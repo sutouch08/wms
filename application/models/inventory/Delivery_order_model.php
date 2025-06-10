@@ -149,7 +149,7 @@ class Delivery_order_model extends CI_Model
   {
     $this->db
     ->select('id, code, role, reference, customer_code, customer_name, customer_ref')
-    ->select('channels_code, payment_code, date_add, shipped_date, user, doc_total, inv_code, empID, empName, is_cancled, is_hold, is_cancled')
+    ->select('channels_code, payment_code, date_add, shipped_date, shipping_code, user, doc_total, inv_code, empID, empName, is_cancled, is_hold, is_cancled')
     ->where('state', $state);
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')

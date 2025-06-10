@@ -117,7 +117,7 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1210px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1110px;">
       <thead>
         <tr>
           <th class="fix-width-40 text-center">ลำดับ</th>
@@ -125,6 +125,7 @@
 					<th class="fix-width-100 text-center">วันที่จัดส่ง</th>
           <th class="fix-width-120">เลขที่เอกสาร</th>
 					<th class="fix-width-150">เลขที่อ้างอิง</th>
+					<th class="fix-width-100">Tracking</th>
 					<th class="fix-width-100">SAP NO</th>
           <th class="min-width-200">ลูกค้า/ผู้รับ/ผู้เบิก</th>
           <th class="fix-width-100 text-right">ยอดเงิน</th>
@@ -160,6 +161,10 @@
             <?php echo $rs->reference; ?>
           </td>
 
+					<td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
+            <?php echo $rs->shipping_code; ?>
+          </td>
+
 					<td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->inv_code; ?>
           </td>
@@ -191,7 +196,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="10" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="11" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>
