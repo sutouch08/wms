@@ -130,6 +130,7 @@ class Stock extends REST_Controller
       }
       else
       {
+        $warehouse_code = (isset($data->warehouse) && ! empty($data->warehouse)) ? $data->warehouse : $this->whsCode;
         $stocks = array();
         $res = [];
         $items = 0;
@@ -143,9 +144,9 @@ class Stock extends REST_Controller
           if( ! empty($pd))
           {
             $rate = $pd->api_rate <= 0 ? 1 : ($pd->api_rate > 100 ? 1 : round($pd->api_rate * 0.01, 2));
-      			$sell_stock = floatval($this->stock_model->get_sell_stock($code, $this->whsCode));
-      			$ordered = round(floatval($this->orders_model->get_reserv_stock($code, $this->whsCode)), 2);
-            $reserv_stock = round(floatval($this->reserv_stock_model->get_reserv_stock($code, $this->whsCode)), 2);
+      			$sell_stock = floatval($this->stock_model->get_sell_stock($code, $warehouse_code));
+      			$ordered = round(floatval($this->orders_model->get_reserv_stock($code, $warehouse_code)), 2);
+            $reserv_stock = round(floatval($this->reserv_stock_model->get_reserv_stock($code, $warehouse_code)), 2);
       			$availableStock = $sell_stock - $ordered - $reserv_stock;
       			$stock = $availableStock < 0 ? 0 : $availableStock;
 
@@ -172,7 +173,7 @@ class Stock extends REST_Controller
               'api_rate' => 0,
               'on_hand' => 0,
               'ordered' => 0,
-              'reservd' => 0,
+              'reserved' => 0,
               'available' => 0,
               'qty' => 0
             );
@@ -185,7 +186,7 @@ class Stock extends REST_Controller
           'status' => 'success',
           'request_items' => $count,
           'result_items' => $items,
-          'warehouse' => $this->whsCode,
+          'warehouse' => $warehouse_code,
           'data' => $res
         );
 
