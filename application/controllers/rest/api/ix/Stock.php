@@ -157,7 +157,7 @@ class Stock extends REST_Controller
               'api_rate' => $rate,
               'on_hand' => $sell_stock,
               'ordered' => $ordered,
-              'reservd' => $reserv_stock,
+              'reserved' => $reserv_stock,
               'available' => $stock,
               'qty' => intval(floor($stock * $rate))
             );

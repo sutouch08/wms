@@ -637,7 +637,8 @@ class Orders extends REST_Controller
                   "total_amount"	=> round($rs->amount, 2),
                   "id_rule"	=> NULL,
                   "is_count" => $item->count_stock,
-                  "is_api" => 1
+                  "is_api" => 1,
+                  "is_free" => isset($rs->is_free) ? ($rs->is_free == 'Y' ? 1 : 0) : 0
                 );
 
                 if( ! $this->orders_model->add_detail($arr))
@@ -730,7 +731,8 @@ class Orders extends REST_Controller
         $arr = array(
           'status' => 'success',
           'message' => 'success',
-          'order_code' => $order_code
+          'order_code' => $order_code,
+          'url' => site_url("orders/orders/edit_order/{$order_code}")
         );
 
         if($this->logs_json)
@@ -1930,7 +1932,6 @@ class Orders extends REST_Controller
 
     return $new_code;
   }
-
 
 
   public function verify_data($data)
