@@ -736,7 +736,8 @@ function closeOrder(){
   //--- ถ้ายังมีรายการที่ยังไม่บันทึก ให้บันทึกก่อน
   if(notsave > 0){
     saveQc(2);
-  }else{
+  }
+  else {
     //--- close order
     $.ajax({
       url: HOME +'close_order',
@@ -746,19 +747,26 @@ function closeOrder(){
         "order_code": order_code
       },
       success:function(rs){
-        var rs = $.trim(rs);
-        if(rs == 'success'){
-          swal({title:'Success', type:'success', timer:1000});
+        if(rs.trim() == 'success'){
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
+
           $('#btn-close').attr('disabled', 'disabled');
-          $(".zone").attr('disabled', 'disabled');
           $(".item").attr('disabled', 'disabled');
-          $(".close").attr('disabled', 'disabled');
           $('#btn-print-address').removeClass('hide');
-        }else{
-          swal("Error!", rs, "error");
         }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
       }
     });
   }
-
 }

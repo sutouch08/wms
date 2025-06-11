@@ -26,9 +26,10 @@ function closeOrder(){
   });
 
   //--- ถ้ายังมีรายการที่ยังไม่บันทึก ให้บันทึกก่อน
-  if(notsave > 0){
+  if(notsave > 0) {
     saveQc(2);
-  }else{
+  }
+  else {
     //--- close order
     $.ajax({
       url: HOME +'close_order',
@@ -37,22 +38,30 @@ function closeOrder(){
       data:{
         "order_code": order_code
       },
-      success:function(rs){
-        var rs = $.trim(rs);
-        if(rs == 'success'){
-          swal({title:'Success', type:'success', timer:1000});
-          $('#btn-close').attr('disabled', 'disabled');
-          $(".zone").attr('disabled', 'disabled');
+      success:function(rs) {
+        if(rs.trim() == 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
+
+          $('#close-bar').addClass('hide');
+          $('#bill-bar').removeClass('hide');
           $(".item").attr('disabled', 'disabled');
-          $(".close").attr('disabled', 'disabled');
           $('#btn-print-address').removeClass('hide');
-        }else{
-          swal("Error!", rs, "error");
         }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
       }
     });
   }
-
 }
 
 
@@ -718,3 +727,38 @@ $('.bc').click(function(){
     $('#barcode-item').focus();
   }
 });
+
+
+function confirmOrder(){
+  let code = $('#order_code').val();
+  load_in();
+
+  $.ajax({
+    url:BASE_URL + 'inventory/delivery_order/confirm_order',
+    type:'POST',
+    cache:false,
+    data:{
+      'order_code' : code
+    },
+    success:function(rs) {
+      load_out();
+      if( rs.trim() == 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        $('#btn-bill').addClass('hide');
+      }
+      else {
+        beep();
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      beep();
+      showError(rs);
+    }
+  });
+}

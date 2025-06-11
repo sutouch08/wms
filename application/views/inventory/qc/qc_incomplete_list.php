@@ -70,6 +70,11 @@
                 ตรวจเสร็จแล้ว
               </button>
             </div>
+            <div class="hide" id="bill-bar">
+              <button type="button" class="btn btn-sm btn-primary close-order" id="btn-bill" onclick="confirmOrder('<?php echo $order->code; ?>')">
+                เปิดบิลตัดสต็อก
+              </button>
+            </div>
           </td>
         </tr>
 

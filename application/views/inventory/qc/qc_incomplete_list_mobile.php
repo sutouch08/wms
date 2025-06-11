@@ -25,7 +25,7 @@
 
   <?php else : ?>
     <div class="text-center" id="close-bar">
-      <button type="button" class="btn btn-lg btn-success" onclick="finishPrepare()">แพ็คเสร็จแล้ว</button>
+      <button type="button" class="btn btn-lg btn-success" onclick="closeOrder()">แพ็คเสร็จแล้ว</button>
     </div>
   <?php endif; ?>
 </div>

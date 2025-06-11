@@ -188,7 +188,7 @@ if(!empty($barcode_list))
  ?>
 
 
- <script>
+ <script>   
    function shipOrderTiktok(reference) {
      load_in();
 
@@ -289,7 +289,7 @@ if(!empty($barcode_list))
        }
      })
    }
- </script>
+</script>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_process.js?v=<?php echo date('Ymd'); ?>"></script>
