@@ -117,10 +117,11 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1110px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1370px;">
       <thead>
-        <tr>
-          <th class="fix-width-40 text-center">ลำดับ</th>
+        <tr class="font-size-11">
+					<th class="fix-width-150 text-center"></th>
+          <th class="fix-width-40 text-center">#</th>
           <th class="fix-width-100 text-center">วันที่</th>
 					<th class="fix-width-100 text-center">วันที่จัดส่ง</th>
           <th class="fix-width-120">เลขที่เอกสาร</th>
@@ -131,7 +132,6 @@
           <th class="fix-width-100 text-right">ยอดเงิน</th>
           <th class="fix-width-100 text-center">รูปแบบ</th>
           <th class="fix-width-150 text-center">พนักงาน</th>
-					<th class="fix-width-50 text-center"></th>
         </tr>
       </thead>
       <tbody>
@@ -139,57 +139,26 @@
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 
-        <tr class="font-size-12">
-
-          <td class="text-center pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo $no; ?>
-          </td>
-
-          <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo thai_date($rs->date_add); ?>
-          </td>
-
-					<td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo thai_date($rs->shipped_date); ?>
-          </td>
-
-          <td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->code; ?>
-          </td>
-
-					<td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->reference; ?>
-          </td>
-
-					<td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->shipping_code; ?>
-          </td>
-
-					<td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->inv_code; ?>
-          </td>
-
-          <td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->customer_name; ?>
-          </td>
-
-          <td class="pointer text-right" onclick="viewDetail('<?php echo $rs->code; ?>')">
-						<?php echo ($rs->doc_total <= 0 ? number($this->invoice_model->get_billed_amount($rs->code), 2) : number($rs->doc_total,2)); ?>
-          </td>
-
-          <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo role_name($rs->role); ?>
-          </td>
-
-          <td class="pointer text-center hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->user; ?>
-          </td>
-
-					<td class="pointer text-center hide-text">
+        <tr class="font-size-11">
+					<td class="">
+						<button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')">
+							รายละเอียด
+						</button>
             <button type="button" class="btn btn-minier btn-success" onclick="do_export('<?php echo $rs->code; ?>')">
 							<i class="fa fa-send"></i> SAP
 						</button>
           </td>
+          <td class="text-center"><?php echo $no; ?></td>
+          <td class="text-center"><?php echo thai_date($rs->date_add); ?></td>
+					<td class="text-center"><?php echo thai_date($rs->shipped_date); ?></td>
+					<td class=""><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code; ?></a></td>
+					<td class=""><?php echo $rs->reference; ?></td>
+					<td class=""><?php echo $rs->shipping_code; ?></td>
+					<td class=""><?php echo $rs->inv_code; ?></td>
+          <td class=""><?php echo $rs->customer_name; ?></td>
+          <td class="text-right"><?php echo ($rs->doc_total <= 0 ? number($this->invoice_model->get_billed_amount($rs->code), 2) : number($rs->doc_total,2)); ?></td>
+          <td class="text-center"><?php echo role_name($rs->role); ?></td>
+          <td class="text-center"><?php echo $rs->user; ?></td>
 
         </tr>
 <?php  $no++; ?>

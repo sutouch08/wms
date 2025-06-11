@@ -110,9 +110,10 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1300px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1350px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
+					<th class="fix-width-150"></th>
           <th class="fix-width-50 text-center">#</th>
           <th class="fix-width-100">วันที่</th>
 					<th class="fix-width-100">วันที่จัดส่ง</th>
@@ -123,7 +124,6 @@
           <th class="fix-width-100 text-center">ยอดเงิน</th>
           <th class="fix-width-100 text-center">รูปแบบ</th>
           <th class="fix-width-100 text-center">พนักงาน</th>
-					<th class="fix-width-100 text-right"></th>
         </tr>
       </thead>
       <tbody>
@@ -132,59 +132,36 @@
 <?php   foreach($orders as $rs)  : ?>
 			<?php $bg = $rs->is_hold ? 'background-color:#fde4e4;' : ''; ?>
 			<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
-        <tr class="font-size-12" id="row-<?php echo $rs->code; ?>" style="<?php echo $bg; ?>">
+        <tr class="font-size-11" id="row-<?php echo $rs->code; ?>" style="<?php echo $bg; ?>">
+					<td class="text-right">
+						<button type="button" class="btn btn-mini btn-info" onclick="goDetail('<?php echo $rs->code; ?>')">รายละเอียด</button>
 
-          <td class="text-center pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo $no; ?>
+            <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+							<button type="button" class="btn btn-mini btn-primary" onclick="confirmBill('<?php echo $rs->code; ?>')">เปิดบิล</button>
+						<?php endif; ?>
           </td>
-
-          <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo thai_date($rs->date_add); ?>
-          </td>
-
-					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo (empty($rs->shipped_date) ? "" : thai_date($rs->shipped_date, FALSE)); ?>
-          </td>
-
-          <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->code . $cn_text; ?>
-          </td>
-					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->reference; ?>
-          </td>
-
-					<td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
+          <td class="text-center"><?php echo $no; ?></td>
+          <td class=""><?php echo thai_date($rs->date_add); ?></td>
+					<td class=""><?php echo (empty($rs->shipped_date) ? "" : thai_date($rs->shipped_date, FALSE)); ?></td>
+          <td class=""><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
+					<td class=""><?php echo $rs->reference; ?></td>
+					<td class="">
 						<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 							<?php echo $rs->empID; ?>
 						<?php else: ?>
 							<?php echo $rs->customer_code; ?>
 						<?php endif; ?>
           </td>
-
-          <td class="pointer" onclick="goDetail('<?php echo $rs->code; ?>')">
+          <td class="">
 						<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 							<?php echo $rs->empName; ?>
 						<?php else: ?>
             	<?php echo $rs->customer_name; ?>
 						<?php endif; ?>
           </td>
-
-          <td class="pointer text-center" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo ($rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total,2)); ?>
-          </td>
-
-          <td class="pointer text-center" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo role_name($rs->role); ?>
-          </td>
-
-          <td class="pointer text-center hide-text" onclick="goDetail('<?php echo $rs->code; ?>')">
-            <?php echo $rs->user; ?>
-          </td>
-					<td class="text-right">
-            <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-							<button type="button" class="btn btn-xs btn-primary" onclick="confirmBill('<?php echo $rs->code; ?>')">เปิดบิล</button>
-						<?php endif; ?>
-          </td>
+          <td class="text-center"><?php echo ($rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total,2)); ?></td>
+          <td class="text-center"><?php echo role_name($rs->role); ?></td>
+          <td class="text-center hide-text"><?php echo $rs->user; ?></td>
 
         </tr>
 <?php  $no++; ?>
