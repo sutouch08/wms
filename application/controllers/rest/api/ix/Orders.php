@@ -864,15 +864,18 @@ class Orders extends REST_Controller
               }
             }
 
-            if($this->orders_model->change_state($order_code, 3))
+            if($role == 'T')
             {
-              $arr = array(
-                'order_code' => $order_code,
-                'state' => 3,
-                'update_user' => $this->user
-              );
+              if($this->orders_model->change_state($order_code, 3))
+              {
+                $arr = array(
+                  'order_code' => $order_code,
+                  'state' => 3,
+                  'update_user' => $this->user
+                );
 
-              $this->order_state_model->add_state($arr);
+                $this->order_state_model->add_state($arr);
+              }              
             }
           }
         }
