@@ -128,14 +128,6 @@ class Orders extends REST_Controller
       $this->response($arr, 400);
     }
 
-    $orderType = array(
-      'WO' => 'S',
-      'WC' => 'C',
-      'WQ' => 'T',
-      'WV' => 'Q',
-      'WL' => 'L'
-    );
-
     if(! property_exists($data, 'order_number') OR $data->order_number == '')
     {
       $this->error = 'order_number is required';
@@ -204,10 +196,10 @@ class Orders extends REST_Controller
       {
         $ot = $data->order_type;
 
-        if($ot != 'WO' && $ot != 'WC')
+        if($ot != 'WO' && $ot != 'WQ')
         {
           $sc = FALSE;
-          $this->error = "Invalid order_type : allowed WO, WC";
+          $this->error = "Invalid order_type : allowed WO, WQ";
         }
 
         if($sc === TRUE)
@@ -583,7 +575,7 @@ class Orders extends REST_Controller
 
       $sale_code = empty($customer) ? -1 : $customer->sale_code;
 
-      $state = 3;
+      $state = $role == 'T' ? 1 : 3;
 
       $is_wms = 0;
 
@@ -718,7 +710,7 @@ class Orders extends REST_Controller
       {
         $arr = array(
           'order_code' => $order_code,
-          'state' => 1,
+          'state' => $state,
           'update_user' => $this->user
         );
 
@@ -1714,6 +1706,11 @@ class Orders extends REST_Controller
       foreach($details as $rs)
       {
         if($sc === FALSE) { break; }
+        //---- check valid items
+        $item = $this->products_model->get($rs->item);
+        $item = empty($item) ? $this->products_model->get_by_old_code($rs->item) : $item;
+
+        $rs->item = empty($item) ? $rs->item : $item->code;
 
         $row = $this->orders_model->get_detail_by_product($order_code, $rs->item);
 
