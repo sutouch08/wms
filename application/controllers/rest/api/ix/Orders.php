@@ -864,7 +864,7 @@ class Orders extends REST_Controller
               }
             }
 
-            if($role == 'T')
+            if($role == 'S')
             {
               if($this->orders_model->change_state($order_code, 3))
               {
@@ -875,7 +875,7 @@ class Orders extends REST_Controller
                 );
 
                 $this->order_state_model->add_state($arr);
-              }              
+              }
             }
           }
         }
