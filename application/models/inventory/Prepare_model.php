@@ -414,7 +414,7 @@ class Prepare_model extends CI_Model
     $this->db
 		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
     ->select('o.customer_ref, o.date_add, o.channels_code, o.is_backorder, o.is_cancled')
-    ->select('o.warehouse_code, o.empName, o.user')
+    ->select('o.warehouse_code, o.zone_code, o.empName, o.user')
     ->select('ch.name AS channels_name')
     ->select('u.name AS display_name')
     ->from('orders AS o')

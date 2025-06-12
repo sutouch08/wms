@@ -198,7 +198,7 @@
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-hover border-1 no-border-xs table-listing">
 			<thead>
-				<tr>
+				<tr class="font-size-11">
 					<th class="fix-width-60 hidden-xs"></th>
 					<th class="fix-width-50 hidden-xs">
 						<label>
@@ -212,23 +212,27 @@
 					<th class="fix-width-150 middle hidden-xs">เลขที่อ้างอิง</th>
 					<th class="fix-width-150 middle hidden-xs">ช่องทาง</th>
 					<th class="fix-width-100 middle text-center hidden-xs">จำนวน</th>
-					<th class="min-width-300 middle hidden-xs">ลูกค้า/ผู้เบิก</th>
-					<th class="width-100 text-center hide">รายการรอจัด</th>
+					<th class="fix-width-300 middle hidden-xs">ลูกค้า/ผู้เบิก</th>
+					<th class="min-width-300 middle hidden-xs">โซน</th>
 				</tr>
 			</thead>
 			<tbody>
         <?php if(!empty($orders)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
 					<?php $whName = []; ?>
+					<?php $zName = []; ?>
           <?php foreach($orders as $rs) : ?>
 						<?php $rs->qty = $this->prepare_model->get_sum_order_qty($rs->code); ?>
 						<?php if( empty($whName[$rs->warehouse_code])) : ?>
 							<?php $whName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
 						<?php endif; ?>
+						<?php if( ! empty($rs->zone_code) && empty($zName[$rs->zone_code])) : ?>
+							<?php $zName[$rs->zone_code] = zone_name($rs->zone_code); ?>
+						<?php endif; ?>
             <?php $customer_name = (!empty($rs->customer_ref)) ? $rs->customer_ref : $rs->customer_name; ?>
 						<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
 						<?php $color = $rs->is_backorder ? 'red' : ''; ?>
-            <tr id="row-<?php echo $rs->code; ?>" class="font-size-12 <?php echo $color; ?>">
+            <tr id="row-<?php echo $rs->code; ?>" class="font-size-11 <?php echo $color; ?>">
 							<td class="middle hidden-xs">
           <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
                 <button type="button" class="btn btn-white btn-xs btn-info" onClick="goPrepare('<?php echo $rs->code; ?>')">จัดสินค้า</button>
@@ -244,7 +248,7 @@
 							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, TRUE,'/'); ?></td>
 							<td class="middle hidden-xs"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
 							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
-							<td class="middle  hidden-xs"><?php echo $rs->channels_name; ?></td>
+							<td class="middle hidden-xs"><?php echo $rs->channels_name; ?></td>
 							<td class="middle text-center  hidden-xs"><?php echo number($rs->qty); ?></td>
 							<td class="middle  hidden-xs">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
@@ -253,8 +257,9 @@
 									<?php echo $customer_name; ?>
 								<?php endif; ?>
 							</td>
+							<td class="middle hidden-xs"><?php echo empty($rs->zone_code) ? NULL : $zName[$rs->zone_code]; ?></td>
 
-							<td class="visible-xs" style="border:0px; padding:3px; font-size:14px;">
+							<td class="visible-xs" style="border:0px; padding:3px; font-size:12px;">
 								<div class="col-xs-12" style="border:solid 1px #ccc; border-radius:5px; box-shadow:0px 1px 2px #f3ecec; padding:5px;">
 									<div class="width-100" style="padding: 3px 3px 3px 10px;">
 										<p class="margin-bottom-3 pre-wrap"><b>วันที่ : </b><?php echo thai_date($rs->date_add, FALSE,'/'); ?></p>
@@ -270,7 +275,12 @@
 												<?php echo $customer_name; ?>
 											<?php endif; ?>
 										</p>
+										<?php if($rs->role == 'S') : ?>
 										<p class="margin-bottom-3 pre-wrap"><b>ช่องทางขาย : </b> <?php echo $rs->channels_name; ?></p>
+										<?php endif; ?>
+										<?php if( ! empty($rs->zone_code)) : ?>
+											<p class="margin-bottom-3 pre-wrap"><b>โซน : </b> <?php echo $zName[$rs->zone_code]; ?></p>
+										<?php endif; ?>
 										<p class="margin-bottom-3 pre-wrap"><b>คลัง : </b> <?php echo $whName[$rs->warehouse_code]; ?></p>
 										<p class="margin-bottom-3 pre-wrap"><b>จำนวน : </b> <?php echo number($rs->qty); ?></p>
 
@@ -281,7 +291,6 @@
 										style="position:absolute; top:5px; right:5px; border-radius:4px !important;">#<?php echo $no; ?> จัดสินค้า</button>
 										<?php endif; ?>
 								</div>
-
 							</td>
             </tr>
             <?php $no++; ?>

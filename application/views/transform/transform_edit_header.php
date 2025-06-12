@@ -83,7 +83,9 @@
 			</div>
 		<?php endif; ?>
 
-
+		<?php if($order->is_backorder == 1 && $order->state < 5) : ?>
+			<?php $this->load->view('backorder_watermark'); ?>
+		<?php endif; ?>
 
 		<input type="hidden" id="require_remark" value="<?php echo empty($this->require_remark) ? 0 : 1; ?>" />
     <input type="hidden" name="order_code" id="order_code" value="<?php echo $order->code; ?>" />

@@ -126,6 +126,7 @@ class Consign_so extends PS_Controller
     $filter['orders'] = $ds;
     $filter['state'] = $state;
     $filter['btn'] = $button;
+    $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlogs_details($rs->code) : NULL;
 
 		$this->pagination->initialize($init);
     $this->load->view('order_consign/consign_list', $filter);

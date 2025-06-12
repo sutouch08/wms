@@ -35,6 +35,10 @@
 			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $order->zone_name; ?>" required disabled/>
 	  </div>
 
+		<?php if($order->is_backorder == 1 && $order->state < 5) : ?>
+			<?php $this->load->view('backorder_watermark'); ?>
+		<?php endif; ?>
+
 		<?php if(empty($approve_view) && ($this->pm->can_add OR $this->pm->can_edit)): ?>
 		<div class="col-lg-11 col-md-10-harf col-sm-10-harf col-xs-9 padding-5">
 		 	<label>หมายเหตุ</label>

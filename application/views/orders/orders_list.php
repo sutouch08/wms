@@ -3,11 +3,6 @@
 <?php $cim = get_permission('SOIMOR', $this->_user->uid, $this->_user->id_profile); ?>
 <?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
-<style>
-	.backorder {
-		color:#811818 !important;
-	}
-</style>
 <div class="row">
 	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5 padding-top-5">
 		<h3 class="title"><?php echo $this->title; ?></h3>

@@ -29,6 +29,7 @@ class Prepare extends PS_Controller
     $this->load->helper('channels');
     $this->load->helper('payment_method');
     $this->load->helper('warehouse');
+    $this->load->helper('zone');
 
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
@@ -79,6 +80,7 @@ class Prepare extends PS_Controller
     $this->load->helper('channels');
     $this->load->helper('payment_method');
     $this->load->helper('warehouse');
+    $this->load->helper('zone');
 
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
