@@ -12,6 +12,7 @@ class Fast_move_stock extends PS_Controller
     parent::__construct();
     $this->home = base_url().'report/inventory/fast_move_stock';
     $this->load->model('report/inventory/fast_move_stock_model');
+    $this->load->model('inventory/buffer_model');
   }
 
 
