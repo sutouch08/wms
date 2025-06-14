@@ -102,11 +102,61 @@ function togglePickface(id) {
 }
 
 
-function saveUpdate() {
+function setFastMove(option) {
+  let h = {
+    'is_fast_move' : option == 1 ? 1 :  0,
+    'zoneList' : []
+  }
+
+  if($('.chk:checked').length > 0) {
+    $('.chk:checked').each(function() {
+      h.zoneList.push($(this).val());
+    });
+  }
+
+  if(h.zoneList.length > 0) {
+    load_in();
+
+    $.ajax({
+      url:HOME + '/toggle_fast_move',
+      type:'POST',
+      cache:false,
+      data:{
+        'data' : JSON.stringify(h)
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs.trim() === 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(() => {
+            refresh();
+          }, 1200);
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
+}
+
+function update() {
   let code = $('#zone_code').val();
   let user_id = $('#user_id').val();
   let pos_api = $('#pos-api').val();
-  let is_pickface = $('#is-pickface').val();
+  let is_pickface = $('#is-pickface').is(':checked') ? 1 : 0;
+  let is_fast_move = $('#is-fast-move').is(':checked') ? 1 : 0;
 
   $.ajax({
     url:HOME + '/update',
@@ -116,7 +166,8 @@ function saveUpdate() {
       'zone_code' : code,
       'user_id' : user_id,
       'pos_api' : pos_api,
-      'is_pickface' : is_pickface
+      'is_pickface' : is_pickface,
+      'is_fast_move' : is_fast_move
     },
     success:function(rs) {
       if(rs == 'success') {
@@ -144,42 +195,17 @@ function saveUpdate() {
 }
 
 
-$("#empName").autocomplete({
-	source: BASE_URL + 'auto_complete/get_employee',
-	autoFocus: true,
-	close: function(){
-		var rs = $.trim($(this).val());
-		var arr = rs.split(' | ');
-		if( arr.length == 2 ){
-			var empName = arr[0];
-			var empID = arr[1];
-			$("#empName").val(empName);
-			$("#empID").val(empID);
-		}else{
-			$("#empID").val('');
-			$(this).val('');
-		}
-	}
-});
-
-
-$('#empName').keyup(function(e){
-  if(e.keyCode == 13){
-    addEmployee();
-  }
-});
-
-
 function addEmployee(){
   let code = $('#zone_code').val();
-  let empName = $('#empName').val();
-  let empID = $('#empID').val();
+  let id = $('#empID').val();
+  let name = $('#empID option:selected').data('name');
+
   if(code === undefined){
     swal('ไม่พบรหัสโซน');
     return false;
   }
 
-  if(empID == '' || empName.length == 0){
+  if(id == '' || name.length == 0){
     swal('ชื่อพนักงานไม่ถูกต้อง');
     return false;
   }
@@ -192,8 +218,8 @@ function addEmployee(){
     cache:false,
     data:{
       'zone_code' : code,
-      'empID' : empID,
-      'empName' : empName
+      'empID' : id,
+      'empName' : name
     },
     success:function(rs){
       load_out();
@@ -450,6 +476,7 @@ function editZone() {
   $('#user_id').removeAttr('disabled').focus();
   $('#pos-api').removeAttr('disabled');
   $('#is-pickface').removeAttr('disabled');
+  $('#is-fast-move').removeAttr('disabled');
   $('#btn-u-edit').addClass('hide');
   $('#btn-u-update').removeClass('hide');
 }

@@ -9,27 +9,45 @@
 			<i class="fa fa-file-excel-o"></i> Export
 		</button>
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="generateQrcode()"><i class="fa fa-qrcode"></i> Generate QR</button>
+		<div class="btn-group">
+			<button data-toggle="dropdown" class="btn btn-info btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+				<i class="ace-icon fa fa-save icon-on-left"></i>
+				Fast Move
+				<i class="ace-icon fa fa-angle-down icon-on-right"></i>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-right">
+				<li class="primary">
+					<a href="javascript:setFastMove(1)">Set Fast Move</a>
+				</li>
+				<li class="purple">
+					<a href="javascript:setFastMove(0)">Unset Fast Move</a>
+				</li>
+			</ul>
+		</div>
   </div>
 </div><!-- End Row -->
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label>Zone</label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label>Customer</label>
     <input type="text" class="form-control input-sm" name="customer" id="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
-    <label>User</label>
-    <input type="text" class="form-control input-sm" name="uname" id="u-name" value="<?php echo $uname; ?>" />
+	<div class="col-lg-3 col-md-2 col-sm-2-harf col-xs-6 padding-5">
+    <label>Owner</label>
+		<select class="width-100 filter" name="user_id" id="user_id">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_user_id($user_id); ?>
+		</select>
   </div>
 
-	<div class="col-lg-2-harf col-md-6 col-sm-4-harf col-xs-6 padding-5">
+	<div class="col-lg-4 col-md-6 col-sm-4-harf col-xs-6 padding-5">
     <label>Warehouse</label>
     <select class="width-100 filter" name="warehouse" id="warehouse" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -39,7 +57,7 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>POS API</label>
-    <select class="form-control input-sm filter" name="is_pos_api" id="is_pos_api" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="is_pos_api" id="is_pos_api">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $is_pos_api); ?>>Yes</option>
 			<option value="0" <?php echo is_selected('0', $is_pos_api); ?>>No</option>
@@ -48,10 +66,19 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>Pickface</label>
-    <select class="form-control input-sm filter" name="is_pickface" id="is_pickface" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="is_pickface" id="is_pickface">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $is_pickface); ?>>Yes</option>
 			<option value="0" <?php echo is_selected('0', $is_pickface); ?>>No</option>
+		</select>
+  </div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+    <label>Fast Move</label>
+    <select class="form-control input-sm filter" name="is_fast_move" id="is_fast_move">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_fast_move); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $is_fast_move); ?>>No</option>
 		</select>
   </div>
 
@@ -179,6 +206,7 @@
 
 
 <script>
+	$('#user_id').select2();
 	$('#warehouse').select2();
 </script>
 <script src="<?php echo base_url(); ?>scripts/masters/zone.js?v=<?php echo date('YmdH'); ?>"></script>

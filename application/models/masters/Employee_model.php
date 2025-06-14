@@ -10,7 +10,7 @@ class Employee_model extends CI_Model
   public function get($id)
   {
     $rs = $this->ms
-    ->select('empID, lastName, firstName')
+    ->select('empID, lastName, firstName, Active')
     ->where('empID', $id)->get('OHEM');
     if($rs->num_rows() === 1)
     {
@@ -20,6 +20,25 @@ class Employee_model extends CI_Model
     return FALSE;
   }
 
+
+  public function get_all($active = 0)
+  {
+    if($active != 0)
+    {
+      $this->ms->where('Active', 'Y');
+    }
+
+    $rs = $this->ms
+    ->select('empID, lastName, firstName, Active')
+    ->get('OHEM');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 
 
   public function get_name($id)

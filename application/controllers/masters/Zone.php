@@ -21,24 +21,20 @@ class Zone extends PS_Controller
   {
     $filter = array(
       'code' => get_filter('code', 'z_code', ''),
-      'uname' => get_filter('uname', 'z_uname', ''),
       'warehouse' => get_filter('warehouse', 'z_warehouse', ''),
       'customer' => get_filter('customer', 'z_customer', ''),
+      'user_id' => get_filter('user_id', 'z_user_id', 'all'),
       'active' => get_filter('active', 'z_active', 'all'),
       'is_pos_api' => get_filter('is_pos_api', 'z_pos_api', 'all'),
-      'is_pickface' => get_filter('is_pickface', 'z_pickface', 'all')
+      'is_pickface' => get_filter('is_pickface', 'z_pickface', 'all'),
+      'is_fast_move' => get_filter('is_fast_move', 'z_fastmove', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
 
 		$segment  = 4; //-- url segment
-		$rows     = $this->zone_model->count_rows($filter);
+		$rows = $this->zone_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 		$list = $this->zone_model->get_list($filter, $perpage, $this->uri->segment($segment));
@@ -95,11 +91,50 @@ class Zone extends PS_Controller
     }
   }
 
+
+  public function toggle_fast_move()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
+    {
+      $arr = array(
+        'is_fast_move' => $ds->is_fast_move == 1 ? 1 : 0
+      );
+
+      if(is_array($ds->zoneList))
+      {
+        if( ! $this->db->where_in('code', $ds->zoneList)->update('zone', $arr))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update zone list";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Missing required parameter : zoneList";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
+
   public function edit($code)
   {
+    $this->load->helper('employee');
+
     if($this->pm->can_edit)
     {
       $zone = $this->zone_model->get($code);
+
       $ds['ds'] = $zone;
       $ds['customers'] = $this->zone_model->get_customers($code);
       $ds['employees'] = NULL;
@@ -130,6 +165,7 @@ class Zone extends PS_Controller
       $user_id = get_null($this->input->post('user_id'));
       $pos_api = $this->input->post('pos_api') == 1 ? 1 : 0;
       $pickface = $this->input->post('is_pickface') == 1 ? 1 : 0;
+      $fast_move = $this->input->post('is_fast_move') == 1 ? 1 : 0;
 
       $zone = $this->zone_model->get($zone_code);
 
@@ -138,7 +174,8 @@ class Zone extends PS_Controller
         $arr = array(
           'user_id' => $user_id,
           'is_pos_api' => $pos_api,
-          'is_pickface' => $pickface
+          'is_pickface' => $pickface,
+          'is_fast_move' => $fast_move
         );
 
         if( ! $this->zone_model->update($zone->id, $arr))
@@ -626,7 +663,17 @@ class Zone extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('z_code', 'z_uname', 'z_customer', 'z_warehouse', 'z_active', 'z_pos_api', 'z_pickface');
+    $filter = array(
+      'z_code',
+      'z_user_id',
+      'z_customer',
+      'z_warehouse',
+      'z_active',
+      'z_pos_api',
+      'z_pickface',
+      'z_fastmove'
+    );
+
     clear_filter($filter);
   }
 

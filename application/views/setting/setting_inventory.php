@@ -197,6 +197,15 @@
       <div class="divider-hidden"></div>
 
 			<div class="col-sm-3">
+        <span class="form-control left-label">สต็อกขั้นต่ำในโซน Fast move</span>
+      </div>
+      <div class="col-sm-9">
+        <input type="number" class="form-control input-sm input-small text-center" name="MIN_STOCK"  value="<?php echo $MIN_STOCK; ?>" />
+				<span class="help-block">กำหนดจำนวนขั้นต่ำในโซน fast move หากจำนวนคงเหลือในโซนเหลือด่ำกว่าที่กำหนดจะแสดงผลในรายงาน</span>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-3">
         <span class="form-control left-label">นำเข้ารายการโอนสินค้า</span>
       </div>
       <div class="col-sm-9">
