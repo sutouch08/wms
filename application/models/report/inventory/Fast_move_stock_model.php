@@ -52,7 +52,7 @@ class Fast_move_stock_model extends CI_Model
   }
 
 
-  public function get_stock($zone_code, $is_min = 1, $min_stock = 50, $items = array())
+  public function get_stock($zone_code, $is_min = 1, $min_stock = 50, $product_code = NULL)
   {
     $this->ms->select('OIBQ.ItemCode AS product_code, OIBQ.OnHandQty AS qty, OITM.ItemName AS product_name')
     ->from('OIBQ')
@@ -60,9 +60,9 @@ class Fast_move_stock_model extends CI_Model
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->where('OBIN.BinCode', $zone_code);
 
-    if( ! empty($items))
+    if( ! empty($product_code))
     {
-      $this->ms->where_in('OIBQ.ItemCode', $items);
+      $this->ms->like('OIBQ.ItemCode', $product_code);
     }
 
     if(is_true($is_min))

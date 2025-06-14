@@ -40,21 +40,15 @@ class Fast_move_stock extends PS_Controller
       );
 
       $zones = $this->fast_move_stock_model->get_fast_move_zone($ds->zone_code);
-      $items = [];
       $min_stock = intval($ds->min_stock);
       $is_min = $ds->is_min == 0 ? 0 : 1;
       $no = 1;
 
       if( ! empty($zones))
       {
-        if( ! empty($ds->product_code))
-        {
-          $items = $this->fast_move_stock_model->get_item_list($ds->product_code);
-        }
-
         foreach($zones as $zone)
         {
-          $stock = $this->fast_move_stock_model->get_stock($zone->code, $is_min, $min_stock, $items);
+          $stock = $this->fast_move_stock_model->get_stock($zone->code, $is_min, $min_stock, $ds->product_code);
 
           if( ! empty($stock))
           {
