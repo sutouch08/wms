@@ -1,7 +1,7 @@
 var HOME = BASE_URL + 'report/inventory/fast_move_stock/';
 
 function getReport() {
-  $('#is-min').clearError();
+  $('#min-stock').clearError();
 
   let h = {
     'zone_code' : $('#zone-code').val().trim(),
@@ -10,8 +10,8 @@ function getReport() {
     'is_min' : $('#is-min').val()
   }
 
-  if(h.is_min <= 0) {
-    $('#is-min').hasError();
+  if(h.min_stock <= 0) {
+    $('#min-stock').hasError();
     return false;
   }
 
@@ -32,7 +32,7 @@ function getReport() {
 
         if(ds.status == 'success') {
           let source = $('#template').html();
-          let output = $('result');
+          let output = $('#result');
 
           render(source, ds.data, output);
         }
@@ -54,84 +54,65 @@ function getReport() {
 }
 
 
+function doExport() {
+  $('#min-stock').clearError();
 
-function doExport(){
-  var allProduct = $('#allProduct').val();
-  var allWhouse = $('#allWarehouse').val();
-  var currentDate = $('#currentDate').val();
-  var pdFrom = $('#pdFrom').val();
-  var pdTo = $('#pdTo').val();
-  var date = $('#date').val();
-
-  if(allProduct == 0){
-    if(pdFrom.length == 0){
-      $('#pdFrom').addClass('has-error');
-      return false;
-    }else{
-      $('#pdFrom').removeClass('has-error');
-    }
-
-    if(pdTo.length == 0){
-      $('#pdTo').addClass('has-error');
-      return false;
-    }else{
-      $('#pdTo').removeClass('has-error');
-    }
-  }else{
-    $('#pdFrom').removeClass('has-error');
-    $('#pdTo').removeClass('has-error');
+  let h = {
+    'zone_code' : $('#zone-code').val().trim(),
+    'product_code' : $('#pd-code').val().trim(),
+    'min_stock' : $('#min-stock').val().trim(),
+    'is_min' : $('#is-min').val()
   }
 
-
-  if(allWhouse == 0){
-    var count = $('.chk:checked').length;
-    console.log(count);
-    if(count == 0){
-      $('#wh-modal').modal('show');
-      return false;
-    }
+  if(h.min_stock <= 0) {
+    $('#min-stock').hasError();
+    return false;
   }
 
-  if(currentDate == 0){
-    if(date == ''){
-      $('#date').addClass('has-error');
-      return false;
-    }else{
-      $('#date').removeClass('has-error');
-    }
-  }
-  else
-  {
-    $('#date').removeClass('has-error');
-  }
+  let token = generateUID();
 
-  var data = [
-    {'name' : 'allProduct', 'value' : allProduct},
-    {'name' : 'allWhouse' , 'value' : allWhouse},
-    {'name' : 'currentDate' , 'value' : currentDate},
-    {'name' : 'pdFrom', 'value' : pdFrom},
-    {'name' : 'pdTo', 'value' : pdTo},
-    {'name' : 'date', 'value' : date}
-  ];
+  $('#data').val(JSON.stringify(h));
+  $('#token').val(token);
 
-  if(allWhouse == 0){
-    $('.chk').each(function(index, el) {
-      if($(this).is(':checked')){
-        let names = 'warehouse['+$(this).val()+']';
-        data.push({'name' : names, 'value' : $(this).val() });
-      }
-    });
+  $('#export-form').submit();
+  get_download(token);
+}
+
+function printQr() {
+  $('#min-stock').clearError();
+
+  let h = {
+    'zone_code' : $('#zone-code').val().trim(),
+    'product_code' : $('#pd-code').val().trim(),
+    'min_stock' : $('#min-stock').val().trim(),
+    'is_min' : $('#is-min').val()
   }
 
-  $('#reportForm').submit();
-  //
-  // data = $.param(data);
-  //
-  // var token = new Date().getTime();
-  // var target = HOME + 'do_export';
-  // target += '&'+data;
-  // target += '&token='+token;
-  // get_download(token);
-  // window.location.href = target;
+  if(h.min_stock <= 0) {
+    $('#min-stock').hasError();
+    return false;
+  }
 
+  var mapForm = document.createElement('form');
+  mapForm.target = "Map";
+  mapForm.method = "POST";
+  mapForm.action = HOME + "print_qr";
+
+  var mapInput = document.createElement("input");
+  mapInput.type = "hidden";
+  mapInput.name = "data";
+  mapInput.value = JSON.stringify(h);
+
+  mapForm.appendChild(mapInput);
+
+  document.body.appendChild(mapForm);
+
+  map = window.open("", "Map", "status=0,title=0,height=900,width=800,scrollbars=1");
+
+  if(map) {
+    mapForm.submit();
+  }
+  else {
+    swal('You must allow popups for this map to work.');
+  }
 }

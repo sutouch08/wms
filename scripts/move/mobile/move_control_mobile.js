@@ -44,10 +44,17 @@ function setFocus(table) {
       $('#to-barcode-item').focus();
     }
   }
+
+  if(table == 'I') {
+    $('#find-barcode-item').focus();
+  }
 }
 
 
 function showMoveTable(table) {
+  closeHeader();
+  closeExtraMenu();
+
   $('.move-table').addClass('hide');
 
   if(table === 'L') {
@@ -68,23 +75,28 @@ function showMoveTable(table) {
     $('#temp-table').removeClass('hide');
     setFocus('T');
   }
+
+  if(table === 'I') {
+    $('#find-table').removeClass('hide');
+    setFocus('I');
+  }
 }
 
 
 function toggleHeader() {
-  let pad = $('#header-pad');
-  if(pad.hasClass('move-in')) {
-    pad.removeClass('move-in');
+  if($('#header-pad').hasClass('move-in')) {
+    $('#header-pad').removeClass('move-in');
   }
   else {
-    pad.addClass('move-in');
+    $('#header-pad').addClass('move-in');
   }
 }
 
 
 function closeHeader() {
-  $('#header').val('hide');
-  $('#header-pad').removeClass('move-in');
+  if($('#header-pad').hasClass('move-in')) {
+    $('#header-pad').removeClass('move-in');
+  }
 }
 
 
@@ -105,6 +117,15 @@ $('#from-barcode-item').keyup(function(e) {
   if(e.keyCode === 13) {
     if($(this).val() != "") {
       addToTemp();
+    }
+  }
+});
+
+
+$('#find-barcode-item').keyup(function(e) {
+  if(e.keyCode === 13) {
+    if($(this).val() != "") {
+      findItems();
     }
   }
 });
@@ -213,6 +234,61 @@ function getMoveTable() {
       showError(rs);
     }
 	});
+}
+
+
+function findItems() {
+  let barcode = $('#find-barcode-item').val().trim();
+  let warehouse_code = $('#warehouse-code').val();
+
+  $('#find-barcode-item').val('').blur();
+
+  if(barcode.length == 0) {
+    beep();
+    showError('กรุณาสแกนบาร์โค้ด');
+    $('#find-barcode-item').focus();
+    return false;
+  }
+
+  load_in();
+
+  $.ajax({
+    url: HOME + 'get_product_zone',
+    type:'POST',
+    cache:false,
+    data:{
+      'barcode' : barcode,
+      'warehouse_code' : warehouse_code
+    },
+    success:function(rs) {
+      load_out();
+
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        if(ds.status === 'success') {
+          $('#item-sku').text(ds.sku);
+          let source = $('#locationTemplate').html();
+          let output = $('#location-list');
+
+          render(source, ds.data, output);
+
+          $('#find-barcode-item').focus();
+        }
+        else {
+          showError(ds.message);
+        }
+      }
+      else {
+        beep();
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      beep();
+      showError(rs);
+    }
+  })
 }
 
 
@@ -597,6 +673,9 @@ function recalTemp() {
 
 
 function changeZone() {
+  closeHeader();
+  closeExtraMenu();
+
   let table = $('#active-focus').val();
 
   if(table == 'F') {
@@ -616,5 +695,23 @@ function changeZone() {
     $('#to-item-bc').addClass('hide');
     $('#to-zone-bc').removeClass('hide');
     $('#to-barcode-zone').val('').focus();
+  }
+}
+
+
+function toggleExtraMenu() {
+  closeHeader();
+
+  if($('#extra-menu').hasClass('slide-in')) {
+    $('#extra-menu').removeClass('slide-in');
+  }else {
+    $('#extra-menu').addClass('slide-in');
+  }
+}
+
+
+function closeExtraMenu() {
+  if($('#extra-menu').hasClass('slide-in')) {
+    $('#extra-menu').removeClass('slide-in');
   }
 }

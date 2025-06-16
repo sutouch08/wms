@@ -29,7 +29,7 @@ li {
 
 .footer-menu span {
 	display:block;
-	font-size: 12px;
+	font-size: 11px;
 	color:white;
 }
 

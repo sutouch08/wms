@@ -116,7 +116,7 @@ class Stock extends REST_Controller
 
     if( ! empty($data->items))
     {
-      $limit = 100;
+      $limit = 300;
       $count = count($data->items);
 
       if($count > $limit)

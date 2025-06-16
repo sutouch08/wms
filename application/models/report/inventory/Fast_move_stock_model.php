@@ -58,7 +58,8 @@ class Fast_move_stock_model extends CI_Model
     ->from('OIBQ')
     ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
-    ->where('OBIN.BinCode', $zone_code);
+    ->where('OBIN.BinCode', $zone_code)
+    ->where('OIBQ.OnHandQty >', 0);
 
     if( ! empty($product_code))
     {

@@ -62,7 +62,6 @@ class Move extends PS_Controller
   }
 
 
-
   public function view_detail($code)
   {
     $doc = $this->move_model->get($code);
@@ -204,7 +203,6 @@ class Move extends PS_Controller
   }
 
 
-
   public function update($code)
   {
     $arr = array(
@@ -228,8 +226,6 @@ class Move extends PS_Controller
   }
 
 
-
-
   public function check_temp_exists($code)
   {
     $temp = $this->move_model->is_exists_temp($code);
@@ -242,7 +238,6 @@ class Move extends PS_Controller
       echo 'not_exists';
     }
   }
-
 
 
   public function save_move($code)
@@ -384,7 +379,6 @@ class Move extends PS_Controller
 
     echo json_encode($arr);
   }
-
 
 
   function accept_confirm()
@@ -700,7 +694,6 @@ class Move extends PS_Controller
   }
 
 
-
   public function add_to_move()
   {
     $this->load->model('masters/products_model');
@@ -835,7 +828,6 @@ class Move extends PS_Controller
   }
 
 
-
   public function add_to_temp()
   {
     $sc = TRUE;
@@ -897,8 +889,6 @@ class Move extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $message;
   }
-
-
 
 
   public function move_to_zone()
@@ -1060,8 +1050,6 @@ class Move extends PS_Controller
   }
 
 
-
-
   public function is_exists($code, $old_code = NULL)
   {
     $exists = $this->move_model->is_exists($code, $old_code);
@@ -1074,9 +1062,6 @@ class Move extends PS_Controller
       echo 'not_exists';
     }
   }
-
-
-
 
 
   public function is_exists_detail($code)
@@ -1093,7 +1078,6 @@ class Move extends PS_Controller
       echo 'exists';
     }
   }
-
 
 
   public function get_temp_table($code)
@@ -1131,7 +1115,6 @@ class Move extends PS_Controller
 
     echo json_encode($ds);
   }
-
 
 
   public function get_move_table($code)
@@ -1182,7 +1165,6 @@ class Move extends PS_Controller
 
     echo json_encode($ds);
   }
-
 
 
   public function get_move_zone($warehouse = NULL)
@@ -1348,7 +1330,70 @@ class Move extends PS_Controller
   }
 
 
+  public function get_product_zone()
+  {
+    $sc = TRUE;
+    $ds = [];
 
+    $barcode = trim($this->input->post('barcode'));
+    $warehouse_code = trim($this->input->post('warehouse_code'));
+
+    if( ! empty($barcode) && ! empty($warehouse_code))
+    {
+      $this->load->model('masters/products_model');
+      $this->load->model('inventory/buffer_model');
+
+      $pd = $this->products_model->get_product_by_barcode($barcode);
+
+      if( ! empty($pd))
+      {
+        $stock_zone = $this->stock_model->get_stock_in_zone($pd->code, $warehouse_code);
+
+        if( ! empty($stock_zone))
+        {
+          $no = 1;
+
+          foreach($stock_zone as $zone)
+          {
+            $qty = 0;
+
+            if($zone->qty > 0)
+            {
+              $buffer = $this->buffer_model->get_buffer_zone($zone->code, $pd->code);
+              $qty = $zone->qty - $buffer;
+              $qty = $qty < 0 ? 0 : $qty;
+            }
+
+            $ds[] = (object)['no' => $no, 'zone_code' => $zone->code, 'zone_name' => $zone->name, 'product_code' => $pd->code, 'qty' => number($qty)];
+            $no++;
+          }
+        }
+        else
+        {
+          $ds[] = ['nodata' => 'nodata'];
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid barcode";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'sku' => $sc === TRUE ? $pd->code : 'ไม่พบรายการสินค้า',
+      'data' => $ds
+    );
+
+    echo json_encode($arr);
+  }
 
 
   public function get_new_code($date)

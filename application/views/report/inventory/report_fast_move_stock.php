@@ -6,35 +6,39 @@
   <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-sm btn-success top-btn" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
     <button type="button" class="btn btn-sm btn-primary top-btn" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
-    <button type="button" class="btn btn-sm btn-info top-btn" onclick="print()"><i class="fa fa-print"></i> พิมพ์</button>
+    <button type="button" class="btn btn-sm btn-info top-btn" onclick="printQr()"><i class="fa fa-print"></i> พิมพ์</button>
   </div>
 </div><!-- End Row -->
 <hr class="hidden-print"/>
 <div class="row">
 	<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
 		<label>รหัสโซน</label>
-		<input type="text" class="form-control input-sm search" id="zone-code" value="" />
+		<input type="text" class="form-control input-sm" id="zone-code" value="" />
 	</div>
 
 	<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
 		<label>รหัสสินค้า</label>
-		<input type="text" class="form-control input-sm search" id="pd-code" value="" />
+		<input type="text" class="form-control input-sm" id="pd-code" value="" />
 	</div>
 
 	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>Min stock</label>
-		<input type="number" class="width-100 text-center search" id="min-stock" value="<?php echo $min_stock; ?>" />
+		<input type="number" class="width-100 text-center" id="min-stock" value="<?php echo $min_stock; ?>" />
 	</div>
 
 	<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>การแสดงผล</label>
-		<select class="width-100 filter" id="is-min">
+		<select class="width-100" id="is-min">
 			<option value="1">น้อยกว่าขั้นต่ำ</option>
-			<option value="2">มากกว่าขั้นต่ำ</option>
-			<option value="all">ทั้งหมด</option>
+			<option value="0">ทั้งหมด</option>
 		</select>
 	</div>
 </div>
+
+<form class="hide" id="export-form" action="<?php echo $this->home; ?>/export_filter" method="post">
+  <input type="hidden" name="data" id="data" value="" />
+  <input type="hidden" name="token" id="token" value="" />
+</form>
 
 <hr class="margin-top-15">
 <div class="row">
@@ -47,7 +51,6 @@
         <th class="fix-width-150 text-center">รหัสสินค้า</th>
         <th class="min-width-200 text-center">ชื่อสินค้า</th>
         <th class="fix-width-100 text-center">จำนวน</th>
-        <th class="fix-width-100 text-center">สถานะ</th>
       </tr>
       <tbody id="result">
 				<tr>
@@ -57,6 +60,21 @@
     </table>
   </div>
 </div>
+
+<script id="template" type="text/x-handlebarsTemplate">
+  {{#each this}}
+    <tr class="font-size-11 {{color}}">
+      <td class="middle text-center">{{no}}</td>
+      <td class="middle">{{zone_code}}</td>
+      <td class="middle">{{zone_name}}</td>
+      <td class="middle">{{product_code}}</td>
+      <td class="middle">{{product_name}}</td>
+      <td class="middle text-center">{{qty}}</td>
+    </tr>
+  {{/each}}
+</script>
+
+
 <script src="<?php echo base_url(); ?>scripts/report/inventory/fast_move_stock.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

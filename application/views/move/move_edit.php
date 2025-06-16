@@ -32,10 +32,6 @@
 <hr/>
 <?php
 	$this->load->view('move/move_edit_header');
-	// if($doc->status == 0)
-	// {
-	// 	$this->load->view('move/move_control');
-	// }
 
 	if($barcode === TRUE)
 	{

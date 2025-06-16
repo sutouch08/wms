@@ -4,7 +4,7 @@
 			<ul class="nav nav-tabs" id="myTab">
 				<li class="active"><a data-toggle="tab" href="#move-table" onclick="getMoveTable()" aria-expanded="true">รายการโอนย้าย</a></li>
 				<li class=""><a data-toggle="tab" href="#zone-table" onclick="getMoveOut()" aria-expanded="false">ย้ายออก</a></li>
-				<li class=""><a data-toggle="tab" href="#temp-table" onclick="getMoveIn()" aria-expanded="false">TEMP</a></li>
+				<li class=""><a data-toggle="tab" href="#temp-table" onclick="getMoveIn()" aria-expanded="false">TEMP</a></li>				
 			</ul>
 
 			<div class="tab-content" style="padding:0px;">
@@ -55,81 +55,79 @@
 								<td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
 							</tr>
 						<?php	endif; ?>
-					</tbody>
-				</table>
-			</div> <!-- end tab-pane #move-table -->
+						</tbody>
+					</table>
+				</div> <!-- end tab-pane #move-table -->
+				<div id="temp-table" class="tab-pane fade">
+					<div class="divider-hidden"></div>
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div class="col-lg-3 col-md-3 col-sm-3 padding-5">
+							<label>บาร์โค้ดโซนปลายทาง</label>
+							<input type="text" class="form-control input-sm" id="toZone-barcode" placeholder="ยิงบาร์โค้ดโซนปลายทาง" />
+						</div>
+						<div class="col-lg-4 col-md-4 col-sm-4 padding-5">
+							<label class="display-block not-show">zoneName</label>
+							<input type="text" class="form-control input-sm" id="zoneName-label" disabled />
+						</div>
+						<div class="col-lg-1 col-md-1 col-sm-1 padding-5">
+							<label class="display-block not-show">newzone</label>
+							<button type="button" class="btn btn-xs btn-info btn-block" id="btn-new-to-zone" onclick="newToZone()" disabled>โซนใหม่</button>
+						</div>
+						<div class="col-lg-1 col-md-1 col-sm-1 padding-5">
+							<label>จำนวน</label>
+							<input type="number" class="form-control input-sm text-center" id="qty-to" value="1" disabled />
+						</div>
+						<div class="col-lg-3 col-md-3 col-sm-3 col-sm-3 padding-5">
+							<label>บาร์โค้ดสินค้า</label>
+							<input type="text" class="form-control input-sm" id="barcode-item-to" placeholder="ยิงบาร์โค้ดเพื่อย้ายสินค้าออก" disabled />
+						</div>
+					</div>
 
-			<div id="temp-table" class="tab-pane fade">
-				<div class="divider-hidden"></div>
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-					<div class="col-lg-3 col-md-3 col-sm-3 padding-5">
-						<label>บาร์โค้ดโซน</label>
-						<input type="text" class="form-control input-sm" id="toZone-barcode" placeholder="ยิงบาร์โค้ดโซนปลายทาง" />
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-4 padding-5">
-						<label class="display-block not-show">zoneName</label>
-						<input type="text" class="form-control input-sm" id="zoneName-label" disabled />
-					</div>
-					<div class="col-lg-1 col-md-1 col-sm-1 padding-5">
-						<label class="display-block not-show">newzone</label>
-						<button type="button" class="btn btn-xs btn-info btn-block" id="btn-new-to-zone" onclick="newToZone()" disabled>โซนใหม่</button>
-					</div>
-					<div class="col-lg-1 col-md-1 col-sm-1 padding-5">
-						<label>จำนวน</label>
-						<input type="number" class="form-control input-sm text-center" id="qty-to" value="1" disabled />
-					</div>
-					<div class="col-lg-3 col-md-3 col-sm-3 col-sm-3 padding-5">
-						<label>บาร์โค้ดสินค้า</label>
-						<input type="text" class="form-control input-sm" id="barcode-item-to" placeholder="ยิงบาร์โค้ดเพื่อย้ายสินค้าออก" disabled />
-					</div>
-				</div>
-
-				<div class="divider-hidden"></div>
-				<div class="divider-hidden"></div>
-				<table class="table table-striped table-bordered" style="margin-top:15px; margin-bottom:0;">
-					<thead>
-						<tr>
-							<th colspan="6" class="text-center">รายการใน Temp</th>
-						</tr>
-						<tr>
-							<th class="fix-width-40 text-center">ลำดับ</th>
-							<th class="fix-width-150 text-center">บาร์โค้ด</th>
-							<th class="min-width-200 text-center">สินค้า</th>
-							<th class="fix-width-200 text-center">ต้นทาง</th>
-							<th class="fix-width-100 text-center">จำนวน</th>
-							<th class="fix-width-60 text-center"></th>
-						</tr>
-					</thead>
-					<tbody id="temp-list"></tbody>
-				</table>
-			</div><!-- end tab-pane #temp-table -->
-
+					<div class="divider-hidden"></div>
+					<div class="divider-hidden"></div>
+					<table class="table table-striped table-bordered" style="margin-top:15px; margin-bottom:0;">
+						<thead>
+							<tr>
+								<th colspan="6" class="text-center">รายการใน Temp</th>
+							</tr>
+							<tr>
+								<th class="fix-width-40 text-center">ลำดับ</th>
+								<th class="fix-width-150 text-center">บาร์โค้ด</th>
+								<th class="min-width-200 text-center">สินค้า</th>
+								<th class="fix-width-200 text-center">ต้นทาง</th>
+								<th class="fix-width-100 text-center">จำนวน</th>
+								<th class="fix-width-60 text-center"></th>
+							</tr>
+						</thead>
+						<tbody id="temp-list"></tbody>
+					</table>
+				</div><!-- end tab-pane #temp-table -->
 				<div id="zone-table" class="tab-pane fade">
 					<div class="divider-hidden"></div>
 					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
-	          <label>โซนต้นทาง</label>
-	          <input type="text" class="width-100" id="fromZone-barcode" placeholder="ยิงบาร์โค้ดโซน" />
-	        </div>
+						<label>โซนต้นทาง</label>
+						<input type="text" class="width-100" id="fromZone-barcode" placeholder="ยิงบาร์โค้ดโซน" />
+					</div>
 
-	        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
-	          <label class="display-block not-shohw">โซนต้นทาง</label>
-	          <input type="text" class="width-100" id="fromZone-name" disabled />
-	        </div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+						<label class="display-block not-shohw">โซนต้นทาง</label>
+						<input type="text" class="width-100" id="fromZone-name" disabled />
+					</div>
 
-	        <div class="col-sm-1 padding-5">
-	          <label class="display-block not-show">newZone</label>
-	          <button type="button" class="btn btn-xs btn-info btn-block" id="btn-new-zone" onclick="newFromZone()" disabled >โซนใหม่</button>
-	        </div>
+					<div class="col-sm-1 padding-5">
+						<label class="display-block not-show">newZone</label>
+						<button type="button" class="btn btn-xs btn-info btn-block" id="btn-new-zone" onclick="newFromZone()" disabled >โซนใหม่</button>
+					</div>
 
-	        <div class="col-sm-1 padding-5">
-	          <label>จำนวน</label>
-	          <input type="number" class="form-control input-sm text-center" id="qty-from" value="1" disabled />
-	        </div>
+					<div class="col-sm-1 padding-5">
+						<label>จำนวน</label>
+						<input type="number" class="form-control input-sm text-center" id="qty-from" value="1" disabled />
+					</div>
 
-	        <div class="col-sm-3 padding-5">
-	          <label>บาร์โค้ดสินค้า</label>
-	          <input type="text" class="form-control input-sm" id="barcode-item-from" placeholder="ยิงบาร์โค้ดเพื่อย้ายสินค้าออก" disabled />
-	        </div>
+					<div class="col-sm-3 padding-5">
+						<label>บาร์โค้ดสินค้า</label>
+						<input type="text" class="form-control input-sm" id="barcode-item-from" placeholder="ยิงบาร์โค้ดเพื่อย้ายสินค้าออก" disabled />
+					</div>
 					<div class="divider-hidden"></div>
 					<div class="divider-hidden"></div>
 
