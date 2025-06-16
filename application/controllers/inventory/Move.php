@@ -1361,11 +1361,18 @@ class Move extends PS_Controller
             {
               $buffer = $this->buffer_model->get_buffer_zone($zone->code, $pd->code);
               $qty = $zone->qty - $buffer;
-              $qty = $qty < 0 ? 0 : $qty;
-            }
 
-            $ds[] = (object)['no' => $no, 'zone_code' => $zone->code, 'zone_name' => $zone->name, 'product_code' => $pd->code, 'qty' => number($qty)];
-            $no++;
+              if($qty > 0)
+              {
+                $ds[] = (object)['no' => $no, 'zone_code' => $zone->code, 'zone_name' => $zone->name, 'product_code' => $pd->code, 'qty' => number($qty)];
+                $no++;
+              }
+            }
+          }
+
+          if(empty($ds))
+          {
+            $ds[] = ['nodata' => 'nodata'];
           }
         }
         else
