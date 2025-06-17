@@ -43,50 +43,125 @@ class Fast_move_stock extends PS_Controller
 
       if( ! empty($zones))
       {
-        foreach($zones as $zone)
+        $i = 0;
+        $j = 0;
+        $limit = 100;
+        $zone = [];
+        $stocks = [];
+
+        foreach($zones as $zn)
         {
-          $stock = $this->fast_move_stock_model->get_stock($zone->code, $is_min, $min_stock, $ds->product_code);
-
-          if( ! empty($stock))
+          if($i == $limit)
           {
-            foreach($stock as $rs)
+            $i = 0;
+            $j++;
+          }
+
+          $zone[$j][$i] = $zn->code;
+          $i++;
+        }
+
+        if( ! empty($zone))
+        {
+          foreach($zone as $z)
+          {
+            if( ! empty($z))
             {
-              $buffer = $this->buffer_model->get_buffer_zone($zone->code, $rs->product_code);
-              $qty = $rs->qty - $buffer;
-              $qty = $qty < 0 ? 0 : $qty;
-
-              if($is_min == 1)
-              {
-                if($qty < $min_stock)
-                {
-                  $data[] = array(
-                    'no' => $no,
-                    'zone_code' => $zone->code,
-                    'zone_name' => $zone->name,
-                    'product_code' => $rs->product_code,
-                    'product_name' => $rs->product_name,
-                    'qty' => $qty,
-                    'color' => 'red'
-                  );
-                }
-              }
-              else
-              {
-                $data[] = array(
-                  'no' => $no,
-                  'zone_code' => $zone->code,
-                  'zone_name' => $zone->name,
-                  'product_code' => $rs->product_code,
-                  'product_name' => $rs->product_name,
-                  'qty' => $qty,
-                  'color' => $qty <= $min_stock ? 'red' : ''
-                );
-              }
-
-              $no++;
+              $stocks[] = $this->fast_move_stock_model->get_stock_zone($z, $is_min, $min_stock, $ds->product_code);
             }
           }
         }
+
+        if( ! empty($stocks))
+        {
+          foreach($stocks as $stock)
+          {
+            if( ! empty($stock))
+            {
+              foreach($stock as $rs)
+              {
+                $buffer = $this->buffer_model->get_buffer_zone($rs->zone_code, $rs->product_code);
+                $qty = $rs->qty - $buffer;
+                $qty = $qty < 0 ? 0 : $qty;
+
+                if($is_min == 1)
+                {
+                  if($qty < $min_stock)
+                  {
+                    $data[] = array(
+                      'no' => $no,
+                      'zone_code' => $rs->zone_code,
+                      'zone_name' => $rs->zone_name,
+                      'product_code' => $rs->product_code,
+                      'product_name' => $rs->product_name,
+                      'qty' => $qty,
+                      'color' => 'red'
+                    );
+                  }
+                }
+                else
+                {
+                  $data[] = array(
+                    'no' => $no,
+                    'zone_code' => $rs->zone_code,
+                    'zone_name' => $rs->zone_name,
+                    'product_code' => $rs->product_code,
+                    'product_name' => $rs->product_name,
+                    'qty' => $qty,
+                    'color' => $qty <= $min_stock ? 'red' : ''
+                  );
+                }
+
+                $no++;
+              }
+            }
+          }
+        }
+
+        // foreach($zones as $zone)
+        // {
+        //   $stock = $this->fast_move_stock_model->get_stock($zone->code, $is_min, $min_stock, $ds->product_code);
+        //
+        //   if( ! empty($stock))
+        //   {
+        //     foreach($stock as $rs)
+        //     {
+        //       $buffer = $this->buffer_model->get_buffer_zone($zone->code, $rs->product_code);
+        //       $qty = $rs->qty - $buffer;
+        //       $qty = $qty < 0 ? 0 : $qty;
+        //
+        //       if($is_min == 1)
+        //       {
+        //         if($qty < $min_stock)
+        //         {
+        //           $data[] = array(
+        //             'no' => $no,
+        //             'zone_code' => $zone->code,
+        //             'zone_name' => $zone->name,
+        //             'product_code' => $rs->product_code,
+        //             'product_name' => $rs->product_name,
+        //             'qty' => $qty,
+        //             'color' => 'red'
+        //           );
+        //         }
+        //       }
+        //       else
+        //       {
+        //         $data[] = array(
+        //           'no' => $no,
+        //           'zone_code' => $zone->code,
+        //           'zone_name' => $zone->name,
+        //           'product_code' => $rs->product_code,
+        //           'product_name' => $rs->product_name,
+        //           'qty' => $qty,
+        //           'color' => $qty <= $min_stock ? 'red' : ''
+        //         );
+        //       }
+        //
+        //       $no++;
+        //     }
+        //   }
+        // } // end foreach
       }
     }
     else
@@ -148,52 +223,82 @@ class Fast_move_stock extends PS_Controller
 
       if( ! empty($zones))
       {
-        foreach($zones as $zone)
+        $i = 0;
+        $j = 0;
+        $limit = 100;
+        $zone = [];
+        $stocks = [];
+
+        foreach($zones as $zn)
         {
-          $stock = $this->fast_move_stock_model->get_stock($zone->code, $is_min, $min_stock, $ds->product_code);
-
-          if( ! empty($stock))
+          if($i == $limit)
           {
-            foreach($stock as $rs)
+            $i = 0;
+            $j++;
+          }
+
+          $zone[$j][$i] = $zn->code;
+          $i++;
+        }
+
+        if( ! empty($zone))
+        {
+          foreach($zone as $z)
+          {
+            if( ! empty($z))
             {
-              $buffer = $this->buffer_model->get_buffer_zone($zone->code, $rs->product_code);
-              $qty = $rs->qty - $buffer;
-              $qty = $qty < 0 ? 0 : $qty;
-
-              if($is_min == 1)
-              {
-                if($qty < $min_stock)
-                {
-                  $this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
-                  $this->excel->getActiveSheet()->setCellValue("B{$row}", $zone->code);
-                  $this->excel->getActiveSheet()->setCellValue("C{$row}", $zone->name);
-                  $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->product_code);
-                  $this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->product_name);
-                  $this->excel->getActiveSheet()->setCellValue("F{$row}", $qty);
-                  $this->excel->getActiveSheet()->getStyle("A{$row}:F{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
-                }
-              }
-              else
-              {
-                $this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
-                $this->excel->getActiveSheet()->setCellValue("B{$row}", $zone->code);
-                $this->excel->getActiveSheet()->setCellValue("C{$row}", $zone->name);
-                $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->product_code);
-                $this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->product_name);
-                $this->excel->getActiveSheet()->setCellValue("F{$row}", $qty);
-
-                if($qty <= $min_stock)
-                {
-                  $this->excel->getActiveSheet()->getStyle("A{$row}:F{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
-                }
-              }
-
-              $no++;
-              $row++;
+              $stocks[] = $this->fast_move_stock_model->get_stock_zone($z, $is_min, $min_stock, $ds->product_code);
             }
           }
         }
-      }
+
+        if( ! empty($stocks))
+        {
+          foreach($stocks as $stock)
+          {
+            if( ! empty($stock))
+            {
+              foreach($stock as $rs)
+              {
+                $buffer = $this->buffer_model->get_buffer_zone($rs->zone_code, $rs->product_code);
+                $qty = $rs->qty - $buffer;
+                $qty = $qty < 0 ? 0 : $qty;
+
+                if($is_min == 1)
+                {
+                  if($qty < $min_stock)
+                  {
+                    $this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
+                    $this->excel->getActiveSheet()->setCellValue("B{$row}", $rs->zone_code);
+                    $this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->zone_name);
+                    $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->product_code);
+                    $this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->product_name);
+                    $this->excel->getActiveSheet()->setCellValue("F{$row}", $qty);
+                    $this->excel->getActiveSheet()->getStyle("A{$row}:F{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+                  }
+                }
+                else
+                {
+                  $this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
+                  $this->excel->getActiveSheet()->setCellValue("B{$row}", $rs->zone_code);
+                  $this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->zone_name);
+                  $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->product_code);
+                  $this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->product_name);
+                  $this->excel->getActiveSheet()->setCellValue("F{$row}", $qty);
+
+                  if($qty <= $min_stock)
+                  {
+                    $this->excel->getActiveSheet()->getStyle("A{$row}:F{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+                  }
+                }
+
+                $no++;
+                $row++;
+              }
+            }
+          }
+        }
+      } // end foreach
     }
 
     setToken($token);
@@ -223,23 +328,69 @@ class Fast_move_stock extends PS_Controller
 
       if( ! empty($zones))
       {
-        foreach($zones as $zone)
+        $i = 0;
+        $j = 0;
+        $limit = 100;
+        $zone = [];
+        $stocks = [];
+
+        foreach($zones as $zn)
         {
-          $stock = $this->fast_move_stock_model->get_stock($zone->code, $is_min, $min_stock, $ds->product_code);
-
-          if( ! empty($stock))
+          if($i == $limit)
           {
-            $this->load->library('ixqrcode');
+            $i = 0;
+            $j++;
+          }
 
-            foreach($stock as $rs)
+          $zone[$j][$i] = $zn->code;
+          $i++;
+        }
+
+        if( ! empty($zone))
+        {
+          foreach($zone as $z)
+          {
+            if( ! empty($z))
             {
-              $buffer = $this->buffer_model->get_buffer_zone($zone->code, $rs->product_code);
-              $qty = $rs->qty - $buffer;
-              $qty = $qty < 0 ? 0 : $qty;
+              $stocks[] = $this->fast_move_stock_model->get_stock_zone($z, $is_min, $min_stock, $ds->product_code);
+            }
+          }
+        }
 
-              if($is_min == 1)
+        if( ! empty($stocks))
+        {
+          foreach($stocks as $stock)
+          {
+            if( ! empty($stock))
+            {
+              $this->load->library('ixqrcode');
+
+              foreach($stock as $rs)
               {
-                if($qty < $min_stock)
+                $buffer = $this->buffer_model->get_buffer_zone($rs->zone_code, $rs->product_code);
+                $qty = $rs->qty - $buffer;
+                $qty = $qty < 0 ? 0 : $qty;
+
+                if($is_min == 1)
+                {
+                  if($qty < $min_stock)
+                  {
+                    $qr = array(
+                      'data' => $rs->product_code,
+                      'size' => 8,
+                      'level' => 'H',
+                      'savename' => NULL
+                    );
+
+                    ob_start();
+                    $this->ixqrcode->generate($qr);
+                    $qr = base64_encode(ob_get_contents());
+                    ob_end_clean();
+
+                    $data[] = (object)['file' => $qr, 'code' => $rs->product_code, 'zone' => $rs->zone_name];
+                  }
+                }
+                else
                 {
                   $qr = array(
                     'data' => $rs->product_code,
@@ -253,24 +404,8 @@ class Fast_move_stock extends PS_Controller
                   $qr = base64_encode(ob_get_contents());
                   ob_end_clean();
 
-                  $data[] = (object)['file' => $qr, 'code' => $rs->product_code, 'zone' => $zone->name];
+                  $data[] = (object)['file' => $qr, 'code' => $rs->product_code, 'zone' => $rs->zone_name];
                 }
-              }
-              else
-              {
-                $qr = array(
-                  'data' => $rs->product_code,
-                  'size' => 8,
-                  'level' => 'H',
-                  'savename' => NULL
-                );
-
-                ob_start();
-                $this->ixqrcode->generate($qr);
-                $qr = base64_encode(ob_get_contents());
-                ob_end_clean();
-
-                $data[] = (object)['file' => $qr, 'code' => $rs->product_code, 'zone' => $zone->name];
               }
             }
           }
