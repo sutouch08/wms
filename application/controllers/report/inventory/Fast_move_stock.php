@@ -97,6 +97,8 @@ class Fast_move_stock extends PS_Controller
                       'qty' => $qty,
                       'color' => 'red'
                     );
+
+                    $no++;
                   }
                 }
                 else
@@ -110,58 +112,13 @@ class Fast_move_stock extends PS_Controller
                     'qty' => $qty,
                     'color' => $qty <= $min_stock ? 'red' : ''
                   );
-                }
 
-                $no++;
+                  $no++;
+                }
               }
             }
           }
-        }
-
-        // foreach($zones as $zone)
-        // {
-        //   $stock = $this->fast_move_stock_model->get_stock($zone->code, $is_min, $min_stock, $ds->product_code);
-        //
-        //   if( ! empty($stock))
-        //   {
-        //     foreach($stock as $rs)
-        //     {
-        //       $buffer = $this->buffer_model->get_buffer_zone($zone->code, $rs->product_code);
-        //       $qty = $rs->qty - $buffer;
-        //       $qty = $qty < 0 ? 0 : $qty;
-        //
-        //       if($is_min == 1)
-        //       {
-        //         if($qty < $min_stock)
-        //         {
-        //           $data[] = array(
-        //             'no' => $no,
-        //             'zone_code' => $zone->code,
-        //             'zone_name' => $zone->name,
-        //             'product_code' => $rs->product_code,
-        //             'product_name' => $rs->product_name,
-        //             'qty' => $qty,
-        //             'color' => 'red'
-        //           );
-        //         }
-        //       }
-        //       else
-        //       {
-        //         $data[] = array(
-        //           'no' => $no,
-        //           'zone_code' => $zone->code,
-        //           'zone_name' => $zone->name,
-        //           'product_code' => $rs->product_code,
-        //           'product_name' => $rs->product_name,
-        //           'qty' => $qty,
-        //           'color' => $qty <= $min_stock ? 'red' : ''
-        //         );
-        //       }
-        //
-        //       $no++;
-        //     }
-        //   }
-        // } // end foreach
+        }        
       }
     }
     else
@@ -275,6 +232,8 @@ class Fast_move_stock extends PS_Controller
                     $this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->product_name);
                     $this->excel->getActiveSheet()->setCellValue("F{$row}", $qty);
                     $this->excel->getActiveSheet()->getStyle("A{$row}:F{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+                    $no++;
+                    $row++;
                   }
                 }
                 else
@@ -290,10 +249,9 @@ class Fast_move_stock extends PS_Controller
                   {
                     $this->excel->getActiveSheet()->getStyle("A{$row}:F{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
                   }
+                  $no++;
+                  $row++;
                 }
-
-                $no++;
-                $row++;
               }
             }
           }
