@@ -14,7 +14,24 @@ class Fast_move_stock_model extends CI_Model
 
     if( ! empty($zone_code))
     {
-      $this->db->like('code', $zone_code);
+      $option = 'both'; // like option
+      $first = $zone_code[0]; //-- ตัวแรก
+      $last = $zone_code[strlen($zone_code)-1]; // ตัวสุดท้าย
+
+      if($first == '*' OR $last == '*')
+      {
+        if($first == '*' && $last != '*')
+        {
+          $option = 'before';
+        }
+
+        if($first != '*' && $last == '*')
+        {
+          $option = 'after';
+        }
+      }
+
+      $this->db->like('code', trim($zone_code, '*'), $option);
     }
 
     $rs = $this->db->get('zone');
@@ -27,7 +44,7 @@ class Fast_move_stock_model extends CI_Model
     return NULL;
   }
 
-    
+
   public function get_stock_zone(array $zone, $is_min = 1, $min_stock = 50, $product_code = NULL)
   {
     $this->ms

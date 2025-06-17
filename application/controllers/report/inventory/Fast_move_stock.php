@@ -118,7 +118,7 @@ class Fast_move_stock extends PS_Controller
               }
             }
           }
-        }        
+        }
       }
     }
     else
@@ -176,13 +176,13 @@ class Fast_move_stock extends PS_Controller
 
     if( ! empty($ds))
     {
-      $zones = $this->fast_move_stock_model->get_fast_move_zone($ds->zone_code);
+      $zones = $this->fast_move_stock_model->get_fast_move_zone(trim($ds->zone_code));
 
       if( ! empty($zones))
       {
         $i = 0;
         $j = 0;
-        $limit = 100;
+        $limit = 500;
         $zone = [];
         $stocks = [];
 
