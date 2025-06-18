@@ -18,15 +18,19 @@
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
   <div class="row">
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>เลขที่เอกสาร</label>
       <input type="text" class="form-control input-sm text-center search" name="code" value="<?php echo $code; ?>" />
     </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+      <label>เลขที่ออเดอร์</label>
+      <input type="text" class="form-control input-sm text-center search" name="order_code" value="<?php echo $order_code; ?>" />
+    </div>
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>เลขที่บิล</label>
       <input type="text" class="form-control input-sm text-center search" name="invoice" value="<?php echo $invoice; ?>" />
     </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
       <label>ลูกค้า</label>
       <input type="text" class="form-control input-sm text-center search" name="customer_code" value="<?php echo $customer_code; ?>" />
     </div>
@@ -131,7 +135,7 @@
   </div>
   <?php
     $ex = $this->_SuperAdmin && is_true(getConfig('WMS_FAST_EXPORT')) ? TRUE : FALSE;
-    $width = 1320;
+    $width = 1370;
     $width = $ex ? $width + 80 : $width;
 
   ?>

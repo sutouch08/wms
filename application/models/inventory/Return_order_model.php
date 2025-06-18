@@ -67,7 +67,6 @@ class Return_order_model extends CI_Model
   }
 
 
-
   //---- ดึงข้อมูลจากถังกลางมาเช็คสถานะ
   public function get_sap_return_order($code)
   {
@@ -113,7 +112,6 @@ class Return_order_model extends CI_Model
   }
 
 
-
   public function add(array $ds = array())
   {
     if(!empty($ds))
@@ -123,7 +121,6 @@ class Return_order_model extends CI_Model
 
     return FALSE;
   }
-
 
 
   public function update($code, array $ds = array())
@@ -176,7 +173,6 @@ class Return_order_model extends CI_Model
   }
 
 
-
   public function get_non_inv_code($limit = 100)
   {
     $rs = $this->db
@@ -217,7 +213,6 @@ class Return_order_model extends CI_Model
 
     return NULL;
   }
-
 
 
   public function get_details($code)
@@ -301,7 +296,6 @@ class Return_order_model extends CI_Model
 	}
 
 
-
   public function drop_sap_exists_details($code)
   {
     return $this->mc->where('U_ECOMNO', $code)->delete('RDN1');
@@ -317,7 +311,6 @@ class Return_order_model extends CI_Model
 
     return $this->mc->trans_status();
   }
-
 
 
   public function get_invoice_details($invoice)
@@ -374,7 +367,6 @@ class Return_order_model extends CI_Model
   }
 
 
-
   public function get_customer_invoice($invoice)
   {
     $rs = $this->ms->select('CardCode AS customer_code, CardName AS customer_name')->where('DocNum', $invoice)->get('OINV');
@@ -387,20 +379,16 @@ class Return_order_model extends CI_Model
   }
 
 
-
   public function delete_detail($id)
   {
     return $this->db->where('id', $id)->delete('return_order_detail');
   }
 
 
-
-
   public function drop_details($code)
   {
     return $this->db->where('return_code', $code)->delete('return_order_detail');
   }
-
 
 
   public function cancle_details($code)
@@ -423,8 +411,6 @@ class Return_order_model extends CI_Model
   }
 
 
-
-
   public function get_sum_qty($code)
   {
     $rs = $this->db->select_sum('qty', 'qty')
@@ -445,12 +431,10 @@ class Return_order_model extends CI_Model
   }
 
 
-
   public function set_status($code, $status)
   {
     return $this->db->set('status', $status)->where('code', $code)->update('return_order');
   }
-
 
 
   public function approve($code)
@@ -473,6 +457,13 @@ class Return_order_model extends CI_Model
     ->from('return_order AS r')
     ->join('customers AS c', 'r.customer_code = c.code', 'left')
     ->join('zone AS z', 'r.zone_code = z.code', 'left');
+
+    if( ! empty($ds['order_code']))
+    {
+      $this->db
+      ->join('return_order_detail AS d', 'r.code = d.return_code', 'left')
+      ->like('d.order_code', $ds['order_code']);
+    }
 
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))
@@ -580,9 +571,6 @@ class Return_order_model extends CI_Model
   }
 
 
-
-
-
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     $this->db
@@ -591,6 +579,13 @@ class Return_order_model extends CI_Model
     ->join('customers AS c', 'r.customer_code = c.code', 'left')
     ->join('zone AS z', 'r.zone_code = z.code', 'left')
     ->join('user AS u', 'r.user = u.uname', 'left');
+
+    if( ! empty($ds['order_code']))
+    {
+      $this->db
+      ->join('return_order_detail AS d', 'r.code = d.return_code', 'left')
+      ->like('d.order_code', $ds['order_code']);
+    }
 
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))

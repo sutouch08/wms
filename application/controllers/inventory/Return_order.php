@@ -38,6 +38,7 @@ class Return_order extends PS_Controller
     $filter = array(
       'code'    => get_filter('code', 'sm_code', ''),
       'invoice' => get_filter('invoice', 'sm_invoice', ''),
+      'order_code' => get_filter('order_code', 'sm_order_code', ''),
       'customer_code' => get_filter('customer_code', 'sm_customer_code', ''),
       'from_date' => get_filter('from_date', 'sm_from_date', ''),
       'to_date' => get_filter('to_date', 'sm_to_date', ''),
@@ -1963,6 +1964,7 @@ class Return_order extends PS_Controller
   {
     $filter = array(
       'sm_code',
+      'sm_order_code',
       'sm_invoice',
       'sm_customer_code',
       'sm_from_date',
