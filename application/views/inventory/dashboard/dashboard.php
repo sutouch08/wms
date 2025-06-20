@@ -199,7 +199,7 @@
         </div>
       </div>
     </div>
-		<input type="hidden" id="refresh-time-ms" value="5000" />
+		<input type="hidden" id="refresh-time-ms" value="60000" />
     <script src="<?php echo base_url(); ?>assets/js/ace/ace.sidebar.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/ace/ace.sidebar-scroll-1.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/ace/ace.submenu-hover.js"></script>
@@ -215,7 +215,7 @@
 				getData();
 				var sync = setInterval(function() {
 					getData();
-				}, 5000);
+				}, delay);
 			});
 
 			function getData() {
