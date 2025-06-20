@@ -1,12 +1,9 @@
 <?php
 class Tools extends CI_Controller
 {
-  public $ms;
-
   public function __construct()
   {
     parent::__construct();
-    $this->ms = $this->load->database('ms', TRUE);
   }
 
   public function set_rows()
@@ -26,12 +23,7 @@ class Tools extends CI_Controller
 
     echo 'done';
   }
-
-
-  public function get_change_pwd($uname)
-  {
-
-  }
+  
 }
 
  ?>

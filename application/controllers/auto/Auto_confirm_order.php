@@ -103,7 +103,12 @@ class Auto_confirm_order extends CI_Controller
 
           if( ! empty($ship_date[$rs->dispatch_id]))
           {
-            $this->orders_model->update($rs->code, ['shipped_date' => $ship_date[$rs->dispatch_id]]);
+            $arr = array(
+              'shipped_date' => $ship_date[$rs->dispatch_id],
+              'real_shipped_date' => $ship_date[$rs->dispatch_id]
+            );
+
+            $this->orders_model->update($rs->code, $arr);
           }
         }
 
@@ -288,7 +293,20 @@ class Auto_confirm_order extends CI_Controller
 
           if(empty($order->shipped_date))
           {
-            $this->orders_model->update($code, array('shipped_date' => now())); //--- update shipped date
+            $arr = array(
+              'shipped_date' => now(),
+              'real_shipped_date' => now()
+            );
+
+            $this->orders_model->update($code, $arr); //--- update shipped date
+          }
+          else
+          {
+            $arr = array(
+              'real_shipped_date' => now()
+            );
+
+            $this->orders_model->update($code, $arr);
           }
 
           //--- add state event
