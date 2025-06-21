@@ -35,7 +35,7 @@ class Stock extends REST_Controller
   }
 
 
-	public function index_get($code = NULL)
+  public function index_get($code = NULL)
   {
     if( ! empty($code))
     {
@@ -53,28 +53,28 @@ class Stock extends REST_Controller
       }
 
       $rate = $item->api_rate <= 0 ? 1 : ($item->api_rate > 100 ? 1 : round($item->api_rate * 0.01, 2));
-			$sell_stock = floatval($this->stock_model->get_sell_stock($code, $this->whsCode));
-			$ordered = round(floatval($this->orders_model->get_reserv_stock($code, $this->whsCode)), 2);
+      $sell_stock = floatval($this->stock_model->get_sell_stock($code, $this->whsCode));
+      $ordered = round(floatval($this->orders_model->get_reserv_stock($code, $this->whsCode)), 2);
       $reserv_stock = round(floatval($this->reserv_stock_model->get_reserv_stock($code, $this->whsCode)), 2);
-			$availableStock = $sell_stock - $ordered - $reserv_stock;
-			$stock = $availableStock < 0 ? 0 : $availableStock;
+      $availableStock = $sell_stock - $ordered - $reserv_stock;
+      $stock = $availableStock < 0 ? 0 : $availableStock;
 
-			$ds = array(
-				'status' => 'success',
+      $ds = array(
+        'status' => 'success',
         'warehouse' => $this->whsCode,
-				'data' => array(
-					'item_code' => $code,
+        'data' => array(
+          'item_code' => $code,
           'is_api' => $item->is_api == 1 ? 'Y' : 'N',
           'api_rate' => $rate,
           'on_hand' => $sell_stock,
           'ordered' => $ordered,
           'reserved' => $reserv_stock,
-					'available' => $stock,
+          'available' => $stock,
           'qty' => intval(floor($stock * $rate))
-				)
-			);
+        )
+      );
 
-			$this->response($ds, 200);
+      $this->response($ds, 200);
     }
     else
     {
@@ -131,22 +131,37 @@ class Stock extends REST_Controller
       else
       {
         $warehouse_code = (isset($data->warehouse) && ! empty($data->warehouse)) ? $data->warehouse : $this->whsCode;
-        $stocks = array();
-        $res = [];
-        $items = 0;
+
+        $items = [];
+        $stocks = [];
+        $orders = [];
+        $items_in = [];
 
         foreach($data->items as $item)
         {
-          $code = trim($item->item_code);
+          $items_in[] = $item->item_code;
+        }
 
-          $pd = $this->products_model->get($code);
+        if( ! empty($items_in))
+        {
+          $items = $this->products_model->get_products_in($items_in);
+          $stocks = $this->stock_model->get_sell_items_stock($items_in, $warehouse_code);
+          $orders = $this->orders_model->get_items_reserv_stock($items_in, $warehouse_code);
+          $reservs = $this->reserv_stock_model->get_items_reserv_stock($items_in, $warehouse_code);
+        }
 
-          if( ! empty($pd))
+        $res = [];
+        $results = 0;
+
+        foreach($items_in as $code)
+        {
+          if( ! empty($items[$code]))
           {
+            $pd = $items[$code];
             $rate = $pd->api_rate <= 0 ? 1 : ($pd->api_rate > 100 ? 1 : round($pd->api_rate * 0.01, 2));
-      			$sell_stock = floatval($this->stock_model->get_sell_stock($code, $warehouse_code));
-      			$ordered = round(floatval($this->orders_model->get_reserv_stock($code, $warehouse_code)), 2);
-            $reserv_stock = round(floatval($this->reserv_stock_model->get_reserv_stock($code, $warehouse_code)), 2);
+      			$sell_stock = isset($stocks[$code]) ? intval($stocks[$code]) : 0;
+      			$ordered = isset($orders[$code]) ? intval($orders[$code]) : 0;
+            $reserv_stock = isset($reservs[$code]) ? intval($reservs[$code]) : 0;
       			$availableStock = $sell_stock - $ordered - $reserv_stock;
       			$stock = $availableStock < 0 ? 0 : $availableStock;
 
@@ -179,13 +194,13 @@ class Stock extends REST_Controller
             );
           }
 
-          $items++;
+          $results++;
         }
 
         $ds = array(
           'status' => 'success',
           'request_items' => $count,
-          'result_items' => $items,
+          'result_items' => $results,
           'warehouse' => $warehouse_code,
           'data' => $res
         );

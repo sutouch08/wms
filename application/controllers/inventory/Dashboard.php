@@ -6,19 +6,31 @@ class Dashboard extends CI_Controller
   public $ms;
   public $title = "Dashboard";
   public $home;
+  public $pm;
 
   public function __construct()
   {
     parent::__construct();
     $this->home = base_url()."inventory/dashboard";
     $this->load->model('inventory/dashboard_model');
-    // $this->ms = $this->load->database('ms', TRUE);
+    $this->load->library('user_agent');
+
+    $this->is_mobile = $this->agent->is_mobile();
+    $this->pm = (object) array('can_view' => 1);
   }
 
 
   public function index()
   {
-    $this->load->view('inventory/dashboard/dashboard');
+    if($this->is_mobile)
+    {
+      $ds['title'] = "Inventory Orders";
+      $this->load->view('inventory/dashboard/mobile/dashboard_mobile', $ds);
+    }
+    else
+    {
+      $this->load->view('inventory/dashboard/dashboard');
+    }
   }
 
 

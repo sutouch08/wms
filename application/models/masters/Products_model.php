@@ -402,7 +402,6 @@ class Products_model extends CI_Model
   }
 
 
-
   public function get_products_list(array $ds = array())
   {
     $this->db
@@ -542,6 +541,28 @@ class Products_model extends CI_Model
   }
 
 
+
+  public function get_products_in(array $items = array())
+  {
+    $rs = $this->db
+    ->select('code, name, count_stock, active, is_api, api_rate')
+    ->where_in('code', $items)
+    ->get('products');
+
+    if($rs->num_rows() >  0)
+    {
+      $itemList = [];
+
+      foreach($rs->result() as $ro)
+      {
+        $itemList[$ro->code] = $ro;
+      }
+
+      return $itemList;
+    }
+
+    return NULL;
+  }
 
 
   public function add(array $ds = array())

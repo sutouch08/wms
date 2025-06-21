@@ -26,73 +26,7 @@
 		<script src="<?php echo base_url(); ?>assets/js/select2.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
 	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
-    <style>
-    .head-line {
-      font-size:1.5vw;
-      text-align: center;
-      font-weight: bolder;
-			vertical-align:middle !important;
-      /* writing-mode: vertical-lr; */
-    }
-
-    .h-box {
-      width: 16.5%;
-      text-align: center;
-      color: #333333;
-      font-size: 2vw;
-			vertical-align:middle !important;
-    }
-
-    .v-box {
-			position: relative;
-			min-height: 200px !important;
-      text-align: center;
-      color: #333333;
-      font-size: 2vw;
-      vertical-align:middle !important;
-    }
-
-		.pre-load {
-			margin:0;
-			position: absolute;
-			top: 50%;
-			right: 0;
-			-ms-transform: translate(-50%, -50%);
-  		transform: translate(-50%, -50%);
-		}
-
-		.load-out {
-			transition: opacity 0.5s ease-in-out;
-			opacity: 0;
-		}
-
-		.load-in {
-			transition: opacity 0.5s ease-in-out;
-			opacity: 0.6;
-		}
-
-    .h-box.i-3 { background-color: #a59df3;}
-    .h-box.i-4 { background-color: #FBB57F;}
-    .h-box.i-5 { background-color: #d990ef;}
-    .h-box.i-6 { background-color: #13b161;}
-    .h-box.i-7 { background-color: #e7a9cd;}
-    .h-box.i-8 { background-color: #92cd88;}
-
-    .v-box.i-3 { background-color: #d3cffb;}
-    .v-box.i-4 { background-color: #ffd3b1;}
-    .v-box.i-5 { background-color: #e7bdf3;}
-    .v-box.i-6 { background-color: #89e1b5;}
-    .v-box.i-7 { background-color: #e9c9dc;}
-    .v-box.i-8 { background-color: #cfedca;}
-
-    .v-box.i-32 { background-color: #ADA9D4;}
-    .v-box.i-42 { background-color: #efba92;}
-    .v-box.i-52 { background-color: #e1adef;}
-    .v-box.i-62 { background-color: #6ed9a3;}
-    .v-box.i-72 { background-color: #e3b4d0;}
-    .v-box.i-82 { background-color: #bce1b6;}
-		.total { background-color: #3f3e43; color: white;}
-    </style>
+		<?php $this->load->view('inventory/dashboard/style'); ?>
 	</head>
   <body>
     <div id="loader">
@@ -106,10 +40,16 @@
         <div class="main-content-inner">
           <div class="page-content">
             <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center">
-                <h1>Dashboard</h1>
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
+                <h3 class="title">
+									Dashboard
+								</h3>
+								<div class="toggle-header">
+									<a class="toggle-header-icon" onclick="showSetting()"><i class="fa fa-bars fa-2x"></i></a>
+								</div>
               </div>
             </div>
+						<?php $this->load->view('inventory/dashboard/setting_panel'); ?>
             <hr>
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -274,6 +214,14 @@
 				total = total > 0 ? addCommas(total) : '-';
 
 				$('#total-'+state).text(total);
+			}
+
+			function showSetting() {
+				$('#setting-panel').addClass('move-in');
+			}
+
+			function closeSetting() {
+				$('#setting-panel').removeClass('move-in');
 			}
     </script>
   </body>
