@@ -32,7 +32,7 @@ class Dashboard_model extends CI_Model
     }
     else if($state == 7)
     {
-      $this->db->where('o.dispatch_id IS NULL', NULL, FALSE);
+      $this->db->where('o.state', 7)->where('o.dispatch_id IS NULL', NULL, FALSE);
     }
     else
     {
