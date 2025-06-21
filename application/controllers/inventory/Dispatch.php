@@ -450,7 +450,7 @@ class Dispatch extends PS_Controller
               }
             }
           }
-        
+
 
           if($sc === TRUE)
           {
@@ -482,7 +482,8 @@ class Dispatch extends PS_Controller
               {
                 $arr = array(
                   'dispatch_id' => $id,
-                  'shipped_date' => empty($order->shipped_date) ? now() : $order->shipped_date
+                  'shipped_date' => empty($order->shipped_date) ? now() : $order->shipped_date,
+                  'real_shipped_date' => now()
                 );
 
                 $this->orders_model->update($order->code, $arr);

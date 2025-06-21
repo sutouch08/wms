@@ -22,11 +22,22 @@ class Dashboard_model extends CI_Model
       $to_date = date('Y-m-d 23:59:59');
 
       $this->db
+      ->group_start()
+      ->where('o.state', 8)
+      ->or_where('o.state', 7)
+      ->where('o.dispatch_id >', 0)
+      ->group_end()
       ->where('o.real_shipped_date >=', $from_date)
       ->where('o.real_shipped_date <=', $to_date);
     }
-
-    $this->db->where('o.state', $state);
+    else if($state == 7)
+    {
+      $this->db->where('o.dispatch_id IS NULL', NULL, FALSE);
+    }
+    else
+    {
+      $this->db->where('o.state', $state);
+    }
 
     if($channels == 'offline')
     {
