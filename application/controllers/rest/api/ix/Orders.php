@@ -462,7 +462,7 @@ class Orders extends REST_Controller
 
         //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
         //--- ไม่ให้เพิ่มออเดอร์
-        if($overDue)
+        if($overDue && $is_term)
         {
           $sc = FALSE;
           $this->error = 'There is an outstanding balance that is past due. Sales are not permitted.';
@@ -591,6 +591,7 @@ class Orders extends REST_Controller
       $tracking = get_null($data->tracking_no);
 
       $total_amount = 0;
+      $total_sku = [];
       $is_hold = empty($data->on_hold) ? 0 : ($data->on_hold == 'Y' ? 1 : 0);
       $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
       $is_backorder = FALSE;
@@ -808,6 +809,11 @@ class Orders extends REST_Controller
                 {
                   $total_amount += round($rs->amount, 2);
 
+                  if( ! isset($total_sku[$item->code]))
+                  {
+                    $total_sku[$item->code] = 1;
+                  }
+
                   if($item->count_stock && ! $is_pre_order && ($this->sync_api_stock OR $this->checkBackorder))
                   {
                     $available = $this->get_available_stock($item->code, $warehouse_code);
@@ -841,6 +847,7 @@ class Orders extends REST_Controller
           {
             $arr = array(
               'doc_total' => $total_amount,
+              'total_sku' => count($total_sku),
               'is_backorder' => $is_backorder == TRUE ? 1 : 0,
               'is_hold' => $is_hold
             );

@@ -15,7 +15,7 @@ class Auto_clear_api_logs extends CI_Controller
 
   public function index()
   {
-		$days = 7;
+		$days = 60;
     $date = date('Y-m-d 00:00:00', strtotime("-{$days} days"));
 
     //--- clear WRX logs

@@ -519,9 +519,9 @@ class Orders extends PS_Controller
 
         if($sc === TRUE)
         {
-          $doc_total = $this->orders_model->get_order_total_amount($order_code);
           $arr = array(
-            'doc_total' => $doc_total,
+            'doc_total' => $this->orders_model->get_order_total_amount($order_code),
+            'total_sku' => $this->orders_model->count_order_sku($order_code),
             'status' => 0
           );
 
@@ -654,8 +654,16 @@ class Orders extends PS_Controller
                     }
                   }
                 }
-
               }	//--- end if isExistsDetail
+
+              if($sc === TRUE)
+              {
+                $arr = array(
+                  'total_sku' => $this->orders_model->count_order_sku($order_code)
+                );
+
+                $this->orders_model->update($order_code, $arr);
+              }
             }
             else 	// if getStock
             {
@@ -775,9 +783,9 @@ class Orders extends PS_Controller
 
             if($sc === TRUE)
             {
-              $doc_total = $this->orders_model->get_order_total_amount($code);
               $arr = array(
-                'doc_total' => $doc_total,
+                'doc_total' => $this->orders_model->get_order_total_amount($code),
+                'total_sku' => $this->orders_model->count_order_sku($code),
                 'status' => 0
               );
 
@@ -909,9 +917,9 @@ class Orders extends PS_Controller
 
           if( $sc === TRUE)
           {
-            $doc_total = $this->orders_model->get_order_total_amount($order_code);
             $arr = array(
-            'doc_total' => $doc_total,
+            'doc_total' => $this->orders_model->get_order_total_amount($order_code),
+            'total_sku' => $this->orders_model->count_order_sku($order_code),
             'status' => 0
             );
 
@@ -970,8 +978,10 @@ class Orders extends PS_Controller
 
             if($sc === TRUE)
             {
-              $doc_total = $this->orders_model->get_order_total_amount($detail->order_code);
-              $arr = array('doc_total' => $doc_total);
+              $arr = array(
+                'doc_total' => $this->orders_model->get_order_total_amount($detail->order_code),
+                'total_sku' => $this->orders_model->count_order_sku($detail->order_code)
+              );
 
               if( ! $this->orders_model->update($detail->order_code, $arr))
               {
@@ -1205,9 +1215,9 @@ class Orders extends PS_Controller
                   }
                 }
 
-                $doc_total = $this->orders_model->get_order_total_amount($code);
                 $arr = array(
-                  'doc_total' => $doc_total,
+                  'doc_total' => $this->orders_model->get_order_total_amount($code),
+                  'total_sku' => $this->orders_model->count_order_sku($code),
                   'status' => 0
                 );
 
@@ -1268,7 +1278,6 @@ class Orders extends PS_Controller
       $err = "สถานะเอกสารไม่ถูกต้อง";
       $this->page_error($err);
     }
-
   }
 
 
@@ -1408,7 +1417,6 @@ class Orders extends PS_Controller
     if(is_true(getConfig('IX_BACK_ORDER')) && $order->state <= 4 && $order->is_pre_order == 0)
     {
       $is_backorder = 0;
-      $total_amount = 0;
 
       $this->orders_model->drop_backlogs_list($order->code);
 
@@ -1443,18 +1451,17 @@ class Orders extends PS_Controller
               $this->orders_model->add_backlogs_detail($backlogs);
             }
           }
-
-          $total_amount += $rs->total_amount;
         }
       }
 
-      $arr['doc_total'] = $total_amount;
       $arr['is_backorder'] = $is_backorder;
     }
 
     if($sc === TRUE)
     {
       $arr['status'] = 1;
+      $arr['doc_total'] = $this->orders_model->get_order_total_amount($code);
+      $arr['total_sku'] = $this->orders_model->count_order_sku($code);
 
       if( ! $this->orders_model->update($code, $arr))
       {
@@ -3977,9 +3984,9 @@ class Orders extends PS_Controller
       			} //--- End if value
       		}	//--- end foreach
 
-          $doc_total = $this->orders_model->get_order_total_amount($code);
           $arr = array(
-            'doc_total' => $doc_total,
+            'doc_total' => $this->orders_model->get_order_total_amount($code),
+            'total_sku' => $this->orders_model->count_order_sku($code),
             'status' => 0
           );
 
@@ -4342,8 +4349,13 @@ class Orders extends PS_Controller
           }	//--- end if detail
         } //--- End if value
 
-        $total_amount = $this->orders_model->get_order_total_amount($code);
-        $this->orders_model->update($code, ['doc_total' => $total_amount, 'status' => 0]);
+        $arr = array(
+          'doc_total' => $this->orders_model->get_order_total_amount($code),
+          'total_sku' => $this->orders_model->count_order_sku($code),
+          'status' => 0
+        );
+
+        $this->orders_model->update($code, $arr);
 
       echo 'success';
     }
@@ -4399,8 +4411,13 @@ class Orders extends PS_Controller
           }
           else
           {
-            $total_amount = $this->orders_model->get_order_total_amount($code);
-            $this->orders_model->update($code, ['doc_total' => $total_amount, 'status' => 0]);
+            $arr = array(
+              'doc_total' => $this->orders_model->get_order_total_amount($code),
+              'total_sku' => $this->orders_model->count_order_sku($code),
+              'status' => 0
+            );
+
+            $this->orders_model->update($code, $arr);
           }
   			}
         else
@@ -4485,8 +4502,13 @@ class Orders extends PS_Controller
   		} //--- End if value
   	}	//--- end foreach
 
-    $total_amount = $this->orders_model->get_order_total_amount($code);
-    $this->orders_model->update($code, ['doc_total' => $total_amount, 'status' => 0]);
+    $arr = array(
+      'doc_total' => $this->orders_model->get_order_total_amount($code),
+      'total_sku' => $this->orders_model->count_order_sku($code),
+      'status' => 0
+    );
+
+    $this->orders_model->update($code, $arr);
 
   	echo 'success';
   }

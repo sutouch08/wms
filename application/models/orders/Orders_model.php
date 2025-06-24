@@ -1413,6 +1413,14 @@ class Orders_model extends CI_Model
   }
 
 
+  public function count_order_sku($code)
+  {
+    $count = $this->db->where('order_code', $code)->where('is_count', 1)->count_all_results('order_details');
+
+    return $count;
+  }
+
+
   //--- ใช้คำนวนยอดเครดิตคงเหลือ
   public function get_sum_not_complete_amount($customer_code)
   {

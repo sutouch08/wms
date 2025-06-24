@@ -564,9 +564,20 @@ class Pick_list_model extends CI_Model
   public function get_order_list(array $ds = array())
   {
     $this->db
-    ->select('o.id, o.code, o.customer_code, o.customer_name, o.channels_code, o.pick_list_id, o.date_add, c.name AS channels_name')
     ->from('orders AS o')
-    ->join('channels AS c', 'o.channels_code = c.code', 'left')
+    ->select('o.id, o.code, o.customer_code, o.customer_name, o.channels_code')
+    ->select('o.pick_list_id, o.date_add, c.name AS channels_name')
+    ->join('channels AS c', 'o.channels_code = c.code', 'left');
+
+
+    if(isset($ds['is_1_sku']) && $ds['is_1_sku'] == '1')
+    {
+      $this->db->select('d.product_code');
+      $this->db->join('order_details AS d', 'd.order_code = o.code', 'left');
+      $this->db->where('o.total_sku', 1);
+    }
+
+    $this->db
     ->where('o.state', 3)
     ->where('o.is_cancled', 0)
     ->where('o.warehouse_code', $ds['warehouse_code']);
@@ -612,7 +623,7 @@ class Pick_list_model extends CI_Model
       ->group_end();
     }
 
-    $rs = $this->db->order_by('o.id', 'ASC')->limit(20)->get();
+    $rs = $this->db->order_by('o.id', 'ASC')->limit($ds['limit'])->get();
 
     if($rs->num_rows() > 0)
     {

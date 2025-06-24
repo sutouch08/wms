@@ -404,6 +404,7 @@ class Sponsor extends PS_Controller
   public function save($code)
   {
     $sc = TRUE;
+    $ds = [];
     $order = $this->orders_model->get($code);
 
     //---- check credit balance
@@ -418,7 +419,7 @@ class Sponsor extends PS_Controller
     {
       $diff = $credit_used - $credit_balance;
       $sc = FALSE;
-      $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+      $this->error = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
     }
 
 		if(empty($order->id_address))
@@ -437,11 +438,7 @@ class Sponsor extends PS_Controller
 
 			if(!empty($id_address))
 			{
-				$arr = array(
-					'id_address' => $id_address
-				);
-
-				$this->orders_model->update($order->code, $arr);
+        $ds['id_address'] = $id_address;
 			}
 		}
 
@@ -463,25 +460,24 @@ class Sponsor extends PS_Controller
 
 			if(!empty($id_sender))
 			{
-				$arr = array(
-					'id_sender' => $id_sender
-				);
-
-				$this->orders_model->update($order->code, $arr);
+        $ds['id_sender'] = $id_sender;
 			}
 		}
 
     if($sc === TRUE)
     {
-      $rs = $this->orders_model->set_status($code, 1);
-      if($rs === FALSE)
+      $ds['status'] = 1;
+      $ds['doc_total'] = $this->orders_model->get_order_total_amount($code);
+      $ds['total_sku'] = $this->orders_model->count_order_sku($code);
+
+      if( ! $this->orders_model->update($code, $ds))
       {
         $sc = FALSE;
-        $message = 'บันทึกออเดอร์ไม่สำเร็จ';
+        $this->error = "บันทึกออเดอร์ไม่สำเร็จ";
       }
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    $this->_response($sc);
   }
 
 

@@ -457,6 +457,7 @@ class Consign_tr extends PS_Controller
   public function save($code)
   {
     $sc = TRUE;
+    $arr = [];
     $order = $this->orders_model->get($code);
     //--- ถ้าออเดอร์เป็นแบบเครดิต
     if($order->is_term == 1)
@@ -472,7 +473,7 @@ class Consign_tr extends PS_Controller
       {
         $diff = $credit_used - $credit_balance;
         $sc = FALSE;
-        $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+        $this->error = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
       }
     }
 
@@ -490,13 +491,9 @@ class Consign_tr extends PS_Controller
 				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
 			}
 
-			if(!empty($id_address))
+			if( ! empty($id_address))
 			{
-				$arr = array(
-					'id_address' => $id_address
-				);
-
-				$this->orders_model->update($order->code, $arr);
+				$arr['id_address'] = $id_address;
 			}
 		}
 
@@ -516,27 +513,26 @@ class Consign_tr extends PS_Controller
 				}
 			}
 
-			if(!empty($id_sender))
+			if( ! empty($id_sender))
 			{
-				$arr = array(
-					'id_sender' => $id_sender
-				);
-
-				$this->orders_model->update($order->code, $arr);
+        $arr['id_sender'] = $id_sender;
 			}
 		}
 
     if($sc === TRUE)
     {
-      $rs = $this->orders_model->set_status($code, 1);
-      if($rs === FALSE)
+      $arr['status'] = 1;
+      $arr['doc_total'] = $this->orders_model->get_order_total_amount($code);
+      $arr['total_sku'] = $this->orders_model->count_order_sku($code);
+
+      if( ! $this->orders_model->update($code, $arr))
       {
         $sc = FALSE;
-        $message = 'บันทึกออเดอร์ไม่สำเร็จ';
+        $this->error = "บันทึกออเดอร์ไม่สำเร็จ";
       }
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    $this->_response($sc);
   }
 
 
@@ -774,6 +770,7 @@ class Consign_tr extends PS_Controller
               {
                 $arr = array(
                   'doc_total' => $this->orders_model->get_order_total_amount($doc->code),
+                  'total_sku' => $this->orders_model->count_order_sku($doc->code),
                   'is_import' => 1
                 );
 

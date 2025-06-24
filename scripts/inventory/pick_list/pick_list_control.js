@@ -52,7 +52,9 @@ function getOrderList() {
     'customer' : $('#customer').val().trim(),
     'order_code' : $('#order-code').val().trim(),
     'is_pick_list' : $('#is-pick-list').val(),
-    'warehouse_code' : $('#warehouse').val()
+    'warehouse_code' : $('#warehouse').val(),
+    'is_1_sku' : $('#1sku').is(':checked') ? 1 : 0,
+    'limit' : $('#limit').val()
   }
 
   load_in();

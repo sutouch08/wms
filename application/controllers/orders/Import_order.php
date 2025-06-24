@@ -116,6 +116,7 @@ class Import_order extends CI_Controller
               $is_backorder = 0;
               $backorderList = [];
               $total_amount = 0;
+              $total_qty = 0;
 
               if( empty($order_code) )
               {
@@ -205,6 +206,7 @@ class Import_order extends CI_Controller
                       else
                       {
                         $total_amount += $row->total_amount;
+                        $total_qty += $row->qty;
 
                         if($ix_backorder && $row->is_count)
                         {
@@ -259,6 +261,7 @@ class Import_order extends CI_Controller
                       else
                       {
                         $total_amount += $order->shipping_fee;
+                        $total_qty += 1;
                       }
                     } //--- end if($order->shipping_fee)
                   } //--- end if ! empty($order->items)
@@ -269,6 +272,7 @@ class Import_order extends CI_Controller
                 {
                   $arr = array(
                     'doc_total' => $total_amount,
+                    'total_sku' => $this->orders_model->count_order_sku($order_code),
                     'is_backorder' => $is_backorder
                   );
 
@@ -419,6 +423,7 @@ class Import_order extends CI_Controller
                             else
                             {
                               $total_amount += $row->total_amount;
+                              $total_qty += $row->qty;
 
                               if($ix_backorder && $row->is_count)
                               {
@@ -473,6 +478,7 @@ class Import_order extends CI_Controller
                             else
                             {
                               $total_amount += $order->shipping_fee;
+                              $total_qty += 1;
                             }
                           } //--- end if($order->shipping_fee)
                         } //--- end if ! empty($order->items)
@@ -484,6 +490,7 @@ class Import_order extends CI_Controller
                     {
                       $arr = array(
                         'doc_total' => $total_amount,
+                        'total_sku' => $this->orders_model->count_order_sku($order_code),
                         'is_backorder' => $is_backorder
                       );
 

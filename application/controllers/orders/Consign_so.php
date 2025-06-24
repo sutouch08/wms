@@ -111,7 +111,7 @@ class Consign_so extends PS_Controller
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 		$orders   = $this->orders_model->get_list($filter, $perpage, $this->uri->segment($segment), 'C');
     $ds       = array();
-    if(!empty($orders))
+    if( ! empty($orders))
     {
       foreach($orders as $rs)
       {
@@ -142,7 +142,7 @@ class Consign_so extends PS_Controller
     $result_rows = empty($list) ? 0 :count($list);
 
     $ds = array();
-    if(!empty($list))
+    if( ! empty($list))
     {
       foreach($list as $rs)
       {
@@ -296,7 +296,7 @@ class Consign_so extends PS_Controller
 
     $rs = $this->orders_model->get($code);
 
-    if(!empty($rs))
+    if( ! empty($rs))
     {
       $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
       $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
@@ -307,7 +307,7 @@ class Consign_so extends PS_Controller
 
     $state = $this->order_state_model->get_order_state($code);
     $ost = array();
-    if(!empty($state))
+    if( ! empty($state))
     {
       foreach($state as $st)
       {
@@ -449,6 +449,7 @@ class Consign_so extends PS_Controller
   public function save($code)
   {
     $sc = TRUE;
+    $arr = [];
     $order = $this->orders_model->get($code);
     //--- ถ้าออเดอร์เป็นแบบเครดิต
     if($order->is_term == 1)
@@ -464,7 +465,7 @@ class Consign_so extends PS_Controller
       {
         $diff = $credit_used - $credit_balance;
         $sc = FALSE;
-        $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+        $this->error = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
       }
     }
 
@@ -473,7 +474,7 @@ class Consign_so extends PS_Controller
 			$this->load->model('address/address_model');
 			$id_address = NULL;
 
-			if(!empty($order->customer_ref))
+			if( ! empty($order->customer_ref))
 			{
 				$id_address = $this->address_model->get_shipping_address_id_by_code($order->customer_ref);
 			}
@@ -482,13 +483,9 @@ class Consign_so extends PS_Controller
 				$id_address = $this->address_model->get_default_ship_to_address_id($order->customer_code);
 			}
 
-			if(!empty($id_address))
+			if( ! empty($id_address))
 			{
-				$arr = array(
-					'id_address' => $id_address
-				);
-
-				$this->orders_model->update($order->code, $arr);
+        $arr['id_address'] = $id_address;
 			}
 		}
 
@@ -500,36 +497,35 @@ class Consign_so extends PS_Controller
 
 			$sender = $this->sender_model->get_customer_sender_list($order->customer_code);
 
-			if(!empty($sender))
+			if( ! empty($sender))
 			{
-				if(!empty($sender->main_sender))
+				if( ! empty($sender->main_sender))
 				{
 					$id_sender = $sender->main_sender;
 				}
 			}
 
-			if(!empty($id_sender))
+			if( ! empty($id_sender))
 			{
-				$arr = array(
-					'id_sender' => $id_sender
-				);
-
-				$this->orders_model->update($order->code, $arr);
+        $arr['id_sender'] = $id_sender;
 			}
 		}
 
 
     if($sc === TRUE)
     {
-      $rs = $this->orders_model->set_status($code, 1);
-      if($rs === FALSE)
+      $arr['status'] = 1;
+      $arr['doc_total'] = $this->orders_model->get_order_total_amount($code);
+      $arr['total_sku'] = $this->orders_model->count_order_sku($code);
+
+      if( ! $this->orders_model->update($code, $arr))
       {
         $sc = FALSE;
-        $message = 'บันทึกออเดอร์ไม่สำเร็จ';
+        $this->error = "บันทึกออเดอร์ไม่สำเร็จ";
       }
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    $this->_response($sc);
   }
 
 
@@ -767,6 +763,7 @@ class Consign_so extends PS_Controller
               {
                 $arr = array(
                   'doc_total' => $this->orders_model->get_order_total_amount($doc->code),
+                  'total_sku' => $this->orders_model->count_order_sku($doc->code),
                   'is_import' => 1
                 );
 

@@ -1317,7 +1317,9 @@ class Pick_list extends PS_Controller
         'warehouse_code' => $filter->warehouse_code,
         'from_date' => $filter->from_date,
         'to_date' => $filter->to_date,
-        'is_pick_list' => $filter->is_pick_list
+        'is_pick_list' => $filter->is_pick_list,
+        'is_1_sku' => $filter->is_1_sku,
+        'limit' => $filter->limit
       );
 
       $orders = $this->pick_list_model->get_order_list($ds);
@@ -1335,7 +1337,8 @@ class Pick_list extends PS_Controller
             'channels' => $rs->channels_name,
             'customer' => $rs->customer_name,
             'date_add' => thai_date($rs->date_add, FALSE),
-            'pick_list_id' => $rs->pick_list_id
+            'pick_list_id' => $rs->pick_list_id,
+            'product_code' => empty($rs->product_code) ? NULL : $rs->product_code
           );
 
           $no++;

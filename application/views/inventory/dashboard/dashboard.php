@@ -44,12 +44,12 @@
                 <h3 class="title">
 									Dashboard
 								</h3>
-								<div class="toggle-header">
+								<!-- <div class="toggle-header">
 									<a class="toggle-header-icon" onclick="showSetting()"><i class="fa fa-bars fa-2x"></i></a>
-								</div>
+								</div> -->
               </div>
             </div>
-						<?php $this->load->view('inventory/dashboard/setting_panel'); ?>
+						<?php //$this->load->view('inventory/dashboard/setting_panel'); ?>
             <hr>
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
