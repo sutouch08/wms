@@ -441,7 +441,7 @@ class Orders extends REST_Controller
       {
         $payment_code = $pm->code;
         $payment_role = $pm->role;
-        $is_term = $pm->has_term;
+        $is_term = $payment_role == 4 ? 0 : $pm->has_term;
       }
       else
       {
@@ -456,16 +456,18 @@ class Orders extends REST_Controller
       //--- check over due
       if(is_true(getConfig('STRICT_OVER_DUE')))
       {
-        $this->load->model('inventory/invoice_model');
-
-        $overDue = ! $customer->skip_overdue ? $this->invoice_model->is_over_due($data->customer_code) : FALSE;
-
-        //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
-        //--- ไม่ให้เพิ่มออเดอร์
-        if($overDue && $is_term)
+        if($is_term)
         {
-          $sc = FALSE;
-          $this->error = 'There is an outstanding balance that is past due. Sales are not permitted.';
+          $this->load->model('inventory/invoice_model');
+          $overDue = ! $customer->skip_overdue ? $this->invoice_model->is_over_due($data->customer_code) : FALSE;
+
+          //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
+          //--- ไม่ให้เพิ่มออเดอร์
+          if($overDue)
+          {
+            $sc = FALSE;
+            $this->error = 'There is an outstanding balance that is past due. Sales are not permitted.';
+          }
         }
       }
     }
