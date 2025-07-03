@@ -315,7 +315,7 @@ class Return_order_model extends CI_Model
 
   public function get_invoice_details($invoice)
   {
-    $qr = "SELECT ivd.DocEntry, ivd.U_ECOMNO AS order_code, iv.DocNum, iv.NumAtCard,
+    $qr = "SELECT ivd.DocEntry, ivd.LineNum, ivd.U_ECOMNO AS order_code, iv.DocNum, iv.NumAtCard,
     ivd.ItemCode AS product_code, ivd.Dscription AS product_name,
     (SELECT SUM(Quantity) FROM INV1 WHERE DocEntry = ivd.DocEntry AND ItemCode = ivd.ItemCode AND U_ECOMNO = ivd.U_ECOMNO GROUP BY U_ECOMNO) AS qty,
     ivd.PriceBefDi AS price, ivd.DiscPrcnt AS discount
@@ -333,10 +333,42 @@ class Return_order_model extends CI_Model
   }
 
 
+  public function get_filter_invoice_detail($invoice, $order_code = NULL, $product_code = NULL)
+  {
+    $this->ms
+    ->select('ivd.DocEntry, ivd.LineNum, ivd.U_ECOMNO AS order_code')
+    ->select('ivd.ItemCode AS product_code, ivd.Dscription AS product_name')
+    ->select('ivd.Quantity AS qty, ivd.PriceBefDi AS price, ivd.DiscPrcnt AS discount')
+    ->select('iv.DocNum AS code, iv.CardCode AS customer_code, iv.CardName AS customer_name')
+    ->from('INV1 AS ivd')
+    ->join('OINV AS iv', 'ivd.DocEntry = iv.DocEntry')
+    ->where('iv.DocNum', $invoice);
+
+    if( ! empty($order_code))
+    {
+      $this->ms->like('ivd.U_ECOMNO', $order_code);
+    }
+
+    if( ! empty($product_code))
+    {
+      $this->ms->like('ivd.ItemCode', $product_code);
+    }
+
+    $rs = $this->ms->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_invoice_detail_by_order_item($order_code, $item_code)
   {
     $rs = $this->ms
-    ->select('ivd.DocEntry, ivd.U_ECOMNO AS order_code')
+    ->select('ivd.DocEntry, ivd.LineNum, ivd.U_ECOMNO AS order_code')
     ->select('ivd.ItemCode AS product_code, ivd.Dscription AS product_name')
     ->select('ivd.Quantity AS qty, ivd.PriceBefDi AS price, ivd.DiscPrcnt AS discount')
     ->select('iv.DocNum AS code, iv.CardCode AS customer_code, iv.CardName AS customer_name, iv.NumAtCard')
@@ -370,6 +402,7 @@ class Return_order_model extends CI_Model
   public function get_customer_invoice($invoice)
   {
     $rs = $this->ms->select('CardCode AS customer_code, CardName AS customer_name')->where('DocNum', $invoice)->get('OINV');
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -489,6 +522,11 @@ class Return_order_model extends CI_Model
       ->like('r.customer_code', $ds['customer_code'])
       ->or_like('c.name', $ds['customer_code'])
       ->group_end();
+    }
+
+    if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
+    {
+      $this->db->where('r.warehouse_code', $ds['warehouse']);
     }
 
 		if( ! empty($ds['zone']))
@@ -611,6 +649,11 @@ class Return_order_model extends CI_Model
       ->like('r.customer_code', $ds['customer_code'])
       ->or_like('c.name', $ds['customer_code'])
       ->group_end();
+    }
+
+    if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
+    {
+      $this->db->where('r.warehouse_code', $ds['warehouse']);
     }
 
 		if( ! empty($ds['zone']))

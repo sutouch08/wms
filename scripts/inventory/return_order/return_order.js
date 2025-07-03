@@ -19,8 +19,7 @@ function goDelete(code){
 }
 
 
-function cancle_return(code)
-{
+function cancle_return(code) {
 	let reason = $.trim($('#cancle-reason').val());
 	let force_cancel = $('#force-cancel').is(':checked') ? 1 : 0;
 
@@ -84,19 +83,23 @@ function doCancle() {
 }
 
 
-
 $('#cancle-modal').on('shown.bs.modal', function() {
 	$('#cancle-reason').focus();
 });
 
 
-function goAdd(){
+function addNew(){
   window.location.href = HOME + 'add_new';
 }
 
 
 function goEdit(code){
 	window.location.href = HOME + 'edit/'+ code;
+}
+
+
+function goProcess(code) {
+	window.location.href = HOME + 'process/'+code;
 }
 
 
@@ -108,6 +111,21 @@ function viewDetail(code){
 function goBack(){
 	window.location.href = HOME;
 }
+
+
+function leave(){
+	swal({
+		title: 'ยกเลิกข้อมูลนี้ ?',
+		type: 'warning',
+		showCancelButton: true,
+		cancelButtonText: 'No',
+		confirmButtonText: 'Yes',
+		closeOnConfirm: false
+	}, function(){
+		goBack();
+	});
+}
+
 
 function getSearch(){
 	$("#searchForm").submit();
@@ -121,14 +139,12 @@ $(".search").keyup(function(e){
 });
 
 
-
 $("#fromDate").datepicker({
 	dateFormat: 'dd-mm-yy',
 	onClose: function(ds){
 		$("#toDate").datepicker("option", "minDate", ds);
 	}
 });
-
 
 
 $("#toDate").datepicker({
@@ -139,8 +155,6 @@ $("#toDate").datepicker({
 });
 
 
-
-// JavaScript Document
 function printReturn(){
 	var code = $("#return_code").val();
 	var center = ($(document).width() - 800) /2;
@@ -155,7 +169,6 @@ function printWmsReturn(){
   	var target = HOME + 'print_wms_return/'+code;
   	window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
 }
-
 
 
 function clearFilter(){

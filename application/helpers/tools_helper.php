@@ -520,7 +520,7 @@ function statusBackgroundColor($is_expire, $status, $is_approve = 1)
 				$bk_color = "#f7c3bf";
 				break;
 			case 3 :
-				$bk_color = "#fbe4ff";
+				$bk_color = $is_approve == 1 ? "#fbe4ff" : "#ffe3b9";
 				break;
       case 4 :
         $bk_color = "#ffe3b9";

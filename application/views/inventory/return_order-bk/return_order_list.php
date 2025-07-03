@@ -11,7 +11,7 @@
       <button type="button" class="btn btn-sm btn-purple top-btn" onclick="getTemplate()"><i class="fa fa-download"></i> &nbsp; Template file</button>
     <?php endif; ?>
     <?php if($this->pm->can_add) : ?>
-      <button type="button" class="btn btn-sm btn-success top-btn" onclick="addNew()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
+      <button type="button" class="btn btn-sm btn-success top-btn" onclick="goAdd()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
     <?php endif; ?>
   </div>
 </div>
@@ -34,13 +34,6 @@
       <label>ลูกค้า</label>
       <input type="text" class="form-control input-sm text-center search" name="customer_code" value="<?php echo $customer_code; ?>" />
     </div>
-    <div class="col-lg-3 col-md-4-harf col-sm-4-harf col-xs-8 padding-5">
-			<label>คลัง</label>
-			<select class="width-100 filter" name="warehouse" id="warehouse">
-        <option value="all">ทั้งหมด</option>
-        <?php echo select_warehouse($warehouse); ?>
-      </select>
-		</div>
 		<div class="col-lg-3 col-md-4-harf col-sm-4-harf col-xs-8 padding-5">
 			<label>โซน</label>
 			<input type="text" class="form-control input-sm padding-5" name="zone" value="<?php echo $zone; ?>" />
@@ -62,8 +55,8 @@
   			<option value="0" <?php echo is_selected('0', $status); ?>>ยังไม่บันทึก</option>
   			<option value="1" <?php echo is_selected('1', $status); ?>>บันทึกแล้ว</option>
   			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
-				<option value="3" <?php echo is_selected('3', $status); ?>>รอรับ</option>
-        <option value="4" <?php echo is_selected('4', $status); ?>>รอยืนยัน</option>
+				<option value="3" <?php echo is_selected('3', $status); ?>>WMS Process</option>
+        <option value="4" <?php echo is_selected('4', $status); ?>>รอการยืนยัน</option>
         <option value="5" <?php echo is_selected('5', $status); ?>>หมดอายุ</option>
   		</select>
     </div>
@@ -75,7 +68,7 @@
   			<option value="1" <?php echo is_selected($approve, '1'); ?>>อนุมัติแล้ว</option>
   		</select>
     </div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5 hide">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
       <label>WMS</label>
       <select class="form-control input-sm" name="api" onchange="getSearch()">
   			<option value="all">ทั้งหมด</option>
@@ -83,7 +76,7 @@
   			<option value="1" <?php echo is_selected($api, '1'); ?>>ปกติ</option>
   		</select>
     </div>
-    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5 hide">
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
       <label>Interface</label>
       <select class="form-control input-sm" name="wms_export" onchange="getSearch()">
   			<option value="all">ทั้งหมด</option>
@@ -140,12 +133,21 @@
       <span class="dark blod">EXP</span> = หมดอายุ
     </p>
   </div>
+  <?php
+    $ex = $this->_SuperAdmin && is_true(getConfig('WMS_FAST_EXPORT')) ? TRUE : FALSE;
+    $width = 1370;
+    $width = $ex ? $width + 80 : $width;
+
+  ?>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" style="min-width:1370px;">
+    <table class="table table-striped border-1" style="min-width:<?php echo $width; ?>px;">
       <thead>
-        <tr class="font-size-11">
+        <tr>
+          <?php if($ex) : ?>
+            <th class="fix-width-80 text-center">WMS</th>
+          <?php endif; ?>
           <th class="fix-width-100"></th>
-          <th class="fix-width-40 text-center">#</th>
+          <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
           <th class="fix-width-150">เลขที่เอกสาร</th>
           <th class="fix-width-120">เลขที่บิล</th>
@@ -155,6 +157,7 @@
           <th class="fix-width-100 text-right">มลูค่า</th>
           <th class="fix-width-60 text-center">สถานะ</th>
           <th class="fix-width-60 text-center">อนุมัติ</th>
+					<th class="fix-width-60 text-center">WMS</th>
           <th class="fix-width-150">พนักงาน</th>
         </tr>
       </thead>
@@ -162,18 +165,25 @@
 <?php if(!empty($docs)) : ?>
 <?php   $no = $this->uri->segment($this->segment) + 1; ?>
 <?php   foreach($docs as $rs) : ?>
-          <tr class="font-size-11" id="row-<?php echo $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
+          <tr class="font-size-12" id="row-<?php echo $rs->code; ?>" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status, $rs->is_approve); ?>">
+            <?php if($ex) : ?>
+              <td class="fix-width-40 text-center">
+                <?php if($this->wmsApi && $rs->is_wms == 1 && $rs->api == 1 && $rs->status != 0 && $rs->status !=2 && $rs->is_approve == 1) : ?>
+              				<button type="button" class="btn btn-minier btn-success top-btn" onclick="sendToFulfillment('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> PLC</button>
+              	<?php endif; ?>
+              	<?php if($this->sokoApi && $rs->is_wms == 2 && $rs->api == 1 && $rs->status != 0 && $rs->status !=2 && $rs->is_approve == 1) : ?>
+              				<button type="button" class="btn btn-minier btn-success top-btn" onclick="sendToFulfillment('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> SOKO</button>
+              	<?php endif; ?>
+              </td>
+            <?php endif; ?>
             <td class="middle">
-              <button type="button" class="btn btn-minier btn-info top-btn" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+              <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
           <?php if($this->pm->can_edit && $rs->status == 0 && $rs->is_expire == 0) : ?>
-              <button type="button" class="btn btn-minier btn-warning top-btn" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+              <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
           <?php endif; ?>
           <?php if(($this->pm->can_delete && $rs->status != 2 && $rs->is_pos_api == 0) OR ($rs->status != 2 && $this->_SuperAdmin)) : ?>
-              <button type="button" class="btn btn-minier btn-danger top-btn" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
+              <button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
           <?php endif; ?>
-          <?php if($this->pm->can_edit && $rs->status == 3 && $rs->is_approve == 1 && $rs->is_expire == 0) : ?>
-              <button type="button" class="btn btn-minier btn-purple top-btn" onclick="goProcess('<?php echo $rs->code; ?>')">รับสินค้า</button>
-            <?php endif; ?>
             </td>
             <td class="middle text-center no"><?php echo $no; ?></td>
             <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
@@ -192,31 +202,31 @@
             <td class="middle text-right"><?php echo number($rs->qty); ?></td>
             <td class="middle text-right"><?php echo number($rs->amount, 2); ?></td>
             <td class="middle text-center">
-              <?php if($rs->status == 2) : ?>
-                <span class="red">CN</span>
-              <?php elseif($rs->is_expire == 1) : ?>
+              <?php if($rs->is_expire == 1) : ?>
                 <span class="dark">EXP</span>
               <?php else : ?>
+                <?php if($rs->status == 2) : ?>
+                  <span class="red">CN</span>
+                <?php endif;?>
                 <?php if($rs->status == 0) : ?>
                   <span class="blue">NC</span>
                 <?php endif; ?>
+                <?php if($rs->status == 1 && $rs->is_approve == 0) : ?>
+                  <span class="blue">AP</span>
+                <?php endif; ?>
+  							<?php if($rs->status == 3) : ?>
+                  <span class="purple">OP</span>
+                <?php endif; ?>
                 <?php if($rs->status == 4) : ?>
                   <span class="orange">WC</span>
-                <?php endif; ?>
-
-                <?php if($rs->is_approve == 0) : ?>
-                  <?php if($rs->status == 1 OR $rs->status == 3) : ?>
-                    <span class="blue">AP</span>
-                  <?php endif; ?>
-                <?php else : ?>
-                  <?php if($rs->status == 3) : ?>
-                    <span class="purple">OP</span>
-                  <?php endif; ?>
                 <?php endif; ?>
               <?php endif; ?>
             </td>
             <td class="middle text-center">
               <?php echo is_active($rs->is_approve); ?>
+            </td>
+						<td class="middle text-center">
+              <?php echo $rs->api == 1 ? 'Y' : 'N'; ?>
             </td>
             <td class="middle"><?php echo $rs->display_name; ?></td>
           </tr>
@@ -240,8 +250,5 @@
 
 <?php $this->load->view('cancle_modal'); ?>
 
-<script>
-  $('#warehouse').select2();
-</script>
 <script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js?v=<?php echo date('Ymd');?>"></script>
 <?php $this->load->view('include/footer'); ?>

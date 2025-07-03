@@ -68,7 +68,7 @@ class Stock_zone extends REST_Controller
       $this->response($arr, 400);
     }
   }
-  
+
   //---- for check stock
   public function getStockZone_get()
   {

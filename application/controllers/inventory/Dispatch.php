@@ -607,7 +607,7 @@ class Dispatch extends PS_Controller
 
       $ds = array(
         'doc' => $doc,
-        'orders' => $this->dispatch_model->get_peding_order_by_channels($doc->channels_code)
+        'orders' => $this->dispatch_model->get_pending_order_by_channels($doc->channels_code)
       );
 
       if($this->agent->is_mobile())

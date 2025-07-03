@@ -370,7 +370,7 @@ class Dispatch_model extends CI_Model
   }
 
 
-  public function get_peding_order_by_channels($channels_code)
+  public function get_pending_order_by_channels($channels_code)
   {
     $state_in = ['8', '7'];
 

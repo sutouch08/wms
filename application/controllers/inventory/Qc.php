@@ -275,6 +275,18 @@ class Qc extends PS_Controller
               $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
             }
 
+            if( empty($shipment->trackingNumber))
+            {
+              sleep(1);
+              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+            }
+
+            if( empty($shipment->trackingNumber))
+            {
+              sleep(1);
+              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+            }
+
             if( ! empty($shipment))
             {
               if(empty($ds->tracking_number) && ! empty($shipment->trackingNumber))
