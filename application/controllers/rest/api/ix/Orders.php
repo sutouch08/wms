@@ -889,21 +889,7 @@ class Orders extends REST_Controller
 
                 $this->orders_model->add_backlogs_detail($backlogs);
               }
-            }
-
-            if($role == 'S')
-            {
-              if($this->orders_model->change_state($order_code, 3))
-              {
-                $arr = array(
-                  'order_code' => $order_code,
-                  'state' => 3,
-                  'update_user' => $this->user
-                );
-
-                $this->order_state_model->add_state($arr);
-              }
-            }
+            }            
           }
         }
         else
