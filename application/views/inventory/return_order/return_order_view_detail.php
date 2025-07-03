@@ -42,13 +42,16 @@
 		<?php if(($doc->status == 1 OR $doc->status == 3 OR $doc->status == 4) && $this->pm->can_edit) : ?>
 			<button type="button" class="btn btn-white btn-purple top-btn" onclick="unsave()">ย้อนสถานะกลับมาแก้ไข</button>
 		<?php endif; ?>
-		<?php if(($doc->status == 1 OR $doc->status == 3) && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
-			<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
-		<?php endif; ?>
 		<?php if($doc->status == 3 && $doc->is_approve == 1 && $doc->is_expire == 0 && $this->pm->can_edit) : ?>
 			<button type="button" class="btn btn-white btn-purple top-btn" onclick="goProcess('<?php echo $doc->code; ?>')">รับสินค้า</button>
 		<?php endif; ?>
-		<?php if($doc->is_wms == 0 && ($doc->status == 1 OR $doc->status == 3 OR $doc->status == 4) && $doc->is_approve == 1 && $doc->is_pos_api == 0 && $this->pm->can_approve) : ?>
+		<?php if($doc->status == 0 && $doc->is_expire == 0 && $this->pm->can_edit) : ?>
+			<button type="button" class="btn btn-white btn-warning top-btn" onclick="goEdit('<?php echo $doc->code; ?>')">แก้ไข</button>
+		<?php endif; ?>
+		<?php if(($doc->status == 1 OR $doc->status == 3) && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
+			<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
+		<?php endif; ?>
+		<?php if(($doc->status == 1 OR $doc->status == 3 OR $doc->status == 4) && $doc->is_approve == 1 && $doc->is_pos_api == 0 && $this->pm->can_approve) : ?>
 			<button type="button" class="btn btn-white btn-danger top-btn" onclick="unapprove()"><i class="fa fa-refresh"></i> ยกเลิกอนุมัติ</button>
 		<?php endif; ?>
 		<button type="button" class="btn btn-white btn-info top-btn" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
@@ -122,11 +125,16 @@
 	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>SAP No.</label>
-		<input type="text" class="form-control input-sm" value="<?php echo $doc->inv_code; ?>" disabled/>
+		<div class="input-group width-100">
+			<input type="text" class="width-100 text-center" value="<?php echo $doc->inv_code; ?>" disabled />
+			<span class="input-group-btn">
+				<button type="button" class="btn btn-xs btn-info" style="height:30px;" onclick="viewTempReturn('<?php echo $doc->code; ?>')" style="min-width:20px;">
+					<i class="fa fa-external-link"></i>
+				</button>
+			</span>
+		</div>
 	</div>
 </div>
-
-
 
 <input type="hidden" id="return_code" value="<?php echo $doc->code; ?>" />
 <input type="hidden" id="customer_code" value="<?php echo $doc->customer_code; ?>" />
@@ -288,6 +296,29 @@ else
 				}
 			}
 		})
+	}
+
+	function viewTempReturn(code) {
+		var mapForm = document.createElement("form");
+    mapForm.target = "Map";
+    mapForm.method = "POST"; // or "post" if appropriate
+    mapForm.action = BASE_URL + "inventory/temp_return_order?nomenu";
+
+    var mapInput = document.createElement("input");
+    mapInput.type = "text";
+    mapInput.name = "code";
+    mapInput.value = code;
+    mapForm.appendChild(mapInput);
+
+    document.body.appendChild(mapForm);
+
+    map = window.open("", "Map", "status=0,title=0,height=600,width=800,scrollbars=1");
+
+		if (map) {
+		    mapForm.submit();
+		} else {
+		    alert('You must allow popups for this map to work.');
+		}
 	}
 </script>
 

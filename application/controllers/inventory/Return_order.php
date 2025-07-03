@@ -525,7 +525,7 @@ class Return_order extends PS_Controller
             {
               if($sc === FALSE) { break; }
 
-              $disc = $row->discount > 0 ? ($row->discount * 0.1) : 0;
+              $disc = $row->discount > 0 ? ($row->discount * 0.01) : 0;
               $amount = ($row->qty * $row->price) - ($row->qty * ($row->price * $disc));
               $receive_qty = $row->qty;
 
@@ -604,7 +604,7 @@ class Return_order extends PS_Controller
               {
                 if($sc === FALSE) { break; }
 
-                $disc = $row->discount > 0 ? ($row->discount * 0.1) : 0;
+                $disc = $row->discount > 0 ? ($row->discount * 0.01) : 0;
                 $amount = ($row->qty * $row->price) - ($row->qty * ($row->price * $disc));
                 $receive_qty = $row->qty;
 
@@ -698,6 +698,55 @@ class Return_order extends PS_Controller
     );
 
     echo json_encode($arr);
+  }
+
+
+  //--- save and close receive process
+  public function save_pos_doc()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->return_order_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 0)
+        {
+          $h = array(
+            'status' => 1,
+            'is_complete' => 1,
+            'shipped_date' => empty($doc->shipped_date) ? now() : db_date($doc->shipped_date, TRUE),
+            'update_user' => $this->_user->uname
+          );
+
+          if( ! $this->return_order_model->update($doc->code, $h))
+          {
+            $sc = FALSE;
+            set_error('update');
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('status');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
   }
 
 
@@ -798,7 +847,7 @@ class Return_order extends PS_Controller
                   {
                     if($sc === FALSE) { break; }
 
-                    $disc = $row->discount > 0 ? ($row->discount * 0.1) : 0;
+                    $disc = $row->discount > 0 ? ($row->discount * 0.01) : 0;
                     $amount = ($row->qty * $row->price) - ($row->qty * ($row->price * $disc));
                     $receive_qty = $save_type == 1 ? $row->qty : 0;
 
@@ -1398,11 +1447,12 @@ class Return_order extends PS_Controller
     {
       foreach($details as $rs)
       {
-        $returned_qty = $this->return_order_model->get_returned_qty($doc->invoice, $rs->product_code);
-        $qty = $rs->sold_qty - ($returned_qty - $rs->qty);
+        $returned_qty = empty($rs->invoice_code) ? 0 : $this->return_order_model->get_returned_qty($doc->invoice, $rs->product_code);
+        $returned_qty = $returned_qty > 0 ? ($returned_qty >= $rs->qty ? $returned_qty - $rs->qty : $rs->qty) : 0;
+        $qty = $rs->sold_qty - $returned_qty;
 
         $rs->uid = empty($rs->DocEntry) ? $rs->id : $rs->DocEntry."-".$rs->LineNum;
-        $rs->sold_qty = $qty;
+        $rs->sold_qty = $qty <= 0 ? 0 : $qty;
         $rs->price = round($rs->price, 2);
         $rs->amount = round($rs->amount, 2);
       }
@@ -1415,90 +1465,19 @@ class Return_order extends PS_Controller
 
     if($doc->status == 0)
     {
-      $this->load->view('inventory/return_order/return_order_edit', $ds);
+      if($doc->is_pos_api)
+      {
+        $this->load->view('inventory/return_order/return_order_pos_edit', $ds);
+      }
+      else
+      {
+        $this->load->view('inventory/return_order/return_order_edit', $ds);
+      }
     }
     else
     {
       $this->load->view('inventory/return_order/return_order_view_detail', $ds);
     }
-  }
-
-
-  public function update()
-  {
-    $sc = TRUE;
-    $data = json_decode($this->input->post('data'));
-
-    if( ! empty($data))
-    {
-      $code = $data->code;
-      $date_add = db_date($data->date_add, TRUE);
-      $shipped_date = empty($data->shipped_date) ? NULL : db_date($data->shipped_date, TRUE);
-      $wmsZone = getConfig('WMS_ZONE');
-      $sokoZone = getConfig('SOKOJUNG_ZONE');
-      $is_wms = $data->is_wms;
-
-      if($is_wms == 1 && $this->wmsApi && $data->zone_code != $wmsZone)
-      {
-        $sc = FALSE;
-        $this->error = "เอกสารต้องรับเข้าที่โซน {$wmsZone}";
-      }
-
-      if($is_wms == 2 && $this->sokoApi && $data->zone_code != $sokoZone)
-      {
-        $sc = FALSE;
-        $this->error = "เอกสารต้องรับเข้าที่โซน {$sokoZone}";
-      }
-
-      if($is_wms == 0 && ($data->zone_code == $wmsZone OR $data->zone_code == $sokoZone))
-      {
-        $sc = FALSE;
-        $this->error = "เอกสารต้องรับเข้าที่โซนของ WARRIX";
-      }
-
-      if($sc === TRUE)
-      {
-        $zone = $this->zone_model->get($data->zone_code);
-
-        if(empty($zone))
-        {
-          $sc = FALSE;
-          $this->error = "รหัสโซนไม่ถูกต้อง";
-        }
-      }
-
-      if($sc === TRUE)
-      {
-        $must_accept = empty($zone->user_id) ? 0 : 1;
-
-        $arr = array(
-          'date_add' => $date_add,
-          'shipped_date' => $shipped_date,
-          'invoice' => $data->invoice,
-          'customer_code' => $data->customer_code,
-          'warehouse_code' => $zone->warehouse_code,
-          'zone_code' => $zone->code,
-          'is_wms' => $is_wms,
-          'api' => $data->api,
-          'remark' => get_null(trim($data->remark)),
-          'must_accept' => $must_accept,
-          'update_user' => $this->_user->uname
-        );
-
-        if( ! $this->return_order_model->update($code, $arr))
-        {
-          $sc = FALSE;
-          $this->error = 'ปรับปรุงข้อมูลไม่สำเร็จ';
-        }
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      set_error('required');
-    }
-
-    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -1752,12 +1731,6 @@ class Return_order extends PS_Controller
 			{
 				if($doc->status != 2)
 				{
-          if($doc->status == 3 && $doc->is_wms == 1 && ! $this->_SuperAdmin)
-          {
-            $sc = FALSE;
-            $this->error = "เอกสารอยู่ระหว่างการรับเข้าไม่อนุญาติให้ยกเลิก";
-          }
-
 					//--- check sap
 					$sap = $this->return_order_model->get_sap_doc_num($code);
 
@@ -1768,6 +1741,7 @@ class Return_order extends PS_Controller
 						{
 							if($this->drop_middle_exits_data($code))
 							{
+                $this->load->model('inventory/movement_model');
 								$this->db->trans_begin();
 
                 //--- set details to cancle
@@ -1796,19 +1770,10 @@ class Return_order extends PS_Controller
 
                 if($sc === TRUE)
                 {
-                  if($doc->status == 3 && ! $force_cancel)
+                  if( ! $this->movement_model->drop_movement($code))
                   {
-                    if($doc->is_wms == 2 && $doc->api == 1 && $this->sokoApi)
-                    {
-                      $this->wms = $this->load->database('wms', TRUE);
-                      $this->load->library('soko_receive_api');
-
-                      if( ! $this->soko_receive_api->cancel_receive_po($doc))
-                      {
-                        $sc = FALSE;
-                        $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
-                      }
-                    }
+                    $sc = FALSE;
+                    $this->error = "Failed to delete movement";
                   }
                 }
 

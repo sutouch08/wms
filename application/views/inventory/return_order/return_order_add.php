@@ -34,7 +34,7 @@
 		<label>คลัง</label>
 		<select class="width-100 h" id="warehouse">
 			<option value="">เลือก</option>
-			<?php echo select_common_warehouse(getConfig('DEFAULT_WAREHOUSE')); ?>
+			<?php echo select_warehouse(getConfig('DEFAULT_WAREHOUSE')); ?>
 		</select>
 	</div>
 	<div class="col-lg-11 col-md-6-harf col-sm-6-harf col-xs-9 padding-5">

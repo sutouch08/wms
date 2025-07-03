@@ -5,30 +5,9 @@
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
-		<button type="button" class="btn btn-white btn-default top-btn" onclick="leave()"><i class="fa fa-arrow-left"></i> กลับ</button>
+		<button type="button" class="btn btn-white btn-default top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
-			<?php if($doc->is_pos_api == 1) : ?>
-				<button type="button" class="btn btn-white btn-success top-btn" onclick="save(1)"><i class="fa fa-save"></i> บันทึก</button>
-			<?php else : ?>
-				<div class="btn-group">
-					<button data-toggle="dropdown" class="btn btn-success btn-white dropdown-toggle margin-top-5" aria-expanded="false">
-						<i class="ace-icon fa fa-save icon-on-left"></i>
-						บันทึก
-						<i class="ace-icon fa fa-angle-down icon-on-right"></i>
-					</button>
-					<ul class="dropdown-menu dropdown-menu-right">
-						<li class="primary">
-							<a href="javascript:save(0)">บันทึกเป็นดราฟท์</a>
-						</li>
-						<li class="success">
-							<a href="javascript:save(1)">บันทึกรับเข้าทันที</a>
-						</li>
-						<li class="purple">
-							<a href="javascript:save(3)">บันทึกรอรับ</a>
-						</li>
-					</ul>
-				</div>
-			<?php endif; ?>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="savePosDoc()"><i class="fa fa-save"></i> บันทึก</button>
 		<?php endif; ?>
 		<?php if($doc->status == 1 && $this->pm->can_approve) : ?>
 			<button type="button" class="btn btn-white btn-primary top-btn" id="btn-approve" onclick="approve()"><i class="fa fa-save"></i> อนุมัติ</button>
@@ -37,40 +16,62 @@
 </div>
 <hr />
 <div class="row">
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>เลขที่เอกสาร</label>
 		<input type="text" class="form-control input-sm text-center" id="code" value="<?php echo $doc->code; ?>" disabled />
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>วันที่</label>
-		<input type="text" class="form-control input-sm text-center h" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly />
+		<input type="text" class="form-control input-sm text-center h" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled />
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>Posting Date</label>
-		<input type="text" class="form-control input-sm text-center h" id="shipped-date" value="<?php echo empty($doc->shipped_date) ? "" : thai_date($doc->shipped_date, FALSE); ?>" readonly/>
+		<input type="text" class="form-control input-sm text-center h" id="shipped-date" value="<?php echo empty($doc->shipped_date) ? "" : thai_date($doc->shipped_date, FALSE); ?>" readonly disabled/>
 	</div>
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>รหัสลูกค้า</label>
-		<input type="text" class="form-control input-sm text-center h" id="customer-code" onchange="checkCustomer()" value="<?php echo $doc->customer_code; ?>"  />
+		<input type="text" class="form-control input-sm text-center h" id="customer-code" onchange="checkCustomer()" value="<?php echo $doc->customer_code; ?>" disabled />
 	</div>
-	<div class="col-lg-4 col-md-5 col-sm-5 col-xs-8 padding-5">
+	<div class="col-lg-5-harf col-md-5 col-sm-5 col-xs-8 padding-5">
 		<label>ชื่อลูกค้า</label>
-		<input type="text" class="form-control input-sm h" id="customer-name" value="<?php echo $doc->customer_name; ?>" />
+		<input type="text" class="form-control input-sm h" id="customer-name" value="<?php echo $doc->customer_name; ?>" disabled/>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
 		<label>คลัง</label>
-		<select class="width-100 h" id="warehouse" onchange="zone_init('Y')">
-			<option value="">เลือก</option>
-			<?php echo select_warehouse($doc->warehouse_code); ?>
-		</select>
+		<input type="text" class="form-control input-sm h" id="waerhouse-name" value="<?php echo $doc->warehouse_code." | ".$doc->warehouse_name; ?>" disabled />
 	</div>
-	<div class="col-lg-12 col-md-8 col-sm-8 col-xs-12 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-4 padding-5">
+		<label>โซน</label>
+		<input type="text" class="form-control input-sm h" id="zone-code" value="<?php echo $doc->zone_code; ?>" disabled />
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5-harf col-xs-8 padding-5">
+		<label class="not-show">zone</label>
+		<input type="text" class="form-control input-sm h" id="zone-name" value="<?php echo $doc->zone_name; ?>" disabled />
+	</div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+		<label>POS ref.</label>
+		<input type="text" class="form-control input-sm h"  value="<?php echo $doc->pos_ref; ?>" disabled />
+	</div>
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>Bill No.</label>
+		<input type="text" class="form-control input-sm h"  value="<?php echo $doc->bill_code; ?>" disabled />
+	</div>
+	<div class="col-lg-12 col-md-9 col-sm-6-harf col-xs-12 padding-5">
 		<label>หมายเหตุ</label>
-		<input type="text" class="form-control input-sm h" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" />
+		<input type="text" class="form-control input-sm h" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled/>
 	</div>
 </div>
 
+<?php if($doc->is_pos_api == 1) : ?>
+	<hr/>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<p class="red text-center">** เอกสารนี้ถูกสร้างโดยระบบ POS จึงไม่สามารถแก้ไขรายการได้ **</p>
+		</div>
+	</div>
+<?php else : ?>
 <?php 	$this->load->view('inventory/return_order/return_order_control'); ?>
+<?php endif; ?>
 
 <input type="hidden" id="return_code" value="<?php echo $doc->code; ?>" />
 <input type="hidden" id="prev-customer-code" value="<?php echo $doc->customer_code; ?>" />
@@ -88,12 +89,6 @@
 			<thead>
 				<tr class="fon-size-11">
 					<th class="fix-width-40 text-center">#</th>
-					<th class="fix-width-40 text-center">
-						<label>
-							<input type="checkbox" id="chk-all" class="ace" onchange="checkAll($(this))"/>
-							<span class="lbl"></span>
-						</label>
-					</th>
 					<th class="fix-width-175">รหัส</th>
 					<th class="min-width-200">สินค้า</th>
 					<th class="fix-width-100 text-center">อ้างอิง</th>
@@ -113,20 +108,16 @@
 <?php  foreach($details as $rs) : ?>
 		<tr class="font-size-11" id="row-<?php echo $rs->uid; ?>">
 			<td class="middle text-center no"><?php echo $no; ?></td>
-			<td class="middle text-center">
-				<input type="checkbox" class="chk ace" data-id="<?php echo $rs->id; ?>" data-uid="<?php echo $rs->uid; ?>">
-				<span class="lbl"></span>
-			</td>
 			<td class="middle <?php echo $no; ?>"><?php echo $rs->product_code; ?></td>
 			<td class="middle"><?php echo $rs->product_name; ?></td>
-			<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
-			<td class="middle text-center"><?php echo $rs->order_code; ?></td>
+			<td class="middle text-center"><?php echo $rs->pos_ref; ?></td>
+			<td class="middle text-center"><?php echo $rs->bill_code; ?></td>
 			<td class="middle text-center"><?php echo $rs->price; ?></td>
 			<td class="middle text-center"><?php echo $rs->discount_percent.' %'; ?></td>
 			<td class="middle text-center"><?php echo round($rs->sold_qty); ?></td>
 			<td class="middle">
 				<input type="number"
-					class="form-control input-sm text-center input-qty"
+					class="form-control input-sm text-center text-label input-qty"
 					id="qty-<?php echo $rs->uid; ?>"
 					data-id="<?php echo $rs->id; ?>"
 					data-uid="<?php echo $rs->uid; ?>"
@@ -139,8 +130,7 @@
 					data-discount="<?php echo $rs->discount_percent; ?>"
 					data-docentry="<?php echo $rs->DocEntry; ?>"
 					data-linenum="<?php echo $rs->LineNum; ?>"
-					value="<?php echo $rs->qty; ?>"
-					onkeyup="recalRow($(this))" />
+					value="<?php echo $rs->qty; ?>" readonly/>
 			</td>
 			<td class="middle text-right amount-label" id="amount-<?php echo $rs->uid; ?>">
 				<?php echo number($rs->amount, 2); ?>
@@ -156,7 +146,7 @@
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="9" class="middle text-right">รวม</td>
+					<td colspan="8" class="middle text-right">รวม</td>
 					<td class="middle text-center" id="total-qty"><?php echo number($total_qty); ?></td>
 					<td class="middle text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
 				</tr>

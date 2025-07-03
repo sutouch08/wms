@@ -433,14 +433,20 @@ class Return_order_model extends CI_Model
   //--- จำนวนรวมของสินค้าที่เคยคืนไปแล้ว ในใบกำกับนี้
   public function get_returned_qty($invoice, $product_code)
   {
-    $rs = $this->db
-    ->select_sum('qty')
-    ->where('invoice_code', $invoice)
-    ->where('product_code', $product_code)
-		->where('is_cancle', 0)
-    ->get('return_order_detail');
+    if( ! empty($invoice))
+    {
+      $rs = $this->db
+      ->select_sum('qty')
+      ->where('invoice_code IS NOT NULL', NULL, FALSE)
+      ->where('invoice_code', $invoice)
+      ->where('product_code', $product_code)
+      ->where('is_cancle', 0)
+      ->get('return_order_detail');
 
-    return $rs->row()->qty === NULL ? 0 : $rs->row()->qty;
+      return $rs->row()->qty === NULL ? 0 : $rs->row()->qty;
+    }
+
+    return 0;
   }
 
 
