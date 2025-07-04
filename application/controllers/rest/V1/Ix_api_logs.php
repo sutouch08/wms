@@ -25,6 +25,7 @@ class Ix_api_logs extends PS_Controller
       'status' => get_filter('status', 'logs_status', 'all'),
 			'type' => get_filter('type', 'logs_type', 'all'),
 			'action' => get_filter('action', 'logs_action', 'all'),
+			'channels' => get_filter('channels', 'logs_channels', 'all'),
 			'from_date' => get_filter('from_date', 'from_date', ''),
 			'to_date' => get_filter('to_date', 'to_date', '')
     );
@@ -66,6 +67,7 @@ class Ix_api_logs extends PS_Controller
 			'logs_status',
 			'logs_type',
 			'logs_action',
+			'logs_channels',
 			'from_date',
 			'to_date'
 		);

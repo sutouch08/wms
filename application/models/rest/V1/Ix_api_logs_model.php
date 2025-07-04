@@ -22,6 +22,18 @@ class Ix_api_logs_model extends CI_Model
 			$this->wms->like('code', $ds['code'], 'after');
 		}
 
+		if(isset($ds['channels']) && $ds['channels'] != 'all')
+		{
+			if($ds['channels'] ==  'NULL')
+			{
+				$this->wms->where('channels IS NULL', NULL, FALSE);
+			}
+			else
+			{
+				$this->wms->where('channels', $ds['channels']);
+			}
+		}
+
 		if(!empty($ds['status']) && $ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);
@@ -62,6 +74,18 @@ class Ix_api_logs_model extends CI_Model
 		if(!empty($ds['code']))
 		{
 			$this->wms->like('code', $ds['code'], 'after');
+		}
+
+		if(isset($ds['channels']) && $ds['channels'] != 'all')
+		{
+			if($ds['channels'] ==  'NULL')
+			{
+				$this->wms->where('channels IS NULL', NULL, FALSE);
+			}
+			else
+			{
+				$this->wms->where('channels', $ds['channels']);
+			}
 		}
 
 		if(!empty($ds['status']) && $ds['status'] !== 'all')

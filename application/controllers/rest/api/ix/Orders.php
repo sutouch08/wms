@@ -164,6 +164,8 @@ class Orders extends REST_Controller
     $customer = NULL;
     $zone_code = NULL;
     $channels_code = empty($data->channel) ? NULL : $data->channel;
+    $is_mkp = FALSE;
+    $is_reserv = isset($data->is_reserv) ? ($data->is_reserv == 'Y' ? TRUE : FALSE) : FALSE;
     $payment_code = NULL;
     $payment_role = NULL;
     $cod_amount = empty($data->cod_amount) ? 0 : floatval($data->cod_amount);
@@ -433,6 +435,11 @@ class Orders extends REST_Controller
       else
       {
         $channels_code = $channels->code;
+
+        if($channels_code == '0009' OR $channels_code == 'SHOPEE' OR $channels_code == 'LAZADA')
+        {
+          $is_mkp = TRUE;
+        }
       }
     }
 
@@ -825,9 +832,14 @@ class Orders extends REST_Controller
                     $total_sku[$item->code] = 1;
                   }
 
+                  if($item->count_stock && $is_reserv)
+                  {
+                    $this->reserv_stock_model->deduct_reserv_qty($item->code, $rs->qty, $warehouse_code, $is_mkp);
+                  }
+
                   if($item->count_stock && ! $is_pre_order && ($this->sync_api_stock OR $this->checkBackorder))
                   {
-                    $available = $this->get_available_stock($item->code, $warehouse_code);
+                    $available = $this->get_available_stock($item->code, $warehouse_code, $is_mkp);
                   }
 
                   if($this->checkBackorder && $item->count_stock && ! $is_pre_order)
@@ -2174,7 +2186,7 @@ class Orders extends REST_Controller
 	}
 
 
-  public function get_available_stock($item_code, $warehouse_code)
+  public function get_available_stock($item_code, $warehouse_code, $is_mkp = FALSE)
   {
     //---- สต็อกคงเหลือในคลัง
     $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse_code);
@@ -2182,7 +2194,7 @@ class Orders extends REST_Controller
     //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
     $ordered = $this->orders_model->get_reserv_stock($item_code, $warehouse_code);
 
-    $reserv_stock = $this->reserv_stock_model->get_reserv_stock($item_code, $warehouse_code);
+    $reserv_stock = $this->reserv_stock_model->get_reserv_stock($item_code, $warehouse_code, $is_mkp);
 
     $available = $sell_stock - $ordered - $reserv_stock;
 

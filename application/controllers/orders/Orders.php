@@ -723,9 +723,10 @@ class Orders extends PS_Controller
               $sell_stock = $this->stock_model->get_sell_stock($detail->product_code, $order->warehouse_code);
 
               //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
-              $reserv_stock = $this->orders_model->get_reserv_stock_exclude($detail->product_code, $order->warehouse_code, $detail->id);
+              $ordered = $this->orders_model->get_reserv_stock_exclude($detail->product_code, $order->warehouse_code, $detail->id);
+              $reserv_stock = $this->reserv_stock_model->get_reserv_stock($detail->product_code, $order->warehouse_code);
 
-              $available = $sell_stock - $reserv_stock;
+              $available = $sell_stock - $ordered - $reserv_stock;
             }
 
             if($qty <= $available OR $auz)
@@ -1412,7 +1413,6 @@ class Orders extends PS_Controller
         $arr['id_sender'] = $id_sender;
 			}
 		}
-
 
     if(is_true(getConfig('IX_BACK_ORDER')) && $order->state <= 4 && $order->is_pre_order == 0)
     {

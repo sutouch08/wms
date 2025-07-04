@@ -84,6 +84,7 @@ class Reserv_stock extends PS_Controller
           'warehouse_code' => $ds->warehouse_code,
           'status' => 'D',
           'active' => $ds->active == 1 ? 1 : 0,
+          'is_mkp' => $ds->is_mkp == 1 ? 1 : 0,
           'start_date' => db_date($ds->start_date),
           'end_date' => db_date($ds->end_date),
           'user' => $this->_user->uname
@@ -161,6 +162,7 @@ class Reserv_stock extends PS_Controller
           'warehouse_code' => $ds->warehouse_code,
           'active' => $ds->active == 1 ? 1 : 0,
           'status' => 'D',
+          'is_mkp' => $ds->is_mkp == 1 ? 1 : 0,
           'start_date' => db_date($ds->start_date),
           'end_date' => db_date($ds->end_date),
           'date_upd' => now(),
@@ -377,6 +379,7 @@ class Reserv_stock extends PS_Controller
       if(empty($row))
       {
         $da['user'] = $this->_user->uname;
+        $da['reserv_qty'] = $ds->qty;
 
         $id = $this->reserv_stock_model->add_detail($da);
 
@@ -395,6 +398,10 @@ class Reserv_stock extends PS_Controller
       {
         $id = $row->id;
 
+        $dif = $row->qty - $row->reserv_qty;
+        $reserv_qty = $ds->qty - $dif;
+
+        $da['reserv_qty'] = $reserv_qty > 0 ? $reserv_qty : 0;
         $da['date_upd'] = now();
         $da['update_user'] = $this->_user->uname;
 
@@ -480,6 +487,7 @@ class Reserv_stock extends PS_Controller
               'product_code' => $rs->product_code,
               'product_name' => $rs->product_name,
               'qty' => $rs->qty,
+              'reserv_qty' => $rs->qty,
               'user' => $this->_user->uname
             );
 
@@ -487,8 +495,12 @@ class Reserv_stock extends PS_Controller
           }
           else
           {
+            $dif = $row->qty - $row->reserv_qty;
+            $reserv_qty = $rs->qty - $dif;
+
             $arr = array(
               'qty' => $rs->qty,
+              'reserv_qty' => $reserv_qty > 0 ? $reserv_qty : 0,
               'date_upd' => now(),
               'update_user' => $this->_user->uname
             );
@@ -678,50 +690,110 @@ class Reserv_stock extends PS_Controller
 
             if($i == 1)
             {
-              if($rs['A'] != 'SKU')
+              if($rs['A'] != 'ID')
               {
                 $sc = FALSE;
-                $this->error = "Column A Should be 'SKU'";
+                $this->error = "Column A Should be 'ID'";
               }
 
-              if($rs['B'] != 'Qty')
+              if($rs['B'] != 'SKU')
               {
                 $sc = FALSE;
-                $this->error = "Column B should be 'Qty'";
+                $this->error = "Column B Should be 'SKU'";
+              }
+
+              if($rs['C'] != 'Qty')
+              {
+                $sc = FALSE;
+                $this->error = "Column C should be 'Qty'";
+              }
+
+              if($rs['D'] != 'Balance')
+              {
+                $sc = FALSE;
+                $this->error = "Column D should be 'Balance'";
+              }
+
+              if($rs['E'] != 'Del')
+              {
+                $sc = FALSE;
+                $this->error = "Column E should be 'Del'";
               }
             }
             else
             {
-              if( ! empty($rs['A']) && ! empty($rs['B']))
+              $id = empty(trim($rs['A'])) ? NULL : trim($rs['A']);
+              $pdCode =  empty(trim($rs['B'])) ? NULL : trim($rs['B']);
+              $del = empty(trim($rs['E'])) ? NULL : trim($rs['E']);
+
+              if( ! empty($pdCode))
               {
-                $pd = $this->products_model->get(trim($rs['A']));
-
-                if( ! empty($pd))
+                if( ! empty($id) && $del == 1)
                 {
-                  $row = $this->reserv_stock_model->get_detail_by_product($doc->id, $pd->code);
+                  $this->reserv_stock_model->remove_item($id);
+                }
+                else
+                {
+                  $pd = $this->products_model->get($pdCode);
 
-                  if(empty($row))
+                  if( ! empty($pd))
                   {
-                    $arr = array(
-                      'reserv_id' => $doc->id,
-                      'reserv_code' => $doc->code,
-                      'product_code' => $pd->code,
-                      'product_name' => $pd->name,
-                      'qty' => intval($rs['B']),
-                      'user' => $this->_user->uname
-                    );
+                    if( ! empty($id))
+                    {
+                      $row = $this->reserv_stock_model->get_detail($id);
 
-                    $this->reserv_stock_model->add_detail($arr);
-                  }
-                  else
-                  {
-                    $arr = array(
-                      'qty' => intval($rs['B']),
-                      'date_upd' => now(),
-                      'update_user' => $this->_user->uname
-                    );
+                      if( ! empty($row))
+                      {
+                        $qty = intval(trim($rs['C']));
+                        $dif = $row->qty - $row->reserv_qty;
+                        $reserv_qty = $qty - $dif;
 
-                    $this->reserv_stock_model->update_detail($row->id, $arr);
+                        $arr = array(
+                          'product_code' => $pd->code,
+                          'product_name' => $pd->name,
+                          'qty' => $qty,
+                          'reserv_qty' => $reserv_qty > 0 ? $reserv_qty : 0,
+                          'user' => $this->_user->uname
+                        );
+
+                        $this->reserv_stock_model->update_detail($row->id, $arr);
+                      }
+                    }
+                    else
+                    {
+                      $row = $this->reserv_stock_model->get_detail_by_product($doc->id, $pd->code);
+
+                      if(empty($row))
+                      {
+                        $qty = intval($rs['C']);
+                        $arr = array(
+                          'reserv_id' => $doc->id,
+                          'reserv_code' => $doc->code,
+                          'product_code' => $pd->code,
+                          'product_name' => $pd->name,
+                          'qty' => $qty,
+                          'reserv_qty' => $qty,
+                          'user' => $this->_user->uname
+                        );
+
+                        $this->reserv_stock_model->add_detail($arr);
+                      }
+                      else
+                      {
+                        $qty = intval(trim($rs['C']));
+                        $dif = $row->qty - $row->reserv_qty;
+                        $reserv_qty = $qty - $dif;
+
+                        $arr = array(
+                          'qty' => $qty,
+                          'reserv_qty' => $reserv_qty > 0 ? $reserv_qty : 0,
+                          'date_upd' => now(),
+                          'update_user' => $this->_user->uname
+                        );
+
+                        $this->reserv_stock_model->update_detail($row->id, $arr);
+                      }
+                    }
                   }
                 }
               }
@@ -740,6 +812,7 @@ class Reserv_stock extends PS_Controller
 
     $this->_response($sc);
   }
+
 
   public function get_template_file()
   {
@@ -767,6 +840,50 @@ class Reserv_stock extends PS_Controller
   }
 
 
+  public function export_data()
+  {
+    $code = $this->input->post('code');
+    $id = $this->input->post('id');
+    $token = $this->input->post('token');
+
+    $details = $this->reserv_stock_model->get_details($id);
+
+    //--- load excel library
+    $this->load->library('excel');
+
+    $this->excel->setActiveSheetIndex(0);
+    $this->excel->getActiveSheet()->setTitle($code);
+
+    //--- set header
+    $this->excel->getActiveSheet()->setCellValue('A1', 'ID');
+    $this->excel->getActiveSheet()->setCellValue('B1', 'SKU');
+    $this->excel->getActiveSheet()->setCellValue('C1', 'Qty');
+    $this->excel->getActiveSheet()->setCellValue('D1', 'Balance');
+    $this->excel->getActiveSheet()->setCellValue('E1', 'Del');
+
+    $row = 2;
+
+    if( ! empty($details))
+    {
+      foreach($details as $rs)
+      {
+        $this->excel->getActiveSheet()->setCellValue('A'.$row, $rs->id);
+        $this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->product_code);
+        $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->qty);
+        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->reserv_qty);
+        $row++;
+      }
+    }
+
+    setToken($token);
+    $file_name = "Reserv Stock - {$code}.xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
+    header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+    $writer->save('php://output');
+  }
+
+  
   public function get_new_code()
   {
     $date = date('Y-m-d');

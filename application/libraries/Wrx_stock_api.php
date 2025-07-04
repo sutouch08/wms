@@ -47,9 +47,10 @@ class Wrx_stock_api
         $skus[] = $item->code;
       }
 
+      $skip_mkp = TRUE; //--- skip marketplace reserv stock
       $stock = $this->ci->stock_model->get_sell_items_stock($skus, $warehouse_code);
       $ordered = $this->ci->orders_model->get_items_reserv_stock($skus, $warehouse_code);
-      $reserved = $this->ci->reserv_stock_model->get_items_reserv_stock($skus, $warehouse_code);
+      $reserved = $this->ci->reserv_stock_model->get_items_reserv_stock($skus, $warehouse_code, $skip_mkp);
 
       foreach($items as $item)
       {
@@ -161,7 +162,8 @@ class Wrx_stock_api
       echo "get-orderd: ".now()."<br/>";
       $ordered = $this->ci->orders_model->get_items_reserv_stock($skus, $warehouse_code);
       echo "get-reserv:".now()."<br/>";
-      $reserved = $this->ci->reserv_stock_model->get_items_reserv_stock($skus, $warehouse_code);
+      $skip_mkp = TRUE;
+      $reserved = $this->ci->reserv_stock_model->get_items_reserv_stock($skus, $warehouse_code, $skip_mkp);
 
       echo "build-data: ".now()."<br/>";
       foreach($items as $item)
@@ -214,70 +216,13 @@ class Wrx_stock_api
         else
         {
           echo "Start API : ".now()."<br/>";
-          // $curl = curl_init();
-          // curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-          // curl_setopt($curl, CURLOPT_URL, $url);
-          // curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-          // curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
-          // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-          // // curl_setopt($curl, CURLOPT_HEADER, 0);
-          // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-          // // curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
-          // // curl_setopt($curl, CURLOPT_TIMEOUT, 1);
-          // $response = curl_exec($curl);
-          // curl_close($curl);
-          // echo $response;
-          // $res = json_decode($response);
-          //
-          // if( ! empty($res) && ! empty($res->status))
-          // {
-          //   if($this->logs_json)
-          //   {
-          //     $logs = array(
-          //       'trans_id' => genUid(),
-          //       'type' => $type,
-          //       'api_path' => $api_path,
-          //       'code' => NULL,
-          //       'action' => $action,
-          //       'status' => $res->status == 'success' ? 'success' : 'failed',
-          //       'message' => $res->serviceMessage,
-          //       'request_json' => $json,
-          //       'response_json' => $response
-          //     );
-          //
-          //     $this->ci->wrx_api_logs_model->add_logs($logs);
-          //   }
-          // }
-          // else
-          // {
-          //   $this->error = "No response";
-          //
-          //   if($this->logs_json)
-          //   {
-          //     $logs = array(
-          //       'trans_id' => genUid(),
-          //       'type' => $type,
-          //       'api_path' => $api_path,
-          //       'code' => NULL,
-          //       'action' => $action,
-          //       'status' => 'failed',
-          //       'message' => 'No response',
-          //       'request_json' => $json,
-          //       'response_json' => NULL
-          //     );
-          //
-          //     $this->ci->wrx_api_logs_model->add_logs($logs);
-          //   }
-          //
-          //   return FALSE;
-          // }
 
           $cmd = "curl -X POST {$apiUrl}"
           ." -H 'Content-Type:application/json'"
           ." -H 'Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}'"
           ." -d '" . $json . "'"
           ." > /dev/null 2>&1 &";
-          // echo $cmd ."<br/>";
+          //echo $cmd ."<br/>";
           exec($cmd, $output, $exit);
           print_r($output);
           echo "End Api : ".now()."<br/>";
@@ -298,9 +243,10 @@ class Wrx_stock_api
 
   public function get_available_stock($item_code, $warehouse = NULL)
   {
+    $skip_mkp = TRUE;
     $sell_stock = $this->ci->stock_model->get_sell_stock($item_code, $warehouse);
     $ordered = $this->ci->orders_model->get_reserv_stock($item_code, $warehouse);
-    $reserv_stock = $this->ci->reserv_stock_model->get_reserv_stock($item_code, $warehouse);
+    $reserv_stock = $this->ci->reserv_stock_model->get_reserv_stock($item_code, $warehouse, $skip_mkp);
     $availableStock = $sell_stock - $ordered - $reserv_stock;
 		return $availableStock < 0 ? 0 : $availableStock;
   }

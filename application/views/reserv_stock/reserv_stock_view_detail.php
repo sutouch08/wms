@@ -5,6 +5,7 @@
   </div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-white btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+		<button type="button" class="btn btn-white btn-purple top-btn" onclick="exportData()"><i class="fa fa-file-excel-o"></i> Export to Excel</button>
   <?php if(($this->pm->can_approve) && ($doc->status == 'P')) : ?>
 		<button type="button" class="btn btn-white btn-danger top-btn" onclick="rejected()"><i class="fa fa-times"></i> &nbsp; Reject</button>
     <button type="button" class="btn btn-white btn-success top-btn" onclick="approve()"><i class="fa fa-check"></i> &nbsp; Approve</button>
@@ -29,6 +30,15 @@
   <div class="col-lg-6 col-md-5 col-sm-5 col-xs-8 padding-5">
     <label>Description</label>
     <input type="text" class="form-control input-sm rq" id="name" value="<?php echo $doc->name; ?>" disabled/>
+  </div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>Reserv For</label>
+    <select id="is-mkp" class="form-control input-sm" disabled>
+			<option value="">Select</option>
+      <option value="1" <?php echo is_selected('1', $doc->is_mkp); ?>>Marketplace</option>
+      <option value="0" <?php echo is_selected('0', $doc->is_mkp); ?>>All</option>
+    </select>
   </div>
 
   <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
@@ -61,7 +71,8 @@
         <tr class="font-size-11">
           <th class="fix-width-40 text-center">#</th>
           <th class="fix-width-200">SKU</th>
-          <th class="fix-width-100 text-center">Qty</th>
+          <th class="fix-width-100 text-center">Reserv Qty</th>
+					<th class="fix-width-100 text-center">Reserv BL.</th>
           <th class="min-width-200">Description</th>
         </tr>
       </thead>
@@ -72,7 +83,8 @@
       <tr class="font-size-11" id="row-<?php echo $rs->id; ?>">
         <td class="middle text-center no"><?php echo $no; ?></td>
         <td class="middle"><?php echo $rs->product_code; ?></td>
-        <td class="middle text-center"><?php echo number($rs->qty, 2); ?></td>
+        <td class="middle text-center"><?php echo number($rs->qty); ?></td>
+				<td class="middle text-center"><?php echo number($rs->reserv_qty); ?></td>
         <td class="middle"><?php echo $rs->product_name; ?></td>
       </tr>
       <?php $no++; ?>
@@ -82,6 +94,12 @@
     </table>
   </div>
 </div>
+
+<form id="export-form" method="post" action="<?php echo $this->home; ?>/export_data/">
+  <input type="hidden" name="code" value="<?php echo $doc->code; ?>" />
+  <input type="hidden" name="id" value="<?php echo $doc->id; ?>" />
+  <input type="hidden" name="token" id="token" />
+</form>
 <script>
   $('#warehouse').select2();
 </script>

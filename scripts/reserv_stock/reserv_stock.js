@@ -171,8 +171,14 @@ function add() {
     'warehouse_code' : $('#warehouse').val(),
     'name' : $('#name').val().trim(),
     'active' : $('#active').val(),
+    'is_mkp' : $('#is-mkp').val(),
     'start_date' : $('#start_date').val(),
     'end_date' : $('#end_date').val()
+  }
+
+  if(h.name.length == 0) {
+    $('#name').hasError();
+    return false;
   }
 
   if(h.warehouse_code == "") {
@@ -180,8 +186,8 @@ function add() {
     return false;
   }
 
-  if(h.name.length == 0) {
-    $('#name').hasError();
+  if(h.is_mkp == "") {
+    $('#is-mkp').hasError();
     return false;
   }
 
@@ -235,8 +241,14 @@ function update() {
     'warehouse_code' : $('#warehouse').val(),
     'name' : $('#name').val().trim(),
     'active' : $('#active').val(),
+    'is_mkp' : $('#is-mkp').val(),
     'start_date' : $('#start_date').val(),
     'end_date' : $('#end_date').val()
+  }
+
+  if(h.name.length == 0) {
+    $('#name').hasError();
+    return false;
   }
 
   if(h.warehouse_code == "") {
@@ -244,8 +256,8 @@ function update() {
     return false;
   }
 
-  if(h.name.length == 0) {
-    $('#name').hasError();
+  if(h.is_mkp == "") {
+    $('#is-mkp').hasError();
     return false;
   }
 
@@ -541,7 +553,6 @@ function addItems() {
 }
 
 
-
 $('#chk-all').change(function() {
   if($(this).is(":checked")) {
     $('.chk').prop('checked', true);
@@ -667,4 +678,12 @@ function getDelete(id, code) {
       })
     }, 200);
   });
+}
+
+
+function exportData() {
+  let token = generateUID();
+  $('#token').val(token);
+  get_download(token);
+  $('#export-form').submit();
 }

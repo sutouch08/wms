@@ -84,8 +84,9 @@
 				<tr class="font-size-11">
 					<th class="fix-width-100"></th>
 					<th class="fix-width-40 middle text-center">#</th>
-          <th class="fix-width-100 middle">วันที่</th>
-					<th class="fix-width-100 middle">เลขที่</th>
+          <th class="fix-width-100 middle">Date</th>
+					<th class="fix-width-100 middle">Document No.</th>
+					<th class="fix-width-100 middle text-center">Reserv For</th>
 					<th class="fix-width-100 middle text-center">Start Date</th>
 					<th class="fix-width-100 middle text-center">End Date</th>
 					<th class="fix-width-100 middle text-center">Total SKU</th>
@@ -99,7 +100,8 @@
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(4) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr class="font-size-11" id="row-<?php echo $rs->id; ?>">
+					<?php $color = $rs->status == 'A' ? 'green' : ($rs->status == 'P' ? 'blue' : ($rs->status == 'C' ? 'grey' : ($rs->status == 'R' ? 'red' : ''))); ?>
+					<tr class="font-size-11 <?php echo $color; ?>" id="row-<?php echo $rs->id; ?>">
 						<td class="">
 							<button type="button" class="btn btn-minier btn-info" onclick="viewDetail(<?php echo $rs->id; ?>)">
 								<i class="fa fa-eye"></i>
@@ -118,6 +120,7 @@
 						<td class="middle text-center no"><?php echo $no; ?></td>
             <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
+						<td class="middle text-center"><?php echo $rs->is_mkp == 1 ? 'Marketplace' : 'All'; ?></td>
 						<td class="middle text-center"><?php echo thai_date($rs->start_date); ?></td>
 						<td class="middle text-center"><?php echo thai_date($rs->end_date); ?></td>
 						<td class="middle text-center"><?php echo number($rs->totalSKU); ?></td>
