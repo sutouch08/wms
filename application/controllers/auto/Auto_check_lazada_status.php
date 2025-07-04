@@ -1,5 +1,5 @@
 <?php
-class Auto_check_tiktok_status extends CI_Controller
+class Auto_check_shopee_status extends CI_Controller
 {
   public $home;
   public $mc;
@@ -14,7 +14,7 @@ class Auto_check_tiktok_status extends CI_Controller
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'auto/Auto_check_tiktok_status';
+    $this->home = base_url().'auto/Auto_check_shopee_status';
     $this->load->model('orders/orders_model');
     $this->pm = new stdClass();
     $this->pm->can_view = 1;
@@ -28,14 +28,14 @@ class Auto_check_tiktok_status extends CI_Controller
 
     if( ! empty($list))
     {
-      $this->load->library('wrx_tiktok_api');
+      $this->load->library('wrx_lazada_api');
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        $order_status = $this->wrx_lazada_api->get_order_status($rs->reference);
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
-        if($order_status == '140')
+        if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
         {
           $this->orders_model->update($rs->code, ['is_cancled' => 1, 'last_check' => now()]);
         }
@@ -57,14 +57,14 @@ class Auto_check_tiktok_status extends CI_Controller
 
     if( ! empty($list))
     {
-      $this->load->library('wrx_tiktok_api');
+      $this->load->library('wrx_lazada_api');
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        $order_status = $this->wrx_lazada_api->get_order_status($rs->reference);
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
-        if($order_status == '140')
+        if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
         {
           $this->orders_model->update($rs->code, ['is_cancled' => 1, 'last_check' => now()]);
         }
@@ -87,14 +87,14 @@ class Auto_check_tiktok_status extends CI_Controller
 
     if( ! empty($list))
     {
-      $this->load->library('wrx_tiktok_api');
+      $this->load->library('wrx_lazada_api');
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        $order_status = $this->wrx_lazada_api->get_order_status($rs->reference);
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
-        if($order_status == '140')
+        if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
         {
           $this->orders_model->update($rs->code, ['is_cancled' => 1, 'last_check' => now()]);
         }
@@ -132,7 +132,7 @@ class Auto_check_tiktok_status extends CI_Controller
     ->select('code, reference')
     ->where('id >', $id)
     ->where('role', 'S')
-    ->where('channels_code', '0009')
+    ->where('channels_code', 'LAZADA')
     ->where('is_cancled', 0)
     ->where_in('state', $state)
     ->order_by('last_check', 'ASC')

@@ -163,7 +163,7 @@ class Orders extends REST_Controller
     $warehouse_code = (isset($data->warehouse) && ! empty($data->warehouse)) ? $data->warehouse : getConfig('IX_WAREHOUSE');
     $customer = NULL;
     $zone_code = NULL;
-    $channels_code = NULL;
+    $channels_code = empty($data->channel) ? NULL : $data->channel;
     $payment_code = NULL;
     $payment_role = NULL;
     $cod_amount = empty($data->cod_amount) ? 0 : floatval($data->cod_amount);
@@ -288,6 +288,7 @@ class Orders extends REST_Controller
           'type' => $this->type,
           'code' => $data->order_number,
           'action' => $action,
+          'channels' => $channels_code,
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -321,6 +322,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' => $this->type,
           'code' => $data->order_number,
+          'channels' => $channels_code,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -386,6 +388,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' => $this->type,
           'code' => $data->order_number,
+          'channels' => $channels_code,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -442,7 +445,7 @@ class Orders extends REST_Controller
       {
         $payment_code = $pm->code;
         $payment_role = $pm->role;
-        $is_term = $payment_role == 4 ? 0 : $pm->has_term;        
+        $is_term = $payment_role == 4 ? 0 : $pm->has_term;
       }
       else
       {
@@ -554,6 +557,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' => $this->type,
           'code' => $data->order_number,
+          'channels' => $channels_code,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -904,6 +908,7 @@ class Orders extends REST_Controller
             'api_path' => $this->api_path,
             'type' => $this->type,
             'code' => $data->order_number,
+            'channels' => $channels_code,
             'action' => $action,
             'status' => 'success',
             'message' => 'success',
@@ -961,6 +966,7 @@ class Orders extends REST_Controller
             'api_path' => $this->api_path,
             'type' => $this->type,
             'code' => $data->order_number,
+            'channels' => $channels_code,
             'action' => $action,
             'status' => 'failed',
             'message' => $this->error,
@@ -1079,6 +1085,8 @@ class Orders extends REST_Controller
 
     $order = empty($data->order_number) ? $this->orders_model->get($code) : $this->orders_model->get_order_by_reference($code);
 
+    $channels_code = empty($order) ? NULL : $order->channels_code;
+
     if(empty($order))
     {
       $this->error = "Invalid order_number: {$code}";
@@ -1095,7 +1103,7 @@ class Orders extends REST_Controller
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
           'type' => $this->type,
-          'code' => NULL,
+          'code' => $code,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -1126,7 +1134,8 @@ class Orders extends REST_Controller
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
           'type' => $this->type,
-          'code' => NULL,
+          'code' => $code,
+          'channels' => $channels_code,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -1491,6 +1500,7 @@ class Orders extends REST_Controller
 					'api_path' => $this->api_path,
 					'type' => 'ORDER',
 					'code' => $code,
+          'channels' => $channels_code,
 					'action' => $action,
 					'status' => 'success',
 					'message' => 'success',
@@ -1520,6 +1530,7 @@ class Orders extends REST_Controller
 					'api_path' => $this->api_path,
 					'type' => 'ORDER',
 					'code' => $code,
+          'channels' => $channels_code,
 					'action' => $action,
 					'status' => 'failed',
 					'message' => $this->error,
@@ -1636,6 +1647,10 @@ class Orders extends REST_Controller
 
     $order_code = $this->orders_model->get_active_order_code_by_reference($data->order_number);
 
+    $order = empty($order_code) ? NULL : $this->orders_model->get($order_code);
+
+    $channels_code = empty($order) ? NULL : $order->channels_code;
+
     if(empty($order_code))
     {
       $this->error = "Active order number not found for {$data->order_number}";
@@ -1653,6 +1668,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' => $this->type,
           'code' => $data->order_number,
+          'channels' => $channels_code,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -1687,6 +1703,7 @@ class Orders extends REST_Controller
         'api_path' => $this->api_path,
         'type' => $this->type,
         'code' => $data->order_number,
+        'channels' => $channels_code,
         'action' => $action,
         'status' => 'failed',
         'message' => $this->error,
@@ -1783,6 +1800,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' => $this->type,
           'code' => $data->order_number,
+          'channels' => $channels_code,
           'action' => $action,
           'status' => 'success',
           'message' => 'success',
@@ -1812,6 +1830,7 @@ class Orders extends REST_Controller
           'api_path' => $this->api_path,
           'type' => $this->type,
           'code' => $data->order_number,
+          'channels' => $channels_code,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
