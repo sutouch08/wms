@@ -166,7 +166,7 @@ class Orders extends REST_Controller
     $channels_code = NULL;
     $payment_code = NULL;
     $payment_role = NULL;
-    $cod_amount = empty($data->cod_amount) ? 0 : $data->cod_amount;
+    $cod_amount = empty($data->cod_amount) ? 0 : floatval($data->cod_amount);
     $is_term = 0;
     $GP = '0.00';
     $user_ref = NULL;
@@ -442,20 +442,7 @@ class Orders extends REST_Controller
       {
         $payment_code = $pm->code;
         $payment_role = $pm->role;
-        $is_term = $payment_role == 4 ? 0 : $pm->has_term;
-
-        if($payment_role == 4)
-        {
-          if($cod_amount <= 0)
-          {
-            $sc = FALSE;
-            $this->error = "COD Amount must be morethan 0";
-          }
-        }
-        else
-        {
-          $cod_amount = 0;
-        }
+        $is_term = $payment_role == 4 ? 0 : $pm->has_term;        
       }
       else
       {
@@ -889,7 +876,7 @@ class Orders extends REST_Controller
 
                 $this->orders_model->add_backlogs_detail($backlogs);
               }
-            }            
+            }
           }
         }
         else
