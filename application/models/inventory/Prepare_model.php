@@ -259,11 +259,6 @@ class Prepare_model extends CI_Model
       $this->db->join('order_details AS od', 'o.code = od.order_code','left');
     }
 
-    if(empty($ds['from_date']) && empty($ds['to_date']))
-    {
-      $this->db->where('o.id >', $this->get_max_id());
-    }
-
     $this->db
     ->where('o.state', $state)
     ->where('o.status', 1);
@@ -283,13 +278,14 @@ class Prepare_model extends CI_Model
       $this->db->where('is_cancled', $ds['is_cancled']);
     }
 
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db
-			->group_start()
-			->like('o.code', $ds['code'])
-			->or_like('o.reference', $ds['code'])
-			->group_end();
+      $this->db->like('o.code', $ds['code']);
+    }
+
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('o.reference', $ds['reference']);
     }
 
     if(!empty($ds['item_code']))
@@ -312,29 +308,25 @@ class Prepare_model extends CI_Model
       $this->db->where('o.warehouse_code', $ds['warehouse']);
     }
 
-    // //---- user name / display name
-    // if($state == 3 && !empty($ds['user']))
-    // {
-    //   $this->db->group_start();
-    //   $this->db->like('u.uname', $ds['user']);
-    //   $this->db->or_like('u.name', $ds['user']);
-    //   $this->db->group_end();
-    // }
-    //
-    // if($state == 4 && !empty($ds['display_name']))
-    // {
-    //   $this->db->group_start();
-    //   $this->db->like('u.uname', $ds['display_name']);
-    //   $this->db->or_like('u.name', $ds['display_name']);
-    //   $this->db->group_end();
-    // }
+    if(isset($ds['user']) && $ds['user'] != 'all')
+    {
+      if($state == 3)
+      {
+        $this->db->where('o.user', $ds['user']);
+      }
+
+      if($state == 4)
+      {
+        $this->db->where('o.update_user', $ds['user']);
+      }
+    }
 
     if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
       $this->db->where('o.channels_code', $ds['channels']);
     }
 
-    if($ds['is_online'] != '2')
+    if($ds['is_online'] != 'all')
     {
       if($ds['is_online'] == 1)
       {
@@ -347,11 +339,6 @@ class Prepare_model extends CI_Model
         ->or_where('ch.is_online IS NULL', NULL, FALSE)
         ->group_end();
       }
-    }
-
-    if(!empty($ds['payment']) && $ds['payment'] !== 'all')
-    {
-      $this->db->where('o.payment_code', $ds['payment']);
     }
 
     if($ds['role'] != 'all')
@@ -397,9 +384,8 @@ class Prepare_model extends CI_Model
     $this->db
 		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
     ->select('o.customer_ref, o.date_add, o.channels_code, o.is_backorder, o.is_cancled')
-    ->select('o.warehouse_code, o.zone_code, o.empName, o.user')
+    ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user')
     ->select('ch.name AS channels_name')
-    ->select('u.name AS display_name')
     ->from('orders AS o')
     ->join('channels AS ch', 'ch.code = o.channels_code','left');
 
@@ -412,21 +398,6 @@ class Prepare_model extends CI_Model
 		{
 			$this->db->where('o.is_wms', 0);
 		}
-
-    if($state == 4)
-    {
-      $this->db->join('user AS u', 'u.uname = o.update_user', 'left');
-    }
-
-    if($state == 3)
-    {
-      $this->db->join('user AS u', 'u.uname = o.user', 'left');
-    }
-
-    if(empty($ds['from_date']) && empty($ds['to_date']))
-    {
-      $this->db->where('o.id >', $this->get_max_id());
-    }
 
     $this->db
     ->where('o.state', $state)
@@ -442,13 +413,14 @@ class Prepare_model extends CI_Model
       $this->db->where('is_cancled', $ds['is_cancled']);
     }
 
-    if(!empty($ds['code']))
+    if( ! empty($ds['code']))
     {
-      $this->db
-			->group_start()
-			->like('o.code', $ds['code'])
-			->or_like('o.reference', $ds['code'])
-			->group_end();
+      $this->db->like('o.code', $ds['code']);
+    }
+
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('o.reference', $ds['reference']);
     }
 
     if(!empty($ds['item_code']))
@@ -471,28 +443,25 @@ class Prepare_model extends CI_Model
       $this->db->where('o.warehouse_code', $ds['warehouse']);
     }
 
-    if($state == 3 && !empty($ds['user']))
+    if(isset($ds['user']) && $ds['user'] != 'all')
     {
-      $this->db->group_start();
-      $this->db->like('u.uname', $ds['user']);
-      $this->db->or_like('u.name', $ds['user']);
-      $this->db->group_end();
+      if($state == 3)
+      {
+        $this->db->where('o.user', $ds['user']);
+      }
+
+      if($state == 4)
+      {
+        $this->db->where('o.update_user', $ds['user']);
+      }
     }
 
-    if($state == 4 && !empty($ds['display_name']))
-    {
-      $this->db->group_start();
-      $this->db->like('u.uname', $ds['display_name']);
-      $this->db->or_like('u.name', $ds['display_name']);
-      $this->db->group_end();
-    }
-
-    if( ! empty($ds['channels']) && $ds['channels'] != 'all')
+    if( isset($ds['channels']) && $ds['channels'] != 'all')
     {
       $this->db->where('o.channels_code', $ds['channels']);
     }
 
-    if($ds['is_online'] != '2')
+    if(isset($ds['is_online']) && $ds['is_online'] != 'all')
     {
       if($ds['is_online'] == 1)
       {

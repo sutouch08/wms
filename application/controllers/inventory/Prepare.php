@@ -33,10 +33,11 @@ class Prepare extends PS_Controller
 
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
+      'reference' => get_filter('reference', 'ic_reference', ''),
       'customer' => get_filter('customer', 'ic_customer', ''),
-      'user' => get_filter('user', 'ic_user', ''),
+      'user' => get_filter('user', 'ic_user', 'all'),
       'channels' => get_filter('channels', 'ic_channels', 'all'),
-      'is_online' => get_filter('is_online', 'ic_is_online', '2'),
+      'is_online' => get_filter('is_online', 'ic_is_online', 'all'),
       'role' => get_filter('role', 'ic_role', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
@@ -84,10 +85,11 @@ class Prepare extends PS_Controller
 
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
+      'reference' => get_filter('reference', 'ic_reference', ''),
       'customer' => get_filter('customer', 'ic_customer', ''),
-      'user' => get_filter('user', 'ic_user', ''),
+      'user' => get_filter('user', 'ic_user', 'all'),
       'channels' => get_filter('channels', 'ic_channels', 'all'),
-      'is_online' => get_filter('is_online', 'ic_is_online', '2'),
+      'is_online' => get_filter('is_online', 'ic_is_online', 'all'),
       'role' => get_filter('role', 'ic_role', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
@@ -920,6 +922,7 @@ class Prepare extends PS_Controller
   {
     $filter = array(
       'ic_code',
+      'ic_reference',
       'ic_customer',
       'ic_user',
       'ic_channels',

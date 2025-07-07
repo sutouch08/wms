@@ -34,22 +34,30 @@
 			<h4 class="title">ตัวกรอง</h4>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
 			<label>เลขที่เอกสาร</label>
 			<input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
+			<label>อ้างอิง</label>
+			<input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
+		</div>
+
+		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
 			<label>ลูกค้า</label>
 			<input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
-			<label>พนักงาน[เปิดออเดอร์]</label>
-			<input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
+		<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
+			<label>พนักงาน</label>
+			<select class="width-100 filter" id="user" name="user">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_user($user); ?>
+			</select>
 		</div>
 
-		<div class="col-lg-3 col-md-4-harf col-sm-4-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5 fi">
 			<label>คลัง</label>
 			<select class="width-100" name="warehouse" id="warehouse">
 				<option value="all">ทั้งหมด</option>
@@ -57,7 +65,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2-harf col-sm-3-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
 			<label>ช่องทางขาย</label>
 			<select class="width-100" name="channels" id="channels">
 				<option value="all">ทั้งหมด</option>
@@ -65,39 +73,31 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>ออนไลน์</label>
 			<select class="form-control input-sm" name="is_online">
-				<option value="2">ทั้งหมด</option>
+				<option value="all">ทั้งหมด</option>
 				<option value="1" <?php echo is_selected($is_online, '1'); ?>>ออนไลน์</option>
 				<option value="0" <?php echo is_selected($is_online, '0'); ?>>ออฟไลน์</option>
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>ประเภท</label>
 			<select class="form-control input-sm" name="role">
 				<option value="all">ทั้งหมด</option>
-				<option value="S" <?php echo is_selected($role, 'S'); ?>>ขาย</option>
-				<option value="C" <?php echo is_selected($role, 'C'); ?>>ฝากขาย(SO)</option>
-				<option value="N" <?php echo is_selected($role, 'N'); ?>>ฝากขาย(TR)</option>
-				<option value="P" <?php echo is_selected($role, 'P'); ?>>สปอนเซอร์</option>
-				<option value="U" <?php echo is_selected($role, 'U'); ?>>อภินันท์</option>
-				<option value="Q" <?php echo is_selected($role, 'Q'); ?>>แปรสภาพ(สต็อก)</option>
-				<option value="T" <?php echo is_selected($role, 'T'); ?>>แปรสภาพ(ขาย)</option>
-				<option value="L" <?php echo is_selected($role, 'L'); ?>>ยืม</option>
+				<option value="S" <?php echo is_selected($role, 'S'); ?>>WO</option>
+				<option value="C" <?php echo is_selected($role, 'C'); ?>>WC</option>
+				<option value="N" <?php echo is_selected($role, 'N'); ?>>WT</option>
+				<option value="P" <?php echo is_selected($role, 'P'); ?>>WS</option>
+				<option value="U" <?php echo is_selected($role, 'U'); ?>>WU</option>
+				<option value="Q" <?php echo is_selected($role, 'Q'); ?>>WV</option>
+				<option value="T" <?php echo is_selected($role, 'T'); ?>>WQ</option>
+				<option value="L" <?php echo is_selected($role, 'L'); ?>>WL</option>
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-2 col-xs-12 padding-5 fi hide">
-			<label>ช่องทางการชำระเงิน</label>
-			<select class="form-control input-sm" name="payment">
-				<option value="all">ทั้งหมด</option>
-				<?php echo select_payment_method($payment); ?>
-			</select>
-		</div>
-
-		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>Backorder</label>
 			<select class="form-control input-sm" name="is_backorder">
 				<option value="all">ทั้งหมด</option>
@@ -106,7 +106,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<label>Canceled</label>
 			<select class="form-control input-sm" name="is_cancled">
 				<option value="all">ทั้งหมด</option>
@@ -123,7 +123,7 @@
 			</div>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-1-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>สถานะ</label>
 			<select class="form-control input-sm" name="stated">
 				<option value="">เลือกสถานะ</option>
@@ -135,21 +135,21 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-3 padding-5 fi">
-			<label class="display-block">เริ่มต้น</label>
+		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5 fi">
+			<label>เริ่มต้น</label>
 			<select class="form-control input-sm" name="startTime">
 				<?php echo selectTime($startTime); ?>
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-3 padding-5 fi">
-			<label class="display-block">สิ้นสุด</label>
+		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5 fi">
+			<label>สิ้นสุด</label>
 			<select class="form-control input-sm" name="endTime">
 				<?php echo selectTime($endTime); ?>
 			</select>
 		</div>
 
-		<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-12 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6 padding-5 fi">
 			<label>รหัสสินค้า</label>
 			<input type="text" class="form-control input-sm search" name="item_code" id="item_code" value="<?php echo $item_code; ?>" />
 		</div>
@@ -350,6 +350,7 @@
 </div>
 
 <script>
+	$('#user').select2();
 	$('#warehouse').select2();
 	$('#channels').select2();
 </script>
