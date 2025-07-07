@@ -222,7 +222,7 @@
 					<?php $whName = []; ?>
 					<?php $zName = []; ?>
           <?php foreach($orders as $rs) : ?>
-						<?php $rs->qty = NULL; //$this->prepare_model->get_sum_order_qty($rs->code); ?>
+						<?php $rs->qty = $this->prepare_model->get_sum_order_qty($rs->code); ?>
 						<?php if( empty($whName[$rs->warehouse_code])) : ?>
 							<?php $whName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
 						<?php endif; ?>
