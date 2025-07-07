@@ -168,7 +168,7 @@
           <?php if($this->pm->can_edit && $rs->status == 0 && $rs->is_expire == 0) : ?>
               <button type="button" class="btn btn-minier btn-warning top-btn" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
           <?php endif; ?>
-          <?php if(($this->pm->can_delete && $rs->status != 2)) : ?>
+          <?php if($this->pm->can_delete && $rs->status != 2) : ?>
               <button type="button" class="btn btn-minier btn-danger top-btn" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
           <?php endif; ?>
           <?php if($this->pm->can_edit && $rs->status == 3 && $rs->is_approve == 1 && $rs->is_expire == 0) : ?>

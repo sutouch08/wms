@@ -251,22 +251,17 @@ class Prepare_model extends CI_Model
   public function count_rows(array $ds = array(), $state = 3, $full_mode = TRUE)
   {
     $this->db
-    ->select('o.state')
     ->from('orders AS o')
     ->join('channels AS ch', 'ch.code = o.channels_code','left');
+
     if( ! empty($ds['item_code']))
     {
       $this->db->join('order_details AS od', 'o.code = od.order_code','left');
     }
 
-    if($state == 4)
+    if(empty($ds['from_date']) && empty($ds['to_date']))
     {
-      $this->db->join('user AS u', 'u.uname = o.update_user', 'left');
-    }
-
-    if($state == 3)
-    {
-      $this->db->join('user AS u', 'u.uname = o.user', 'left');
+      $this->db->where('o.id >', $this->get_max_id());
     }
 
     $this->db
@@ -317,22 +312,22 @@ class Prepare_model extends CI_Model
       $this->db->where('o.warehouse_code', $ds['warehouse']);
     }
 
-    //---- user name / display name
-    if($state == 3 && !empty($ds['user']))
-    {
-      $this->db->group_start();
-      $this->db->like('u.uname', $ds['user']);
-      $this->db->or_like('u.name', $ds['user']);
-      $this->db->group_end();
-    }
-
-    if($state == 4 && !empty($ds['display_name']))
-    {
-      $this->db->group_start();
-      $this->db->like('u.uname', $ds['display_name']);
-      $this->db->or_like('u.name', $ds['display_name']);
-      $this->db->group_end();
-    }
+    // //---- user name / display name
+    // if($state == 3 && !empty($ds['user']))
+    // {
+    //   $this->db->group_start();
+    //   $this->db->like('u.uname', $ds['user']);
+    //   $this->db->or_like('u.name', $ds['user']);
+    //   $this->db->group_end();
+    // }
+    //
+    // if($state == 4 && !empty($ds['display_name']))
+    // {
+    //   $this->db->group_start();
+    //   $this->db->like('u.uname', $ds['display_name']);
+    //   $this->db->or_like('u.name', $ds['display_name']);
+    //   $this->db->group_end();
+    // }
 
     if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
@@ -378,18 +373,6 @@ class Prepare_model extends CI_Model
         $this->db->where('o.date_add >=', from_date($ds['from_date']));
         $this->db->where('o.date_add <=', to_date($ds['to_date']));
       }
-    }
-
-    $this->db->group_by('o.code');
-
-    if( ! empty($ds['order_by']))
-    {
-      $order_by = "o.{$ds['order_by']}";
-      $this->db->order_by($order_by, $ds['sort_by']);
-    }
-    else
-    {
-      $this->db->order_by('o.date_add', 'DESC');
     }
 
     return $this->db->count_all_results();
@@ -438,6 +421,11 @@ class Prepare_model extends CI_Model
     if($state == 3)
     {
       $this->db->join('user AS u', 'u.uname = o.user', 'left');
+    }
+
+    if(empty($ds['from_date']) && empty($ds['to_date']))
+    {
+      $this->db->where('o.id >', $this->get_max_id());
     }
 
     $this->db
@@ -612,6 +600,17 @@ class Prepare_model extends CI_Model
   }
 
 
+  public function get_max_id()
+  {
+    $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id - 200000;
+    }
+
+    return 2000000;
+  }
 } //--- end class
 
 
