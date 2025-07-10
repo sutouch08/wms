@@ -172,6 +172,7 @@ class Orders extends REST_Controller
     $is_term = 0;
     $GP = '0.00';
     $user_ref = NULL;
+    $this->user = empty($data->owner) ? $this->user : $data->owner;
     $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
     $is_etax = empty($data->ETAX) ? 0 : ($data->ETAX == 'Y' && $tax_status == 1 ? 1 : 0);
     $bill_to = empty($data->bill_to) ? NULL : (array) $data->bill_to;
@@ -590,6 +591,7 @@ class Orders extends REST_Controller
       $sale_code = empty($customer) ? -1 : $customer->sale_code;
 
       $state = $role == 'T' ? 1 : 3;
+      $state = $role == 'S' ? (empty($data->payslip) ? 3 : 2) : $state;
 
       $is_wms = 0;
 
@@ -864,6 +866,78 @@ class Orders extends REST_Controller
                 }
               } //--- end if item
             }  //--- endforeach add details
+          }
+
+          //-- แนบสลิป
+          if($state  == 2)
+          {
+            //--- if has pay slip
+  					if( ! empty($data->payslip))
+  					{
+  						$img = explode(',', $data->payslip);
+
+  						if(count($img) == 1)
+  						{
+  							$imageData = base64_decode($img[0]);
+  						}
+  						else
+  						{
+  							$imageData = base64_decode($img[1]);
+  						}
+
+              $path = $this->config->item('image_file_path')."payments/";
+
+  						$source = imagecreatefromstring($imageData);
+  						$name = "{$path}{$order_code}.jpg";
+  						$save = imagejpeg($source, $name, 100);
+  						imagedestroy($source);
+  					}
+
+            //---- create payment
+  					$this->load->model('masters/bank_model');
+  		      $this->load->model('orders/order_payment_model');
+
+            $pay_date = now();
+
+  					if( ! empty($data->payment_date_time))
+  					{
+  						$pay_date = date('Y-m-d H:i:s', strtotime($data->payment_date_time));
+  					}
+
+            if( ! empty($data->account_no))
+  					{
+  						$id_account = $this->bank_model->get_id($data->account_no);
+
+  						if( ! empty($id_account))
+  						{
+  							$arr = array(
+  				        'order_code' => $order_code,
+  				        'order_amount' => $total_amount,
+  				        'pay_amount' => $total_amount,
+  				        'pay_date' => $pay_date,
+  				        'id_account' => $id_account,
+  				        'acc_no' => $data->account_no,
+  				        'user' =>$this->user
+  				      );
+
+  							if(!$this->order_payment_model->add($arr))
+  							{
+  								$sc = FALSE;
+  								$this->error = "Insert Payment data failed";
+  							}  							
+  						}
+  						else
+  						{
+  							$sc = FALSE;
+  							$this->error = "Invalid account no";
+  						}
+
+  					}
+  					else
+  					{
+  						$sc = FALSE;
+  						$this->error = "Account no is required";
+  					}
           }
 
           if($sc === TRUE)
