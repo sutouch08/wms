@@ -2077,8 +2077,8 @@ class Orders extends PS_Controller
       {
         $item = $this->products_model->get_item_by_color_and_size($style->code, $color_code, $size_code);
 
-        if( !empty($item) )
-        {
+        if( ! empty($item) )
+        {          
           $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'Not for sell' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
 
           $stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
