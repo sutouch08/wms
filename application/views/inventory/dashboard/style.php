@@ -1,6 +1,6 @@
 <style>
 .head-line {
-  font-size:1.5vw;
+  font-size:2.5vw;
   text-align: center;
   font-weight: bolder;
   vertical-align:middle !important;
@@ -20,7 +20,8 @@
   min-height: 200px !important;
   text-align: center;
   color: #333333;
-  font-size: 2vw;
+  font-size: 3vw;
+  font-weight: bolder;
   vertical-align:middle !important;
 }
 
