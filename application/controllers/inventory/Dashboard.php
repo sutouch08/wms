@@ -3,9 +3,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Dashboard extends CI_Controller
 {
+  public $menu_code = '';
+	public $menu_group_code = '';
+  public $menu_sub_group_code = '';
   public $ms;
   public $title = "Dashboard";
   public $home;
+  public $isViewer = FALSE;
+  public $notibars = 0;
   public $pm;
 
   public function __construct()
@@ -24,8 +29,8 @@ class Dashboard extends CI_Controller
   {
     // if($this->is_mobile)
     // {
-    //   $ds['title'] = "Inventory Orders";
-    //   $this->load->view('inventory/dashboard/mobile/dashboard_mobile', $ds);
+    //   $this->title = "Inventory Orders";
+    //   $this->load->view('inventory/dashboard/mobile/dashboard_mobile');
     // }
     // else
     // {

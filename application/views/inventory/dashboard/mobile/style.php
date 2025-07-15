@@ -3,6 +3,61 @@ li {
   list-style-type: none;
 }
 
+.setting-menu {
+  padding: 5px;
+}
+
+.menu-block {
+  width: 100%;
+  /*height: 100px;*/
+  background-color: #f5f7fa;
+  border: solid 1px #dddddd;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+a.menu-link {
+  text-align: center;
+  padding: 8px 8px 8px 18px;
+  text-decoration: none;
+  position: relative;
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  color: #434a54;
+}
+
+.v-box {
+  position: relative;
+  float: right !important;
+  text-align: center;
+  color: #333333;
+  font-size: 14px;
+}
+
+.state-div {
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+}
+
+.state-table tbody > tr > td {
+  padding: 4px;
+  border-bottom: solid 1px #ccc;
+}
+
+.state-value {
+  font-size:14px;
+  padding:5px;
+  border-bottom: solid 1px #dddddd;
+}
+
+.divider {
+  margin-top:0px !important;
+  margin-bottom: 10px !important;
+  border-bottom: solid 1px #dddddd;
+}
+
 .active > a , .active > a:hover {
 	background: none;
 }

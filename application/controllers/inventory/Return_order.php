@@ -1447,7 +1447,7 @@ class Return_order extends PS_Controller
     {
       foreach($details as $rs)
       {
-        $returned_qty = empty($rs->invoice_code) ? 0 : $this->return_order_model->get_returned_qty($doc->invoice, $rs->product_code);
+        $returned_qty = empty($rs->invoice_code) ? 0 : $this->return_order_model->get_returned_qty($doc->invoice, $rs->order_code, $rs->product_code);
         $returned_qty = $returned_qty > 0 ? ($returned_qty >= $rs->qty ? $returned_qty - $rs->qty : $rs->qty) : 0;
         $qty = $rs->sold_qty - $returned_qty;
 
@@ -1551,7 +1551,7 @@ class Return_order extends PS_Controller
 
       foreach($details as $rs)
       {
-        $returned_qty = $this->return_order_model->get_returned_qty($invoice, $rs->product_code);
+        $returned_qty = $this->return_order_model->get_returned_qty($invoice, $order_code, $rs->product_code);
         $returned_qty = $returned_qty > 0 ? ($returned_qty >= $rs->qty ? $returned_qty - $rs->qty : $rs->qty) : 0;
         $qty = $rs->qty - $returned_qty;
 
@@ -1605,7 +1605,7 @@ class Return_order extends PS_Controller
     {
       foreach($details as $rs)
       {
-        $returned_qty = $this->return_order_model->get_returned_qty($invoice, $rs->product_code);
+        $returned_qty = $this->return_order_model->get_returned_qty($invoice, $rs->order_code, $rs->product_code);
         $qty = $rs->qty - $returned_qty;
         $row = new stdClass();
         if($qty > 0)
