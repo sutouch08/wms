@@ -56,7 +56,7 @@
 		</div>
     <div id="navbar" class="navbar navbar-default">
 			<div class="navbar-container" id="navbar-container">
-				<div class="navbar-header" id="title"><?php echo $title; ?></div>
+				<div class="navbar-header" id="title"><?php echo isset($title) ? $title : $this->title; ?></div>
 			</div>
 		</div>
 

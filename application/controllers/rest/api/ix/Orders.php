@@ -807,7 +807,7 @@ class Orders extends REST_Controller
                   "cost"  => $item->cost,
                   "price"	=> $rs->price, //--- price bef disc
                   "qty"		=> $rs->qty,
-                  "discount1"	=> $role == 'C' ? discountAmountToPercent($rs->discount, $rs->qty, $rs->price).' %' : round($disc, 2),
+                  "discount1"	=> $is_mkp ? round($disc, 2) : round(discountAmountToPercent($rs->discount, $rs->qty, $rs->price), 2).' %',
                   "discount2" => 0,
                   "discount3" => 0,
                   "discount_amount" => $rs->discount, //--- discount per item * qty

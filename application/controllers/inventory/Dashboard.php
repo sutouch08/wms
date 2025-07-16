@@ -27,17 +27,15 @@ class Dashboard extends CI_Controller
 
   public function index()
   {
-    // if($this->is_mobile)
-    // {
-    //   $this->title = "Inventory Orders";
-    //   $this->load->view('inventory/dashboard/mobile/dashboard_mobile');
-    // }
-    // else
-    // {
-    //   $this->load->view('inventory/dashboard/dashboard');
-    // }
-
-    $this->load->view('inventory/dashboard/dashboard');
+    if($this->is_mobile)
+    {
+      $this->title = "Inventory Orders";
+      $this->load->view('inventory/dashboard/mobile/dashboard_mobile');
+    }
+    else
+    {
+      $this->load->view('inventory/dashboard/dashboard');
+    }
   }
 
 
