@@ -1561,7 +1561,7 @@ class Return_order extends PS_Controller
           $rs->uid = $rs->DocEntry ."-".$rs->LineNum;
           $rs->invoice = $invoice;
           $rs->sold_qty = round($qty, 2);
-          $rs->price = round($rs->price, 2);
+          $rs->price = round(add_vat($rs->price), 2);
           $rs->sold_label = number($qty);
           $rs->price_label = number($rs->price, 2);
           $rs->discount = round($rs->discount, 2);
@@ -1615,7 +1615,7 @@ class Return_order extends PS_Controller
 					$row->order_code = $rs->order_code;
           $row->code = $rs->product_code;
           $row->name = $rs->product_name;
-          $row->price = round($rs->price, 2);
+          $row->price = round(add_vat($rs->price), 2);
           $row->discount = round($rs->discount, 2);
           $row->qty = round($qty, 2);
           $row->amount = 0;
