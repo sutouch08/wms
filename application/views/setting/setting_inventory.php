@@ -206,6 +206,17 @@
       <div class="divider-hidden"></div>
 
 			<div class="col-sm-3">
+        <span class="form-control left-label">Default package</span>
+      </div>
+      <div class="col-sm-9">
+				<select class="form-control input-xlarge" name="DEFAULT_PACKAGE" id="default-package">
+					<?php echo select_active_package($DEFAULT_PACKAGE); ?>
+        </select>
+				<span class="help-block">กำหนดขนาด package เริ่มต้นสำหรับการแพ็คสินค้า</span>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-3">
         <span class="form-control left-label">นำเข้ารายการโอนสินค้า</span>
       </div>
       <div class="col-sm-9">

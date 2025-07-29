@@ -9,7 +9,7 @@ class Address_model extends CI_Model
   public function get_shipping_detail($id)
   {
     $rs = $this->db->where('id', $id)->get('address_ship_to');
-    
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -157,15 +157,44 @@ class Address_model extends CI_Model
 
 
 
-  public function get_id($code, $address = NULL)
+  public function get_id($code, $address = NULL, $sub_district = NULL, $district = NULL, $province = NULL, $name = NULL, $phone = NULL)
   {
     $this->db->select('id')->where('code', $code);
+
     if($address != NULL)
     {
       $this->db->where('address', $address);
     }
+
+    if( ! empty($sub_district))
+    {
+      $this->db->where('sub_district', $sub_district);
+    }
+
+    if( ! empty($district))
+    {
+      $this->db->where('district', $district);
+    }
+
+    if( ! empty($province))
+    {
+      $this->db->where('province', $province);
+    }
+
+    if( ! empty($name))
+    {
+      $this->db->where('name', $name);
+    }
+
+    if( ! empty($phone))
+    {
+      $this->db->where('phone', $phone);
+    }
+
     $this->db->order_by('is_default', 'DESC')->limit(1);
+
     $rs = $this->db->get('address_ship_to');
+
     if($rs->num_rows() === 1)
     {
       return $rs->row()->id;

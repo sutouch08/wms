@@ -268,7 +268,7 @@ class Qc_model extends CI_Model
   public function get_box_list($order_code)
   {
     $rs = $this->db
-    ->select('b.id, b.code, b.box_no')
+    ->select('b.id, b.code, b.box_no, b.package_id')
     ->select_sum('q.qty', 'qty')
     ->from('qc_box AS b')
     ->join('qc AS q', 'b.id = q.box_id AND b.order_code = q.order_code', 'left')
@@ -325,12 +325,13 @@ class Qc_model extends CI_Model
   }
 
 
-  public function add_new_box($order_code, $barcode, $box_no)
+  public function add_new_box($order_code, $barcode, $box_no, $package_id = NULL)
   {
     $arr = array(
       'code' => $barcode,
       'order_code' => $order_code,
-      'box_no' => $box_no
+      'box_no' => $box_no,
+      'package_id' => $package_id
     );
 
     $rs = $this->db->insert('qc_box', $arr);
@@ -343,6 +344,15 @@ class Qc_model extends CI_Model
   }
 
 
+  public function update_box($id, array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('id', $id)->update('qc_box', $ds);
+    }
+
+    return FALSE;
+  }
 
   //--- จำนวนรวมของสินค้าที่ตรวจแล้วทั้งออเดอร์(ไม่รวมที่ยังไม่ตรวจ)
   public function total_qc($order_code)

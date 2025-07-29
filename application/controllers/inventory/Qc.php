@@ -17,8 +17,10 @@ class Qc extends PS_Controller
     $this->load->model('inventory/qc_model');
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
+    $this->load->model('masters/package_model');
     $this->load->helper('warehouse');
     $this->load->helper('channels');
+    $this->load->helper('package');
   }
 
   public function index()
@@ -1002,18 +1004,20 @@ class Qc extends PS_Controller
   public function add_new_box()
   {
     $box_id = FALSE;
+    $package_id = getConfig('DEFAULT_PACKAGE');
     $box_no = 0;
     $order_code = $this->input->post('order_code');
     $code = $this->get_new_code();
     $box_no = $this->qc_model->get_last_box_no($order_code) + 1;
-    $box_id = $this->qc_model->add_new_box($order_code, $code, $box_no);
+    $box_id = $this->qc_model->add_new_box($order_code, $code, $box_no, $package_id);
 
     $arr = array(
       'status' => $box_id === FALSE ? 'failed' : 'success',
       'message' => $box_id === FALSE ? "เพิ่มกล่องไม่สำเร็จ" : 'success',
       'box_code' => $code,
       'box_id' => $box_id,
-      'box_no' => $box_no
+      'box_no' => $box_no,
+      'package_id' => get_null($package_id)
     );
 
     echo json_encode($arr);
@@ -1035,6 +1039,8 @@ class Qc extends PS_Controller
           'no' => $box->box_no,
           'code' => $box->code,
           'id_box' => $box->id,
+          'package_id' => $box->package_id,
+          'package' => select_active_package($box->package_id),
           'qty' => number($box->qty),
           'checked' => $box->id == $id ? 'checked' : '',
           'class' => $box->id == $id ? 'btn-success' : 'btn-default'
@@ -1050,6 +1056,22 @@ class Qc extends PS_Controller
     );
 
     echo json_encode($arr);
+  }
+
+
+  public function update_package_id()
+  {
+    $sc = TRUE;
+    $box_id = $this->input->post('box_id');
+    $package_id = $this->input->post('package_id');
+
+    if( ! $this->qc_model->update_box($box_id, ['package_id' => $package_id]))
+    {
+      $sc = FALSE;
+      $this->error = "Failed to update package id";
+    }
+
+    $this->_response($sc);
   }
 
 

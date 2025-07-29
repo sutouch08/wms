@@ -222,7 +222,7 @@ function qcProduct() {
         $("#qc-"+id).text(addCommas(qc_qty));
 
         //--- อัพเดตจำนวนในกล่อง
-        updateBox(qc_qty);
+        updateBox(qty);
 
         //--- อัพเดตยอดตรวจรวมทั้งออเดอร์
         $("#all_qty").text( addCommas(all_qty));
@@ -266,10 +266,11 @@ function qcProduct() {
 }
 
 
-function updateBox(){
-  var id_box = $("#id_box").val();
-  var qty = parseInt( removeCommas( $("#"+id_box).text() ) ) +1 ;
-  $("#"+id_box).text(addCommas(qty));
+function updateBox(qty){
+  qty = parseDefault(parseInt(qty), 1);
+  let id_box = $("#id_box").val();
+  let box_qty = parseDefault(parseInt(removeCommas($("#"+id_box).text())), 0) + qty ;
+  $("#"+id_box).text(addCommas(box_qty));
 }
 
 
@@ -354,6 +355,31 @@ function confirmSaveBeforeAddBox() {
   else {
     addBox();
   }
+}
+
+
+function updatePackageId(box_id) {
+  let package_id = $('#package-'+box_id).val();
+
+  $.ajax({
+    url:HOME + 'update_package_id',
+    type:'POST',
+    cache:false,
+    data:{
+      'box_id' : box_id,
+      'package_id' : package_id
+    },
+    success:function(rs) {
+      if(rs.trim() !== 'success') {
+        beep();
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      beep();
+      showError(rs);
+    }
+  })
 }
 
 

@@ -548,6 +548,26 @@ class Orders extends REST_Controller
       $zone_code = $sc === TRUE ? getConfig('TRANSFORM_ZONE') : NULL;
     }
 
+    //--- check pay slip
+    if($sc === TRUE && ($role == 'S' && ($payment_role == 1 OR $payment_role == 2)))
+    {
+      if(empty($data->payslip))
+      {
+        $sc = FALSE;
+        $this->error = "payslip is required for transfer payment";
+      }
+      else if(empty($data->payment_date_time))
+      {
+        $sc = FALSE;
+        $this->error = "payment_date_time is required for transfer payment";
+      }
+      else if(empty($data->account_no))
+      {
+        $sc = FALSE;
+        $this->error = "account_no is required for transfer payment";
+      }
+    }
+
     //---- if any error return with status code 200
     if($sc === FALSE)
     {
@@ -590,7 +610,16 @@ class Orders extends REST_Controller
       $sale_code = empty($customer) ? -1 : $customer->sale_code;
 
       $state = $role == 'T' ? 1 : 3;
-      $state = $role == 'S' ? (empty($data->payslip) ? 3 : 2) : $state;
+
+      if($role == 'S')
+      {
+        if($payment_role == 1 OR $payment_role == 2)
+        {
+          $state = 2;
+        }
+      }
+
+      //$state = $role == 'S' ? (empty($data->payslip) ? 3 : 2) : $state;
 
       $is_wms = 0;
 
@@ -740,20 +769,21 @@ class Orders extends REST_Controller
 
         if( ! empty($customer_ref) && ! empty($data->ship_to) && ! empty($data->ship_to->address))
         {
-          $id_address = $this->address_model->get_id($data->customer_ref, $data->ship_to->address);
+          $sh = $data->ship_to;
+          $id_address = $this->address_model->get_id($data->customer_ref, $sh->address, $sh->sub_district, $sh->district, $sh->province, $sh->name, $sh->phone);
 
           if($id_address === FALSE)
           {
             $arr = array(
               'code' => $data->customer_ref,
-              'name' => $data->ship_to->name,
-              'address' => $data->ship_to->address,
-              'sub_district' => $data->ship_to->sub_district,
-              'district' => $data->ship_to->district,
-              'province' => $data->ship_to->province,
-              'postcode' => $data->ship_to->postcode,
-              'phone' => $data->ship_to->phone,
-              'email' => $data->ship_to->email,
+              'name' => $sh->name,
+              'address' => $sh->address,
+              'sub_district' => $sh->sub_district,
+              'district' => $sh->district,
+              'province' => $sh->province,
+              'postcode' => $sh->postcode,
+              'phone' => $sh->phone,
+              'email' => $sh->email,
               'alias' => empty($data->alias) ? 'Home' : $data->alias,
               'is_default' => 1
             );
@@ -886,10 +916,32 @@ class Orders extends REST_Controller
 
               $path = $this->config->item('image_file_path')."payments/";
 
-  						$source = imagecreatefromstring($imageData);
-  						$name = "{$path}{$order_code}.jpg";
-  						$save = imagejpeg($source, $name, 100);
-  						imagedestroy($source);
+              if( ! empty($imageData))
+              {
+                try
+                {
+                  $source = imagecreatefromstring($imageData);
+
+                  if($source !== FALSE)
+                  {
+                    $name = "{$path}{$order_code}.jpg";
+                    $save = imagejpeg($source, $name, 100);
+                    imagedestroy($source);
+                  }
+
+                  throw new Exception('Cannot create image with payslip data');
+                }
+                catch(Exception $e)
+                {
+                  $sc = FALSE;
+                  $this->error = $e->getMessage();
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "Invalid payslip data";
+              }
   					}
 
             //---- create payment
@@ -930,12 +982,11 @@ class Orders extends REST_Controller
   							$sc = FALSE;
   							$this->error = "Invalid account no";
   						}
-
   					}
   					else
   					{
   						$sc = FALSE;
-  						$this->error = "Account no is required";
+  						$this->error = "Account no is required for transfer payment";
   					}
           }
 
