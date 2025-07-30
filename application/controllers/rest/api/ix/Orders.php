@@ -918,23 +918,13 @@ class Orders extends REST_Controller
 
               if( ! empty($imageData))
               {
-                try
-                {
-                  $source = imagecreatefromstring($imageData);
+                $source = imagecreatefromstring($imageData);
 
-                  if($source !== FALSE)
-                  {
-                    $name = "{$path}{$order_code}.jpg";
-                    $save = imagejpeg($source, $name, 100);
-                    imagedestroy($source);
-                  }
-
-                  throw new Exception('Cannot create image with payslip data');
-                }
-                catch(Exception $e)
+                if($source !== FALSE)
                 {
-                  $sc = FALSE;
-                  $this->error = $e->getMessage();
+                  $name = "{$path}{$order_code}.jpg";
+                  $save = imagejpeg($source, $name, 100);
+                  imagedestroy($source);
                 }
               }
               else
