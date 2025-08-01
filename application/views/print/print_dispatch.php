@@ -2,9 +2,10 @@
 $this->load->helper('print');
 $total_row 	= empty($details) ? 0 :count($details);
 $config 		= array(
-	"row" => 15,
+	"row" => 25,
 	"total_row" => $total_row,
-	"font_size" => 11,
+	"row_height" => 7,
+	"font_size" => 10,
 	"title_size" => 18,
 	"text_color" => "",
 	// "table_class" => "table-bordered",
@@ -83,12 +84,12 @@ $this->xprinter->add_subheader($thead);
 
 //***************************** กำหนด css ของ td *****************************//
 $pattern = array(
-	"text-align:center; border:solid 1px #333;",
-	"text-align:left; border:solid 1px #333;",
-	"text-aligh:left; border:solid 1px #333; padding:3px 8px;",
-	"text-align:center; border:solid 1px #333;",
-	"text-align:center; border:solid 1px #333;",
-	"text-align:center; border:solid 1px #333;"
+	"text-align:center; border:solid 1px #333; padding:1px;",
+	"text-align:left; border:solid 1px #333; padding:1px;",
+	"text-aligh:left; border:solid 1px #333; padding:1px;",
+	"text-align:center; border:solid 1px #333; padding:1px;",
+	"text-align:center; border:solid 1px #333; padding:1px;",
+	"text-align:center; border:solid 1px #333; padding:1px;"
 );
 
 $this->xprinter->set_pattern($pattern);

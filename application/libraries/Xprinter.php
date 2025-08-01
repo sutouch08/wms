@@ -452,7 +452,7 @@ class Xprinter
 
 	public function print_row($data)
 	{
-		$row = "<tr style='font-size:".$this->font_size."px; height:31px;'>";
+		$row = "<tr style='font-size:".$this->font_size."px; height:".$this->row_height."mm;'>";
 		$pattern = $this->pattern;
 		if(count($pattern) == 0 )
 		{
