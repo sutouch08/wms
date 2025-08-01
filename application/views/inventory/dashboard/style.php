@@ -8,10 +8,12 @@
 }
 
 .h-box {
-  width: 16.5%;
+  /* width: 16.5%;
+  max-width:20% !important%; */
   text-align: center;
   color: #333333;
-  font-size: 2vw;
+  font-size: 3vw;
+  font-weight: bolder;
   vertical-align:middle !important;
 }
 
@@ -26,6 +28,7 @@
 }
 
 .pre-load {
+  font-size: 18px;
   margin:0;
   position: absolute;
   top: 50%;
