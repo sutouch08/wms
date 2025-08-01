@@ -2,9 +2,9 @@
 $this->load->helper('print');
 $total_row 	= empty($details) ? 0 :count($details);
 $config 		= array(
-	"row" => 25,
+	"row" => 30,
 	"total_row" => $total_row,
-	"row_height" => 7,
+	"row_height" => 6,
 	"font_size" => 10,
 	"title_size" => 18,
 	"text_color" => "",
