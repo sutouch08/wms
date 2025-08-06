@@ -14,7 +14,7 @@
     <?php elseif($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php endif; ?>
-    <?php if($this->_Superadmin) : ?>
+    <?php if($this->_SuperAdmin) : ?>
     <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Ship Porlor</button>
     <?php endif; ?>
   </div>
