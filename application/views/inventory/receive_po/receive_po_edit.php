@@ -82,12 +82,12 @@
 		<input type="text" class="form-control input-sm text-center h" name="poCode" id="poCode" value="<?php echo $doc->po_code; ?>" placeholder="ค้นหาใบสั่งซื้อ" <?php echo $p_disabled; ?>/>
 	</div>
 	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5">
-		<label class="display-block not-show">clear</label>
+		<label class="not-show">clear</label>
 		<button type="button" class="btn btn-xs btn-info btn-block <?php echo $c_hide; ?> h" id="btn-confirm-po" onclick="confirmPo()">ยืนยัน</button>
 		<button type="button" class="btn btn-xs btn-primary btn-block <?php echo $p_hide; ?> h" id="btn-get-po" onclick="getPoDetail()">แสดง</button>
 	</div>
 	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5">
-		<label class="display-block not-show">clear</label>
+		<label class="not-show">clear</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-clear-po" onclick="clearPo()">Clear</button>
 	</div>
 

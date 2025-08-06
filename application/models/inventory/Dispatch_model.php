@@ -185,7 +185,7 @@ class Dispatch_model extends CI_Model
 
     if( ! empty($ds['from_date']))
     {
-      $thsi->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add >=', from_date($ds['from_date']));
     }
 
     if( ! empty($ds['to_date']))
@@ -236,7 +236,7 @@ class Dispatch_model extends CI_Model
 
     if( ! empty($ds['from_date']))
     {
-      $thsi->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add >=', from_date($ds['from_date']));
     }
 
     if( ! empty($ds['to_date']))

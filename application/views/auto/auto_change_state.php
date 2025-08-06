@@ -1,18 +1,48 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-  <div class="col-lg-6 col-md-6 col-sm-8 col-xs-8 padding-5">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 padding-top-5">
     <h3 class="title">ออเดอร์ รอย้อนสถานะ <?php echo $count; ?> จากทั้งหมด <?php echo number($all); ?></h3>
-  </div>
-  <div class="col-lg-6 col-md-6 col-sm-4 col-xs-4 padding-5">
-    <p class="pull-right top-p">
-      <button type="button" class="btn btn-xs btn-success top-btn" onclick="startExport()">Start Process</button>
-    </p>
   </div>
 </div>
 <hr/>
+<div class="row">
+  <div class="col-lg-9 col-md-7 col-sm-7 hidden-xs">&nbsp; </div>
+  <div class="col-lg-2 col-md-3-harf col-sm-3-harf col-xs-9 padding-5">
+    <div class="input-group">
+      <span class="input-group-addon">สถานะ</span>
+      <select class="form-control" id="state">
+        <option value="">Select State</option>
+        <option value="1">รอดำเนินการ</option>
+        <option value="3">รอจัดสินค้า</option>
+        <option value="7">รอเปิดบิล</option>
+        <option value="9">ยกเลิก</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+    <button type="button" class="btn btn-sm btn-success btn-block" onclick="startExport()">Start</button>
+  </div>
+</div>
+<hr/>
+
+<?php
+
+  $stateName = array(
+    '1' => 'รอดำเนินการ',
+    '2' => 'รอชำระเงิน',
+    '3' => 'รอจัดสินค้า',
+    '4' => 'กำลังจัด',
+    '5' => 'รอตรวจ',
+    '6' => 'กำลังตรวจ',
+    '7' => 'รอเปิดบิล',
+    '8' => 'เปิดบิลแล้ว',
+    '9' => 'ยกเลิก'
+  );
+
+ ?>
 <div class="row" id="result">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-    <table class="table table-striped border-1">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-striped border-1" style="min-width:500px;">
       <thead>
         <tr>
           <th class="fix-width-40 text-center">#</th>
@@ -29,10 +59,10 @@
               <td class="text-center"><?php echo $no; ?></td>
               <td>
                 <?php echo $rs->code; ?>
-                <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $no; ?>"  value="<?php echo $rs->code; ?>" />
+                <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $rs->id; ?>"  value="<?php echo $rs->code; ?>" />
               </td>
-              <td id="status-<?php echo $no; ?>">รอดำเนินการ</td>
-              <td id="msg-<?php echo $no; ?>"></td>
+              <td id="status-<?php echo $rs->id; ?>"><?php echo empty($stateName[$rs->state]) ? "Unknow" : $stateName[$rs->state]; ?></td>
+              <td id="msg-<?php echo $rs->id; ?>"></td>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>
@@ -52,9 +82,21 @@
 var finished = false;
 var max = 0;
 var orders = [];
+var state = 7;
 
 function startExport() {
+  let stateSelected = $('#state').val();
+
+  if(stateSelected == "") {
+    swal("กรุณาเลือกสถานะ");
+    return false;
+  }
+  else {
+    state = stateSelected;
+  }
+
   load_in();
+
   max = parseDefault(parseInt($('#count').val()), 0);
 
   $('.order').each(function() {
@@ -73,6 +115,7 @@ function startExport() {
 function do_export(no){
   let order = orders[no];
   let code = order.code;
+  let id = order.id;
 
   if(finished == false) {
     if(code != null && code != "" && code != undefined) {
@@ -82,12 +125,12 @@ function do_export(no){
         cache:false,
         data:{
           'order_code' : code,
-          'state' : 7
+          'state' : state
         },
         success:function(rs){
 
           if(rs == 'success') {
-            $('#status-'+no).text('OK');
+            $('#status-'+id).text('OK');
             no++;
             if(no == max) {
               update_status(code, 1, rs);
@@ -101,8 +144,8 @@ function do_export(no){
             }
           }
           else {
-            $('#status-'+no).text('failed');
-            $('#msg-'+no).text(rs);
+            $('#status-'+id).text('failed');
+            $('#msg-'+id).text(rs);
             no++;
             if(no == max) {
               update_status(code, 3, rs);

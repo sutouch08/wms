@@ -1,4 +1,4 @@
-<form id="generalForm" method="post" action="<?php echo $this->home; ?>/update_config">
+<form id="companyForm" method="post" action="<?php echo $this->home; ?>/update_config">
 	<div class="row">
 		<div class="col-lg-3 col-md-3 col-sm-3">
 			<span class="form-control left-label">แบรนด์สินค้า</span>
@@ -84,7 +84,7 @@
 
 		<div class="col-lg-9 col-lg-offset-3 col-md-9 col-md-offset-3 col-sm-9 col-sm-offset-3">
 			<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-				<button type="button" class="btn btn-sm btn-success btn-100" onClick="updateConfig('generalForm')">SAVE</button>
+			<button type="button" class="btn btn-sm btn-success btn-100" onClick="checkCompanySetting()">SAVE</button>
 			<?php endif; ?>
 		</div>
 		<div class="divider-hidden"></div>

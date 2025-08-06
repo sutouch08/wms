@@ -29,7 +29,7 @@
               <td class="text-center"><?php echo $no; ?></td>
               <td>
                 <?php echo $rs->code; ?>
-                <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $no; ?>"  value="<?php echo $rs->code; ?>" />
+                <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $rs->id; ?>"  value="<?php echo $rs->code; ?>" />
               </td>
               <td id="status-<?php echo $rs->id; ?>">รอดำเนินการ</td>
               <td id="msg-<?php echo $rs->id; ?>"></td>

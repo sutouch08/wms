@@ -21,6 +21,7 @@ class Qc extends PS_Controller
     $this->load->helper('warehouse');
     $this->load->helper('channels');
     $this->load->helper('package');
+    $this->load->helper('sender');
   }
 
   public function index()
@@ -408,6 +409,88 @@ class Qc extends PS_Controller
           $sc = FALSE;
           $this->error = "Cannot Get Order Item ID from Lazada";
         }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Order {$reference} not found";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $shipment
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function ship_order_porlor($code)
+  {
+    $sc = TRUE;
+    $shipment = NULL;
+    $this->wms = $this->load->database('wms', TRUE);
+    $this->load->model('address/address_model');
+    $this->load->library('porlor_api');
+    $order = $this->orders_model->get($code);
+
+    if( ! empty($order))
+    {
+      $addr = $this->address_model->get_shipping_detail($order->id_address);
+
+      if( ! empty($addr))
+      {
+        $packages = [];
+
+        $boxes = $this->qc_model->get_box_list($order->code);
+
+        if( ! empty($boxes))
+        {
+          foreach($boxes as $box)
+          {
+            if($box-> qty > 0)
+            {
+              $packages[] = (object) array(
+                'order_code' => $box->order_code,
+                'box_code' => $box->code,
+                'package_name' => $box->name,
+                'package_width' => intval($box->width),
+                'package_length' => intval($box->length),
+                'package_height' => intval($box->height),
+                'package_size' => round($box->width + $box->length + $box->height),
+                'receiver' => $addr->name,
+                'address' => $addr->address,
+                'sub_district' => $addr->sub_district,
+                'district' => $addr->district,
+                'province' => $addr->province,
+                'postcode' => $addr->postcode,
+                'phone' => $addr->phone,
+              );
+            }
+          }
+
+          if( ! empty($packages))
+          {
+            $ds = $this->porlor_api->create_shipment($order->code, $packages);
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "No package data found !";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "No packing package found !";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบที่อยู่จัดส่ง";
       }
     }
     else

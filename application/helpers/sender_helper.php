@@ -137,4 +137,13 @@ function get_tracking($id_sender, $orderCode)
 }
 
 
+function sender_name($id)
+{
+  $ci =& get_instance();
+  $ci->load->model('masters/sender_model');
+
+  return $ci->sender_model->get_name($id);
+}
+
+
  ?>

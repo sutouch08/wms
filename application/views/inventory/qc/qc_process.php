@@ -14,7 +14,9 @@
     <?php elseif($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php endif; ?>
-
+    <?php if($this->_Superadmin) : ?>
+    <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Ship Porlor</button>
+    <?php endif; ?>
   </div>
 </div>
 <hr/>
@@ -23,28 +25,35 @@
     <label>เลขที่</label>
     <input type="text" class="width-100 text-center" value="<?php echo $order->code; ?>" disabled />
   </div>
-  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>วันที่</label>
     <input type="text" class="width-100 text-center" value="<?php echo thai_date($order->date_add); ?>" disabled />
   </div>
-  <div class="col-lg-2 col-md-2-harf col-sm-2 col-xs-6 padding-5 hidden-sm">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 hidden-sm">
     <label>อ้างอิง</label>
     <input type="text" class="width-100 text-center" value="<?php echo $order->reference; ?>" disabled />
   </div>
-  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="width-100 text-center" value="<?php echo $order->customer_code; ?>" disabled />
   </div>
-  <div class="col-lg-5-harf col-md-4 col-sm-5-harf col-xs-6 padding-5">
+  <div class="col-lg-5 col-md-5 col-sm-5-harf col-xs-6 padding-5">
     <label class="not-show">ลูกค้า</label>
     <input type="text" class="width-100" value="<?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>" disabled />
   </div>
-  <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-3 col-sm-2-harf col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
     <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" disabled />
   </div>
-
-  <div class="col-lg-10 col-md-9-harf col-sm-9-harf col-xs-12 padding-5">
+  <div class="col-lg-3 col-md-6 col-sm-5 col-xs-6 padding-5">
+    <label>คลัง</label>
+    <input type="text" class="width-100" value="<?php echo $order->warehouse_code.' | '.warehouse_name($order->warehouse_code); ?>" disabled />
+  </div>
+  <div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+    <label>ขนส่ง</label>
+    <input type="text" class="width-100" value="<?php echo sender_name($order->id_sender); ?>" disabled />
+  </div>
+  <div class="col-lg-7 col-md-12 col-sm-9-harf col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
   </div>
@@ -188,7 +197,7 @@ if(!empty($barcode_list))
  ?>
 
 
- <script>   
+ <script>
    function shipOrderTiktok(reference) {
      load_in();
 
@@ -262,6 +271,40 @@ if(!empty($barcode_list))
 
      $.ajax({
        url:HOME + 'ship_order_lazada/'+reference,
+       type:'POST',
+       cache:false,
+       success:function(rs) {
+         load_out();
+
+         if(isJson(rs)) {
+           let ds = JSON.parse(rs);
+
+           if(ds.status === 'success') {
+             window.open(ds.data.fileUrl, "_blank");
+           }
+           else {
+             beep();
+             showError(ds.message);
+           }
+         }
+         else {
+           beep();
+           showError(rs);
+         }
+       },
+       error:function(rs) {
+         beep();
+         showError(rs);
+       }
+     })
+   }
+
+
+   function shipOrderPorlor(code) {
+     load_in();
+
+     $.ajax({
+       url:HOME + 'ship_order_porlor/'+code,
        type:'POST',
        cache:false,
        success:function(rs) {

@@ -284,6 +284,23 @@ class Warehouse_model extends CI_Model
   }
 
 
+  public function get_transform_warehouse_list()
+  {
+    $rs = $this->db
+    ->where('role', 7)
+    ->where('active', 1)
+    ->order_by('position', 'ASC')
+    ->get('warehouse');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   //---- เอาเฉพาะคลังฝากขายแท้
   public function get_consign_list()
   {
@@ -326,6 +343,22 @@ class Warehouse_model extends CI_Model
 	{
 		$rs = $this->db
 		->where_in('role', array(1, 3, 4, 5))
+		->where('active', 1)
+		->get('warehouse');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+  public function get_lend_list()
+	{
+		$rs = $this->db
+		->where('role', 8)
 		->where('active', 1)
 		->get('warehouse');
 

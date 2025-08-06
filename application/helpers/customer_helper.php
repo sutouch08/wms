@@ -18,7 +18,6 @@ function select_GroupCode($code = '')
 }
 
 
-
 function select_GroupNum($code = '')
 {
   $sc = '';
@@ -36,7 +35,6 @@ function select_GroupNum($code = '')
 
   return $sc;
 }
-
 
 
 function select_DebPayAcct($code = '')
@@ -58,7 +56,6 @@ function select_DebPayAcct($code = '')
 }
 
 
-
 function select_sale($code='')
 {
   $sc = '';
@@ -77,6 +74,7 @@ function select_sale($code='')
   return $sc;
 }
 
+
 function select_customer_group($code = '')
 {
   $sc = '';
@@ -93,7 +91,6 @@ function select_customer_group($code = '')
   }
 
   return $sc;
-
 }
 
 
@@ -115,7 +112,6 @@ function select_customer_kind($code = '')
 }
 
 
-
 function select_customer_type($code = '')
 {
   $sc = '';
@@ -132,7 +128,6 @@ function select_customer_type($code = '')
   }
   return $sc;
 }
-
 
 
 function select_customer_class($code = '')
@@ -153,7 +148,6 @@ function select_customer_class($code = '')
 }
 
 
-
 function select_customer_area($code = '')
 {
   $sc = '';
@@ -170,8 +164,6 @@ function select_customer_area($code = '')
   }
   return $sc;
 }
-
-
 
 
 function customer_in($txt)
@@ -193,5 +185,12 @@ function customer_in($txt)
 }
 
 
+function customer_name($code)
+{
+  $ci =& get_instance();
+  $ci->load->model('masters/customers_model');
+
+  return $ci->customers_model->get_name($code);
+}
 
  ?>
