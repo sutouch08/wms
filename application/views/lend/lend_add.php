@@ -53,7 +53,7 @@
 		<label>คลัง</label>
     <select class="form-control input-sm" name="warehouse" id="warehouse" required>
 			<option value="">เลือกคลัง</option>
-			<?php echo select_lend_warehouse(); ?>
+			<?php echo select_lend_warehouse_list(); ?>
 		</select>
   </div>
 

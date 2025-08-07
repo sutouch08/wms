@@ -115,7 +115,7 @@ function select_transform_warehouse($se = NULL)
   return $sc;
 }
 
-
+//--- role = 8
 function select_lend_warehouse($se = NULL)
 {
   $sc = "";
@@ -133,6 +133,27 @@ function select_lend_warehouse($se = NULL)
 
   return $sc;
 }
+
+
+//---- คลังที่สามารถจิ้มยืมได้
+function select_lend_warehouse_list($se = NULL)
+{
+  $sc = "";
+  $ci =& get_instance();
+  $ci->load->model('masters/warehouse_model');
+  $option = $ci->warehouse_model->get_lend_warehouse_list();
+
+  if( ! empty($option))
+  {
+    foreach($option as $ra)
+    {
+      $sc .= '<option value="'.$ra->code.'" '.is_selected($se, $ra->code).'>'.$ra->code.' | '.$ra->name.'</option>';
+    }
+  }
+
+  return $sc;
+}
+
 
 function warehouse_name($code)
 {
