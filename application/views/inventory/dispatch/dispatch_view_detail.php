@@ -77,12 +77,14 @@
           <th class="fix-width-50 text-center fix-header">#</th>
           <th class="fix-width-150 fix-header">เลขที่</th>
           <th class="fix-width-150 fix-header">อ้างอิง</th>
+					<th class="fix-width-150 fix-header">Tracking No.</th>
           <th class="min-width-200 fix-header">ลูกค้า</th>
           <th class="fix-width-150 fix-header">ช่องทางขาย</th>
 					<th class="fix-width-100 fix-header">จำนวน(กล่อง)</th>
         </tr>
       </thead>
       <tbody id="dispatch-table">
+				<?php $total = 0; ?>
         <?php if( ! empty($details)) : ?>
           <?php $no = 1; ?>
           <?php $channels = get_channels_array(); ?>
@@ -91,12 +93,18 @@
               <td class="text-center dp-no"><?php echo $no; ?></td>
               <td><?php echo $rs->order_code; ?></td>
               <td><?php echo $rs->reference; ?></td>
+							<td><?php echo $rs->tracking_no; ?></td>
               <td><?php echo $rs->customer_code." : ".$rs->customer_name; ?></td>
               <td><?php echo empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?></td>
 							<td class="text-center"><?php echo $rs->carton_shipped; ?></td>
             </tr>
             <?php $no++; ?>
+						<?php $total += $rs->carton_shipped; ?>
           <?php endforeach; ?>
+					<tr>
+						<td colspan="6" class="text-right">Total</td>
+						<td class="text-center"><?php echo number($total); ?></td>
+					</tr>
         <?php else : ?>
           <tr>
             <td colspan="5" class="text-center">---- ไม่พบรายการ ----</td>

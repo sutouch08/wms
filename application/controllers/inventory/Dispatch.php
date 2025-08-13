@@ -461,6 +461,7 @@ class Dispatch extends PS_Controller
               'dispatch_code' => $code,
               'order_code' => $order->code,
               'reference' => get_null($order->reference),
+              'tracking_no' => get_null($order->shipping_code),
               'channels_code' => get_null($channels_code),
               'channels_name' => get_null($channels_name),
               'customer_code' => get_null($order->customer_code),

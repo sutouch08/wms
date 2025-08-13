@@ -33,21 +33,13 @@
 			<?php $channels_name = empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?>
 			<div class="col-xs-12 incomplete-item dispatch-row" data-id="<?php echo $rs->id; ?>" id="dispatch-<?php echo $rs->id; ?>">
 				<div class="row" style="padding: 3px 3px 3px 10px;">
-					<div class="col-xs-6"><?php echo $rs->order_code; ?></div>
-					<div class="col-xs-6"><?php echo $rs->reference; ?></div>
-					<div class="col-xs-4 hide-text"><?php echo $channels_name; ?></div>
-					<div class="col-xs-8 hide-text"><?php echo $rs->customer_name; ?></div>
-					<div class="col-xs-6">
-						<div class="input-group width-100">
-							<span class="input-group-addon text-label"  style="padding-left:0px;">จำนวน[กล่อง] :</span>
-							<input type="number" class="form-control input-sm text-label" id="carton-qty-<?php echo $rs->id; ?>" value="<?php echo $rs->carton_qty; ?>" readonly/>
-						</div>
-					</div>
-					<div class="col-xs-6">
-						<div class="input-group width-100">
-							<span class="input-group-addon text-label" style="padding-left:0px;">ยิงแล้ว[กล่อง] :</span>
-							<input type="number" class="form-control input-sm text-label" id="carton-shipped-<?php echo $rs->id; ?>" value="<?php echo $rs->carton_shipped; ?>" readonly/>
-						</div>
+					<div class="col-xs-12">Order: <?php echo $rs->order_code; ?> | Ref: <?php echo $rs->reference; ?></div>
+					<div class="col-xs-7 hide-text">Channels: <?php echo $channels_name; ?></div>
+					<div class="col-xs-5">
+						<span class="width-20">Box : </span>
+						<input type="number" class="width-30 text-label text-right" id="carton-qty-<?php echo $rs->id; ?>" value="<?php echo $rs->carton_qty; ?>" readonly/>
+						<span class="width-10">/</span>
+						<input type="number" class="width-30 text-label" id="carton-shipped-<?php echo $rs->id; ?>" value="<?php echo $rs->carton_shipped; ?>" readonly/>
 					</div>
 				</div><!-- item -->
 			</div>
@@ -98,21 +90,13 @@
 <script id="row-template" type="text/x-handlebarsTemplate">
 	<div class="col-xs-12 incomplete-item dispatch-row" data-id="{{id}}" id="dispatch-{{id}}">
 		<div class="row" style="padding: 3px 3px 3px 10px;">
-			<div class="col-xs-6">{{order_code}}</div>
-			<div class="col-xs-6">{{reference}}</div>
-			<div class="col-xs-4 hide-text">{{channels}}</div>
-			<div class="col-xs-8 hide-text">{{customer}}</div>
-			<div class="col-xs-6">
-				<div class="input-group width-100">
-					<span class="input-group-addon text-label"  style="padding-left:0px;">จำนวน[กล่อง] :</span>
-					<input type="number" class="form-control input-sm text-label" id="carton-qty-{{id}}" value="{{carton_qty}}" readonly/>
-				</div>
-			</div>
-			<div class="col-xs-6">
-				<div class="input-group width-100">
-					<span class="input-group-addon text-label" style="padding-left:0px;">ยิงแล้ว[กล่อง] :</span>
-					<input type="number" class="form-control input-sm text-label" id="carton-shipped-{{id}}" value="{{carton_shipped}}" readonly/>
-				</div>
+			<div class="col-xs-12">Order: {{order_code}} | Ref: {{reference}}</div>
+			<div class="col-xs-7 hide-text">Channels: {{channels}}</div>
+			<div class="col-xs-5">
+				<span class="width-20">Box : </span>
+				<input type="number" class="width-30 text-label text-right" id="carton-qty-{{id}}" value="{{carton_qty}}" readonly/>
+				<span class="width-10">/</span>
+				<input type="number" class="width-30 text-label" id="carton-shipped-{{id}}" value="{{carton_shipped}}" readonly/>
 			</div>
 		</div>
 	</div>

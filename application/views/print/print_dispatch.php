@@ -72,11 +72,12 @@ $total_shipped = 0;
 //**************  กำหนดหัวตาราง  ******************************//
 $thead	= array(
 	array("#", "width:10mm; text-align:center; border:solid 1px #333;"),
-	array("เลขที่", "width:30mm; text-align:center; border:solid 1px #333;"),
+	array("เลขที่", "width:25mm; text-align:center; border:solid 1px #333;"),
 	array("อ้างอิง", "width:35mm; text-align:center; border:solid 1px #333;"),
-	array("ช่องทาง", "width:35mm; text-align:center; border:solid 1px #333;"),
-	array("ลูกค้า", "width:65mm; text-align:center; border:solid 1px #333;"),
-	array("จำนวน(กล่อง)", "width:15mm; text-align:center; border:solid 1px #333;")
+	array("Tracking No", "width:35mm; text-align:center; border:solid 1px #333;"),
+	array("ช่องทาง", "width:30mm; text-align:center; border:solid 1px #333;"),
+	array("ลูกค้า", "width:40mm; text-align:center; border:solid 1px #333;"),
+	array("จำนวน", "width:10mm; text-align:center; border:solid 1px #333;")
 );
 
 $this->xprinter->add_subheader($thead);
@@ -84,12 +85,13 @@ $this->xprinter->add_subheader($thead);
 
 //***************************** กำหนด css ของ td *****************************//
 $pattern = array(
-	"text-align:center; border:solid 1px #333; padding:1px;",
-	"text-align:left; border:solid 1px #333; padding:1px;",
-	"text-aligh:left; border:solid 1px #333; padding:1px;",
-	"text-align:center; border:solid 1px #333; padding:1px;",
-	"text-align:center; border:solid 1px #333; padding:1px;",
-	"text-align:center; border:solid 1px #333; padding:1px;"
+	"text-align:center; border:solid 1px #333; padding:1px 2px;",
+	"text-align:left; border:solid 1px #333; padding:1px 3px;",
+	"text-aligh:left; border:solid 1px #333; padding:1px 3px;",
+	"text-align:left; border:solid 1px #333; padding:1px 3px;",
+	"text-align:center; border:solid 1px #333; padding:1px 2px;",
+	"text-align:center; border:solid 1px #333; padding:1px 2px;",
+	"text-align:center; border:solid 1px #333; padding:1px 2px;"
 );
 
 $this->xprinter->set_pattern($pattern);
@@ -127,6 +129,7 @@ while($total_page > 0 )
 				$n,
 				$rs->order_code,
 				$rs->reference,
+				$rs->tracking_no,
 				inputRow($channels_name),
 				inputRow($rs->customer_name),
 				$rs->carton_shipped
@@ -137,7 +140,7 @@ while($total_page > 0 )
     }
     else
     {
-      $data = array("", "", "", "", "", "");
+      $data = array("", "", "", "", "", "", "");
     }
 
     $page .= $this->xprinter->print_row($data);
@@ -160,11 +163,11 @@ while($total_page > 0 )
 
 	//--- จำนวนรวม   ตัว
 	$page .= "<tr style='font-size:10px; height:31px;'>";
-  $page .= '<td colspan="5" class="text-right" style="border:solid 1px #333;">';
+  $page .= '<td colspan="6" class="text-right" style="border:solid 1px #333;">';
 	$page .= 'Total';
   $page .= '</td>';
   $page .= '<td class="text-center" style="border:solid 1px #333;">';
-  $page .=  '<strong>'.$totalShipped.'</strong>';
+  $page .=  '<strong>'.number($totalShipped).'</strong>';
   $page .= '</td>';
 	$page .= '</tr>';
 

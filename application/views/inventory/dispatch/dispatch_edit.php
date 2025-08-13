@@ -104,6 +104,7 @@
 					<th class="fix-width-50 text-center fix-header">#</th>
 					<th class="fix-width-150 fix-header">เลขที่</th>
 					<th class="fix-width-150 fix-header">อ้างอิง</th>
+					<th class="fix-width-150 fix-header">Tracking</th>
 					<th class="min-width-200 fix-header">ลูกค้า</th>
 					<th class="fix-width-150 fix-header">ช่องทางขาย</th>
 					<th class="fix-width-100 text-center fix-header">กล่อง(ทั้งหมด)</th>
@@ -130,6 +131,7 @@
               <td class="text-center dp-no"><?php echo $no; ?></td>
               <td><?php echo $rs->order_code; ?></td>
               <td><?php echo $rs->reference; ?></td>
+							<td><?php echo $rs->tracking_no; ?></td>
               <td><?php echo $rs->customer_code." : ".$rs->customer_name; ?></td>
               <td><?php echo empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?></td>
 							<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="carton-qty-<?php echo $rs->id; ?>" value="<?php echo $rs->carton_qty; ?>" readonly/></td>
@@ -143,7 +145,7 @@
       </tbody>
 			<tfoot>
 				<tr>
-					<td colspan="6" class="text-right">รวม</td>
+					<td colspan="7" class="text-right">รวม</td>
 					<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="total-carton" value="<?php echo $totalQty; ?>" readonly/></td>
 					<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="total-shipped" value="<?php echo $totalShipped; ?>" readonly/></td>
 				</tr>
@@ -163,6 +165,7 @@
 		<td class="text-center dp-no"></td>
 		<td>{{order_code}}</td>
 		<td>{{reference}}</td>
+		<td>{{tracking_no}}</td>
 		<td>{{customer}}</td>
 		<td>{{channels}}</td>
 		<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="carton-qty-{{id}}" value="{{carton_qty}}" readonly/></td>
@@ -174,7 +177,7 @@
   {{#each this}}
     {{#if nodata}}
       <tr>
-        <td colspan="6" class="text-center">---- ไม่พบรายการ ----</td>
+        <td colspan="7" class="text-center">---- ไม่พบรายการ ----</td>
       </tr>
     {{else}}
       <tr id="dispatch-{{id}}" class="font-size-11 dispatch-row" data-id="{{id}}">
@@ -187,6 +190,7 @@
         <td class="text-center dp-no">{{no}}</td>
         <td>{{order_code}}</td>
         <td>{{reference}}</td>
+				<td>{{tracking_no}}</td>
         <td>{{customer}}</td>
         <td>{{channels}}</td>
 				<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="carton-qty-{{id}}" value="{{carton_qty}}" readonly/></td>
@@ -222,7 +226,7 @@
 	}
 
 
-	function setFocus() {		
+	function setFocus() {
 	  $('#order-no').focus();
 	}
 
