@@ -455,6 +455,7 @@ class Qc extends PS_Controller
               $packages[] = (object) array(
                 'order_code' => $box->order_code,
                 'box_code' => $box->code,
+                'box_id' => $box->id,
                 'package_name' => $box->name,
                 'package_width' => intval($box->width),
                 'package_length' => intval($box->length),
@@ -473,7 +474,31 @@ class Qc extends PS_Controller
 
           if( ! empty($packages))
           {
-            $ds = $this->porlor_api->create_shipment($order->code, $packages);
+            $ds = $this->porlor_api->create_parcels($order->code, $packages);
+
+            if( ! empty($ds))
+            {
+              $tracking_no = NULL;
+
+              foreach($ds as $rs)
+              {
+                if( ! empty($rs->awb_code) && ! empty($rs->item_sku))
+                {
+                  $this->qc_model->update_box($rs->item_sku, ['tracking_no' => $rs->awb_code]);
+                  $tracking_no = $rs->awb_code;
+                }
+              }
+
+              if( ! empty($tracking_no))
+              {
+                $this->orders_model->update($order->code, ['shipping_code' => $tracking_no]);
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Failed to create parcels : ".$this->porlor_api->error;
+            }
           }
           else
           {
@@ -499,13 +524,7 @@ class Qc extends PS_Controller
       $this->error = "Order {$reference} not found";
     }
 
-    $arr = array(
-      'status' => $sc === TRUE ? 'success' : 'failed',
-      'message' => $sc === TRUE ? 'success' : $this->error,
-      'data' => $shipment
-    );
-
-    echo json_encode($arr);
+    $this->_response($sc);
   }
 
 
@@ -1425,6 +1444,87 @@ class Qc extends PS_Controller
     $this->load->view('inventory/qc/packing_list_all', $ds);
   }
 
+
+  public function print_porlor_label($code)
+  {
+    $ds = [];
+    $packages = [];
+
+    $this->load->model('address/address_model');
+    $this->load->helper('address');
+    $this->load->library('printer');
+    $order = $this->orders_model->get($code);
+
+    if( ! empty($order))
+    {
+      $addr = $this->address_model->get_shipping_detail($order->id_address);
+
+      if( ! empty($addr))
+      {
+        $boxes = $this->qc_model->get_box_list($order->code);
+
+        if( ! empty($boxes))
+        {
+          $box_no = 1;
+          $sender_name = getConfig('PORLOR_CUSTOMER_NAME');
+          $sender_code = getConfig("PORLOR_CUSTOMER_CODE");
+
+          foreach($boxes as $box)
+          {
+            if($box-> qty > 0 && ! empty($box->tracking_no))
+            {
+              $packages[] = (object) array(
+                'sender_code' => $sender_code,
+                'sender_name' => $sender_name,
+                'order_code' => $box->order_code,
+                'box_code' => $box->code,
+                'box_id' => $box->id,
+                'box_no' => $box_no,
+                'package_name' => $box->name,
+                'package_width' => intval($box->width),
+                'package_length' => intval($box->length),
+                'package_height' => intval($box->height),
+                'package_size' => round($box->width + $box->length + $box->height),
+                'weight' => 10.00,
+                'receiver' => $addr->name,
+                'address' => $addr->address,
+                'sub_district' => $addr->sub_district,
+                'district' => $addr->district,
+                'province' => $addr->province,
+                'postcode' => $addr->postcode,
+                'phone' => $addr->phone,
+                'tracking_no' => $box->tracking_no
+              );
+
+              $box_no++;
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "No packing package found !";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบที่อยู่จัดส่ง";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบเลขที่เอกสาร";
+    }
+
+    if( ! empty($packages))
+    {
+      $ds = array('packages' => $packages);
+    }
+
+    $this->load->view('inventory/qc/porlor_shipping_label', $ds);
+  }
 
   public function get_box_details()
   {

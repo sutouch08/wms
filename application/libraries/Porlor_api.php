@@ -30,17 +30,15 @@ class Porlor_api
     $this->log_json = is_true($conf['PORLOR_LOG_JSON']);
     $this->customerCode = $conf['PORLOR_CUSTOMER_CODE'];
     $this->customerName = $conf['PORLOR_CUSTOMER_NAME'];
-    $this->customerAddress = $conf['PORLOR_CUSTOMER_ADDRESS'];
     $this->customerPhone = $conf['PORLOR_CUSTOMER_PHONE'];
-    $this->customerProvince = $conf["PORLOR_CUSTOMER_PROVINCE"];
   }
 
 
-  public function create_shipment($code, $packages)
+  public function create_parcels($code, $packages)
   {
     $action = "create";
     $url = $this->endpoint;
-    $url .= "/saveParcels";
+    $url .= "/createParcels";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json");
@@ -49,41 +47,28 @@ class Porlor_api
 
     $req = array(
       "sender" => array(
-        "amphoe" => "",
-        "amphur_shop" => "",
         "ref_no" => $code,
         "citizenID" => "",
         "custCode" => $this->customerCode,
-        "customerGroup" => "",
-        "district" => "",
         "fullName" => $this->customerName,
-        "homeNumber" => $this->customerAddress,
-        "phoneNumber" => $this->customerPhone,
-        "province" => $this->customerProvince,
-        "province_shop" => "",
-        "typeSender" => "",
-        "zipcode" => ""
+        "phoneNumber" => $this->customerPhone
       ),
       "recipient" => NULL
     );
 
     if( ! empty($packages))
     {
-      $recipient = [];
-
       foreach($packages as $rs)
       {
-        $recipient[] = array(
-          "item_desc" => $rs->order_code,
-          "item_sku" => $rs->box_code,
-          "amphoe" => $rs->district,
-          "bankName" => "",
-          "deposit_fullname" => "",
-          "deposit_phone" => "",
-          "deposit_type" => "",
+        $req['recipient'][] = array(
+          "item_desc" => $rs->box_code,
+          "item_sku" => $rs->box_id,
+          "invoice" => "",
           "district" => $rs->sub_district,
+          "sub_district" => $rs->district,
           "fullName" => $rs->receiver,
           "homeNumber" => $rs->address,
+          "bankName" => "",
           "materialAccountName" => "",
           "materialAccountNumber" => "",
           "materialCode" => FALSE,
@@ -92,17 +77,12 @@ class Porlor_api
           "materialSizeHigh" => $rs->package_height,
           "materialSizeLong" => $rs->package_length,
           "materialSizeWide" => $rs->package_width,
-          "materialWeight" => 1,
+          "materialWeight" => 10.00,
           "phoneNumber" => $rs->phone,
           "province" => $rs->province,
-          "serviceCod" => "",
-          "total" => "",
-          "totalNet" => "",
           "zipcode" => $rs->postcode
         );
       }
-
-      $req['recipient'] = $recipient;
     }
 
 
@@ -122,9 +102,9 @@ class Porlor_api
       curl_close($curl);
       $res = json_decode($response);
 
-      if( ! empty($res))
+      if( ! empty($res) && property_exists($res, 'status') && property_exists($res, 'data'))
       {
-        if($res->status == 1)
+        if($res->status == 1 && ! empty($res->data))
         {
           if($this->log_json)
           {

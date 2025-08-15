@@ -133,6 +133,7 @@ $('#ix-warehouse').select2();
 $('#ix-return-warehouse').select2();
 $('#website-channels-code').select2();
 $('#website-warehouse-code').select2();
+$('#sender').select2();
 
 function defaultCustomerInit() {
 	$('#default-customer-code').autocomplete({

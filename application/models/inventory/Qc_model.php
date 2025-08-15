@@ -268,7 +268,7 @@ class Qc_model extends CI_Model
   public function get_box_list($order_code)
   {
     $rs = $this->db
-    ->select('b.id, b.code, b.order_code, b.box_no, b.package_id')
+    ->select('b.id, b.code, b.order_code, b.box_no, b.package_id, b.tracking_no')
     ->select('p.name, p.type, p.width, p.length, p.height')
     ->select_sum('q.qty', 'qty')
     ->from('qc_box AS b')

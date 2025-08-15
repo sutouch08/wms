@@ -38,26 +38,13 @@
 		<div class="divider-hidden"></div>
 
 		<div class="col-lg-4 col-md-4 col-sm-4">
-			<span class="form-control left-label">Sender address</span>
+			<span class="form-control left-label">Ship vender</span>
 		</div>
-		<div class="col-lg-8 col-md-8 col-sm-8">
-			<input type="text" class="form-control input-sm input-xxlarge" name="PORLOR_CUSTOMER_ADDRESS"  value="<?php echo $PORLOR_CUSTOMER_ADDRESS; ?>" />
-		</div>
-		<div class="divider-hidden"></div>
-
 		<div class="col-lg-4 col-md-4 col-sm-4">
-			<span class="form-control left-label">Sender province</span>
-		</div>
-		<div class="col-lg-8 col-md-8 col-sm-8">
-			<input type="text" class="form-control input-sm input-xxlarge" name="PORLOR_CUSTOMER_PROVINCE"  value="<?php echo $PORLOR_CUSTOMER_PROVINCE; ?>" />
-		</div>
-		<div class="divider-hidden"></div>
-
-		<div class="col-lg-4 col-md-4 col-sm-4">
-			<span class="form-control left-label">Sender phone</span>
-		</div>
-		<div class="col-lg-8 col-md-8 col-sm-8">
-			<input type="text" class="form-control input-sm input-xxlarge" name="PORLOR_CUSTOMER_PHONE"  value="<?php echo $PORLOR_CUSTOMER_PHONE; ?>" />
+			<select class="width-100" name="PORLOR_SENDER_ID" id="sender">
+				<option value="">Select</option>
+				<?php echo select_sender($PORLOR_SENDER_ID); ?>
+			</select>
 		</div>
 		<div class="divider-hidden"></div>
 

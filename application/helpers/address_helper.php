@@ -118,4 +118,27 @@ function get_address_form($adds, $sds, $ds, $dd)
   return $sc;
 }
 
+
+function parse_address($ds = NULL, $with_name = FALSE)
+{
+  if( ! empty($ds))
+  {
+    $addr = "";
+
+    if($with_name)
+    {
+      $addr .= empty($ds->name) ? "" : $ds->name;
+    }
+
+    $addr .= empty($ds->address) ? "" : "{$ds->address} ";
+    $addr .= empty($ds->sub_district) ? "" : "{$ds->sub_district} ";
+    $addr .= empty($ds->district) ? "" : "{$ds->district} ";
+    $addr .= empty($ds->province) ? "" : "{$ds->province} ";
+    $addr .= empty($ds->phone) ? "" : "{$ds->phone} ";
+    return $addr;
+  }
+
+  return NULL;
+}
+
  ?>

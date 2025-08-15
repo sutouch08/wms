@@ -125,10 +125,19 @@
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
       <?php endif; ?>
       <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
-        <button type="button" class="btn btn-white btn-info" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
+        <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
       <?php endif; ?>
       <?php if($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
-        <button type="button" class="btn btn-white btn-info" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
+        <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
+      <?php endif; ?>
+      <?php if(is_true(getConfig('PORLOR_API'))) : ?>
+        <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
+          <?php if(empty($order->shipping_code)) : ?>
+            <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
+          <?php else : ?>
+            <button type="button" class="btn btn-white btn-info top-btn" onclick="printPorlorLabel('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
+          <?php endif; ?>
+        <?php endif; ?>
       <?php endif; ?>
       <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress('<?php echo $order->id_address; ?>', '<?php echo $order->code; ?>', '<?php echo $order->id_sender; ?>')"><i class="fa fa-print"></i> ใบนำส่ง</button>
       <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
@@ -549,6 +558,38 @@
         showError(rs);
       }
     })
+  }
+
+  function shipOrderPorlor(code) {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'inventory/qc/ship_order_porlor/'+code,
+      type:'POST',
+      cache:false,
+      success:function(rs) {
+        load_out();
+
+        if(rs.trim() === 'success') {
+          printPorlorLabel(code);          
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
+
+  function printPorlorLabel(code) {
+    let center = ($(document).width() - 800)/2;
+    let prop = "width=800, height=1200. left="+center+", scrollbars=yes";
+    let target = BASE_URL + 'inventory/qc/print_porlor_label/'+code;
+    window.open(target, "_blank", prop);
   }
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js?v=<?php echo date('Ymd'); ?>"></script>

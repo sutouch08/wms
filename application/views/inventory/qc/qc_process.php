@@ -14,8 +14,10 @@
     <?php elseif($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php endif; ?>
-    <?php if($this->_SuperAdmin) : ?>
-    <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Ship Porlor</button>
+    <?php if(is_true(getConfig('PORLOR_API'))) : ?>
+      <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print Label</button>
+      <?php endif; ?>
     <?php endif; ?>
   </div>
 </div>
@@ -310,16 +312,9 @@ if(!empty($barcode_list))
        success:function(rs) {
          load_out();
 
-         if(isJson(rs)) {
-           let ds = JSON.parse(rs);
-
-           if(ds.status === 'success') {
-             window.open(ds.data.fileUrl, "_blank");
-           }
-           else {
-             beep();
-             showError(ds.message);
-           }
+         if(rs.trim() === 'success') {
+           target = HOME + 'print_porlor_label/'+code;
+           window.open(target, "_blank");
          }
          else {
            beep();

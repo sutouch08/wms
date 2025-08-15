@@ -19,6 +19,7 @@ class Configs extends PS_Controller
     $this->load->helper('setting');
     $this->load->library('user_agent');
     $this->load->helper('package');
+    $this->load->helper('sender');
 
     $this->is_mobile = $this->agent->is_mobile();
   }
