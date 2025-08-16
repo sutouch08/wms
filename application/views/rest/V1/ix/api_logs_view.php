@@ -38,6 +38,7 @@
 			<option value="all">ทั้งหมด</option>
 			<option value="ORDER" <?php echo is_selected('ORDER', $type); ?>>ORDER</option>
 			<option value="RETURN" <?php echo is_selected('RETURN', $type); ?>>RETURN</option>
+			<option value="PORLOR" <?php echo is_selected('PORLOR', $type); ?>>PORLOR</option>
 		</select>
   </div>
 
