@@ -506,7 +506,7 @@ class Orders extends REST_Controller
     //-- check credit limit
     if($sc === TRUE && (($role == 'S' && $payment_role == 5) OR $role == 'C'))
     {
-      if( ! is_true(getConfig('CONTROL_CREDIT')))
+      if(is_true(getConfig('CONTROL_CREDIT')))
       {
         //--- creadit used
         $credit_used = 0;
