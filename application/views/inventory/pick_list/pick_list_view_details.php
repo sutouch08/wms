@@ -12,9 +12,12 @@
 	<?php if($this->pm->can_edit && ($doc->status == 'R' OR $doc->status == 'Y')) : ?>
 		<button type="button" class="btn btn-sm btn-danger top-btn" onclick="unReleasePickList()">ย้อนสถานะ</button>
 	<?php endif; ?>
+	<?php if($doc->status == 'C') : ?>
+		<button type="button" class="btn btn-sm btn-success top-btn" onclick="doExport('<?php echo $doc->code; ?>')"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+	<?php endif; ?>
 	<?php if($doc->status != 'D') : ?>
 		<button type="button" class="btn btn-sm btn-info top-btn" onclick="printPickListQr()">Print Order</button>
-	<?php endif; ?>	
+	<?php endif; ?>
   </div>
 </div><!-- End Row -->
 <hr class=""/>

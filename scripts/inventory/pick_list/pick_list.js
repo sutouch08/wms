@@ -88,6 +88,34 @@ function goCancel(code) {
 }
 
 
+function doExport(code)
+{
+	load_in();
+
+	$.ajax({
+		url:HOME + 'export_pick_list/' + code,
+		type:'POST',
+		cache:false,
+		success:function(rs){
+			load_out();
+			if(rs == 'success'){
+				swal({
+					title:'Success',
+					text:'ส่งข้อมูลไป SAP เรียบร้อยแล้ว',
+					type:'success',
+					timer:1000
+				});
+			}else{
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	});
+}
+
 $('#fromDate').datepicker({
   dateFormat:'dd-mm-yy',
   onClose:function(sd) {

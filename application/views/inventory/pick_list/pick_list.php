@@ -123,6 +123,9 @@
 								<?php if($rs->status == 'R' OR $rs->status == 'Y') : ?>
 									<button type="button" class="btn btn-minier btn-purple" onclick="goProcess('<?php echo $rs->code; ?>')">จัดสินค้า</button>
 								<?php endif; ?>
+								<?php if($rs->status == 'C' && $rs->is_exported == '0') : ?>
+									<button type="button" class="btn btn-minier btn-success" onclick="doExport('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
+								<?php endif; ?>
 							</td>
 							<td class="middle text-center">
 								<?php if($rs->status == 'C') : ?>

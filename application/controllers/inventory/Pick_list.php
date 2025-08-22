@@ -438,6 +438,35 @@ class Pick_list extends PS_Controller
   }
 
 
+  private function do_export($code)
+  {
+    $sc = TRUE;
+
+    $this->load->library('export');
+
+    if( ! $this->export->export_pick_list($code))
+    {
+      $sc = FALSE;
+      $this->error = trim($this->export->error);
+    }
+
+    return $sc;
+  }
+
+
+  public function export_pick_list($code)
+  {
+    if($this->do_export($code) === TRUE)
+    {
+      echo 'success';
+    }
+    else
+    {
+      echo $this->error;
+    }
+  }
+  
+
   public function get_stock_in_zone($item_code, $warehouse = NULL)
   {
     $sc = "ไม่มีสินค้า";

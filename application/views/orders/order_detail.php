@@ -115,7 +115,7 @@
               </td>
 
               <td class="middle text-right">
-							<?php if($order->state < 4 OR ($rs->is_count == 0 && $order->state < 8)) : ?>
+							<?php if($this->_SuperAdmin OR $order->state < 4 OR ($rs->is_count == 0 && $order->state < 8)) : ?>
 								<input type="text"
 									class="form-control input-sm line-total text-right e"
 									id="line_total_<?php echo $rs->id; ?>"
