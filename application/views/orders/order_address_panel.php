@@ -26,20 +26,8 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
 			<div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-sm-offset-4 col-xs-12 padding-5 bottom-btn" id="rc-div" style="z-index:1;">
-				<?php if($order->is_wms != 0 && $order->wms_export == 1) : ?>
-					<?php if($order->state == 9 && $order->is_cancled == 1) : ?>
-						<button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="print_wms_return_request()">พิมพ์ RC-WO</button>
-					<?php endif; ?>
-					<?php if($canCancleShipped && ($order->state == 7 OR $order->state == 8)) : ?>
-						<button type="button" class="btn btn-xs btn-danger pull-right margin-left-5" onclick="cancle_shipped_order()">RC-WO</button>
-					<?php endif; ?>
-					<?php if($order->is_cancled == 1 && $canCancleShipped && $order->state == 9) : ?>
-						<button type="button" class="btn btn-xs btn-danger pull-right margin-left-5" onclick="send_return_request()">Send RC-WO</button>
-					<?php endif; ?>
-				  <button type="button" class="btn btn-xs btn-primary pull-right margin-left-5" onclick="update_wms_status()">WMS Status</button>
-          <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="show_tracking()">Tracking No</button>
-          <button type="button" class="btn btn-xs btn-purple pull-right margin-left-5" onclick="viewTempDelivery('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">Temp Delivery</button>
-          <button type="button" class="btn btn-xs btn-yellow pull-right margin-left-5" onclick="viewApiLogs('<?php echo $order->code; ?>', <?php echo $order->is_wms; ?>)">API Logs</button>
+				<?php if($order->is_api == 1 && ! empty($order->reference)) : ?>
+          <button type="button" class="btn btn-xs btn-yellow pull-right margin-left-5" onclick="viewApiLogs('<?php echo $order->reference; ?>')">API Logs</button>
 				<?php endif; ?>
         <?php if($order->is_backorder == 1) : ?>
           <button type="button" class="btn btn-xs btn-default pull-right margin-left-5" onclick="showBacklogs()">Back order logs</button>
@@ -470,73 +458,9 @@ $("#cancle-shipped-modal").on("shown.bs.modal", function() {
 });
 
 
-function send_return_request() {
-	const order_code = $("#order_code").val();
-	if(order_code !== "" && order_code !== undefined) {
-		load_in();
-		$.ajax({
-			url:BASE_URL + "orders/orders/send_return_request",
-			type:"POST",
-			cache:false,
-			data:{
-				"order_code" : order_code
-			},
-			success:function(rs) {
-				load_out();
-				if(rs === "success") {
-					swal({
-						title:"Success",
-						type:"success",
-						timer:1000
-					});
-
-					setTimeout(function(){
-						window.location.reload();
-					}, 1200);
-				}
-				else {
-					swal(rs);
-				}
-			}
-		})
-	}
-
-}
-
-
-function print_wms_return_request() {
-	const order_code = $("#order_code").val();
-	if(order_code !== "" && order_code !== undefined) {
-		const center = ($(document).width() - 800) /2;
-	  const target = BASE_URL + "orders/orders/print_wms_return_request/"+order_code;
-	  window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
-	}
-}
-
-
-function viewTempDelivery(code, is_wms)
-{
-  let url = is_wms == 1 ? BASE_URL + "rest/V1/wms_temp_delivery" : BASE_URL + "rest/V1/soko_temp_delivery";
-  let mapForm = document.createElement("form");
-  mapForm.target = "Map";
-  mapForm.method = "POST";
-  mapForm.action = url;
-
-  let mapInput = document.createElement("input");
-  mapInput.type = "text";
-  mapInput.name = "code";
-  mapInput.value = code;
-  mapForm.appendChild(mapInput);
-
-  document.body.appendChild(mapForm);
-  map = window.open(url, "Map", "height=800, scrollbars=yes");
-  mapForm.submit();
-  document.body.removeChild(mapForm);
-}
-
-function viewApiLogs(code, is_wms)
-{
-  let url = is_wms == 1 ? BASE_URL + "rest/V1/wms_logs" : BASE_URL + "rest/V1/soko_api_logs";
+function viewApiLogs(code)
+{  
+  let url = BASE_URL + "rest/V1/ix_api_logs";
   let mapForm = document.createElement("form");
   mapForm.target = "Map";
   mapForm.method = "POST";
