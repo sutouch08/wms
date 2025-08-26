@@ -70,6 +70,14 @@ class Wrx_stock_api
             'sellableStock' => $qty
           );
         }
+        else
+        {
+          $data[] = array(
+            'sku' => $item->code,
+            'stock' => 0,
+            'sellableStock' => 0
+          );
+        }
       }
 
       if( ! empty($data))
