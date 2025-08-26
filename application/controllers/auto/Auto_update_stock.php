@@ -53,6 +53,7 @@ class Auto_update_stock extends CI_Controller
 
     if($this->sync_api_stock)
     {
+      $limit = getConfig('AUTO_SEND_STOCK_LIMIT');
       $limit = empty($limit) ? 50 : $limit;
       $syncList = $this->get_sync_list($limit);
 
@@ -78,7 +79,7 @@ class Auto_update_stock extends CI_Controller
       }
 
       if( ! empty($sync_stock))
-      {        
+      {
         $this->update_api_stock($sync_stock);
       }
     }
