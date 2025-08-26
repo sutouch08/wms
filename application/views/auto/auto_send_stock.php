@@ -50,11 +50,15 @@
 <script>
 
 function doExport(){
+  load_in();
+
   $.ajax({
     url:BASE_URL + 'auto/auto_update_stock/send_stock',
     type:'POST',
     cache:false,
     success:function(rs){
+      load_out();
+      
       if(rs.trim() == 'success') {
         swal({
           title:'Success',
