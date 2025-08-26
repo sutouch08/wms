@@ -979,7 +979,7 @@ class Import_order extends CI_Controller
                 //-- remark
                 $remark = get_null(trim($rs['V']));
 
-                $id_address = $this->address_model->get_id($customer_ref, trim($rs['B']));
+                $id_address = $this->address_model->get_id($customer_ref, trim($rs['B']), trim($rs['E']), trim($rs['D']), trim($rs['C']), $customer_ref, trim($rs['H']));
 
                 if( empty($id_address))
                 {

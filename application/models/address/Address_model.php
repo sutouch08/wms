@@ -157,7 +157,7 @@ class Address_model extends CI_Model
 
 
 
-  public function get_id($code, $address = NULL, $sub_district = NULL, $district = NULL, $province = NULL, $name = NULL, $phone = NULL)
+  public function get_id($code, $address = "", $sub_district = "", $district = "", $province = "", $name = "", $phone = "")
   {
     $rs = $this->db
     ->select('id')
@@ -172,7 +172,7 @@ class Address_model extends CI_Model
     ->order_by('id', 'DESC')
     ->limit(1)
     ->get('address_ship_to');
-  
+
     if($rs->num_rows() === 1)
     {
       return $rs->row()->id;
