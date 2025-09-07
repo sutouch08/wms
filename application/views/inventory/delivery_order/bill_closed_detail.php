@@ -2,100 +2,132 @@
 <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
 <input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
-    <?php if(!empty($order->reference)) : ?>
-      <label class="font-size-12 blod">
-        <?php echo $order->code.' ['.$order->reference.']';  ?>
-      </label>
-    <?php else : ?>
-    <label class="font-size-14 blod">
-      <?php echo $order->code; ?>
-    </label>
-    <?php endif; ?>
-  </div>
+	<div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 padding-5">
+		<label>เลขที่เอกสาร</label>
+		<div class="input-group width-100">
+			<input type="text" class="width-100 text-center" value="<?php echo $order->code; ?>" disabled />
+			<span class="input-group-btn">
+				<button type="button" class="btn btn-xs btn-info" style="height:30px;" onclick="viewOrderDetail('<?php echo $order->code; ?>', '<?php echo $order->role; ?>')" style="min-width:20px;">
+					<i class="fa fa-external-link"></i>
+				</button>
+			</span>
+		</div>
+	</div>
 
-  <?php if($order->role == 'C' OR $order->role == 'N') : ?>
-  <div class="col-sm-4 padding-5">
-    <label class="font-size-12 blod">ลูกค้า : <?php echo empty($order->customer_ref) ? $order->customer_name : $order->customer_ref; ?></label>
-  </div>
-  <?php else : ?>
-    <div class="col-sm-6 padding-5">
-      <label class="font-size-14 blod">
-        <?php if($order->role == 'L' OR $order->role == 'U' OR $order->role == 'R') : ?>
-          ผู้เบิก : <?php echo $order->empName; ?>
-          <?php if(!empty($order->user_ref)) : ?>
-            &nbsp;&nbsp;[ผู้สั่งงาน : <?php echo $order->user_ref; ?>]
-          <?php endif; ?>
-        <?php else: ?>
-        ลูกค้า : <?php echo empty($order->customer_ref) ? $order->customer_name : $order->customer_ref; ?>
-      <?php endif; ?>
-      </label>
-    </div>
-  <?php endif; ?>
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>วันที่</label>
+		<input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($order->date_add); ?>" disabled readonly />
+	</div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>รหัสลูกค้า</label>
+		<input type="text" class="form-control input-sm text-center edit" id="customer_code" name="customer_code" value="<?php echo $order->customer_code; ?>" disabled />
+	</div>
+	<div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 padding-5">
+		<label>ลูกค้า[ในระบบ]</label>
+		<input type="text" class="form-control input-sm edit" id="customer" name="customer" value="<?php echo $order->customer_name; ?>" required disabled />
+	</div>
+	<div class="col-lg-3-harf col-md-6 col-sm-6 col-xs-6 padding-5">
+		<label>คลัง</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $order->warehouse_code.' | '.$order->warehouse_name; ?>" disabled />
+	</div>
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>อ้างอิง</label>
+		<input type="text" class="form-control input-sm text-center edit" name="reference" id="reference" value="<?php echo $order->reference; ?>" disabled />
+	</div>
+	<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>อ้างอิงลูกค้า</label>
+		<input type="text" class="form-control input-sm edit" id="customer_ref" name="customer_ref" value="<?php echo str_replace('"', '&quot;',$order->customer_ref); ?>" disabled />
+	</div>
+	<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>ช่องทางขาย</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $order->channels_name; ?>" disabled/>
+	</div>
+	<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>Shop Name</label>
+		<input type="text" class="form-control input-sm" value="<?php echo ( ! empty($order->shop_id) ? shop_name($order->shop_id) : NULL); ?>" disabled/>
+	</div>
+	<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>การชำระเงิน</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $order->payment_name; ?>" disabled />
+	</div>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<label>หมายเหตุ</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
+	</div>
 
-  <?php if($order->role == 'C' OR $order->role == 'N') : ?>
-    <div class="col-sm-4 padding-5">
-      <label class="font-size-2 blod">โซน : <?php echo $order->zone_name; ?></label>
-    </div>
-    <div class="col-sm-2 padding-5 last text-right">
-      <label class="font-size-14 blod">พนักงาน : <?php echo $order->user; ?></label>
-    </div>
-  <?php else : ?>
-  <div class="col-sm-4 padding-5 last text-right">
-    <label class="font-size-14 blod">พนักงาน : <?php echo $order->user; ?></label>
-  </div>
-  <?php endif; ?>
+	<div class="divider"></div>
 
-  <?php if( $order->remark != '') : ?>
-    <div class="col-sm-12">
-      <label class="font-size-14 blod">หมายเหตุ :</label>
-      <?php echo $order->remark; ?>
-    </div>
-  <?php endif; ?>
+
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>ผู้ยืม/ผู้เบิก/ผู้ทำรายการ</label>
+		<input type="text" class="form-control input-sm edit" value="<?php echo $order->role == 'L' ? $order->empName : (($order->role == 'T' OR $order->role == 'Q') ? $order->user_ref : NULL); ?>" disabled />
+	</div>
+	<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>ผู้รับ</label>
+		<input type="text" class="form-control input-sm" value="<?php echo ($order->role == 'U' OR $order->role == 'L') ? $order->user_ref : NULL; ?>" disabled />
+	</div>
+	<div class="col-lg-3-harf col-md-6 col-sm-6 col-xs-12 padding-5">
+		<label>โซนปลายทาง</label>
+		<input type="text" class="form-control input-sm" value="<?php echo empty($order->zone_name) ? NULL : $order->zone_name; ?>" disabled />
+	</div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+		<label>สร้างโดย</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
+	</div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+		<label>แก้ไขโดย</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $order->update_user; ?>" disabled />
+	</div>
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>วันที่จัดส่ง</label>
+		<input type="text" class="form-control input-sm text-center" id="ship-date" value="<?php echo thai_date($order->shipped_date, FALSE); ?>" disabled />
+	</div>
 </div>
 <hr/>
 
 <div class="row">
-  <div class="col-sm-12 text-right">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <?php if($order->channels_code == '0009' && ! empty($order->reference)) : ?>
-      <button type="button" class="btn btn-white btn-info" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
     <?php endif; ?>
     <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
-      <button type="button" class="btn btn-white btn-info" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
     <?php endif; ?>
     <?php if($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
-      <button type="button" class="btn btn-white btn-info" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
     <?php endif; ?>
     <?php if(is_true(getConfig('PORLOR_API'))) : ?>
       <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
         <?php if(empty($order->shipping_code)) : ?>
-          <button type="button" class="btn btn-white btn-info" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
+          <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
         <?php else : ?>
-          <button type="button" class="btn btn-white btn-info" onclick="printPorlorLabel('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
+          <button type="button" class="btn btn-white btn-info top-btn" onclick="printPorlorLabel('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
         <?php endif; ?>
       <?php endif; ?>
     <?php endif; ?>
-    <button type="button" class="btn btn-sm btn-info" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)"><i class="fa fa-print"></i> ใบนำส่ง</button>
-    <button type="button" class="btn btn-sm btn-primary" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
-    <button type="button" class="btn btn-sm btn-success" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
-    <button type="button" class="btn btn-sm btn-warning" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>
+    <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)"><i class="fa fa-print"></i> ใบนำส่ง</button>
+    <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
+    <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
+    <button type="button" class="btn btn-sm btn-warning top-btn" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>
   </div>
 </div>
 <hr/>
 
 <div class="row">
-  <div class="col-sm-12">
-    <table class="table table-bordered">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-bordered" style="min-width:940px;">
       <thead>
-        <tr class="font-size-12">
-          <th class="width-5 text-center">ลำดับ</th>
-          <th class="width-35 text-center">สินค้า</th>
-          <th class="width-10 text-center">ราคา</th>
-          <th class="width-10 text-center">ออเดอร์</th>
-          <th class="width-10 text-center">จัด</th>
-          <th class="width-10 text-center">ตรวจ</th>
-          <th class="width-10 text-center">ส่วนลด</th>
-          <th class="width-10 text-center">มูลค่า</th>
+        <tr class="font-size-11">
+          <th class="fix-width-50 text-center">#</th>
+          <th class="min-width-350 text-center">สินค้า</th>
+          <th class="fix-width-100 text-center">ราคา</th>
+          <th class="fix-width-80 text-center">ออเดอร์</th>
+          <th class="fix-width-80 text-center">จัด</th>
+          <th class="fix-width-80 text-center">ตรวจ</th>
+          <th class="fix-width-100 text-center">ส่วนลด</th>
+          <th class="fix-width-100 text-center">มูลค่า</th>
         </tr>
       </thead>
       <tbody>
@@ -110,14 +142,14 @@
 ?>
 <?php   foreach($details as $rs) :  ?>
   <?php     $color = ($rs->order_qty == $rs->qc OR $rs->is_count == 0) ? '' : 'red'; ?>
-          <tr class="font-size-12 <?php echo $color; ?>">
+          <tr class="font-size-11 <?php echo $color; ?>">
             <td class="text-center">
               <?php echo $no; ?>
             </td>
 
             <!--- รายการสินค้า ที่มีการสั่งสินค้า --->
             <td>
-              <?php echo limitText($rs->product_code.' : '. $rs->product_name, 100); ?>
+              <?php echo $rs->product_code.' <br/> '. $rs->product_name; ?>
             </td>
 
             <!--- ราคาสินค้า  --->

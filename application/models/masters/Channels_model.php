@@ -109,15 +109,19 @@ class Channels_model extends CI_Model
 
 
 
-  public function get_name($code)
+  public function get_name($code = NULL)
   {
-    $rs = $this->db->select('name')->where('code', $code)->get('channels');
-    if($rs->num_rows() > 0)
+    if( ! empty($code))
     {
-      return $rs->row()->name;
+      $rs = $this->db->select('name')->where('code', $code)->get('channels');
+
+      if($rs->num_rows() > 0)
+      {
+        return $rs->row()->name;
+      }      
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

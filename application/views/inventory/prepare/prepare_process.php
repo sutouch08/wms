@@ -39,13 +39,17 @@
       <label>ช่องทางขาย</label>
       <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" disabled />
     </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+      <label>Shop name</label>
+      <input type="text" class="width-100" value="<?php echo shop_name($order->shop_id); ?>" disabled />
+    </div>
 
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5">
+    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
       <label>คลัง</label>
       <input type="text" class="width-100" id="whs-name" value="<?php echo $order->warehouse_name; ?>" disabled />
     </div>
 
-    <div class="col-lg-9 col-md-7 col-sm-7 col-xs-12 padding-5">
+    <div class="col-lg-7 col-md-5 col-sm-5 col-xs-12 padding-5">
       <label>หมายเหตุ</label>
       <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
     </div>

@@ -1,20 +1,18 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
+		<h4 class="title"><?php echo $this->title; ?></h4>
+	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>Supplier</label>
     <input type="text" class="form-control input-sm search" name="supplier" value="<?php echo $supplier; ?>" />
   </div>
@@ -59,19 +57,19 @@
     </p>
   </div>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1340px;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1370px;">
       <thead>
-        <tr>
-          <th class="text-center" style="width:40px;">#</th>
-          <th class="text-center" style="width:100px;">วันที่</th>
-          <th class="" style="width:100px;">เลขที่เอกสาร </th>
-          <th class="" style="width:100px;">รหัสผู้ขาย</th>
-          <th class="" style="width:350px;">ชื่อผู้ขาย</th>
-          <th class="" style="width:140px;">เข้าถังกลาง</th>
-          <th class="" style="width:140px;">เข้า SAP</th>
-          <th class="text-center" style="width:70px;">สถานะ</th>
-					<th class="" style="width:200px;">หมายเหตุ</th>
-					<th class="" style="width:100px;"></th>
+        <tr class="font-size-11">
+					<th class="fix-width-100"></th>
+          <th class="fix-width-40 text-center">#</th>
+					<th class="fix-width-80 text-center">สถานะ</th>
+          <th class="fix-width-100 text-center">วันที่</th>
+          <th class="fix-width-100">เลขที่เอกสาร </th>
+          <th class="fix-width-100">รหัสผู้ขาย</th>
+          <th class="fix-width-350">ชื่อผู้ขาย</th>
+          <th class="fix-width-150">เข้าถังกลาง</th>
+          <th class="fix-width-150">เข้า SAP</th>
+					<th class="min-width-200">หมายเหตุ</th>
         </tr>
       </thead>
       <tbody>
@@ -80,26 +78,15 @@
 <?php   foreach($orders as $rs)  : ?>
 
         <tr class="font-size-12" id="row-<?php echo $rs->DocEntry; ?>">
-          <td class="text-center"><?php echo $no; ?></td>
-
-          <td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
-
-          <td class=""><?php echo $rs->U_ECOMNO; ?></td>
-
-          <td class=""><?php echo $rs->CardCode; ?></td>
-
-          <td class="hide-text"><?php echo $rs->CardName; ?></td>
-
-          <td class="" ><?php echo thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
-
-          <td class="">
-						<?php
-							if(!empty($rs->F_SapDate))
-							{
-								echo thai_date($rs->F_SapDate, TRUE);
-							}
-						 ?>
-          </td>
+					<td class="">
+						<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)"><i class="fa fa-eye"></i></button>
+						<?php if($rs->F_Sap != 'Y') : ?>
+							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')"><i class="fa fa-trash"></i></button>
+							<?php if($this->_SuperAdmin) : ?>
+								<button type="button" class="btn btn-minier btn-primary" onclick="setSuccess(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">Y</button>
+							<?php endif; ?>
+						<?php endif; ?>
+					</td>
 					<td class="text-center">
             <?php if($rs->F_Sap === NULL) : ?>
               <span class="blue">NC</span>
@@ -109,6 +96,20 @@
 							<span class="green">สำเร็จ</span>
             <?php endif; ?>
           </td>
+          <td class="text-center"><?php echo $no; ?></td>
+          <td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
+          <td class=""><?php echo $rs->U_ECOMNO; ?></td>
+          <td class=""><?php echo $rs->CardCode; ?></td>
+          <td class="hide-text"><?php echo $rs->CardName; ?></td>
+          <td class="" ><?php echo thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
+          <td class="">
+						<?php
+							if(!empty($rs->F_SapDate))
+							{
+								echo thai_date($rs->F_SapDate, TRUE);
+							}
+						 ?>
+          </td>
           <td class="">
             <?php
             if($rs->F_Sap === 'N')
@@ -117,15 +118,7 @@
             }
             ?>
           </td>
-					<td class="text-right">
-						<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)"><i class="fa fa-eye"></i></button>
-						<?php if($rs->F_Sap != 'Y') : ?>
-							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')"><i class="fa fa-trash"></i></button>
-							<?php if($this->_SuperAdmin) : ?>
-								<button type="button" class="btn btn-minier btn-primary" onclick="setSuccess(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">Y</button>
-							<?php endif; ?>
-						<?php endif; ?>
-					</td>
+
         </tr>
 <?php  $no++; ?>
 <?php endforeach; ?>

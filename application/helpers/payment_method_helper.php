@@ -59,4 +59,13 @@ function payment_role_name($role)
   return isset($ds[$role]) ? $ds[$role] : 'Unknow';
 }
 
+
+function payment_name($code = NULL)
+{
+  $ci =& get_instance();
+  $ci->load->model('masters/payment_methods_model');
+
+  return $ci->payment_methods_model->get_name($code);
+}
+
  ?>

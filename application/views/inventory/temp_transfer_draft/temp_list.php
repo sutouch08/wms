@@ -1,17 +1,10 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 padding-5 hidden-xs">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-  </div>
-	<div class="col-xs-12 visible-xs padding-5">
-		<h3 class="title-xs"><?php echo $this->title; ?></h3>
+	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5 padding-top-5">
+		<h4 class="title"><?php echo $this->title; ?></h4>
 	</div>
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-		<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-success" onclick="export_diff()">Export ยอดต่าง</button>
-		</p>
+	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5 text-right">
+		<button type="button" class="btn btn-white btn-success top-btn" onclick="export_diff()">Export ยอดต่าง</button>
 	</div>
 </div><!-- End Row -->
 <hr class=""/>
@@ -76,11 +69,12 @@
       <span class="blue">NC</span> = ยังไม่เข้า SAP
     </p>
   </div>
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1100px;">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="min-height:300px; max-height:600px; overflow:auto;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1390px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
 					<th class="fix-width-80"></th>
+					<th class="fix-width-60 text-center">สถานะ</th>
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
           <th class="fix-width-120">เลขที่เอกสาร </th>
@@ -90,7 +84,6 @@
           <th class="fix-width-150">เข้า SAP</th>
 					<th class="fix-width-60 text-center">รับแล้ว</th>
 					<th class="fix-width-150">วันที่รับ</th>
-          <th class="fix-width-60 text-center">สถานะ</th>
 					<th class="min-width-100">หมายเหตุ</th>
         </tr>
       </thead>
@@ -99,48 +92,11 @@
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 
-        <tr class="font-size-12">
+        <tr class="font-size-11">
 					<td class="text-right">
-
 						<button type="button" class="btn btn-minier btn-info" onclick="get_detail('<?php echo $rs->U_ECOMNO; ?>')">
 							<i class="fa fa-eye"></i>
 						</button>
-					</td>
-          <td class="middle text-center"><?php echo $no; ?></td>
-
-          <td class="middle text-center"><?php echo thai_date($rs->DocDate); ?></td>
-
-          <td class="middle"><?php echo $rs->U_ECOMNO; ?></td>
-
-          <td class="middle"><?php echo $rs->CardCode; ?></td>
-
-          <td class="middle hide-text"><?php echo $rs->CardName; ?></td>
-
-          <td class="middle" >
-						<?php
-						if(!empty($rs->F_E_CommerceDate))
-						{
-							echo thai_date($rs->F_E_CommerceDate, TRUE);
-						}
-						 ?>
-					</td>
-
-          <td class="middle">
-						<?php if($rs->F_SapDate !== NULL) : ?>
-						<?php echo thai_date($rs->F_SapDate, TRUE); ?>
-						<?php endif; ?>
-					</td>
-					<td class="middle text-center">
-						<?php if($rs->F_Receipt === 'Y') : ?>
-							<span class="green">Yes</span>
-						<?php else : ?>
-							No
-						<?php endif; ?>
-					</td>
-					<td class="middle text-center">
-						<?php if($rs->F_ReceiptDate !== NULL) : ?>
-							<?php echo thai_date($rs->F_ReceiptDate, TRUE); ?>
-						<?php endif; ?>
 					</td>
 					<td class="text-center">
 						<?php if($rs->F_Sap === NULL) : ?>
@@ -153,11 +109,16 @@
 							<span class="green">สำเร็จ</span>
 						<?php endif; ?>
 					</td>
-					<td>
-						<?php if( $rs->F_Sap === 'N' && ! empty($rs->Message)) : ?>
-							<?php echo $rs->Message; ?>
-            <?php endif; ?>
-					</td>
+          <td class="middle text-center"><?php echo $no; ?></td>
+          <td class="middle text-center"><?php echo thai_date($rs->DocDate); ?></td>
+          <td class="middle"><?php echo $rs->U_ECOMNO; ?></td>
+          <td class="middle"><?php echo $rs->CardCode; ?></td>
+          <td class="middle hide-text"><?php echo $rs->CardName; ?></td>
+          <td class="middle"><?php echo thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
+          <td class="middle"><?php echo ! empty($rs->F_SapDate) ? thai_date($rs->F_SapDate, TRUE) : NULL; ?></td>
+					<td class="middle text-center"><?php echo $rs->F_Receipt === 'Y' ? '<span class="green">Yes</span>': 'No'; ?></td>
+					<td class="middle text-center"><?php echo ! empty($rs->F_ReceiptDate) ? thai_date($rs->F_ReceiptDate, TRUE) : NULL; ?></td>
+					<td><?php echo ($rs->F_Sap === 'N' && ! empty($rs->Message)) ? $rs->Message : NULL; ?></td>
         </tr>
 <?php  $no++; ?>
 <?php endforeach; ?>

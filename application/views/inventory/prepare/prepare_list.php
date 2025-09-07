@@ -34,22 +34,22 @@
 			<h4 class="title">ตัวกรอง</h4>
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 fi">
 			<label>เลขที่เอกสาร</label>
 			<input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 fi">
 			<label>อ้างอิง</label>
 			<input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 fi">
 			<label>ลูกค้า</label>
 			<input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
 		</div>
 
-		<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
 			<label>พนักงาน</label>
 			<select class="width-100 filter" id="user" name="user">
 				<option value="all">ทั้งหมด</option>
@@ -57,7 +57,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-2 col-md-3-harf col-sm-3-harf col-xs-6 padding-5 fi">
 			<label>คลัง</label>
 			<select class="width-100" name="warehouse" id="warehouse">
 				<option value="all">ทั้งหมด</option>
@@ -65,13 +65,21 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
 			<label>ช่องทางขาย</label>
 			<select class="width-100" name="channels" id="channels">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_channels($channels); ?>
 			</select>
 		</div>
+
+		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+	    <label>Shop Name</label>
+			<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_shop_name($shop_id); ?>
+			</select>
+	  </div>
 
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>ออนไลน์</label>

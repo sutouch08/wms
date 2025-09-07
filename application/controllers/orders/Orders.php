@@ -65,6 +65,7 @@ class Orders extends PS_Controller
       'reference' => get_filter('reference', 'order_reference', ''),
       'ship_code' => get_filter('shipCode', 'order_shipCode', ''),
       'channels' => get_filter('channels', 'order_channels', ''),
+      'shop_id' => get_filter('shop_id', 'shop_id', 'all'),
       'payment' => get_filter('payment', 'order_payment', ''),
       'from_date' => get_filter('fromDate', 'order_fromDate', ''),
       'to_date' => get_filter('toDate', 'order_toDate', ''),
@@ -85,7 +86,8 @@ class Orders extends PS_Controller
       'is_backorder' => get_filter('is_backorder', 'is_backorder', 'all'),
       'tax_status' => get_filter('tax_status', 'tax_status', 'all'),
       'is_etax' => get_filter('is_etax', 'is_etax', 'all'),
-      'is_cancled' => get_filter('is_cancled', 'is_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'is_cancled', 'all'),
+      'range' => get_filter('range', 'range', 'top')
     );
 
     $state = array(
@@ -2078,7 +2080,7 @@ class Orders extends PS_Controller
         $item = $this->products_model->get_item_by_color_and_size($style->code, $color_code, $size_code);
 
         if( ! empty($item) )
-        {          
+        {
           $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'Not for sell' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
 
           $stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
@@ -4646,6 +4648,7 @@ class Orders extends PS_Controller
       'order_reference',
       'order_shipCode',
       'order_channels',
+      'shop_id',
       'order_payment',
       'order_fromDate',
       'order_toDate',

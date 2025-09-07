@@ -21,12 +21,15 @@
 </div>
 <hr/>
 
+
 <?php if( $order->state == 8) : ?>
   <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
   <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
   <input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
+<?php $reference = empty($order->reference) ? $order->code : $order->code . " [{$order->reference}]"; ?>
+<?php $cust_name = empty($order->customer_ref) ? $order->customer_name : $order->customer_name.' ['.$order->customer_ref.']'; ?>
   <div class="row">
-    <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 padding-5">
+    <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
       <label>เลขที่เอกสาร</label>
       <div class="input-group width-100">
         <input type="text" class="width-100 text-center" value="<?php echo $order->code; ?>" disabled />
@@ -38,70 +41,26 @@
       </div>
     </div>
 
-    <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-      <label>วันที่</label>
-      <input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($order->date_add); ?>" disabled readonly />
-    </div>
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+    <?php if($order->role == 'C' OR $order->role == 'N') : ?>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
       <label>รหัสลูกค้า</label>
-      <input type="text" class="form-control input-sm text-center edit" id="customer_code" name="customer_code" value="<?php echo $order->customer_code; ?>" disabled />
+      <input type="text" class="width-100 text-center" value="<?php echo $order->customer_code; ?>" disabled />
     </div>
-    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 padding-5">
-      <label>ลูกค้า[ในระบบ]</label>
-      <input type="text" class="form-control input-sm edit" id="customer" name="customer" value="<?php echo $order->customer_name; ?>" required disabled />
+    <div class="col-lg-4 col-md-4 col-sm-3-harf col-xs-12 padding-5">
+      <label>ลูกค้า</label>
+      <input type="text" class="width-100" value="<?php echo $cust_name; ?>" disabled />
     </div>
-    <div class="col-lg-3-harf col-md-6 col-sm-6 col-xs-6 padding-5">
-      <label>คลัง</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->warehouse_code.' | '.$order->warehouse_name; ?>" disabled />
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
+      <label>โซน</label>
+      <input type="text" class="width-100" value="<?php echo $order->zone_name; ?>" disabled />
     </div>
-    <div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
-      <label>อ้างอิง</label>
-      <input type="text" class="form-control input-sm text-center edit" name="reference" id="reference" value="<?php echo $order->reference; ?>" disabled />
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+      <label>พนักงาน</label>
+      <input type="text" class="width-100" value="<?php echo $order->user; ?>" disabled />
     </div>
-    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
-      <label>อ้างอิงลูกค้า</label>
-      <input type="text" class="form-control input-sm edit" id="customer_ref" name="customer_ref" value="<?php echo str_replace('"', '&quot;',$order->customer_ref); ?>" disabled />
-    </div>
-    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
-      <label>ช่องทางขาย</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->channels_name; ?>" disabled/>
-    </div>
-    <div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
-      <label>Shop Name</label>
-      <input type="text" class="form-control input-sm" value="<?php echo ( ! empty($order->shop_id) ? shop_name($order->shop_id) : NULL); ?>" disabled/>
-    </div>
-    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
-      <label>การชำระเงิน</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->payment_name; ?>" disabled />
-    </div>
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+    <div class="col-lg-7 col-md-6-harf col-sm-6-harf col-xs-4 padding-5">
       <label>หมายเหตุ</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
-      <label>ผู้ยืม/ผู้เบิก/ผู้ทำรายการ</label>
-      <input type="text" class="form-control input-sm edit" value="<?php echo $order->role == 'L' ? $order->empName : (($order->role == 'T' OR $order->role == 'Q') ? $order->user_ref : NULL); ?>" disabled />
-    </div>
-    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
-      <label>ผู้รับ</label>
-      <input type="text" class="form-control input-sm" value="<?php echo ($order->role == 'U' OR $order->role == 'L') ? $order->user_ref : NULL; ?>" disabled />
-    </div>
-    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 padding-5">
-      <label>โซนปลายทาง</label>
-      <input type="text" class="form-control input-sm" value="<?php echo empty($order->zone_name) ? NULL : $order->zone_name; ?>" disabled />
-    </div>
-
-    <div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
-      <label>สร้างโดย</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->user; ?>" disabled />
-    </div>
-
-    <div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
-      <label>แก้ไขโดย</label>
-      <input type="text" class="form-control input-sm" value="<?php echo $order->update_user; ?>" disabled />
+      <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
     </div>
     <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
       <label class="font-size-2 blod">วันที่จัดส่ง</label>
@@ -115,21 +74,53 @@
     </div>
     <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
       <label class="font-size-2 blod">SAP No</label>
-      <div class="input-group width-100">
-        <input type="text" class="width-100 text-center" value="<?php echo $order->inv_code; ?>" disabled />
-        <span class="input-group-btn">
-          <button type="button" class="btn btn-xs btn-info" style="height:30px;" onclick="viewTemp('<?php echo $order->code; ?>', '<?php echo $order->role; ?>')" style="min-width:20px;">
-            <i class="fa fa-external-link"></i>
-          </button>
-        </span>
-      </div>
-
+      <input type="text" class="form-control input-sm text-center" value="<?php echo $order->inv_code; ?>" disabled />
     </div>
+    <?php else : ?>
+      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+        <label>อ้างอิง</label>
+        <input type="text" class="width-100 text-center" value="<?php echo $order->reference; ?>" disabled />
+      </div>
+      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+        <label>รหัสลูกค้า</label>
+        <input type="text" class="width-100 text-center" value="<?php echo $order->customer_code; ?>" disabled />
+      </div>
+      <div class="col-lg-4-harf col-md-6 col-sm-5-harf col-xs-8 padding-5">
+        <label>ลูกค้า</label>
+        <input type="text" class="width-100" value="<?php echo $order->customer_name; ?>" disabled />
+      </div>
+      <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+        <label>ลูกค้า[ออนไลน์]</label>
+        <input type="text" class="form-control input-sm edit" id="customer_ref" name="customer_ref" value="<?php echo $order->customer_ref; ?>" disabled />
+      </div>
+      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+        <label>พนักงาน</label>
+        <input type="text" class="width-100" value="<?php echo $order->user; ?>" disabled />
+      </div>
+      <div class="col-lg-7 col-md-6-harf col-sm-6-harf col-xs-4 padding-5">
+        <label>หมายเหตุ</label>
+        <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
+      </div>
+      <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+        <label class="font-size-2 blod">วันที่จัดส่ง</label>
+        <div class="input-group width-100">
+          <input type="text" class="width-100 text-center" id="ship-date" value="<?php echo empty($order->shipped_date) ? NULL : thai_date($order->shipped_date); ?>" disabled />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-xs btn-warning btn-block" style="height:30px;" id="btn-edit-ship-date" onclick="activeShipDate()"><i class="fa fa-pencil" style="min-width:20px;"></i></button>
+            <button type="button" class="btn btn-xs btn-success btn-block hide" style="height:30px;" id="btn-update-ship-date" onclick="updateShipDate()"><i class="fa fa-save" style="min-width:20px;"></i></button>
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+        <label class="font-size-2 blod">SAP No</label>
+        <input type="text" class="width-100 text-center" value="<?php echo $order->inv_code; ?>" disabled />
+      </div>
+    <?php endif; ?>
   </div>
   <hr/>
 
   <div class="row hidden-xs">
-    <div class="col-lg-12 col-md-12 col-sm-12 text-right">
+    <div class="col-sm-12 text-right">
       <?php if($order->channels_code == '0009' && ! empty($order->reference)) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
       <?php endif; ?>
@@ -160,7 +151,7 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
       <table class="table table-bordered" style="min-width:960px;">
         <thead>
-          <tr class="font-size-11">
+          <tr class="font-size-12">
             <th class="fix-width-40 text-center">ลำดับ</th>
             <th class="min-width-300 text-center">สินค้า</th>
             <th class="fix-width-100 text-center">ราคา</th>
@@ -189,14 +180,14 @@
 		<?php 	else : ?>
 		<?php     $color = ($rs->order_qty == $rs->qc OR $rs->is_count == 0) ? '' : 'red'; ?>
 		<?php 	endif; ?>
-            <tr class="font-size-11 <?php echo $color; ?>">
+            <tr class="font-size-12 <?php echo $color; ?>">
               <td class="middle text-center">
                 <?php echo $no; ?>
               </td>
 
               <!--- รายการสินค้า ที่มีการสั่งสินค้า --->
               <td class="moddle">
-                <?php echo $rs->product_code.' <br/> '. $rs->product_name; ?>
+                <?php echo limitText($rs->product_code.' : '. $rs->product_name, 100); ?>
               </td>
 
               <!--- ราคาสินค้า  --->
@@ -424,61 +415,6 @@
     window.open(target, '_blank', prop);
 
   }
-
-  function viewTemp(code, role) {
-    let width = $(document).width() * 0.9;
-    var center = ($(document).width() - width)/2;
-    var prop = "width="+width+", height=900. left="+center+", scrollbars=yes";
-
-    var target = BASE_URL + 'inventory/temp_delivery_order';
-
-    switch (role) {
-      case 'S' :
-        target = BASE_URL + 'inventory/temp_delivery_order';
-      break;
-      case 'P' :
-        target = BASE_URL + 'inventory/temp_delivery_order';
-      break;
-      case 'C' :
-        target = BASE_URL + 'inventory/temp_delivery_order';
-      break;
-      case 'N' :
-        target = BASE_URL + 'inventory/temp_transfer_draft';
-      break;
-      case 'T' :
-        target = BASE_URL + 'inventory/temp_transfer';
-      break;
-      case 'Q' :
-        target = BASE_URL + 'inventory/temp_transfer';
-      break;
-      case 'U' :
-        target = BASE_URL + 'inventory/temp_delivery_order';
-      break;
-      case 'L' :
-        target = BASE_URL + 'inventory/temp_transfer';
-      break;
-      default:
-        target = BASE_URL + 'inventory/temp_delivery_order';
-      break;
-    }
-
-    let url = target;
-    let mapForm = document.createElement("form");
-    mapForm.target = "Temp";
-    mapForm.method = "POST";
-    mapForm.action = url;
-
-    let mapInput = document.createElement("input");
-    mapInput.type = "text";
-    mapInput.name = "code";
-    mapInput.value = code;
-    mapForm.appendChild(mapInput);
-
-    document.body.appendChild(mapForm);
-    map = window.open(url, "Temp", prop);
-    mapForm.submit();
-    document.body.removeChild(mapForm);
-  }
 </script>
 <script>
 
@@ -635,7 +571,7 @@
         load_out();
 
         if(rs.trim() === 'success') {
-          printPorlorLabel(code);
+          printPorlorLabel(code);          
         }
         else {
           beep();

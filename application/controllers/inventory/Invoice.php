@@ -16,22 +16,24 @@ class Invoice extends PS_Controller
     $this->load->model('orders/orders_model');
     $this->load->model('masters/customers_model');
     $this->load->model('inventory/delivery_order_model');
+    $this->load->model('masters/zone_model');
     $this->load->helper('order');
+    $this->load->helper('channels');
+    $this->load->helper('payment_method');
+    $this->load->helper('warehouse');
   }
 
 
   public function index()
   {
-    $this->load->helper('channels');
-    $this->load->helper('warehouse');
-
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
       'reference' => get_filter('reference', 'ic_reference', ''),
       'customer' => get_filter('customer', 'ic_customer', ''),
-      'user' => get_filter('user', 'ic_user', ''),
-      'role' => get_filter('role', 'ic_role', ''),
-      'channels' => get_filter('channels', 'ic_channels', ''),
+      'user' => get_filter('user', 'ic_user', 'all'),
+      'role' => get_filter('role', 'ic_role', 'all'),
+      'channels' => get_filter('channels', 'ic_channels', 'all'),
+      'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
       'ship_from_date' => get_filter('ship_from_date', 'ic_ship_from_date', ''),
@@ -41,7 +43,8 @@ class Invoice extends PS_Controller
       'is_valid' => get_filter('is_valid', 'ic_valid', 'all'),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
 			'is_exported' => get_filter('is_exported', 'ic_is_exported', 'all'),
-      'sap_status' => get_filter('sap_status', 'ic_sap_status', 'all')
+      'sap_status' => get_filter('sap_status', 'ic_sap_status', 'all'),
+      'range' => get_filter('range', 'ic_range', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -76,19 +79,12 @@ class Invoice extends PS_Controller
 
     $order = $this->orders_model->get($code);
 
-    $order->customer_name = $this->customers_model->get_name($order->customer_code);
-
-    if($order->role == 'C' OR $order->role == 'N')
-    {
-      $this->load->model('masters/zone_model');
-
-      $order->zone_name = $this->zone_model->get_name($order->zone_code);
-
-      if($order->role == 'N')
-      {
-        $order->is_received = $this->invoice_model->is_received($order->code);
-      }
-    }
+    $order->customer_name = empty($order->customer_name) ? $this->customers_model->get_name($order->customer_code) : $order->customer_name;
+    $order->zone_name = empty($rs->zone_code) ? NULL : $this->zone_model->get_name($order->zone_code);
+    $order->is_received = $order->role == 'N' ? $this->invoice_model->is_received($order->code) : NULL;
+    $order->warehouse_name = warehouse_name($order->warehouse_code);
+    $order->channels_name = channels_name($order->channels_code);
+    $order->payment_name = payment_name($order->payment_code);
 
     $details = $this->invoice_model->get_billed_detail($code);
     $box_list = $this->qc_model->get_box_list($code);
@@ -135,6 +131,8 @@ class Invoice extends PS_Controller
       'ic_user',
       'ic_role',
       'ic_channels',
+      'ic_range',
+      'ic_shop_id',
       'ic_from_date',
       'ic_to_date',
       'ic_ship_from_date',

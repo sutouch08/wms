@@ -22,6 +22,7 @@ class Qc extends PS_Controller
     $this->load->helper('channels');
     $this->load->helper('package');
     $this->load->helper('sender');
+    $this->load->helper('order');
   }
 
   public function index()
@@ -31,9 +32,10 @@ class Qc extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
       'customer' => get_filter('customer', 'ic_customer', ''),
-      'user' => get_filter('user', 'ic_user', ''),
+      'user' => get_filter('user', 'ic_user', 'all'),
       'role' => get_filter('role', 'ic_role', 'all'),
       'channels'  => get_filter('channels', 'ic_channels', 'all'),
+      'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
@@ -538,6 +540,7 @@ class Qc extends PS_Controller
       'user' => get_filter('user', 'ic_user', ''),
       'role' => get_filter('role', 'ic_role', 'all'),
       'channels'  => get_filter('channels', 'ic_channels', 'all'),
+      'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
@@ -1610,6 +1613,7 @@ class Qc extends PS_Controller
       'ic_customer',
       'ic_user',
       'ic_channels',
+      'ic_shop_id',
       'ic_role',
       'ic_from_date',
       'ic_to_date',

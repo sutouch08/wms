@@ -640,15 +640,15 @@ class Orders_model extends CI_Model
   {
     $this->db->where('role', $role);
 
+    if(isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('id >', $this->get_max_id());
+    }
+
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
-    }
-    else
-    {
-      $this->db->where('id >', $this->get_max_id());
-      // $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     //---- เลขที่เอกสาร
@@ -703,6 +703,11 @@ class Orders_model extends CI_Model
     if( ! empty($ds['channels']))
     {
       $this->db->where('channels_code', $ds['channels']);
+    }
+
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('shop_id', $ds['shop_id']);
     }
 
     //--- ช่องทางการชำระเงิน
@@ -897,18 +902,18 @@ class Orders_model extends CI_Model
     $this->db
     ->select('id, code, role, reference, customer_code, customer_name, customer_ref')
     ->select('channels_code, payment_code, state, status, warehouse_code, zone_code, date_add, is_expired, doc_total')
-    ->select('is_wms, wms_export, is_backorder, is_approved, user, empName, is_cancled')
+    ->select('is_wms, wms_export, is_backorder, is_approved, user, empName, is_cancled, shop_id')
     ->where('role', $role);
+
+    if(isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('id >', $this->get_max_id());
+    }
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
-    }
-    else
-    {
-      $this->db->where('id >', $this->get_max_id());
-      // $this->db->where('date_add >=', from_date($this->_dataDate));
     }
 
     //---- เลขที่เอกสาร
@@ -965,6 +970,11 @@ class Orders_model extends CI_Model
     if( ! empty($ds['channels']))
     {
       $this->db->where('channels_code', $ds['channels']);
+    }
+
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('shop_id', $ds['shop_id']);
     }
 
     //--- ช่องทางการชำระเงิน
@@ -2020,6 +2030,21 @@ class Orders_model extends CI_Model
     return $count > 0 ? TRUE : FALSE;
   }
 
+  public function shop_name($shop_id = NULL)
+  {
+    if( ! empty($shop_id))
+    {
+      $rs = $this->db->select('shop_name')->where('shop_id', $shop_id)->get('market_place_shop');
+
+      if($rs->num_rows() === 1)
+      {
+        return $rs->row()->shop_name;
+      }
+    }
+
+    return NULL;
+  }
+
 
   public function getUnsendTrackingList($id_sender, $limit = 100)
   {
@@ -2058,14 +2083,28 @@ class Orders_model extends CI_Model
 
   public function get_max_id()
   {
+    $limit = $this->get_limit_rows();
     $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->id - 200000;
+      return $rs->row()->id - $limit;
     }
 
-    return 2000000;
+    return $limit;
+  }
+
+
+  public function get_limit_rows()
+  {
+    $rs = $this->db->query("SELECT value FROM config WHERE code = 'FILTER_RESULT_LIMIT'");
+
+    if($rs->num_rows() === 1)
+    {
+      return intval($rs->row()->value);
+    }
+
+    return 0;
   }
 
 

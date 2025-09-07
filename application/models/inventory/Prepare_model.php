@@ -326,6 +326,11 @@ class Prepare_model extends CI_Model
       $this->db->where('o.channels_code', $ds['channels']);
     }
 
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('o.shop_id', $ds['shop_id']);
+    }
+
     if($ds['is_online'] != 'all')
     {
       if($ds['is_online'] == 1)
@@ -383,7 +388,7 @@ class Prepare_model extends CI_Model
   {
     $this->db
 		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
-    ->select('o.customer_ref, o.date_add, o.channels_code, o.is_backorder, o.is_cancled')
+    ->select('o.customer_ref, o.date_add, o.channels_code, o.is_backorder, o.is_cancled, o.shop_id')
     ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user')
     ->select('ch.name AS channels_name')
     ->from('orders AS o')
@@ -459,6 +464,11 @@ class Prepare_model extends CI_Model
     if( isset($ds['channels']) && $ds['channels'] != 'all')
     {
       $this->db->where('o.channels_code', $ds['channels']);
+    }
+
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('o.shop_id', $ds['shop_id']);
     }
 
     if(isset($ds['is_online']) && $ds['is_online'] != 'all')

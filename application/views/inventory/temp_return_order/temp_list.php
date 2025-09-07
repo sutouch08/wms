@@ -1,9 +1,7 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-xs-12">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+    <h4 class="title"><?php echo $this->title; ?></h4>
   </div>
 </div><!-- End Row -->
 <hr class=""/>
@@ -46,8 +44,8 @@
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
-<hr class="margin-top-15">
 </form>
+<hr class="margin-top-15">
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">
@@ -58,11 +56,12 @@
       <span class="blue">NC</span> = ยังไม่เข้า SAP
     </p>
   </div>
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1100px;">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="min-height:300px; max-height:600px; overflow:auto;">
+    <table class="table table-striped border-1 dataTable" style="min-width:1200px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
 					<th class="fix-width-80"></th>
+					<th class="fix-width-60 text-center">สถานะ</th>
           <th class="fix-width-60 text-center">ลำดับ</th>
           <th class="fix-width-100 text-center">วันที่</th>
           <th class="fix-width-120">เลขที่เอกสาร </th>
@@ -70,7 +69,6 @@
           <th class="fix-width-250">ชื่อลูกค้า</th>
           <th class="fix-width-150">เข้าถังกลาง</th>
           <th class="fix-width-150">เข้า SAP</th>
-          <th class="fix-width-60 text-center">สถานะ</th>
 					<th class="min-width-100">หมายเหตุ</th>
         </tr>
       </thead>
@@ -79,7 +77,7 @@
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 
-        <tr class="font-size-12" id="row-<?php echo $rs->DocEntry; ?>">
+        <tr class="font-size-11" id="row-<?php echo $rs->DocEntry; ?>">
 					<td class="text-right">
 						<?php if($rs->F_Sap !== 'Y') : ?>
 							<button type="button" class="btn btn-minier btn-danger" onclick="removeTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>')">
@@ -90,6 +88,15 @@
 							<i class="fa fa-eye"></i>
 						</button>
 					</td>
+					<td class="text-center">
+            <?php if($rs->F_Sap === NULL) : ?>
+              <span class="blue">NC</span>
+            <?php elseif($rs->F_Sap === 'N') : ?>
+              <span class="red">ERROR</span>
+						<?php elseif($rs->F_Sap == 'Y') : ?>
+							<span class="green">สำเร็จ</span>
+            <?php endif; ?>
+          </td>
           <td class="text-center no"><?php echo $no; ?></td>
 
           <td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
@@ -114,15 +121,7 @@
 							}
 					 	?>
 				 	</td>
-					<td class="text-center">
-            <?php if($rs->F_Sap === NULL) : ?>
-              <span class="blue">NC</span>
-            <?php elseif($rs->F_Sap === 'N') : ?>
-              <span class="red">ERROR</span>
-						<?php elseif($rs->F_Sap == 'Y') : ?>
-							<span class="green">สำเร็จ</span>
-            <?php endif; ?>
-          </td>
+
           <td class="">
             <?php
             if($rs->F_Sap === 'N')

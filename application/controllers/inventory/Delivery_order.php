@@ -19,6 +19,7 @@ class Delivery_order extends PS_Controller
     $this->load->model('inventory/delivery_order_model');
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
+    $this->load->helper('order');
   }
 
 
@@ -28,9 +29,10 @@ class Delivery_order extends PS_Controller
       'code' => get_filter('code', 'ic_code', ''),
       'reference' => get_filter('reference', 'ic_reference', ''),
       'customer' => get_filter('customer', 'ic_customer', ''),
-      'user' => get_filter('user', 'ic_user', ''),
-      'role' => get_filter('role', 'ic_role', ''),
-      'channels' => get_filter('channels', 'ic_channels', ''),
+      'user' => get_filter('user', 'ic_user', 'all'),
+      'role' => get_filter('role', 'ic_role', 'all'),
+      'channels' => get_filter('channels', 'ic_channels', 'all'),
+      'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
       'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
@@ -38,7 +40,8 @@ class Delivery_order extends PS_Controller
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_hold' => get_filter('is_hold', 'ic_is_hold', 'all'),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
-      'dispatch' => get_filter('dispatch', 'ic_dispatch', 'all')
+      'dispatch' => get_filter('dispatch', 'ic_dispatch', 'all'),
+      'range' => get_filter('range', 'ic_range', '')
     );
 
     if($this->input->post('search'))
@@ -750,7 +753,9 @@ class Delivery_order extends PS_Controller
       'ic_order_by',
       'ic_warehouse',
       'ic_is_hold',
-      'ic_is_cancled'
+      'ic_is_cancled',
+      'ic_range',
+      'ic_shop_id'
     );
 
     clear_filter($filter);

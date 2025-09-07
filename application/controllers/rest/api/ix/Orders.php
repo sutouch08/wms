@@ -638,6 +638,7 @@ class Orders extends REST_Controller
       $total_sku = [];
       $is_hold = empty($data->on_hold) ? 0 : ($data->on_hold == 'Y' ? 1 : 0);
       $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
+      $shop_id = empty($data->shop_id) ? NULL : $data->shop_id;
       $is_backorder = FALSE;
       $backorderList = [];
       $sync_stock = []; //--- keep product to sync stock
@@ -688,7 +689,8 @@ class Orders extends REST_Controller
           'province'=> get_null($bill_to->province),
           'postcode'=> get_null($bill_to->postcode),
           'phone'=> get_null($bill_to->phone),
-          'email'=> get_null($bill_to->email)
+          'email'=> get_null($bill_to->email),
+          'shop_id' => $shop_id
         );
       }
       else
@@ -732,7 +734,8 @@ class Orders extends REST_Controller
           'province'=> get_null($bill_to->province),
           'postcode'=> get_null($bill_to->postcode),
           'phone'=> get_null($bill_to->phone),
-          'email'=> get_null($bill_to->email)
+          'email'=> get_null($bill_to->email),
+          'shop_id' => $shop_id
         );
       }
 

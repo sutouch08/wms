@@ -155,4 +155,58 @@ function role_name($role)
 }
 
 
+function select_shop_name($shop_id = NULL)
+{
+	$ci =& get_instance();
+	$ds = "";
+
+	$qs = $ci->db
+	->select('sh.*, ch.name as channels_name')
+	->from('market_place_shop AS sh')
+	->join('channels AS ch', 'sh.channels = ch.code', 'left')
+	->get();
+
+	if($qs->num_rows() > 0)
+	{
+		foreach($qs->result() as $rs)
+		{
+			$ds .= '<option value="'.$rs->shop_id.'" '.is_selected($shop_id, $rs->shop_id).'>'.$rs->channels_name.' | '.$rs->shop_name.'</option>';
+		}
+	}
+
+	return $ds;
+}
+
+
+function shop_name($shop_id = NULL)
+{
+	if( ! empty($shop_id))
+	{
+		$ci =& get_instance();
+		$ci->load->model('orders/orders_model');
+
+		return $ci->orders_model->shop_name($shop_id);
+	}
+
+	return NULL;
+}
+
+
+function shop_name_arr()
+{
+	$ci =& get_instance();
+	$ds = [];
+	$qs = $ci->db->select('shop_id, shop_name')->get('market_place_shop');
+
+	if($qs->num_rows() > 0)
+	{
+		foreach($qs->result() as $rs)
+		{
+			$ds[$rs->shop_id] = $rs->shop_name;
+		}
+	}
+
+	return $ds;
+}
+
  ?>

@@ -18,6 +18,7 @@ class Prepare extends PS_Controller
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
     $this->load->model('masters/warehouse_model');
+    $this->load->helper('order');
 
     $this->full_mode = is_true(getConfig('WMS_FULL_MODE'));
   }
@@ -37,6 +38,7 @@ class Prepare extends PS_Controller
       'customer' => get_filter('customer', 'ic_customer', ''),
       'user' => get_filter('user', 'ic_user', 'all'),
       'channels' => get_filter('channels', 'ic_channels', 'all'),
+      'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'is_online' => get_filter('is_online', 'ic_is_online', 'all'),
       'role' => get_filter('role', 'ic_role', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
@@ -89,6 +91,7 @@ class Prepare extends PS_Controller
       'customer' => get_filter('customer', 'ic_customer', ''),
       'user' => get_filter('user', 'ic_user', 'all'),
       'channels' => get_filter('channels', 'ic_channels', 'all'),
+      'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'is_online' => get_filter('is_online', 'ic_is_online', 'all'),
       'role' => get_filter('role', 'ic_role', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
@@ -926,6 +929,7 @@ class Prepare extends PS_Controller
       'ic_customer',
       'ic_user',
       'ic_channels',
+      'ic_shop_id',
       'ic_is_online',
       'ic_role',
       'ic_from_date',

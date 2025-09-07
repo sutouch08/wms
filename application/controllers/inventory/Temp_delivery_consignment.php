@@ -20,11 +20,11 @@ class Temp_delivery_consignment extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code'          => get_filter('code', 'temp_code', ''),
-      'customer'      => get_filter('customer', 'temp_customer', ''),
-      'from_date'     => get_filter('from_date', 'temp_from_date', ''),
-      'to_date'       => get_filter('to_date', 'temp_to_date', ''),
-      'status'      => get_filter('status', 'temp_status', 'all')
+      'code' => get_filter('code', 'temp_code', ''),
+      'customer' => get_filter('customer', 'temp_customer', ''),
+      'from_date' => get_filter('from_date', 'temp_from_date', ''),
+      'to_date' => get_filter('to_date', 'temp_to_date', ''),
+      'status' => get_filter('status', 'temp_status', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า

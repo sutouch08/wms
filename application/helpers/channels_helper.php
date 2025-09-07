@@ -53,4 +53,13 @@ function select_dispatch_channels($code = NULL)
 
   return $sc;
 }
+
+
+function channels_name($code = NULL)
+{
+  $ci =& get_instance();
+  $ci->load->model('masters/channels_model');
+
+  return $ci->channels_model->get_name($code);
+}
  ?>

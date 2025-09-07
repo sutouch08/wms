@@ -24,34 +24,52 @@
     <input type="text" class="form-control input-sm search-box" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
-    <label>พนักงาน</label>
-    <input type="text" class="form-control input-sm search-box" name="user" value="<?php echo $user; ?>" />
-  </div>
+	<div class="col-lg-2-harf col-md-3 col-sm-3-harf col-xs-6 padding-5">
+		<label>พนักงาน/ผู้สั่งงาน</label>
+		<select class="width-100 filter" name="user" id="user">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_user($user); ?>
+		</select>
+	</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
-    <label>รูปแบบ</label>
-		<select class="form-control input-sm" name="role" onchange="getSearch()">
-      <option value="">ทั้งหมด</option>
-      <?php echo select_order_role($role); ?>
-    </select>
-  </div>
-
-	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
-		<select class="form-control input-sm" name="channels" onchange="getSearch()">
+		<select class="width-100 filter" name="channels" id="channels">
       <option value="">ทั้งหมด</option>
       <?php echo select_channels($channels); ?>
     </select>
   </div>
 
-	<div class="col-lg-3 col-md-5 col-sm-6 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>Shop Name</label>
+		<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_shop_name($shop_id); ?>
+		</select>
+	</div>
+
+	<div class="col-lg-4 col-md-5 col-sm-6 col-xs-6 padding-5">
     <label>คลังสินค้า</label>
 		<select class="width-100 filter" id="warehouse" name="warehouse">
       <option value="all">ทั้งหมด</option>
       <?php echo select_sell_warehouse($warehouse); ?>
     </select>
   </div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label>ประเภท</label>
+		<select class="form-control input-sm filter" name="role">
+			<option value="all">ทั้งหมด</option>
+			<option value="S" <?php echo is_selected($role, 'S'); ?>>WO</option>
+			<option value="C" <?php echo is_selected($role, 'C'); ?>>WC</option>
+			<option value="N" <?php echo is_selected($role, 'N'); ?>>WT</option>
+			<option value="P" <?php echo is_selected($role, 'P'); ?>>WS</option>
+			<option value="U" <?php echo is_selected($role, 'U'); ?>>WU</option>
+			<option value="Q" <?php echo is_selected($role, 'Q'); ?>>WV</option>
+			<option value="T" <?php echo is_selected($role, 'T'); ?>>WQ</option>
+			<option value="L" <?php echo is_selected($role, 'L'); ?>>WL</option>
+		</select>
+	</div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>การยืนยัน</label>
@@ -80,6 +98,14 @@
 			<option value="N" <?php echo is_selected($sap_status, 'N'); ?>>ยังไม่เข้า</option>
     </select>
   </div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
+		<label>ช่วงข้อมูล</label>
+		<select class="form-control input-sm filter" name="range">
+			<option value="top"><?php echo number(getConfig('FILTER_RESULT_LIMIT')); ?> รายการล่าสุด</option>
+			<option value="all" <?php echo is_selected('all', $range); ?>>ทั้งหมด</option>
+		</select>
+	</div>
 
 	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
@@ -174,6 +200,8 @@
 </div>
 
 <script>
+	$('#user').select2();
+	$('#channels').select2();
 	$('#warehouse').select2();
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js?v=<?php echo date('Ymd'); ?>"></script>

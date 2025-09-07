@@ -54,31 +54,22 @@
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped border-1" style="min-width:900px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
+					<th class="fix-width-80 text-center">สถานะ</th>
           <th class="fix-width-60 text-center">#</th>
-          <th class="fix-width-150 text-center">วันที่</th>
           <th class="fix-width-200">Item Code </th>
           <th class="min-width-200">Description</th>
           <th class="fix-width-80 text-center">Uom</th>
-          <th class="fix-width-80 text-center">สถานะ</th>
-          <th class="fix-width-150 text-center">SAP Update</th>
+					<th class="fix-width-150">เข้าถังกลาง</th>
+          <th class="fix-width-150">เข้า SAP</th>
         </tr>
       </thead>
       <tbody>
 <?php if(!empty($items))  : ?>
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($items as $rs)  : ?>
-        <tr class="font-size-12" id="row-<?php echo $no; ?>">
-          <td class="middle text-center no"><?php echo $no; ?></td>
-
-          <td class="middle text-center"><?php echo thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
-          <td class="middle"><?php echo $rs->ItemCode; ?></td>
-
-          <td class="middle"><?php echo $rs->ItemName; ?></td>
-
-          <td class="middle text-center"><?php echo $rs->SalUnitMsr; ?></td>
-
-          <td class="middle text-center">
+        <tr class="font-size-11" id="row-<?php echo $no; ?>">
+					<td class="middle text-center">
             <?php if($rs->F_Sap === NULL OR $rs->F_Sap == 'P') : ?>
               <span class="blue">NC</span>
             <?php elseif($rs->F_Sap === 'N') : ?>
@@ -87,15 +78,12 @@
               <span class="green">สำเร็จ</span>
             <?php endif; ?>
           </td>
-
-          <td class="middle">
-						<?php
-							if(!empty($rs->F_SapDate))
-							{
-								echo thai_date($rs->F_SapDate, TRUE);
-							}
-					 	?>
-				 	</td>
+          <td class="middle text-center no"><?php echo $no; ?></td>
+          <td class="middle"><?php echo $rs->ItemCode; ?></td>
+          <td class="middle"><?php echo $rs->ItemName; ?></td>
+          <td class="middle text-center"><?php echo $rs->SalUnitMsr; ?></td>
+					<td class="middle text-center"><?php echo thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
+          <td><?php echo empty($rs->F_SapDate) ? NULL : thai_date($rs->F_SapDate, TRUE); ?></td>
         </tr>
 <?php  $no++; ?>
 <?php endforeach; ?>

@@ -202,14 +202,16 @@ class Payment_methods_model extends CI_Model
   }
 
 
-
-
   public function get_name($code)
   {
-    $rs = $this->db->select('name')->where('code', $code)->get('payment_method');
-    if($rs->num_rows() == 1)
+    if( ! empty($code))
     {
-      return $rs->row()->name;
+      $rs = $this->db->select('name')->where('code', $code)->get('payment_method');
+
+      if($rs->num_rows() == 1)
+      {
+        return $rs->row()->name;
+      }
     }
 
     return NULL;

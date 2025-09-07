@@ -33,10 +33,12 @@ $total_row = count($details);
 $config = array(
   "row" => 19,
   "total_row" => $total_row,
-  "font_size" => 14,
+  "font_size" => 13,
+  "font_weight" => 'bold',
   "sub_total_row" => 6,
   "header_rows" => 6,
-  "footer" => false
+  "footer" => false,
+  "border" => 'border:solid 2px #555;'
 );
 
 $this->printer->config($config);
@@ -49,18 +51,18 @@ $total_page = $this->printer->total_page;
 
 //--- กำหนดหัวตาราง
 $thead	= array(
-  array("ลำดับ", "width:10%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
-  array("สินค้า", "width:75%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
-  array("จำนวน", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
+  array("ลำดับ", "width:10%; text-align:center; border-top:0px; border-bottom:solid 1px #555; border-top-left-radius:10px;"),
+  array("สินค้า", "width:75%; text-align:center;border-left: solid 1px #555; border-top:0px; border-bottom:solid 1px #555;"),
+  array("จำนวน", "width:15%; text-align:center; border-left: solid 1px #555; border-top:0px; border-bottom:solid 1px #555; border-top-right-radius:10px")
 );
 
 $this->printer->add_subheader($thead);
 
 //--- กำหนด css ของ td
 $pattern = array(
-  "text-align: center; border-top:0px;",
-  "border-left: solid 1px #ccc; border-top:0px;",
-  "text-align:center; border-left: solid 1px #ccc; border-top:0px;"
+  "text-align: center; border-top:0px; font-weight:bold; padding:3px",
+  "border-left: solid 1px #555; border-top:0px; padding:3px",
+  "text-align:center; border-left: solid 1px #555; border-top:0px; font-weight:bold; padding:3px"
 );
 
 $this->printer->set_pattern($pattern);
@@ -87,7 +89,7 @@ while( $total_page > 0 )
     {
       $arr = array(
         $n,
-        '<input type="text" class="width-100 no-border" style="border:none; background-color:transparent !important;" value="'.$rs->product_code.' : '.$rs->product_name.'" disabled/>',
+        '<input type="text" class="width-100 no-border" style="border:none; background-color:transparent !important; font-weight:bold;" value="'.$rs->product_code.' : '.$rs->product_name.'" disabled/>',
         number($rs->qty)
       );
 
@@ -95,7 +97,7 @@ while( $total_page > 0 )
     }
     else
     {
-      $arr = array('','<input type="text" class="width-100 no-border" style="border:none; background-color:transparent !important;" value="" disabled />','');
+      $arr = array('','<input type="text" class="width-100 no-border" style="border:none; background-color:transparent !important;  font-weight:bold;" value="" disabled />','');
     }
 
 
@@ -112,15 +114,15 @@ while( $total_page > 0 )
   $qty = $this->printer->current_page == $this->printer->total_page ? number($total_qty) : '';
 
 
-  $sub  = '<td class="subtotal-first subtotal-last text-right" style="height:20mm; font-size:36px;">';
+  $sub  = '<td class="subtotal-first subtotal-last text-right" style="height:20mm; font-size:36px; border-top:1px solid #555; border-bottom:solid 1px #555;">';
   $sub .= '<span class="blod">รวม  : '.number($total_qty).'</span>';
   $sub .= '</td>';
 
-  $sub2  = '<td class="subtotal-first subtotal-last font-size-14" style="height:'.($this->printer->row_height *2).'mm;">';
+  $sub2  = '<td class="subtotal-first subtotal-last font-size-14" style="height:'.($this->printer->row_height *2).'mm; font-weight:bold;">';
   $sub2 .= 'หมายเหตุ : '.$order->remark;
   $sub2 .= '</td>';
 
-  $sub3  = '<td class="subtotal-first subtotal-last font-size-14 text-right" style="height:'.($this->printer->row_height).'mm;">';
+  $sub3  = '<td class="subtotal-first subtotal-last font-size-14 text-right" style="height:'.($this->printer->row_height).'mm; font-weight:bold; border:0 !important;">';
   $sub3 .= 'พิมพ์โดย : '.$this->_user->uname. '  วันที่ : '.date('d/m/Y H:i').' น.';
   $sub3 .= '</td>';
 

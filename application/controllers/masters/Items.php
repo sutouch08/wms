@@ -175,7 +175,11 @@ class Items extends PS_Controller
                 'Q' => 'Price',
                 'R' => 'Unit',
                 'S' => 'CountStock',
-                'T' => 'IsAPI'
+                'T' => 'IsAPI',
+                'U' => 'OldModel',
+                'V' => 'OldCode',
+                'W' => 'ApiRate',
+                'X' => 'Active'
               );
 
               foreach($headCol as $col => $field)
@@ -313,7 +317,7 @@ class Items extends PS_Controller
 
               $rs['A'] = str_replace(array("\n", "\r"), '', $rs['A']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
               $code = preg_replace($code_pattern, '', trim($rs['A']));
-              $old_code = NULL; 
+              $old_code = NULL;
               $arr = array(
                 'code' => $code,
                 'name' => trim($rs['B']),
@@ -340,6 +344,11 @@ class Items extends PS_Controller
                 'old_style' => $old_style,
                 'old_code' => $old_code
               );
+
+              if(isset($rs['X']) && $rs['X'] != '' && ($rs['X'] == 'N' OR $rs['X'] == 'n' OR $rs['X'] == 'Y' OR $rs['X'] == 'y'))
+              {
+                $arr['active'] = $rs['X'] == 'N' ? 0 : 1;
+              }
 
               if($this->products_model->is_exists($code))
               {
@@ -878,8 +887,9 @@ class Items extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('S1', 'CountStock');
     $this->excel->getActiveSheet()->setCellValue('T1', 'IsAPI');
     $this->excel->getActiveSheet()->setCellValue('U1', 'OldModel');
-    $this->excel->getActiveSheet()->setCellValue('V1', 'OldCode');
-    $this->excel->getActiveSheet()->setCellValue('W1', 'API Rate');
+    $this->excel->getActiveSheet()->setCellValue('V1', 'OldCode');    
+    $this->excel->getActiveSheet()->setCellValue('W1', 'ApiRate');
+    $this->excel->getActiveSheet()->setCellValue('X1', 'Active');
 
 
     setToken($token);

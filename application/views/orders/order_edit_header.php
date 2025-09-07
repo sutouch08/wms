@@ -34,8 +34,13 @@
 				<option value="">เลือกรายการ</option>
 				<?php echo select_channels($order->channels_code); ?>
 			</select>
-
     </div>
+
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+    	<label>SHOP Name</label>
+			<input type="text" class="form-control input-sm" value="<?php echo empty($order->shop_id) ? NULL : shop_name($order->shop_id); ?>" disabled />
+    </div>
+
     <div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     	<label>การชำระเงิน</label>
 			<select class="form-control input-sm edit" name="payment" id="payment" required disabled>
@@ -44,7 +49,7 @@
 			</select>
     </div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<label>แปรสภาพ</label>
 		  <select class="form-control input-sm edit" name="transformed" id="transformed" disabled>
 				<option value="0" <?php echo is_selected('0', $order->transformed); ?>>No</option>
@@ -52,7 +57,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<label>Pre order</label>
 		  <select class="form-control input-sm edit" name="is_pre_order" id="is_pre_order" disabled>
 				<option value="0" <?php echo is_selected('0', $order->is_pre_order); ?>>No</option>
@@ -60,7 +65,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-4 col-md-5 col-sm-5 col-xs-12 padding-5">
+		<div class="col-lg-4 col-md-4-harf col-sm-4-harf col-xs-12 padding-5">
 			<label>คลัง</label>
 	    <select class="form-control input-sm edit" name="warehouse" id="warehouse" disabled>
 				<option value="">เลือกคลัง</option>

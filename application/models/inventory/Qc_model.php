@@ -62,17 +62,20 @@ class Qc_model extends CI_Model
       ->or_like('customer_ref', $ds['customer'])
       ->group_end();
     }
-
-    //---- user name / display name
-    if( ! empty($ds['user']))
+    
+    if( ! empty($ds['user']) && $ds['user'] != 'all')
     {
-      $users = user_in($ds['user']);
-      $this->db->where_in('user', $users);
+      $this->db->where('user', $ds['user']);
     }
 
     if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
       $this->db->where('channels_code', $ds['channels']);
+    }
+
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('shop_id', $ds['shop_id']);
     }
 
     if( ! empty($ds['role']) && $ds['role'] != 'all')
@@ -108,7 +111,6 @@ class Qc_model extends CI_Model
   }
 
 
-
   public function count_rows(array $ds = array(), $state = 5)
   {
     $this->db->where('state', $state);
@@ -138,6 +140,11 @@ class Qc_model extends CI_Model
     if( ! empty($ds['channels']) && $ds['channels'] != 'all')
     {
       $this->db->where('channels_code', $ds['channels']);
+    }
+
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('shop_id', $ds['shop_id']);
     }
 
     if( ! empty($ds['role']) && $ds['role'] != 'all')
