@@ -62,18 +62,27 @@
       <label>อ้างอิงลูกค้า</label>
       <input type="text" class="form-control input-sm edit" id="customer_ref" name="customer_ref" value="<?php echo str_replace('"', '&quot;',$order->customer_ref); ?>" disabled />
     </div>
-    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label>ช่องทางขาย</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->channels_name; ?>" disabled/>
     </div>
-    <div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+    <div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label>Shop Name</label>
       <input type="text" class="form-control input-sm" value="<?php echo ( ! empty($order->shop_id) ? shop_name($order->shop_id) : NULL); ?>" disabled/>
     </div>
-    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label>การชำระเงิน</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->payment_name; ?>" disabled />
     </div>
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+      <label>ผู้จัดส่ง</label>
+      <input type="text" class="form-control input-sm" value="<?php echo $order->sender_name; ?>" disabled />
+    </div>
+    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
+      <label>Tracking</label>
+      <input type="text" class="form-control input-sm" value="<?php echo $order->shipping_code; ?>" disabled />
+    </div>
+
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
       <label>หมายเหตุ</label>
       <input type="text" class="form-control input-sm" value="<?php echo $order->remark; ?>" disabled />

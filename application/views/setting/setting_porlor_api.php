@@ -38,6 +38,14 @@
 		<div class="divider-hidden"></div>
 
 		<div class="col-lg-4 col-md-4 col-sm-4">
+			<span class="form-control left-label">Sender phone</span>
+		</div>
+		<div class="col-lg-8 col-md-8 col-sm-8">
+			<input type="text" class="form-control input-sm input-large" name="PORLOR_CUSTOMER_PHONE"  value="<?php echo $PORLOR_CUSTOMER_PHONE; ?>" />
+		</div>
+		<div class="divider-hidden"></div>
+
+		<div class="col-lg-4 col-md-4 col-sm-4">
 			<span class="form-control left-label">Ship vender</span>
 		</div>
 		<div class="col-lg-4 col-md-4 col-sm-4">
@@ -45,6 +53,17 @@
 				<option value="">Select</option>
 				<?php echo select_sender($PORLOR_SENDER_ID); ?>
 			</select>
+		</div>
+		<div class="divider-hidden"></div>
+
+		<div class="col-lg-4 col-md-4 col-sm-4">
+			<span class="form-control left-label">Package weight</span>
+		</div>
+		<div class="col-lg-2 col-md-3 col-sm-3">
+			<div class="input-group">
+				<input type="text" class="form-control input-sm input-small" name="PORLOR_DEFAULT_WEIGHT"  value="<?php echo $PORLOR_DEFAULT_WEIGHT; ?>" />
+				<span class="input-group-addon">KGS</span>
+			</div>
 		</div>
 		<div class="divider-hidden"></div>
 

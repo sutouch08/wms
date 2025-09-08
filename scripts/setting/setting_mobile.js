@@ -23,7 +23,7 @@ $('#transform-warehouse').select2();
 $('#lend-warehouse').select2();
 $('#ix-warehouse').select2();
 $('#ix-return-warehouse').select2();
-$('#lnw-shop-warehouse').select2();
+$('#sender').select2();
 
 function updateConfig(formName) {
 	load_in();

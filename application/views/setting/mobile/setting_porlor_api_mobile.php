@@ -2,7 +2,7 @@
 	<span class="back-link" onclick="closeTab()"><i class="fa fa-angle-left fa-lg"></i> ย้อนกลับ</span>
 	<span class="font-size-14 text-left">PORLOR API Setting</span>
 </div>
-<form id="wrxForm"class="margin-top-60" method="post" action="<?php echo $this->home; ?>/update_config">
+<form id="porlorForm"class="margin-top-60" method="post" action="<?php echo $this->home; ?>/update_config">
 	<div class="row">
 		<div class="col-xs-8 padding-top-5">PORLOR API</div>
 		<div class="col-xs-4 text-right">
@@ -32,21 +32,27 @@
 		</div>
 		<div class="divider"></div>
 
-		<div class="col-xs-12">Sender Address</div>
-		<div class="col-xs-12 padding-top-5">
-			<input type="text" class="width-100" name="PORLOR_CUSTOMER_ADDRESS"  value="<?php echo $PORLOR_CUSTOMER_ADDRESS; ?>" />
-		</div>
-		<div class="divider"></div>
-
-		<div class="col-xs-12">Sender Province</div>
-		<div class="col-xs-12 padding-top-5">
-			<input type="text" class="width-100" name="PORLOR_CUSTOMER_PROVINCE"  value="<?php echo $PORLOR_CUSTOMER_PROVINCE; ?>" />
-		</div>
-		<div class="divider"></div>
-
 		<div class="col-xs-12">Sender Phone</div>
 		<div class="col-xs-12 padding-top-5">
 			<input type="text" class="width-100" name="PORLOR_CUSTOMER_PHONE"  value="<?php echo $PORLOR_CUSTOMER_PHONE; ?>" />
+		</div>
+		<div class="divider"></div>
+
+		<div class="col-xs-6 padding-top-5">Package weight</div>
+		<div class="col-xs-6">
+			<div class="input-group">
+				<input type="text" class="width-100" name="PORLOR_DEFAULT_WEIGHT"  value="<?php echo $PORLOR_DEFAULT_WEIGHT; ?>" />
+				<span class="input-group-addon">KGS</span>
+			</div>
+		</div>
+		<div class="divider"></div>
+
+		<div class="col-xs-12">Ship vender</div>
+		<div class="col-xs-12 padding-top-5">
+			<select class="width-100" name="PORLOR_SENDER_ID" id="sender">
+				<option value="">Select</option>
+				<?php echo select_sender($PORLOR_SENDER_ID); ?>
+			</select>
 		</div>
 		<div class="divider"></div>
 

@@ -77,7 +77,7 @@ class Porlor_api
           "materialSizeHigh" => $rs->package_height,
           "materialSizeLong" => $rs->package_length,
           "materialSizeWide" => $rs->package_width,
-          "materialWeight" => 10.00,
+          "materialWeight" => intval(getConfig('PORLOR_DEFAULT_WEIGHT')),
           "phoneNumber" => $rs->phone,
           "province" => $rs->province,
           "zipcode" => $rs->postcode

@@ -17,6 +17,7 @@ class Invoice extends PS_Controller
     $this->load->model('masters/customers_model');
     $this->load->model('inventory/delivery_order_model');
     $this->load->model('masters/zone_model');
+    $this->load->model('masters/sender_model');
     $this->load->helper('order');
     $this->load->helper('channels');
     $this->load->helper('payment_method');
@@ -85,6 +86,7 @@ class Invoice extends PS_Controller
     $order->warehouse_name = warehouse_name($order->warehouse_code);
     $order->channels_name = channels_name($order->channels_code);
     $order->payment_name = payment_name($order->payment_code);
+    $order->sender_name = $this->sender_model->get_name($order->id_sender);
 
     $details = $this->invoice_model->get_billed_detail($code);
     $box_list = $this->qc_model->get_box_list($code);

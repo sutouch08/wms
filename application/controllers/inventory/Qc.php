@@ -1488,7 +1488,7 @@ class Qc extends PS_Controller
                 'package_length' => intval($box->length),
                 'package_height' => intval($box->height),
                 'package_size' => round($box->width + $box->length + $box->height),
-                'weight' => 10.00,
+                'weight' => floatval(getConfig('PORLOR_DEFAULT_WEIGHT')),
                 'receiver' => $addr->name,
                 'address' => $addr->address,
                 'sub_district' => $addr->sub_district,
