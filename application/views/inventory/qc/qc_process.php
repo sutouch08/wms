@@ -7,7 +7,7 @@
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-cubes"></i> รอตรวจ</button>
     <button type="button" class="btn btn-white btn-info top-btn" onclick="viewProcess()"><i class="fa fa-cube"></i> กำลังตรวจ</button>
-    <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TITOK_API'))) : ?>
+    <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php elseif($order->channels_code == 'SHOPEE' && ! empty($order->reference) && is_true(getConfig('WRX_SHOPEE_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>

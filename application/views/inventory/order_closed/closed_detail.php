@@ -139,7 +139,7 @@
 
   <div class="row hidden-xs">
     <div class="col-lg-12 col-md-12 col-sm-12 text-right">
-      <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TITOK_API'))) : ?>
+      <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
       <?php endif; ?>
       <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference) && is_true(getConfig('WRX_SHOPEE_API'))) : ?>
