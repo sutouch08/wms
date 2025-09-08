@@ -164,6 +164,7 @@ class Orders extends REST_Controller
     $customer = NULL;
     $zone_code = NULL;
     $channels_code = empty($data->channel) ? NULL : $data->channel;
+    $shop_id = empty($data->shop_id) ? NULL : $data->shop_id;
     $is_mkp = FALSE;
     $is_reserv = isset($data->is_reserv) ? ($data->is_reserv == 'Y' ? TRUE : FALSE) : FALSE;
     $payment_code = NULL;
@@ -291,6 +292,7 @@ class Orders extends REST_Controller
           'code' => $data->order_number,
           'action' => $action,
           'channels' => $channels_code,
+          'shop_id' => $shop_id,
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
@@ -325,6 +327,7 @@ class Orders extends REST_Controller
           'type' => $this->type,
           'code' => $data->order_number,
           'channels' => $channels_code,
+          'shop_id' => $shop_id,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -391,6 +394,7 @@ class Orders extends REST_Controller
           'type' => $this->type,
           'code' => $data->order_number,
           'channels' => $channels_code,
+          'shop_id' => $shop_id,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -585,6 +589,7 @@ class Orders extends REST_Controller
           'type' => $this->type,
           'code' => $data->order_number,
           'channels' => $channels_code,
+          'shop_id' => $shop_id,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
@@ -637,8 +642,7 @@ class Orders extends REST_Controller
       $total_amount = 0;
       $total_sku = [];
       $is_hold = empty($data->on_hold) ? 0 : ($data->on_hold == 'Y' ? 1 : 0);
-      $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
-      $shop_id = empty($data->shop_id) ? NULL : $data->shop_id;
+      $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);      
       $is_backorder = FALSE;
       $backorderList = [];
       $sync_stock = []; //--- keep product to sync stock

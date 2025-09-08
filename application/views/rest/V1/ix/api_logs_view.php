@@ -11,20 +11,26 @@
 		<label>เลขที่/รหัส</label>
 		<input type="text" class="form-control input-sm search-box" name="code" value="<?php echo $code; ?>"/>
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>Channels</label>
-    <select class="form-control input-sm" name="channels" onchange="getSearch()">
+    <select class="width-100 filter" name="channels" id="channels">
 			<option value="all">All</option>
 			<option value="NULL" <?php echo is_selected('NULL', $channels); ?>>NO Channels</option>
-			<option value="0009" <?php echo is_selected('0009', $channels); ?>>TIKTOK</option>
-			<option value="SHOPEE" <?php echo is_selected('SHOPEE', $channels); ?>>SHOPEE</option>
-			<option value="LAZADA" <?php echo is_selected('LAZADA', $channels); ?>>LAZADA</option>
+			<?php echo select_channels($channels); ?>
+		</select>
+  </div>
+	<div class="col-lg-1-harf col-md-4 col-sm-4 col-xs-6 padding-5">
+    <label>Shop Id</label>
+    <select class="width-100 filter" name="shop_id">
+			<option value="all">All</option>
+			<option value="NULL" <?php echo is_selected('NULL', $shop_id); ?>>NO Shop</option>
+			<?php echo select_shop_name($shop_id); ?>
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-4 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>Status</label>
-		<select class="form-control input-sm" name="status" onchange="getSearch()">
+		<select class="width-100 filter" name="status">
 			<option value="all">All</option>
 			<option value="success" <?php echo is_selected('success', $status); ?>>SUCCESS</option>
 			<option value="failed" <?php echo is_selected('failed', $status); ?>>FAILED</option>
@@ -32,19 +38,19 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>Type</label>
-    <select class="form-control input-sm" name="type" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
+    <select class="width-100 filter" name="type">
+			<option value="all">All</option>
 			<option value="ORDER" <?php echo is_selected('ORDER', $type); ?>>ORDER</option>
 			<option value="RETURN" <?php echo is_selected('RETURN', $type); ?>>RETURN</option>
 			<option value="PORLOR" <?php echo is_selected('PORLOR', $type); ?>>PORLOR</option>
 		</select>
   </div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>Action</label>
-		<select class="form-control input-sm" name="action" onchange="getSearch()">
+		<select class="width-100 filter" name="action">
 			<option value="all">All</option>
 			<option value="create" <?php echo is_selected('create', $action); ?>>CREATE</option>
 			<option value="update" <?php echo is_selected('update', $action); ?>>UPDATE</option>
@@ -93,12 +99,14 @@
 			<tbody>
         <?php if(!empty($logs)) : ?>
           <?php $no = $this->uri->segment(5) + 1; ?>
+					<?php $channelsList = get_channels_array(); ?>
           <?php foreach($logs as $rs) : ?>
+						<?php $channelsName = empty($rs->channels) ? NULL : (empty($channelsList[$rs->channels]) ? NULL : $channelsList[$rs->channels]); ?>
             <tr class="font-size-11">
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle"><?php echo thai_date($rs->date_upd, TRUE, '/'); ?></td>
               <td class="middle"><?php echo $rs->code; ?></td>
-							<td class="middle text-center"><?php echo $rs->channels; ?></td>
+							<td class="middle"><?php echo $channelsName; ?></td>
 							<td class="middle text-center"><?php echo $rs->type; ?></td>
 							<td class="middle text-center"><?php echo $rs->action; ?></td>
               <td class="middle text-center"><?php echo $rs->status; ?></td>
@@ -156,6 +164,8 @@
 			$("#fromDate").datepicker("option", "maxDate", ds);
 		}
 	});
+
+	$('#channels').select2();
 
 	function viewDetail(id) {
 		//--- properties for print

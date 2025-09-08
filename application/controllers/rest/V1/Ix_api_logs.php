@@ -15,6 +15,8 @@ class Ix_api_logs extends PS_Controller
     $this->home = base_url().'rest/V1/ix_api_logs';
 		$this->wms = $this->load->database('wms', TRUE); //--- Temp database
   	$this->load->model('rest/V1/ix_api_logs_model');
+		$this->load->helper('channels');
+		$this->load->helper('order');
   }
 
 
@@ -26,6 +28,7 @@ class Ix_api_logs extends PS_Controller
 			'type' => get_filter('type', 'logs_type', 'all'),
 			'action' => get_filter('action', 'logs_action', 'all'),
 			'channels' => get_filter('channels', 'logs_channels', 'all'),
+			'shop_id' => get_filter('shop_id', 'logs_shop_id', 'all'),
 			'from_date' => get_filter('from_date', 'from_date', ''),
 			'to_date' => get_filter('to_date', 'to_date', '')
     );
@@ -68,6 +71,7 @@ class Ix_api_logs extends PS_Controller
 			'logs_type',
 			'logs_action',
 			'logs_channels',
+			'logs_shop_id',
 			'from_date',
 			'to_date'
 		);

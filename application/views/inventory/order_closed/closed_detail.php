@@ -139,13 +139,13 @@
 
   <div class="row hidden-xs">
     <div class="col-lg-12 col-md-12 col-sm-12 text-right">
-      <?php if($order->channels_code == '0009' && ! empty($order->reference)) : ?>
+      <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TITOK_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
       <?php endif; ?>
-      <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference)) : ?>
+      <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference) && is_true(getConfig('WRX_SHOPEE_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
       <?php endif; ?>
-      <?php if($order->channels_code == 'LAZADA' && ! empty($order->reference)) : ?>
+      <?php if($order->channels_code == 'LAZADA' && ! empty($order->reference) && is_true(getConfig('WRX_LAZADA_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
       <?php endif; ?>
       <?php if(is_true(getConfig('PORLOR_API'))) : ?>
@@ -284,7 +284,6 @@
             </td>
           </tr>
 
-
           <tr>
             <td colspan="4" rowspan="3" style="white-space:normal;">
               <?php if(!empty($order->remark)) : ?>
@@ -318,7 +317,7 @@
           </tr>
 
   <?php else : ?>
-        <tr><td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td></tr>
+        <tr><td colspan="9" class="text-center"><h4>ไม่พบรายการ</h4></td></tr>
   <?php endif; ?>
         </tbody>
       </table>

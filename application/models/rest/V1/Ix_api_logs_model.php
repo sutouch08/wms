@@ -34,6 +34,18 @@ class Ix_api_logs_model extends CI_Model
 			}
 		}
 
+		if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+		{
+			if($ds['shop_id'] == 'NULL')
+			{
+				$this->wms->where('shop_id IS NULL', NULL, FALSE);
+			}
+			else
+			{
+				$this->wms->where('shop_id', $ds['shop_id']);
+			}
+		}
+
 		if(!empty($ds['status']) && $ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);
@@ -88,6 +100,18 @@ class Ix_api_logs_model extends CI_Model
 			}
 		}
 
+		if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+		{
+			if($ds['shop_id'] == 'NULL')
+			{
+				$this->wms->where('shop_id IS NULL', NULL, FALSE);
+			}
+			else
+			{
+				$this->wms->where('shop_id', $ds['shop_id']);
+			}
+		}
+		
 		if(!empty($ds['status']) && $ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);

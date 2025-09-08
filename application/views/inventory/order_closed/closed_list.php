@@ -191,7 +191,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="11" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="12" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>

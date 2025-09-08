@@ -13,20 +13,21 @@ class Configs extends PS_Controller
     parent::__construct();
     $this->home = base_url().'setting/configs';
     $this->load->model('setting/config_model');
-    $this->load->helper('customer');
-    $this->load->helper('channels');
-    $this->load->helper('warehouse');
-    $this->load->helper('setting');
     $this->load->library('user_agent');
-    $this->load->helper('package');
-    $this->load->helper('sender');
-
     $this->is_mobile = $this->agent->is_mobile();
   }
 
 
   public function index($tab = 'general')
   {
+    $this->load->helper('customer');
+    $this->load->helper('channels');
+    $this->load->helper('order');
+    $this->load->helper('warehouse');
+    $this->load->helper('setting');
+    $this->load->helper('package');
+    $this->load->helper('sender');
+
     $groups = $this->config_model->get_group();
     $ps = get_permission('SCSYSC');
     $cando = ($ps->can_add + $ps->can_edit + $ps->can_delete) > 0 ? TRUE : FALSE;

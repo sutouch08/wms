@@ -26,6 +26,57 @@
 		</div>
 		<div class="divider"></div>
 
+		<div class="col-xs-8 padding-top-5">Shopee API</div>
+		<div class="col-xs-4 text-right">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="WRX_SHOPEE_API" type="checkbox" value="1" <?php echo is_checked($WRX_SHOPEE_API , '1'); ?> onchange="toggleOption($(this))"/>
+				<span class="lbl margin-left-0" data-lbl="OFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON"></span>
+			</label>
+			<input type="hidden" name="WRX_SHOPEE_API" value="<?php echo $WRX_SHOPEE_API; ?>"/>
+		</div>
+		<div class="col-xs-12 padding-top-5">Shopee Shop ID</div>
+		<div class="col-xs-12 padding-top-5">
+			<select class="width-100" name="WRX_SHOPEE_SHOP_ID">
+				<option value="">กรุณาเลือก</option>
+				<?php echo select_shop_name($WRX_SHOPEE_SHOP_ID); ?>
+			</select>
+		</div>
+		<div class="divider"></div>
+
+		<div class="col-xs-8 padding-top-5">Tiktok API</div>
+		<div class="col-xs-4 text-right">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="WRX_TIKTOK_API" type="checkbox" value="1" <?php echo is_checked($WRX_TIKTOK_API , '1'); ?> onchange="toggleOption($(this))"/>
+				<span class="lbl margin-left-0" data-lbl="OFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON"></span>
+			</label>
+			<input type="hidden" name="WRX_TIKTOK_API" value="<?php echo $WRX_TIKTOK_API; ?>"/>
+		</div>
+		<div class="col-xs-12 padding-top-5">Tiktok Shop ID</div>
+		<div class="col-xs-12 padding-top-5">
+			<select class="width-100" name="WRX_TIKTOK_SHOP_ID">
+				<option value="">กรุณาเลือก</option>
+				<?php echo select_shop_name($WRX_TIKTOK_SHOP_ID); ?>
+			</select>
+		</div>
+		<div class="divider"></div>
+
+		<div class="col-xs-8 padding-top-5">Lazada API</div>
+		<div class="col-xs-4 text-right">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="WRX_LAZADA_API" type="checkbox" value="1" <?php echo is_checked($WRX_LAZADA_API , '1'); ?> onchange="toggleOption($(this))"/>
+				<span class="lbl margin-left-0" data-lbl="OFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON"></span>
+			</label>
+			<input type="hidden" name="WRX_LAZADA_API" value="<?php echo $WRX_LAZADA_API; ?>"/>
+		</div>
+		<div class="col-xs-12 padding-top-5">Lazada Shop ID</div>
+		<div class="col-xs-12 padding-top-5">
+			<select class="width-100" name="WRX_LAZADA_SHOP_ID">
+				<option value="">กรุณาเลือก</option>
+				<?php echo select_shop_name($WRX_LAZADA_SHOP_ID); ?>
+			</select>
+		</div>
+		<div class="divider"></div>
+
 		<div class="col-xs-8 padding-top-5">Logs Json</div>
 		<div class="col-xs-4 text-right">
 			<label style="padding-top:5px; margin-bottom:0px;">
