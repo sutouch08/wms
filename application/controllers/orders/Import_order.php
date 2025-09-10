@@ -162,7 +162,8 @@ class Import_order extends CI_Controller
                   'province' => $order->province,
                   'postcode' => $order->postcode,
                   'phone' => $order->phone,
-                  'email' => $order->email
+                  'email' => $order->email,
+                  'shop_id' => $order->shop_id
                 );
 
                 //--- add order
@@ -374,7 +375,8 @@ class Import_order extends CI_Controller
                       'province' => $order->province,
                       'postcode' => $order->postcode,
                       'phone' => $order->phone,
-                      'email' => $order->email
+                      'email' => $order->email,
+                      'shop_id' => $order->shop_id
                     );
 
                     if( ! $this->orders_model->update($order_code, $arr))
@@ -688,7 +690,7 @@ class Import_order extends CI_Controller
         'O' => 'price',
         'P' => 'discount amount',
         'Q' => 'shipping fee',
-        'R' => 'service fee',
+        'R' => 'Shop Id',
         'S' => 'force update',
         'T' => 'Shipping code',
         'U' => 'Hold',
@@ -969,8 +971,17 @@ class Import_order extends CI_Controller
                 //--- shipping Number
                 $shipping_code = trim($rs['T']);
 
-                //--- ค่าบริการอื่นๆ
-                $service_fee = 0;
+                //--- shop_id
+                $shop_id = get_null(trim($rs['R']));
+
+                if($channels_code == 'SHOPEE' OR $channels_code == '0009' OR $channels_code == 'LAZADA')
+                {
+                  if(empty($shop_id))
+                  {
+                    $sc = FALSE;
+                    $this->error .= "Error at line {$i} : Shop Id is required for channels {$channels_code} ";
+                  }
+                }
 
                 //---	Cod amount
                 $cod_amount = $payment_code == 'COD' ? (empty($rs['AA']) ? 0.00 : $rs['AA']) : 0.00;
@@ -1044,7 +1055,7 @@ class Import_order extends CI_Controller
                   'is_wms' => $is_wms,
                   'id_address' => $id_address,
                   'id_sender' => empty(trim($rs['W'])) ? NULL : $this->sender_model->get_id(trim($rs['W'])),
-                  'force_update' => $rs['S'] == 1 ? TRUE : FALSE,
+                  'force_update' => ($rs['S'] == 1 OR $rs['S'] == 'Y' OR $rs['S'] == 'y') ? TRUE : FALSE,
                   'hold' => $hold,
                   'tax_status' => $tax_status,
                   'tax_type' => $tax_status ? $tax_type : NULL,
@@ -1060,6 +1071,7 @@ class Import_order extends CI_Controller
                   'postcode' => $tax_status ? $postcode : NULL,
                   'phone' => $tax_status ? $phone : NULL,
                   'email' => $tax_status ? $email : NULL,
+                  'shop_id' => $shop_id,
                   'items' => array()
                 );
 
