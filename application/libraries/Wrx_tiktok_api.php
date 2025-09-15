@@ -26,12 +26,12 @@ class Wrx_tiktok_api
   }
 
 
-  public function get_order_detail($reference)
+  public function get_order_detail($reference, $shop_id)
   {
     $action = "get_order_detail";
     $type = "status";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "tiktok/order/{$reference}";
+    $url .= "tiktok/{$shop_id}/order/{$reference}";
     $api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -72,12 +72,12 @@ class Wrx_tiktok_api
   }
 
 
-  public function ship_package($package_id)
+  public function ship_package($package_id, $shop_id)
   {
     $action = "ship-package";
     $type = "Shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "tiktok/ship-package";
+    $url .= "tiktok/{$shop_id}/ship-package";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -119,12 +119,12 @@ class Wrx_tiktok_api
   }
 
 
-  public function get_shipping_label($package_id)
+  public function get_shipping_label($package_id, $shop_id)
   {
     $action = "get-ship-document";
     $type = "Shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "tiktok/ship-document";
+    $url .= "tiktok/{$shop_id}/ship-document";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -151,11 +151,6 @@ class Wrx_tiktok_api
     curl_close($curl);
     $res = json_decode($response);
 
-    // if( ! empty($res) && ! empty($res->code))
-    // {
-    //   return $res;
-    // }
-
     if( ! empty($res) && ! empty($res->code))
     {
       if($res->code === 200 && $res->status === 'success')
@@ -179,12 +174,12 @@ class Wrx_tiktok_api
   }
 
 
-  public function get_order_status($reference)
+  public function get_order_status($reference, $shop_id)
   {
     $action = "get_order_detail";
     $type = "status";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "tiktok/order/{$reference}";
+    $url .= "tiktok/{$shop_id}/order/{$reference}";
     $api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");

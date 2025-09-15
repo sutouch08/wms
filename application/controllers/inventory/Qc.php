@@ -71,7 +71,7 @@ class Qc extends PS_Controller
 
     if( ! empty($order))
     {
-      $status = $this->wrx_shopee_api->get_order_status($reference);
+      $status = $this->wrx_shopee_api->get_order_status($reference, $order->shop_id);
       $logs['status'] = $status;
 
       if($status === 'CANCELLED')
@@ -82,13 +82,13 @@ class Qc extends PS_Controller
 
       if($sc === TRUE)
       {
-        $pickup_data = $this->wrx_shopee_api->get_shipping_param($reference);
+        $pickup_data = $this->wrx_shopee_api->get_shipping_param($reference, $order->shop_id);
 
         if(empty($pickup_data))
         {
           sleep(1);  //--- wait 1 second and retry to request again
 
-          $pickup_data = $this->wrx_shopee_api->get_shipping_param($reference);
+          $pickup_data = $this->wrx_shopee_api->get_shipping_param($reference, $order->shop_id);
 
           if(empty($pickup_data))
           {
@@ -106,7 +106,7 @@ class Qc extends PS_Controller
         //--- ship order
         if( ! empty($pickup_data))
         {
-          if( ! $this->wrx_shopee_api->ship_order($reference, $pickup_data))
+          if( ! $this->wrx_shopee_api->ship_order($reference, $pickup_data, $order->shop_id))
           {
             $sc = FALSE;
             $this->error = $this->wrx_shopee_api->error;
@@ -124,7 +124,7 @@ class Qc extends PS_Controller
       //--- get tracking_number
       if($sc === TRUE)
       {
-        $tracking_number = $this->wrx_shopee_api->get_tracking_number($reference);
+        $tracking_number = $this->wrx_shopee_api->get_tracking_number($reference, $order->shop_id);
 
         if(empty($tracking_number))
         {
@@ -134,7 +134,7 @@ class Qc extends PS_Controller
           {
             sleep(1);
 
-            $tracking_number = $this->wrx_shopee_api->get_tracking_number($reference);
+            $tracking_number = $this->wrx_shopee_api->get_tracking_number($reference, $order->shop_id);
 
             if( ! empty($tracking_number))
             {
@@ -164,7 +164,7 @@ class Qc extends PS_Controller
       //--- cereate shipping document
       if($sc === TRUE)
       {
-        if( ! $this->wrx_shopee_api->create_shipping_document($reference, $tracking))
+        if( ! $this->wrx_shopee_api->create_shipping_document($reference, $tracking, $order->shop_id))
         {
           $sc = FALSE;
           $this->error = $this->wrx_shopee_api->error;
@@ -176,11 +176,11 @@ class Qc extends PS_Controller
       //--- get create document result
       if($sc === TRUE)
       {
-        if( ! $this->wrx_shopee_api->shipping_document_result($reference))
+        if( ! $this->wrx_shopee_api->shipping_document_result($reference, $order->shop_id))
         {
           sleep(1);
 
-          if( ! $this->wrx_shopee_api->shipping_document_result($reference))
+          if( ! $this->wrx_shopee_api->shipping_document_result($reference, $order->shop_id))
           {
             $sc = FALSE;
             $this->error = $this->wrx_shopee_api->error;
@@ -193,7 +193,7 @@ class Qc extends PS_Controller
       //--- download_shipping_document
       if($sc === TRUE)
       {
-        $res = $this->wrx_shopee_api->shipping_document_download($reference);
+        $res = $this->wrx_shopee_api->shipping_document_download($reference, $order->shop_id);
 
         if( ! empty($res))
         {
@@ -234,7 +234,7 @@ class Qc extends PS_Controller
 
     if( ! empty($order))
     {
-      $ds = $this->wrx_tiktok_api->get_order_detail($reference);
+      $ds = $this->wrx_tiktok_api->get_order_detail($reference, $order->shop_id);
 
       if( ! empty($ds))
       {
@@ -261,7 +261,7 @@ class Qc extends PS_Controller
         //---  ship package
         if($sc === TRUE)
         {
-          if( ! $this->wrx_tiktok_api->ship_package($ds->package_id))
+          if( ! $this->wrx_tiktok_api->ship_package($ds->package_id, $order->shop_id))
           {
             $sc = FALSE;
             $this->error = "Failed to ship package : ".$this->wrx_tiktok_api->error;
@@ -270,26 +270,26 @@ class Qc extends PS_Controller
 
         if($sc === TRUE)
         {
-          $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+          $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id, $order->shop_id);
 
           if( ! empty($shipment))
           {
             if( empty($shipment->trackingNumber))
             {
               sleep(1);
-              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id, $order->shop_id);
             }
 
             if( empty($shipment->trackingNumber))
             {
               sleep(1);
-              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id, $order->shop_id);
             }
 
             if( empty($shipment->trackingNumber))
             {
               sleep(1);
-              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id);
+              $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id, $order->shop_id);
             }
 
             if( ! empty($shipment))
@@ -343,7 +343,7 @@ class Qc extends PS_Controller
 
     if( ! empty($order))
     {
-      $status = $this->wrx_lazada_api->get_order_status($reference);
+      $status = $this->wrx_lazada_api->get_order_status($reference, $order->shop_id);
 
       $logs['status'] = $status;
 
@@ -355,12 +355,12 @@ class Qc extends PS_Controller
 
       if($sc === TRUE)
       {
-        $order_item_ids = $this->wrx_lazada_api->get_order_item_id($reference);
+        $order_item_ids = $this->wrx_lazada_api->get_order_item_id($reference, $order->shop_id);
 
         if( ! empty($order_item_ids))
         {
           //---- change order status to packed and retrive pack data include tracking number
-          $pk = $this->wrx_lazada_api->packed($reference, $order_item_ids);
+          $pk = $this->wrx_lazada_api->packed($reference, $order_item_ids, $order->shop_id);
           $packages = [];
 
           if( ! empty($pk))
@@ -378,10 +378,10 @@ class Qc extends PS_Controller
             //---- ready to ship order
             if( ! empty($packages))
             {
-              if($this->wrx_lazada_api->ship_package($packages) === TRUE)
+              if($this->wrx_lazada_api->ship_package($packages, $order->shop_id) === TRUE)
               {
                 //---- download document
-                $data = $this->wrx_lazada_api->get_shipping_label($packages);
+                $data = $this->wrx_lazada_api->get_shipping_label($packages, $order->shop_id);
 
                 if( ! empty($data))
                 {

@@ -26,12 +26,12 @@ class Wrx_shopee_api
   }
 
 
-  public function get_order_status($reference)
+  public function get_order_status($reference, $shop_id)
   {
     $action = "get_order_detail";
     $type = "status";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "shopee/order/{$reference}";
+    $url .= "shopee/{$shop_id}/order/{$reference}";
     $api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -78,12 +78,12 @@ class Wrx_shopee_api
 
 
   //--- for shopee
-  public function get_shipping_param($reference)
+  public function get_shipping_param($reference, $shop_id)
   {
     $action = "get_shipping_param";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "shopee/shipping-parameter?orderSN={$reference}";
+    $url .= "shopee/{$shop_id}/shipping-parameter?orderSN={$reference}";
     $api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -128,12 +128,12 @@ class Wrx_shopee_api
   }
 
 
-  public function ship_order($reference, $pickup_data)
+  public function ship_order($reference, $pickup_data, $shop_id)
   {
     $action = "ship_order";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "shopee/ship-order";
+    $url .= "shopee/{$shop_id}/ship-order";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -180,12 +180,12 @@ class Wrx_shopee_api
   }
 
 
-  public function get_tracking_number($reference)
+  public function get_tracking_number($reference, $shop_id)
   {
     $action = "get_tracking_number";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "shopee/tracking-number?orderSN={$reference}";
+    $url .= "shopee/{$shop_id}/tracking-number?orderSN={$reference}";
     $api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -215,12 +215,12 @@ class Wrx_shopee_api
   }
 
 
-  public function create_shipping_document($reference, $tracking_number)
+  public function create_shipping_document($reference, $tracking_number, $shop_id)
   {
     $action = "create_shipping_document";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "shopee/shipping-document-create";
+    $url .= "shopee/{$shop_id}/shipping-document-create";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -279,12 +279,12 @@ class Wrx_shopee_api
     return FALSE;
   }
 
-  public function shipping_document_result($reference)
+  public function shipping_document_result($reference, $shop_id)
   {
     $action = "shipping_document_result";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "shopee/shipping-document-result";
+    $url .= "shopee/{$shop_id}/shipping-document-result";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -344,12 +344,12 @@ class Wrx_shopee_api
   }
 
 
-  public function shipping_document_download($reference)
+  public function shipping_document_download($reference, $shop_id)
   {
     $action = "shipping_document_result";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "shopee/shipping-document-download";
+    $url .= "shopee/{$shop_id}/shipping-document-download";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -360,7 +360,7 @@ class Wrx_shopee_api
       "shippingDocumentType" => "NORMAL_AIR_WAYBILL",
       "orderList" => array(
         (object) array(
-          "orderSN" => $reference,        
+          "orderSN" => $reference,
         )
       )
     );

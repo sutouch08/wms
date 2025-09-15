@@ -26,12 +26,12 @@ class Wrx_lazada_api
   }
 
 
-  public function get_order_status($reference)
+  public function get_order_status($reference, $shop_id)
   {
     $action = "get_order_status";
     $type = "status";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "lazada/order/{$reference}";
+    $url .= "lazada/{$shop_id}/order/{$reference}";
     $api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -64,12 +64,12 @@ class Wrx_lazada_api
   }
 
 
-  public function get_order_item_id($reference)
+  public function get_order_item_id($reference, $shop_id)
   {
     $action = "get_order_item_id";
     $type = "status";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "lazada/order/item/{$reference}";
+    $url .= "lazada/{$shop_id}/order/item/{$reference}";
     $api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -109,12 +109,12 @@ class Wrx_lazada_api
   }
 
 
-  public function packed($reference, $order_item_ids)
+  public function packed($reference, $order_item_ids, $shop_id)
   {
     $action = "order packed";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "lazada/order/packed";
+    $url .= "lazada/{$shop_id}/order/packed";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -167,12 +167,12 @@ class Wrx_lazada_api
   }
 
 
-  public function ship_package($packages)
+  public function ship_package($packages, $shop_id)
   {
     $action = "ship_order";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "lazada/ship-package";
+    $url .= "lazada/{$shop_id}/ship-package";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
@@ -213,12 +213,12 @@ class Wrx_lazada_api
   }
 
 
-  public function get_shipping_label($packages)
+  public function get_shipping_label($packages, $shop_id)
   {
     $action = "get_shipping_label";
     $type = "shipping";
     $url = $this->api['WRX_API_HOST'];
-    $url .= "lazada/ship-document";
+    $url .= "lazada/{$shop_id}/ship-document";
     $api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
