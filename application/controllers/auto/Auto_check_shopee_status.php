@@ -22,7 +22,7 @@ class Auto_check_shopee_status extends CI_Controller
     'CANCELLED' => 'The order has been canceled',
     'TO_RETURN' => 'The buyer requested to return the order and order\'s return is processing',
     'COMPLETED' => 'The order has been completed',
-  ]
+  ];
 
   public function __construct()
   {
