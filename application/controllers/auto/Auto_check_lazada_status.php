@@ -1,5 +1,5 @@
 <?php
-class Auto_check_shopee_status extends CI_Controller
+class Auto_check_lazada_status extends CI_Controller
 {
   public $home;
   public $mc;
@@ -15,7 +15,7 @@ class Auto_check_shopee_status extends CI_Controller
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'auto/Auto_check_shopee_status';
+    $this->home = base_url().'auto/auto_check_lazada_status';
     $this->load->model('orders/orders_model');
     $this->pm = new stdClass();
     $this->pm->can_view = 1;

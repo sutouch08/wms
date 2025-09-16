@@ -11,11 +11,23 @@ class Auto_check_shopee_status extends CI_Controller
   public $pm;
   public $error;
   public $default_shop_id = "32706050";
+  public $statusList = [
+    'UNPAID' => 'Order is created, buyer has not paid yet',
+    'READY_TO_SHIP' => 'Seller can arrange shipment',
+    'PROCESSED' => 'Seller has arranged shipment online and got tracking number from 3PL',
+    'RETRY_SHIP' => '3PL pickup parcel fail Need to re arrange shipment',
+    'SHIPPED' => 'The parcel has been drop to 3PL or picked up by 3PL',
+    'TO_CONFIRM_RECEIVE' => 'The order has been received by buyer',
+    'IN_CANCEL' => 'The order\'s cancelation is under processing',
+    'CANCELLED' => 'The order has been canceled',
+    'TO_RETURN' => 'The buyer requested to return the order and order\'s return is processing',
+    'COMPLETED' => 'The order has been completed',
+  ]
 
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'auto/Auto_check_shopee_status';
+    $this->home = base_url().'auto/auto_check_shopee_status';
     $this->load->model('orders/orders_model');
     $this->pm = new stdClass();
     $this->pm->can_view = 1;
@@ -37,7 +49,7 @@ class Auto_check_shopee_status extends CI_Controller
 
         $order_status = $this->wrx_shopee_api->get_order_status($rs->reference, $shop_id);
 
-        if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
+        if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
 
         if($order_status == 'CANCELLED')
         {
@@ -70,7 +82,7 @@ class Auto_check_shopee_status extends CI_Controller
 
         $order_status = $this->wrx_shopee_api->get_order_status($rs->reference, $shop_id);
 
-        if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
+        if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
 
         if($order_status == 'CANCELLED')
         {
@@ -102,8 +114,8 @@ class Auto_check_shopee_status extends CI_Controller
         $shop_id = empty($rs->shop_id) ? $this->default_shop_id : $rs->shop_id;
 
         $order_status = $this->wrx_shopee_api->get_order_status($rs->reference, $shop_id);
-        
-        if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
+
+        if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
 
         if($order_status == 'CANCELLED')
         {
