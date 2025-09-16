@@ -279,7 +279,7 @@ class Prepare extends PS_Controller
     {
       $this->load->library('wrx_tiktok_api');
 
-      $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id;
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
 
       if($order_status == '140')
       {
