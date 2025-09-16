@@ -72,7 +72,7 @@ class Delivery_order extends PS_Controller
   }
 
 
-  public function is_cancel($reference, $channels)
+  public function is_cancel($reference, $channels, $shop_id)
   {
     $is_cancel = FALSE;
 
@@ -80,7 +80,7 @@ class Delivery_order extends PS_Controller
     {
       $this->load->library('wrx_tiktok_api');
 
-      $order_status = $this->wrx_tiktok_api->get_order_status($reference);
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
 
       if($order_status == '140')
       {
@@ -92,7 +92,7 @@ class Delivery_order extends PS_Controller
     {
       $this->load->library('wrx_shopee_api');
 
-      $order_status = $this->wrx_shopee_api->get_order_status($reference);
+      $order_status = $this->wrx_shopee_api->get_order_status($reference, $shop_id);
 
       if($order_status == 'CANCELLED')
       {
@@ -104,7 +104,7 @@ class Delivery_order extends PS_Controller
     {
       $this->load->library('wrx_lazada_api');
 
-      $order_status = $this->wrx_lazada_api->get_order_status($reference);
+      $order_status = $this->wrx_lazada_api->get_order_status($reference, $shop_id);
 
       if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
       {
@@ -136,7 +136,7 @@ class Delivery_order extends PS_Controller
       {
         if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
         {
-          if($this->is_cancel($order->reference, $order->channels_code))
+          if($this->is_cancel($order->reference, $order->channels_code, $order->shop_id))
           {
             $sc = FALSE;
             $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
