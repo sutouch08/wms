@@ -271,7 +271,7 @@ class Prepare extends PS_Controller
   }
 
 
-  public function is_cancel($reference, $channels)
+  public function is_cancel($reference, $channels, $shop_id)
   {
     $is_cancel = FALSE;
 
@@ -279,7 +279,7 @@ class Prepare extends PS_Controller
     {
       $this->load->library('wrx_tiktok_api');
 
-      $order_status = $this->wrx_tiktok_api->get_order_status($reference);
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id;
 
       if($order_status == '140')
       {
@@ -291,7 +291,7 @@ class Prepare extends PS_Controller
     {
       $this->load->library('wrx_shopee_api');
 
-      $order_status = $this->wrx_shopee_api->get_order_status($reference);
+      $order_status = $this->wrx_shopee_api->get_order_status($reference, $shop_id);
 
       if($order_status == 'CANCELLED')
       {
@@ -303,7 +303,7 @@ class Prepare extends PS_Controller
     {
       $this->load->library('wrx_lazada_api');
 
-      $order_status = $this->wrx_lazada_api->get_order_status($reference);
+      $order_status = $this->wrx_lazada_api->get_order_status($reference, $shop_id);
 
       if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
       {
@@ -329,7 +329,7 @@ class Prepare extends PS_Controller
     {
       if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
       {
-        $is_cancel = $this->is_cancel($order->reference, $order->channels_code);
+        $is_cancel = $this->is_cancel($order->reference, $order->channels_code, $order->shop_id);
       }
 
       if( ! $is_cancel)
