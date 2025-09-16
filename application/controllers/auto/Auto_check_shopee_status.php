@@ -10,6 +10,7 @@ class Auto_check_shopee_status extends CI_Controller
   public $menu_group_code = NULL;
   public $pm;
   public $error;
+  public $default_shop_id = "32706050";
 
   public function __construct()
   {
@@ -32,7 +33,10 @@ class Auto_check_shopee_status extends CI_Controller
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_shopee_api->get_order_status($rs->reference);
+        $shop_id = empty($rs->shop_id) ? $this->default_shop_id : $rs->shop_id;
+
+        $order_status = $this->wrx_shopee_api->get_order_status($rs->reference, $shop_id);
+
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
         if($order_status == 'CANCELLED')
@@ -53,6 +57,7 @@ class Auto_check_shopee_status extends CI_Controller
   public function pick($show = NULL)
   {
     if($show) { echo "start : " . now() . "<br/>";}
+
     $list = $this->get_orders_list([3, 4]);
 
     if( ! empty($list))
@@ -61,7 +66,10 @@ class Auto_check_shopee_status extends CI_Controller
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_shopee_api->get_order_status($rs->reference);
+        $shop_id = empty($rs->shop_id) ? $this->default_shop_id : $rs->shop_id;
+
+        $order_status = $this->wrx_shopee_api->get_order_status($rs->reference, $shop_id);
+
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
         if($order_status == 'CANCELLED')
@@ -91,7 +99,10 @@ class Auto_check_shopee_status extends CI_Controller
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_shopee_api->get_order_status($rs->reference);
+        $shop_id = empty($rs->shop_id) ? $this->default_shop_id : $rs->shop_id;
+
+        $order_status = $this->wrx_shopee_api->get_order_status($rs->reference, $shop_id);
+        
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
         if($order_status == 'CANCELLED')
@@ -129,7 +140,7 @@ class Auto_check_shopee_status extends CI_Controller
     $id = $max_id > 100000 ? $max_id - 10000 : $id;
 
     $rs = $this->db
-    ->select('code, reference')
+    ->select('code, reference, shop_id')
     ->where('id >', $id)
     ->where('role', 'S')
     ->where('channels_code', 'SHOPEE')

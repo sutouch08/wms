@@ -10,6 +10,7 @@ class Auto_check_tiktok_status extends CI_Controller
   public $menu_group_code = NULL;
   public $pm;
   public $error;
+  public $default_shop_id = "7494677687526394819";
 
   public function __construct()
   {
@@ -32,7 +33,10 @@ class Auto_check_tiktok_status extends CI_Controller
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        $shop_id = empty($rs->shop_id) ? $this->default_shop_id : $rs->shop_id;
+
+        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference, $shop_id);
+
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
         if($order_status == '140')
@@ -61,7 +65,10 @@ class Auto_check_tiktok_status extends CI_Controller
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        $shop_id = empty($rs->shop_id) ? $this->default_shop_id : $rs->shop_id;
+
+        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference, $shop_id);
+
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
         if($order_status == '140')
@@ -91,7 +98,10 @@ class Auto_check_tiktok_status extends CI_Controller
 
       foreach($list as $rs)
       {
-        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference);
+        $shop_id = empty($rs->shop_id) ? $this->default_shop_id : $rs->shop_id;
+
+        $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference, $shop_id);
+
         if($show) { echo "{$rs->code} : {$order_status} <br/>"; }
 
         if($order_status == '140')
@@ -129,7 +139,7 @@ class Auto_check_tiktok_status extends CI_Controller
     $id = $max_id > 100000 ? $max_id - 10000 : $id;
 
     $rs = $this->db
-    ->select('code, reference')
+    ->select('code, reference, shop_id')
     ->where('id >', $id)
     ->where('role', 'S')
     ->where('channels_code', '0009')
