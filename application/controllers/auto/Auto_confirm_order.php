@@ -133,7 +133,7 @@ class Auto_confirm_order extends CI_Controller
   public function get_confirm_list($limit = 50)
   {
     $rs = $this->db
-    ->select('code, role, channels_code, shipped_date, dispatch_id')
+    ->select('code, role, channels_code, shipped_date, dispatch_id, shop_id')
     ->where('role', 'S')
     ->where('state', 7)
     ->where('is_cancled', 0)
@@ -166,7 +166,7 @@ class Auto_confirm_order extends CI_Controller
   }
 
 
-  public function is_cancel($reference, $channels)
+  public function is_cancel($reference, $channels, $shop_id)
   {
     $is_cancel = FALSE;
 
@@ -174,7 +174,7 @@ class Auto_confirm_order extends CI_Controller
     {
       $this->load->library('wrx_tiktok_api');
 
-      $order_status = $this->wrx_tiktok_api->get_order_status($reference);
+      $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
 
       if($order_status == '140')
       {
@@ -186,7 +186,7 @@ class Auto_confirm_order extends CI_Controller
     {
       $this->load->library('wrx_shopee_api');
 
-      $order_status = $this->wrx_shopee_api->get_order_status($reference);
+      $order_status = $this->wrx_shopee_api->get_order_status($reference, $shop_id);
 
       if($order_status == 'CANCELLED')
       {
@@ -198,7 +198,7 @@ class Auto_confirm_order extends CI_Controller
     {
       $this->load->library('wrx_lazada_api');
 
-      $order_status = $this->wrx_lazada_api->get_order_status($reference);
+      $order_status = $this->wrx_lazada_api->get_order_status($reference, $shop_id);
 
       if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
       {
@@ -229,7 +229,7 @@ class Auto_confirm_order extends CI_Controller
       {
         if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
         {
-          if($this->is_cancel($order->reference, $order->channels_code))
+          if($this->is_cancel($order->reference, $order->channels_code, $order->shop_id))
           {
             $sc = FALSE;
             $this->error = "ออเดอร์ถูกยกเลิกบน Platform แล้ว";
