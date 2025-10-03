@@ -174,6 +174,8 @@ class Reserv_stock extends PS_Controller
           $sc = FALSE;
           set_error('update');
         }
+
+        $this->update_summary($ds->id);
       }
       else
       {
@@ -247,6 +249,8 @@ class Reserv_stock extends PS_Controller
           $sc = FALSE;
           set_error('update');
         }
+
+        $this->update_summary($id);
       }
     }
     else
@@ -640,7 +644,7 @@ class Reserv_stock extends PS_Controller
     ini_set('memory_limit','1000M');
     $this->load->library('excel');
 
-    $id = $this->input->post('id');
+    $doc_id = $this->input->post('id');
     $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
     $path = $this->config->item('upload_path').'reserv_stock/';
     $file	= 'uploadFile';
@@ -680,7 +684,7 @@ class Reserv_stock extends PS_Controller
 
         if($sc === TRUE)
         {
-          $doc = $this->reserv_stock_model->get($id);
+          $doc = $this->reserv_stock_model->get($doc_id);
 
           $i = 1;
 
@@ -804,7 +808,7 @@ class Reserv_stock extends PS_Controller
 
           if($sc === TRUE)
           {
-            $this->update_summary($id);
+            $this->update_summary($doc_id);
           }
         }
       }
@@ -883,7 +887,7 @@ class Reserv_stock extends PS_Controller
     $writer->save('php://output');
   }
 
-  
+
   public function get_new_code()
   {
     $date = date('Y-m-d');
