@@ -215,6 +215,8 @@ class Reserv_stock extends PS_Controller
           $sc = FALSE;
           set_error('update');
         }
+
+        $this->update_summary($id);
       }
     }
     else
