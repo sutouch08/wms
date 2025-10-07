@@ -16,6 +16,73 @@ $(document).ready(function() {
 });
 
 
+$('#chk-all').change(function() {
+	if($(this).is(':checked')) {
+		$('.chk-order').prop('checked', true);
+	}
+	else {
+		$('.chk-order').prop('checked', false);
+	}
+})
+
+
+function setAsPreOrder(option) {
+	let count = $('.chk-order:checked').length;
+
+	if(count > 0) {
+		let orders = [];
+
+		$('.chk-order:checked').each(function() {
+			if($(this).is(':checked')) {
+				orders.push($(this).val());
+			}
+		});
+
+		if(orders.length > 0) {
+
+			let h = {
+				'is_pre_order' : option,
+				'orders' : orders
+			}
+
+			load_in();
+
+			$.ajax({
+				url:BASE_URL + 'orders/orders/set_pre_order_status',
+				type:'POST',
+				cache:false,
+				data:{
+					'data' : JSON.stringify(h)
+				},
+				success:function(rs) {
+					load_out();
+
+					if(rs.trim() === 'success') {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							refresh();
+						}, 1200);
+					}
+					else {
+						beep();
+						showError(rs);
+					}
+				},
+				error:function(rs) {
+					beep();
+					showError(rs);
+				}
+			})
+		}
+	}
+}
+
+
 function sendToWms(code) {
 	load_in();
 	$.ajax({
@@ -61,14 +128,6 @@ function sendToWms(code) {
 }
 
 
-$('#chk-all').change(function() {
-	if($(this).is(':checked')) {
-		$('.chk-wms').prop('checked', true);
-	}
-	else {
-		$('.chk-wms').prop('checked', false);
-	}
-})
 
 
 function sendOrdersToWms() {

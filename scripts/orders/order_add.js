@@ -163,7 +163,7 @@ function saveOrder() {
 	let id_sender = $('#id_sender').val();
 	let tracking = $('#tracking').val();
   let payment_role = $('#payment option:selected').data('role');
-  let cod_amount = parseDefault(parseFloat($('#cod-amount').val()), 0);  
+  let cod_amount = parseDefault(parseFloat($('#cod-amount').val()), 0);
   load_in();
 
 	$.ajax({
@@ -583,6 +583,7 @@ function updateOrder(recal){
   var warehouse_code = $('#warehouse').val();
 	var transformed = $('#transformed').val();
 	var remark = $("#remark").val();
+  var is_pre_order = $('#is_pre_order').val();
 
 	load_in();
 
@@ -601,6 +602,7 @@ function updateOrder(recal){
       "warehouse_code" : warehouse_code,
   		"remark" : remark,
 			"transformed" : transformed,
+      "is_pre_order" : is_pre_order,
       "recal" : recal
     },
 		success: function(rs){

@@ -1139,6 +1139,8 @@ class Orders extends PS_Controller
 
       $customer = $this->customers_model->get($this->input->post('customer_code'));
 
+      $is_pre_order = $this->input->post('is_pre_order');
+
       $order = $this->orders_model->get($code);
 
       if(! empty($order))
@@ -1180,6 +1182,7 @@ class Orders extends PS_Controller
               'warehouse_code' => $warehouse_code,
               'remark' => $this->input->post('remark'),
               'is_wms' => $is_wms,
+              'is_pre_order' => $is_pre_order,
               'transformed' => $this->input->post('transformed'),
               'status' => 0,
               'id_address' => NULL,
@@ -2880,6 +2883,44 @@ class Orders extends PS_Controller
     $option = $this->input->post('option');
     $rs = $this->orders_model->set_never_expire($code, $option);
     echo $rs === TRUE ? 'success' : 'ทำรายการไม่สำเร็จ';
+  }
+
+
+  public function set_pre_order_status()
+  {
+    $sc = TRUE;
+
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
+    {
+      $is_pre_order = $ds->is_pre_order;
+
+      if( ! empty($ds->orders))
+      {
+        $arr = array(
+          'is_pre_order' => $ds->is_pre_order
+        );
+
+        if( ! $this->orders_model->update_orders($ds->orders, $arr))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update orders";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Order code not found";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
   }
 
 
@@ -4622,6 +4663,7 @@ class Orders extends PS_Controller
     }
   }
 
+
   public function test_api_stock()
   {
     $items = array(
@@ -4683,7 +4725,6 @@ class Orders extends PS_Controller
 
     clear_filter($filter);
   }
-
 
 
   public function export_ship_to_address($id)
@@ -5082,8 +5123,6 @@ class Orders extends PS_Controller
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
-
-
 
 
 	public function get_wms_status($code)

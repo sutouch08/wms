@@ -4,10 +4,10 @@
 <?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
 <?php $instant_export = getConfig('WMS_INSTANT_EXPORT'); ?>
 <div class="row">
-	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5 padding-top-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 padding-5 padding-top-5">
 		<h3 class="title"><?php echo $this->title; ?></h3>
 	</div>
-	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5 text-right">
+	<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 padding-5 text-right">
 		<?php if($this->pm->can_add) : ?>
 			<?php if($can_upload) : ?>
 				<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="getUploadFile()"><i class="fa fa-upload"></i> &nbsp; Import Order</button>
@@ -15,8 +15,22 @@
 			<button type="button" class="btn btn-white btn-purple top-btn btn-100" onclick="getTemplate()"><i class="fa fa-download"></i> &nbsp; Template</button>
 			<button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
 		<?php endif; ?>
-		<?php if($this->sokoApi OR $this->wmsApi) : ?>
-			<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="sendOrdersToWms()"><i class="fa fa-send"></i> Send to WMS</button>
+		<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+			<div class="btn-group">
+        <button data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+          <i class="ace-icon fa fa-flash icon-on-left"></i>
+          Pre-order
+          <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li class="primary">
+            <a href="javascript:setAsPreOrder(1)">บันทึกเป็นพรีออเดอร์</a>
+          </li>
+					<li class="success">
+            <a href="javascript:setAsPreOrder(0)">บันทึกเป็นออเดอร์ทั่วไป</a>
+          </li>
+        </ul>
+      </div>
 		<?php endif; ?>
 	</div>
 </div><!-- End Row -->
@@ -224,14 +238,12 @@
 		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1480px; margin-bottom:20px;">
 			<thead>
 				<tr class="font-size-11">
-			<?php if($this->sokoApi OR $this->wmsApi) : ?>
 					<th class="fix-width-40 middle text-center fix-header">
 						<label>
 							<input type="checkbox" class="ace" id="chk-all" />
 							<span class="lbl"></span>
 						</label>
 					</th>
-			<?php endif; ?>
 					<th class="fix-width-40 middle text-center fix-header">ลำดับ</th>
 					<th class="fix-width-100 middle text-center fix-header sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
 					<th class="fix-width-150 middle fix-header sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
@@ -242,9 +254,6 @@
 					<th class="fix-width-150 middle text-center fix-header">Shop name</th>
 					<th class="fix-width-150 middle fix-header">การชำระเงิน</th>
 					<th class="fix-width-150 middle fix-header">สถานะ</th>
-					<?php if($this->_SuperAdmin && $instant_export) : ?>
-						<th class="fix-width-100 middle fix-header"></th>
-					<?php endif; ?>
 				</tr>
 			</thead>
 			<tbody>
@@ -256,25 +265,20 @@
 						<?php $cn_text = $rs->state != 9 && $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
 						<?php $shop_name = empty($rs->shop_id) ? NULL : (empty($shopName[$rs->shop_id]) ? NULL : $shopName[$rs->shop_id]); ?>
             <tr class="font-size-11 pointer <?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>"
-							id="row-<?php echo $rs->code; ?>"
-							style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>"
-							onclick="editOrder('<?php echo $rs->code; ?>')"
-							>
-					<?php if($this->sokoApi OR $this->wmsApi) : ?>
+							id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
 							<td class="middle text-center">
-								<?php if($rs->state == 3 && $rs->is_wms != 0 && $rs->wms_export != 1) : ?>
+								<?php if($rs->state <= 3 && $this->pm->can_edit) : ?>
 									<label>
-										<input type="checkbox" class="ace chk-wms" data-code="<?php echo $rs->code; ?>"/>
+										<input type="checkbox" class="ace chk-order" data-code="<?php echo $rs->code; ?>" value="<?php echo $rs->code; ?>"/>
 										<span class="lbl"></span>
 									</label>
 								<?php endif; ?>
 							</td>
-					<?php endif; ?>
-              <td class="middle text-center"><?php echo $no; ?></td>
-              <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle"><?php echo $rs->code . $cn_text; ?></td>
-							<td class="middle"><?php echo $rs->reference; ?></td>
-              <td class="middle">
+              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code . $cn_text; ?></td>
+							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>
 								<?php else : ?>
@@ -282,26 +286,23 @@
 									<?php echo $cus_ref; ?>
 								<?php endif; ?>
 							</td>
-              <td class="middle text-right">
+              <td class="middle text-right" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo $rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total, 2); ?>
 							</td>
-              <td class="middle text-center">
+              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($channelsList[$rs->channels_code]) ? "" : $channelsList[$rs->channels_code]; ?>
 							</td>
-							<td class="middle text-center"><?php echo $shop_name; ?></td>
-              <td class="middle">
+							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $shop_name; ?></td>
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($paymentList[$rs->payment_code]) ? "" : $paymentList[$rs->payment_code];  ?>
 							</td>
-              <td class="middle">
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->is_expired) : ?>
 									หมดอายุ
 								<?php else : ?>
 									<?php echo get_state_name($rs->state); ?>
 								<?php endif; ?>
 							</td>
-              <?php if($this->_SuperAdmin && $instant_export) : ?>
-							<td class="middle text-right"><button type="button" class="btn btn-minier btn-primary" onclick="sendToWms('<?php echo $rs->code; ?>')">Wms</button></td>
-							<?php endif; ?>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>
@@ -309,9 +310,6 @@
 			</tbody>
 		</table>
 	</div>
-	<?php if($this->_SuperAdmin) : ?>
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">	<?php	echo "Start @ {$start} <br/> End&nbsp; @ {$end}";	?></div>
-	<?php endif; ?>
 </div>
 
 <?php

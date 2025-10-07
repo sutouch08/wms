@@ -150,6 +150,7 @@ class Import_order extends CI_Controller
                   'is_wms' => $order->is_wms,
                   'id_address' => $order->id_address,
                   'id_sender' => $order->id_sender,
+                  'is_pre_order' => $order->is_pre_order,
                   'tax_status' => $order->tax_status,
                   'is_etax' => $order->is_etax,
                   'tax_id' => $order->tax_id,
@@ -209,7 +210,7 @@ class Import_order extends CI_Controller
                         $total_amount += $row->total_amount;
                         $total_qty += $row->qty;
 
-                        if($ix_backorder && $row->is_count)
+                        if($ix_backorder && $row->is_count && ! $order->is_pre_order)
                         {
                           $available = $this->get_available_stock($row->product_code, $order->warehouse_code);
 
@@ -363,6 +364,7 @@ class Import_order extends CI_Controller
                       'is_wms' => $order->is_wms,
                       'id_address' => $order->id_address,
                       'id_sender' => $order->id_sender,
+                      'is_pre_order' => $order->is_pre_order,
                       'tax_status' => $order->tax_status,
                       'is_etax' => $order->is_etax,
                       'tax_id' => $order->tax_id,
@@ -427,7 +429,7 @@ class Import_order extends CI_Controller
                               $total_amount += $row->total_amount;
                               $total_qty += $row->qty;
 
-                              if($ix_backorder && $row->is_count)
+                              if($ix_backorder && $row->is_count && ! $order->is_pre_order)
                               {
                                 $available = $this->get_available_stock($row->product_code, $order->warehouse_code);
 
@@ -790,6 +792,9 @@ class Import_order extends CI_Controller
 
               $hold = $rs['U'] == 1 ? TRUE : FALSE;
 
+              $preorder = trim($rs['AP']);
+              $is_preorder = ($preorder === 1 OR $preorder === '1' OR $preorder === 'Y' OR $preorder === 'y') ? TRUE : FALSE;
+
               //---- กำหนดช่องทางการขายเป็นรหัส
               $channels_code = trim($rs['L']);
 
@@ -1057,6 +1062,7 @@ class Import_order extends CI_Controller
                   'id_sender' => empty(trim($rs['W'])) ? NULL : $this->sender_model->get_id(trim($rs['W'])),
                   'force_update' => ($rs['S'] == 1 OR $rs['S'] == 'Y' OR $rs['S'] == 'y') ? TRUE : FALSE,
                   'hold' => $hold,
+                  'is_pre_order' => $is_preorder ? 1 : 0,
                   'tax_status' => $tax_status,
                   'tax_type' => $tax_status ? $tax_type : NULL,
                   'is_etax' => $tax_status ? $is_etax : 0,

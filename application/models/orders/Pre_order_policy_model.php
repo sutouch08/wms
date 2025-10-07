@@ -283,6 +283,21 @@ class Pre_order_policy_model extends CI_Model
   }
 
 
+  public function is_valid_item($item_code)
+  {
+    $count = $this->db
+    ->from('pre_order_items AS d')
+    ->join('pre_order_policy AS o', 'd.policy_id = o.id', 'left')
+    ->where('d.product_code', $item_code)
+    ->where('o.status', 1)
+    ->where('o.start_date >=', now())
+    ->where('o.end_date <=', now())
+    ->count_all_results();
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+
   public function get_max_code($code)
   {
     $rs = $this->db

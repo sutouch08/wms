@@ -33,6 +33,18 @@ class Orders_model extends CI_Model
   }
 
 
+  public function update_orders(array $codes = array(), array $ds = array())
+  {
+    //  order_code array
+    if( ! empty($codes) && ! empty($ds))
+    {
+      return $this->db->where_in('code', $codes)->update('orders', $ds);
+    }
+
+    return FALSE;
+  }
+
+
   public function get($code)
   {
     $rs = $this->db
