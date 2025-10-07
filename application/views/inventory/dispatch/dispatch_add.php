@@ -20,7 +20,7 @@
 	<div class="col-lg-3 col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
 		<label>ช่องทางขาย</label>
 		<select class="width-100 e" id="channels">
-			<option value="" data-name="">เลือก</option>			
+			<option value="" data-name="">เลือก</option>
 			<?php echo select_dispatch_channels(); ?>
 		</select>
 	</div>
@@ -56,6 +56,10 @@
 </div>
 <hr class=""/>
 
+<script>
+	$('#sender').select2();
+	$('#channels').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch_add.js?v=<?php echo date('Ymd'); ?>"></script>
 

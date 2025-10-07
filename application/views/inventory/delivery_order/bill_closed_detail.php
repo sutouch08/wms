@@ -106,8 +106,8 @@
     <?php if($order->channels_code == 'LAZADA' && ! empty($order->reference) && is_true(getConfig('WRX_LAZADA_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
     <?php endif; ?>
-    <?php if(is_true(getConfig('PORLOR_API'))) : ?>
-      <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
+		<?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
+    	<?php if(is_true(getConfig('PORLOR_API'))) : ?>
         <?php if(empty($order->shipping_code)) : ?>
           <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
         <?php else : ?>
@@ -115,6 +115,11 @@
         <?php endif; ?>
       <?php endif; ?>
     <?php endif; ?>
+		<?php if($order->id_sender == getConfig('SPX_ID')) : ?>
+			<?php if(is_true(getConfig('SPX_API'))) : ?>
+				<button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderSPX('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> SPX Label</button>
+			<?php endif; ?>
+		<?php endif; ?>
     <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)"><i class="fa fa-print"></i> ใบนำส่ง</button>
     <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
     <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>

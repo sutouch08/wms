@@ -8,17 +8,16 @@
       </ul>
     </div>
   </div>
-
 </div>
 <hr/>
 <?php endif; ?>
 <div class="row" style="margin-top:30px;">
-	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5">
 		<label>รหัสสินค้า</label>
 		<input type="text" class="width-100 text-center" id="search-text" placeholder="พิมพ์รหัสสินค้า 4 ตัวอักษรขึ้นไป" />
 	</div>
 
-	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
 		<label>คลัง</label>
 		<select class="width-100" id="warehouse" name="warehouse">
 			<option value="">ทั้งหมด</option>
@@ -39,7 +38,7 @@
 <hr class="margin-top-15 margin-bottom-15"/>
 
 <div class="row">
-  <div class="col-sm-12" id="result">    
+  <div class="col-sm-12" id="result">
   </div>
 </div>
 <script id="order-template" type="text/x-handlebarsTemplate">

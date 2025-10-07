@@ -46,6 +46,9 @@
 		<div class="menu-block">
 			<a class="menu-link" href="javascript:goSetting('porlor')">PORLOR API <i class="fa fa-angle-right pull-right font-size-20"></i></a>
 		</div>
+		<div class="menu-block">
+			<a class="menu-link" href="javascript:goSetting('spx')">SPX API <i class="fa fa-angle-right pull-right font-size-20"></i></a>
+		</div>
 	</div>
 </div><!--/ row  -->
 
@@ -85,6 +88,9 @@
 </div>
 <div class="setting-panel move-out" id="porlor">
 	<?php $this->load->view('setting/mobile/setting_porlor_api_mobile'); ?>
+</div>
+<div class="setting-panel move-out" id="spx">
+	<?php $this->load->view('setting/mobile/setting_spx_api_mobile'); ?>
 </div>
 
 <script src="<?php echo base_url(); ?>scripts/setting/setting_mobile.js?v=<?php echo date('Ymd'); ?>"></script>

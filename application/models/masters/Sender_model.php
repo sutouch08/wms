@@ -71,7 +71,7 @@ class Sender_model extends CI_Model
 
     return NULL;
   }
-  
+
 
 	public function get_common_list($list =  array())
 	{
@@ -236,6 +236,11 @@ class Sender_model extends CI_Model
 			$this->db->where('type', $ds['type']);
 		}
 
+    if(isset($ds['listing']) && $ds['listing'] != 'all')
+    {
+      $this->db->where('show_in_list', $ds['listing']);
+    }
+
 		return $this->db->count_all_results('address_sender');
 
   }
@@ -272,6 +277,11 @@ class Sender_model extends CI_Model
 			{
 				$this->db->where('type', $ds['type']);
 			}
+
+      if(isset($ds['listing']) && $ds['listing'] != 'all')
+      {
+        $this->db->where('show_in_list', $ds['listing']);
+      }
 
 			$this->db->order_by('code', 'DESC')->limit($perpage, $offset);
 

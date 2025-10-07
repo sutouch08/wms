@@ -16,7 +16,12 @@
     <?php endif; ?>
     <?php if(is_true(getConfig('PORLOR_API'))) : ?>
       <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
-      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print Label</button>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print Porlor Label</button>
+      <?php endif; ?>
+    <?php endif; ?>
+    <?php if(is_true(getConfig('SPX_API'))) : ?>
+      <?php if($order->id_sender == getConfig('SPX_ID')) : ?>
+      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderSPX('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print SPX Label</button>
       <?php endif; ?>
     <?php endif; ?>
   </div>
@@ -324,6 +329,40 @@ if(!empty($barcode_list))
            beep();
            showError(rs);
          }
+       },
+       error:function(rs) {
+         beep();
+         showError(rs);
+       }
+     })
+   }
+
+
+   function shipOrderSPX(code) {
+     load_in();
+
+     $.ajax({
+       url:HOME + 'ship_order_spx/'+code,
+       type:'POST',
+       cache:false,
+       success:function(rs) {
+         load_out();
+
+         if(isJson(rs)) {
+           let ds = JSON.parse(rs);
+
+           if(ds.status == 'success') {
+             window.open(ds.data.awb_link, "_blank");
+           }
+           else {
+             beep();
+             showError(ds.message);
+           }
+         }
+         else {
+           beep();
+           showError(rs);
+         }         
        },
        error:function(rs) {
          beep();

@@ -23,14 +23,14 @@
   </div>
 	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>ช่องทางขาย</label>
-		<select class="form-control input-sm e" id="channels" disabled>
+		<select class="width-100 e" id="channels" disabled>
 			<option value="" data-name="">เลือก</option>
 			<?php echo select_dispatch_channels($doc->channels_code); ?>
 		</select>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>ผู้จัดส่ง</label>
-		<select class="form-control input-sm e" id="sender" disabled>
+		<select class="width-100 e" id="sender" disabled>
 			<option value="">เลือก</option>
 			<?php echo select_sender($doc->sender_code); ?>
 		</select>
@@ -200,7 +200,10 @@
   {{/each}}
 </script>
 
-
+<script>
+	$('#sender').select2();
+	$('#channels').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>

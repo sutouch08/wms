@@ -31,7 +31,7 @@ class Auto_expire_transfer extends CI_Controller
       //--- WR
       $this->exp_model->expire_wr($exp_date);
       //--- SM
-      $this->exp_model->expire_sm($exp_date);      
+      $this->exp_model->expire_sm($exp_date);
     }
 	}
 

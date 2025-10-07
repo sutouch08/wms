@@ -171,7 +171,7 @@ function is_checked($val1, $val2)
 
 function is_active($val, $showX = TRUE)
 {
-	if($val == 1 OR $val == '1' OR $val == 'Y' OR $val == 'y' OR $val === TRUE)
+	if($val === 1 OR $val === '1' OR $val === 'Y' OR $val === 'y' OR $val === TRUE)
 	{
 		return '<i class="fa fa-check green"></i>';
 	}

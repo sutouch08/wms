@@ -421,6 +421,11 @@ class Dispatch extends PS_Controller
         $order = $this->orders_model->get($order_code);
       }
 
+      if(empty($order))
+      {
+        $order = $this->orders_model->get_order_in_qc_box($order_code);
+      }
+
       if( ! empty($order))
       {
         if($order->state == 8 OR $order->state == 7)

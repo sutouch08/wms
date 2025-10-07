@@ -1,17 +1,12 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 padding-5 hidden-xs">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-xs-12 padding-5 visible-xs">
-    <h3 class="title-xs"><?php echo $this->title; ?></h3>
-  </div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-  	<p class="pull-right top-p">
-    <?php if($this->pm->can_add) : ?>
-      <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> Add New</button>
-    <?php endif; ?>
-    </p>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+		<?php if($this->pm->can_add) : ?>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="addNew()"><i class="fa fa-plus"></i> Add New</button>
+		<?php endif; ?>
   </div>
 </div><!-- End Row -->
 <hr class=""/>
@@ -30,7 +25,7 @@
     <input type="text" class="form-control input-sm search-box" name="addr" value="<?php echo $addr; ?>" />
   </div>
 
-  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>เงื่อนไข</label>
     <select class="form-control input-sm" name="type" onchange="getSearch()">
       <option value="all">ทั้งหมด</option>
@@ -39,11 +34,20 @@
     </select>
   </div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <label>Listing</label>
+    <select class="form-control input-sm" name="listing" onchange="getSearch()">
+      <option value="all">ทั้งหมด</option>
+      <option value="1" <?php echo is_selected('1', $listing); ?>>Yes</option>
+      <option value="0" <?php echo is_selected('0', $listing); ?>>No</option>
+    </select>
+  </div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -54,39 +58,49 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-bordered table-hover" style="min-width:1020px;">
+		<table class="table table-striped table-bordered table-hover" style="min-width:1100px;">
 			<thead>
-				<tr>
+				<tr class="font-size-11">
+					<th class="fix-width-80 middle"></th>
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-150 middle">รหัส</th>
-					<th class="fix-width-150 middle">ชื่อ</th>
-          <th class="fix-width-300 middle">ที่อยู่</th>
-          <th class="fix-width-100 middle">เบอร์โทร</th>
-          <th class="fix-width-100 middle">เวลาทำการ</th>
+					<th class="fix-width-200 middle">ชื่อ</th>
+					<th class="fix-width-60 middle text-center">Listing</th>
+					<th class="fix-width-100 middle">เวลาทำการ</th>
 					<th class="fix-width-100 middle">เงื่อนไข</th>
-          <th class="min-width-80 middle"></th>
+					<th class="fix-width-150 middle">เบอร์โทร</th>
+          <th class="min-width-200 middle">ที่อยู่</th>
 				</tr>
 			</thead>
 			<tbody>
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(4) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr id="row-<?php echo $rs->id; ?>">
+					<tr id="row-<?php echo $rs->id; ?>" class="font-size-11">
+						<td class="middle">
+							<?php if($this->pm->can_edit OR $this->pm->can_add): ?>
+								<button type="button" class="btn btn-minier btn-warning" onclick="getEdit(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>
+							<?php endif; ?>
+							<?php if($this->pm->can_delete): ?>
+								<button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->name; ?>')"><i class="fa fa-trash"></i></button>
+							<?php endif; ?>
+						</td>
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
+						<td class="middle text-center">
+							<?php if($this->pm->can_edit) : ?>
+								<a href="javascript:void(0)" id="listing-<?php echo $rs->id; ?>" onclick="toggleListing(<?php echo $rs->id; ?>)">
+									<?php echo is_active($rs->show_in_list); ?>
+								</a>
+							<?php else : ?>
+								<?php echo is_active($rs->show_in_list); ?>
+							<?php endif; ?>
+						</td>
+						<td class="middle"><?php echo date('H:i', strtotime($rs->open)).' - '.date('H:i', strtotime($rs->close)); ?></td>
+						<td class="middle"><?php echo $rs->type; ?></td>
+						<td class="middle"><?php echo $rs->phone; ?></td>
 						<td class="middle"><?php echo $rs->address1.' '.$rs->address2; ?></td>
-            <td class="middle"><?php echo $rs->phone; ?></td>
-            <td class="middle"><?php echo date('H:i', strtotime($rs->open)).' - '.date('H:i', strtotime($rs->close)); ?></td>
-            <td class="middle"><?php echo $rs->type; ?></td>
-            <td class="middle">
-              <?php if($this->pm->can_edit OR $this->pm->can_add): ?>
-              <button type="button" class="btn btn-minier btn-warning" onclick="getEdit(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>
-              <?php endif; ?>
-              <?php if($this->pm->can_delete): ?>
-              <button type="button" class="btn btn-minier btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->name; ?>')"><i class="fa fa-trash"></i></button>
-              <?php endif; ?>
-            </td>
 					</tr>
 					<?php $no++; ?>
 				<?php endforeach; ?>
@@ -96,6 +110,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/masters/sender.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/sender.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

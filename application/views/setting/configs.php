@@ -28,6 +28,7 @@
 		$tab10 = $tab == 'web' ? 'active in' : '';
 		$tab11 = $tab == 'pos' ? 'active in' : '';
 		$tab12 = $tab == 'porlor' ? 'active in' : '';
+		$tab13 = $tab == 'spx' ? 'active in' : '';
 
 
 		$tab1001 = $tab == 'sokojung' ? 'active in' : '';
@@ -48,10 +49,11 @@
 			<li class="li-block <?php echo $tab10; ?>" onclick="changeURL('web')"><a href="#web" data-toggle="tab">Magento</a></li>
 			<li class="li-block <?php echo $tab11; ?>" onclick="changeURL('pos')"><a href="#pos" data-toggle="tab">POS API</a></li>
 			<li class="li-block <?php echo $tab12; ?>" onclick="changeURL('porlor')"><a href="#porlor" data-toggle="tab">PORLOR API</a></li>
+			<li class="li-block <?php echo $tab13; ?>" onclick="changeURL('spx')"><a href="#spx" data-toggle="tab">SPX API</a></li>
 
 			<?php if($this->_SuperAdmin) : ?>
 				<li class="li-block <?php echo $tab1001; ?>" onclick="changeURL('sokojung')"><a href="#sokojung" data-toggle="tab">SOKOJUNG API</a></li>
-				<li class="li-block <?php echo $tab1002; ?>" onclick="changeURL('WMS')"><a href="#WMS" data-toggle="tab">PLC API</a></li>				
+				<li class="li-block <?php echo $tab1002; ?>" onclick="changeURL('WMS')"><a href="#WMS" data-toggle="tab">PLC API</a></li>
 			<?php endif; ?>
 		</ul>
 	</div>
@@ -104,6 +106,10 @@
 
 			<div class="tab-pane fade <?php echo $tab12; ?>" id="porlor">
 				<?php $this->load->view('setting/setting_porlor_api'); ?>
+			</div>
+
+			<div class="tab-pane fade <?php echo $tab13; ?>" id="spx">
+				<?php $this->load->view('setting/setting_spx_api'); ?>
 			</div>
 
 			<?php if($this->_SuperAdmin) : ?>

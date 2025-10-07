@@ -17,6 +17,7 @@ class Main extends PS_Controller
     $this->load->model('main_model');
 		$this->load->helper('warehouse');
 		$this->load->helper('product_color');
+		$this->load->model('inventory/transform_model');
 	}
 
 

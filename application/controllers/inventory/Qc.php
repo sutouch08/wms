@@ -38,7 +38,8 @@ class Qc extends PS_Controller
       'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
-      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
     );
 
     if($this->input->post('search'))
@@ -523,10 +524,210 @@ class Qc extends PS_Controller
     else
     {
       $sc = FALSE;
-      $this->error = "Order {$reference} not found";
+      $this->error = "Order {$code} not found";
     }
 
     $this->_response($sc);
+  }
+
+
+  public function ship_order_spx($code)
+  {
+    $sc = TRUE;
+    $shipment = NULL;
+    $this->wms = $this->load->database('wms', TRUE);
+    $this->load->model('address/address_model');
+    $this->load->library('wrx_spx_api');
+
+    $order = $this->orders_model->get($code);
+    $batch_no = NULL;
+    $shipment = NULL;
+
+    if( ! empty($order))
+    {
+      $batch = $this->qc_model->get_spx_batch($code);
+
+      if( ! empty($batch))
+      {
+        $batch_no = $batch->batch_no;
+      }
+      else
+      {
+        $addr = $this->address_model->get_shipping_detail($order->id_address);
+
+        if(empty($addr))
+        {
+          $sc = FALSE;
+          $this->error = "ไม่พบที่อยู่จัดส่ง";
+        }
+
+        if($sc === TRUE)
+        {
+          $addr->province = parseProvince($addr->province);
+          $addr->sub_district = parseSubDistrict($addr->sub_district, $addr->province);
+          $addr->district = parseDistrict($addr->district, $addr->province);
+          $addr->phone = parsePhoneNumber($addr->phone, 10);
+
+          $sender = (object) [
+            'name' => getConfig('SPX_SENDER_NAME'),
+            'phone' => getConfig('SPX_SENDER_PHONE'),
+            'address' => getConfig('SPX_SENDER_ADDRESS'),
+            'state' => getConfig('SPX_SENDER_STATE'),
+            'city' => getConfig('SPX_SENDER_CITY'),
+            'district' => getConfig('SPX_SENDER_DISTRICT'),
+            'postcode' => getConfig('SPX_SENDER_POST_CODE'),
+            'weight' => floatval(getConfig('SPX_DEFAULT_WEIGHT'))
+          ];
+        }
+
+        $packages = [];
+
+        if($sc === TRUE)
+        {
+          $boxes = $this->qc_model->get_box_list($order->code);
+
+          if(empty($boxes))
+          {
+            $sc = FALSE;
+            $sc = FALSE;
+            $this->error = "No packing package found !";
+          }
+          else
+          {
+            foreach($boxes as $box)
+            {
+              if($box->qty > 0)
+              {
+                $cod = $order->role === 'S' ? ($order->payment_role == 4 ? 1 : 0) : 0;
+                $cod_amount = $cod === 1 ? ($order->cod_amount == 0 ? $doc_total : $order->cod_amount) : 0.00;
+                $packages[] = array(
+                  'order_id' => $box->code,
+                  'sender_info' => [
+                    'sender_state' => $sender->state,
+                    'sender_city' => $sender->city,
+                    'sender_district' => $sender->district,
+                    'sender_post_code' => $sender->postcode,
+                    'sender_name' => $sender->name,
+                    'sender_phone' => $sender->phone,
+                    'sender_email' => "",
+                    'sender_detail_address' => $sender->address
+                  ],
+                  'fulfillment_info' => [
+                    'cod_collection' => $cod,
+                    'cod_amount' => intval($cod_amount),
+                    'collect_type' => 1
+                  ],
+                  'deliver_info' => [
+                    'deliver_state' => $addr->province,
+                    'deliver_city' => $addr->district,
+                    'deliver_district' => $addr->sub_district,
+                    'deliver_post_code' => $addr->postcode,
+                    'deliver_name' => $addr->name,
+                    'deliver_phone' => $addr->phone,
+                    'deliver_detail_address' => $addr->address
+                  ],
+                  'parcel_info' => [
+                    'parcel_weight' => $sender->weight,
+                    'parcel_length' => intval($box->length),
+                    'parcel_width' => intval($box->width),
+                    'parcel_height' => intval($box->height),
+                    'parcel_item_name' => 'เสื้อผ้า',
+                    'parcel_item_quantity' => intval($box->qty),
+                    'express_insured_value' => NULL
+                  ]
+                );
+              }
+            } // end foreach boxes
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          if(empty($packages))
+          {
+            $sc = FALSE;
+            $this->error = "No package data found !";
+          }
+          else
+          {
+            $ds = $this->wrx_spx_api->create_parcels($order->code, $packages);
+
+            if(empty($ds))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to create parcels : ".$this->wrx_spx_api->error;
+            }
+            else
+            {
+              $batch_no = $ds->batch_no;
+
+              if( ! $this->qc_model->update_spx_batch_no($order->code, $ds->batch_no))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update spx batch no";
+              }
+              else
+              {
+                $tracking_no = NULL;
+
+                if( ! empty($ds->orders))
+                {
+                  foreach($ds->orders as $rs)
+                  {
+                    if( ! empty($rs->tracking_no) && ! empty($rs->order_id))
+                    {
+                      $this->qc_model->update_box($rs->order->id, ['tracking_no' => $rs->tracking_no]);
+                      $tracking_no = $rs->tracking_no;
+                    }
+                  }
+
+                  if( ! empty($tracking_no))
+                  {
+                    $this->orders_model->update($order->code, ['shipping_code' => $tracking_no]);
+                  }
+                }
+              }
+            }
+          }
+        } // $sc = TRUE; packages
+      } // ! empty batch_no
+
+      if($sc === TRUE)
+      {
+        if( ! empty($batch_no))
+        {
+          $res = $this->wrx_spx_api->get_shipping_label($code, $batch_no);
+
+          if( ! empty($res))
+          {
+            $shipment = $res;
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Failed to download shipping label";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $ths->error = "Cannot get spx order batch no";
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Order {$code} not found";
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $shipment
+    );
+
+    echo json_encode($arr);
   }
 
 
@@ -543,7 +744,8 @@ class Qc extends PS_Controller
       'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
-      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
     );
 
     if($this->input->post('search'))
@@ -1617,7 +1819,8 @@ class Qc extends PS_Controller
       'ic_role',
       'ic_from_date',
       'ic_to_date',
-      'ic_is_cancled'
+      'ic_is_cancled',
+      'ic_id_sender'
     );
 
     return clear_filter($filter);

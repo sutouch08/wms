@@ -128,6 +128,39 @@
     })
   }
 
+  function shipOrderSPX(code) {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'inventory/qc/ship_order_spx/'+code,
+      type:'POST',
+      cache:false,
+      success:function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status == 'success') {
+            window.open(ds.data.awb_link, "_blank");
+          }
+          else {
+            beep();
+            showError(ds.message);
+          }
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
+
   function shipOrderPorlor(code) {
     load_in();
 

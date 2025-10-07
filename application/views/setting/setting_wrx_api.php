@@ -1,11 +1,3 @@
-<?php
-	$wrx_api_on = $WRX_API == 1 ? 'btn-success' : '';
-	$wrx_api_off = $WRX_API == 0 ? 'btn-primary' : '';
-	$log_on = $WRX_LOG_JSON == 1 ? 'btn-success' : '';
-	$log_off = $WRX_LOG_JSON == 0 ? 'btn-primary' : '';
-	$test_on = $WRX_API_TEST == 1 ? 'btn-success' : '';
-	$test_off = $WRX_API_TEST == 0 ? 'btn-primary' : '';
- ?>
 <form id="wrxForm" method="post" action="<?php echo $this->home; ?>/update_config">
 	<div class="row">
 		<div class="col-lg-4 col-md-4 col-sm-4">

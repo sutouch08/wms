@@ -476,6 +476,28 @@ class Orders_model extends CI_Model
     return NULL;
   }
 
+  //-- for dispatch spx
+  public function get_order_in_qc_box($tracking_no)
+  {
+    $rs = $this->db
+    ->select('o.code, o.reference, o.customer_code, o.customer_name, o.customer_ref')
+    ->select('o.channels_code, o.state, o.shop_id, o.shipped_date, o.date_add')
+    ->select('b.tracking_no AS shipping_code')
+    ->from('qc_box AS b')
+    ->join('orders AS o', 'b.order_code = o.code', 'left')
+    ->where('b.tracking_no', $tracking_no)
+    ->where('b.tracking_no IS NOT NULL', NULL, FALSE)
+    ->limit(1)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
 
   public function get_order_code_by_reference($reference)
   {

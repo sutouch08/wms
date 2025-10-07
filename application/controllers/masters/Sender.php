@@ -23,7 +23,8 @@ class Sender extends PS_Controller{
 			'name' => get_filter('name', 'sender_name', ''),
 			'addr' => get_filter('addr', 'sender_addr', ''),
 			'phone' => get_filter('phone', 'sender_phone', ''),
-			'type' => get_filter('type', 'sender_type', 'all')
+			'type' => get_filter('type', 'sender_type', 'all'),
+			'listing' => get_filter('listing', 'sender_listing', 'all')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -48,14 +49,10 @@ class Sender extends PS_Controller{
   }
 
 
-
-
-
 	public function add_new()
 	{
 		$this->load->view('masters/sender/sender_add');
 	}
-
 
 
 	public function add()
@@ -130,6 +127,7 @@ class Sender extends PS_Controller{
 		$this->load->view('masters/sender/sender_edit', $rs);
 	}
 
+
 	public function update($id)
 	{
 		$sc = TRUE;
@@ -196,8 +194,6 @@ class Sender extends PS_Controller{
 	}
 
 
-
-
 	public function delete($id)
 	{
 		if($this->pm->can_delete)
@@ -220,6 +216,41 @@ class Sender extends PS_Controller{
 	}
 
 
+	public function toggle_listing($id)
+	{
+		$sc = TRUE;
+		$sender = $this->sender_model->get($id);
+		$listing = 0;
+
+		if( ! empty($sender))
+		{
+			$listing = $sender->show_in_list == 1 ? 0 : 1;
+
+			$arr = array(
+				'show_in_list' => $listing
+			);
+
+			if( ! $this->sender_model->update($id, $arr))
+			{
+				$sc = FALSE;
+				set_error('update');
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			set_error('notfound');
+		}
+
+		$arr = array(
+			'status' => $sc === TRUE ? 'success' : 'failed',
+			'message' => $sc === TRUE ? 'success' : $this->error,
+			'data' => is_active($listing),
+			'listing' => $listing
+		);
+
+		echo json_encode($arr);
+	}
 
 
 	public function clear_filter()

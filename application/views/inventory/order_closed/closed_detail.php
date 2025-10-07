@@ -142,14 +142,17 @@
       <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
       <?php endif; ?>
+
       <?php if($order->channels_code == 'SHOPEE' && ! empty($order->reference) && is_true(getConfig('WRX_SHOPEE_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Shopee Label</button>
       <?php endif; ?>
+
       <?php if($order->channels_code == 'LAZADA' && ! empty($order->reference) && is_true(getConfig('WRX_LAZADA_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Lazada Label</button>
       <?php endif; ?>
-      <?php if(is_true(getConfig('PORLOR_API'))) : ?>
-        <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
+
+      <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
+        <?php if(is_true(getConfig('PORLOR_API'))) : ?>
           <?php if(empty($order->shipping_code)) : ?>
             <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Porlor Label</button>
           <?php else : ?>
@@ -157,6 +160,13 @@
           <?php endif; ?>
         <?php endif; ?>
       <?php endif; ?>
+
+      <?php if($order->id_sender == getConfig('SPX_ID')) : ?>
+  			<?php if(is_true(getConfig('SPX_API'))) : ?>
+  				<button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderSPX('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> SPX Label</button>
+  			<?php endif; ?>
+  		<?php endif; ?>
+
       <button type="button" class="btn btn-sm btn-info top-btn" onclick="printAddress('<?php echo $order->id_address; ?>', '<?php echo $order->code; ?>', '<?php echo $order->id_sender; ?>')"><i class="fa fa-print"></i> ใบนำส่ง</button>
       <button type="button" class="btn btn-sm btn-primary top-btn" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
       <button type="button" class="btn btn-sm btn-success top-btn" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
@@ -631,6 +641,41 @@
       }
     })
   }
+
+
+  function shipOrderSPX(code) {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'inventory/qc/ship_order_spx/'+code,
+      type:'POST',
+      cache:false,
+      success:function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status == 'success') {
+            window.open(ds.data.awb_link, "_blank");
+          }
+          else {
+            beep();
+            showError(ds.message);
+          }
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
+  
 
   function shipOrderPorlor(code) {
     load_in();

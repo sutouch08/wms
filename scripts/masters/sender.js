@@ -221,5 +221,26 @@ function togglePrefix() {
 	else {
 		$('#prefix').addClass('hide');
 	}
+}
 
+
+function toggleListing(id) {
+  $.ajax({
+    url:HOME + 'toggle_listing/'+id,
+    type:'GET',
+    cache:false,
+    success:function(rs) {
+      if(isJson(rs)) {
+        let ds = JSON.parse(rs);
+
+        $('#listing-'+id).html(ds.data);
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
 }

@@ -14,12 +14,12 @@
 		<div class="col-xs-12 padding-5 text-center visible-xs">
 			<h4 class="title">ตัวกรอง</h4>
 		</div>
-		<div class="col-lg-1-harf col-md-3 col-sm-2-harf col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>เลขที่เอกสาร</label>
 			<input type="text" class="width-100" name="code"  value="<?php echo $code; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-2-harf col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>ลูกค้า</label>
 			<input type="text" class="width-100" name="customer" value="<?php echo $customer; ?>" />
 		</div>
@@ -69,6 +69,14 @@
 				<option value="all">ทั้งหมด</option>
 				<option value="1" <?php echo is_selected('1', $is_cancled); ?>>Yes</option>
 				<option value="0" <?php echo is_selected('0', $is_cancled); ?>>No</option>
+			</select>
+		</div>
+
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+			<label>การจัดส่ง</label>
+			<select class="width-100" name="id_sender" id="sender" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_sender($id_sender); ?>
 			</select>
 		</div>
 
@@ -205,6 +213,7 @@
 <script>
 	$('#user').select2();
 	$('#channels').select2();
+	$('#sender').select2();
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_list.js?v=<?php echo date('Ymd'); ?>"></script>

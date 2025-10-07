@@ -39,13 +39,7 @@
   </div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>การดำเนินการ</label>
-		<select class="form-control input-sm header-box" name="is_wms" id="is_wms">
-			<?php if($this->wmsApi) : ?>
-			<option value="1">Pioneer</option>
-			<?php endif; ?>
-			<?php if($this->sokoApi) : ?>
-			<option value="2">SOKOCHAN</option>
-			<?php endif; ?>
+		<select class="form-control input-sm header-box" name="is_wms" id="is_wms">			
 			<option value="0">Warrix</option>
 		</select>
 	</div>
