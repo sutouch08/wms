@@ -27,11 +27,11 @@ class Adjust extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code'      => get_filter('code', 'adj_code', ''),
+      'code' => get_filter('code', 'adj_code', ''),
       'reference'  => get_filter('reference', 'adj_reference', ''),
-      'user'      => get_filter('user', 'adj_user', ''),
+      'user' => get_filter('user', 'adj_user', 'all'),
       'from_date' => get_filter('from_date', 'adj_from_date', ''),
-      'to_date'   => get_filter('to_date', 'adj_to_date', ''),
+      'to_date' => get_filter('to_date', 'adj_to_date', ''),
       'remark' => get_filter('remark', 'adj_remark', ''),
       'status' => get_filter('status', 'adj_status', 'all'),
       'isApprove' => get_filter('isApprove', 'adj_isApprove', 'all'),
@@ -451,7 +451,7 @@ class Adjust extends PS_Controller
             {
               $sc = FALSE;
               $this->error = "บันทึกเอกสารไม่สำเร็จ";
-            }            
+            }
           }
           else
           {

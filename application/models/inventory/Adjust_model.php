@@ -9,7 +9,7 @@ class Adjust_model extends CI_Model
 
   public function get($code)
   {
-    if(!empty($code))
+    if( ! empty($code))
     {
       $rs = $this->db->where('code', $code)->get('adjust');
       if($rs->num_rows() === 1)
@@ -55,7 +55,7 @@ class Adjust_model extends CI_Model
 
   public function get_details($code)
   {
-    if(!empty($code))
+    if( ! empty($code))
     {
       $rs = $this->db
       ->select('adjust_detail.*')
@@ -108,7 +108,7 @@ class Adjust_model extends CI_Model
 
   public function add(array $ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds))
     {
       return $this->db->insert('adjust', $ds);
     }
@@ -120,7 +120,7 @@ class Adjust_model extends CI_Model
 
   public function add_detail(array $ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds))
     {
       return $this->db->insert('adjust_detail', $ds);
     }
@@ -283,7 +283,7 @@ class Adjust_model extends CI_Model
 
   public function update_issue_code($code, $issue_code)
   {
-    if(!empty($issue_code))
+    if( ! empty($issue_code))
     {
       return $this->db->set('issue_code', $issue_code)->where('code', $code)->update('adjust');
     }
@@ -295,7 +295,7 @@ class Adjust_model extends CI_Model
 
   public function update_receive_code($code, $receive_code)
   {
-    if(!empty($receive_code))
+    if( ! empty($receive_code))
     {
       return $this->db->set('receive_code', $receive_code)->where('code', $code)->update('adjust');
     }
@@ -329,149 +329,121 @@ class Adjust_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds['code']))
     {
-      $this->db
-      ->from('adjust')
-      ->join('user', 'adjust.user = user.uname','left');
-
-      if(!empty($ds['code']))
-      {
-        $this->db->like('adjust.code', $ds['code']);
-      }
-
-      if(!empty($ds['reference']))
-      {
-        $this->db->like('adjust.reference', $ds['reference']);
-      }
-
-      if(!empty($ds['user']))
-      {
-        $this->db->group_start();
-        $this->db->like('user.uname', $ds['user']);
-        $this->db->or_like('user.name', $ds['user']);
-        $this->db->group_end();
-      }
-
-      if(!empty($ds['from_date']) && !empty($ds['to_date']))
-      {
-        $this->db->where('adjust.date_add >=', from_date($ds['from_date']));
-        $this->db->where('adjust.date_add <=', to_date($ds['to_date']));
-      }
-
-      if(!empty($ds['remark']))
-      {
-        $this->db->like('adjust.remark', $ds['remark']);
-      }
-
-
-      if($ds['status'] !== 'all')
-      {
-        $this->db->where('adjust.status', $ds['status']);
-      }
-      else
-      {
-        if($ds['isApprove'] !== 'all')
-        {
-          $this->db->where('adjust.status !=', 2);
-        }
-      }
-
-      if($ds['isApprove'] !== 'all')
-      {
-        $this->db->where('adjust.is_approved', $ds['isApprove']);
-      }
-
-      if(isset($ds['sap']) && $ds['sap'] != 'all')
-      {
-        $this->db->where('is_complete', $ds['sap']);
-      }
-
-      return $this->db->count_all_results();
+      $this->db->like('code', $ds['code']);
     }
 
-    return FALSE;
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('reference', $ds['reference']);
+    }
+
+    if( isset($ds['user']) && $ds['user'] != 'all')
+    {
+      $this->db->where('user', $ds['user']);
+    }
+
+    if( ! empty($ds['from_date']) && !empty($ds['to_date']))
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    if( ! empty($ds['remark']))
+    {
+      $this->db->like('remark', $ds['remark']);
+    }
+
+
+    if($ds['status'] !== 'all')
+    {
+      $this->db->where('status', $ds['status']);
+    }
+    else
+    {
+      if($ds['isApprove'] !== 'all')
+      {
+        $this->db->where('status !=', 2);
+      }
+    }
+
+    if($ds['isApprove'] !== 'all')
+    {
+      $this->db->where('is_approved', $ds['isApprove']);
+    }
+
+    if(isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      $this->db->where('is_complete', $ds['sap']);
+    }
+
+    return $this->db->count_all_results('adjust');
   }
 
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
-    if(!empty($ds))
+    if( ! empty($ds['code']))
     {
-
-      $this->db
-      ->select('adjust.*')
-      ->select('user.name AS user_name')
-      ->from('adjust')
-      ->join('user', 'adjust.user = user.uname', 'left');
-
-      if(!empty($ds['code']))
-      {
-        $this->db->like('adjust.code', $ds['code']);
-      }
-
-      if(!empty($ds['reference']))
-      {
-        $this->db->like('adjust.reference', $ds['reference']);
-      }
-
-      if(!empty($ds['user']))
-      {
-        $this->db->group_start();
-        $this->db->like('user.uname', $ds['user']);
-        $this->db->or_like('user.name', $ds['user']);
-        $this->db->group_end();
-      }
-
-      if(!empty($ds['from_date']) && !empty($ds['to_date']))
-      {
-        $this->db->where('adjust.date_add >=', from_date($ds['from_date']));
-        $this->db->where('adjust.date_add <=', to_date($ds['to_date']));
-      }
-
-      if(!empty($ds['remark']))
-      {
-        $this->db->like('adjust.remark', $ds['remark']);
-      }
-
-
-      if($ds['status'] !== 'all')
-      {
-        $this->db->where('adjust.status', $ds['status']);
-      }
-      else
-      {
-        if($ds['isApprove'] !== 'all')
-        {
-          $this->db->where('adjust.status !=', 2);
-        }
-      }
-
-      if($ds['isApprove'] !== 'all')
-      {
-        $this->db->where('adjust.is_approved', $ds['isApprove']);
-      }
-
-      if(isset($ds['sap']) && $ds['sap'] != 'all')
-      {
-        $this->db->where('is_complete', $ds['sap']);
-      }
-
-
-      $this->db->order_by('adjust.code', 'DESC');
-
-      $this->db->limit($perpage, $offset);
-
-      $rs = $this->db->get();
-
-      if($rs->num_rows() > 0)
-      {
-        return $rs->result();
-      }
-
+      $this->db->like('code', $ds['code']);
     }
 
-    return FALSE;
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('reference', $ds['reference']);
+    }
+
+    if( isset($ds['user']) && $ds['user'] != 'all')
+    {
+      $this->db->where('user', $ds['user']);
+    }
+
+    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    {
+      $this->db->where('date_add >=', from_date($ds['from_date']));
+      $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    if( ! empty($ds['remark']))
+    {
+      $this->db->like('remark', $ds['remark']);
+    }
+
+    if(isset($ds['status']) && $ds['status'] !== 'all')
+    {
+      $this->db->where('status', $ds['status']);
+    }
+    else
+    {
+      if($ds['isApprove'] !== 'all')
+      {
+        $this->db->where('status !=', 2);
+      }
+    }
+
+    if($ds['isApprove'] !== 'all')
+    {
+      $this->db->where('is_approved', $ds['isApprove']);
+    }
+
+    if( isset($ds['sap']) && $ds['sap'] != 'all')
+    {
+      $this->db->where('is_complete', $ds['sap']);
+    }
+
+    $this->db->order_by('code', 'DESC');
+
+    $this->db->limit($perpage, $offset);
+
+    $rs = $this->db->get('adjust');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 
@@ -600,7 +572,7 @@ class Adjust_model extends CI_Model
   //--- add new doc
   public function add_sap_goods_issue($ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds))
     {
       $rs = $this->mc->insert('OIGE', $ds);
       if($rs)
@@ -615,7 +587,7 @@ class Adjust_model extends CI_Model
 
   public function add_sap_goods_issue_row($ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds))
     {
       return $this->mc->insert('IGE1', $ds);
     }
@@ -628,7 +600,7 @@ class Adjust_model extends CI_Model
   //--- add new doc
   public function add_sap_goods_receive($ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds))
     {
       $rs = $this->mc->insert('OIGN', $ds);
       if($rs)
@@ -643,7 +615,7 @@ class Adjust_model extends CI_Model
 
   public function add_sap_goods_receive_row($ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds))
     {
       return $this->mc->insert('IGN1', $ds);
     }
