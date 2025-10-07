@@ -132,7 +132,7 @@ class Adjust_model extends CI_Model
 
   public function update($code, array $ds = array())
   {
-    if(!empty($ds))
+    if( ! empty($ds))
     {
       return $this->db->where('code', $code)->update('adjust', $ds);
     }
@@ -304,6 +304,28 @@ class Adjust_model extends CI_Model
   }
 
 
+  public function is_complete_issue($code)
+  {
+    $count = $this->db
+    ->where('code', $code)
+    ->where('total_issue >', 0)
+    ->where('issue_code IS NULL', NULL, FALSE)
+    ->count_all_results('adjust');
+
+    return $count > 0 ? FALSE : TRUE;
+  }
+
+
+  public function is_complete_receive($code)
+  {
+    $count = $this->db
+    ->where('code', $code)
+    ->where('total_receive >', 0)
+    ->where('receive_code IS NULL', NULL, FALSE)
+    ->count_all_results('adjust');
+
+    return $count > 0 ? FALSE : TRUE;
+  }
 
   public function count_rows(array $ds = array())
   {
@@ -362,14 +384,7 @@ class Adjust_model extends CI_Model
 
       if(isset($ds['sap']) && $ds['sap'] != 'all')
       {
-        if($ds['sap'] == 0)
-        {
-          $this->db->where('issue_code IS NULL', NULL, FALSE)->where('receive_code IS NULL', NULL, FALSE);
-        }
-        else
-        {
-          $this->db->where('issue_code IS NOT NULL', NULL, FALSE)->where('receive_code IS NOT NULL', NULL, FALSE);
-        }
+        $this->db->where('is_complete', $ds['sap']);
       }
 
       return $this->db->count_all_results();
@@ -439,14 +454,7 @@ class Adjust_model extends CI_Model
 
       if(isset($ds['sap']) && $ds['sap'] != 'all')
       {
-        if($ds['sap'] == 0)
-        {
-          $this->db->where('issue_code IS NULL', NULL, FALSE)->where('receive_code IS NULL', NULL, FALSE);
-        }
-        else
-        {
-          $this->db->where('issue_code IS NOT NULL', NULL, FALSE)->where('receive_code IS NOT NULL', NULL, FALSE);
-        }
+        $this->db->where('is_complete', $ds['sap']);
       }
 
 

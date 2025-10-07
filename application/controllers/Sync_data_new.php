@@ -758,7 +758,13 @@ class Sync_data_new extends CI_Controller
 
         if(!empty($inv))
         {
-          $this->adjust_model->update_issue_code($rs->code, $inv->DocNum);
+          $is_complete = $this->adjust_model->is_complete_receive($rs->code) ? 1 : 0;
+          $arr = array(
+            'issue_code' => $inv->DocNum,
+            'is_complete' => $is_complete
+          );
+
+          $this->adjust_model->update($rs->code, $arr);
           $update++;
         }
       }
@@ -791,14 +797,19 @@ class Sync_data_new extends CI_Controller
         $count++;
         $inv = $this->adjust_model->get_sap_receive_doc($rs->code);
 
-        if(!empty($inv))
+        if( ! empty($inv))
         {
-          $this->adjust_model->update_receive_code($rs->code, $inv->DocNum);
+          $is_complete = $this->adjust_model->is_complete_issue($rs->code) ? 1 : 0;
+          $arr = array(
+            'receive_code' => $inv->DocNum,
+            'is_complete' => $is_complete
+          );
+
+          $this->adjust_model->update($rs->code, $arr);
           $update++;
         }
       }
     }
-
 
     $logs = array(
       'sync_item' => 'AJ-IGN',
@@ -808,7 +819,6 @@ class Sync_data_new extends CI_Controller
 
     //--- add logs
     $this->sync_data_model->add_logs($logs);
-
   }
 
 
