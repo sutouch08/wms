@@ -1,17 +1,13 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-  </div>
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-			<p class="pull-right top-p">
-			<?php if($this->pm->can_add) : ?>
-				<button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
-			<?php endif; ?>
-			</p>
-		</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+		<?php if($this->pm->can_add) : ?>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="goAdd()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
+		<?php endif; ?>
+	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
@@ -88,74 +84,67 @@
     </p>
   </div>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1">
+    <table class="table table-striped border-1" style="min-width:1250px;">
       <thead>
-        <tr>
-          <th class="fix-width-50 text-center">ลำดับ</th>
-          <th class="fix-width-100 text-center">วันที่</th>
-          <th class="fix-width-120">เลขที่เอกสาร</th>
+        <tr class="font-size-11">
+					<th class="fix-width-100"></th>
+          <th class="fix-width-50 text-center">#</th>
+          <th class="fix-width-80 text-center">วันที่</th>
+          <th class="fix-width-100">เลขที่เอกสาร</th>
+					<th class="fix-width-50 text-center">สถานะ</th>
+					<th class="fix-width-50 text-center">อนุมัติ</th>
+					<th class="fix-width-80 text-center">Receipt Qty</th>
+					<th class="fix-width-80 text-center">Issue Qty.</th>
+					<th class="fix-width-80 text-center">Receipt No.</th>
+					<th class="fix-width-80 text-center">Issue No.</th>
           <th class="fix-width-150">อ้างถึง</th>
           <th class="fix-width-150">พนักงาน</th>
-          <th class="max-width-200">หมายเหตุ</th>
-          <th class="fix-width-50 text-center">สถานะ</th>
-					<th class="fix-width-50 text-center">อนุมัติ</th>
-					<th class="fix-width-100"></th>
+					<th class="min-width-200">หมายเหตุ</th>
         </tr>
       </thead>
       <tbody>
 <?php if(!empty($list))  : ?>
 <?php $no = $this->uri->segment(4) + 1; ?>
 <?php   foreach($list as $rs)  : ?>
+        <tr class="font-size-11">
+					<td class="middle">
+						<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')">
+							<i class="fa fa-eye"></i>
+						</button>
+						<?php if($rs->status == 0 && $this->pm->can_edit) : ?>
+							<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')">
+								<i class="fa fa-pencil"></i>
+							</button>
+						<?php endif; ?>
 
-        <tr class="font-size-12">
-
+						<?php if($rs->status != 2 && $this->pm->can_delete && (empty($rs->issue_code) && empty($rs->receive_code))) : ?>
+							<button type="button" class="btn btn-minier btn-danger" onclick="goCancle('<?php echo $rs->code; ?>')">
+								<i class="fa fa-trash"></i>
+							</button>
+						<?php endif; ?>
+					</td>
           <td class="middle text-center"><?php echo $no; ?></td>
-
           <td class="middle"><?php echo thai_date($rs->date_add); ?></td>
-
           <td class="middle"><?php echo $rs->code; ?></td>
-
-          <td class="middle"><?php echo $rs->reference; ?></td>
-
-          <td class="middle"><?php echo $rs->user_name; ?></td>
-
-          <td class="middle"><?php echo $rs->remark; ?></td>
-
-          <td class="middle text-center">
+					<td class="middle text-center">
+						<?php if($rs->status == 1) : ?>
+							<span class="green">OK</span>
+						<?php endif; ?>
 						<?php if($rs->status == 0) : ?>
 							<span class="blue">NC</span>
 						<?php endif; ?>
 						<?php if($rs->status == 2) : ?>
 							<span class="red">CN</span>
 						<?php endif; ?>
-          </td>
-
-					<td class="middle text-center">
-						<?php
-						if($rs->is_approved)
-						{
-							echo is_active($rs->is_approved);
-						}
-						?>
 					</td>
-
-					<td class="middle text-right">
-						<button type="button" class="btn btn-mini btn-info" onclick="goDetail('<?php echo $rs->code; ?>')">
-							<i class="fa fa-eye"></i>
-						</button>
-
-						<?php if($rs->status == 0 && $this->pm->can_edit) : ?>
-							<button type="button" class="btn btn-mini btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')">
-								<i class="fa fa-pencil"></i>
-							</button>
-						<?php endif; ?>
-
-						<?php if($rs->status != 2 && $this->pm->can_delete && (empty($rs->issue_code) && empty($rs->receive_code))) : ?>
-							<button type="button" class="btn btn-mini btn-danger" onclick="goCancle('<?php echo $rs->code; ?>')">
-								<i class="fa fa-trash"></i>
-							</button>
-						<?php endif; ?>
-					</td>
+					<td class="middle text-center"><?php echo $rs->is_approved ? is_active($rs->is_approved) : ""; ?></td>
+					<td class="middle text-center"><?php echo ac_format($rs->total_receive); ?></td>
+					<td class="middle text-center"><?php echo ac_format($rs->total_issue); ?></td>
+					<td class="middle text-center"><?php echo $rs->receive_code; ?></td>
+					<td class="middle text-center"><?php echo $rs->issue_code; ?></td>
+          <td class="middle"><?php echo $rs->reference; ?></td>
+          <td class="middle"><?php echo $rs->user_name; ?></td>
+					<td class="middle"><?php echo $rs->remark; ?></td>
         </tr>
 <?php  $no++; ?>
 <?php endforeach; ?>

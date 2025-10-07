@@ -245,6 +245,7 @@ class Adjust_model extends CI_Model
     ->where('status', 1)
     ->where('is_approved', 1)
     ->where('issue_code IS NULL', NULL, FALSE)
+    ->where('total_issue >', 0)
     ->order_by('code', 'ASC')
     ->limit($limit)
     ->get();
@@ -266,6 +267,7 @@ class Adjust_model extends CI_Model
     ->where('status', 1)
     ->where('is_approved', 1)
     ->where('receive_code IS NULL', NULL, FALSE)
+    ->where('total_receive >', 0)
     ->order_by('code', 'ASC')
     ->limit($limit)
     ->get();

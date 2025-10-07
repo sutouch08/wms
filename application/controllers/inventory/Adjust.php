@@ -429,14 +429,29 @@ class Adjust extends PS_Controller
         if($doc->status == 0)
         {
           $details = $this->adjust_model->get_details($code);
-          if(!empty($details))
+
+          if( ! empty($details))
           {
-            $status = 1; //--- 0 = not save, 1 = saved, 2 = cancled
-            if( ! $this->adjust_model->change_status($code, $status))
+            $receiveQty = 0;
+            $issueQty = 0;
+
+            foreach($details as $rs)
+            {
+              $receiveQty += $rs->qty > 0 ? $rs->qty : 0;
+              $issueQty += $rs->qty < 0 ? ($rs->qty * -1) : 0;
+            }
+
+            $arr = array(
+              'status' => 1,
+              'total_receive' => $receiveQty,
+              'total_issue' => $issueQty
+            );
+
+            if( ! $this->adjust_model->update($code, $arr))
             {
               $sc = FALSE;
-              $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
-            }
+              $this->error = "บันทึกเอกสารไม่สำเร็จ";
+            }            
           }
           else
           {
@@ -464,7 +479,6 @@ class Adjust extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
-
 
 
   public function do_approve()
@@ -1012,7 +1026,7 @@ class Adjust extends PS_Controller
       {
         $sc = FALSE;
         $this->error = trim($this->export->error);
-      }      
+      }
     }
     else
     {

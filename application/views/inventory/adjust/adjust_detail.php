@@ -88,7 +88,7 @@ if($doc->status == 2)
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped border-1" style="min-width:990px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
           <th class="fix-width-40 text-center">ลำดับ</th>
           <th class="fix-width-200">รหัสสินค้า</th>
           <th class="min-width-300">สินค้า</th>
@@ -98,10 +98,14 @@ if($doc->status == 2)
         </tr>
       </thead>
       <tbody id="detail-table">
+<?php $total_receive = 0; ?>
+<?php $total_issue = 0; ?>
 <?php if(!empty($details)) : ?>
 <?php   $no = 1;    ?>
 <?php   foreach($details as $rs) : ?>
-      <tr class="font-size-12 rox" id="row-<?php echo $rs->id; ?>">
+	<?php $receive_qty = $rs->qty > 0 ? $rs->qty : 0; ?>
+	<?php $issue_qty = $rs->qty < 0 ? ($rs->qty * -1) : 0; ?>
+      <tr class="font-size-11 rox" id="row-<?php echo $rs->id; ?>">
         <td class="middle text-center no">
           <?php echo $no; ?>
         </td>
@@ -115,14 +119,21 @@ if($doc->status == 2)
           <?php echo $rs->zone_name; ?>
         </td>
         <td class="middle text-center" id="qty-up-<?php echo $rs->id; ?>">
-          <?php echo $rs->qty > 0 ? ($rs->qty * 1) : 0 ; ?>
+          <?php echo ac_format($receive_qty) ; ?>
         </td>
         <td class="middle text-center" id="qty-down-<?php echo $rs->id; ?>">
-          <?php echo $rs->qty < 0 ? ($rs->qty * -1) : 0 ; ?>
+          <?php echo ac_format($issue_qty) ; ?>
         </td>
       </tr>
 <?php     $no++; ?>
+<?php $total_receive += $receive_qty; ?>
+<?php $total_issue += $issue_qty; ?>
 <?php   endforeach; ?>
+			<tr>
+				<td colspan="4" class="text-right">Total</td>
+				<td class="text-center"><?php echo number($total_receive); ?></td>
+				<td class="text-center"><?php echo number($total_issue); ?></td>
+			</tr>
 <?php endif; ?>
       </tbody>
     </table>

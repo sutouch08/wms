@@ -761,7 +761,6 @@ class Sync_data_new extends CI_Controller
           $this->adjust_model->update_issue_code($rs->code, $inv->DocNum);
           $update++;
         }
-
       }
     }
 
@@ -797,7 +796,6 @@ class Sync_data_new extends CI_Controller
           $this->adjust_model->update_receive_code($rs->code, $inv->DocNum);
           $update++;
         }
-
       }
     }
 
