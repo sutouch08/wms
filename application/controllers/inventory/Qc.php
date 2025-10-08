@@ -599,7 +599,7 @@ class Qc extends PS_Controller
               if($box->qty > 0)
               {
                 $cod = $order->role === 'S' ? ($order->payment_role == 4 ? 1 : 0) : 0;
-                $cod_amount = $cod === 1 ? ($order->cod_amount == 0 ? $doc_total : $order->cod_amount) : 0.00;
+                $cod_amount = $cod === 1 ? ($order->cod_amount == 0 ? $order->doc_total : $order->cod_amount) : 0.00;
                 $packages[] = array(
                   'order_id' => $box->code,
                   'sender_info' => [
