@@ -56,5 +56,27 @@ class Stock_balance_report_model extends CI_Model
   }
 
 
+  public function get_warehouse_stock($whsCode, $limit = 100, $offset = 0)
+  {
+    $rs = $this->ms
+    ->select('W.WhsCode, W.OnHand, WH.WhsName, I.ItemCode, I.ItemName, P.Price AS Cost')
+    ->from('OITW AS W')
+    ->join('OWHS AS WH', 'W.WhsCode = WH.WhsCode', 'left')
+    ->join('OITM AS I', 'W.ItemCode = I.ItemCode', 'left')
+    ->join('ITM1 AS P', 'I.ItemCode = P.ItemCode AND P.PriceList = 13', 'left')
+    ->where('W.WhsCode', $whsCode)
+    ->where('W.OnHand >', 0, FALSE)
+    ->order_by('W.ItemCode', 'ASC')
+    ->limit($limit, $offset)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 }
  ?>

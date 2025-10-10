@@ -56,7 +56,14 @@
 			<?php echo select_channels($doc->channels_code); ?>
 		</select>
 	</div>
-  <div class="col-lg-11 col-md-8 col-sm-8 col-xs-9 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-12 padding-5">
+		<label>การจัดส่ง</label>
+		<select class="width-100 e" id="sender" disabled>
+			<option value="">ไม่ระบุ</option>
+			<?php echo select_sender($doc->sender_id); ?>
+		</select>
+	</div>
+  <div class="col-lg-9 col-md-6 col-sm-5-harf col-xs-9 padding-5">
     <label>หมายเหตุ</label>
 		<input type="text" class="width-100 e" id="remark" value="<?php echo $doc->remark; ?>" disabled/>
   </div>
@@ -73,7 +80,7 @@
 	$('#warehouse').select2();
 	$('#zone').select2();
 	$('#channels').select2();
-  $('#channels-code').select2();
+	$('#sender').select2();
 
 	function printPickListQr() {
 		let code = $('#code').val();

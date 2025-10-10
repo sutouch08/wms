@@ -48,7 +48,7 @@
 	<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-12 padding-5">
 		<label>การจัดส่ง</label>
 		<select class="width-100 e" id="sender" disabled>
-			<option value="">เลือกการจัดส่ง</option>
+			<option value="">ไม่ระบุ</option>
 			<?php echo select_sender($doc->sender_id); ?>
 		</select>
 	</div>
