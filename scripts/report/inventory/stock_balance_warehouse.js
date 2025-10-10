@@ -1,64 +1,5 @@
 var HOME = BASE_URL + 'report/inventory/stock_balance_warehouse/';
 
-function toggleAllProduct(option){
-  $('#allProduct').val(option);
-  if(option == 1){
-    $('#btn-pd-all').addClass('btn-primary');
-    $('#btn-pd-range').removeClass('btn-primary');
-    $('#pdFrom').val('');
-    $('#pdFrom').attr('disabled', 'disabled');
-    $('#pdTo').val('');
-    $('#pdTo').attr('disabled', 'disabled');
-    return
-  }
-
-  if(option == 0){
-    $('#btn-pd-all').removeClass('btn-primary');
-    $('#btn-pd-range').addClass('btn-primary');
-    $('#pdFrom').removeAttr('disabled');
-    $('#pdTo').removeAttr('disabled');
-    $('#pdFrom').focus();
-  }
-}
-
-
-$('#pdFrom').autocomplete({
-  source : BASE_URL + 'auto_complete/get_style_code',
-  autoFocus:true,
-  close:function(){
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    var pdFrom = arr[0];
-    $(this).val(pdFrom);
-    var pdTo = $('#pdTo').val();
-    if(pdTo.length > 0 && pdFrom.length > 0){
-      if(pdFrom > pdTo){
-        $('#pdTo').val(pdFrom);
-        $('#pdFrom').val(pdTo);
-      }
-    }
-  }
-});
-
-
-$('#pdTo').autocomplete({
-  source:BASE_URL + 'auto_complete/get_style_code',
-  autoFocus:true,
-  close:function(){
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    var pdTo = arr[0];
-    $(this).val(pdTo);
-    var pdFrom = $('#pdFrom').val();
-    if(pdTo.length > 0 && pdFrom.length > 0){
-      if(pdFrom > pdTo){
-        $('#pdTo').val(pdFrom);
-        $('#pdFrom').val(pdTo);
-      }
-    }
-  }
-})
-
 function toggleAllWarehouse(option){
   $('#allWarehouse').val(option);
   if(option == 1){
@@ -74,84 +15,6 @@ function toggleAllWarehouse(option){
   }
 }
 
-
-function getReport(){
-  var allProduct = $('#allProduct').val();
-  var allWhouse = $('#allWarehouse').val();
-  var pdFrom = $('#pdFrom').val();
-  var pdTo = $('#pdTo').val();
-
-  if(allProduct == 0){
-    if(pdFrom.length == 0){
-      $('#pdFrom').addClass('has-error');
-      return false;
-    }else{
-      $('#pdFrom').removeClass('has-error');
-    }
-
-    if(pdTo.length == 0){
-      $('#pdTo').addClass('has-error');
-      return false;
-    }else{
-      $('#pdTo').removeClass('has-error');
-    }
-  }else{
-    $('#pdFrom').removeClass('has-error');
-    $('#pdTo').removeClass('has-error');
-  }
-
-
-  if(allWhouse == 0){
-    var count = $('.chk:checked').length;
-    if(count == 0){
-      $('#wh-modal').modal('show');
-      return false;
-    }
-  }
-
-  var data = [
-    {'name' : 'allProduct', 'value' : allProduct},
-    {'name' : 'allWhouse' , 'value' : allWhouse},
-    {'name' : 'pdFrom', 'value' : pdFrom},
-    {'name' : 'pdTo', 'value' : pdTo}
-  ];
-
-  if(allWhouse == 0){
-    $('.chk').each(function(index, el) {
-      if($(this).is(':checked')){
-        let names = 'warehouse['+$(this).val()+']';
-        data.push({'name' : names, 'value' : $(this).val() });
-      }
-    });
-  }
-
-  load_in();
-
-  $.ajax({
-    url:HOME + 'get_report',
-    type:'GET',
-    cache:'false',
-    data:data,
-    success:function(rs){
-      load_out();
-      var rs = $.trim(rs);
-      if(isJson(rs)){
-        var source = $('#template').html();
-        var data = $.parseJSON(rs);
-        var output = $('#rs');
-        render(source,  data, output);
-      }
-      else {
-        swal({
-          title:'Oops !',
-          text:rs,
-          type:'warning'
-        });
-      }
-    }
-  });
-
-}
 
 var label = $('#txt-label');
 var totalLabel = $('#total-label');
@@ -210,7 +73,7 @@ function doExport() {
 
 
 function getReport() {
-  label.text('Getting data...');
+  label.html('Getting data ...');
 
   if(whsList.length) {
     totalWhs = whsList.length;
@@ -257,7 +120,7 @@ function countWhsItems() {
   totalWhsItems = 0;
   cuurrentWhsItems = 0;
   offset = 0;
-  label.html("กำลังคำนวนรายการจากคลัง " + whsName +" .....");
+  label.html("กำลังคำนวนรายการจากคลัง " + whsName);
 
   $.ajax({
     url:HOME + 'countWhsItems',
@@ -348,7 +211,7 @@ function getData() {
             }
           }
 
-          if((currentWhs +1) == totalWhs && currentStock == totalStock) {
+          if(currentWhs == totalWhs && currentStock == totalStock) {
             createFile();
           }
         }
@@ -374,7 +237,7 @@ function createFile() {
   XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
 
   /* fix headers */
-  XLSX.utils.sheet_add_aoa(worksheet, [["รหัสคลัง", "รหัสสินค้า", "สินค้า", "ทุน (มาตรฐาน)", "คงเหลือ", "มูลค่า"]], { origin:"A1"});
+  XLSX.utils.sheet_add_aoa(worksheet, [["รหัสคลัง", "ชื่อคลัง", "รหัสสินค้า", "สินค้า", "ทุน (มาตรฐาน)", "คงเหลือ"]], { origin:"A1"});
 
   XLSX.writeFile(workbook, "Stock_By_Warehouse_Report.xlsx", {compression:true});
 

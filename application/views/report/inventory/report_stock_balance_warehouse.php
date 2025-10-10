@@ -11,10 +11,11 @@
      #ddd;
     animation: l7 1s infinite steps(6);
   }
+
   @keyframes l7 {
       100% {background-position: right -25% top 0}
   }
-
+  
   #txt-label, #total-label {
     font-size: 16px;
     padding-bottom: 10px;
