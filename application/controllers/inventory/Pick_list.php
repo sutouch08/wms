@@ -26,6 +26,7 @@ class Pick_list extends PS_Controller
     $this->load->helper('channels');
     $this->load->helper('warehouse');
     $this->load->helper('zone');
+    $this->load->helper('sender');
     $this->load->library('user_agent');
 
     $this->is_mobile = $this->agent->is_mobile();
@@ -43,7 +44,8 @@ class Pick_list extends PS_Controller
       'status' => get_filter('status', 'pl_status', 'all'),
       'is_exported' => get_filter('is_exported', 'pl_is_exported', 'all'),
       'from_date' => get_filter('from_date', 'pl_from_date', ''),
-      'to_date' => get_filter('to_date', 'pl_to_date', '')
+      'to_date' => get_filter('to_date', 'pl_to_date', ''),
+      'sender_id' => get_filter('sender_id', 'pl_sender_id', 'all')
     );
 
     if($this->input->post('search'))
@@ -465,7 +467,7 @@ class Pick_list extends PS_Controller
       echo $this->error;
     }
   }
-  
+
 
   public function get_stock_in_zone($item_code, $warehouse = NULL)
   {
@@ -833,6 +835,7 @@ class Pick_list extends PS_Controller
           'date_add' => $date_add,
           'bookcode' => 'MV',
           'channels_code' => get_null($ds->channels_code),
+          'sender_id' => empty($ds->sender_id) ? 0 : $ds->sender_id,
           'warehouse_code' => $ds->warehouse_code,
           'zone_code' => $ds->zone_code,
           'user' => $this->_user->uname,
@@ -905,6 +908,7 @@ class Pick_list extends PS_Controller
         $arr = array(
           'date_add' => $date_add,
           'channels_code' => get_null($ds->channels_code),
+          'sender_id' => empty($ds->sender_id) ? 0 : $ds->sender_id,
           'warehouse_code' => $ds->warehouse_code,
           'zone_code' => $ds->zone_code,
           'user' => $this->_user->uname,
@@ -1342,6 +1346,7 @@ class Pick_list extends PS_Controller
       $ds = array(
         'code' => $filter->order_code,
         'channels' => $filter->channels,
+        'sender_id' => $filter->sender_id,
         'customer' => $filter->customer,
         'warehouse_code' => $filter->warehouse_code,
         'from_date' => $filter->from_date,
@@ -1364,6 +1369,7 @@ class Pick_list extends PS_Controller
             'id' => $rs->id,
             'code' => $rs->code,
             'channels' => $rs->channels_name,
+            'sender' => $rs->sender_name,
             'customer' => $rs->customer_name,
             'date_add' => thai_date($rs->date_add, FALSE),
             'pick_list_id' => $rs->pick_list_id,
@@ -1473,6 +1479,7 @@ class Pick_list extends PS_Controller
   {
     $orders = [];
     $doc = $this->pick_list_model->get($code);
+    $doc->sender_name = sender_name($doc->sender_id);
     $ds = $this->pick_list_model->get_pick_orders($code);
 
     if( ! empty($ds))

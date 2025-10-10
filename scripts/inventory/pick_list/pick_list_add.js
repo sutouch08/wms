@@ -12,6 +12,7 @@ function add() {
     'warehouse_code' : $('#warehouse').val(),
     'zone_code' : $('#zone').val(),
     'channels_code' : $('#channels').val(),
+    'sender_id' : $('#sender').val(),
     'remark' : $('#remark').val().trim()
   };
 
@@ -82,6 +83,7 @@ function update() {
     'warehouse_code' : $('#warehouse').val(),
     'zone_code' : $('#zone').val(),
     'channels_code' : $('#channels').val(),
+    'sender_id' : $('#sender').val(),
     'remark' : $('#remark').val().trim()
   };
 

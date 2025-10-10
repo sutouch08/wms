@@ -33,22 +33,22 @@
 			<h4 class="title">ตัวกรอง</h4>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-6 padding-5 fi">
 			<label>เลขที่เอกสาร</label>
 			<input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-6 padding-5 fi">
 			<label>อ้างอิง</label>
 			<input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2 col-xs-6 padding-5 fi">
 			<label>ลูกค้า</label>
 			<input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
 		</div>
 
-		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-2-harf col-md-4-harf col-sm-2-harf col-xs-6 padding-5 fi">
 			<label>พนักงาน</label>
 			<select class="width-100 filter" id="user" name="user">
 				<option value="all">ทั้งหมด</option>
@@ -56,7 +56,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-2 col-md-3-harf col-sm-3-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-3 col-md-4 col-sm-3-harf col-xs-6 padding-5 fi">
 			<label>คลัง</label>
 			<select class="width-100" name="warehouse" id="warehouse">
 				<option value="all">ทั้งหมด</option>
@@ -64,7 +64,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5 fi">
+		<div class="col-lg-2 col-md-3-harf col-sm-3 col-xs-6 padding-5 fi">
 			<label>ช่องทางขาย</label>
 			<select class="width-100" name="channels" id="channels">
 				<option value="all">ทั้งหมด</option>
@@ -72,7 +72,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 	    <label>Shop Name</label>
 			<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -130,7 +130,15 @@
 			</div>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
+		<div class="col-lg-2-harf col-md-4-harf col-sm-3 col-xs-12 padding-5">
+	    <label>การจัดส่ง</label>
+	    <select class="width-100 filter" name="id_sender" id="sender">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_sender($id_sender); ?>
+			</select>
+	  </div>
+
+		<div class="col-lg-1-harf col-md-2 col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>สถานะ</label>
 			<select class="form-control input-sm" name="stated">
 				<option value="">เลือกสถานะ</option>
@@ -142,21 +150,21 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-3 padding-5 fi">
 			<label>เริ่มต้น</label>
 			<select class="form-control input-sm" name="startTime">
 				<?php echo selectTime($startTime); ?>
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-3 padding-5 fi">
 			<label>สิ้นสุด</label>
 			<select class="form-control input-sm" name="endTime">
 				<?php echo selectTime($endTime); ?>
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6 padding-5 fi">
+		<div class="col-lg-1-harf col-md-4 col-sm-3 col-xs-12 padding-5 fi">
 			<label>รหัสสินค้า</label>
 			<input type="text" class="form-control input-sm search" name="item_code" id="item_code" value="<?php echo $item_code; ?>" />
 		</div>
@@ -218,6 +226,7 @@
 					<th class="fix-width-150 middle hidden-xs">เลขที่เอกสาร</th>
 					<th class="fix-width-150 middle hidden-xs">เลขที่อ้างอิง</th>
 					<th class="fix-width-100 middle hidden-xs">ช่องทาง</th>
+					<th class="fix-width-150 middle hidden-xs">การจัดส่ง</th>
 					<th class="fix-width-100 middle text-center hidden-xs">จำนวน</th>
 					<th class="fix-width-150 middle hidden-xs">พนักงาน</th>
 					<th class="fix-width-300 middle hidden-xs">ลูกค้า/ผู้เบิก</th>
@@ -264,6 +273,7 @@
               <td class="middle hidden-xs"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
 							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
 							<td class="middle hidden-xs"><?php echo $rs->channels_name; ?></td>
+							<td class="middle hidden-xs"><?php echo $rs->sender_name; ?></td>
 							<td class="middle text-center hidden-xs"><?php echo number($rs->qty); ?></td>
 							<td class="middle hidden-xs"><?php echo empty($dName[$rs->update_user]) ? NULL : $dName[$rs->update_user]; ?></td>
 							<td class="middle hidden-xs">
@@ -294,6 +304,7 @@
 										<?php if($rs->role == 'S') : ?>
 										<p class="margin-bottom-3 pre-wrap"><b>ช่องทางขาย : </b> <?php echo $rs->channels_name; ?></p>
 										<?php endif; ?>
+										<p class="margin-bottom-3 pre-wrap"><b>การจัดส่ง : </b> <?php echo $rs->sender_name; ?></p>
 										<?php if( ! empty($rs->zone_code)) : ?>
 											<p class="margin-bottom-3 pre-wrap"><b>โซน : </b> <?php echo $zName[$rs->zone_code]; ?></p>
 										<?php endif; ?>
@@ -314,7 +325,7 @@
           <?php endforeach; ?>
         <?php else : ?>
           <tr>
-            <td colspan="8" class="text-center">--- No content ---</td>
+            <td colspan="12" class="text-center">--- No content ---</td>
           </tr>
         <?php endif; ?>
 			</tbody>
@@ -370,6 +381,7 @@
 	$('#user').select2();
 	$('#warehouse').select2();
 	$('#channels').select2();
+	$('#sender').select2();
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_list.js?v=<?php echo date('YmdH'); ?>"></script>

@@ -1,11 +1,18 @@
 <div class="row">
-  <div class="col-lg-1-harf col-md-2-harf col-sm-3-harf col-xs-6 padding-5">
+  <div class="col-lg-2-harf col-md-2-harf col-sm-3-harf col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
     <select class="width-100" id="channels-code" <?php echo empty($doc->channels_code) ? "" : "disabled"; ?>>
       <option value="all">เลือกช่องทางขาย</option>
       <?php echo select_channels($doc->channels_code); ?>
     </select>
   </div>
+  <div class="col-lg-2-harf col-md-2 col-sm-2-harf col-xs-12 padding-5">
+		<label>การจัดส่ง</label>
+		<select class="width-100 e" id="sender-id">
+			<option value="">เลือกการจัดส่ง</option>
+			<?php echo select_sender($doc->sender_id); ?>
+		</select>
+	</div>
   <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-group width-100">
@@ -13,7 +20,7 @@
       <input type="text" class="form-control input-sm width-50 text-center" id="order-to-date" value="" />
     </div>
   </div>
-  <div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
+  <div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="width-100" id="customer" />
   </div>
@@ -67,7 +74,7 @@
        <div class="modal-body">
          <div class="row">
            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" style="max-height:60vh; overflow:auto;">
-             <table class="table table-striped border-1 tableFixHead" style="min-width:800px;">
+             <table class="table table-striped border-1 tableFixHead" style="min-width:950px;">
                <thead>
                  <tr>
                    <th class="fix-width-50 text-center fix-header">
@@ -80,6 +87,7 @@
                    <th class="fix-width-100 text-center fix-header">วันที่</th>
                    <th class="fix-width-150 fix-header">เลขที่</th>
                    <th class="fix-width-150 fix-header">ช่องทางขาย</th>
+                   <th class="fix-width-150 fix-header">การจัดส่ง</th>
                    <th class="fix-width-150 fix-header">SKU</th>
                    <th class="min-width-200 fix-header">ลูกค้า</th>
                  </tr>
@@ -113,6 +121,7 @@
       <td class="text-center">{{date_add}}</td>
       <td class="">{{code}}</td>
       <td class="">{{channels}}</td>
+      <td class="">{{sender}}</td>
       <td class="">{{product_code}}</td>
       <td class="">{{customer}}</td>
     </tr>

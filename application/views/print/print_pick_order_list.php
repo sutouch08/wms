@@ -16,9 +16,12 @@ if( ! empty($orders))
   $c = 1;
 
   $sc .= '<tr>';
-  $sc .= '<td colspan="5" class="text-center">';
+  $sc .= '<td colspan="2" class="text-center">';
   $sc .=  '<image src="data:image/png;base64,'.$doc->qrcode.'" style="width:20mm;"/>';
   $sc .=  '<span class="display-block font-size-18">'.$doc->code.'</span>';
+  $sc .= '</td>';
+  $sc .= '<td colspan="3" class="middle font-size-24 text-center">';
+  $sc .=  $doc->sender_name;
   $sc .= '</td>';
   $sc .= '</tr>';
 

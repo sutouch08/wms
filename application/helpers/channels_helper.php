@@ -33,6 +33,7 @@ function get_channels_array()
   return $ci->channels_model->get_channels_array();
 }
 
+
 function select_dispatch_channels($code = NULL)
 {
   $sc = '';
@@ -61,5 +62,25 @@ function channels_name($code = NULL)
   $ci->load->model('masters/channels_model');
 
   return $ci->channels_model->get_name($code);
+}
+
+
+function channels_array()
+{
+  $ds = [];
+  $ci =& get_instance();
+  $ci->load->model('masters/channels_model');
+
+  $channels = $ci->channels_model->get_all();
+
+  if( ! empty($channels))
+  {
+    foreach($channels as $rs)
+    {
+      $ds[$rs->code] = $rs->name;
+    }
+  }
+
+  return $ds;
 }
  ?>

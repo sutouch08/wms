@@ -49,6 +49,14 @@
 		</select>
   </div>
 
+	<div class="col-lg-2-harf col-md-3-harf col-sm-3 col-xs-6 padding-5">
+    <label>การจัดส่ง</label>
+    <select class="width-100 filter" name="sender_id" id="sender">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_sender($sender_id); ?>
+		</select>
+  </div>
+
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" onchange="getSearch()">
@@ -93,7 +101,7 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1" style="min-width:1000px;">
+		<table class="table table-striped table-hover border-1" style="min-width:1150px;">
 			<thead>
 				<tr>
 					<th class="fix-width-150 middle"></th>
@@ -102,6 +110,7 @@
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
 					<th class="fix-width-150 middle">ช่องทางขาย</th>
+					<th class="fix-width-150 middle">การจัดส่ง</th>
 					<th class="fix-width-150 middle">โซนปลายทาง</th>
 					<th class="fix-width-100 middle">คลัง</th>
 					<th class="min-width-100 middle">พนักงาน</th>
@@ -110,7 +119,11 @@
 			<tbody>
         <?php if(!empty($list)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
+					<?php $sdn = sender_array(); ?>
+					<?php $chs = channels_array(); ?>
           <?php foreach($list as $rs) : ?>
+						<?php $channelsName = empty($rs->channels_code) ? NULL : (empty($chs[$rs->channels_code]) ? NULL : $chs[$rs->channels_code]); ?>
+						<?php $senderName = empty($rs->sender_id) ? NULL : (empty($sdn[$rs->sender_id]) ? NULL : $sdn[$rs->sender_id]['name']); ?>
             <tr id="row-<?php echo $rs->code; ?>">
 							<td class="middle">
 								<button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
@@ -143,7 +156,8 @@
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle"><?php echo $rs->code; ?></td>
-							<td class="middle"><?php echo ( ! empty($rs->channels_code) ? $this->channels_model->get_name($rs->channels_code) : ""); ?></td>
+							<td class="middle"><?php echo $channelsName; ?></td>
+							<td class="middle"><?php echo $senderName; ?></td>
 							<td class="middle"><?php echo $this->zone_model->get_name($rs->zone_code); ?></td>
               <td class="middle"><?php echo $rs->warehouse_code; ?></td>
               <td class="middle"><?php echo $rs->user; ?></td>
@@ -166,6 +180,7 @@
 	$('#zone').select2();
 	$('#channels').select2();
 	$('#user').select2();
+	$('#sender').select2();
 
 	function export_to_sap(code)
 	{

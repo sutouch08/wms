@@ -278,6 +278,11 @@ class Prepare_model extends CI_Model
       $this->db->where('is_cancled', $ds['is_cancled']);
     }
 
+    if(isset($ds['id_sender']) && $ds['id_sender'] != 'all')
+    {
+      $this->db->where('o.id_sender', $ds['id_sender']);
+    }
+
     if( ! empty($ds['code']))
     {
       $this->db->like('o.code', $ds['code']);
@@ -389,10 +394,11 @@ class Prepare_model extends CI_Model
     $this->db
 		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
     ->select('o.customer_ref, o.date_add, o.channels_code, o.is_backorder, o.is_cancled, o.shop_id')
-    ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user')
-    ->select('ch.name AS channels_name')
+    ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user, o.id_sender')
+    ->select('ch.name AS channels_name, s.name AS sender_name')
     ->from('orders AS o')
-    ->join('channels AS ch', 'ch.code = o.channels_code','left');
+    ->join('channels AS ch', 'ch.code = o.channels_code','left')
+    ->join('address_sender AS s', 'o.id_sender = s.id', 'left');
 
     if( ! empty($ds['item_code']))
     {
@@ -416,6 +422,11 @@ class Prepare_model extends CI_Model
     if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
     {
       $this->db->where('is_cancled', $ds['is_cancled']);
+    }
+
+    if(isset($ds['id_sender']) && $ds['id_sender'] != 'all')
+    {
+      $this->db->where('o.id_sender', $ds['id_sender']);
     }
 
     if( ! empty($ds['code']))

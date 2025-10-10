@@ -49,6 +49,7 @@ function getOrderList() {
     'from_date' : $('#order-from-date').val(),
     'to_date' : $('#order-to-date').val(),
     'channels' : $('#channels-code').val(),
+    'sender_id' : $('#sender-id').val(),
     'customer' : $('#customer').val().trim(),
     'order_code' : $('#order-code').val().trim(),
     'is_pick_list' : $('#is-pick-list').val(),

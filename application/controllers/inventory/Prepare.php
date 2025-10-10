@@ -31,6 +31,7 @@ class Prepare extends PS_Controller
     $this->load->helper('payment_method');
     $this->load->helper('warehouse');
     $this->load->helper('zone');
+    $this->load->helper('sender');
 
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
@@ -52,7 +53,8 @@ class Prepare extends PS_Controller
       'payment' => get_filter('payment', 'ic_payment', 'all'),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all'),
-      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
     );
 
     if($this->input->post('search'))
@@ -84,6 +86,7 @@ class Prepare extends PS_Controller
     $this->load->helper('payment_method');
     $this->load->helper('warehouse');
     $this->load->helper('zone');
+    $this->load->helper('sender');
 
     $filter = array(
       'code' => get_filter('code', 'ic_code', ''),
@@ -105,7 +108,8 @@ class Prepare extends PS_Controller
       'payment' => get_filter('payment', 'ic_payment', 'all'),
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all'),
-      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all')
+      'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
     );
 
     if($this->input->post('search'))
@@ -944,7 +948,8 @@ class Prepare extends PS_Controller
       'ic_payment',
       'ic_warehouse',
       'ic_is_backorder',
-      'ic_is_cancled'
+      'ic_is_cancled',
+      'ic_id_sender'
     );
 
     clear_filter($filter);

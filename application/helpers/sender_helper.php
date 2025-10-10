@@ -145,5 +145,24 @@ function sender_name($id)
   return $ci->sender_model->get_name($id);
 }
 
+function sender_array()
+{
+  $ds = [];
+
+  $ci =& get_instance();
+  $ci->load->model('masters/sender_model');
+  $list = $ci->sender_model->get_all();
+
+  if( ! empty($list))
+  {
+    foreach($list as $rs)
+    {
+      $ds[$rs->id] = ['code' => $rs->code, 'name' => $rs->name];
+    }
+  }
+
+  return $ds;
+}
+
 
  ?>

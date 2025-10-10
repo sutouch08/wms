@@ -42,10 +42,20 @@
 			<?php echo select_channels(); ?>
 		</select>
 	</div>
-  <div class="col-lg-11 col-md-8 col-sm-8 col-xs-9 padding-5">
+
+	<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-12 padding-5">
+		<label>การจัดส่ง</label>
+		<select class="width-100 e" id="sender">
+			<option value="">เลือกการจัดส่ง</option>
+			<?php echo select_sender(); ?>
+		</select>
+	</div>
+
+  <div class="col-lg-9 col-md-6 col-sm-5-harf col-xs-9 padding-5">
     <label>หมายเหตุ</label>
 		<input type="text" class="width-100 e" id="remark" />
   </div>
+	
   <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">Submit</label>
     <button type="button" class="btn btn-xs btn-success btn-block" onclick="add()"><i class="fa fa-plus"></i> เพิ่ม</button>
@@ -57,6 +67,7 @@
 	$('#warehouse').select2();
 	$('#zone').select2();
 	$('#channels').select2();
+	$('#sender').select2();
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/pick_list/pick_list.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/pick_list/pick_list_add.js?v=<?php echo date('Ymd'); ?>"></script>

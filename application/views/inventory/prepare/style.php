@@ -34,11 +34,11 @@ li {
 }
 
 .table-process {
-  min-width:1240px;
+  min-width:1600px;
 }
 
 .table-listing {
-  min-width:1040px;
+  min-width:1600px;
 }
 
 @media (max-width:767px) {
@@ -96,7 +96,7 @@ li {
     opacity: 0.9;
     z-index: 11;
   }
-  
+
   .slide-out {
     transition: bottom 0.3s ease-in-out;
     bottom: 0px;

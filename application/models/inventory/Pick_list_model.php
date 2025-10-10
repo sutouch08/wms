@@ -455,6 +455,11 @@ class Pick_list_model extends CI_Model
       $this->db->where('channels_code', $ds['channels']);
     }
 
+    if(isset($ds['sender_id']) && $ds['sender_id'] != 'all')
+    {
+      $this->db->where('sender_id', $ds['sender_id']);
+    }
+
     if($is_mobile)
     {
       $this->db->where_in('status', ['R', 'Y']);
@@ -525,6 +530,11 @@ class Pick_list_model extends CI_Model
       $this->db->where('channels_code', $ds['channels']);
     }
 
+    if(isset($ds['sender_id']) && $ds['sender_id'] != 'all')
+    {
+      $this->db->where('sender_id', $ds['sender_id']);
+    }
+
     if($is_mobile)
     {
       $this->db->where_in('status', ['R', 'Y']);
@@ -566,8 +576,10 @@ class Pick_list_model extends CI_Model
     $this->db
     ->from('orders AS o')
     ->select('o.id, o.code, o.customer_code, o.customer_name, o.channels_code')
-    ->select('o.pick_list_id, o.date_add, c.name AS channels_name')
-    ->join('channels AS c', 'o.channels_code = c.code', 'left');
+    ->select('o.id_sender, o.pick_list_id, o.date_add, c.name AS channels_name')
+    ->select('s.name AS sender_name')
+    ->join('channels AS c', 'o.channels_code = c.code', 'left')
+    ->join('address_sender AS s', 'o.id_sender = s.id', 'left');
 
 
     if(isset($ds['is_1_sku']) && $ds['is_1_sku'] == '1')
@@ -607,6 +619,11 @@ class Pick_list_model extends CI_Model
       {
         $this->db->where('o.pick_list_id IS NULL', NULL, FALSE);
       }
+    }
+
+    if(isset($ds['sender_id']) && $ds['sender_id'] != 'all')
+    {
+      $this->db->where('o.id_sender', $ds['sender_id']);
     }
 
     if( ! empty($ds['code']))
