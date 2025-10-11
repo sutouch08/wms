@@ -621,7 +621,7 @@ class Pick_list_model extends CI_Model
       }
     }
 
-    if(isset($ds['sender_id']) && $ds['sender_id'] != 'all')
+    if( ! empty($ds['sender_id']))
     {
       $this->db->where('o.id_sender', $ds['sender_id']);
     }
