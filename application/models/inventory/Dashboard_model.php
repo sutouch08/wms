@@ -10,11 +10,14 @@ class Dashboard_model extends CI_Model
 
   public function count_orders_state($channels = 'offline', $state = 3)
   {
-    $qr  = "SELECT COUNT(*) AS num_rows ";
+    $id = $this->get_max_id();
+
+    $qr  = "SELECT COUNT(o.id) AS num_rows ";
     $qr .= "FROM orders AS o ";
     $qr .= "LEFT JOIN channels AS ch ON o.channels_code = ch.code ";
-    $qr .= "WHERE o.status = 1 ";
+    $qr .= "WHERE o.id > {$id} AND o.status = 1 ";
     $qr .= "AND o.is_cancled = 0 ";
+
 
     if($state == 8)
     {
@@ -50,57 +53,32 @@ class Dashboard_model extends CI_Model
     $rs = $this->db->query($qr);
 
     return $rs->row()->num_rows;
+  }
 
-    // $this->db
-    // ->from('orders AS o')
-    // ->join('channels AS ch', 'o.channels_code = ch.code', 'left')
-    // ->where('o.status', 1)
-    // ->where('o.is_cancled', 0);
-    //
-    // if($state == 8)
-    // {
-    //   $from_date = date('Y-m-d 00:00:00');
-    //   $to_date = date('Y-m-d 23:59:59');
-    //
-    //   $this->db
-    //   ->group_start()
-    //   ->where('o.state', 8)
-    //   ->or_where('o.state', 7)
-    //   ->where('o.dispatch_id >', 0)
-    //   ->group_end()
-    //   ->where('o.real_shipped_date >=', $from_date)
-    //   ->where('o.real_shipped_date <=', $to_date);
-    // }
-    // else if($state == 7)
-    // {
-    //   $this->db->where('o.state', 7)->where('o.dispatch_id IS NULL', NULL, FALSE);
-    // }
-    // else
-    // {
-    //   $this->db->where('o.state', $state);
-    // }
-    //
-    // if($channels == 'offline')
-    // {
-    //   $this->db
-    //   ->group_start()
-    //   ->where('ch.is_online', 0)
-    //   ->or_where('o.channels_code IS NULL', NULL, FALSE)
-    //   ->group_end();
-    // }
-    // elseif($channels == 'online')
-    // {
-    //   $this->db
-    //   ->where('o.channels_code IS NOT NULL', NULL, FALSE)
-    //   ->where('ch.is_online', 1);
-    // }
-    // else
-    // {
-    //   $this->db->where('o.channels_code', $channels);
-    // }
+  public function get_max_id()
+  {
+    $limit = $this->get_limit_rows();
+    $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
 
-    // echo $this->db->get_compiled_select();
-    // return $this->db->count_all_results();
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id - $limit;
+    }
+
+    return $limit;
+  }
+
+
+  public function get_limit_rows()
+  {
+    $rs = $this->db->query("SELECT value FROM config WHERE code = 'FILTER_RESULT_LIMIT'");
+
+    if($rs->num_rows() === 1)
+    {
+      return intval($rs->row()->value);
+    }
+
+    return 0;
   }
 } // end class
 
