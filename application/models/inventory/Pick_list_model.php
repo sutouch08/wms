@@ -576,7 +576,7 @@ class Pick_list_model extends CI_Model
     $this->db
     ->from('orders AS o')
     ->select('o.id, o.code, o.customer_code, o.customer_name, o.channels_code')
-    ->select('o.id_sender, o.pick_list_id, o.date_add, c.name AS channels_name')
+    ->select('o.id_sender, o.pick_list_id, o.date_add, o.date_upd, c.name AS channels_name')
     ->select('s.name AS sender_name')
     ->join('channels AS c', 'o.channels_code = c.code', 'left')
     ->join('address_sender AS s', 'o.id_sender = s.id', 'left');
@@ -602,6 +602,14 @@ class Pick_list_model extends CI_Model
     if( ! empty($ds['to_date']))
     {
       $this->db->where('o.date_add <=', to_date($ds['to_date']));
+    }
+
+    if( ! empty($ds['start_time']) && ! empty($ds['end_time']))
+    {
+      $start = db_date($ds['from_date'], FALSE) .' '.$ds['start_time'];
+      $end = db_date($ds['to_date'], FALSE). ' '.$ds['end_time'];
+
+      $this->db->where('o.date_upd >=', $start)->where('o.date_upd <=', $end);
     }
 
     if( isset($ds['channels']) && $ds['channels'] != 'all')

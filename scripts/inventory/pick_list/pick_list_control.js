@@ -37,6 +37,8 @@ function clearOrderList() {
   let channels = $('#channels').val();
   $('#order-from-date').val('');
   $('#order-to-date').val('');
+  $('#start-time').val('');
+  $('#end-time').val('');
   $('#channels-code').val(channels).change();
   $('#customer').val('');
   $('#order-code').val('');
@@ -49,6 +51,8 @@ function getOrderList() {
     'from_date' : $('#order-from-date').val(),
     'to_date' : $('#order-to-date').val(),
     'channels' : $('#channels-code').val(),
+    'start_time' : $('#start-time').val(),
+    'end_time' : $('#end-time').val(),
     'sender_id' : $('#sender-id').val(),
     'customer' : $('#customer').val().trim(),
     'order_code' : $('#order-code').val().trim(),

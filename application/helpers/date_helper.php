@@ -197,12 +197,13 @@ function selectTime($time='')
 						'20:00','20:30','21:00','21:30','22:00','22:30','23:00','23:30');
   if($time != '')
   {
-    $time = date('H:i', strtotime($time));
+    $time = date('H:i:s', strtotime($time));
   }
 
 	foreach($times as $hrs)
 	{
-		$sc .= '<option value="'.$hrs.'" '.is_selected($time, $hrs).'>'.$hrs.'</option>';
+    $val = date('H:i:s', strtotime($hrs));
+		$sc .= '<option value="'.$val.'" '.is_selected($time, $hrs).'>'.$hrs.'</option>';
 	}
 	return $sc;
 }

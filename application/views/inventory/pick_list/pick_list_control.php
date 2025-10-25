@@ -20,6 +20,21 @@
       <input type="text" class="form-control input-sm width-50 text-center" id="order-to-date" value="" />
     </div>
   </div>
+  <div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-3 padding-5 fi">
+    <label>เริ่มต้น</label>
+    <select class="form-control input-sm" id="start-time">
+      <option value="">เลือก</option>
+      <?php echo selectTime(); ?>
+    </select>
+  </div>
+
+  <div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-3 padding-5 fi">
+    <label>สิ้นสุด</label>
+    <select class="form-control input-sm" id="end-time">
+      <option value="">เลือก</option>
+      <?php echo selectTime(); ?>
+    </select>
+  </div>
   <div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="width-100" id="customer" />
@@ -74,7 +89,7 @@
        <div class="modal-body">
          <div class="row">
            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" style="max-height:60vh; overflow:auto;">
-             <table class="table table-striped border-1 tableFixHead" style="min-width:950px;">
+             <table class="table table-striped border-1 tableFixHead" style="min-width:1100px;">
                <thead>
                  <tr>
                    <th class="fix-width-50 text-center fix-header">
@@ -85,6 +100,7 @@
                    </th>
                    <th class="fix-width-50 text-center fix-header">#</th>
                    <th class="fix-width-100 text-center fix-header">วันที่</th>
+                   <th class="fix-width-150 text-center fix-header">วันที่สถานะ</th>
                    <th class="fix-width-150 fix-header">เลขที่</th>
                    <th class="fix-width-150 fix-header">ช่องทางขาย</th>
                    <th class="fix-width-150 fix-header">การจัดส่ง</th>
@@ -119,6 +135,7 @@
       </td>
       <td class="text-center">{{no}}</td>
       <td class="text-center">{{date_add}}</td>
+      <td class="text-center">{{date_upd}}</td>
       <td class="">{{code}}</td>
       <td class="">{{channels}}</td>
       <td class="">{{sender}}</td>

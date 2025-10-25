@@ -254,6 +254,7 @@ class Prepare_model extends CI_Model
     ->select('o.id')
     ->from('orders AS o')
     ->join('channels AS ch', 'ch.code = o.channels_code','left');
+    $this->db->where('o.id >', $this->get_max_id());
 
     if( ! empty($ds['item_code']))
     {
@@ -596,14 +597,28 @@ class Prepare_model extends CI_Model
 
   public function get_max_id()
   {
+    $limit = $this->get_limit_rows();
     $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->id - 200000;
+      return $rs->row()->id - $limit;
     }
 
-    return 2000000;
+    return $limit;
+  }
+
+
+  public function get_limit_rows()
+  {
+    $rs = $this->db->query("SELECT value FROM config WHERE code = 'FILTER_RESULT_LIMIT'");
+
+    if($rs->num_rows() === 1)
+    {
+      return intval($rs->row()->value);
+    }
+
+    return 0;
   }
 } //--- end class
 
