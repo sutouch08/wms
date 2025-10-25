@@ -66,7 +66,7 @@ class Prepare extends PS_Controller
       //--- แสดงผลกี่รายการต่อหน้า
   		$perpage = get_rows();
   		$segment  = 4; //-- url segment
-  		$rows = $this->prepare_model->count_rows($filter, 3, $this->full_mode);
+  		$rows = 100; //$this->prepare_model->count_rows($filter, 3, $this->full_mode);
   		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
   		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
   		$orders   = $this->prepare_model->get_list($filter, $perpage, $this->uri->segment($segment), 3, $this->full_mode);
