@@ -118,6 +118,7 @@
 <input type="hidden" id="extra" value="hide" />
 <input type="hidden" id="complete" value="hide" />
 <input type="hidden" id="finished" value="<?php echo $finished ? 1 : 0; ?>" />
+<input type="hidden" id="ex" value="<?php echo $ex; ?>" />
 
 <div class="pg-footer visible-xs">
   <div class="pg-footer-inner">

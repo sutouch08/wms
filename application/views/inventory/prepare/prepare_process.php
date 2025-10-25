@@ -59,6 +59,7 @@
   <input type="hidden" name="zone_code" id="zone_code" />
   <input type="hidden" id="warehouse_code" value="<?php echo $order->warehouse_code; ?>" />
   <input type="hidden" id="allow-prepare" value="<?php echo $order->allow_prepare; ?>" />
+  <input type="hidden" id="ex" value="<?php echo $ex; ?>" />
 
   <hr class="margin-top-10 margin-bottom-10"/>
 

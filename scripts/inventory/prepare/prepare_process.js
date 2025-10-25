@@ -83,6 +83,8 @@ function doPrepare(){
 //---- จัดเสร็จแล้ว
 function finishPrepare(){
   var order_code = $("#order_code").val();
+  let ex = $('#ex').val();
+
   $.ajax({
     url: BASE_URL + 'inventory/prepare/finish_prepare',
     type:"POST",
@@ -93,9 +95,21 @@ function finishPrepare(){
     success: function(rs){
       var rs = $.trim(rs);
       if(rs == 'success'){
-        swal({title: "Success", type:"success", timer: 1000});
-        setTimeout(function(){ goBack();}, 1200);
-      }else{
+        swal({
+          title: "Success",
+          type:"success",
+          timer: 1000});
+
+        setTimeout(function() {
+          if(ex == 1) {
+            express_order();
+          }
+          else {
+            goBack();
+          }
+        }, 1200);
+      }
+      else {
         beep();
         swal("Error!", rs, "error");
       }

@@ -118,7 +118,6 @@ class Prepare extends PS_Controller
     }
     else
     {
-      //--- แสดงผลกี่รายการต่อหน้า
   		$perpage = get_rows();
   		$segment  = 4; //-- url segment
   		$rows = $this->prepare_model->count_rows($filter, 4, $this->full_mode);
@@ -131,6 +130,12 @@ class Prepare extends PS_Controller
   		$this->pagination->initialize($init);
       $this->load->view('inventory/prepare/prepare_view_process', $filter);
     }
+  }
+
+
+  public function express_order()
+  {
+    $this->load->view('inventory/prepare/express_order');
   }
 
 
@@ -319,7 +324,7 @@ class Prepare extends PS_Controller
   }
 
 
-  public function process($code, $view = NULL)
+  public function process($code, $ex = 0, $view = NULL)
   {
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
@@ -413,7 +418,8 @@ class Prepare extends PS_Controller
           'complete_details' => $complete,
           'finished' => empty($uncomplete) ? TRUE : FALSE,
           'orderQty' => number($orderQty),
-          'pickedQty' => number($pickedQty)
+          'pickedQty' => number($pickedQty),
+          'ex' => $ex
         );
 
         if( ! empty($view))

@@ -377,6 +377,8 @@
 	<input type="hidden" id="extra" value="hide" />
 </div>
 
+<input type="hidden" id="ex" value="0" />
+
 <script>
 	$('#user').select2();
 	$('#warehouse').select2();

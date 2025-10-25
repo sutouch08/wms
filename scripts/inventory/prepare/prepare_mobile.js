@@ -161,6 +161,8 @@ function doPrepare() {
 
 function finishPrepare() {
   var order_code = $("#order_code").val();
+  let ex = $('#ex').val();
+
   $.ajax({
     url: BASE_URL + 'inventory/prepare/finish_prepare',
     type:"POST",
@@ -179,7 +181,12 @@ function finishPrepare() {
         });
 
         setTimeout(function() {
-          goBack();
+          if(ex == 1) {
+            express_order();
+          }
+          else {
+            goBack();            
+          }
         }, 1200);
       }
       else{

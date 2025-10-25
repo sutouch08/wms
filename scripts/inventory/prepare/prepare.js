@@ -14,18 +14,25 @@ function refresh() {
 }
 
 //---- ไปหน้าจัดสินค้า
-function goPrepare(code, view){
+function goPrepare(code, view) {
   if(view === undefined) {
-    window.location.href = HOME + '/process/'+code;
+    let ex = $('#ex').val();
+    window.location.href = HOME + '/process/'+code+'/'+ex;
   }
   else {
-    window.location.href = HOME + '/process/'+code+'/mobile';
+    let ex = $('#ex').val();
+    window.location.href = HOME + '/process/'+code+'/' + ex + '/mobile';
   }
 }
 
 
 function goProcess(view){
   window.location.href = HOME + '/view_process';
+}
+
+
+function express_order() {
+  window.location.href = HOME + '/express_order';
 }
 
 

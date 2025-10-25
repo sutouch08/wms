@@ -6,9 +6,10 @@
 		<h3 class="title"><?php echo $this->title; ?></h3>
 	</div>
 	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5 text-right hidden-xs">
-		<button type="button" class="btn btn-white btn-primary top-btn" onclick="genPickList()">พิมพ์ใบจัด(ชั่วคราว)</button>
+		<!-- <button type="button" class="btn btn-white btn-primary top-btn" onclick="genPickList()">พิมพ์ใบจัด(ชั่วคราว)</button> -->
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="goProcess()"><i class="fa fa-external-link-square"></i> รายการกำลังจัด</button>
 	<?php if($this->pm->can_edit) : ?>
+		<button type="button" class="btn btn-white btn-primary top-btn" onclick="express_order()"><i class="fa fa-qrcode"></i>&nbsp; จัดออเดอร์</button>
 		<div class="btn-group">
 			<button data-toggle="dropdown" class="btn btn-danger btn-white dropdown-toggle margin-top-5" aria-expanded="false">
 				<i class="ace-icon fa fa-exclamation-triangle icon-on-left"></i>
@@ -329,12 +330,12 @@
 		<div class="pg-footer-content text-right">
 			<div class="footer-menu width-20">
 				<span class="width-100" onclick="refresh()">
-					<i class="fa fa-refresh fa-2x white"></i><span class="fon-size-12">Refresh</span>
+					<i class="fa fa-refresh fa-2x white"></i><span class="fon-size-11">Refresh</span>
 				</span>
 			</div>
 			<div class="footer-menu width-20">
-				<span class="width-100" onclick="goToBuffer()">
-					<i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
+				<span class="width-100" onclick="express_order()">
+					<i class="fa fa-qrcode fa-2x white"></i><span class="fon-size-11">จัดด่วน</span>
 				</span>
 			</div>
 			<div class="footer-menu width-20">
@@ -368,6 +369,7 @@
 	<input type="hidden" id="extra" value="hide" />
 </div>
 
+<input type="hidden" id="ex" value="0" />
 <script>
 	$('#user').select2();
 	$('#warehouse').select2();
