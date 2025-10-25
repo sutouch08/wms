@@ -251,6 +251,7 @@ class Prepare_model extends CI_Model
   public function count_rows(array $ds = array(), $state = 3, $full_mode = TRUE)
   {
     $this->db
+    ->select('o.id')
     ->from('orders AS o')
     ->join('channels AS ch', 'ch.code = o.channels_code','left');
 
@@ -372,7 +373,10 @@ class Prepare_model extends CI_Model
       }
     }
 
-    return $this->db->count_all_results();
+    $rs = $this->db->get();
+
+    return $rs->num_rows();
+    //return $this->db->count_all_results();
   }
 
 
