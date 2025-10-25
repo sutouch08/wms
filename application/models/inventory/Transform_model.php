@@ -150,7 +150,7 @@ class Transform_model extends CI_Model
     ->where('receive_qty < sold_qty', NULL, FALSE)
     ->count_all_results('order_transform_detail');
 
-    return $count > 0 ? FALSE : TRUE;
+    return $count == 0 ? TRUE : FALSE;
   }
 
 
