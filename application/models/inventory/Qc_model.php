@@ -46,7 +46,10 @@ class Qc_model extends CI_Model
 
   public function get_list(array $ds = array(), $state = 5, $perpage = 20, $offset = 0)
   {
-    $this->db->where('state', $state);
+    $id = $this->get_max_id();
+
+    $this->db->where('id >', $id)
+    ->where('state', $state);
 
     if( ! empty($ds['code']))
     {
@@ -118,7 +121,10 @@ class Qc_model extends CI_Model
 
   public function count_rows(array $ds = array(), $state = 5)
   {
-    $this->db->where('state', $state);
+    $id = $this->get_max_id();
+
+    $this->db->where('id >', $id)
+    ->where('state', $state);
 
     if( ! empty($ds['code']))
     {
@@ -134,12 +140,10 @@ class Qc_model extends CI_Model
       ->or_like('customer_ref', $ds['customer'])
       ->group_end();
     }
-
-    //---- user name / display name
-    if( ! empty($ds['user']))
+      
+    if( ! empty($ds['user']) && $ds['user'] != 'all')
     {
-      $users = user_in($ds['user']);
-      $this->db->where_in('user', $users);
+      $this->db->where('user', $ds['user']);
     }
 
     if( ! empty($ds['channels']) && $ds['channels'] != 'all')
@@ -617,6 +621,33 @@ class Qc_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function get_max_id()
+  {
+    $limit = $this->get_limit_rows();
+    $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id - $limit;
+    }
+
+    return $limit;
+  }
+
+
+  public function get_limit_rows()
+  {
+    $rs = $this->db->query("SELECT value FROM config WHERE code = 'FILTER_RESULT_LIMIT'");
+
+    if($rs->num_rows() === 1)
+    {
+      return intval($rs->row()->value);
+    }
+
+    return 0;
   }
 
 
