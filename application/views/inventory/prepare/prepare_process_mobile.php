@@ -221,8 +221,8 @@
   </div>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_mobile.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=1<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_mobile.js?v=1<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>
