@@ -6,7 +6,7 @@
 		<h3 class="title"><?php echo $this->title; ?></h3>
 	</div>
 	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5 text-right hidden-xs">
-		<!-- <button type="button" class="btn btn-white btn-primary top-btn" onclick="genPickList()">พิมพ์ใบจัด(ชั่วคราว)</button> -->
+		<button type="button" class="btn btn-white btn-primary top-btn" onclick="genPickList()">พิมพ์ใบจัด(ชั่วคราว)</button>
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="goProcess()"><i class="fa fa-external-link-square"></i> รายการกำลังจัด</button>
 	<?php if($this->pm->can_edit) : ?>
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="express_order()"><i class="fa fa-qrcode"></i>&nbsp; จัดออเดอร์</button>
