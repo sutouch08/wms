@@ -300,10 +300,13 @@ class WT extends REST_Controller
 
     if($sc === TRUE)
     {
-      if( ! $this->transfer_model->confirm_draft_receipted($draft->DocEntry))
+      if($order->is_valid == 0)
       {
-        $sc = FALSE;
-        $this->error = "Failed to update temp status";
+        if( ! $this->transfer_model->confirm_draft_receipted($draft->DocEntry))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update temp status";
+        }
       }
     }
 
@@ -315,7 +318,7 @@ class WT extends REST_Controller
         {
           $sc = FALSE;
           $this->error = "Failed to update confirm status";
-        }        
+        }
       }
     }
 
