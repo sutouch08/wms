@@ -278,14 +278,75 @@ class WT extends REST_Controller
       $this->response($arr, 400);
     }
 
-    //--- check ว่ามีเลขที่เอกสารนี้ใน transfer draft หรือไม่
-    $draft = $this->transfer_model->get_transfer_draft($ds->code);
+    $order = $this->orders_model->get($ds->code);
 
-    if( empty($draft))
+    if(empty($order))
     {
       $sc = FALSE;
-      $this->error = "The document was not found in the temp transfer draft.";
+      $this->error = "Invalid document number : {$ds->code}";
+    }
 
+    if($sc === TRUE)
+    {
+      //--- check ว่ามีเลขที่เอกสารนี้ใน transfer draft หรือไม่
+      $draft = $this->transfer_model->get_transfer_draft($ds->code);
+
+      if(empty($draft))
+      {
+        $sc = FALSE;
+        $this->error = "The document was not found in the temp transfer draft.";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      if( ! $this->transfer_model->confirm_draft_receipted($draft->DocEntry))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to update temp status";
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      if($order->is_valid == 0)
+      {
+        if( ! $this->orders_model->valid_transfer_draft($ds->code))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update confirm status";
+        }        
+      }
+    }
+
+    if($sc === TRUE)
+    {
+      $arr = array(
+        'status' => TRUE,
+        'message' => 'success'
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $api_path,
+          'type' =>'WT',
+          'code' => $ds->code,
+          'action' => 'confirm',
+          'status' => 'success',
+          'message' => 'success',
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->pos_api_logs_model->add_api_logs($logs);
+      }
+
+      $this->response($arr, 200);
+    }
+    else
+    {
       $arr = array(
         'status' => FALSE,
         'message' => $this->error
@@ -301,111 +362,6 @@ class WT extends REST_Controller
           'action' => 'confirm',
           'status' => 'failed',
           'message' => $this->error,
-          'request_json' => $json,
-          'response_json' => json_encode($arr)
-        );
-
-        $this->pos_api_logs_model->add_api_logs($logs);
-      }
-
-      $this->response($arr, 200);
-    }
-
-    if(empty($draft->F_Receipt) OR $draft->F_Receipt == 'N' OR $draft->F_Receipt == 'D')
-    {
-      //---- ยืนยันรับสินค้า
-      $this->mc->trans_begin();
-
-      if( ! $this->transfer_model->confirm_draft_receipted($draft->DocEntry))
-      {
-        $sc = FALSE;
-        $this->error = "Failed to update temp status";
-      }
-
-      $this->db->trans_begin();
-
-      if( ! $this->orders_model->valid_transfer_draft($ds->code))
-      {
-        $sc = FALSE;
-        $this->error = "Failed to update confirm status";
-      }
-
-      if($sc === TRUE)
-      {
-        $this->mc->trans_commit();
-        $this->db->trans_commit();
-
-        $arr = array(
-          'status' => TRUE,
-          'message' => 'success'
-        );
-
-        if($this->logs_json)
-        {
-          $logs = array(
-            'trans_id' => genUid(),
-            'api_path' => $api_path,
-            'type' =>'WT',
-            'code' => $ds->code,
-            'action' => 'confirm',
-            'status' => 'success',
-            'message' => 'success',
-            'request_json' => $json,
-            'response_json' => json_encode($arr)
-          );
-
-          $this->pos_api_logs_model->add_api_logs($logs);
-        }
-
-        $this->response($arr, 200);
-      }
-      else
-      {
-        $this->mc->trans_rollback();
-        $this->db->trans_rollback();
-
-        $arr = array(
-          'status' => FALSE,
-          'message' => $this->error
-        );
-
-        if($this->logs_json)
-        {
-          $logs = array(
-            'trans_id' => genUid(),
-            'api_path' => $api_path,
-            'type' =>'WT',
-            'code' => $ds->code,
-            'action' => 'confirm',
-            'status' => 'failed',
-            'message' => $this->error,
-            'request_json' => $json,
-            'response_json' => json_encode($arr)
-          );
-
-          $this->pos_api_logs_model->add_api_logs($logs);
-        }
-
-        $this->response($arr, 200);
-      }
-    }
-    else
-    {
-      $arr = array(
-        'status' => TRUE,
-        'message' => 'Document already confirmed'
-      );
-
-      if($this->logs_json)
-      {
-        $logs = array(
-          'trans_id' => genUid(),
-          'api_path' => $api_path,
-          'type' =>'WT',
-          'code' => $ds->code,
-          'action' => 'confirm',
-          'status' => 'success',
-          'message' => 'success',
           'request_json' => $json,
           'response_json' => json_encode($arr)
         );

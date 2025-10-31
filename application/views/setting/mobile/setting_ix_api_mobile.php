@@ -21,11 +21,11 @@
 					<?php echo select_sell_warehouse($DEFAULT_WAREHOUSE); ?>
 				</select>
 			</div>
-			<div class="divider"></div>
+			<div class="divider-hidden"></div>
 
 			<div class="col-xs-6 padding-top-5">IX Zone</div>
 			<div class="col-xs-6 text-right">
-				<input type="text" class="width-100 text-center" id="ix-zone" name="IX_ZONE" value="<?php echo $DEFAULT_ZONE; ?>"/>
+				<input type="text" class="width-100 text-center" id="ix-zone" name="IX_ZONE" value="<?php echo $IX_ZONE; ?>"/>
 			</div>
 			<div class="divider"></div>
 
@@ -36,7 +36,7 @@
 					<?php echo select_sell_warehouse($IX_RETURN_WAREHOUSE); ?>
 				</select>
 			</div>
-			<div class="divider"></div>
+			<div class="divider-hidden"></div>
 
 			<div class="col-xs-6 padding-top-5">IX Return Zone</div>
 			<div class="col-xs-6 text-right">
@@ -52,7 +52,26 @@
 				</label>
 				<input type="hidden" name="SYNC_IX_STOCK" id="sync-ix-stock" value="<?php echo $SYNC_IX_STOCK; ?>" />
 			</div>
+			<div class="divider-hidden"></div>
+
+			<div class="col-xs-8 padding-top-5">GLOBAL STOCK RATE</div>
+			<div class="col-xs-4 text-right">
+				<div class="input-group">
+					<input type="number" class="form-control input-sm text-center" id="ix-stock-rate" name="IX_STOCK_RATE" value="<?php echo $IX_STOCK_RATE; ?>" onchange="checkValidRate()" />
+					<span class="input-group-addon">%</span>
+				</div>
+			</div>
+			<div class="divider-hidden"></div>
+
+			<div class="col-xs-7 padding-top-5">STOCK RATE BY</div>
+			<div class="col-xs-5 text-right">
+				<select class="width-100" id="ix-stock-rate-type" name="IX_STOCK_RATE_TYPE">
+					<option value="0" <?php echo is_selected('0', $IX_STOCK_RATE_TYPE); ?>>GLOBAL RATE</option>
+					<option value="1" <?php echo is_selected('1', $IX_STOCK_RATE_TYPE); ?>>ITEM RATE</option>
+				</select>
+			</div>
 			<div class="divider"></div>
+
 
 			<div class="col-xs-8 padding-top-5">Logs Json</div>
 			<div class="col-xs-4 text-right">

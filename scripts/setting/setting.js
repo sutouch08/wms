@@ -1078,6 +1078,19 @@ function toggleIxSyncStock(option) {
 }
 
 
+function checkValidRate() {
+	let rate = parseDefaultFloat($('#ix-stock-rate').val(), 0);
+
+	if(rate < 0) {
+		$('#ix-stock-rate').val(0);
+	}
+
+	if(rate > 100) {
+		$('#ix-stock-rate').val(100);
+	}
+}
+
+
 function toggleIxLogJson(option) {
 
 	$('#ix-log-json').val(option);

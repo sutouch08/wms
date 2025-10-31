@@ -677,7 +677,7 @@ public function export_transfer_draft($code)
             'U_BOOKCODE' => $doc->bookcode,
             'U_REQUESTER' => $doc->empName,
             'U_APPROVER' => $doc->approver,
-            'F_Receipt' => ($doc->is_valid == 1 ? 'Y' : NULL)
+            'F_Receipt' => 'Y', //($doc->is_valid == 1 ? 'Y' : NULL)
           );
 
           $this->ci->mc->trans_begin();

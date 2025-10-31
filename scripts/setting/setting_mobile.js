@@ -74,6 +74,19 @@ function frezeSystem() {
 }
 
 
+function checkValidRate() {
+	let rate = parseDefaultFloat($('#ix-stock-rate').val(), 0);
+
+	if(rate < 0) {
+		$('#ix-stock-rate').val(0);
+	}
+
+	if(rate > 100) {
+		$('#ix-stock-rate').val(100);
+	}
+}
+
+
 $('#default-zone').autocomplete({
 	source: BASE_URL + 'auto_complete/get_zone_code_and_name',
 	autoFocus:true,

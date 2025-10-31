@@ -1835,8 +1835,7 @@ class Orders_model extends CI_Model
     ->where('state', 8)
     ->where('status', 1)
     ->where('is_cancled', 0)
-    ->where('is_expired', 0)
-    ->where('is_valid', 1)
+    ->where('is_expired', 0)    
     ->where('inv_code IS NULL', NULL, FALSE)
     ->limit($limit)
     ->get('orders');

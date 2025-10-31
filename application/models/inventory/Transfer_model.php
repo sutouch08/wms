@@ -146,11 +146,8 @@ class Transfer_model extends CI_Model
   public function get_transfer_draft($code)
   {
     $rs = $this->mc
+    ->select('DocEntry, U_ECOMNO, F_Sap')
     ->where('U_ECOMNO', $code)
-    ->group_start()
-    ->where_in('F_Sap', array('N', 'D'))
-    ->or_where('F_Sap IS NULL', NULL, FALSE)
-    ->group_end()
     ->get('DFOWTR');
 
     if($rs->num_rows() > 0)
@@ -486,7 +483,7 @@ class Transfer_model extends CI_Model
     if(!empty($ds))
     {
       $id = $this->get_temp_id($ds['transfer_code'], $ds['product_code'], $ds['zone_code']);
-      
+
       if(!empty($id))
       {
         return $this->update_temp_qty($id, $ds['qty']);

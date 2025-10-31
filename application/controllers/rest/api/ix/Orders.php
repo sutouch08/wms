@@ -622,9 +622,7 @@ class Orders extends REST_Controller
         {
           $state = 2;
         }
-      }
-
-      //$state = $role == 'S' ? (empty($data->payslip) ? 3 : 2) : $state;
+      }      
 
       $is_wms = 0;
 
@@ -642,7 +640,7 @@ class Orders extends REST_Controller
       $total_amount = 0;
       $total_sku = [];
       $is_hold = empty($data->on_hold) ? 0 : ($data->on_hold == 'Y' ? 1 : 0);
-      $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);      
+      $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
       $is_backorder = FALSE;
       $backorderList = [];
       $sync_stock = []; //--- keep product to sync stock

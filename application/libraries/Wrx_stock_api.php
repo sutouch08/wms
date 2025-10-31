@@ -51,12 +51,15 @@ class Wrx_stock_api
       $stock = $this->ci->stock_model->get_sell_items_stock($skus, $warehouse_code);
       $ordered = $this->ci->orders_model->get_items_reserv_stock($skus, $warehouse_code);
       $reserved = $this->ci->reserv_stock_model->get_items_reserv_stock($skus, $warehouse_code, $skip_mkp);
+      $configRate = getConfig('IX_STOCK_RATE');
+      $configRate = ($configRate > 0 && $configRate <= 100) ? $configRate : 100;
+      $configType = getConfig('IX_STOCK_RATE_TYPE') == 1 ? 'item' : 'global';
 
       foreach($items as $item)
       {
         if( ! empty($stock))
         {
-          $rate = $item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1;
+          $rate = $configType == 'global' ? $configRate * 0.01 : ($item->rate > 0 ? ($item->rate < 100 ? $item->rate * 0.01 : 1) : 1);
           $sell_stock = empty($stock[$item->code]) ? 0 : intval($stock[$item->code]);
           $order_qty = empty($ordered[$item->code]) ? 0 : intval($ordered[$item->code]);
           $reserv_qty = empty($reserved[$item->code]) ? 0 : intval($reserved[$item->code]);

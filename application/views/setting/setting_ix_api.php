@@ -22,7 +22,7 @@
 					<?php echo select_sell_warehouse($DEFAULT_WAREHOUSE); ?>
 				</select>
       </div>
-      <div class="divider"></div>
+      <div class="divider-hidden"></div>
 
 			<div class="col-lg-4 col-md-4 col-sm-4">
         <span class="form-control left-label">รหัสโซน IX</span>
@@ -41,7 +41,7 @@
 					<?php echo select_sell_warehouse($IX_RETURN_WAREHOUSE); ?>
 				</select>
       </div>
-      <div class="divider"></div>
+      <div class="divider-hidden"></div>
 
 			<div class="col-lg-4 col-md-4 col-sm-4">
         <span class="form-control left-label">รหัสโซนรับคืน IX</span>
@@ -61,7 +61,27 @@
 					<span class="lbl margin-left-0" data-lbl="OFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON"></span>
 				</label>
 				<input type="hidden" name="SYNC_IX_STOCK" id="sync-ix-stock" value="<?php echo $SYNC_IX_STOCK; ?>" />
-				<span class="help-block">Sync available stock to ix api</span>
+      </div>
+			<div class="divider-hidden"></div>
+			<div class="col-lg-4 col-md-4 col-sm-4">
+        <span class="form-control left-label">GLOBAL STOCK RATE (%)</span>
+      </div>
+			<div class="col-lg-1-harf col-md-2-harf col-sm-3">
+				<div class="input-group">
+					<input type="number" class="form-control input-sm text-center" id="ix-stock-rate" name="IX_STOCK_RATE" value="<?php echo $IX_STOCK_RATE; ?>" onchange="checkValidRate()" />
+					<span class="input-group-addon">%</span>
+				</div>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-lg-4 col-md-4 col-sm-4">
+        <span class="form-control left-label">STOCK RATE BY</span>
+      </div>
+      <div class="col-lg-8 col-md-8 col-sm-8">
+				<select class="fix-width-150" id="ix-stock-rate-type" name="IX_STOCK_RATE_TYPE">
+					<option value="0" <?php echo is_selected('0', $IX_STOCK_RATE_TYPE); ?>>GLOBAL RATE</option>
+					<option value="1" <?php echo is_selected('1', $IX_STOCK_RATE_TYPE); ?>>ITEM RATE</option>
+				</select>
       </div>
       <div class="divider"></div>
 
