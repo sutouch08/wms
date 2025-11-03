@@ -3,19 +3,22 @@ class Auto_send_tracking extends CI_Controller
 {
 	public $error;
 	public $isApi = FALSE;
+	public $wms;
 
   public function __construct()
   {
     parent::__construct();
     $this->load->model('orders/orders_model');
-    $this->load->library('api');
-		$this->isApi = getConfig('WEB_API') == 1 ? TRUE : FALSE;
+    $this->load->library('wrx_web_api');
+		$this->isApi = getConfig('WRX_WEB_TRACKING_API') == 1 ? TRUE : FALSE;
   }
 
-  public function index($show = 0)
-  {
+	public function index($show = 0)
+	{
 		if($this->isApi)
 		{
+			$this->wms = $this->load->database('wms', TRUE); //--- Temp database
+
 			ini_set('memory_limit','512M');
 			ini_set('max_execution_time', 600);
 
@@ -38,54 +41,34 @@ class Auto_send_tracking extends CI_Controller
 
 					foreach($list as $rs)
 					{
-						$tracking = $this->orders_model->get_order_tracking($rs->code);
-
-						$ds = array();
-
-						if( ! empty($tracking))
+						if( ! empty($rs->tracking))
 						{
-							foreach($tracking as $tk)
+							if( ! $this->wrx_web_api->create_shipment($rs->reference, $rs->tracking))
 							{
-								if($show = 1)
+								if($show)
 								{
-									echo "{$rs->code} : {$tk->tracking_no} <br/>";
+									echo "{$rs->code} : Failed <br/>";
 								}
 
-								array_push($ds, ['track_no' => $tk->tracking_no]);
+								$this->add_logs(['status' => 'failed', 'message' => $this->wrx_web_api->error]);
+								$this->orders_model->update($rs->code, ['send_tracking' => 3, 'send_tracking_error' => $this->wrx_web_api->error]);
+							}
+							else
+							{
+								if($show)
+								{
+									echo "{$rs->code} : Success <br/>";
+								}
+
+								$this->add_logs(['status' => 'failed', 'message' => $this->wrx_web_api->error]);
+								$this->orders_model->update($rs->code, ['send_tracking' => 1, 'send_tracking_error' => NULL]);
 							}
 						}
 						else
 						{
-							if($show == 1)
+							if($show)
 							{
 								echo "No tracking on : {$rs->code} <br/>";
-							}
-
-							$this->orders_model->update($rs->code, ['send_tracking' => 1]);
-						}
-
-						if(count($ds) > 0)
-						{
-							$arr = array(
-								'tracking' => $ds
-							);
-
-							$result = $this->api->create_shipment($rs->reference, $arr);
-
-							if($show == 1)
-							{
-								echo "Result : ". (($result === TRUE) ? 'Success' : 'Failed')."<br/>";
-							}
-
-							if($result === TRUE OR $result == 'true')
-							{
-								$this->add_logs(['status' => 'success']);
-								$this->orders_model->update($rs->code, ['send_tracking' => 1, 'send_tracking_error' => NULL]);
-							}
-							else
-							{
-								$this->add_logs(['status' => 'failed', 'message' => $result]);
-								$this->orders_model->update($rs->code, ['send_tracking' => 3, 'send_tracking_error' => $result]);
 							}
 						}
 
@@ -97,7 +80,7 @@ class Auto_send_tracking extends CI_Controller
 				}
 				else
 				{
-					if($show == 1)
+					if($show)
 					{
 						echo "no data to send <br/>";
 					}
@@ -115,7 +98,7 @@ class Auto_send_tracking extends CI_Controller
 				$this->add_logs($arr);
 			}
 		}
-  }
+	}
 
 
   public function add_logs(array $ds = array())
@@ -133,7 +116,7 @@ class Auto_send_tracking extends CI_Controller
 		$date = empty($start_date) ? from_date(now()) : from_date($start_date);
 
     $rs = $this->db
-    ->select('code, reference')
+    ->select('code, reference, shipping_code AS tracking')
     ->where('role', 'S')
     ->where('channels_code', 'WRX12')
     ->where('id_sender', $id_sender)
@@ -152,6 +135,5 @@ class Auto_send_tracking extends CI_Controller
 
     return NULL;
   }
-
 } //-- end class
  ?>

@@ -46,7 +46,7 @@
 			<li class="li-block <?php echo $tab7; ?>" onclick="changeURL('SAP')"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
 			<li class="li-block <?php echo $tab8; ?>" onclick="changeURL('ix')"><a href="#ix" data-toggle="tab">IX API</a></li>
 			<li class="li-block <?php echo $tab9; ?>" onclick="changeURL('wrx')"><a href="#wrx" data-toggle="tab">WRX API</a></li>
-			<li class="li-block <?php echo $tab10; ?>" onclick="changeURL('web')"><a href="#web" data-toggle="tab">Magento</a></li>
+			<!-- <li class="li-block <?php echo $tab10; ?>" onclick="changeURL('web')"><a href="#web" data-toggle="tab">Magento</a></li> -->
 			<li class="li-block <?php echo $tab11; ?>" onclick="changeURL('pos')"><a href="#pos" data-toggle="tab">POS API</a></li>
 			<li class="li-block <?php echo $tab12; ?>" onclick="changeURL('porlor')"><a href="#porlor" data-toggle="tab">PORLOR API</a></li>
 			<li class="li-block <?php echo $tab13; ?>" onclick="changeURL('spx')"><a href="#spx" data-toggle="tab">SPX API</a></li>
@@ -96,9 +96,9 @@
 				<?php $this->load->view('setting/setting_wrx_api'); ?>
 			</div>
 
-			<div class="tab-pane fade <?php echo $tab10; ?>" id="web">
-				<?php $this->load->view('setting/setting_web'); ?>
-			</div>
+			<!-- <div class="tab-pane fade <?php echo $tab10; ?>" id="web">
+				<?php //$this->load->view('setting/setting_web'); ?>
+			</div> -->
 
 			<div class="tab-pane fade <?php echo $tab11; ?>" id="pos">
 				<?php $this->load->view('setting/setting_pos_api'); ?>

@@ -29,8 +29,9 @@ class Auto_change_state extends CI_Controller
   public function index()
   {
     $ds['data'] = NULL;
+    $limit = intval(getConfig('AUTO_CONFIRM_ORDER_LIMIT'));
     $all = $this->db->where('status !=', 1)->count_all_results('auto_send_to_sap_order');
-    $rs = $this->db->where('status !=', 1)->limit(50)->get('auto_send_to_sap_order');
+    $rs = $this->db->where('status !=', 1)->limit($limit)->get('auto_send_to_sap_order');
 
     $ds['count'] = $rs->num_rows();
     $ds['all'] = $all;
