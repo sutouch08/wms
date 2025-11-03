@@ -15,8 +15,7 @@ class Wrx_web_api
   {
     $this->ci =& get_instance();
 		$this->ci->load->model('rest/V1/ix_api_logs_model');
-    $this->ci->load->model('orders/orders_model');
-    $this->ci->load->model('inventory/qc_model');
+    $this->ci->load->model('orders/orders_model');    
 
     $this->api = getWrxApiConfig();
     $this->logs_json = is_true($this->api['WRX_LOG_JSON']);
@@ -32,7 +31,7 @@ class Wrx_web_api
     $url .= "magento/order/ship";
     $api_path = $url;
 
-    $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
+    $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
     $method = 'POST';
 
