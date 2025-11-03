@@ -45,6 +45,8 @@
 			<option value="ORDER" <?php echo is_selected('ORDER', $type); ?>>ORDER</option>
 			<option value="RETURN" <?php echo is_selected('RETURN', $type); ?>>RETURN</option>
 			<option value="PORLOR" <?php echo is_selected('PORLOR', $type); ?>>PORLOR</option>
+			<option value="SPX" <?php echo is_selected('SPX', $type); ?>>SPX</option>
+			<option value="TRACKING" <?php echo is_selected('TRACKING', $type); ?>>TRACKING</option>
 		</select>
   </div>
 
@@ -55,6 +57,7 @@
 			<option value="create" <?php echo is_selected('create', $action); ?>>CREATE</option>
 			<option value="update" <?php echo is_selected('update', $action); ?>>UPDATE</option>
 			<option value="cancel" <?php echo is_selected('cancel', $action); ?>>CANCEL</option>
+			<option value="label" <?php echo is_selected('label', $action); ?>>GET LABEL</option>
 		</select>
 	</div>
 

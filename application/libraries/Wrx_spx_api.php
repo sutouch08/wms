@@ -9,7 +9,7 @@ class Wrx_spx_api
   public $error;
   public $logs_json = FALSE;
   public $test = FALSE;
-  public $type = "shipping";
+  public $type = "SPX";
 
   public function __construct()
   {
@@ -22,11 +22,11 @@ class Wrx_spx_api
     $this->logs_json = is_true(getConfig('SPX_LOG_JSON'));
     $this->test = is_true(getConfig('SPX_API_TEST'));
   }
-  
+
   public function get_pickup_time()
   {
     $action = "get_pickup_time";
-    $this->type = "setup";
+    $this->type = "SPX";
     $url = $this->api['WRX_API_HOST'];
     $url .= "spx/pickup-time";
     $api_path = $url;
@@ -72,8 +72,8 @@ class Wrx_spx_api
 
   public function create_parcels($code, $packages)
   {
-    $action = "ship-package";
-    $this->type = "Shipping";
+    $action = "create";
+    $this->type = "SPX";
     $url = $this->api['WRX_API_HOST'];
     $url .= "spx/order";
     $api_path = $url;
@@ -214,8 +214,8 @@ class Wrx_spx_api
 
   public function get_shipping_label($code, $batch_no)
   {
-    $action = "get-ship-document";
-    $this->type = "Shipping";
+    $action = "label";
+    $this->type = "SPX";
     $url = $this->api['WRX_API_HOST'];
     $url .= "spx/awb/{$batch_no}";
     $api_path = $url;
