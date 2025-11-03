@@ -40,7 +40,7 @@ class Wrx_web_api
       'orderID' => $code,
       'email' => "",
       'tracking' => array(
-        array('tracking' => $tracking)
+        array('trackNo' => $tracking)
       )
     );
 
