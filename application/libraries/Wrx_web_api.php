@@ -106,7 +106,7 @@ class Wrx_web_api
                 $this->ci->ix_api_logs_model->add_logs($logs);
               }
 
-              return $res->data->status;
+              return $res->data->success;
             }
             else
             {
