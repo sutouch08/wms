@@ -1405,7 +1405,8 @@ class Pick_list extends PS_Controller
             'date_add' => thai_date($rs->date_add, FALSE),
             'date_upd' => thai_date($rs->date_upd, TRUE),
             'pick_list_id' => $rs->pick_list_id,
-            'product_code' => empty($rs->product_code) ? NULL : $rs->product_code
+            'product_code' => empty($rs->product_code) ? NULL : $rs->product_code,
+            'backorder' => $rs->is_backorder ? 'backorder' : '' //-- css class backorder
           );
 
           $no++;

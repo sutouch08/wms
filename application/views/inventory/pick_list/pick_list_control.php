@@ -130,7 +130,7 @@
 
 <script id="order-template" type="text/x-handlebarsTemplate">
   {{#each this}}
-    <tr class="font-size-11" id="order-{{id}}">
+    <tr class="font-size-11 {{backorder}}" id="order-{{id}}">
       <td class="middle text-center">
         <label>
           <input type="checkbox" class="ace chk-list" value="{{code}}"/>
