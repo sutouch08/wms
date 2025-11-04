@@ -13,6 +13,17 @@ $('#order-to-date').datepicker({
 })
 
 
+$('#item-code').autocomplete({
+  source:HOME + 'get_item_code',
+  autoFocus:true,
+  close:function() {
+    if($(this).val() === 'not found') {
+      $(this).val('');
+    }
+  }
+});
+
+
 function chkOrderTabAll(el) {
   if(el.is(':checked')) {
     $('.chk-od').prop('checked', true)
@@ -42,6 +53,7 @@ function clearOrderList() {
   $('#channels-code').val(channels).change();
   $('#customer').val('');
   $('#order-code').val('');
+  $('#item-code').val('');
   $('#is-pick-list').val('0');
 }
 
@@ -56,6 +68,7 @@ function getOrderList() {
     'sender_id' : $('#sender-id').val(),
     'customer' : $('#customer').val().trim(),
     'order_code' : $('#order-code').val().trim(),
+    'item_code' : $('#item-code').val().trim(),
     'is_pick_list' : $('#is-pick-list').val(),
     'warehouse_code' : $('#warehouse').val(),
     'is_1_sku' : $('#1sku').is(':checked') ? 1 : 0,

@@ -1335,6 +1335,34 @@ class Pick_list extends PS_Controller
   }
 
 
+  public function get_item_code()
+  {
+    $ds = [];
+
+    $txt = trim($_REQUEST['term']);
+
+    $rs = $this->db
+    ->select('code')
+    ->like('code', $txt)
+    ->order_by('code', 'ASC')
+    ->limit(100)->get('products');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $ds[] = $rd->code;
+      }
+    }
+    else
+    {
+      $ds[] = "not found";
+    }
+
+    echo json_encode($ds);
+  }
+
+
   public function get_order_list()
   {
     $sc = TRUE;
@@ -1345,6 +1373,7 @@ class Pick_list extends PS_Controller
     {
       $ds = array(
         'code' => $filter->order_code,
+        'item_code' => $filter->item_code,
         'channels' => $filter->channels,
         'sender_id' => $filter->sender_id,
         'customer' => $filter->customer,

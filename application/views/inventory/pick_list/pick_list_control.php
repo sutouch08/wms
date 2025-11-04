@@ -1,19 +1,19 @@
 <div class="row">
-  <div class="col-lg-2-harf col-md-2-harf col-sm-3-harf col-xs-6 padding-5">
+  <div class="col-lg-2-harf col-md-3 col-sm-3-harf col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
     <select class="width-100" id="channels-code" <?php echo empty($doc->channels_code) ? "" : "disabled"; ?>>
       <option value="all">เลือกช่องทางขาย</option>
       <?php echo select_channels($doc->channels_code); ?>
     </select>
   </div>
-  <div class="col-lg-2-harf col-md-2 col-sm-2-harf col-xs-12 padding-5">
+  <div class="col-lg-2-harf col-md-3 col-sm-3-harf col-xs-12 padding-5">
 		<label>การจัดส่ง</label>
 		<select class="width-100 e" id="sender-id">
 			<option value="">เลือกการจัดส่ง</option>
 			<?php echo select_sender($doc->sender_id); ?>
 		</select>
 	</div>
-  <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-group width-100">
       <input type="text" class="form-control input-sm width-50 text-center from-date" id="order-from-date" value="" />
@@ -35,13 +35,17 @@
       <?php echo selectTime(); ?>
     </select>
   </div>
-  <div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
+  <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="width-100" id="customer" />
   </div>
-  <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-4 col-sm-4 col-xs-6 padding-5">
     <label>เลขที่ออเดอร์</label>
     <input type="text" class="width-100 text-center" id="order-code" />
+  </div>
+  <div class="col-lg-2-harf col-md-4 col-sm-4 col-xs-6 padding-5">
+    <label>รหัสสินค้า</label>
+    <input type="text" class="width-100 text-center" id="item-code" />
   </div>
   <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>Pick List</label>

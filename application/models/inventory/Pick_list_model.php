@@ -582,11 +582,20 @@ class Pick_list_model extends CI_Model
     ->join('address_sender AS s', 'o.id_sender = s.id', 'left');
 
 
-    if(isset($ds['is_1_sku']) && $ds['is_1_sku'] == '1')
+    if((isset($ds['is_1_sku']) && $ds['is_1_sku'] == '1') OR ! empty($ds['item_code']))
     {
       $this->db->select('d.product_code');
       $this->db->join('order_details AS d', 'd.order_code = o.code', 'left');
+    }
+
+    if((isset($ds['is_1_sku']) && $ds['is_1_sku'] == '1'))
+    {
       $this->db->where('o.total_sku', 1);
+    }
+
+    if( ! empty($ds['item_code']))
+    {
+      $this->db->like('d.product_code', $ds['item_code']);
     }
 
     $this->db
