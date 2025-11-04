@@ -28,9 +28,8 @@ class Auto_send_tracking extends CI_Controller
 			{
 				$limit = getConfig('WEB_TRACKING_PER_ROUND');
 				$limit = $limit > 0 ? $limit : 10;
-				$start_date = from_date(getConfig('WEB_TRACKING_BEGIN'));
 
-				$list = $this->getUnsendTrackingList($id_sender, $limit, $start_date);
+				$list = $this->getUnsendTrackingList($id_sender, $limit);
 
 				if( ! empty($list))
 				{
@@ -111,19 +110,24 @@ class Auto_send_tracking extends CI_Controller
     return FALSE;
   }
 
-  public function getUnsendTrackingList($id_sender, $limit = 100, $start_date = NULL)
+
+  public function getUnsendTrackingList($id_sender, $limit = 100)
   {
-		$date = empty($start_date) ? from_date(now()) : from_date($start_date);
+		$days = 30;
+		$date = date('Y-m-d 00:00:00', strtotime("-{$days} days"));
 
     $rs = $this->db
     ->select('code, reference, shipping_code AS tracking')
     ->where('role', 'S')
     ->where('channels_code', 'WRX12')
     ->where('id_sender', $id_sender)
+		->group_start()
     ->where('send_tracking IS NULL', NULL, FALSE)
+		->or_where('send_tracking', 3)
+		->group_end()
     ->where('state', 8)
     ->where('reference IS NOT NULL')
-    ->where('date_add >=', $date)
+		->where('date_add >=', $date)
     ->order_by('code', 'ASC')
     ->limit($limit)
     ->get('orders');

@@ -15,7 +15,7 @@ class Wrx_web_api
   {
     $this->ci =& get_instance();
 		$this->ci->load->model('rest/V1/ix_api_logs_model');
-    $this->ci->load->model('orders/orders_model');    
+    $this->ci->load->model('orders/orders_model');
 
     $this->api = getWrxApiConfig();
     $this->logs_json = is_true($this->api['WRX_LOG_JSON']);
@@ -25,7 +25,7 @@ class Wrx_web_api
 
   public function create_shipment($code, $tracking)
   {
-    $action = "crate";
+    $action = "create";
     $this->type = "tracking";
     $url = $this->api['WRX_API_HOST'];
     $url .= "magento/order/ship";
@@ -133,7 +133,7 @@ class Wrx_web_api
           }
           else
           {
-            $this->error = $res->serviceMessage;
+            $this->error = empty($res->data->message) ? $res->data->message : $res->serviceMessage;
 
             if($this->logs_json)
             {
@@ -168,6 +168,83 @@ class Wrx_web_api
     }
   }
 
+
+  public function send_tracking($code, $tracking)
+  {
+    $action = "create";
+    $this->type = "tracking";
+    $url = $this->api['WRX_API_HOST'];
+    $url .= "magento/order/ship";
+    $api_path = $url;
+
+    $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
+    $apiUrl = str_replace(" ","%20",$url);
+    $method = 'POST';
+
+    $playload = array(
+      'orderID' => $code,
+      'email' => "",
+      'tracking' => array(
+        array('trackNo' => $tracking)
+      )
+    );
+
+    if( ! empty($playload))
+    {
+      $json = json_encode($playload);
+
+      if($this->test === TRUE)
+      {
+        if($this->logs_json)
+        {
+          $logs = array(
+            'trans_id' => genUid(),
+            'type' => $this->type,
+            'api_path' => $api_path,
+            'code' => $code,
+            'action' => 'test',
+            'status' => 'test',
+            'message' => 'test',
+            'request_json' => $json,
+            'response_json' => NULL
+          );
+
+          $this->ci->ix_api_logs_model->add_logs($logs);
+        }
+
+        return TRUE;
+      }
+      else
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'type' => $this->type,
+          'api_path' => $api_path,
+          'code' => $code,
+          'action' => $action,
+          'status' => 'success',
+          'message' => NULL,
+          'request_json' => $json,
+          'response_json' => NULL
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+
+        $cmd = "curl -X POST {$apiUrl}"
+        ." -H 'Content-Type:application/json'"
+        ." -H 'Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}'"
+        ." -d '" . $json . "'"
+        ." > /dev/null 2>&1 &";
+        exec($cmd);
+        return TRUE;
+      }
+    }
+    else
+    {
+      $this->error = "Missing required parameter";
+      return FALSE;
+    }
+  }
 } //-- end class
 
 

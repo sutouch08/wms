@@ -731,6 +731,46 @@ class Qc extends PS_Controller
   }
 
 
+  public function send_web_tracking($code)
+  {
+    $sc = TRUE;    
+    $this->load->library('wrx_web_api');
+
+    if( ! empty($code))
+    {
+      $order = $this->orders_model->get($code);
+
+      if( ! empty($order))
+      {
+        if($order->channels_code === 'WRX12' && ! empty($order->reference) && ! empty($order->shipping_code))
+        {
+          if($this->wrx_web_api->send_tracking($order->reference, $order->shipping_code))
+          {
+            $this->orders_model->update($code, ['send_tracking' => 1]);
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Send tracking to Magento failed : {$this->wrx_web_api->error}";
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
+
   public function view_process()
   {
     $this->title = "รายการกำลังตรวจ";

@@ -139,6 +139,10 @@
 
   <div class="row hidden-xs">
     <div class="col-lg-12 col-md-12 col-sm-12 text-right">
+      <?php if($order->channels_code == 'WRX12' && ! empty($order->reference) && ! empty($order->shipping_code)) : ?>
+        <button type="button" class="btn btn-white btn-purple top-btn" onclick="sendWebTracking('<?php echo $order->code; ?>')"><i class="fa fa-send"></i>&nbsp; Send Web Tracking</button>
+      <?php endif; ?>
+
       <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
         <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> TikTok Label</button>
       <?php endif; ?>
@@ -675,7 +679,7 @@
       }
     })
   }
-  
+
 
   function shipOrderPorlor(code) {
     load_in();
@@ -689,6 +693,35 @@
 
         if(rs.trim() === 'success') {
           printPorlorLabel(code);
+        }
+        else {
+          beep();
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
+
+  function sendWebTracking(code) {
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'inventory/qc/send_web_tracking/'+code,
+      type:'POST',
+      cache:false,
+      success:function(rs) {
+        load_out();
+
+        if(rs.trim() === 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
         }
         else {
           beep();

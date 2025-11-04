@@ -2,11 +2,13 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Ix_api_logs_model extends CI_Model
 {
+	public $wms;
 	private $td = 'ix_api_logs';
 
   public function __construct()
   {
     parent::__construct();
+		$this->wms = $this->load->database('wms', TRUE);
   }
 
 	public function add_logs($ds = array())
@@ -111,7 +113,7 @@ class Ix_api_logs_model extends CI_Model
 				$this->wms->where('shop_id', $ds['shop_id']);
 			}
 		}
-		
+
 		if(!empty($ds['status']) && $ds['status'] !== 'all')
 		{
 			$this->wms->where('status', $ds['status']);

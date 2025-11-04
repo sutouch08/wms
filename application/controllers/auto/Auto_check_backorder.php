@@ -117,11 +117,12 @@ class Auto_check_backorder extends CI_Controller
   public function get_backorder_list($limit = 100)
   {
     $max_id = $this->orders_model->get_max_id();
+    $days = 90; // เช็คย้อนหลังไม่เกิน 60 วัน
+    $from_date = date('Y-m-d 00:00:00', strtotime("-$days days"));
 
     $rs = $this->db
-    ->select('code, state, status, is_expired, warehouse_code')
-    ->where('role', 'S')
-    ->where('id >', $max_id)
+    ->select('code, state, status, is_expired, warehouse_code')    
+    ->where('date_add >', $from_date)
     ->where('is_pre_order', 0)
     ->where('is_backorder', 1)
     ->order_by('last_sync', 'ASC')
