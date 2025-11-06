@@ -10,7 +10,7 @@ class Delivery_order extends PS_Controller
 	public $title = 'รายการรอเปิดบิล';
   public $filter;
   public $error;
-  public $logs;  
+  public $logs;
 
   public function __construct()
   {
@@ -199,7 +199,7 @@ class Delivery_order extends PS_Controller
           $arr = array(
             'state' => 8,
             'is_backorder' => 0,
-            'real_shipped_date' => now(),
+            'real_shipped_date' => empty($roder->real_shipped_date) ? now() : $order->real_shipped_date,
             'shipped_date' => empty($order->shipped_date) ? now() : $order->shipped_date,
             'update_user' => $this->_user->uname
           );

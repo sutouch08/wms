@@ -11,6 +11,12 @@
             <td class="width-25 text-right c-offline">Offline</td>
             <td class="width-25 text-right">Total</td>
           </tr>
+					<tr class="font-size-14 c-0">
+            <td class="width-25">Back order</td>
+            <td class="width-25 text-right c-online" id="online-0">-</td>
+            <td class="width-25 text-right c-offline" id="offline-0">-</td>
+            <td class="width-25 text-right" id="total-0">-</td>
+          </tr>
           <tr class="font-size-14 c-3">
             <td class="width-25">รอจัด</td>
             <td class="width-25 text-right c-online" id="online-3">-</td>
@@ -18,7 +24,7 @@
             <td class="width-25 text-right" id="total-3">-</td>
           </tr>
           <tr class="font-size-14 c-4">
-            <td class="width-25r">กำลังจัด</td>
+            <td class="width-25">กำลังจัด</td>
             <td class="width-25 text-right c-online" id="online-4">-</td>
             <td class="width-25 text-right c-offline" id="offline-4">-</td>
             <td class="width-25 text-right" id="total-4">-</td>
@@ -66,6 +72,10 @@
             <td class="width-50">State</td>
             <td class="width-50 text-right">Total</td>
           </tr>
+					<tr class="font-size-14 c-0">
+            <td class="width-50">Back order</td>
+            <td class="width-50 text-right" id="tiktok-0">-</td>
+          </tr>
           <tr class="font-size-14 c-3">
             <td class="width-50">รอจัด</td>
             <td class="width-50 text-right" id="tiktok-3">-</td>
@@ -107,6 +117,10 @@
             <td class="width-50">State</td>
             <td class="width-50 text-right">Total</td>
           </tr>
+					<tr class="font-size-14 c-0">
+            <td class="width-50">Back order</td>
+            <td class="width-50 text-right" id="shopee-0">-</td>
+          </tr>
           <tr class="font-size-14 c-3">
             <td class="width-50">รอจัด</td>
             <td class="width-50 text-right" id="shopee-3">-</td>
@@ -147,6 +161,10 @@
           <tr class="font-size-14">
             <td class="width-50">State</td>
             <td class="width-50 text-right">Total</td>
+          </tr>
+					<tr class="font-size-14 c-0">
+            <td class="width-50">Back order</td>
+            <td class="width-50 text-right" id="lazada-0">-</td>
           </tr>
           <tr class="font-size-14 c-3">
             <td class="width-50">รอจัด</td>
@@ -238,7 +256,7 @@
 				}
 			});
 		}
-	
+
 		let delay = parseDefault(parseInt($('#refresh-time-ms').val()), 120000);
 
 		getData();
@@ -351,6 +369,7 @@
 				"lazada" : 1
 			},
 			"state" : {
+				"0" : 1,
 				"3" : 1,
 				"4" : 1,
 				"5" : 1,
@@ -375,6 +394,7 @@
 				"lazada" : $('#setting-lazada').val()
 			},
 			"state" : {
+				"0" : $('#setting-state-0').val(),
 				"3" : $('#setting-state-3').val(),
 				"4" : $('#setting-state-4').val(),
 				"5" : $('#setting-state-5').val(),

@@ -60,6 +60,13 @@
     <div class="divider-hidden"></div>
     <div class="col-xs-12 font-size-18 text-center">State</div>
     <div class="divider" style="margin-top:5px;"></div>
+    <div class="col-xs-8">Back order</div>
+    <div class="col-xs-4 text-right">
+      <label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" type="checkbox" data-name="state-0" value="1" id="state-0" onchange="toggleOption($(this))" checked/>
+				<span class="lbl margin-left-0" data-lbl="OFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON"></span>
+			</label>
+    </div>
     <div class="col-xs-8">รอจัด</div>
     <div class="col-xs-4 text-right">
       <label style="padding-top:5px; margin-bottom:0px;">
@@ -116,6 +123,7 @@
   <input type="hidden" name="channels-tiktok" id="setting-tiktok" value="1" />
   <input type="hidden" name="channels-shopee" id="setting-shopee" value="1" />
   <input type="hidden" name="channels-lazada" id="setting-lazada" value="1" />
+  <input type="hidden" name="state-0" id="setting-state-0" value="1" />
   <input type="hidden" name="state-3" id="setting-state-3" value="1" />
   <input type="hidden" name="state-4" id="setting-state-4" value="1" />
   <input type="hidden" name="state-5" id="setting-state-5" value="1" />

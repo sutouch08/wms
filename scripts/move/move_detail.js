@@ -108,15 +108,20 @@ function getMoveTable(){
 
 function getTempTable(){
 	var code = $("#move_code").val();
+
+	load_in();
+
 	$.ajax({
 		url: HOME + 'get_temp_table/'+code,
 		type:"GET",
     cache:"false",
-		success: function(rs){
-			if( isJson(rs) ){
-				var source 	= $("#tempTableTemplate").html();
-				var data		= $.parseJSON(rs);
-				var output	= $("#temp-list");
+		success: function(rs) {
+			load_out();
+
+			if( isJson(rs) ) {
+				var source = $("#tempTableTemplate").html();
+				var data = JSON.parse(rs);
+				var output = $("#temp-list");
 				render(source, data, output);
 
 				setTimeout(() => {
@@ -130,6 +135,12 @@ function getTempTable(){
 					}
 				}, 200);
 			}
+			else {
+				showError(rs);
+			}
+		},
+		error:function(rs) {
+			showError(rs);
 		}
 	});
 }

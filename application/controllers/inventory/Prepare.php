@@ -44,6 +44,8 @@ class Prepare extends PS_Controller
       'role' => get_filter('role', 'ic_role', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'from_due_date' => get_filter('from_due_date', 'ic_from_due_date', ''),
+      'to_due_date' => get_filter('to_due_date', 'ic_to_due_date', ''),
       'order_by' => get_filter('order_by', 'ic_order_by', ''),
       'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
       'stated' => get_filter('stated', 'ic_stated', ''),
@@ -99,6 +101,8 @@ class Prepare extends PS_Controller
       'role' => get_filter('role', 'ic_role', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
+      'from_due_date' => get_filter('from_due_date', 'ic_from_due_date', ''),
+      'to_due_date' => get_filter('to_due_date', 'ic_to_due_date', ''),
       'order_by' => get_filter('order_by', 'ic_order_by', ''),
       'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
       'stated' => get_filter('stated', 'ic_stated', ''),
@@ -444,6 +448,11 @@ class Prepare extends PS_Controller
     }
   }
 
+  public function order_canceled($code)
+  {
+    $order = $this->orders_model->get($code);
+    $this->load->view('inventory/prepare/order_cancelled', ['order' => $order]);
+  }
 
   public function get_complete_item($id_order_detail)
   {
@@ -944,6 +953,8 @@ class Prepare extends PS_Controller
       'ic_role',
       'ic_from_date',
       'ic_to_date',
+      'ic_from_due_date',
+      'ic_to_due_date',
       'ic_order_by',
       'ic_sort_by',
       'ic_stated',

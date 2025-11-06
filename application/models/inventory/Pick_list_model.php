@@ -576,7 +576,7 @@ class Pick_list_model extends CI_Model
     $this->db
     ->from('orders AS o')
     ->select('o.id, o.code, o.customer_code, o.customer_name, o.channels_code')
-    ->select('o.id_sender, o.pick_list_id, o.is_backorder, o.date_add, o.date_upd, c.name AS channels_name')
+    ->select('o.id_sender, o.pick_list_id, o.is_backorder, o.date_add, o.date_upd, o.due_date, c.name AS channels_name')
     ->select('s.name AS sender_name')
     ->join('channels AS c', 'o.channels_code = c.code', 'left')
     ->join('address_sender AS s', 'o.id_sender = s.id', 'left');
@@ -604,6 +604,11 @@ class Pick_list_model extends CI_Model
     ->where('o.is_pre_order', 0)
     ->where('o.warehouse_code', $ds['warehouse_code']);
 
+    if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
+    {
+      $this->db->where('o.is_backorder', $ds['is_backorder']);
+    }
+
     if( ! empty($ds['from_date']))
     {
       $this->db->where('o.date_add >=', from_date($ds['from_date']));
@@ -620,6 +625,16 @@ class Pick_list_model extends CI_Model
       $end = db_date($ds['to_date'], FALSE). ' '.$ds['end_time'];
 
       $this->db->where('o.date_upd >=', $start)->where('o.date_upd <=', $end);
+    }
+
+    if( ! empty($ds['due_from_date']))
+    {
+      $this->db->where('o.due_date >=', from_date($ds['due_from_date']));
+    }
+
+    if( ! empty($ds['due_to_date']))
+    {
+      $this->db->where('o.due_date <=', to_date($ds['due_to_date']));
     }
 
     if( isset($ds['channels']) && $ds['channels'] != 'all')

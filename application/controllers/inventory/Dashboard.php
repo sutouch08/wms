@@ -34,7 +34,17 @@ class Dashboard extends CI_Controller
     }
     else
     {
-      $this->load->view('inventory/dashboard/dashboard');
+      $ds = array(
+        'd1' => $this->dashboard_model->getShippedLastDays(1),
+        'd2' => $this->dashboard_model->getShippedLastDays(2),
+        'd3' => $this->dashboard_model->getShippedLastDays(3),
+        'd4' => $this->dashboard_model->getShippedLastDays(4),
+        'd5' => $this->dashboard_model->getShippedLastDays(5),
+        'd6' => $this->dashboard_model->getShippedLastDays(6),
+        'd7' => $this->dashboard_model->getShippedLastDays(7)
+      );
+
+      $this->load->view('inventory/dashboard/dashboard', $ds);
     }
   }
 

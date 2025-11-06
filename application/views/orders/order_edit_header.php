@@ -3,19 +3,23 @@
     	<label>เลขที่เอกสาร</label>
       <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
     </div>
-		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<!-- <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 			<label>ใบเสนอราคา</label>
 		  <input type="text" class="form-control input-sm text-center" value="<?php echo $order->quotation_no; ?>" disabled />
-		</div>
-    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		</div> -->
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     	<label>วันที่</label>
 			<input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($order->date_add); ?>" disabled readonly />
+    </div>
+    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    	<label>Due date</label>
+			<input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo empty($order->due_date) ? "" : thai_date($order->due_date); ?>" disabled readonly />
     </div>
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>รหัสลูกค้า</label>
 			<input type="text" class="form-control input-sm text-center edit" id="customer_code" name="customer_code" value="<?php echo $order->customer_code; ?>" disabled />
 		</div>
-    <div class="col-lg-6 col-md-5 col-sm-4-harf col-xs-12 padding-5">
+    <div class="col-lg-6 col-md-5-harf col-sm-5 col-xs-12 padding-5">
     	<label>ลูกค้า[ในระบบ]</label>
 			<input type="text" class="form-control input-sm edit" id="customer" name="customer" value="<?php echo $order->customer_name; ?>" required disabled />
     </div>

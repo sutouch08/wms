@@ -12,6 +12,20 @@ $('#order-to-date').datepicker({
   }
 })
 
+$('#due-from-date').datepicker({
+  dateFormat:'dd-mm-yy',
+  onClose:function(sd) {
+    $('#due-to-date').datepicker('option', 'minDate', sd)
+  }
+})
+
+$('#due-to-date').datepicker({
+  dateFormat:'dd-mm-yy',
+  onClose:function(sd) {
+    $('#due-from-date').datepicker('option', 'maxDate', sd)
+  }
+})
+
 
 $('#item-code').autocomplete({
   source:HOME + 'get_item_code',
@@ -48,6 +62,9 @@ function clearOrderList() {
   let channels = $('#channels').val();
   $('#order-from-date').val('');
   $('#order-to-date').val('');
+  $('#due-from-date').val('');
+  $('#due-to-date').val('');
+  $('#is-backorder').val('0');
   $('#start-time').val('');
   $('#end-time').val('');
   $('#channels-code').val(channels).change();
@@ -62,6 +79,8 @@ function getOrderList() {
   let h = {
     'from_date' : $('#order-from-date').val(),
     'to_date' : $('#order-to-date').val(),
+    'due_from_date' : $('#due-from-date').val(),
+    'due_to_date' : $('#due-to-date').val(),
     'channels' : $('#channels-code').val(),
     'start_time' : $('#start-time').val(),
     'end_time' : $('#end-time').val(),
@@ -72,6 +91,7 @@ function getOrderList() {
     'is_pick_list' : $('#is-pick-list').val(),
     'warehouse_code' : $('#warehouse').val(),
     'is_1_sku' : $('#1sku').is(':checked') ? 1 : 0,
+    'is_backorder' : $('#is-backorder').val(),
     'limit' : $('#limit').val()
   }
 

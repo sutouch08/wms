@@ -74,7 +74,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
 	    <label>Shop Name</label>
 			<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -82,7 +82,7 @@
 			</select>
 	  </div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>ออนไลน์</label>
 			<select class="form-control input-sm" name="is_online">
 				<option value="all">ทั้งหมด</option>
@@ -106,7 +106,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>Backorder</label>
 			<select class="form-control input-sm" name="is_backorder">
 				<option value="all">ทั้งหมด</option>
@@ -129,6 +129,14 @@
 			<div class="input-daterange input-group width-100">
 				<input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" readonly value="<?php echo $from_date; ?>" />
 				<input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" readonly value="<?php echo $to_date; ?>" />
+			</div>
+		</div>
+
+		<div class="col-lg-2 col-md-3 col-sm-2-harf col-xs-6 padding-5 fi">
+			<label>Due Date</label>
+			<div class="input-daterange input-group width-100">
+				<input type="text" class="form-control input-sm width-50 text-center from-date" name="from_due_date" id="fromDueDate" readonly value="<?php echo $from_due_date; ?>" />
+				<input type="text" class="form-control input-sm width-50 text-center" name="to_due_date" id="toDueDate" readonly value="<?php echo $to_due_date; ?>" />
 			</div>
 		</div>
 
@@ -166,7 +174,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-4 col-sm-3 col-xs-12 padding-5 fi">
+		<div class="col-lg-2-harf col-md-4 col-sm-3 col-xs-12 padding-5 fi">
 			<label>รหัสสินค้า</label>
 			<input type="text" class="form-control input-sm search" name="item_code" id="item_code" value="<?php echo $item_code; ?>" />
 		</div>
@@ -225,6 +233,7 @@
 					</th>
 					<th class="fix-width-40 middle text-center hidden-xs">#</th>
 					<th class="fix-width-150 middle text-center hidden-xs">วันที่</th>
+					<th class="fix-width-100 middle text-center hidden-xs">Due date</th>
 					<th class="fix-width-150 middle hidden-xs">เลขที่เอกสาร</th>
 					<th class="fix-width-150 middle hidden-xs">เลขที่อ้างอิง</th>
 					<th class="fix-width-150 middle hidden-xs">ช่องทาง</th>
@@ -264,6 +273,9 @@
 							</td>
               <td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
 							<td class="middle text-center  hidden-xs"><?php echo thai_date($rs->date_add, TRUE,'/'); ?></td>
+							<td class="middle text-center  hidden-xs">
+								<?php echo empty($rs->due_date) ? "-" : thai_date($rs->due_date, FALSE,'/'); ?>
+							</td>
 							<td class="middle hidden-xs"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
 							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
 							<td class="middle hidden-xs"><?php echo $rs->channels_name; ?></td>
@@ -317,7 +329,7 @@
           <?php endforeach; ?>
         <?php else : ?>
           <tr>
-            <td colspan="11" class="text-center">--- No content ---</td>
+            <td colspan="12" class="text-center">--- No content ---</td>
           </tr>
         <?php endif; ?>
 			</tbody>

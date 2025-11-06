@@ -77,7 +77,6 @@ $('#barcode-order').keyup(function(e) {
 })
 
 
-
 function genPickList() {
   let limit = 100;
   let count = $('.pc:checked').length;
@@ -144,7 +143,47 @@ function pullBack(code){
   });
 }
 
-//--- ไปหน้ารายการที่กำลังจัดสินค้าอยู่
+
 function viewProcess(){
   window.location.href = HOME + '/view_process';
+}
+
+
+function confirmCanceledOrder(code) {
+
+  load_in();
+
+  $.ajax({
+    url:BASE_URL + 'orders/orders/order_state_change',
+    type:'POST',
+    cache:false,
+    data:{
+      'order_code' : code,
+      'state' : 9,
+      'force_cancel' : 1,
+      'reason_id' : 4,
+      'cancle_reason' : "ออเดอร์ถูกยกเลิกบน platform แล้ว"
+    },
+    success:function(rs) {
+      load_out();
+
+      if(rs.trim() === 'success') {
+        swal({
+          title:'Canceled',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(() => {
+          goBack();
+        }, 1200);
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  });
 }

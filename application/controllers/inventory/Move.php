@@ -835,6 +835,7 @@ class Move extends PS_Controller
     if($this->input->post('move_code'))
     {
       $this->load->model('masters/products_model');
+      $this->load->model('inventory/buffer_model');
 
       $code = $this->input->post('move_code');
       $zone_code = $this->input->post('from_zone');
@@ -850,8 +851,10 @@ class Move extends PS_Controller
         $temp_qty = $this->move_model->get_temp_qty($code, $product_code, $zone_code);
         //--- จำนวนที่อยู่ใน move_detail และยังไม่ valid
         $move_qty = $this->move_model->get_move_qty($code, $product_code, $zone_code);
+        //--- buffer_qty
+        $buffer_qty = $this->buffer_model->get_buffer_zone($zone_code, $product_code);
         //--- จำนวนที่โอนได้คงเหลือ
-        $cqty = $stock - ($temp_qty + $move_qty);
+        $cqty = $stock - ($temp_qty + $move_qty + $buffer_qty);
 
         if($qty <= $cqty)
         {
@@ -1232,6 +1235,7 @@ class Move extends PS_Controller
         if( ! empty($stock))
         {
           $this->load->model('masters/products_model');
+          $this->load->model('inventory/buffer_model');
           $no = 1;
 
           foreach($stock as $rs)
@@ -1240,8 +1244,12 @@ class Move extends PS_Controller
             $temp_qty = $this->move_model->get_temp_qty($move_code, $rs->product_code, $zone_code);
             //--- จำนวนที่อยู่ใน move_detail และยังไม่ valid
             $move_qty = $this->move_model->get_move_qty($move_code, $rs->product_code, $zone_code);
+
+            //--- buffer qty  สำหรับตัดรายการที่ถูกจัดไปแล้วแต่ยังไม่เปิดบิล
+            $buffer_qty = $this->buffer_model->get_buffer_zone($zone_code, $rs->product_code);
+
             //--- จำนวนที่โอนได้คงเหลือ
-            $qty = $rs->qty - ($temp_qty + $move_qty);
+            $qty = $rs->qty - ($temp_qty + $move_qty + $buffer_qty);
 
             if($qty > 0)
             {
@@ -1291,10 +1299,12 @@ class Move extends PS_Controller
     if($this->input->get('zone_code'))
     {
       $this->load->model('masters/products_model');
+      $this->load->model('inventory/buffer_model');
 
       $zone_code = $this->input->get('zone_code');
       $move_code = $this->input->get('move_code');
       $stock = $this->stock_model->get_all_stock_in_zone($zone_code);
+
       if(!empty($stock))
       {
         $no = 1;
@@ -1304,8 +1314,10 @@ class Move extends PS_Controller
           $temp_qty = $this->move_model->get_temp_qty($move_code, $rs->product_code, $zone_code);
           //--- จำนวนที่อยู่ใน move_detail และยังไม่ valid
           $move_qty = $this->move_model->get_move_qty($move_code, $rs->product_code, $zone_code);
+          //--- buffer qty  สำหรับตัดรายการที่ถูกจัดไปแล้วแต่ยังไม่เปิดบิล
+          $buffer_qty = $this->buffer_model->get_buffer_zone($zone_code, $rs->product_code);
           //--- จำนวนที่โอนได้คงเหลือ
-          $qty = $rs->qty - ($temp_qty + $move_qty);
+          $qty = $rs->qty - ($temp_qty + $move_qty + $buffer_qty);
 
           if($qty > 0)
           {

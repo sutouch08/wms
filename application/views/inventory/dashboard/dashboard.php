@@ -41,7 +41,7 @@
           <div class="page-content">
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
-                <h3 class="title" style="font-size:3vw;">Inventory Dashboard</h3>
+                <h3 class="title" style="font-size:2.5vw;">Inventory Dashboard</h3>
 								<div class="toggle-header">
 									<a class="toggle-header-icon" onclick="showSetting()"><i class="fa fa-cogs fa-2x"></i></a>
 								</div>
@@ -53,9 +53,10 @@
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <table class="table border-1">
                   <tr>
-                    <td class="">
+                    <td class="width-20">
                       &nbsp;
                     </td>
+										<td class="h-box i-0 c-0">Back</td>
                     <td class="h-box i-3 c-3">รอจัด</td>
                     <td class="h-box i-4 c-4">กำลังจัด</td>
                     <td class="h-box i-5 c-5">รอตรวจ</td>
@@ -65,6 +66,7 @@
                   </tr>
                   <tr id="r-offline">
                     <td class="head-line">OFFLINE</td>
+										<td class="v-box i-0 c-0"><span id="offline-0">-</span><div class="pre-load load-out" id="pre-load-offline-0"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-3 c-3"><span id="offline-3">-</span><div class="pre-load load-out" id="pre-load-offline-3"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-4 c-4"><span id="offline-4">-</span><div class="pre-load load-out" id="pre-load-offline-4"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-5 c-5"><span id="offline-5">-</span><div class="pre-load load-out" id="pre-load-offline-5"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
@@ -74,6 +76,7 @@
                   </tr>
                   <tr id="r-online">
                     <td class="head-line">ONLINE</td>
+										<td class="v-box i-02 c-0"><span id="online-0">-</span><div class="pre-load load-out" id="pre-load-online-0"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-32 c-3"><span id="online-3">-</span><div class="pre-load load-out" id="pre-load-online-3"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-42 c-4"><span id="online-4">-</span><div class="pre-load load-out" id="pre-load-online-4"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-52 c-5"><span id="online-5">-</span><div class="pre-load load-out" id="pre-load-online-5"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
@@ -83,6 +86,7 @@
                   </tr>
 									<tr id="r-total">
                     <td class="head-line total">Total</td>
+										<td class="v-box total c-0"><span id="total-0">-</span></td>
                     <td class="v-box total c-3"><span id="total-3">-</span></td>
                     <td class="v-box total c-4"><span id="total-4">-</span></td>
                     <td class="v-box total c-5"><span id="total-5">-</span></td>
@@ -92,6 +96,7 @@
                   </tr>
                   <tr id="r-tiktok">
                     <td class="head-line">TIKTOK</td>
+										<td class="v-box i-0 c-0"><span id="tiktok-0">-</span><div class="pre-load load-out" id="pre-load-tiktok-0"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-3 c-3"><span id="tiktok-3">-</span><div class="pre-load load-out" id="pre-load-tiktok-3"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-4 c-4"><span id="tiktok-4">-</span><div class="pre-load load-out" id="pre-load-tiktok-4"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-5 c-5"><span id="tiktok-5">-</span><div class="pre-load load-out" id="pre-load-tiktok-5"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
@@ -101,6 +106,7 @@
                   </tr>
                   <tr id="r-shopee">
                     <td class="head-line">SHOPEE</td>
+										<td class="v-box i-02 c-0"><span id="shopee-0">-</span><div class="pre-load load-out" id="pre-load-shopee-0"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-32 c-3"><span id="shopee-3">-</span><div class="pre-load load-out" id="pre-load-shopee-3"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-42 c-4"><span id="shopee-4">-</span><div class="pre-load load-out" id="pre-load-shopee-4"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-52 c-5"><span id="shopee-5">-</span><div class="pre-load load-out" id="pre-load-shopee-5"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
@@ -110,6 +116,7 @@
                   </tr>
                   <tr id="r-lazada">
                     <td class="head-line">LAZADA</td>
+										<td class="v-box i-0 c-0"><span id="lazada-0">-</span><div class="pre-load load-out" id="pre-load-lazada-0"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-3 c-3"><span id="lazada-3">-</span><div class="pre-load load-out" id="pre-load-lazada-3"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-4 c-4"><span id="lazada-4">-</span><div class="pre-load load-out" id="pre-load-lazada-4"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
                     <td class="v-box i-5 c-5"><span id="lazada-5">-</span><div class="pre-load load-out" id="pre-load-lazada-5"><i class="fa fa-refresh fa-spin fa-fw"></i></div></td>
@@ -120,6 +127,35 @@
                 </table>
               </div>
             </div>
+						<div class="divider"></div>
+
+						<div class="row">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<table class="table table-bordered border-1">
+									<tr>
+										<td colspan="7" class="h-box i-8 text-center">จัดส่งแล้ว 7 วันล่าสุด</td>
+									</tr>
+									<tr>
+										<td class="h-box i-8 text-center"><?php echo date('d/m', strtotime('-7 day')); ?></td>
+										<td class="h-box i-8 text-center"><?php echo date('d/m', strtotime('-6 day')); ?></td>
+										<td class="h-box i-8 text-center"><?php echo date('d/m', strtotime('-5 day')); ?></td>
+										<td class="h-box i-8 text-center"><?php echo date('d/m', strtotime('-4 day')); ?></td>
+										<td class="h-box i-8 text-center"><?php echo date('d/m', strtotime('-3 day')); ?></td>
+										<td class="h-box i-8 text-center"><?php echo date('d/m', strtotime('-2 day')); ?></td>
+										<td class="h-box i-8 text-center"><?php echo date('d/m', strtotime('-1 day')); ?></td>
+									</tr>
+									<tr>
+										<td class="v-box i-8 text-center"><?php echo ac_format($d7); ?></td>
+										<td class="v-box i-8 text-center"><?php echo ac_format($d6); ?></td>
+										<td class="v-box i-8 text-center"><?php echo ac_format($d5); ?></td>
+										<td class="v-box i-8 text-center"><?php echo ac_format($d4); ?></td>
+										<td class="v-box i-8 text-center"><?php echo ac_format($d3); ?></td>
+										<td class="v-box i-8 text-center"><?php echo ac_format($d2); ?></td>
+										<td class="v-box i-8 text-center"><?php echo ac_format($d1); ?></td>
+									</tr>
+								</table>
+							</div>
+						</div>
           </div>
           <div class="footer hidden-print">
             <div class="footer-inner">
@@ -146,7 +182,7 @@
     <script>
 			const HOME = '<?php echo $this->home; ?>/';
 			var syncChannels = []; //['offline', 'online', 'tiktok', 'shopee', 'lazada'];
-			var syncState = []; //['3', '4', '5', '6', '7', '8'];
+			var syncState = []; //['0', '3', '4', '5', '6', '7', '8'];
 
 			window.addEventListener('load', () => {
 
@@ -200,7 +236,7 @@
 						}
 					});
 				}
-				
+
 				let delay = parseDefault(parseInt($('#refresh-time-ms').val()), 120000);
 
 				getData();
@@ -290,6 +326,7 @@
 						"lazada" : 1
 					},
 					"state" : {
+						"0" : 1,
 						"3" : 1,
 						"4" : 1,
 						"5" : 1,
@@ -314,6 +351,7 @@
 						"lazada" : $('#setting-lazada').val()
 					},
 					"state" : {
+						"0" : $('#setting-state-0').val(),
 						"3" : $('#setting-state-3').val(),
 						"4" : $('#setting-state-4').val(),
 						"5" : $('#setting-state-5').val(),

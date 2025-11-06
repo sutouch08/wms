@@ -1,6 +1,6 @@
 <style>
 .head-line {
-  font-size:2.5vw;
+  font-size: clamp(2rem, 2.5rem, 6rem);
   text-align: center;
   font-weight: bolder;
   vertical-align:middle !important;
@@ -8,11 +8,10 @@
 }
 
 .h-box {
-  /* width: 16.5%;
-  max-width:20% !important%; */
+  width: 10%; 
   text-align: center;
   color: #333333;
-  font-size: 3vw;
+  font-size: clamp(1.5rem, 2.5rem, 8rem);
   font-weight: bolder;
   vertical-align:middle !important;
 }
@@ -22,7 +21,7 @@
   min-height: 200px !important;
   text-align: center;
   color: #333333;
-  font-size: 3vw;
+  font-size: clamp(2rem, 2.5rem, 6rem);
   font-weight: bolder;
   vertical-align:middle !important;
 }
@@ -47,6 +46,7 @@
   opacity: 0.6;
 }
 
+.h-box.i-0 { background-color: #cccccc;}
 .h-box.i-3 { background-color: #a59df3;}
 .h-box.i-4 { background-color: #FBB57F;}
 .h-box.i-5 { background-color: #d990ef;}
@@ -54,6 +54,7 @@
 .h-box.i-7 { background-color: #e7a9cd;}
 .h-box.i-8 { background-color: #92cd88;}
 
+.v-box.i-0 { background-color: #dddddd;}
 .v-box.i-3 { background-color: #d3cffb;}
 .v-box.i-4 { background-color: #ffd3b1;}
 .v-box.i-5 { background-color: #e7bdf3;}
@@ -61,6 +62,7 @@
 .v-box.i-7 { background-color: #e9c9dc;}
 .v-box.i-8 { background-color: #cfedca;}
 
+.v-box.i-02 { background-color: #dddddd;}
 .v-box.i-32 { background-color: #ADA9D4;}
 .v-box.i-42 { background-color: #efba92;}
 .v-box.i-52 { background-color: #e1adef;}

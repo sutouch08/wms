@@ -37,6 +37,22 @@ $("#toDate").datepicker({
 });
 
 
+$("#fromDueDate").datepicker({
+  dateFormat: 'dd-mm-yy',
+  onClose: function(sd){
+    $("#toDueDate").datepicker("option", "minDate", sd);
+  }
+});
+
+
+$("#toDueDate").datepicker({
+  dateFormat: 'dd-mm-yy',
+  onClose: function(sd){
+    $("#fromDueDate").datepicker("option", "maxDate", sd);
+  }
+});
+
+
 function toggleFilter() {
   let filter = $('#filter');
   let pad = $('#filter-pad');

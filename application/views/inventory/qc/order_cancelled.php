@@ -17,9 +17,12 @@
     <center><h3>ออเดอร์ถูกยกเลิก</h3></center>
     <center><h4>ออเดอร์นี้ถูกยกเลิกบน Platform แล้ว</h4></center>
   </div>
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center margin-top-15">
+    <button type="button" class="btn btn-white btn-lg btn-danger" onclick="confirmCanceledOrder('<?php echo $order->code; ?>')"><i class="fa fa-exclamation-triangle"></i>&nbsp; ยกเลิกออเดอร์</button>
+  </div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>-1"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>

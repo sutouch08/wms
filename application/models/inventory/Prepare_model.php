@@ -375,6 +375,16 @@ class Prepare_model extends CI_Model
       }
     }
 
+    if( ! empty($ds['from_due_date']))
+    {
+      $this->db->where('o.due_date >=', from_date($ds['from_due_date']));
+    }
+
+    if( ! empty($ds['to_due_date']))
+    {
+      $this->db->where('o.due_date <=', to_date($ds['to_due_date']));
+    }
+
     return $this->db->count_all_results();
   }
 
@@ -396,7 +406,7 @@ class Prepare_model extends CI_Model
   {
     $this->db
 		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
-    ->select('o.customer_ref, o.date_add, o.channels_code, o.is_backorder, o.is_cancled, o.shop_id')
+    ->select('o.customer_ref, o.date_add, o.due_date, o.channels_code, o.is_backorder, o.is_cancled, o.shop_id')
     ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user, o.id_sender')
     ->select('ch.name AS channels_name, s.name AS sender_name')
     ->from('orders AS o')
@@ -526,6 +536,16 @@ class Prepare_model extends CI_Model
         $this->db->where('o.date_add >=', from_date($ds['from_date']));
         $this->db->where('o.date_add <=', to_date($ds['to_date']));
       }
+    }
+
+    if( ! empty($ds['from_due_date']))
+    {
+      $this->db->where('o.due_date >=', from_date($ds['from_due_date']));
+    }
+
+    if( ! empty($ds['to_due_date']))
+    {
+      $this->db->where('o.due_date <=', to_date($ds['to_due_date']));
     }
 
     $this->db->group_by('o.code');

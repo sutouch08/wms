@@ -52,7 +52,7 @@
 			<?php echo select_sender($doc->sender_id); ?>
 		</select>
 	</div>
-  <div class="col-lg-9 col-md-6 col-sm-5-harf col-xs-9 padding-5">
+  <div class="col-lg-9 col-md-6 col-sm-5-harf col-xs-12 padding-5">
     <label>หมายเหตุ</label>
 		<input type="text" class="width-100 e" id="remark" value="<?php echo $doc->remark; ?>" disabled/>
   </div>

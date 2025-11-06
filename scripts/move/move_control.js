@@ -2,7 +2,9 @@
 function getProductInZone(){
 	var zone_code  = $("#from_zone_code").val();
 	var move_code = $('#move_code').val();
-	if( zone_code.length > 0 ){
+	if( zone_code.length > 0 ) {
+		load_in();
+
 		$.ajax({
 			url: HOME + 'get_product_in_zone',
 			type:"GET",
@@ -11,12 +13,13 @@ function getProductInZone(){
 				'move_code' : move_code,
         'zone_code' : zone_code
       },
-			success: function(rs){
-				var rs = 	$.trim(rs);
-				if( isJson(rs) ){
+			success: function(rs) {
+				load_out();
+
+				if( isJson(rs) ) {
 					var source = $("#zoneTemplate").html();
-					var data		= $.parseJSON(rs);
-					var output	= $("#zone-list");
+					var data = $.parseJSON(rs);
+					var output = $("#zone-list");
 					render(source, data, output);
 					inputQtyInit();
 				}
@@ -327,7 +330,7 @@ function getMoveOut() {
 //---	เปลี่ยนโซนต้นทาง
 function newFromZone(){
 	$("#from_zone_code").val("");
-	$("#fromZone-barcode").val("");	
+	$("#fromZone-barcode").val("");
 	$('#fromZone-barcode').removeAttr('disabled');
 	$('#btn-new-zone').attr('disabled', 'disabled');
 	$('#qty-from').attr('disabled', 'disabled');

@@ -1380,10 +1380,13 @@ class Pick_list extends PS_Controller
         'warehouse_code' => $filter->warehouse_code,
         'from_date' => $filter->from_date,
         'to_date' => $filter->to_date,
+        'due_from_date' => $filter->due_from_date,
+        'due_to_date' => $filter->due_to_date,
         'start_time' => get_null($filter->start_time),
         'end_time' => get_null($filter->end_time),
         'is_pick_list' => $filter->is_pick_list,
         'is_1_sku' => $filter->is_1_sku,
+        'is_backorder' => $filter->is_backorder,
         'limit' => $filter->limit
       );
 
@@ -1404,6 +1407,7 @@ class Pick_list extends PS_Controller
             'customer' => $rs->customer_name,
             'date_add' => thai_date($rs->date_add, FALSE),
             'date_upd' => thai_date($rs->date_upd, TRUE),
+            'due_date' => empty($rs->due_date) ? "-" : thai_date($rs->due_date, FALSE),
             'pick_list_id' => $rs->pick_list_id,
             'product_code' => empty($rs->product_code) ? NULL : $rs->product_code,
             'backorder' => $rs->is_backorder ? 'backorder' : '' //-- css class backorder

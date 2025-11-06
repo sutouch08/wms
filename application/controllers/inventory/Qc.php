@@ -733,7 +733,7 @@ class Qc extends PS_Controller
 
   public function send_web_tracking($code)
   {
-    $sc = TRUE;    
+    $sc = TRUE;
     $this->load->library('wrx_web_api');
 
     if( ! empty($code))
@@ -1216,13 +1216,20 @@ class Qc extends PS_Controller
       else
       {
         $this->orders_model->update($code, ['is_cancled' => 1]);
-        $this->load->view('inventory/prepare/order_cancelled', ['order' => $order]);
+        $this->load->view('inventory/qc/order_cancelled', ['order' => $order]);
       }
     }
     else
     {
       $this->error_page();
     }
+  }
+
+
+  public function order_canceled($code)
+  {
+    $order = $this->orders_model->get($code);
+    $this->load->view('inventory/qc/order_cancelled', ['order' => $order]);
   }
 
 
