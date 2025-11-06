@@ -19,8 +19,8 @@ class Dashboard_model extends CI_Model
     $qr .= "AND o.is_cancled = 0 ";
     $qr .= "AND o.warehouse_code = '".getConfig('DEFAULT_WAREHOUSE')."' ";
 
-    $from_date = date('Y-m-d 00:00:00', strtotime("-{$days}"));
-    $to_date = date('Y-m-d 23:59:59', strtotime("-{$days}"));
+    $from_date = date('Y-m-d 00:00:00', strtotime("-{$days} days"));
+    $to_date = date('Y-m-d 23:59:59', strtotime("-{$days} days"));
 
     $qr .= "AND (o.state = 8 OR (o.state = 7 AND o.dispatch_id > 0)) ";
     $qr .= "AND o.real_shipped_date >= '{$from_date}' ";
