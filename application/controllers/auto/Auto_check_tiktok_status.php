@@ -58,7 +58,7 @@ class Auto_check_tiktok_status extends CI_Controller
 
         $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference, $shop_id);
 
-        if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
+        if($show) { echo "{$rs->code} : {$order_status} => {$this->statusList[$order_status]} <br/>"; }
 
         if($order_status == 'CANCELLED' OR $order_status == '140')
         {
@@ -90,7 +90,7 @@ class Auto_check_tiktok_status extends CI_Controller
 
         $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference, $shop_id);
 
-        if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
+        if($show) { echo "{$rs->code} : {$order_status} => {$this->statusList[$order_status]} <br/>"; }
 
         if($order_status == 'CANCELLED' OR $order_status == '140')
         {
@@ -123,7 +123,7 @@ class Auto_check_tiktok_status extends CI_Controller
 
         $order_status = $this->wrx_tiktok_api->get_order_status($rs->reference, $shop_id);
 
-        if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
+        if($show) { echo "{$rs->code} : {$order_status} => {$this->statusList[$order_status]} <br/>"; }
 
         if($order_status == 'CANCELLED' OR $order_status == '140')
         {
