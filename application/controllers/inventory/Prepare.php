@@ -294,7 +294,7 @@ class Prepare extends PS_Controller
 
       $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
 
-      if($order_status == '140')
+      if($order_status == 'CANCELLED' OR $order_status == '140')
       {
         $is_cancel = TRUE;
       }

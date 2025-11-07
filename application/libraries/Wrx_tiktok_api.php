@@ -56,10 +56,12 @@ class Wrx_tiktok_api
         if( ! empty($res->data))
         {
           $ds = $res->data[0];
+          $package_id = empty($ds->packages[0]->id) ? $ds->package_list[0]->package_id : $ds->packages[0]->id;
+          $status = empty($ds->status) ? $ds->order_status : $ds->status;
 
           return (object) array(
-            'package_id' => $ds->package_list[0]->package_id,
-            'order_status' => $ds->order_status,
+            'package_id' => $package_id, //$ds->packages[0]->id,
+            'order_status' => $status, //$ds->status,
             'tracking_number' => empty($ds->tracking_number) ? NULL : $ds->tracking_number
           );
         }
@@ -86,8 +88,6 @@ class Wrx_tiktok_api
 
     $json = '{"shipPackages":[{"packageID":"'.$package_id.'","handoverMethod":"PICKUP"}]}';
 
-    //$json = json_encode($req);
-    // echo $json;
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
@@ -168,7 +168,6 @@ class Wrx_tiktok_api
       $this->error = "Cannot get data from Tiktok api at this time";
       return FALSE;
     }
-    // $this->error = $response;
 
     return FALSE;
   }
@@ -204,7 +203,6 @@ class Wrx_tiktok_api
         if( ! empty($res->data))
         {
           /*
-            return status number
             100 Unpaid
             105 On hold
             111 AWAITING_SHIPMENT : Awaiting the seller to place a logistic order. OK
@@ -215,7 +213,23 @@ class Wrx_tiktok_api
             130 COMPLETED : The order has been completed. Completed orders can no longer be returned or refunded.
             140 CANCELLED : The order has been canceled. The order can be canceled by the buyer, the seller, the TikTok SYSTEM, or a TikTok OPERATOR.
           */
-          return $res->data[0]->order_status;
+          /*
+            The new  order status.
+            Possible values:
+            - UNPAID: The order is placed, but payment is not yet completed.
+            - ON_HOLD: The order is accepted and is waiting for fulfillment so the buyer may still cancel without the seller’s approval.
+                       If order_type=PRE_ORDER, it also means the product is still awaiting release so payment will only be authorized 1 day before the release,
+                       but the seller should start preparing for the release.
+            - AWAITING_SHIPMENT: The order is ready for shipment, but no items are shipped yet.
+            - PARTIALLY_SHIPPING: Some items in the order are shipped, but not all.
+            - AWAITING_COLLECTION: The shipment is arranged, but the package is waiting to be collected by the carrier.
+            - IN_TRANSIT: The package is collected by the carrier and delivery is in progress.
+            - DELIVERED: The package is delivered to buyer.
+            - COMPLETED: The order is completed, and no further returns or refunds are allowed.
+            - CANCELLED: The order is cancelled.
+          */
+
+          return empty($res->data[0]->status) ? $res->data[0]->order_status : $res->data[0]->status;
         }
       }
     }

@@ -12,16 +12,29 @@ class Auto_check_tiktok_status extends CI_Controller
   public $error;
   public $default_shop_id = "7494677687526394819";
   public $statusList = [
-    '100' => 'Unpaid',
-    '105' => 'On hold',
-    '111' => 'AWAITING_SHIPMENT : Awaiting the seller to place a logistic order. OK',
-    '112' => 'AWAITING_COLLECTION : The logistic order was placed. At least one item in the order is still waiting to be collected by the carrier. OK',
-    '114' => 'Partial shipment',
-    '121' => 'IN_TRANSIT : All items have been collected by the carrier. At least one package is has yet to be delivered to the buyer.',
-    '122' => 'DELIVERED : All items have been delivered to the buyer.,',
-    '130' => 'COMPLETED : The order has been completed. Completed orders can no longer be returned or refunded.',
-    '140' => 'CANCELLED : The order has been canceled. The order can be canceled by the buyer, the seller, the TikTok SYSTEM, or a TikTok OPERATOR.'
+    'UNPAID' => 'Unpaid',
+    'ON_HOLD' => 'On hold',
+    'AWAITING_SHIPMENT' => 'AWAITING_SHIPMENT : Awaiting the seller to place a logistic order. OK',
+    'AWAITING_COLLECTION' => 'AWAITING_COLLECTION : The logistic order was placed. At least one item in the order is still waiting to be collected by the carrier. OK',
+    'PARTIALLY_SHIPPING' => 'Partial shipment',
+    'IN_TRANSIT' => 'IN_TRANSIT : All items have been collected by the carrier. At least one package is has yet to be delivered to the buyer.',
+    'DELIVERED' => 'DELIVERED : All items have been delivered to the buyer.,',
+    'COMPLETED' => 'COMPLETED : The order has been completed. Completed orders can no longer be returned or refunded.',
+    'CANCELLED' => 'CANCELLED : The order has been canceled. The order can be canceled by the buyer, the seller, the TikTok SYSTEM, or a TikTok OPERATOR.'
   ];
+
+  //  Old status
+  // public $statusList = [
+  //   '100' => 'Unpaid',
+  //   '105' => 'On hold',
+  //   '111' => 'AWAITING_SHIPMENT : Awaiting the seller to place a logistic order. OK',
+  //   '112' => 'AWAITING_COLLECTION : The logistic order was placed. At least one item in the order is still waiting to be collected by the carrier. OK',
+  //   '114' => 'Partial shipment',
+  //   '121' => 'IN_TRANSIT : All items have been collected by the carrier. At least one package is has yet to be delivered to the buyer.',
+  //   '122' => 'DELIVERED : All items have been delivered to the buyer.,',
+  //   '130' => 'COMPLETED : The order has been completed. Completed orders can no longer be returned or refunded.',
+  //   '140' => 'CANCELLED : The order has been canceled. The order can be canceled by the buyer, the seller, the TikTok SYSTEM, or a TikTok OPERATOR.'
+  // ];
 
   public function __construct()
   {
@@ -31,6 +44,7 @@ class Auto_check_tiktok_status extends CI_Controller
     $this->pm = new stdClass();
     $this->pm->can_view = 1;
   }
+
 
   public function index($show = NULL)
   {
@@ -50,7 +64,7 @@ class Auto_check_tiktok_status extends CI_Controller
 
         if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
 
-        if($order_status == '140')
+        if($order_status == 'CANCELLED' OR $order_status == '140')
         {
           $this->orders_model->update($rs->code, ['is_cancled' => 1, 'last_check' => now()]);
         }
@@ -82,7 +96,7 @@ class Auto_check_tiktok_status extends CI_Controller
 
         if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
 
-        if($order_status == '140')
+        if($order_status == 'CANCELLED' OR $order_status == '140')
         {
           $this->orders_model->update($rs->code, ['is_cancled' => 1, 'last_check' => now()]);
         }
@@ -115,7 +129,7 @@ class Auto_check_tiktok_status extends CI_Controller
 
         if($show) { echo "{$rs->code} : {$this->statusList[$order_status]} <br/>"; }
 
-        if($order_status == '140')
+        if($order_status == 'CANCELLED' OR $order_status == '140')
         {
           $this->orders_model->update($rs->code, ['is_cancled' => 1, 'last_check' => now()]);
         }
