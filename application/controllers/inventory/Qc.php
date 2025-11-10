@@ -1838,7 +1838,7 @@ class Qc extends PS_Controller
     $date = empty($date) ? date('Y-m-d') : $date;
     $Y = date('y', strtotime($date));
     $M = date('m', strtotime($date));
-    $prefix = 'BN';
+    $prefix = 'PN';
     $run_digit = 6;
     $pre = $prefix.$Y.$M;
     $code = $this->qc_model->get_max_code($pre);
