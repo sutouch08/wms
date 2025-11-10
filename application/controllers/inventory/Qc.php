@@ -271,6 +271,8 @@ class Qc extends PS_Controller
 
         if($sc === TRUE)
         {
+          sleep(1);
+
           $shipment = $this->wrx_tiktok_api->get_shipping_label($ds->package_id, $order->shop_id);
 
           if( ! empty($shipment))
@@ -1837,7 +1839,7 @@ class Qc extends PS_Controller
     $Y = date('y', strtotime($date));
     $M = date('m', strtotime($date));
     $prefix = 'BN';
-    $run_digit = 5;
+    $run_digit = 6;
     $pre = $prefix.$Y.$M;
     $code = $this->qc_model->get_max_code($pre);
 

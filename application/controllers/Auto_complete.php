@@ -424,7 +424,7 @@ public function get_prepare_item_code()
 
 
 
-  public function get_po_code($vendor = FALSE)
+  public function get_po_code($vendor = NULL)
   {
     $sc = array();
     $txt = convert($_REQUEST['term']);
@@ -433,7 +433,8 @@ public function get_prepare_item_code()
     $receive_due = getConfig('RECEIVE_OVER_DUE'); //--- 1 = receive , 0 = not receive
 
     $this->ms->select('DocNum')->where('DocStatus', 'O');
-    if($vendor !== FALSE)
+
+    if( ! empty($vendor))
     {
       $this->ms->where('CardCode', $vendor);
     }
@@ -453,7 +454,7 @@ public function get_prepare_item_code()
       $date = date('Y-m-d',strtotime("-{$days} day")); //--- ย้อนไป $days วัน
       $this->ms->where('DocDueDate >=', sap_date($date));
     }
-    //echo $this->ms->get_compiled_select('OPOR');
+
     $po = $this->ms->get('OPOR');
 
     if($po->num_rows() > 0)

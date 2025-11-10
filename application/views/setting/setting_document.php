@@ -51,12 +51,22 @@
 			</div>
       <div class="divider"></div>
 
-      <div class="col-lg-4 col-md-4 col-sm-4"><span class="form-control left-label">รับสินคาเข้าจากการซื้อ</span></div>
+      <div class="col-lg-4 col-md-4 col-sm-4"><span class="form-control left-label">รับสินค้าเข้าจากการซื้อ</span></div>
       <div class="col-lg-1-harf col-md-2 col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_RECEIVE_PO" required value="<?php echo $PREFIX_RECEIVE_PO; ?>" /></div>
       <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
 			<div class="col-lg-1-harf col-md-2 col-sm-2">
 				<select class="width-100" name="RUN_DIGIT_RECEIVE_PO">
 					<?php echo select_running($min, $max, $RUN_DIGIT_RECEIVE_PO); ?>
+				</select>
+			</div>
+      <div class="divider"></div>
+
+			<div class="col-lg-4 col-md-4 col-sm-4"><span class="form-control left-label">รับวัตถุดิบจากการซื้อ</span></div>
+      <div class="col-lg-1-harf col-md-2 col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_RECEIVE_MATERIAL" required value="<?php echo $PREFIX_RECEIVE_MATERIAL; ?>" /></div>
+      <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
+			<div class="col-lg-1-harf col-md-2 col-sm-2">
+				<select class="width-100" name="RUN_DIGIT_RECEIVE_MATERIAL">
+					<?php echo select_running($min, $max, $RUN_DIGIT_RECEIVE_MATERIAL); ?>
 				</select>
 			</div>
       <div class="divider"></div>

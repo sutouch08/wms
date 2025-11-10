@@ -34,10 +34,19 @@
 
 		<div class="col-xs-8 padding-top-5">รับสินค้าจากการซื้อ</div>
 		<div class="col-xs-4">
-			<input type="text" class="width-100 bookcode text-center" name="BOOK_CODE_BI" value="<?php echo $BOOK_CODE_RECEIVE_PO; ?>" />
+			<input type="text" class="width-100 bookcode text-center" name="BOOK_CODE_RECEIVE_PO" value="<?php echo $BOOK_CODE_RECEIVE_PO; ?>" />
 		</div>
 		<div class="col-xs-12 padding-top-5">
 			<span class="help-block">กำหนดรหัสเล่มเอกสาร "ใบรับสินค้า"</span>
+		</div>
+		<div class="divider"></div>
+
+		<div class="col-xs-8 padding-top-5">รับวัตถุดิบจากการซื้อ</div>
+		<div class="col-xs-4">
+			<input type="text" class="width-100 bookcode text-center" name="BOOK_CODE_RECEIVE_MATERIAL" value="<?php echo $BOOK_CODE_RECEIVE_MATERIAL; ?>" />
+		</div>
+		<div class="col-xs-12 padding-top-5">
+			<span class="help-block">กำหนดรหัสเล่มเอกสาร "ใบรับวัตถุดิบ"</span>
 		</div>
 		<div class="divider"></div>
 

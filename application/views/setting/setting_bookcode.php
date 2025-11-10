@@ -20,7 +20,13 @@
 
       <div class="col-lg-4 col-md-4 col-sm-4"><span class="form-control left-label">รับสินค้าจากการซื้อ</span></div>
       <div class="col-lg-8 col-md-8 col-sm-8">
-        <input type="text" class="form-control input-sm input-small bookcode text-center" name="BOOK_CODE_BI" value="<?php echo $BOOK_CODE_RECEIVE_PO; ?>" />
+        <input type="text" class="form-control input-sm input-small bookcode text-center" name="BOOK_CODE_RECEIVE_PO" value="<?php echo $BOOK_CODE_RECEIVE_PO; ?>" />
+      </div>
+      <div class="divider"></div>
+
+			<div class="col-lg-4 col-md-4 col-sm-4"><span class="form-control left-label">รับวัตถุดิบจากการซื้อ</span></div>
+      <div class="col-lg-8 col-md-8 col-sm-8">
+        <input type="text" class="form-control input-sm input-small bookcode text-center" name="BOOK_CODE_RECEIVE_MATERIAL" value="<?php echo $BOOK_CODE_RECEIVE_MATERIAL; ?>" />
       </div>
       <div class="divider"></div>
 

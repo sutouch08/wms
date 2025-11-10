@@ -20,6 +20,10 @@ function go_to(page){
 }
 
 
+function goBack() {
+  window.location.href = HOME;
+}
+
 function checkError(){
 	if($('#error').length){
 		swal({

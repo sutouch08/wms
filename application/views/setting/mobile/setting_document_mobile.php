@@ -103,6 +103,22 @@
 
 		<div class="col-xs-7 last">
 			<div class="input-group width-100">
+				<span class="input-group-addon fix-width-120 font-size-11" style="text-align:left;">รับวัตถุดิบจากการซื้อ</span>
+				<input type="text" class="width-100 text-center prefix" name="PREFIX_RECEIVE_MATERIAL" required value="<?php echo $PREFIX_RECEIVE_MATERIAL; ?>" />
+			</div>
+		</div>
+		<div class="col-xs-5 first">
+			<div class="input-group width-100">
+				<span class="input-group-addon font-size-11">Running</span>
+				<select class="width-100" name="RUN_DIGIT_RECEIVE_MATERIAL">
+					<?php echo select_running($min, $max, $RUN_DIGIT_RECEIVE_MATERIAL); ?>
+				</select>
+			</div>
+		</div>
+		<div class="divider"></div>
+
+		<div class="col-xs-7 last">
+			<div class="input-group width-100">
 				<span class="input-group-addon fix-width-120 font-size-11" style="text-align:left;">รับจากการแปรสภาพ</span>
 				<input type="text" class="width-100 text-center prefix" name="PREFIX_RECEIVE_TRANSFORM" required value="<?php echo $PREFIX_RECEIVE_TRANSFORM; ?>" />
 			</div>
