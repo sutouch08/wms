@@ -622,13 +622,13 @@ class Orders extends REST_Controller
         {
           $state = 2;
         }
-      }      
+      }
 
       $is_wms = 0;
 
       //---- id_sender
+      $spx_id = getConfig('SPX_ID');
       $sender = $this->sender_model->get_id($data->shipping);
-
       $id_sender = empty($sender) ? NULL : $sender;
       $id_address = NULL;
 
@@ -636,6 +636,7 @@ class Orders extends REST_Controller
       $order_code = empty($order) ? $this->get_new_code($date_add, $role) : $order->code;
 
       $tracking = get_null($data->tracking_no);
+      $tracking_ref = empty($data->tracking_ref) ? NULL : $data->tracking_ref;
 
       $total_amount = 0;
       $total_sku = [];
@@ -757,6 +758,14 @@ class Orders extends REST_Controller
         {
           $sc = FALSE;
           $this->error = "Failed to update order";
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        if( ! empty($tracking_ref) && $id_sender == $spx_id)
+        {
+          $this->update_spx_batch_no($order_code, $tracking_ref);
         }
       }
 
@@ -2318,5 +2327,42 @@ class Orders extends REST_Controller
     $available = $sell_stock - $ordered - $reserv_stock;
 
     return $available < 0 ? 0 : $available;
+  }
+
+
+  public function update_spx_batch_no($code, $batch_no)
+  {
+    if( ! empty($code) && ! empty($batch_no))
+    {
+      $ds = array(
+        'order_code' => $code,
+        'batch_no' => $batch_no
+      );
+
+      $batch = $this->get_spx_batch($code);
+
+      if( ! empty($batch))
+      {
+        return $this->db->where('id', $batch->id)->update('order_spx', $ds);
+      }
+      else
+      {
+        return $this->db->insert('order_spx', $ds);
+      }
+    }
+
+    return FALSE;
+  }
+
+  public function get_spx_batch($code)
+  {
+    $rs = $this->db->where('order_code', $code)->get('order_spx');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
   }
 } //--- end class
