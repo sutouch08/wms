@@ -393,6 +393,10 @@ class Sync_data_new extends CI_Controller
           }
           $update++;
         }
+        else
+        {
+          $this->orders_model->update($rs->code, ['last_sync' => now()]);
+        }
       }
     }
 
@@ -429,6 +433,10 @@ class Sync_data_new extends CI_Controller
             $this->orders_model->set_complete($rs->code);
           }
           $update++;
+        }
+        else
+        {
+          $this->orders_model->update($rs->code, ['last_sync' => now()]);
         }
       }
     }
@@ -471,6 +479,10 @@ class Sync_data_new extends CI_Controller
           }
           $update++;
         }
+        else
+        {
+          $this->orders_model->update($rs->code, ['last_sync' => now()]);
+        }
       }
     }
 
@@ -509,6 +521,10 @@ class Sync_data_new extends CI_Controller
             $this->orders_model->set_complete($rs->code);
           }
           $update++;
+        }
+        else
+        {
+          $this->orders_model->update($rs->code, ['last_sync' => now()]);
         }
       }
     }
@@ -549,6 +565,10 @@ class Sync_data_new extends CI_Controller
             $this->orders_model->set_complete($rs->code);
           }
           $update++;
+        }
+        else
+        {
+          $this->orders_model->update($rs->code, ['last_sync' => now()]);
         }
       }
     }
