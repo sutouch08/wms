@@ -163,7 +163,7 @@ class Transfer_acception extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('C2', 'เลขที่');
     $this->excel->getActiveSheet()->setCellValue('D2', 'เจ้าของโซน');
     $this->excel->getActiveSheet()->setCellValue('E2', 'การกดรับ');
-    ini_set('memory_limit','2048M');>setCellValue('F2', 'กดรับโดย');
+    $this->excel->getActiveSheet()->setCellValue('F2', 'กดรับโดย');
     $this->excel->getActiveSheet()->setCellValue('G2', 'วันที่กดรับ');
     $this->excel->getActiveSheet()->setCellValue('H2', 'หมายเหตุ');
 
