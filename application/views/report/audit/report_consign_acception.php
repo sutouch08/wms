@@ -39,8 +39,8 @@
 	<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
 		<label>วันที่</label>
 		<div class="input-daterange input-group width-100">
-			<input type="text" class="form-control input-sm width-50 r text-center from-date" id="fromDate" placeholder="เริ่มต้น" value="<?php echo "01-03-2025"; ?>" />
-			<input type="text" class="form-control input-sm width-50 r text-center" id="toDate" placeholder="สิ้นสุด" value="<?php echo "31-03-2025"; ?>"/>
+			<input type="text" class="form-control input-sm width-50 r text-center from-date" id="fromDate" placeholder="เริ่มต้น" value="" />
+			<input type="text" class="form-control input-sm width-50 r text-center" id="toDate" placeholder="สิ้นสุด" value=""/>
 		</div>
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
