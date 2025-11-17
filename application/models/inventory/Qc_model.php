@@ -46,10 +46,12 @@ class Qc_model extends CI_Model
 
   public function get_list(array $ds = array(), $state = 5, $perpage = 20, $offset = 0)
   {
-    $id = $this->get_max_id();
+    $this->db->where('state', $state);
 
-    $this->db->where('id >', $id)
-    ->where('state', $state);
+    if(isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('id >', $this->get_max_id());
+    }
 
     if( ! empty($ds['code']))
     {
@@ -121,10 +123,12 @@ class Qc_model extends CI_Model
 
   public function count_rows(array $ds = array(), $state = 5)
   {
-    $id = $this->get_max_id();
+    $this->db->where('state', $state);
 
-    $this->db->where('id >', $id)
-    ->where('state', $state);
+    if(isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('id >', $this->get_max_id());
+    }
 
     if( ! empty($ds['code']))
     {
@@ -140,7 +144,7 @@ class Qc_model extends CI_Model
       ->or_like('customer_ref', $ds['customer'])
       ->group_end();
     }
-      
+
     if( ! empty($ds['user']) && $ds['user'] != 'all')
     {
       $this->db->where('user', $ds['user']);

@@ -86,6 +86,19 @@ class Receive_material_model extends CI_Model
   }
 
 
+  public function get_batch_details($code)
+  {
+    $rs = $this->db->where('receive_code', $code)->get($this->tm);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_in_complete_list($code)
   {
     $rs = $this->db->where('receive_code', $code)->where('valid', 0)->get($this->td);
@@ -291,6 +304,29 @@ class Receive_material_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function get_on_order_qty($itemCode, $poCode, $baseEntry, $baseLine)
+  {
+    $rs = $this->db
+    ->select_sum('rd.ReceiveQty')
+    ->from('receive_material_detail AS rd')
+    ->join('receive_material AS ro', 'rd.receive_code = ro.code', 'left')
+    ->where('ro.po_code', $poCode)
+    ->where('ro.status !=', 'D')
+    ->where('ro.inv_code IS NULL', NULL, FALSE)
+    ->where('rd.baseEntry', $baseEntry)
+    ->where('rd.baseLine', $baseLine)
+    ->where('rd.ItemCode', $itemCode)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->ReceiveQty > 0 ? $rs->row()->ReceiveQty : 0;
+    }
+
+    return 0;
   }
 
 

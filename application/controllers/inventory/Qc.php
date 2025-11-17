@@ -39,7 +39,8 @@ class Qc extends PS_Controller
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
-      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all'),
+      'range' => get_filter('range', 'range', 'all')
     );
 
     if($this->input->post('search'))
@@ -787,7 +788,8 @@ class Qc extends PS_Controller
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
-      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all'),
+      'range' => get_filter('range', 'range', 'all')
     );
 
     if($this->input->post('search'))

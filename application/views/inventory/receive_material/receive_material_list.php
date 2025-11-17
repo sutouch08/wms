@@ -95,17 +95,17 @@
 		<table class="table table-striped border-1" style="min-width:1260px;">
 			<thead>
 				<tr class="font-size-11">
-          <th class="fix-width-100 text-right"></th>
-					<th class="fix-width-50 text-center">#</th>
-					<th class="fix-width-100 text-center">วันที่</th>
-					<th class="fix-width-100 text-center">เลขที่</th>
+          <th class="fix-width-100"></th>
           <th class="fix-width-60 text-center">สถานะ</th>
-          <th class="fix-width-80 text-center">SAP No.</th>
-					<th class="fix-width-100 text-center">PO No.</th>
-					<th class="fix-width-120 text-center">Invoice No.</th>
-          <th class="min-width-300 text-center">Vendor</th>
-					<th class="fix-width-100 text-center">Warehouse</th>
-          <th class="fix-width-150 text-center">User</th>
+					<th class="fix-width-50 text-center">#</th>
+					<th class="fix-width-100">วันที่</th>
+					<th class="fix-width-100">เลขที่</th>
+					<th class="fix-width-100">PO No.</th>
+					<th class="fix-width-120">Invoice No.</th>
+          <th class="min-width-300">Vendor</th>
+					<th class="fix-width-100">Warehouse</th>
+          <th class="fix-width-80">SAP No.</th>
+          <th class="fix-width-150">User</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -113,30 +113,30 @@
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(3) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-          <?php $color = ($rs->status == 'C' ? 'green' : ($rs->status == 'O' ? 'purple' : ($rs->status == 'D' ? 'grey' : 'blue'))); ?>
-					<tr class="font-size-11 <?php echo $color; ?>">
+          <?php $color = receive_material_status_color($rs->status); ?>
+					<tr class="font-size-11" style="background-color:<?php echo $color; ?>">
             <td class="middle">
               <button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+              <?php if($rs->status == 'P' OR $rs->status == 'O') : ?>
+                <button type="button" class="btn btn-minier btn-danger" title="Cancle" onclick="cancel('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
+              <?php endif; ?>
               <?php if($rs->status == 'P') : ?>
                 <button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="edit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
               <?php endif; ?>
               <?php if($rs->status == 'O') : ?>
                 <button type="button" class="btn btn-minier btn-purple" title="Receive process" onclick="process('<?php echo $rs->code; ?>')"><i class="fa fa-qrcode"></i></button>
               <?php endif; ?>
-              <?php if($rs->status == 'P' OR $rs->status == 'O') : ?>
-                <button type="button" class="btn btn-minier btn-danger" title="Cancle" onclick="cancel('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
-              <?php endif; ?>
             </td>
+            <td class="middle text-center"><?php echo receive_material_status_label($rs->status); ?></td>
 						<td class="middle text-center no"><?php echo $no; ?></td>
 						<td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
-						<td class="middle text-center"><?php echo $rs->code; ?></td>
-            <td class="middle text-center"><?php echo grpo_status_label($rs->status); ?></td>
-            <td class="middle text-center"><?php echo $rs->inv_code; ?></td>
-						<td class="middle text-center"><?php echo $rs->po_code; ?></td>
-						<td class="middle text-center"><?php echo $rs->invoice_code; ?></td>
+						<td class="middle"><?php echo $rs->code; ?></td>
+						<td class="middle"><?php echo $rs->po_code; ?></td>
+						<td class="middle"><?php echo $rs->invoice_code; ?></td>
             <td class="middle"><?php echo $rs->vendor_code." | ".$rs->vendor_name; ?></td>
-						<td class="middle text-center"><?php echo $rs->warehouse_code; ?></td>
-            <td class="middle text-center"><?php echo $rs->user; ?></td>
+						<td class="middle"><?php echo $rs->warehouse_code; ?></td>
+            <td class="middle"><?php echo $rs->inv_code; ?></td>
+            <td class="middle"><?php echo $rs->user; ?></td>
 					</tr>
 					<?php $no++; ?>
 				<?php endforeach; ?>

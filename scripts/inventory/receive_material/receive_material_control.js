@@ -1,4 +1,100 @@
-//--- เพิ่มรายการจาก PO grid
+function confirmChangePo() {
+	let poCode = $('#po-code').val().trim();
+	let prevCode = $('#po-code').data('prev');
+	let count = 0;
+
+	$('.receive-qty').each(function() {
+		if($(this).data('po') == prevCode) {
+			count++;
+		}
+	});
+
+	if(poCode != "" && poCode != prevCode && count > 0) {
+		swal({
+			title:'คุณแต่ใจ',
+			text:'รายการปัจจุบันจะถูกลบออก ต้องการดำเนินการต่อหรือไม่ ?',
+			type:'warning',
+			showCancelButton:true,
+			confirmButtonText:'Yes',
+			cancelButtonText:'No',
+			closeOnConfirm:true
+		}, function(isConfirm) {
+			if(isConfirm) {
+				$('#po-code').data('prev', poCode);
+				$('.rows').remove();
+				recalTotal();
+			}
+			else {
+				$('#po-code').val(prevCode);
+			}
+		});
+	}
+	else {
+		$('#po-code').attr('disabled', 'disabled');
+		$('#confirm-btn').addClass('hide');
+		$('#get-po-btn').removeClass('hide');
+	}
+}
+
+
+function getPoDetails() {
+	let poCode = $('#po-code').val().trim();
+
+	if(poCode.length == 0) {
+		return false;
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'get_po_details',
+		type:'POST',
+		cache:false,
+		data:{
+			'po_code' : poCode
+		},
+		success:function(rs) {
+			load_out();
+
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+
+				if(ds.status === 'success') {
+					$('#po-code').val(ds.DocNum);
+					$('#DocCur').val(ds.DocCur);
+					$('#DocRate').val(ds.DocRate);
+					$('#vendor-code').val(ds.CardCode);
+					$('#vendor-name').val(ds.CardName);
+
+					let source = $('#po-template').html();
+					let data = ds.details;
+					let output = $('#po-body');
+
+					render(source, data, output);
+
+					$('#poGrid').modal('show');
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:ds.message,
+						type:'error'
+					});
+				}
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		}
+	})
+}
+
+
 function addPoItems() {
 	let items = [];
 
@@ -24,25 +120,20 @@ function addPoItems() {
 				}
 				else {
 
-					let itemCode = el.data('code'); //--- product code;
-					let itemName = el.data('name');
-					let baseEntry = el.data('baseentry');
-					let baseLine = el.data('baseline');
 					let price = parseDefault(parseFloat(el.data('price')), 0.00); //--- price Af discount
 					let limit = parseDefault(parseFloat(el.data('limit')), 0.00);
 					let backlogs = parseDefault(parseFloat(el.data('backlogs')), 0);
 					let amount = roundNumber(qty * price, 2);
-					let vatCode = el.data('vatcode');
 					let vatRate = parseDefault(parseFloat(el.data('vatrate')), 7);
 					let vatAmount = roundNumber(amount * (vatRate * 0.01), 2);
 
 					let item = {
 						'uid' : no,
-						'pdCode' : itemCode,
-						'pdName' : itemName,
-						'baseEntry' : baseEntry,
-						'baseLine' : baseLine,
-						'vatCode' : vatCode,
+						'pdCode' : el.data('code'),
+						'pdName' : el.data('name'),
+						'baseEntry' : el.data('baseentry'),
+						'baseLine' : el.data('baseline'),
+						'vatCode' : el.data('vatcode'),
 						'vatRate' : vatRate,
 						'price' : price,
 						'priceLabel' : addCommas(price.toFixed(3)),
@@ -52,7 +143,15 @@ function addPoItems() {
 						'backLogsLabel' : addCommas(backlogs.toFixed(2)),
 						'limit' : limit,
 						'amount' : amount,
-						'amountLabel' : addCommas(amount.toFixed(2))
+						'amountLabel' : addCommas(amount.toFixed(2)),
+						'uomCode' : el.data('uom'),
+						'uomCode2' : el.data('uom2'),
+						'uomEntry' : el.data('uomentry'),
+						'uomEntry2' : el.data('uomentry2'),
+						'unitMsr' : el.data('unitmsr'),
+						'unitMsr2' : el.data('unitmsr2'),
+						'numPerMsr' : el.data('numpermsr2'),
+						'numPerMsr2' : el.data('numpermsr2')
 					}
 
 					items.push(item);
@@ -91,6 +190,150 @@ function addPoItems() {
 }
 
 
+function clearPo() {
+	if($('.rows').length) {
+		swal({
+			title:'คุณแน่ใจ ?',
+			text:'รายการทั้งหมดจะถูกลบ ต้องการดำเนินการต่อหรือไม่ ?',
+			type:'warning',
+			html:true,
+			showCancelButton:true,
+			confirmButtonText:'Yes',
+			cancelButtonText:'No',
+			closeOnConfirm:true
+		}, function() {
+			$('.rows').remove();
+			$('#po-code').val('').removeAttr('disabled');
+			$('#total-receive').val('0.00');
+			$('#total-amount').val('0.00');
+
+			setTimeout(() => {
+				$('#po-code').focus();
+			}, 100)
+		})
+	}
+}
+
+
+function addBatchRow(uid) {
+	let el = $('#receive-qty-'+uid);
+	let no = parseDefaultInt(el.data('no'), 0);
+	let ne = no + 1;
+	el.data('no', ne);
+
+	let puid = no + '-' + el.data('uid');
+	let cuid = ne + '-' + el.data('uid');
+
+	let ds = {
+		'cuid' : cuid,
+		'uid' : uid,
+		'no' : ne,
+		'unitMsr' : el.data('unitmsr')
+	};
+
+	let source = $('#child-row-template').html();
+	let output = $('#child-row-'+puid).length ? $('#child-row-'+puid) : $('#row-'+uid);
+
+	render_after(source, ds, output);
+	batchInit();
+	reIndex();
+	$('#batch-'+cuid).focus();
+}
+
+
+function getBatch(uid) {
+	let ds = [];
+	let no = 1;
+	let min = 5;
+	let ro = $('#receive-qty-'+uid);
+	console.log(ro);
+
+	$('#batch-title').text(ro.data('code'));
+	$('#batch-item').data('code', ro.data('code'));
+	$('#batch-item').data('uid', ro.data('uid'));
+	$('#batch-item').data('limit', ro.data('limit'));
+	let source = $('#batch-template').html();
+	let output = $('#batch-body');
+
+	$('.'+uid).each(function() {
+		let el = $(this);
+
+		let row = {
+			'uid' : el.data('uid'),
+			'id' : el.data('id'),
+			'no' : no,
+			'qty' : el.data('qty'),
+			'batchNo' : el.val()
+		}
+
+		render_append(source, row, output);
+		no++;
+	});
+
+	let row = {
+		'uid' : "",
+		'id' : "",
+		'no' : no,
+		'qty' : "",
+		'batchNo' : ""
+	}
+
+	render_append(source, row, output);
+
+	batchInit();
+
+	$('#batchModal').modal('show');
+}
+
+
+function batchInit() {
+	$('.batch-row').keyup(function(e) {
+		if(e.keyCode === 13) {
+			let uid = $(this).data('uid');
+
+			$('#batch-qty-'+uid).focus();
+		}
+	});
+}
+
+
+function newBatchRow(no) {
+	let row = {
+		'no' : no
+	}
+
+	let source = $('#batch-template').html();
+	let output = $('#batch-body');
+
+	render_append(source, row, output);
+	batchInit();
+	$('#batch-'+no).focus();
+}
+
+
+function addBatchRows() {
+	let items = $('#batch-item');
+	let code = items.data('code');
+	let ds = [];
+
+	$('.batch-no').each(function() {
+		let el = $(this);
+		let uid = el.data('uid');
+		let no = el.data('no');
+		let uuid = no + '-'+uid;
+		let batch = el.data('batch').trim();
+		let qty = parseDefaultFloat($('#batch-qty-'+no).val(), 0);
+
+		$('.'+uid).remove();
+
+		if(batch.length && qty > 0) {
+			let source = $('#batch-row-template').html();
+		}
+	})
+
+}
+
+
 function recalAmount(id) {
 	let price = parseDefault(parseFloat(removeCommas($('#row-price-'+id).val())), 0);
 	let qty = parseDefault(parseFloat($('#receive-qty-'+id).val()), 0);
@@ -118,7 +361,6 @@ function recalTotal() {
 	$('#total-receive').val(addCommas(totalQty.toFixed(2)));
 	$('#total-amount').val(addCommas(totalAmount.toFixed(2)));
 }
-
 
 
 function toggleCheckAll(el) {
@@ -184,71 +426,6 @@ function confirmPo() {
 }
 
 
-function getPoDetail(poCode) {
-
-	if(poCode != "" || poCode == null || poCode == undefined) {
-		poCode = $('#poCode').val();
-	}
-
-	if(poCode.length == 0) {
-		swal({
-			title:'Oop!',
-			text:'กรุณาระบุเลขที่ใบสั่งซื้อ',
-			type:'warning'
-		});
-
-		return false;
-	}
-
-	load_in();
-
-	$.ajax({
-		url:HOME + 'get_po_detail',
-		type:'GET',
-		cache:false,
-		data:{
-			'po_code' : poCode
-		},
-		success:function(rs) {
-			load_out();
-
-			if(isJson(rs)) {
-				let ds = JSON.parse(rs);
-
-				if(ds.status === 'success') {
-					$('#po-code').val(ds.DocNum);
-					$('#DocCur').val(ds.DocCur);
-					$('#DocRate').val(ds.DocRate);
-					$('#vendor_code').val(ds.CardCode);
-					$('#vendorName').val(ds.CardName);
-
-					let source = $('#po-template').html();
-					let data = ds.details;
-					let output = $('#po-body');
-
-					render(source, data, output);
-
-					$('#poGrid').modal('show');
-				}
-				else {
-					swal({
-						title:'Error!',
-						text:ds.message,
-						type:'error'
-					});
-				}
-			}
-			else {
-				swal({
-					title:'Error!',
-					text:rs,
-					type:'error',
-					html:true
-				});
-			}
-		}
-	})
-}
 
 
 function getPoItems() {
@@ -336,40 +513,5 @@ function receiveAll() {
 function clearAll() {
 	$('.po-qty').each(function() {
 		$(this).val('');
-	});
-}
-
-
-function clearPo() {
-	let poCode = $('#poCode').val();
-
-	if(poCode.length == 0) {
-		return false;
-	}
-
-	swal({
-		title:'เปลียนใบสั่งซื้อ',
-		text:'รายการทั้งหมดจะถูกลบ ต้องการเปลียนใบสั่งซื้อหรือไม่ ?',
-		type:'warning',
-		showCancelButton:true,
-		confirmButtonText:'Yes',
-		cancelButtonText:'No',
-		closeOnConfirm:true
-	}, function() {
-		load_in();
-		setTimeout(() => {
-			load_out();
-			$('#receive-table').html('');
-			$('#poCode').val('');
-			$('#poCode').removeAttr('disabled');
-			$('#btn-get-po').addClass('hide');
-			$('#btn-confirm-po').removeClass('hide');
-			$('#total-receive').val('0.00');
-			$('#total-amount').val('0.00');
-
-			setTimeout(() => {
-				$('#poCode').focus();
-			}, 200);
-		}, 200);
 	});
 }

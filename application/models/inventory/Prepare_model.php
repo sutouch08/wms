@@ -260,7 +260,10 @@ class Prepare_model extends CI_Model
       $this->db->join('order_details AS od', 'o.code = od.order_code','left');
     }
 
-    $this->db->where('o.id >', $this->get_max_id());
+    if(isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('o.id >', $this->get_max_id());
+    } 
 
     $this->db
     ->where('o.state', $state)
@@ -423,7 +426,10 @@ class Prepare_model extends CI_Model
 			$this->db->where('o.is_wms', 0);
 		}
 
-    $this->db->where('o.id >', $this->get_max_id());
+    if(isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('o.id >', $this->get_max_id());
+    }
 
     $this->db
     ->where('o.state', $state)

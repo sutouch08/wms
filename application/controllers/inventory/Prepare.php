@@ -56,7 +56,8 @@ class Prepare extends PS_Controller
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all'),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
-      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all'),
+      'range' => get_filter('range', 'range', 'all')
     );
 
     if($this->input->post('search'))
@@ -113,7 +114,8 @@ class Prepare extends PS_Controller
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all'),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
-      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all')
+      'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all'),
+      'range' => get_filter('range', 'range', 'all')
     );
 
     if($this->input->post('search'))

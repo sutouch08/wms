@@ -4,7 +4,7 @@ function addNew(){
 }
 
 
-function goEdit(code){
+function edit(code){
 	window.location.href = HOME + 'edit/'+ code;
 }
 

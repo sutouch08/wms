@@ -87,7 +87,7 @@ class Orders extends PS_Controller
       'tax_status' => get_filter('tax_status', 'tax_status', 'all'),
       'is_etax' => get_filter('is_etax', 'is_etax', 'all'),
       'is_cancled' => get_filter('is_cancled', 'is_cancled', 'all'),
-      'range' => get_filter('range', 'range', 'top')
+      'range' => get_filter('range', 'range', 'all')
     );
 
     $state = array(

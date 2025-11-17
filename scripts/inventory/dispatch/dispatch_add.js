@@ -13,11 +13,6 @@ function add() {
     'remark' : $('#remark').val().trim()
   };
 
-  if(h.sender_code == "") {
-    $('#sender').hasError();
-    return false;
-  }
-
   if(h.plate_no == "") {
     $('#plate-no').hasError();
     return false;
@@ -77,11 +72,7 @@ function update() {
     'driver_name' : $('#driver-name').val().trim(),
     'remark' : $('#remark').val().trim()
   };
-
-  if(h.sender_code == "") {
-    $('#sender').hasError();
-    return false;
-  }
+  
 
   if(h.plate_no == "") {
     $('#plate-no').hasError();

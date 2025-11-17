@@ -72,7 +72,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 			<label>การจัดส่ง</label>
 			<select class="width-100" name="id_sender" id="sender" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -80,7 +80,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 			<label>วันที่</label>
 			<div class="input-daterange input-group width-100">
 				<input type="text" class="width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
@@ -88,13 +88,21 @@
 			</div>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
-			<label class="not-show">buton</label>
-			<button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+		<div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
+			<label>ช่วงข้อมูล</label>
+			<select class="form-control input-sm" name="range">
+				<option value="top"><?php echo number(getConfig('FILTER_RESULT_LIMIT')); ?> รายการล่าสุด</option>
+				<option value="all" <?php echo is_selected('all', $range); ?>>ทั้งหมด</option>
+			</select>
 		</div>
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+
+		<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
 			<label class="not-show">buton</label>
-			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+			<button type="submit" class="btn btn-xs btn-primary btn-block">Search</button>
+		</div>
+		<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+			<label class="not-show">buton</label>
+			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
 		</div>
 	</div>
 	<input type="hidden" name="search" value="1" />

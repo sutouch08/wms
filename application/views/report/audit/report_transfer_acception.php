@@ -1,18 +1,15 @@
 <?php $this->load->view('include/header'); ?>
-<div class="row hidden-print">
-	<div class="col-lg-8 col-md-8 col-sm-8 padding-5 hidden-xs">
+<div class="row">
+	<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5 padding-top-5">
     <h3 class="title">
       <i class="fa fa-bar-chart"></i>
       <?php echo $this->title; ?>
     </h3>
   </div>
-	<div class="col-xs-12 padding-5 visible-xs">
-		<h4 class="title-xs"><i class="fa fa-bar-chart"></i> <?php echo $this->title; ?></h4>
-	</div>
 	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
 		<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
-			<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
+			<button type="button" class="btn btn-white btn-primary top-btn" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
 		</p>
 	</div>
 </div><!-- End Row -->

@@ -176,6 +176,14 @@
 			<input type="text" class="form-control input-sm search" name="item_code" id="item_code" value="<?php echo $item_code; ?>" />
 		</div>
 
+		<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+			<label>ช่วงข้อมูล</label>
+			<select class="form-control input-sm" name="range">
+				<option value="top"><?php echo number(getConfig('FILTER_RESULT_LIMIT')); ?> รายการล่าสุด</option>
+				<option value="all" <?php echo is_selected('all', $range); ?>>ทั้งหมด</option>
+			</select>
+		</div>
+
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 hidden-xs">
 			<label class="display-block not-show">&nbsp;</label>
 			<button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> </button>

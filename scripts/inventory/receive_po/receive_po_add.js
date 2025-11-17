@@ -174,7 +174,7 @@ function save() {
 	}
 
 	//--- มีรายการในใบสั่งซื้อหรือไม่
-	if($(".receive-qty").length = 0) {
+	if($(".receive-qty").length == 0) {
 		showError('ไม่พบรายการรับเข้า');
 		return false;
 	}
