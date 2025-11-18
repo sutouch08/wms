@@ -132,16 +132,19 @@ function get_header($order)
 }
 
 
-
-function barcodeImage($barcode)
+function barcodeImage($barcode, $height = 8, $width = NULL, $fontsize = 8, $css = NULL)
 {
-	return '<img src="'.base_url().'assets/barcode/barcode.php?text='.$barcode.'" style="height:8mm;" />';
-}
+	$style = "";
+	$style .= empty($width) ? "" : "width:".$width."mm;";
+	$style .= empty($height) ? "" : "height:".$height."mm;";
+	$style .= empty($css) ? "" : $css;
 
+	return '<img src="'.base_url().'assets/barcode/barcode.php?text='.$barcode.'&font_size='.$fontsize.'" style="'.$style.'" />';
+}
 
 function inputRow($text, $style='')
 {
-  return '<input type="text" class="print-row" value="'.$text.'" style="'.$style.'" />';
+  return '<input type="text" class="print-row text-label" value="'.$text.'" style="'.$style.'" readonly/>';
 }
 
  ?>
