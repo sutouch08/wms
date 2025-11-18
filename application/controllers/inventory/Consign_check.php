@@ -831,6 +831,30 @@ class Consign_check extends PS_Controller
     $this->load->view('print/print_consign_box', $ds);
   }
 
+  public function print_barcode($code, $id_box)
+  {
+    $this->load->library('printer');
+    $doc = $this->consign_check_model->get($code);
+    $box = $this->consign_check_model->get_box_by_id($id_box);
+    $details = $this->consign_check_model->get_consign_box_details($id_box, $code);
+
+    if( ! empty($details))
+    {
+      foreach($details as $rs)
+      {
+        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
+      }
+    }
+
+    $ds = array(
+      'box' => $box,
+      'doc' => $doc,
+      'details' => $details
+    );
+
+    $this->load->view('print/print_consign_box_barcode', $ds);
+  }
+
 
 	public function send_to_wms($code)
 	{

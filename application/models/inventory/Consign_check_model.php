@@ -384,6 +384,18 @@ class Consign_check_model extends CI_Model
   }
 
 
+  public function get_box_by_id($id_box)
+  {
+    $rs = $this->db->where('id', $id_box)->get('consign_box');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
 
   public function get_box_qty($id_box, $check_code)
   {

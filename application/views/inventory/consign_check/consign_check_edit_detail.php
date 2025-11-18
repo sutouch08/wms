@@ -157,7 +157,6 @@
 <div class="row">
   <div class="col-sm-12 padding-5">
     <table class="table" style="margin-bottom:0px;">
-
       <tbody>
     {{#each this}}
       {{#if nodata}}
@@ -169,9 +168,8 @@
         <td class="middle text-center">{{ box_no }}</td>
         <td class="middle text-center">{{ barcode }}</td>
         <td class="middle text-right">
-          <button type="button" class="btn btn-sm btn-info" onclick="printConsignBox({{ id_box }})">
-            <i class="fa fa-print"></i> พิมพ์
-          </button>
+          <button type="button" class="btn btn-xs btn-info" onclick="printConsignBarcode({{id_box}})"><i class="fa fa-qrcode"></i></button>
+          <button type="button" class="btn btn-xs btn-info" onclick="printConsignBox({{ id_box }})"><i class="fa fa-print"></i></button>
         </td>
       </tr>
       {{/if}}

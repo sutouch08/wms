@@ -149,6 +149,14 @@ function printConsignBox(id){
 }
 
 
+function printConsignBarcode(id) {
+	let code = $('#check_code').val();
+	let center = ($(document).width() - 800) / 2;
+	let target = HOME + 'print_barcode/'+code+'/'+id;
+	window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
+}
+
+
 
 function clearFilter(){
   var url = HOME + 'clear_filter';
