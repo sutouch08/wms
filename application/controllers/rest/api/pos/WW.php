@@ -373,6 +373,7 @@ class WW extends REST_Controller
             'from_zone' => $fZone->code,
             'to_zone' => $tZone->code,
             'qty' => $rs->qty,
+            'wms_qty' => $rs->qty,
             'valid' => 1
           );
 
