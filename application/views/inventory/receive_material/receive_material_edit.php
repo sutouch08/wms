@@ -1,11 +1,11 @@
 <?php $this->load->view('include/header'); ?>
 <style>
 	#receive-table > tr > td {
-		padding:3px !important;
+		padding:3px 8px !important;
 	}
 
-	#batch-body > tr > td {
-		padding:3px !important;
+	.batch-rows {
+		background-color: #f1fcff;
 	}
 
 	.add-batch {
@@ -18,6 +18,7 @@
 
 	.text-label {
 		height: 21px;
+		padding: 0 !important;
 	}
 
 </style>
@@ -40,9 +41,6 @@
 					</li>
 					<li class="success">
 						<a href="javascript:save('C')">บันทึกรับเข้าทันที</a>
-					</li>
-					<li class="purple">
-						<a href="javascript:save('O')">บันทึกรอรับ</a>
 					</li>
 				</ul>
 			</div>
@@ -107,7 +105,7 @@
 
 	<div class="col-lg-4 col-md-4 col-sm-5 col-xs-12 padding-5">
 		<label>คลัง</label>
-		<select class="width-100 r" id="warehouse" onchange="zoneInit()">
+		<select class="width-100 r" id="warehouse" onchange="changeZone()">
 			<option value="">เลือก</option>
 			<?php echo select_warehouse($warehouse_code); ?>
 		</select>
@@ -127,35 +125,22 @@
 		<label>หมายเหตุ</label>
 		<input type="text" class="width-100" id="remark" value="<?php echo $doc->remark; ?>"/>
 	</div>
-
-	<input type="hidden" id="purchase-vat-code" value="<?php echo getConfig('PURCHASE_VAT_CODE'); ?>" />
-	<input type="hidden" id="purchase-vat-rate" value="<?php echo getConfig('PURCHASE_VAT_RATE'); ?>" />
 </div>
 <hr class="margin-top-10 margin-bottom-10"/>
-<div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-right">
-		<button type="button" class="btn btn-xs btn-danger btn-100" onclick="removeChecked()">ลบรายการ</button>
-	</div>
-	<input type="hidden" name="approver" id="approver" value="" />
-	<input type="hidden" id="allow_over_po" value="<?php echo $allow_over_po; ?>">
-	<input type="hidden" id="save-type" value="1" /> <!-- 1 = บันทึกรับทันที, 3 = บันทึกรอรับ -->
-</div>
-<hr class=""/>
-
 <div class="row" style="margin-left:-8px;">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive border-1 padding-0" style="height:400px; overflow:auto;">
-		<table class="table table-bordered" style="margin-bottom:0px; min-width:990px;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive border-1 padding-0" style="height:400px; overflow:scroll;">
+		<table class="table tableFixHead" style="margin-bottom:0px; min-width:1050px;">
 			<thead>
 				<tr class="font-size-11">
-					<th class="fix-width-40 text-center">#</th>
-					<th class="fix-width-50 text-center"></th>
-					<th class="fix-width-200">รหัสสินค้า</th>
-					<th class="min-width-250">ชื่อสินค้า</th>
-					<th class="fix-width-100 text-center">จำนวน</th>
-					<th class="fix-width-100 text-center">Uom</th>
-					<th class="fix-width-100 text-center">Unit Price</th>
-					<th class="fix-width-100 text-center">ค้างรับ</th>
-					<th calss="fix-width-100 text-center">มูลค่า</th>
+					<th class="fix-width-40 text-centerf fix-header">#</th>
+					<th class="fix-width-40 text-center fix-header"></th>
+					<th class="fix-width-200 fix-header">รหัสสินค้า</th>
+					<th class="min-width-200 fix-header">ชื่อสินค้า</th>
+					<th class="fix-width-150 fix-header">Batch No.</th>
+					<th class="fix-width-80 text-right fix-header">จำนวน</th>
+					<th class="fix-width-100 text-center fix-header">Uom</th>
+					<th class="fix-width-100 text-right fix-header">Unit Price</th>
+					<th class="fix-width-120 text-right fix-header">มูลค่า</th>
 				</tr>
 			</thead>
 			<tbody id="receive-table">
@@ -165,77 +150,96 @@
 	<?php if( ! empty($details)) : ?>
 		<?php foreach($details as $rs) : ?>
 			<?php $uid = $rs->baseEntry.'-'.$rs->baseLine; ?>
-			<tr class="font-size-11 rows" id="row-<?php echo $uid; ?>">
-				<td class="middle text-center">
-					<label>
-						<input type="checkbox" class="ace chk" value="<?php echo $uid; ?>" />
-						<span class="lbl"></span>
-					</label>
-				</td>
+			<tr class="font-size-11 rows r" id="row-<?php echo $uid; ?>" data-uid="<?php echo $uid; ?>">
 				<td class="middle text-center no"><?php echo $no; ?></td>
-				<td class="middle"><?php echo $rs->product_code; ?></td>
-				<td class="middle"><?php echo $rs->product_name; ?></td>
+				<td class="middle text-center"><a class="pointer" href="javascript:removeRow('<?php echo $uid; ?>')" title="Remove this row"><i class="fa fa-trash fa-lg red"></i></a></td>
+				<td class="middle"><?php echo $rs->ItemCode; ?></td>
+				<td class="middle"><?php echo $rs->ItemName; ?></td>
+				<td class="middle">
+					<a class="pointer add-batch" href="javascript:addBatchRow('<?php echo $uid; ?>')" title="Add Batch Number">
+						<i class="fa fa-plus fa-lg blue"></i>
+					</a>
+				</td>
 				<td class="middle text-center">
 					<input type="number"
-						class="form-control input-sm text-center receive-qty"
+						class="form-control input-sm text-right text-label receive-qty r"
 						id="receive-qty-<?php echo $uid; ?>"
+						data-no="<?php echo empty($rs->batchRows) ? 0 : count($rs->batchRows); ?>"
 						data-uid="<?php echo $uid; ?>"
-						data-id="<?php echo $rs->id; ?>"
 						data-limit="<?php echo $rs->limit; ?>"
 						data-backlogs="<?php echo $rs->backlogs; ?>"
-						data-price="<?php echo $rs->price; ?>"
+						data-price="<?php echo $rs->Price; ?>"
+						data-bfprice="<?php echo $rs->PriceBefDi; ?>"
+						data-afprice="<?php echo $rs->PriceAfVAT; ?>"
+						data-basecode="<?php echo $rs->baseCode; ?>"
 						data-baseentry="<?php echo $rs->baseEntry; ?>"
 						data-baseline="<?php echo $rs->baseLine; ?>"
-						data-code="<?php echo $rs->product_code; ?>"
-						data-name="<?php echo $rs->product_name; ?>"
-						data-vatcode="<?php echo $rs->vatGroup; ?>"
-						data-vatrate="<?php echo $rs->vatRate; ?>"
-						data-currency="<?php echo $rs->currency; ?>"
-						data-rate="<?php echo $rs->rate; ?>"
-						value="<?php echo round($rs->qty, 2); ?>"
-						onchange="recalAmount(<?php echo $uid; ?>)" />
+						data-code="<?php echo $rs->ItemCode; ?>"
+						data-name="<?php echo $rs->ItemName; ?>"
+						data-vatcode="<?php echo $rs->VatGroup; ?>"
+						data-vatrate="<?php echo $rs->VatRate; ?>"
+						data-currency="<?php echo $rs->Currency; ?>"
+						data-rate="<?php echo $rs->Rate; ?>"
+						data-uom="<?php echo $rs->UomCode; ?>"
+						data-uom2="<?php echo $rs->UomCode2; ?>"
+						data-unitmsr="<?php echo $rs->unitMsr; ?>"
+						data-unitmsr2="<?php echo $rs->unitMsr2; ?>"
+						data-uomentry="<?php echo $rs->UomEntry; ?>"
+						data-uomentry2="<?php echo $rs->UomEntry2; ?>"
+						data-numpermsr="<?php echo $rs->NumPerMsr; ?>"
+						data-numpermsr2="<?php echo $rs->NumPerMsr2; ?>"
+						data-batch="<?php echo $rs->hasBatch == 1 ? 'Y' : 'N'; ?>"
+						value="<?php echo round($rs->Qty, 2); ?>"
+						onchange="recalAmount('<?php echo $uid; ?>')" />
 				</td>
-				<td class="middle text-center">
-					<input type="text" class="form-control input-sm text-center"
-						id="uom-<?php echo $uid; ?>" value="<?php echo $rs->unitMsr; ?>"
-						data-uom="<?php echo $rs->UomCode; ?>" data-uom2="<?php echo $rs->UomCode2; ?>"
-						data-unitmsr="<?php echo $rs->unitMsr; ?>" data-unitmsr2="<?php echo $rs->unitMsr2; ?>"
-						data-uomentry="<?php echo $rs->UomEntry; ?>" data-uomentry2="<?php echo $rs->UomEntry2; ?>"
-						dtaa-numpermsr="<?php echo $rs->NumPerMsr; ?>" data-numpermsr2="<?php echo $rs->NumPerMsr2; ?>"
-						/>
+				<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
+				<td class="middle">
+					<input type="text" class="form-control input-sm text-right text-label row-price e" id="row-price-<?php echo $uid; ?>" value="<?php echo number($rs->Price, 4); ?>" readonly />
 				</td>
 				<td class="middle">
-					<input type="text" class="form-control input-sm text-right text-label row-price e" id="row-price-<?php echo $uid; ?>" value="<?php echo number($rs->price, 4); ?>" readonly />
-				</td>
-				<td class="middle text-center">
-					<input type="text" class="form-control input-sm text-right text-label" id="backlogs-<?php echo $uid; ?>" data-backlogs="<?php echo $rs->backlogs; ?>" value="<?php echo number($rs->backlogs); ?>" readonly />
-				</td>
-
-				<td class="fix-width-120 middle">
-					<input type="text" class="form-control input-sm text-right text-label" id="line-total-<?php echo $uid; ?>" value="<?php echo number($rs->amount, 4); ?>" readonly/>
+					<input type="text" class="form-control input-sm text-right text-label" id="line-total-<?php echo $uid; ?>" data-amount="<?php echo $rs->LineTotal; ?>" value="<?php echo number($rs->LineTotal, 2); ?>" readonly/>
 				</td>
 			</tr>
 			<?php $no++; ?>
-			<?php $totalQty += $rs->qty; ?>
-			<?php $totalAmount += $rs->amount; ?>
+			<?php $totalQty += $rs->Qty; ?>
+			<?php $totalAmount += $rs->LineTotal; ?>
+
+			<?php if( ! empty($rs->batchRows)) : ?>
+				<?php $ne = 1; ?>
+				<?php foreach($rs->batchRows as $rb) : ?>
+					<?php $cid =  "{$ne}-{$uid}"; ?>
+					<tr class="font-size-11 batch-rows child-of-<?php echo $uid; ?> blue italic" id="batch-row-<?php echo $cid; ?>" data-id="<?php echo $cid; ?>" data-no="<?php echo $ne; ?>" data-uid="<?php echo $cid; ?>" data-parent="<?php echo $uid; ?>">
+						<td class="text-center"></td>
+						<td class="text-center ne"><?php echo $ne; ?></td>
+						<td colspan="2" class="text-right">
+							<a class="pointer" href="javascript:removeBatchRow('<?php echo $cid; ?>')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a>
+						</td>
+						<td class="middle">
+							<input type="text"
+							class="form-control input-sm text-label blue batch-row batch-row-<?php echo $uid; ?> r"
+							style="height:21px; font-style:italic; color:#478fca !important;"
+							id="batch-<?php echo $cid; ?>"
+							data-uid="<?php echo $cid; ?>"
+							data-parent="<?php echo $uid; ?>" value="<?php echo $rb->BatchNum; ?>" />
+							</td>
+						<td class="middle">
+							<input type="number"
+							class="form-control input-sm text-center text-label blue batch-qty batch-qty-<?php echo $uid; ?> r"
+							style="height:21px; font-style:italic;  color:#478fca !important;"
+							id="batch-qty-<?php echo $cid; ?>"
+							data-uid="<?php echo $cid; ?>"
+							data-parent="<?php echo $uid; ?>" value="<?php echo round($rb->Qty, 2); ?>" />
+						</td>
+						<td colspan="3" class="middle"></td>
+					</tr>
+					<?php $ne++; ?>
+				<?php endforeach; ?>
+			<?php endif; ?>
 		<?php endforeach; ?>
 	<?php endif; ?>
 			</tbody>
 		</table>
   </div>
-</div>
-<div class="hide" id="batch-rows-table">
-	<?php if( ! empty($batch_details)) : ?>
-		<?php foreach($batch_details as $rs) : ?>
-			<?php $uid = $rs->baseEntry.'-'.$rs->baseLine; ?>
-			<input type="hidden" class="batch-rows <?php echo $uid; ?>"
-			id="<?php echo $rs->LineNum.'-'.$uid; ?>"
-			data-uid="<?php echo $uid; ?>"
-			data-qty="<?php echo $rs->Qty; ?>"
-			data-batch="<?php echo $rs->BatchNum; ?>"
-			value="" />
-		<?php endforeach; ?>
-	<?php endif; ?>
 </div>
 
 <div class="divider-hidden"></div>
@@ -258,13 +262,13 @@
 			<div class="form-group" style="margin-bottom:5px;">
         <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">จำนวนรวม</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
-          <input type="text" class="form-control input-sm text-right" id="total-receive" value="<?php echo number($totalQty); ?>" disabled>
+          <input type="text" class="form-control input-sm text-right" id="total-receive" value="<?php echo number($totalQty, 2); ?>" disabled>
         </div>
       </div>
 			<div class="form-group" style="margin-bottom:5px;">
         <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">มูลค่ารวม</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
-          <input type="text" class="form-control input-sm text-right" id="total-amount" value="<?php echo number($totalAmount, 4); ?>" disabled>
+          <input type="text" class="form-control input-sm text-right" id="total-amount" value="<?php echo number($totalAmount, 2); ?>" disabled>
         </div>
       </div>
 		</div>
@@ -277,24 +281,28 @@
 
 <script id="receive-template" type="text/x-handlebarsTemplate">
 	{{#each this}}
-		<tr class="font-size-11 rows" id="row-{{uid}}" data-no="0" data-uid="{{uid}}">
+		<tr class="font-size-11 rows r" id="row-{{uid}}" data-no="0" data-uid="{{uid}}">
 			<td class="middle text-center no">{{no}}</td>
-			<td class="middle text-center"><a class="pointer" href="javascript:removeRow({{uid}})" title="Remove this row"><i class="fa fa-trash fa-lg red"></i></a></td>
+			<td class="middle text-center"><a class="pointer" href="javascript:removeRow('{{uid}}')" title="Remove this row"><i class="fa fa-trash fa-lg red"></i></a></td>
+			<td class="middle">{{pdCode}}</td>
+			<td class="middle">{{pdName}}</td>
 			<td class="middle">
-				{{pdCode}}
-				<a class="pointer pull-right add-batch" href="javascript:addBatchRow('{{uid}}')" title="Manage Batch Number">
+				<a class="pointer add-batch" href="javascript:addBatchRow('{{uid}}')" title="Manage Batch Number">
 					<i class="fa fa-plus fa-lg blue"></i>
 				</a>
 			</td>
-			<td class="middle">{{pdName}}</td>
 			<td class="middle">
 				<input type="number"
-					class="form-control input-sm text-center text-label receive-qty"
+					class="form-control input-sm text-right text-label receive-qty r"
 					id="receive-qty-{{uid}}"
+					data-no="0"
 					data-uid="{{uid}}"
 					data-limit="{{limit}}"
 					data-backlogs="{{backlogs}}"
 					data-price="{{price}}"
+					data-bfprice="{{PriceBefDi}}"
+					data-afprice="{PriceAfVAT}"
+					data-basecode="{{baseCode}}"
 					data-baseentry="{{baseEntry}}"
 					data-baseline="{{baseLine}}"
 					data-code="{{pdCode}}"
@@ -302,57 +310,51 @@
 					data-vatcode="{{vatCode}}"
 					data-vatrate="{{vatRate}}"
 					data-currency="{{currency}}"
-					data-uom="uomCode"
+					data-uom="{{uomCode}}"
 					data-uom2="{{uomCode2}}"
 					data-unitmsr="{{unitMsr}}"
 					data-unitmsr2="{{unitMsr2}}"
 					data-uomentry="{{uomEntry}}"
 					data-uomentry2="{{uomEntry2}}"
-					dtaa-numpermsr="{{numPerMsr}}"
+					data-numpermsr="{{numPerMsr}}"
 					data-numpermsr2="{{numPerMsr2}}"
+					data-batch="{{has_batch}}"
 					value="{{qty}}"
-					onchange="recalAmount({{uid}})" />
+					onchange="recalAmount('{{uid}}')" />
 			</td>
 			<td class="middle text-center">{{unitMsr}}</td>
 			<td class="middle">
 				<input type="text" class="form-control input-sm text-right text-label row-price e" id="row-price-{{uid}}" value="{{priceLabel}}" readonly />
 			</td>
-			<td class="middle text-center">
-				<input type="text" class="form-control input-sm text-right text-label"
-					id="backlogs-{{uid}}" data-backlogs="{{backlogs}}" value="{{backLogsLabel}}" readonly />
-			</td>
-			<td class="middle fix-width-120">
-				<input type="text" class="form-contorl input-sm text-right text-label" id="line-total-{{uid}}" data-amount="{{amount}}" value="{{amountLabel}}" readonly/>
+			<td class="middle">
+				<input type="text" class="form-control input-sm text-right text-label" id="line-total-{{uid}}" data-amount="{{amount}}" value="{{amountLabel}}" readonly/>
 			</td>
 		</tr>
 	{{/each}}
 </script>
 
 
-<script id="child-row-template" type="text/x-handlebarsTemplate">
-	<tr class="font-size-11 child-row blue italic" id="child-row-{{cuid}}" data-no="{{no}}" data-uid="{{cuid}}" data-parent="{{uid}}">
-		<td class="middle text-center no">{{no}}</td>
-		<td class="middle text-center">
-			<a class="pointer pull-right add-batch" href="javascript:removeChildRow({{cuid}})" title="Remove this row"><i class="fa fa-trash fa-lg red"></i></a>
-		</td>
-		<td class="middle text-right">Batch No.</td>
+<script id="batch-row-template" type="text/x-handlebarsTemplate">
+	<tr class="font-size-11 batch-rows child-of-{{uid}} blue italic" id="batch-row-{{cuid}}" data-id="{{cuid}}" data-no="{{no}}" data-uid="{{cuid}}" data-parent="{{uid}}">
+		<td></td>
+		<td class="text-center ne"></td>
+		<td colspan="2" class="middle text-right"><a class="pointer pull-right" href="javascript:removeBatchRow('{{cuid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a></td>
 		<td class="middle">
 			<input type="text"
-			class="form-control input-sm text-label blue batch-row"
+			class="form-control input-sm text-label blue batch-row batch-row-{{uid}} r"
 			style="height:21px; font-style:italic; color:#478fca !important;"
 			id="batch-{{cuid}}"
 			data-uid="{{cuid}}"
 			data-parent="{{uid}}" value="" />
-			</td>
+		</td>
 		<td class="middle">
 			<input type="number"
-			class="form-control input-sm text-center text-label blue batch-qty"
+			class="form-control input-sm text-center text-label blue batch-qty batch-qty-{{uid}} r"
 			style="height:21px; font-style:italic;  color:#478fca !important;"
 			id="batch-qty-{{cuid}}"
 			data-uid="{{cuid}}"
 			data-parent="{{uid}}" />
 		</td>
-		<td class="middle text-center">{{unitMsr}}</td>
 		<td colspan="3" class="middle"></td>
 	</tr>
 </script>
@@ -380,6 +382,8 @@
 				data-backlogs="{{backlog}}"
 				data-qty="{{qty}}"
 				data-price="{{price}}"
+				data-bfprice="{{PriceBefDi}}"
+				data-afprice="{{PriceAfVAT}}"
 				data-vatcode="{{vatGroup}}"
 				data-vatrate="{{vatRate}}"
 				data-currency="{{currency}}"
@@ -393,6 +397,7 @@
 				data-unitmsr2="{{unitMsr2}}"
 				data-numpermsr="{{numPerMsr}}"
 				data-numpermsr2="{{numPerMsr2}}"
+				data-batch="{{has_batch}}"
 				value="" />
 		</td>
     </tr>

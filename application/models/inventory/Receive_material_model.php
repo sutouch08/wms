@@ -40,7 +40,21 @@ class Receive_material_model extends CI_Model
   {
     if( ! empty($ds))
     {
-      return $this->db->insert($this->td, $ds);
+      if($this->db->insert($this->td, $ds))
+      {
+        return $this->db->insert_id();
+      }
+    }
+
+    return FALSE;
+  }
+
+
+  public function add_batch_row(array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->insert($this->tm, $ds);
     }
 
     return FALSE;
@@ -187,7 +201,7 @@ class Receive_material_model extends CI_Model
 
   public function delete_batch_details($code)
   {
-    return $this->db->where('receive_code', $code)->delete($this->tb);
+    return $this->db->where('receive_code', $code)->delete($this->tm);
   }
 
 

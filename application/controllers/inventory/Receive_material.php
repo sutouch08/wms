@@ -139,14 +139,15 @@ class Receive_material extends PS_Controller
           foreach($details as $rs)
           {
             //-- get Quantity, Openqty
-            $row = $this->receive_po_model->get_po_row($rs->baseEntry, $rs->baseLine);
+            $row = $this->receive_material_model->get_po_row($rs->baseEntry, $rs->baseLine);
 
             if( ! empty($row))
             {
               $diff = $row->Quantity - $row->OpenQty;
-              $rs->backlogs = 100; //$row->OpenQty;
-              $rs->limit = 100; //($row->Quantity + ($row->Quantity * $rate)) - $diff;
+              $rs->backlogs = $row->OpenQty;
+              $rs->limit = ($row->Quantity + ($row->Quantity * $rate)) - $diff;
               $rs->line_status = $row->LineStatus;
+              $rs->batchRows = $this->receive_material_model->get_batch_item_by_id($rs->id);
             }
             else
             {
@@ -160,7 +161,6 @@ class Receive_material extends PS_Controller
         $ds = array(
           'doc' => $doc,
           'details' => $details,
-          'batch_details' => $this->receive_material_model->get_batch_details($doc->code),
           'allow_over_po' => getConfig('ALLOW_RECEIVE_OVER_PO'),
           'warehouse_code' => empty($doc->warehouse_code) ? getConfig('DEFAULT_WAREHOUSE') : $doc->warehouse_code
         );
@@ -175,6 +175,380 @@ class Receive_material extends PS_Controller
     else
     {
       $this->deny_page();
+    }
+  }
+
+
+  public function save()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds) && ! empty($ds->code))
+    {
+      $doc = $this->receive_material_model->get($ds->code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 'P')
+        {
+          if($ds->save_type == 'C')
+          {
+            if(empty($ds->warehouse_code))
+            {
+              $sc = FALSE;
+              $this->error = "Warehouse is required";
+            }
+
+            if($sc === TRUE && empty($ds->zone_code))
+            {
+              $sc = FALSE;
+              $this->error = "Zone is required";
+            }
+
+            if($sc === TRUE)
+            {
+              $this->load->model('masters/zone_model');
+
+              if( ! $this->zone_model->is_exists_zone_warehouse($ds->zone_code, $ds->warehouse_code))
+              {
+                $sc = FALSE;
+                $this->error = "Zone and warehouse missmatch";
+              }
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $totalQty = 0;
+            $docTotal = 0;
+            $vatSum = 0;
+            $totalReceive = 0;
+
+            $date_add = db_date($ds->date_add, TRUE);
+            $posting_date = empty($ds->posting_date) ? NULL : db_date($ds->posting_date, TRUE);
+
+            $arr = array(
+              'vendor_code' => $ds->vendor_code,
+              'vendor_name' => $ds->vendor_name,
+              'po_code' => $ds->po_code,
+              'Currency' => $ds->currency,
+              'Rate' => $ds->rate,
+              'invoice_code' => get_null($ds->invoice_code),
+              'warehouse_code' => get_null($ds->warehouse_code),
+              'zone_code' => get_null($ds->zone_code),
+              'update_user' => $this->_user->uname,
+              'date_upd' => now(),
+              'date_add' => $date_add,
+              'shipped_date' => $ds->save_type == 'C' ? (empty($posting_date) ? now() : $posting_date) : $posting_date,
+              'remark' => get_null($ds->remark),
+              'status' => $ds->save_type
+            );
+
+
+            $this->db->trans_begin();
+
+            if( ! $this->receive_material_model->update($ds->code, $arr))
+            {
+              $sc = FALSE;
+              set_error('update');
+            }
+
+            if($sc === TRUE)
+            {
+              //--- drop receive rows
+              if( ! $this->receive_material_model->delete_batch_details($ds->code))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to delete prevoius batch rows";
+              }
+
+              if($sc === TRUE)
+              {
+                if( ! $this->receive_material_model->delete_details($ds->code))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to delete prevoius item rows";
+                }
+              }
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            if( ! empty($ds->items))
+            {
+              $lineNum = 1;
+
+              foreach($ds->items as $rs)
+              {
+                if($sc === FALSE) { break; }
+
+                $lineTotal = $rs->qty * $rs->Price;
+                $vatAmount = get_vat_amount($lineTotal, $rs->vatRate);
+
+                $arr = array(
+                  'receive_code' => $doc->code,
+                  'lineNum' => $lineNum,
+                  'baseCode' => $rs->baseCode,
+                  'baseEntry' => $rs->baseEntry,
+                  'baseLine' => $rs->baseLine,
+                  'ItemCode' => $rs->product_code,
+                  'ItemName' => $rs->product_name,
+                  'Qty' => $rs->qty,
+                  'ReceiveQty' => $ds->save_type == 'C' ? $rs->qty : 0,
+                  'PriceBefDi' => $rs->PriceBefDi,
+                  'PriceAfVAT' => $rs->PriceAfVAT,
+                  'Price' => $rs->Price,
+                  'LineTotal' => $lineTotal,
+                  'BinCode' => get_null($ds->zone_code),
+                  'WhsCode' => get_null($ds->warehouse_code),
+                  'UomCode' => $rs->UomCode,
+                  'UomCode2' => $rs->UomCode2,
+                  'UomEntry' => $rs->UomEntry,
+                  'UomEntry2' => $rs->UomEntry2,
+                  'unitMsr' => $rs->unitMsr,
+                  'unitMsr2' => $rs->unitMsr2,
+                  'NumPerMsr' => $rs->NumPerMsr,
+                  'NumPerMsr2' => $rs->NumPerMsr2,
+                  'VatGroup' => $rs->vatGroup,
+                  'VatRate' => $rs->vatRate,
+                  'VatAmount' => $vatAmount,
+                  'Currency' => $rs->currency,
+                  'Rate' => $rs->rate,
+                  'LineStatus' => $ds->save_type == 'C' ? 'C' : 'O',
+                  'valid' => $ds->save_type == 'C' ? 1 : 0,
+                  'hasBatch' => $rs->hasBatch == 'Y' ? 1 : 0
+                );
+
+                $id = $this->receive_material_model->add_detail($arr);
+                $lineNum++;
+
+                $totalQty += $rs->qty;
+                $totalReceive += ($ds->save_type == 'C' ? $rs->qty : 0);
+                $docTotal += $lineTotal;
+                $vatSum += $vatAmount;
+
+                if($id)
+                {
+                  if($ds->save_type == 'C')
+                  {
+                    $this->load->model('inventory/movement_model');
+
+                    $movement = array(
+                      'reference' => $ds->code,
+                      'warehouse_code' => $ds->warehouse_code,
+                      'zone_code' => $ds->zone_code,
+                      'product_code' => $rs->product_code,
+                      'move_in' => $rs->qty,
+                      'move_out' => 0,
+                      'date_add' => empty($posting_date) ? now() : $posting_date
+                    );
+
+                    if( ! $this->movement_model->add($movement))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Failed to insert stock movement";
+                    }
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    if( ! empty($rs->batchRows))
+                    {
+                      foreach($rs->batchRows as $ro)
+                      {
+                        if($sc === FALSE) { break; }
+
+                        $br = array(
+                          'receive_code' => $doc->code,
+                          'receive_detail_id' => $id,
+                          'baseEntry' => $rs->baseEntry,
+                          'baseLine' => $rs->baseLine,
+                          'ItemCode' => $rs->product_code,
+                          'ItemName' => $rs->product_name,
+                          'BatchNum' => $ro->batchNo,
+                          'Qty' => $ro->batchQty,
+                          'WhsCode' => get_null($ds->warehouse_code)
+                        );
+
+                        if( ! $this->receive_material_model->add_batch_row($br))
+                        {
+                          $sc = FALSE;
+                          $this->error = "Failed to insert batch row";
+                        }
+                      }
+                    }
+                  }
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to insert item row";
+                }
+              }
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'DocTotal' => $docTotal,
+              'VatSum' => $vatSum,
+              'TotalQty' => $totalQty,
+              'TotalReceived' => $totalReceive
+            );
+
+            $this->receive_material_model->update($doc->code, $arr);
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+
+          if($sc === TRUE && $ds->save_type == 'C')
+          {
+            //---- send to sab via sap api
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('status');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function rollback()
+  {
+    $sc = TRUE;
+    $this->load->model('inventory/movement_model');
+    $code = $this->input->post('code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->receive_material_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status == 'O' OR ($doc->status == 'C' && $this->_SuperAdmin))
+        {
+          $this->db->trans_begin();
+
+          //--- drop movement
+          if( ! $this->movement_model->drop_movement($doc->code))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to delete stock movement";
+          }
+
+          //---- rollback line status
+          if($sc === TRUE)
+          {
+            if( ! $this->receive_material_model->update_details($doc->code, ['LineStatus' => 'O']))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to update items line status";
+            }
+          }
+
+          //--- rellback document status
+          if($sc === TRUE)
+          {
+            $arr = array(
+              'status' => 'P',
+              'date_upd' => now(),
+              'update_user' => $this->_user->uname
+            );
+
+            if( ! $this->receive_material_model->update($doc->code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to update document status";
+            }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('status');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
+
+  public function view_detail($code)
+  {
+    $doc = $this->receive_material_model->get($code);
+
+    if( ! empty($doc))
+    {
+      $details = $this->receive_material_model->get_details($code);
+
+      if( ! empty($details))
+      {
+        foreach($details as $rs)
+        {
+          $rs->batchRows = $this->receive_material_model->get_batch_item_by_id($rs->id);
+        }
+      }
+
+      $ds = array(
+        'doc' => $doc,
+        'details' => $details
+      );
+
+      $this->load->view('inventory/receive_material/receive_material_view_detail', $ds);
+    }
+    else
+    {
+      $this->page_error();
     }
   }
 
@@ -299,6 +673,8 @@ class Receive_material extends PS_Controller
                 'pdName' => $rs->Dscription,
                 'price' => round($rs->Price, 4),
                 'price_label' => number($rs->Price, 4),
+                'PriceBefDi' => $rs->PriceBefDi,
+                'PriceAfVAT' => $rs->PriceAfVAT,
                 'currency' => $rs->Currency,
                 'Rate' => empty($rs->Rate) ? 1 : $rs->Rate,
                 'vatGroup' => $rs->VatGroup,
@@ -310,7 +686,7 @@ class Receive_material extends PS_Controller
                 'backlog_label' => number($rs->OpenQty),
                 'backlog' => round($rs->OpenQty, 2),
                 'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE,
-                'has_batch' => $rs->ManBtchNum,
+                'has_batch' => "Y", //$rs->ManBtchNum,
                 'uomCode' => $rs->UomCode,
                 'uomCode2' => $rs->UomCode2,
                 'unitMsr' => $rs->unitMsr,

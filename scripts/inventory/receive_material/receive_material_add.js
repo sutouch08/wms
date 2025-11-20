@@ -2,34 +2,13 @@ window.addEventListener('load', () => {
 	poInit();
 	vendorInit();
 	zoneInit();
+	batchInit();
 });
 
 var click = 0;
 
 $("#date-add").datepicker({ dateFormat: 'dd-mm-yy'});
 $("#posting-date").datepicker({ dateFormat: 'dd-mm-yy'});
-
-function reGenCode() {
-	let date_add = $('#date-add').val();
-
-	$.ajax({
-		url:HOME + 'gen_new_code',
-		type:'POST',
-		cache:false,
-		data:{
-			'date_add' : date_add
-		},
-		success:function(rs) {
-			if(isJson(rs)) {
-				let ds = JSON.parse(rs);
-
-				if(ds.status === 'success') {
-					$('#code').val(ds.code);
-				}
-			}
-		}
-	})
-}
 
 
 function poInit() {
@@ -102,10 +81,16 @@ function vendorInit() {
 }
 
 
-function zoneInit() {
-	let whsCode = $('#warehouse').val();
+function changeZone() {
 	$('#zone-code').val('');
 	$('#zone-name').val('');
+
+	zoneInit();
+}
+
+
+function zoneInit() {
+	let whsCode = $('#warehouse').val();
 
 	$('#zone-code').autocomplete({
 		source:HOME + 'get_zone/' + whsCode,
@@ -196,6 +181,7 @@ function add() {
 function save(saveType) {
 	if(click == 0) {
 		click = 1;
+		err = 0;
 		clearErrorByClass('r');
 
 		let h = {
@@ -231,6 +217,7 @@ function save(saveType) {
 			click = 0;
 			$('#vendor-code').hasError();
 			$('#vendor-name').hasError();
+			showError('กรุณาระบุผู้ซื้อ');
 			return false;
 		}
 
@@ -238,24 +225,28 @@ function save(saveType) {
 			if(h.po_code.length == 0) {
 				click = 0;
 				$('#po-code').hasError();
+				showError('กรุณาระบุ PO No.');
 				return false;
 			}
 
 			if(h.invoice_code.length == 0) {
 				click = 0;
 				$('#invoice-code').hasError();
+				showError('กรุณาระบุใบส่งสินค้า');
 				return false;
 			}
 
 			if(h.warehouse_code == '') {
 				click = 0;
 				$('#warehouse').hasError();
+				showError('กรุณาระบุคลัง');
 				return false;
 			}
 
-			if(saveType == 'c' && h.zone_code.length == 0) {
+			if(saveType == 'C' && h.zone_code.length == 0) {
 				click = 0;
 				$('#zone-code').hasError();
+				showError('กรุณาระบุโซน');
 				return false;
 			}
 
@@ -264,46 +255,222 @@ function save(saveType) {
 				showError('ไม่พบรายการรับเข้า');
 				return false;
 			}
-
-			let err = 0;
-
-			$('.receive-qty').each(function() {
-				let el = $(this);
-				let qty = parseDefaultFloat(el.val(), 0);
-
-				if(qty > 0) {
-					let uid = el.data('uid');
-
-					let row = {
-						'uid' : uid,
-						'baseEntry' : el.data('baseentry'),
-						'baseLine' : el.data('baseline'),
-						'product_code' : el.data('code'),
-						'product_name' : el.data('name'),
-						'qty' : qty,
-						'price' : el.data('price'),
-						'backlogs' : el.data('backlogs'),
-						'currency' : el.data('currency'),
-						'rate' : h.rate,
-						'vatGroup' : el.data('vatcode'),
-						'vatRate' : el.data('vatrate')
-					}
-
-					h.items.push(row);
-				}
-				else {
-					err++;
-					el.hasError();
-				}
-			});
-
-			if(error > 0) {
-				click = 0;
-				showError('พบรายการที่ไม่ถูกต้อง');
-				return false;
-			}
 		}
 
-		console.log(h);
+		$('.receive-qty').each(function() {
+			let el = $(this);
+			let qty = parseDefaultFloat(el.val(), 0);
+			let limit = parseDefaultFloat(el.data('limit'), 0);
+			let batchQty = 0;
+
+			if(qty > 0) {
+
+				if(qty > limit) {
+					err++;
+					el.hasError();
+					showError("จำนวนมากกว่ายอดค้างรับ");
+					click = 0;
+					return false;
+				}
+
+				let uid = el.data('uid');
+
+				let row = {
+					'uid' : uid,
+					'baseCode' : el.data('basecode'),
+					'baseEntry' : el.data('baseentry'),
+					'baseLine' : el.data('baseline'),
+					'product_code' : el.data('code'),
+					'product_name' : el.data('name'),
+					'qty' : qty,
+					'Price' : el.data('price'),
+					'PriceBefDi' : el.data('bfprice'),
+					'PriceAfVAT' : el.data('afprice'),
+					'backlogs' : el.data('backlogs'),
+					'currency' : h.currency,
+					'rate' : h.rate,
+					'vatGroup' : el.data('vatcode'),
+					'vatRate' : el.data('vatrate'),
+					'UomCode' : el.data('uom'),
+					'UomCode2' : el.data('uom2'),
+					'UomEntry' : el.data('uomentry'),
+					'UomEntry2' : el.data('uomentry2'),
+					'unitMsr' : el.data('unitmsr'),
+					'unitMsr2' : el.data('unitmsr2'),
+					'NumPerMsr' : el.data('numpermsr'),
+					'NumPerMsr2' : el.data('numpermsr2'),
+					'hasBatch' : el.data('batch'),
+					'batchRows' : []
+				}
+
+				bCount = $('.batch-row-'+uid).length;
+
+				if(el.data('batch') == 'Y' && bCount == 0) {
+					err++;
+					$('#row-'+uid).hasError();
+					click = 0;
+					showError("กรุณาระบุ Batch No");
+					return false;
+				}
+
+				if(bCount > 0 ) {
+
+					let values = [];
+
+					$('.batch-row-'+uid).each(function() {
+						let cid = $(this).data('uid');
+						let batchNo = $(this).val().trim();
+						let bQty = parseDefaultFloat($('#batch-qty-'+cid).val(), 0);
+
+						if(batchNo.length == 0 && bQty != 0) {
+							err++;
+							click = 0;
+							$(this).hasError();
+							showError("กรุณาระบุ Batch No");
+							return false;
+						}
+
+						if(bQty == 0 && batchNo.length != 0) {
+							err++;
+							click = 0;
+							$(this).hasError();
+							showError("กรุณาระบุ จำนวน");
+							return false;
+						}
+
+						if(batchNo.length > 0 && bQty > 0) {
+
+							if(values.includes(batchNo)) {
+								err++;
+								click = 0;
+								$(this).hasError();
+								showError("Batch No ต้องไม่ซ้ำในรายการเดียวกัน");
+								return false;
+							}
+
+							values.push(batchNo);
+
+							row.batchRows.push({
+								'batchNo' : batchNo,
+								'batchQty' : bQty
+							});
+
+							batchQty += bQty;
+							console.log(bQty);
+						}
+					})
+
+					if(err == 0 && batchQty != qty) {
+						err++;
+						el.hasError();
+						click = 0;
+						showError("จำนวนรวมของ Batch ไม่ตรงกับจำนวนของรายการ");
+						return false;
+					}
+				}
+
+				h.items.push(row);
+			}
+			else {
+				err++;
+				el.hasError();
+				showError('จำนวนไม่ถูกต้อง');
+				click = 0;
+				return false;
+			}
+		});
+
+		if(err > 0) {
+			return false;
+		}
+
+		$.ajax({
+			url:HOME + 'save',
+			type:'POST',
+			cache:false,
+			data:{
+				'data' : JSON.stringify(h)
+			},
+			success:function(rs) {
+				load_out();
+				click = 0;
+
+				if(isJson(rs)) {
+					let ds = JSON.parse(rs);
+
+					if(ds.status === 'success') {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							viewDetail(h.code);
+						}, 1200);
+					}
+					else {
+						showError(ds.message);
+					}
+				}
+				else {
+					showError(rs);
+				}
+			},
+			error:function(rs) {
+				click = 0;
+				showError(rs);
+			}
+		})
+
 	}
+}
+
+
+function rollback(code) {
+	swal({
+		title:'ย้อนสถานะ',
+		text:'ต้องการย้อนสถานะ '+code+' หรือไม่ ?',
+		type:'warning',
+		html:true,
+		showCancelButton:true,
+		confirmButtonColor:'#DD6B55',
+		confirmButtonText:'Yes',
+		cancelButtonText:'No',
+		closeOnConfirm:true
+	}, function() {
+		load_in();
+
+		setTimeout(() => {
+			$.ajax({
+				url:HOME + 'rollback',
+				type:'POST',
+				cache:false,
+				data: {
+					'code' : code
+				},
+				success:function(rs) {
+					load_out();
+
+					if(rs.trim() === 'success') {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(() => {
+							edit(code);
+						}, 1200)
+					}
+					else {
+						showError(rs);
+					}
+				},
+				error:function(rs) {
+					showError(rs);
+				}
+			})
+		}, 100);
+	})
 }

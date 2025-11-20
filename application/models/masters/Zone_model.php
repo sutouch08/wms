@@ -99,6 +99,14 @@ class Zone_model extends CI_Model
   }
 
 
+  public function is_exists_zone_warehouse($zone_code, $warehouse_code)
+  {
+    $count = $this->db->where('code', $zone_code)->where('warehouse_code', $warehouse_code)->count_all_results('zone');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+
   //--- check customer exists in zone or not
   public function is_exists_customer($zone_code, $customer_code)
   {

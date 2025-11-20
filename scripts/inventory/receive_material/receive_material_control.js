@@ -131,12 +131,15 @@ function addPoItems() {
 						'uid' : no,
 						'pdCode' : el.data('code'),
 						'pdName' : el.data('name'),
+						'baseCode' : el.data('basecode'),
 						'baseEntry' : el.data('baseentry'),
 						'baseLine' : el.data('baseline'),
 						'vatCode' : el.data('vatcode'),
 						'vatRate' : vatRate,
 						'price' : price,
 						'priceLabel' : addCommas(price.toFixed(3)),
+						'PriceBefDi' : el.data('bfprice'),
+						'PriceAfVAT' : el.data('afprice'),
 						'qty' : qty,
 						'qtyLabel' : addCommas(qty.toFixed(2)),
 						'backlogs' : backlogs,
@@ -151,7 +154,8 @@ function addPoItems() {
 						'unitMsr' : el.data('unitmsr'),
 						'unitMsr2' : el.data('unitmsr2'),
 						'numPerMsr' : el.data('numpermsr2'),
-						'numPerMsr2' : el.data('numpermsr2')
+						'numPerMsr2' : el.data('numpermsr2'),
+						"has_batch" : el.data('batch')
 					}
 
 					items.push(item);
@@ -203,6 +207,7 @@ function clearPo() {
 			closeOnConfirm:true
 		}, function() {
 			$('.rows').remove();
+			$('.batch-rows').remove();
 			$('#po-code').val('').removeAttr('disabled');
 			$('#total-receive').val('0.00');
 			$('#total-amount').val('0.00');
@@ -224,6 +229,10 @@ function addBatchRow(uid) {
 	let puid = no + '-' + el.data('uid');
 	let cuid = ne + '-' + el.data('uid');
 
+	$('.child-of-'+uid).each(function() {
+		puid = $(this).data('id');
+	});
+
 	let ds = {
 		'cuid' : cuid,
 		'uid' : uid,
@@ -231,106 +240,76 @@ function addBatchRow(uid) {
 		'unitMsr' : el.data('unitmsr')
 	};
 
-	let source = $('#child-row-template').html();
-	let output = $('#child-row-'+puid).length ? $('#child-row-'+puid) : $('#row-'+uid);
+
+	let source = $('#batch-row-template').html();
+	let output = $('#batch-row-'+puid).length ? $('#batch-row-'+puid) : $('#row-'+uid);
 
 	render_after(source, ds, output);
-	batchInit();
-	reIndex();
-	$('#batch-'+cuid).focus();
+	batchInit(cuid);
+	reIndex('ne');
+	setTimeout(() => {
+		$('#batch-'+cuid).focus();
+	}, 100)
 }
 
 
-function getBatch(uid) {
-	let ds = [];
-	let no = 1;
-	let min = 5;
-	let ro = $('#receive-qty-'+uid);
-	console.log(ro);
+function batchInit(cid) {
+	if(cid == "" || cid == undefined) {
+		$('.batch-row').keyup(function(e) {
+			if(e.keyCode === 13) {
+				if($(this).val().trim() != "") {
+					let uid = $(this).data('uid');
+					$('#batch-qty-'+uid).focus();
+				}
+			}
+		});
 
-	$('#batch-title').text(ro.data('code'));
-	$('#batch-item').data('code', ro.data('code'));
-	$('#batch-item').data('uid', ro.data('uid'));
-	$('#batch-item').data('limit', ro.data('limit'));
-	let source = $('#batch-template').html();
-	let output = $('#batch-body');
+		$('.batch-qty').keyup(function(e) {
+			if(e.keyCode === 13) {
+				let qty = parseDefaultFloat($(this).val(), 0);
 
-	$('.'+uid).each(function() {
-		let el = $(this);
-
-		let row = {
-			'uid' : el.data('uid'),
-			'id' : el.data('id'),
-			'no' : no,
-			'qty' : el.data('qty'),
-			'batchNo' : el.val()
-		}
-
-		render_append(source, row, output);
-		no++;
-	});
-
-	let row = {
-		'uid' : "",
-		'id' : "",
-		'no' : no,
-		'qty' : "",
-		'batchNo' : ""
+				if(qty > 0) {
+					let uid = $(this).data('parent');
+					addBatchRow(uid);
+				}
+			}
+		})
 	}
+	else {
+		$('#batch-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				if($(this).val().trim() != "") {
+					let uid = $(this).data('uid');
+					$('#batch-qty-'+uid).focus();
+				}
+			}
+		});
 
-	render_append(source, row, output);
+		$('#batch-qty-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				let qty = parseDefaultFloat($(this).val(), 0);
 
-	batchInit();
-
-	$('#batchModal').modal('show');
-}
-
-
-function batchInit() {
-	$('.batch-row').keyup(function(e) {
-		if(e.keyCode === 13) {
-			let uid = $(this).data('uid');
-
-			$('#batch-qty-'+uid).focus();
-		}
-	});
-}
-
-
-function newBatchRow(no) {
-	let row = {
-		'no' : no
+				if(qty > 0) {
+					let uid = $(this).data('parent');
+					addBatchRow(uid);
+				}
+			}
+		})
 	}
-
-	let source = $('#batch-template').html();
-	let output = $('#batch-body');
-
-	render_append(source, row, output);
-	batchInit();
-	$('#batch-'+no).focus();
 }
 
 
-function addBatchRows() {
-	let items = $('#batch-item');
-	let code = items.data('code');
-	let ds = [];
+function removeBatchRow(cid) {
+	$('#batch-row-'+cid).remove();
+	reIndex('ne');
+}
 
-	$('.batch-no').each(function() {
-		let el = $(this);
-		let uid = el.data('uid');
-		let no = el.data('no');
-		let uuid = no + '-'+uid;
-		let batch = el.data('batch').trim();
-		let qty = parseDefaultFloat($('#batch-qty-'+no).val(), 0);
 
-		$('.'+uid).remove();
+function removeRow(uid) {
+	$('#row-'+uid).remove();
+	$('.child-of-'+uid).remove();
 
-		if(batch.length && qty > 0) {
-			let source = $('#batch-row-template').html();
-		}
-	})
-
+	recalTotal();
 }
 
 

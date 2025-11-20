@@ -12,11 +12,20 @@ class Backorder_item extends PS_Controller
     parent::__construct();
     $this->home = base_url().'report/audit/backorder_item';
     $this->load->model('report/audit/backorder_model');
+    $this->load->model('masters/channels_model');
+    $this->load->model('masters/warehouse_model');
+    $this->load->helper('channels');
+    $this->load->helper('warehouse');
   }
 
   public function index()
   {
-    $this->load->view('report/audit/report_backorder_item');
+    $ds = array(
+      'channels_list' => $this->channels_model->get_data(),
+      'warehouse_list' => $this->warehouse_model->get_sell_warehouse_list()
+    );
+
+    $this->load->view('report/audit/report_backorder_item', $ds);
   }
 
 
@@ -32,7 +41,13 @@ class Backorder_item extends PS_Controller
     {
       $filter = array(
         'from_date' => $ds->from_date,
-        'to_date' => $ds->to_date
+        'to_date' => $ds->to_date,
+        'allRole' => $ds->allRole,
+        'allChannels' => $ds->allChannels,
+        'allWarehouse' => $ds->allWarehouse,
+        'role' => $ds->role,
+        'channels' => $ds->channels,
+        'warehouse' => $ds->warehouse
       );
 
       $result = $this->backorder_model->get_report($filter);
@@ -41,12 +56,21 @@ class Backorder_item extends PS_Controller
       {
         $no = 1;
 
+        $ch = [];
+
         foreach($result as $rs)
         {
+          if( ! empty($rs->channels_code) && empty($ch[$rs->channels_code]))
+          {
+            $ch[$rs->channels_code] = channels_name($rs->channels_code);
+          }
+
           $res[] = array(
             'no' => number($no),
             'date_upd' => thai_date($rs->date_upd),
             'order_code' => $rs->order_code,
+            'channels' => empty($rs->channels_code) ? NULL : $ch[$rs->channels_code],
+            'warehouse' => $rs->warehouse_code,
             'product_code' => $rs->product_code,
             'order_qty' => number($rs->order_qty),
             'available_qty' => number($rs->available_qty)
@@ -100,14 +124,22 @@ class Backorder_item extends PS_Controller
     $sheet->setCellValue('B2', 'วันที่');
     $sheet->setCellValue('C2', 'ออเดอร์');
     $sheet->setCellValue('D2', 'รหัสสินค้า');
-    $sheet->setCellValue('E2', 'Order Qty');
-    $sheet->setCellValue('F2', 'Available Qty');
+    $sheet->setCellValue('E2', 'ช่องทางขาย');
+    $sheet->setCellValue('F2', 'คลัง');
+    $sheet->setCellValue('G2', 'Order Qty');
+    $sheet->setCellValue('H2', 'Available Qty');
 
     if( ! empty($ds))
     {
       $filter = array(
         'from_date' => $ds->from_date,
-        'to_date' => $ds->to_date
+        'to_date' => $ds->to_date,
+        'allRole' => $ds->allRole,
+        'allChannels' => $ds->allChannels,
+        'allWarehouse' => $ds->allWarehouse,
+        'role' => $ds->role,
+        'channels' => $ds->channels,
+        'warehouse' => $ds->warehouse
       );
 
       $res = $this->backorder_model->get_report($filter);
@@ -118,14 +150,23 @@ class Backorder_item extends PS_Controller
       {
         $no = 1;
 
+        $ch = [];
+
         foreach($res as $rs)
         {
+          if( ! empty($rs->channels_code) && empty($ch[$rs->channels_code]))
+          {
+            $ch[$rs->channels_code] = channels_name($rs->channels_code);
+          }
+
           $sheet->setCellValue("A{$row}", $no);
           $sheet->setCellValue("B{$row}", thai_date($rs->date_upd));
           $sheet->setCellValue("C{$row}", $rs->order_code);
           $sheet->setCellValue("D{$row}", $rs->product_code);
-          $sheet->setCellValue("E{$row}", $rs->order_qty);
-          $sheet->setCellValue("F{$row}", $rs->available_qty);
+          $sheet->setCellValue("E{$row}", empty($rs->channels_code) ? NULL : $ch[$rs->channels_code]);
+          $sheet->setCellValue("F{$row}", $rs->warehouse_code);
+          $sheet->setCellValue("G{$row}", $rs->order_qty);
+          $sheet->setCellValue("H{$row}", $rs->available_qty);
           $row++;
           $no++;
         }

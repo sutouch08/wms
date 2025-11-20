@@ -23,4 +23,16 @@
 
     return empty($color[$status]) ? $color['P'] : $color[$status];
   }
+
+  function receive_material_status_text($status = 'P')
+  {
+    $label = [
+      'P' => 'Draft',
+      'O' => 'Pending',
+      'C' => 'Closed',
+      'D' => 'Canceled'
+    ];
+
+    return empty($label[$status]) ? 'Unknow' : $label[$status];
+  }
  ?>
