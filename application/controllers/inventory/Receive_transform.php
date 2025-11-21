@@ -17,7 +17,7 @@ class Receive_transform extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/receive_transform';
     $this->load->model('inventory/receive_transform_model');
-    $this->load->model('inventory/transform_model');	  
+    $this->load->model('inventory/transform_model');
   }
 
 
@@ -443,29 +443,7 @@ class Receive_transform extends PS_Controller
 
   	            }//--- end if qty > 0
   	          } //--- end foreach
-
-              //--- หากไม่ต้องกดรับ
-              if($sc === TRUE)
-              {
-                if( ! $must_accept)
-                {
-                  if($this->transform_model->is_complete($doc->order_code))
-                  {
-                    $this->transform_model->close_transform($data->order_code);
-                  }
-
-                  //---- send to SAP Temp
-                  $this->load->library('export');
-
-                  if(! $this->export->export_receive_transform($code))
-                  {
-                    $ex = 1; //--- export error
-                    $this->error = trim($this->export->error);
-                  }
-                }
-              }
   	        } //--- end if !empty($receive)
-
   	      } //--- if $sc === TRUE
 
   	      if($sc === TRUE)
@@ -476,6 +454,27 @@ class Receive_transform extends PS_Controller
   				{
   					$this->db->trans_rollback();
   				}
+
+          //--- หากไม่ต้องกดรับ
+          if($sc === TRUE)
+          {
+            if( ! $must_accept)
+            {
+              if($this->transform_model->is_complete($data->order_code))
+              {
+                $this->transform_model->close_transform($data->order_code);
+              }
+
+              //---- send to SAP Temp
+              $this->load->library('export');
+
+              if(! $this->export->export_receive_transform($code))
+              {
+                $ex = 1; //--- export error
+                $this->error = trim($this->export->error);
+              }
+            }
+          }//-- export
         }
 			}
 			else
