@@ -90,6 +90,12 @@ class Receive_material extends PS_Controller
           'user' => $this->_user->uname,
           'date_add' => $date_add,
           'shipped_date' => $posting_date,
+          'po_code' => get_null($ds->po_code),
+          'invoice_code' => get_null($ds->invoice_code),
+          'Currency' => $ds->currency,
+          'Rate' => $ds->rate,
+          'warehouse_code' => $ds->warehouse_code,
+          'zone_code' => get_null($ds->zone_code),
           'remark' => get_null($ds->remark)
         );
 
@@ -223,7 +229,6 @@ class Receive_material extends PS_Controller
             $totalQty = 0;
             $docTotal = 0;
             $vatSum = 0;
-            $totalReceive = 0;
 
             $date_add = db_date($ds->date_add, TRUE);
             $posting_date = empty($ds->posting_date) ? NULL : db_date($ds->posting_date, TRUE);
@@ -296,7 +301,6 @@ class Receive_material extends PS_Controller
                   'ItemCode' => $rs->product_code,
                   'ItemName' => $rs->product_name,
                   'Qty' => $rs->qty,
-                  'ReceiveQty' => $ds->save_type == 'C' ? $rs->qty : 0,
                   'PriceBefDi' => $rs->PriceBefDi,
                   'PriceAfVAT' => $rs->PriceAfVAT,
                   'Price' => $rs->Price,
@@ -325,7 +329,6 @@ class Receive_material extends PS_Controller
                 $lineNum++;
 
                 $totalQty += $rs->qty;
-                $totalReceive += ($ds->save_type == 'C' ? $rs->qty : 0);
                 $docTotal += $lineTotal;
                 $vatSum += $vatAmount;
 
@@ -368,6 +371,8 @@ class Receive_material extends PS_Controller
                           'ItemCode' => $rs->product_code,
                           'ItemName' => $rs->product_name,
                           'BatchNum' => $ro->batchNo,
+                          'BatchAttr1' => get_null($ro->batchAttr1),
+                          'BatchAttr2' => get_null($ro->batchAttr2),
                           'Qty' => $ro->batchQty,
                           'WhsCode' => get_null($ds->warehouse_code)
                         );
@@ -395,8 +400,7 @@ class Receive_material extends PS_Controller
             $arr = array(
               'DocTotal' => $docTotal,
               'VatSum' => $vatSum,
-              'TotalQty' => $totalQty,
-              'TotalReceived' => $totalReceive
+              'TotalQty' => $totalQty
             );
 
             $this->receive_material_model->update($doc->code, $arr);
@@ -553,6 +557,134 @@ class Receive_material extends PS_Controller
   }
 
 
+  public function cancel()
+  {
+    $sc = TRUE;
+    $reason = $this->input->post('reason');
+    $code = $this->input->post('code');
+
+    if($this->pm->can_delete)
+    {
+      if( ! empty($code))
+      {
+        $doc = $this->receive_material_model->get($code);
+
+        if( ! empty($doc))
+        {
+          if($doc->status != 'D')
+          {
+            if($doc->status == 'C')
+            {
+              //-- check sap docment
+              if($this->receive_material_model->is_exists_in_sap($code))
+              {
+                $sc = FALSE;
+                $this->error = "เอกสารเข้า SAP แล้ว หากต้องการยกเลิก กรุณายกเลิกเอกสารบน SAP ก่อน";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->load->model('inventory/movement_model');
+
+              $this->db->trans_begin();
+
+              // Remove movement
+              if( ! $this->movement_model->drop_movement($code))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to remove stock movement";
+              }
+
+              // Set Line STatus
+              if($sc === TRUE)
+              {
+                $arr = array(
+                  'LineStatus' => 'D'
+                );
+
+                if( ! $this->receive_material_model->update_details($code, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to update line status";
+                }
+              }
+
+              // Set document status
+              if($sc === TRUE)
+              {
+                $arr = array(
+                  'status' => 'D',
+                  'inv_code' => NULL,
+                  'cancle_reason' => $reason,
+                  'cancle_user' => $this->_user->uname,
+                  'date_upd' => now()
+                );
+
+                if( ! $this->receive_material_model->update($code, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to update document status";
+                }
+              }
+
+              if($sc === TRUE)
+              {
+                $this->db->trans_commit();
+              }
+              else
+              {
+                $this->db->trans_rollback();
+              }
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('notfound');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('required');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('permission');
+    }
+
+    $this->_response($sc);
+  }
+
+
+  public function print($code)
+  {
+    $this->load->library('printer');
+
+    $doc = $this->receive_material_model->get($code);
+
+    if( ! empty($doc))
+    {
+      $details = $this->receive_material_model->get_details($code);
+
+      $ds = array(
+        'doc' => $doc,
+        'details' => $details
+      );
+
+      $this->load->view('print/print_material_received', $ds);
+    }
+    else
+    {
+      $this->page_error();
+    }
+  }
+
+
   public function get_vendor()
   {
     $ds = [];
@@ -672,7 +804,7 @@ class Receive_material extends PS_Controller
                 'pdCode' => $rs->ItemCode,
                 'pdName' => $rs->Dscription,
                 'price' => round($rs->Price, 4),
-                'price_label' => number($rs->Price, 4),
+                'price_label' => number($rs->Price, 2),
                 'PriceBefDi' => $rs->PriceBefDi,
                 'PriceAfVAT' => $rs->PriceAfVAT,
                 'currency' => $rs->Currency,

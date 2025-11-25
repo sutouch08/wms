@@ -2,7 +2,6 @@ window.addEventListener('load', () => {
 	poInit();
 	vendorInit();
 	zoneInit();
-	batchInit();
 });
 
 var click = 0;
@@ -13,7 +12,7 @@ $("#posting-date").datepicker({ dateFormat: 'dd-mm-yy'});
 
 function poInit() {
 	let vendor_code = $('#vendor-code').val();
-	let item = [];
+	let item = "";
 
 	$('#po-code').autocomplete({
 		source:HOME + 'get_po_code/' + vendor_code,
@@ -26,27 +25,32 @@ function poInit() {
 			item = ui.item;
 		},
 		close:function() {
-			let label = item.label;
-			let arr = label.split(' | ');
-			let currency = item.currency;
-			let rate = item.rate;
+			setTimeout(() => {
+				if(item != undefined && item != null && item != '') {
+					let arr = item.label != undefined ? item.label.split(' | ') : [];
+					let currency = item.currency;
+					let rate = item.rate;
+					if(arr.length == 3) {
+						$(this).val(arr[0]);
 
-			if(arr.length == 3) {
-				$(this).val(arr[0]);
+						if(vendor_code.length == 0) {
+							$('#vendor-code').val(arr[1]);
+							$('#vendor-name').val(arr[2]);
+						}
 
-				if(vendor_code.length == 0) {
-					$('#vendor-code').val(arr[1]);
-					$('#vendor-name').val(arr[2]);
+						$('#DocCur').val(currency);
+						$('#DocRate').val(rate);
+
+						confirmChangePo();
+					}
+					else {
+						$(this).val('');
+					}
 				}
-
-				$('#DocCur').val(currency);
-				$('#DocRate').val(rate);
-
-				confirmChangePo();
-			}
-			else {
-				$(this).val('');
-			}
+				else {
+					$(this).val('');
+				}
+			},100)
 		}
 	});
 }
@@ -120,6 +124,12 @@ function add() {
 			'posting_date' : $('#posting-date').val(),
 			'vendor_code' : $('#vendor-code').val().trim(),
 			'vendor_name' : $('#vendor-name').val().trim(),
+			'po_code' : $('#po-code').val().trim(),
+			'currency' : $('#DocCur').val(),
+			'rate' : $('#DocRate').val(),
+			'invoice_code' : $('#invoice-code').val().trim(),
+			'warehouse_code' : $('#warehouse').val(),
+			'zone_code' : $('#zone-code').val().trim(),
 			'remark' : $('#remark').val().trim()
 		};
 
@@ -129,7 +139,7 @@ function add() {
 			return false;
 		}
 
-		if( ! isDate(h.posting_date)) {
+		if(h.posting_date != "" && ! isDate(h.posting_date)) {
 			$('#posting-date').hasError();
 			click = 0;
 			return false;
@@ -138,6 +148,12 @@ function add() {
 		if(h.vendor_code.length == 0 || h.vendor_name.length == 0) {
 			$('#vendor-code').hasError();
 			$('#vendor-name').hasError();
+			click = 0;
+			return false;
+		}
+
+		if(h.warehouse_code == "") {
+			$('#warehouse').hasError();
 			click = 0;
 			return false;
 		}
@@ -159,7 +175,7 @@ function add() {
 					let ds = JSON.parse(rs);
 
 					if(ds.status === 'success') {
-						goEdit(ds.code);
+						edit(ds.code);
 					}
 					else {
 						showError(ds.message);
@@ -207,7 +223,7 @@ function save(saveType) {
 			return false;
 		}
 
-		if( ! isDate(h.posting_date)) {
+		if(h.posting_date != "" && ! isDate(h.posting_date)) {
 			click = 0;
 			$('#posting-date').hasError();
 			return false;
@@ -320,6 +336,8 @@ function save(saveType) {
 					$('.batch-row-'+uid).each(function() {
 						let cid = $(this).data('uid');
 						let batchNo = $(this).val().trim();
+						let batchAttr1 = $('#batch-attr1-'+cid).val().trim();
+						let batchAttr2 = $('#batch-attr2-'+cid).val().trim();
 						let bQty = parseDefaultFloat($('#batch-qty-'+cid).val(), 0);
 
 						if(batchNo.length == 0 && bQty != 0) {
@@ -333,7 +351,7 @@ function save(saveType) {
 						if(bQty == 0 && batchNo.length != 0) {
 							err++;
 							click = 0;
-							$(this).hasError();
+							$('#batch-qty-'+cid).hasError();
 							showError("กรุณาระบุ จำนวน");
 							return false;
 						}
@@ -352,6 +370,8 @@ function save(saveType) {
 
 							row.batchRows.push({
 								'batchNo' : batchNo,
+								'batchAttr1' : batchAttr1,
+								'batchAttr2' : batchAttr2,
 								'batchQty' : bQty
 							});
 

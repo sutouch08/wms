@@ -14,10 +14,10 @@
 				<button type="button" class="btn btn-xs btn-default top-btn" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
 				<?php endif; ?>
 				<?php if(empty($approve_view)) : ?>
-					<?php if($isAdmin && $this->isClosed) : ?>
+					<?php if($this->pm->can_edit && $this->isClosed) : ?>
 						<button type="button" class="btn btn-xs btn-warning top-btn" onclick="unCloseTransform('<?php echo $order->code; ?>')">UnClose</button>
 					<?php endif; ?>
-					<?php if($isAdmin && ! $this->isClosed) : ?>
+					<?php if($this->pm->can_edit && ! $this->isClosed) : ?>
 						<button type="button" class="btn btn-xs btn-primary top-btn" onclick="closeTransform('<?php echo $order->code; ?>')">Close</button>
 					<?php endif; ?>
 				<?php endif; ?>

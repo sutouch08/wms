@@ -1,3 +1,7 @@
+window.addEventListener('load', () => {
+	batchInit();
+});
+
 function confirmChangePo() {
 	let poCode = $('#po-code').val().trim();
 	let prevCode = $('#po-code').data('prev');
@@ -137,7 +141,7 @@ function addPoItems() {
 						'vatCode' : el.data('vatcode'),
 						'vatRate' : vatRate,
 						'price' : price,
-						'priceLabel' : addCommas(price.toFixed(3)),
+						'priceLabel' : addCommas(price.toFixed(2)),
 						'PriceBefDi' : el.data('bfprice'),
 						'PriceAfVAT' : el.data('afprice'),
 						'qty' : qty,
@@ -155,7 +159,8 @@ function addPoItems() {
 						'unitMsr2' : el.data('unitmsr2'),
 						'numPerMsr' : el.data('numpermsr2'),
 						'numPerMsr2' : el.data('numpermsr2'),
-						"has_batch" : el.data('batch')
+						"has_batch" : el.data('batch'),
+						"hasBatch" : el.data('batch') == 'Y' ? true : false
 					}
 
 					items.push(item);
@@ -214,8 +219,16 @@ function clearPo() {
 
 			setTimeout(() => {
 				$('#po-code').focus();
+				poInit();
 			}, 100)
 		})
+	}
+	else {
+		$('#po-code').val('').removeAttr('disabled');
+		setTimeout(() => {
+			$('#po-code').focus();
+			poInit();
+		}, 100)
 	}
 }
 
@@ -259,8 +272,22 @@ function batchInit(cid) {
 			if(e.keyCode === 13) {
 				if($(this).val().trim() != "") {
 					let uid = $(this).data('uid');
-					$('#batch-qty-'+uid).focus();
+					$('#batch-attr1-'+uid).focus();
 				}
+			}
+		});
+
+		$('.batch-attr1').keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-attr2-'+uid).focus();
+			}
+		});
+
+		$('.batch-attr2').keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-qty-'+uid).focus();
 			}
 		});
 
@@ -280,8 +307,22 @@ function batchInit(cid) {
 			if(e.keyCode === 13) {
 				if($(this).val().trim() != "") {
 					let uid = $(this).data('uid');
-					$('#batch-qty-'+uid).focus();
+					$('#batch-attr1-'+uid).focus();
 				}
+			}
+		});
+
+		$('#batch-attr1-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-attr2-'+uid).focus();
+			}
+		});
+
+		$('#batch-attr2-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-qty-'+uid).focus();
 			}
 		});
 

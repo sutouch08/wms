@@ -113,32 +113,6 @@ class Receive_material_model extends CI_Model
   }
 
 
-  public function get_in_complete_list($code)
-  {
-    $rs = $this->db->where('receive_code', $code)->where('valid', 0)->get($this->td);
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return NULL;
-  }
-
-
-  public function get_complete_list($code)
-  {
-    $rs = $this->db->where('receive_code', $code)->where('valid', 1)->get($this->td);
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return NULL;
-  }
-
-
   public function get_batch_item_by_id($receive_detail_id)
   {
     $rs = $this->db->where('receive_detail_id', $receive_detail_id)->get($this->tm);
@@ -324,7 +298,7 @@ class Receive_material_model extends CI_Model
   public function get_on_order_qty($itemCode, $poCode, $baseEntry, $baseLine)
   {
     $rs = $this->db
-    ->select_sum('rd.ReceiveQty')
+    ->select_sum('rd.Qty')
     ->from('receive_material_detail AS rd')
     ->join('receive_material AS ro', 'rd.receive_code = ro.code', 'left')
     ->where('ro.po_code', $poCode)
@@ -337,7 +311,7 @@ class Receive_material_model extends CI_Model
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->ReceiveQty > 0 ? $rs->row()->ReceiveQty : 0;
+      return $rs->row()->Qty > 0 ? $rs->row()->Qty : 0;
     }
 
     return 0;
@@ -362,19 +336,14 @@ class Receive_material_model extends CI_Model
   }
 
 
-  public function get_doc_status($code)
+  public function is_exists_in_sap($code)
   {
-    $rs = $this->ms
-    ->select('DocStatus')
+    $count = $this->ms
     ->where('U_ECOMNO', $code)
     ->where('CANCELED', 'N')
-    ->get('OPDN');
-    if($rs->num_rows() === 1)
-    {
-      return $rs->row()->DocStatus;
-    }
+    ->count_all_results('OPDN');
 
-    return 'O';
+    return $count > 0 ? TRUE : FALSE;
   }
 
 
