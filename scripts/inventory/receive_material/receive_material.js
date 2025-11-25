@@ -121,3 +121,7 @@ function doCancle() {
 $('#cancle-modal').on('shown.bs.modal', function() {
 	$('#cancle-reason').focus();
 });
+
+function getTemplate(){
+  window.location.href = HOME + 'get_template_file';
+}

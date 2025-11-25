@@ -61,6 +61,75 @@ class Receive_material extends PS_Controller
   }
 
 
+  public function view_sticker()
+  {
+    $ds = [];
+    $count = 0;
+    $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
+    $path = $this->config->item('upload_path').'grpo-sticker/';
+    $file	= 'uploadFile';
+    $config = array(   // initial config for upload class
+      "allowed_types" => "xlsx",
+      "upload_path" => $path,
+      "file_name"	=> "import-file-".date('YmdHis'),
+      "max_size" => 5120,
+      "overwrite" => TRUE
+    );
+
+    $this->load->library("upload", $config);
+    $this->load->library('excel');
+
+    if( ! $this->upload->do_upload($file))
+    {
+      echo $this->upload->display_errors();
+    }
+    else
+    {
+      $info = $this->upload->data();
+      /// read file
+      $excel = PHPExcel_IOFactory::load($info['full_path']);
+      //get only the Cell Collection
+      $collection	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
+
+      if( ! empty($collection))
+      {
+        $i = 1;
+
+        foreach($collection as $rs)
+        {
+          if($i == 1)
+          {
+            $i++;
+          }
+          else
+          {
+            $ds[] = (object)[
+              'sku' => trim($rs['A']),
+              'barcode' => trim($rs['B']),
+              'po' => trim($rs['C']),
+              'lot' => trim($rs['D']),
+              'pcsNo' => trim($rs['E']),
+              'grade' => trim($rs['F']),
+              'qty' => trim($rs['G']),
+              'unit' => 'kgs.'
+            ];
+
+            $count++;
+          }
+        }
+      }
+
+      $arr = array(
+        'ds' => $ds,
+        'total' => $count
+      );
+
+      $this->load->helper('print');
+      $this->load->view('inventory/receive_material/sticker', $arr);
+    }
+  }
+
+
   public function add_new()
   {
     $ds = ['code' => $this->get_new_code(date('Y-m-d'))];
@@ -934,6 +1003,32 @@ class Receive_material extends PS_Controller
   }
 
 
+  public function get_template_file()
+  {
+    $path = $this->config->item('upload_path').'grpo-sticker/';
+    $file_name = $path."grpo-sticker-template.xlsx";
+
+    if(file_exists($file_name))
+    {
+      header('Content-Description: File Transfer');
+      header('Content-Type:Application/octet-stream');
+      header('Cache-Control: no-cache, must-revalidate');
+      header('Expires: 0');
+      header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
+      header('Content-Length: '.filesize($file_name));
+      header('Pragma: public');
+
+      flush();
+      readfile($file_name);
+      die();
+    }
+    else
+    {
+      echo "File Not Found";
+    }
+  }
+  
+
   public function gen_new_code()
   {
     $date_add = db_date($this->input->post('date_add'), TRUE);
@@ -965,4 +1060,5 @@ class Receive_material extends PS_Controller
 
     return clear_filter($filter);
   }
+
 } //--- end class

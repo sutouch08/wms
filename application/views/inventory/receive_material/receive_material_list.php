@@ -1,12 +1,24 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-    <p class="pull-right top-p">
-      <button type="button" class="btn btn-white btn-success" onclick="addNew()"><i class="fa fa-plus"></i> Add New</button>
-    </p>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+    <button type="button" class="btn btn-white btn-success top-btn" onclick="addNew()"><i class="fa fa-plus"></i> Add New</button>
+    <div class="btn-group">
+      <button data-toggle="dropdown" class="btn btn-purple btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+        พิมพ์สติ๊กเกอร์
+        <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li class="primary">
+          <a href="javascript:getTemplate()"><i class="fa fa-download"></i> Template</a>
+        </li>
+        <li class="success">
+          <a href="javascript:getUploadFile()"><i class="fa fa-upload"></i> Upload</a>
+        </li>
+      </ul>
+    </div>
   </div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
@@ -151,6 +163,7 @@
 </div>
 
 <?php $this->load->view('cancle_modal'); ?>
+<?php $this->load->view('inventory/receive_material/import_modal'); ?>
 
 <div class="modal fade" id="tempModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width:800px;">
