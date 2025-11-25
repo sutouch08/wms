@@ -85,6 +85,8 @@ function uploadfile()	{
   map = window.open(url, "Map", "height=800, scrollbars=yes");
   postForm.submit();
   document.body.removeChild(postForm);
+
+  $('#upload-modal').modal('hide');
 }
 
 </script>
