@@ -818,7 +818,7 @@ class Receive_material extends PS_Controller
                 'backlog_label' => number($rs->OpenQty),
                 'backlog' => round($rs->OpenQty, 2),
                 'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE,
-                'has_batch' => "Y", //$rs->ManBtchNum,
+                'has_batch' => $rs->ManBtchNum,
                 'uomCode' => $rs->UomCode,
                 'uomCode2' => $rs->UomCode2,
                 'unitMsr' => $rs->unitMsr,
