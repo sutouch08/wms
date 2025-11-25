@@ -295,7 +295,7 @@ function deleteCookie( name ) {
 
 function parseDefault(value, def){
 	if(isNaN(value)){
-		return def; //--- return default value
+		return def; 
 	}
 
 	return value;
