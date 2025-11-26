@@ -15,7 +15,7 @@ class Return_lend_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert($this->td, $ds);
+      return $this->db->insert($this->tb, $ds);
     }
 
     return FALSE;
@@ -28,7 +28,7 @@ class Return_lend_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->where('code', $code)->update($this->td, $ds);
+      return $this->db->where('code', $code)->update($this->tb, $ds);
     }
 
     return FALSE;
@@ -110,15 +110,9 @@ class Return_lend_model extends CI_Model
     $rs = $this->db
     ->select('product_code')
     ->where('return_code', $code)
-    ->get($this->td);
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return NULL;
+    ->
   }
+
 
 
 	public function get_detail_by_product($code, $product_code)
@@ -235,7 +229,7 @@ class Return_lend_model extends CI_Model
   ///---- change document status  0 = not save, 1 = saved , 2 = cancle
   public function change_status($code, $status)
   {
-    return $this->db->where('code', $code)->update($this->td, array('status' => $status, 'update_user' => get_cookie('uname')));
+    return $this->db->where('code', $code)->update($this->tb, array('status' => $status, 'update_user' => get_cookie('uname')));
   }
 
 
@@ -268,6 +262,8 @@ class Return_lend_model extends CI_Model
   {
     return $this->db->insert($this->td, $ds);
   }
+
+
 
 
 
@@ -451,7 +447,7 @@ class Return_lend_model extends CI_Model
     ->select_max('code')
     ->like('code', $code, 'after')
     ->order_by('code', 'DESC')
-    ->get($this->td);
+    ->get($this->tb);
 
     if($rs->num_rows() == 1)
     {
@@ -469,7 +465,7 @@ class Return_lend_model extends CI_Model
       $this->db->where('code !=', $old_code);
     }
 
-    $rs = $this->db->where('code', $code)->get($this->td);
+    $rs = $this->db->where('code', $code)->get($this->tb);
 
     if($rs->num_rows() === 1)
     {
@@ -563,7 +559,7 @@ class Return_lend_model extends CI_Model
 
   public function update_inv($code, $doc_num)
   {
-    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update($this->td);
+    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update($this->tb);
   }
 
 
