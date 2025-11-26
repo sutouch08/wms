@@ -110,7 +110,14 @@ class Return_lend_model extends CI_Model
     $rs = $this->db
     ->select('product_code')
     ->where('return_code', $code)
-    ->
+    ->get($this->td);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 
