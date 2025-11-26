@@ -94,6 +94,22 @@ class Receive_po_model extends CI_Model
   }
 
 
+  public function get_receive_products($code)
+  {
+    $rs = $this->db
+    ->select('product_code')
+    ->where('receive_code', $code)
+    ->get($this->td);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_in_complete_list($code)
   {
     $rs = $this->db->where('receive_code', $code)->where('valid', 0)->get($this->td);
@@ -691,7 +707,7 @@ class Receive_po_model extends CI_Model
   public function get_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
+    ->select('code, warehouse_code')
 		->where('status', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
     ->limit($limit)

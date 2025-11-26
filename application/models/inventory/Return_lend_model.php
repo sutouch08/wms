@@ -2,6 +2,9 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Return_lend_model extends CI_Model
 {
+  private $tb = "return_lend";
+  private $td = "return_lend_detail";
+
   public function __construct()
   {
     parent::__construct();
@@ -12,7 +15,7 @@ class Return_lend_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('return_lend', $ds);
+      return $this->db->insert($this->td, $ds);
     }
 
     return FALSE;
@@ -25,7 +28,7 @@ class Return_lend_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->where('code', $code)->update('return_lend', $ds);
+      return $this->db->where('code', $code)->update($this->td, $ds);
     }
 
     return FALSE;
@@ -37,7 +40,7 @@ class Return_lend_model extends CI_Model
 	{
 		if(!empty($ds))
 		{
-			return $this->db->where('id', $id)->update('return_lend_detail', $ds);
+			return $this->db->where('id', $id)->update($this->td, $ds);
 		}
 
 		return FALSE;
@@ -92,7 +95,7 @@ class Return_lend_model extends CI_Model
 
   public function get_lend_details($code)
   {
-    $rs = $this->db->where('return_code', $code)->get('return_lend_detail');
+    $rs = $this->db->where('return_code', $code)->get($this->td);
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -101,6 +104,21 @@ class Return_lend_model extends CI_Model
     return FALSE;
   }
 
+
+  public function get_lend_products($code)
+  {
+    $rs = $this->db
+    ->select('product_code')
+    ->where('return_code', $code)
+    ->get($this->td);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 
 
 	public function get_detail_by_product($code, $product_code)
@@ -144,13 +162,13 @@ class Return_lend_model extends CI_Model
   //--- delete received details
   public function drop_details($code)
   {
-    return $this->db->where('return_code', $code)->delete('return_lend_detail');
+    return $this->db->where('return_code', $code)->delete($this->td);
   }
 
 	//--- drop detail that not receive qty from wms
 	public function drop_not_valid_details($code)
 	{
-		return $this->db->where('return_code', $code)->where('valid', 0)->delete('return_lend_detail');
+		return $this->db->where('return_code', $code)->where('valid', 0)->delete($this->td);
 	}
 
   //--- get return backlogs
@@ -177,7 +195,7 @@ class Return_lend_model extends CI_Model
     ->select('qty, receive_qty')
     ->where('return_code', $return_code)
     ->where('product_code', $product_code)
-    ->get('return_lend_detail');
+    ->get($this->td);
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -217,7 +235,7 @@ class Return_lend_model extends CI_Model
   ///---- change document status  0 = not save, 1 = saved , 2 = cancle
   public function change_status($code, $status)
   {
-    return $this->db->where('code', $code)->update('return_lend', array('status' => $status, 'update_user' => get_cookie('uname')));
+    return $this->db->where('code', $code)->update($this->td, array('status' => $status, 'update_user' => get_cookie('uname')));
   }
 
 
@@ -225,7 +243,7 @@ class Return_lend_model extends CI_Model
   ///---- change details status  0 = not save, 1 = saved , 2 = cancle
   public function change_details_status($code, $status)
   {
-    return $this->db->where('return_code', $code)->update('return_lend_detail', array('status' => $status));
+    return $this->db->where('return_code', $code)->update($this->td, array('status' => $status));
   }
 
 
@@ -248,10 +266,8 @@ class Return_lend_model extends CI_Model
   //--- insert new row
   public function add_detail($ds)
   {
-    return $this->db->insert('return_lend_detail', $ds);
+    return $this->db->insert($this->td, $ds);
   }
-
-
 
 
 
@@ -412,7 +428,7 @@ class Return_lend_model extends CI_Model
 
   public function get_sum_qty($code)
   {
-    $rs = $this->db->select_sum('qty')->where('return_code', $code)->get('return_lend_detail');
+    $rs = $this->db->select_sum('qty')->where('return_code', $code)->get($this->td);
 
     return $rs->row()->qty === NULL ? 0 : $rs->row()->qty;
   }
@@ -422,7 +438,7 @@ class Return_lend_model extends CI_Model
 
   public function get_sum_amount($code)
   {
-    $rs = $this->db->select_sum('amount')->where('return_code', $code)->get('return_lend_detail');
+    $rs = $this->db->select_sum('amount')->where('return_code', $code)->get($this->td);
     return $rs->row()->amount === NULL ? 0 : $rs->row()->amount;
   }
 
@@ -435,7 +451,7 @@ class Return_lend_model extends CI_Model
     ->select_max('code')
     ->like('code', $code, 'after')
     ->order_by('code', 'DESC')
-    ->get('return_lend');
+    ->get($this->td);
 
     if($rs->num_rows() == 1)
     {
@@ -453,7 +469,7 @@ class Return_lend_model extends CI_Model
       $this->db->where('code !=', $old_code);
     }
 
-    $rs = $this->db->where('code', $code)->get('return_lend');
+    $rs = $this->db->where('code', $code)->get($this->td);
 
     if($rs->num_rows() === 1)
     {
@@ -532,10 +548,10 @@ class Return_lend_model extends CI_Model
   public function get_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
+    ->select('code, from_warehouse, to_warehouse')
     ->where('status', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
-    ->get('return_lend');
+    ->get($this->td);
 
     if($rs->num_rows() > 0)
     {
@@ -547,7 +563,7 @@ class Return_lend_model extends CI_Model
 
   public function update_inv($code, $doc_num)
   {
-    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('return_lend');
+    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update($this->td);
   }
 
 

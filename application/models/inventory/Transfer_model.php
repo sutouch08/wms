@@ -311,6 +311,8 @@ class Transfer_model extends CI_Model
     {
       return $rs->row();
     }
+
+    return NULL;
   }
 
 
@@ -348,6 +350,35 @@ class Transfer_model extends CI_Model
     ->join('zone AS tz', 'td.to_zone = tz.code', 'left')
     ->where('td.transfer_code', $code)
     ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_transfer_details($code)
+  {
+    $rs = $this->db->where('transfer_code', $code)->get('transfer_detail');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_transfer_products($code)
+  {
+    $rs = $this->db
+    ->select('product_code')
+    ->where('transfer_code', $code)
+    ->get('transfer_detail');
 
     if($rs->num_rows() > 0)
     {
@@ -1000,7 +1031,7 @@ class Transfer_model extends CI_Model
   public function get_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
+    ->select('code, from_warehouse, to_warehouse')
     ->where('status', 1)
 		->where('is_export', 1)
     ->where('inv_code IS NULL', NULL, FALSE)

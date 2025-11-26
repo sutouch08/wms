@@ -1,6 +1,9 @@
 <?php
 class Receive_transform_model extends CI_Model
 {
+  private $tb = "receive_transform";
+  private $td = "receive_transform_detail";
+
   public function __construct()
   {
     parent::__construct();
@@ -102,7 +105,7 @@ class Receive_transform_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('receive_transform', $ds);
+      return $this->db->insert($this->tb, $ds);
     }
 
     return FALSE;
@@ -114,7 +117,7 @@ class Receive_transform_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->where('code', $code)->update('receive_transform', $ds);
+      return $this->db->where('code', $code)->update($this->tb, $ds);
     }
 
     return FALSE;
@@ -125,7 +128,7 @@ class Receive_transform_model extends CI_Model
   {
     if( ! empty($ds))
     {
-      return $this->db->where('id', $id)->update('receive_transform_detail', $ds);
+      return $this->db->where('id', $id)->update($this->td, $ds);
     }
 
     return FALSE;
@@ -136,7 +139,7 @@ class Receive_transform_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('receive_transform_detail', $ds);
+      return $this->db->insert($this->td, $ds);
     }
 
     return FALSE;
@@ -145,7 +148,7 @@ class Receive_transform_model extends CI_Model
 
   public function get_detail_row($receive_code, $product_code)
   {
-    $rs = $this->db->where('receive_code', $receive_code)->where('product_code', $product_code)->get('receive_transform_detail');
+    $rs = $this->db->where('receive_code', $receive_code)->where('product_code', $product_code)->get($this->td);
 
     if($rs->num_rows() > 0)
     {
@@ -195,17 +198,33 @@ class Receive_transform_model extends CI_Model
   }
 
 
+  public function get_receive_products($code)
+  {
+    $rs = $this->db
+    ->select('product_code')
+    ->where('receive_code', $code)
+    ->get($this->td);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
 
   public function drop_details($code)
   {
-    return $this->db->where('receive_code', $code)->delete('receive_transform_detail');
+    return $this->db->where('receive_code', $code)->delete($this->td);
   }
 
 
 
   public function cancle_details($code)
   {
-    return $this->db->set('is_cancle', 1)->where('receive_code', $code)->update('receive_transform_detail');
+    return $this->db->set('is_cancle', 1)->where('receive_code', $code)->update($this->td);
   }
 
 
@@ -261,7 +280,7 @@ class Receive_transform_model extends CI_Model
   {
     $rs = $this->db->select_sum('qty', 'qty')
     ->where('receive_code', $code)
-    ->get('receive_transform_detail');
+    ->get($this->td);
 
     return intval($rs->row()->qty);
   }
@@ -270,7 +289,7 @@ class Receive_transform_model extends CI_Model
 
   public function get_sum_amount($code)
   {
-    $rs = $this->db->select_sum('amount')->where('receive_code', $code)->get('receive_transform_detail');
+    $rs = $this->db->select_sum('amount')->where('receive_code', $code)->get($this->td);
     return $rs->row()->amount === NULL ? 0.00 : $rs->row()->amount;
   }
 
@@ -297,7 +316,7 @@ class Receive_transform_model extends CI_Model
 
   public function set_status($code, $status)
   {
-    return $this->db->set('status', $status)->where('code', $code)->update('receive_transform');
+    return $this->db->set('status', $status)->where('code', $code)->update($this->tb);
   }
 
 
@@ -374,7 +393,7 @@ class Receive_transform_model extends CI_Model
     }
 
 
-    return $this->db->count_all_results('receive_transform');
+    return $this->db->count_all_results($this->tb);
   }
 
 
@@ -458,7 +477,7 @@ class Receive_transform_model extends CI_Model
       $this->db->limit($perpage, $offset);
     }
 
-    $rs = $this->db->get('receive_transform');
+    $rs = $this->db->get($this->tb);
     return $rs->result();
   }
 
@@ -469,7 +488,7 @@ class Receive_transform_model extends CI_Model
     ->select_max('code')
     ->like('code', $code, 'after')
     ->order_by('code', 'DESC')
-    ->get('receive_transform');
+    ->get($this->tb);
 
     if($rs->num_rows() == 1)
     {
@@ -482,7 +501,7 @@ class Receive_transform_model extends CI_Model
 
   public function is_exists($code)
   {
-    $rs = $this->db->select('status')->where('code', $code)->get('receive_transform');
+    $rs = $this->db->select('status')->where('code', $code)->get($this->tb);
     if($rs->num_rows() > 0)
     {
       return TRUE;
@@ -496,10 +515,10 @@ class Receive_transform_model extends CI_Model
   public function get_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
+    ->select('code, warehouse_code')
     ->where('status', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
-    ->get('receive_transform');
+    ->get($this->tb);
 
     if($rs->num_rows() > 0)
     {
@@ -530,7 +549,7 @@ class Receive_transform_model extends CI_Model
 
   public function update_inv($code, $doc_num)
   {
-    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update('receive_transform');
+    return $this->db->set('inv_code', $doc_num)->where('code', $code)->update($this->tb);
   }
 
 }

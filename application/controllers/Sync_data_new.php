@@ -9,6 +9,8 @@ class Sync_data_new extends CI_Controller
 	public $pm;
   public $limit = 200;
   public $date;
+  public $sync_api_stock;
+  public $ix_warehouse;
 
   public function __construct()
   {
@@ -22,6 +24,11 @@ class Sync_data_new extends CI_Controller
     ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
     ini_set('sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
+
+    $this->load->library('wrx_stock_api');
+    $this->load->model('masters/products_model');
+    $this->sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
+    $this->ix_warehouse = getConfig('IX_WAREHOUSE');
   }
 
 
@@ -81,7 +88,6 @@ class Sync_data_new extends CI_Controller
 		$days = 7;
     $this->sync_data_model->clear_old_logs($days);
   }
-
 
 
   public function syncWarehouse()
@@ -263,6 +269,7 @@ class Sync_data_new extends CI_Controller
     $ds = $this->receive_po_model->get_non_inv_code($this->limit);
     $count = 0;
     $update = 0;
+    $sync_stock = [];
 
     if(!empty($ds))
     {
@@ -271,12 +278,35 @@ class Sync_data_new extends CI_Controller
         $count++;
         $inv = $this->receive_po_model->get_sap_doc_num($rs->code);
 
-        if(!empty($inv))
+        if( ! empty($inv))
         {
           $this->receive_po_model->update_inv($rs->code, $inv);
           $update++;
-        }
 
+          if($this->sync_api_stock && $rs->warehouse_code == $this->ix_warehouse)
+          {
+            $details = $this->receive_po_model->get_receive_products($rs->code);
+
+            if( ! empty($details))
+            {
+              foreach($details as $rd)
+              {
+                if( ! isset($sync_stock[$rd->product_code]))
+                {
+                  $item = $this->products_model->get($rd->product_code);
+
+                  if( ! empty($item))
+                  {
+                    if($item->count_stock && $item->is_api)
+                    {
+                      $sync_stock[$item->code] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+                    }
+                  }
+                } //-- end if
+              } //-- end foreach
+            } //-- end if details
+          }
+        }
       }
     }
 
@@ -290,6 +320,10 @@ class Sync_data_new extends CI_Controller
     //--- add logs
     $this->sync_data_model->add_logs($logs);
 
+    if($this->sync_api_stock && ! empty($sync_stock))
+    {
+      $this->update_api_stock($sync_stock, 'WR');
+    }
   }
 
 
@@ -307,10 +341,34 @@ class Sync_data_new extends CI_Controller
         $count++;
         $inv = $this->receive_transform_model->get_sap_doc_num($rs->code);
 
-        if(!empty($inv))
+        if( ! empty($inv))
         {
           $this->receive_transform_model->update_inv($rs->code, $inv);
           $update++;
+
+          if($this->sync_api_stock && $rs->warehouse_code == $this->ix_warehouse)
+          {
+            $details = $this->receive_transform_model->get_receive_products($rs->code);
+
+            if( ! empty($details))
+            {
+              foreach($details as $rd)
+              {
+                if( ! isset($sync_stock[$rd->product_code]))
+                {
+                  $item = $this->products_model->get($rd->product_code);
+
+                  if( ! empty($item))
+                  {
+                    if($item->count_stock && $item->is_api)
+                    {
+                      $sync_stock[$item->code] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+                    }
+                  }
+                } //-- end if
+              } //-- end foreach
+            } //-- end if details
+          }
         }
 
       }
@@ -326,6 +384,10 @@ class Sync_data_new extends CI_Controller
     //--- add logs
     $this->sync_data_model->add_logs($logs);
 
+    if($this->sync_api_stock && ! empty($sync_stock))
+    {
+      $this->update_api_stock($sync_stock, 'RT');
+    }
   }
 
 
@@ -593,16 +655,43 @@ class Sync_data_new extends CI_Controller
     $count = 0;
     $update = 0;
 
-    if(!empty($ds))
+    $sync_stock = [];
+
+    if( ! empty($ds))
     {
       foreach($ds as $rs)
       {
         $count++;
         $inv = $this->transfer_model->get_sap_doc_num($rs->code);
-        if(!empty($inv))
+
+        if( ! empty($inv))
         {
           $this->transfer_model->update_inv($rs->code, $inv);
           $update++;
+
+          if($this->sync_api_stock && ($rs->from_warehouse == $this->ix_warehouse OR $rs->to_warehouse == $this->ix_warehouse))
+          {
+            $details = $this->transfer_model->get_transfer_products($rs->code);
+
+            if( ! empty($details))
+            {
+              foreach($details as $rd)
+              {
+                if( ! isset($sync_stock[$rd->product_code]))
+                {
+                  $item = $this->products_model->get($rd->product_code);
+
+                  if( ! empty($item))
+                  {
+                    if($item->count_stock && $item->is_api)
+                    {
+                      $sync_stock[$item->code] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+                    }
+                  }
+                } //-- end if
+              } //-- end foreach
+            } //-- end if details
+          } //-- end if sync_api_stock
         }
       }
     }
@@ -616,6 +705,10 @@ class Sync_data_new extends CI_Controller
     //--- add logs
     $this->sync_data_model->add_logs($logs);
 
+    if($this->sync_api_stock && ! empty($sync_stock))
+    {
+      $this->update_api_stock($sync_stock, 'WW');
+    }
   }
 
 
@@ -627,16 +720,44 @@ class Sync_data_new extends CI_Controller
     $count = 0;
     $update = 0;
 
+    $sync_stock = [];
+
     if(!empty($ds))
     {
       foreach($ds as $rs)
       {
         $count++;
+
         $inv = $this->return_lend_model->get_sap_doc_num($rs->code);
-        if(!empty($inv))
+
+        if( ! empty($inv))
         {
           $this->return_lend_model->update_inv($rs->code, $inv);
           $update++;
+
+          if($this->sync_api_stock && ($rs->from_warehouse == $this->ix_warehouse OR $rs->to_warehouse == $this->ix_warehouse))
+          {
+            $details = $this->return_lend_model->get_lend_products($rs->code);
+
+            if( ! empty($details))
+            {
+              foreach($details as $rd)
+              {
+                if( ! isset($sync_stock[$rd->product_code]))
+                {
+                  $item = $this->products_model->get($rd->product_code);
+
+                  if( ! empty($item))
+                  {
+                    if($item->count_stock && $item->is_api)
+                    {
+                      $sync_stock[$item->code] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+                    }
+                  }
+                } //-- end if
+              } //-- end foreach
+            } //-- end if details
+          }
         }
       }
     }
@@ -650,6 +771,10 @@ class Sync_data_new extends CI_Controller
     //--- add logs
     $this->sync_data_model->add_logs($logs);
 
+    if($this->sync_api_stock && ! empty($sync_stock))
+    {
+      $this->update_api_stock($sync_stock, 'RN');
+    }
   }
 
 
@@ -849,6 +974,8 @@ class Sync_data_new extends CI_Controller
     $count = 0;
     $update = 0;
 
+    $sync_stock = [];
+
     if(!empty($ds))
     {
       foreach($ds as $rs)
@@ -860,8 +987,31 @@ class Sync_data_new extends CI_Controller
         {
           $this->return_order_model->update_inv($rs->code, $inv);
           $update++;
-        }
 
+          if($this->sync_api_stock && $rs->warehouse_code == $this->ix_warehouse)
+          {
+            $details = $this->return_order_model->get_return_products($rs->code);
+
+            if( ! empty($details))
+            {
+              foreach($details as $rd)
+              {
+                if( ! isset($sync_stock[$rd->product_code]))
+                {
+                  $item = $this->products_model->get($rd->product_code);
+
+                  if( ! empty($item))
+                  {
+                    if($item->count_stock && $item->is_api)
+                    {
+                      $sync_stock[$item->code] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
+                    }
+                  }
+                } //-- end if
+              } //-- end foreach
+            } //-- end if details
+          }
+        }
       }
     }
 
@@ -875,6 +1025,10 @@ class Sync_data_new extends CI_Controller
     //--- add logs
     $this->sync_data_model->add_logs($logs);
 
+    if($this->sync_api_stock && ! empty($sync_stock))
+    {
+      $this->update_api_stock($sync_stock, 'SM');
+    }
   }
 
 
@@ -982,6 +1136,38 @@ class Sync_data_new extends CI_Controller
     $this->sync_data_model->add_logs($logs);
 
   }
+
+
+  public function update_api_stock(array $sync_stock = array(), $code = NULL)
+  {
+    if($this->sync_api_stock && ! empty($sync_stock))
+    {
+      $this->load->library('wrx_stock_api');
+
+      $i = 0;
+      $j = 0;
+
+      $items = [];
+
+      foreach($sync_stock as $rs)
+      {
+        if($i == 20)
+        {
+          $i = 0;
+          $j++;
+        }
+
+        $items[$j][$i] = $rs;
+        $i++;
+      }
+
+      foreach($items as $item)
+      {
+        $this->wrx_stock_api->update_available_stock($item, $whsCode, $code);
+      }
+    }
+  }
+
 } //--- end class
 
  ?>

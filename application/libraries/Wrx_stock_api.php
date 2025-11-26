@@ -25,7 +25,7 @@ class Wrx_stock_api
 
 
   //--- Full function
-  public function update_available_stock(array $items = array(), $warehouse_code)
+  public function update_available_stock(array $items = array(), $warehouse_code, $code = NULL)
   {
     $action = "update stock";
     $type = "Stock";
@@ -97,7 +97,7 @@ class Wrx_stock_api
               'trans_id' => genUid(),
               'type' => $type,
               'api_path' => $api_path,
-              'code' => NULL,
+              'code' => $code,
               'action' => 'test',
               'status' => 'test',
               'message' => 'test',
@@ -116,7 +116,7 @@ class Wrx_stock_api
             'trans_id' => genUid(),
             'type' => $type,
             'api_path' => $api_path,
-            'code' => NULL,
+            'code' => $code,
             'action' => $action,
             'status' => 'success',
             'message' => 'test logs',
