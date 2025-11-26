@@ -1163,7 +1163,7 @@ class Sync_data_new extends CI_Controller
 
       foreach($items as $item)
       {
-        $this->wrx_stock_api->update_available_stock($item, $whsCode, $code);
+        $this->wrx_stock_api->update_available_stock($item, $this->ix_warehouse, $code);
       }
     }
   }
