@@ -551,7 +551,7 @@ class Return_lend_model extends CI_Model
     ->select('code, from_warehouse, to_warehouse')
     ->where('status', 1)
     ->where('inv_code IS NULL', NULL, FALSE)
-    ->get($this->td);
+    ->get($this->tb);
 
     if($rs->num_rows() > 0)
     {
