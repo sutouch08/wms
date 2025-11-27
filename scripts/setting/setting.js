@@ -15,8 +15,8 @@ function toggleOption(el) {
 	console.log(name+' : ' + $("input[name='"+name+"']").val());
 }
 
-function updateConfig(formName)
-{
+
+function updateConfig(formName) {
 	load_in();
 	var formData = $("#"+formName).serialize();
 	$.ajax({
@@ -40,8 +40,8 @@ function updateConfig(formName)
 	});
 }
 
-function changeURL(tab)
-{
+
+function changeURL(tab) {
 	var url = BASE_URL + 'setting/configs/index/'+ tab;
 	var stObj = { stage: 'stage' };
 	window.history.pushState(stObj, 'configs', url);
@@ -66,6 +66,7 @@ function toggleSystem(option) {
 		$('#btn-freze').addClass('btn-warning');
 	}
 }
+
 
 function defaultZoneInit() {
 	let whs_code = $('#default-warehouse').val();
@@ -126,6 +127,7 @@ function ixReturnZoneInit() {
 	})
 }
 
+
 $('#default-warehouse').select2();
 $('#transform-warehouse').select2();
 $('#lend-warehouse').select2();
@@ -134,6 +136,58 @@ $('#ix-return-warehouse').select2();
 $('#website-channels-code').select2();
 $('#website-warehouse-code').select2();
 $('#sender').select2();
+
+
+function renewToken() {
+	swal({
+		title:'Renew Token',
+		text:'การ renew token อาจทำให้ api ใช้ไม่ได้ชั่วคราว<br/>ต้องการดำเนินการต่อหรือไม่ ?',
+		type:'warning',
+		html:true,
+		showCancelButton:true,
+		cancelButtonText:'No',
+		confirmButtonText:'Yes',
+		closeOnConfirm:true
+	}, function() {
+		load_in();
+
+		setTimeout(() => {
+			$.ajax({
+				url: BASE_URL + 'auto/auto_renew_sap_token/renewToken',
+				type:'GET',
+				cache:false,
+				success:function(rs) {
+					load_out();
+
+					if(isJson(rs)) {
+						let ds = JSON.parse(rs);
+
+						if(ds.status === 'success') {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							$('#sap-api-token').val(ds.token);
+						}
+						else {
+							showError(ds.message);
+						}
+					}
+					else {
+						showError(rs);
+					}
+				},
+				error:function(rs) {
+					showError(rs);
+				}
+			})
+
+		}, 100);
+	})
+}
+
 
 function defaultCustomerInit() {
 	$('#default-customer-code').autocomplete({
@@ -195,10 +249,6 @@ function customer2c2pInit() {
 }
 
 
-
-
-
-
 //--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
 function toggleWebApi(option){
 	$('#web-api').val(option);
@@ -212,6 +262,7 @@ function toggleWebApi(option){
 		return;
 	}
 }
+
 
 //--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
 function togglePosApi(option){
@@ -244,8 +295,7 @@ function togglePosApiWW(option){
 
 
 //---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
-function toggleStrictDue(option)
-{
+function toggleStrictDue(option) {
 	$('#strict-over-due').val(option);
 	if(option == 1){
 		$('#btn-strict-yes').addClass('btn-success');
@@ -260,10 +310,8 @@ function toggleStrictDue(option)
 }
 
 
-
 //---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
-function toggleAuz(option)
-{
+function toggleAuz(option) {
 	$('#allow-under-zero').val(option);
 	if(option == 1){
 		$('#btn-auz-yes').addClass('btn-danger');
@@ -279,8 +327,7 @@ function toggleAuz(option)
 
 
 //---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
-function toggleOverPo(option)
-{
+function toggleOverPo(option) {
 	$('#allow-receive-over-po').val(option);
 	if(option == 1){
 		$('#btn-ovpo-yes').addClass('btn-success');
@@ -295,9 +342,7 @@ function toggleOverPo(option)
 }
 
 
-
-function toggleRequest(option)
-{
+function toggleRequest(option) {
 	$('#strict-receive-po').val(option);
 	if(option == 1){
 		$('#btn-request-yes').addClass('btn-success');
@@ -312,8 +357,7 @@ function toggleRequest(option)
 }
 
 
-function toggleTransfer(option)
-{
+function toggleTransfer(option) {
 	$('#strict-transfer').val(option);
 
 	if(option == 1){
@@ -329,8 +373,7 @@ function toggleTransfer(option)
 }
 
 
-function toggleTransferImport(option)
-{
+function toggleTransferImport(option) {
 	$('#transfer-imp').val(option);
 
 	if(option == 1){
@@ -346,8 +389,7 @@ function toggleTransferImport(option)
 }
 
 
-function toggleControlCredit(option)
-{
+function toggleControlCredit(option) {
 	$('#control-credit').val(option);
 	if(option == 1){
 		$('#btn-credit-yes').addClass('btn-success');
@@ -361,7 +403,8 @@ function toggleControlCredit(option)
 	}
 }
 
-function toggleImportOrder(option){
+
+function toggleImportOrder(option) {
 	$('#allow-upload-order').val(option);
 
 	if(option == 1){
@@ -378,7 +421,7 @@ function toggleImportOrder(option){
 }
 
 
-function toggleImportWC(option){
+function toggleImportWC(option) {
 	$('#allow-import-wc').val(option);
 
 	if(option == 1){
@@ -395,7 +438,7 @@ function toggleImportWC(option){
 }
 
 
-function toggleImportWT(option){
+function toggleImportWT(option) {
 	$('#allow-import-wt').val(option);
 
 	if(option == 1){
@@ -412,7 +455,7 @@ function toggleImportWT(option){
 }
 
 
-function toggleImportSM(option){
+function toggleImportSM(option) {
 	$('#allow-import-sm').val(option);
 
 	if(option == 1){
@@ -429,8 +472,7 @@ function toggleImportSM(option){
 }
 
 
-function toggleShowStock(option)
-{
+function toggleShowStock(option) {
 	$('#show-sum-stock').val(option);
 	if(option == 1){
 		$('#btn-show-stock-yes').addClass('btn-success');
@@ -445,9 +487,7 @@ function toggleShowStock(option)
 }
 
 
-
-function toggleReceiveDue(option)
-{
+function toggleReceiveDue(option) {
 	$('#receive-over-due').val(option);
 	if(option == 1){
 		$('#btn-receive-yes').addClass('btn-success');
@@ -462,9 +502,7 @@ function toggleReceiveDue(option)
 }
 
 
-
-function toggleEditDiscount(option)
-{
+function toggleEditDiscount(option) {
 	$('#allow-edit-discount').val(option);
 	if(option == 1){
 		$('#btn-disc-yes').addClass('btn-success');
@@ -480,7 +518,7 @@ function toggleEditDiscount(option)
 }
 
 
-function toggleEditPrice(option){
+function toggleEditPrice(option) {
 	$('#allow-edit-price').val(option);
 
 	if(option == 1){
@@ -497,7 +535,7 @@ function toggleEditPrice(option){
 }
 
 
-function toggleEditCost(option){
+function toggleEditCost(option) {
 	$('#allow-edit-cost').val(option);
 
 	if(option == 1){
@@ -514,8 +552,7 @@ function toggleEditCost(option){
 }
 
 
-
-function toggleAutoClose(option){
+function toggleAutoClose(option) {
 	$('#po-auto-close').val(option);
 
 	if(option == 1){
@@ -532,7 +569,7 @@ function toggleAutoClose(option){
 }
 
 //--- เปิด/ปิด WMS API
-function toggleWmsApi(option){
+function toggleWmsApi(option) {
 	$('#wms-api').val(option);
 	if(option == 1){
 		$('#btn-api-on').addClass('btn-success');
@@ -597,6 +634,7 @@ function toggleLogXml(option) {
 	}
 }
 
+
 function toggleTestMode(option) {
 	$('#wms-test').val(option);
 
@@ -646,6 +684,7 @@ $('#default-warehouse').autocomplete({
 		}
 	}
 })
+
 
 $('#lend-warehouse').autocomplete({
 	source: BASE_URL + 'auto_complete/get_warehouse_by_role/8',

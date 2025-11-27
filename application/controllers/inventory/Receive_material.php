@@ -257,6 +257,7 @@ class Receive_material extends PS_Controller
   public function save()
   {
     $sc = TRUE;
+    $ex = 0;
     $ds = json_decode($this->input->post('data'));
 
     if( ! empty($ds) && ! empty($ds->code))
@@ -487,6 +488,16 @@ class Receive_material extends PS_Controller
           if($sc === TRUE && $ds->save_type == 'C')
           {
             //---- send to sab via sap api
+            if(is_true(getConfig('SAP_API')))
+            {
+              $this->load->library('sap_api');
+
+              if( ! $this->sap_api->exportGRPO($doc->code))
+              {
+                $ex = 1;
+                $this->error = $this->sap_api->error;
+              }
+            }
           }
         }
         else
@@ -509,7 +520,8 @@ class Receive_material extends PS_Controller
 
     $arr = array(
       'status' => $sc === TRUE ? 'success' : 'failed',
-      'message' => $sc === TRUE ? 'success' : $this->error
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'ex' => $ex
     );
 
     echo json_encode($arr);
@@ -1027,7 +1039,7 @@ class Receive_material extends PS_Controller
       echo "File Not Found";
     }
   }
-  
+
 
   public function gen_new_code()
   {

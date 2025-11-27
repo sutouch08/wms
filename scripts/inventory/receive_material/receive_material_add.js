@@ -376,7 +376,6 @@ function save(saveType) {
 							});
 
 							batchQty += bQty;
-							console.log(bQty);
 						}
 					})
 
@@ -419,15 +418,27 @@ function save(saveType) {
 					let ds = JSON.parse(rs);
 
 					if(ds.status === 'success') {
-						swal({
-							title:'Success',
-							type:'success',
-							timer:1000
-						});
+						if(ds.ex == 1) {
+							swal({
+								title:'Oops !',
+								text:'บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ <br/>'+ds.message,
+								type:'info',
+								html:true
+							}, function() {
+								viewDetail(h.code);
+							})
+						}
+						else {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
 
-						setTimeout(() => {
-							viewDetail(h.code);
-						}, 1200);
+							setTimeout(() => {
+								viewDetail(h.code);
+							}, 1200);
+						}
 					}
 					else {
 						showError(ds.message);
@@ -441,8 +452,7 @@ function save(saveType) {
 				click = 0;
 				showError(rs);
 			}
-		})
-
+		});
 	}
 }
 

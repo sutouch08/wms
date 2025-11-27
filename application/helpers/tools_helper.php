@@ -9,7 +9,7 @@ function is_api($is_wms = 0, $wmsApi = FALSE, $sokoApi = FALSE)
 
 function setToken($token)
 {
-	$CI =& get_instance();
+	$ci =& get_instance();
 	$cookie = array(
 		'name' => 'file_download_token',
 		'value' => $token,
@@ -17,7 +17,7 @@ function setToken($token)
 		'path' => '/'
 	);
 
-	return $CI->input->set_cookie($cookie);
+	return $ci->input->set_cookie($cookie);
 }
 
 
@@ -184,17 +184,17 @@ function is_active($val, $showX = TRUE)
 
 function get_filter($postName, $cookieName, $defaultValue = "")
 {
-  $CI =& get_instance();
+  $ci =& get_instance();
   $sc = '';
 
-  if($CI->input->post($postName) !== NULL)
+  if($ci->input->post($postName) !== NULL)
   {
-    $sc = trim($CI->input->post($postName));
-    $CI->input->set_cookie(array('name' => $cookieName, 'value' => $sc, 'expire' => 3600 , 'path' => '/'));
+    $sc = trim($ci->input->post($postName));
+    $ci->input->set_cookie(array('name' => $cookieName, 'value' => $sc, 'expire' => 3600 , 'path' => '/'));
   }
-  else if($CI->input->cookie($cookieName) !== NULL)
+  else if($ci->input->cookie($cookieName) !== NULL)
   {
-    $sc = $CI->input->cookie($cookieName);
+    $sc = $ci->input->cookie($cookieName);
   }
   else
   {
@@ -258,14 +258,21 @@ function ac_format($val, $digit = 0)
 
 function getConfig($code)
 {
-  $CI =& get_instance();
-  $rs = $CI->db->select('value')->where('code', $code)->get('config');
+  $ci =& get_instance();
+  $rs = $ci->db->select('value')->where('code', $code)->get('config');
   if($rs->num_rows() == 1)
   {
     return $rs->row()->value;
   }
 
 	return NULL;
+}
+
+
+function setConfig($code, $value)
+{
+	$ci =& get_instance();
+	return $ci->db->where('code', $code)->update('config', ['value' => $value]);
 }
 
 
@@ -442,8 +449,8 @@ function set_error($key, $name = "data")
 
 function set_message($message)
 {
-  $CI =& get_instance();
-  $CI->session->set_flashdata('success', $message);
+  $ci =& get_instance();
+  $ci->session->set_flashdata('success', $message);
 }
 
 
