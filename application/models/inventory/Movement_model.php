@@ -56,7 +56,7 @@ class Movement_model extends CI_Model
 
     if( ! empty($ds['reference']))
     {
-      $this->db->where('reference', $ds['reference']);
+      $this->db->like('reference', $ds['reference']);
     }
 
     if( ! empty($ds['product_code']))
@@ -102,7 +102,7 @@ class Movement_model extends CI_Model
 
     if( ! empty($ds['reference']))
     {
-      $this->db->where('reference', $ds['reference']);
+      $this->db->like('reference', $ds['reference']);
     }
 
     if( ! empty($ds['product_code']))
@@ -138,7 +138,7 @@ class Movement_model extends CI_Model
 
     if( ! empty($ds['reference']))
     {
-      $this->db->where('reference', $ds['reference']);
+      $this->db->like('reference', $ds['reference']);
     }
 
     if( ! empty($ds['product_code']))
