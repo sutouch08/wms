@@ -139,19 +139,28 @@ class Sap_api
     {
       if($doc->status === 'C')
       {
-        $details = $this->ci->receive_material_model->get_details($code);
-
-        if( ! empty($details))
-        {
-          foreach($details as $rs)
-          {
-            $rs->batchRows = $this->ci->receive_material_model->get_batch_item_by_id($rs->id);
-          }
-        }
-        else
+        if($this->ci->receive_material_model->is_exists_in_sap($code))
         {
           $sc = FALSE;
-          $this->error = "No item found";
+          $this->error = "เอกสารนี้เข้าระบบ SAP แล้ว หากต้องการแก้ไข กรุณายกเลิกเอกสารบน SAP ก่อน";
+        }
+
+        if($sc === TRUE)
+        {
+          $details = $this->ci->receive_material_model->get_details($code);
+
+          if( ! empty($details))
+          {
+            foreach($details as $rs)
+            {
+              $rs->batchRows = $this->ci->receive_material_model->get_batch_item_by_id($rs->id);
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "No item found";
+          }
         }
 
         if($sc === TRUE)
