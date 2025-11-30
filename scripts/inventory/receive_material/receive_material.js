@@ -125,3 +125,38 @@ $('#cancle-modal').on('shown.bs.modal', function() {
 function getTemplate(){
   window.location.href = HOME + 'get_template_file';
 }
+
+
+function sendToSap(code) {
+  load_in();
+
+  $.ajax({
+    url:HOME + 'export',
+    type:'POST',
+    cache:false,
+    data:{
+      'code' : code
+    },
+    success:function(rs) {
+      load_out();
+
+      if(rs.trim() === 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  })
+}

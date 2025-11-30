@@ -742,6 +742,49 @@ class Receive_material extends PS_Controller
   }
 
 
+  public function export()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->receive_material_model->get($code);
+
+      if( ! empty($doc))
+      {
+        if($doc->status === 'C')
+        {
+          $this->load->library('sap_api');
+
+          if( ! $this->sap_api->exportGRPO($code))
+          {
+            $sc = FALSE;
+            $this->error = "Export Error: {$this->sap_api->error}";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('status');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
+
   public function print($code)
   {
     $this->load->library('printer');

@@ -2,6 +2,7 @@ window.addEventListener('load', () => {
 	batchInit();
 });
 
+
 function confirmChangePo() {
 	let poCode = $('#po-code').val().trim();
 	let prevCode = $('#po-code').data('prev');
@@ -272,7 +273,38 @@ function batchInit(cid) {
 			if(e.keyCode === 13) {
 				if($(this).val().trim() != "") {
 					let uid = $(this).data('uid');
-					$('#batch-attr1-'+uid).focus();
+					let pid = $(this).data('parent');
+					let val = $(this).val().trim();
+					let arr = val.split(' | ');
+
+					if(arr.length == 3) {
+
+						if(arr[0].length) {
+							$('#batch-'+uid).val(arr[0]);
+						}
+
+						if(arr[1].length) {
+							$('#batch-attr1-'+uid).val(arr[1]);
+						}
+
+						if(arr[2].length) {
+							let qty = parseDefaultFloat(arr[2], 0);
+
+							if(qty > 0) {
+								$('#batch-qty-'+uid).val(qty);
+								addBatchRow(pid);
+							}
+							else {
+								$('#batch-qty-'+uid).val('').focus();
+							}
+						}
+						else {
+							$('#batch-qty-'+uid).val('').focus();
+						}
+					}
+					else {
+						$('#batch-attr1-'+uid).focus();
+					}
 				}
 			}
 		});
@@ -307,7 +339,38 @@ function batchInit(cid) {
 			if(e.keyCode === 13) {
 				if($(this).val().trim() != "") {
 					let uid = $(this).data('uid');
-					$('#batch-attr1-'+uid).focus();
+					let pid = $(this).data('parent');
+					let val = $(this).val().trim();
+					let arr = val.split(' | ');
+
+					if(arr.length == 3) {
+
+						if(arr[0].length) {
+							$('#batch-'+uid).val(arr[0]);
+						}
+
+						if(arr[1].length) {
+							$('#batch-attr1-'+uid).val(arr[1]);
+						}
+
+						if(arr[2].length) {
+							let qty = parseDefaultFloat(arr[2], 0);
+
+							if(qty > 0) {
+								$('#batch-qty-'+uid).val(qty);
+								addBatchRow(pid);
+							}
+							else {
+								$('#batch-qty-'+uid).val('').focus();
+							}
+						}
+						else {
+							$('#batch-qty-'+uid).val('').focus();
+						}
+					}
+					else {
+						$('#batch-attr1-'+uid).focus();
+					}
 				}
 			}
 		});
@@ -443,73 +506,6 @@ function confirmPo() {
 			}, 100);
 		}
 	}
-}
-
-
-
-
-function getPoItems() {
-	let po = $('#poCode').val();
-
-	if(po.length == 0) {
-		swal({
-			title:'Oops !',
-			text:'กรุณาระบุเลขที่ใบสั่งซื้อ',
-			type:'warning'
-		});
-
-		return false;
-	}
-
-	load_in();
-
-	$.ajax({
-		url:HOME + 'get_po_detail',
-		type:'GET',
-		cache:false,
-		data:{
-			'po_code' : poCode
-		},
-		success:function(rs) {
-			load_out();
-
-			if(isJson(rs)) {
-				let ds = JSON.parse(rs);
-
-				if(ds.status === 'success') {
-					$('#po-code').val(ds.DocNum);
-					$('#DocCur').val(ds.DocCur);
-					$('#DocRate').val(ds.DocRate);
-					$('#vendor_code').val(ds.CardCode);
-					$('#vendorName').val(ds.CardName);
-
-					let source = $('#po-template').html();
-					let data = ds.details;
-					let output = $('#po-body');
-
-					render(source, data, output);
-
-					$('#poGrid').modal('show');
-
-				}
-				else {
-					swal({
-						title:'Error!',
-						text:ds.message,
-						type:'error'
-					});
-				}
-			}
-			else {
-				swal({
-					title:'Error!',
-					text:rs,
-					type:'error',
-					html:true
-				});
-			}
-		}
-	})
 }
 
 

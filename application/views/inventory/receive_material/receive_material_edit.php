@@ -201,7 +201,7 @@
 								id="batch-<?php echo $cid; ?>"
 								data-uid="<?php echo $cid; ?>"
 								data-parent="<?php echo $uid; ?>" value="<?php echo $rb->BatchNum; ?>"
-								maxlength="32" value="" placeholder="Batch No. (Required)"/>
+								maxlength="100" value="" placeholder="Batch No. (Required)"/>
 							</div>
 						</td>
 						<td class="middle">
@@ -348,7 +348,7 @@
 			<div class="input-group">
 				<span class="input-group-addon batch-label">Batch :</span>
 				<input type="text" class="form-control input-sm blue batch-row batch-row-{{uid}} r"
-				id="batch-{{cuid}}" data-uid="{{cuid}}" data-parent="{{uid}}" maxlength="32" value="" placeholder="Batch No. (Required)"/>
+				id="batch-{{cuid}}" data-uid="{{cuid}}" data-parent="{{uid}}" maxlength="100" value="" placeholder="Batch No. (Required)"/>
 			</div>
 		</td>
 		<td class="middle">

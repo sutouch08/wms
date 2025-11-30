@@ -137,7 +137,7 @@ class Sap_api
 
     if( ! empty($doc))
     {
-      if($doc->status != 'C')
+      if($doc->status === 'C')
       {
         $details = $this->ci->receive_material_model->get_details($code);
 
@@ -145,7 +145,7 @@ class Sap_api
         {
           foreach($details as $rs)
           {
-            $rs->batchRows = $this->receive_material_model->get_batch_item_by_id($rs->id);
+            $rs->batchRows = $this->ci->receive_material_model->get_batch_item_by_id($rs->id);
           }
         }
         else
@@ -187,7 +187,7 @@ class Sap_api
                 {
                   $row['GRPOBatchs'][] = array(
                     'BatchNum' => $br->BatchNum,
-                    'BatchQuantity' => $br->Qty,
+                    'BatchQuantity' => floatval($br->Qty),
                     'BatchAttribute1' => $br->BatchAttr1,
                     'BatchAttribute2' => $br->BatchAttr2
                   );

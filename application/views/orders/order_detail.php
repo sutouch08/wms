@@ -31,7 +31,7 @@
           <?php   foreach($details as $rs) : ?>
             <?php 	$discount = $order->role == 'C' ? $rs->gp : discountLabel($rs->discount1, $rs->discount2, $rs->discount3); ?>
             <?php 	$discLabel = $order->role == 'C' ? $rs->gp .' %' : discountLabel($rs->discount1, $rs->discount2, $rs->discount3); ?>
-            <tr class="font-size-10" id="row_<?php echo $rs->id; ?>">
+            <tr class="font-size-11" id="row_<?php echo $rs->id; ?>">
 							<input type="hidden" id="currentQty-<?php echo $rs->id; ?>" value="<?php echo $rs->qty; ?>">
               <input type="hidden" id="currentPrice-<?php echo $rs->id; ?>" value="<?php echo $rs->price; ?>">
               <input type="hidden" id="currentDisc-<?php echo $rs->id; ?>" value="<?php echo $discLabel; ?>">
@@ -61,7 +61,8 @@
       				</td>
 
 							<td class="middle text-right">
-								<?php if($this->_SuperAdmin OR ($allowEditPrice && $order->state < 4) OR ($rs->is_count == 0 && $order->state < 8)  ) : ?>
+								<?php //if($this->_SuperAdmin OR ($allowEditPrice && $order->state < 4) OR ($rs->is_count == 0 && $order->state < 8)  ) : ?>
+								<?php if($allowEditPrice && $this->pm->can_edit && $order->state < 8 ) : ?>
 									<input type="number"
 										class="form-control input-sm text-right price-box e <?php echo $rs->is_count ? "hide" : ""; ?>"
 										id="price_<?php echo $rs->id; ?>"
@@ -72,7 +73,7 @@
 										onchange="recalItem(<?php echo $rs->id; ?>, '<?php echo $rs->is_count ? 'N' : 'Y'; ?>')"/>
 								<?php endif; ?>
 								<?php if($rs->is_count == 1 OR $order->state >= 8) : ?>
-								<span class="price-label" id="price-label-<?php echo $rs->id; ?>">	<?php echo number($rs->price, 2); ?></span>
+									<span class="price-label" id="price-label-<?php echo $rs->id; ?>">	<?php echo number($rs->price, 2); ?></span>								
 								<?php endif; ?>
 							</td>
 
@@ -101,7 +102,8 @@
       				</td>
 
               <td class="middle text-center">
-              <?php if($this->_SuperAdmin OR $order->state < 4 ) : ?>
+              <?php //if($this->_SuperAdmin OR $order->state < 4 ) : ?>
+							<?php if($allowEditPrice && $this->pm->can_edit && $order->state < 8 ) : ?>
                 <input type="text"
 									class="form-control input-sm text-center discount-box hide e"
 									id="disc_<?php echo $rs->id; ?>"
@@ -115,19 +117,16 @@
               </td>
 
               <td class="middle text-right">
-							<?php if($this->_SuperAdmin OR $order->state < 4 OR ($rs->is_count == 0 && $order->state < 8)) : ?>
 								<input type="text"
-									class="form-control input-sm line-total text-right e"
-									id="line_total_<?php echo $rs->id; ?>"
-									data-id="<?php echo $rs->id; ?>"
-									onkeyup="recalDiscount(<?php echo $rs->id; ?>)"
-									value="<?php echo number($rs->total_amount,2); ?>"
-									data-total="<?php echo round($rs->total_amount,2); ?>"
-									readonly
-									 />
-							<?php else : ?>
-      					<?php echo number($rs->total_amount, 2); ?>
-							<?php endif; ?>
+								class="form-control input-sm line-total text-right text-label e"
+								style="font-size:11px;"
+								id="line_total_<?php echo $rs->id; ?>"
+								data-id="<?php echo $rs->id; ?>"
+								onkeyup="recalDiscount(<?php echo $rs->id; ?>)"
+								value="<?php echo number($rs->total_amount,2); ?>"
+								data-total="<?php echo round($rs->total_amount,2); ?>"
+								readonly
+								/>
       				</td>
           </tr>
 
