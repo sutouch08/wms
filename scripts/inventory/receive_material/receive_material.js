@@ -160,3 +160,15 @@ function sendToSap(code) {
     }
   })
 }
+
+
+function getSearch() {
+	$("#searchForm").submit();
+}
+
+
+function clearFilter() {
+  $.get(HOME + 'clear_filter', function(rs){
+    goBack();
+  });
+}

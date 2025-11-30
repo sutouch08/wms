@@ -542,48 +542,59 @@ class Receive_material extends PS_Controller
       {
         if($doc->status == 'O' OR ($doc->status == 'C' && $this->_SuperAdmin))
         {
-          $this->db->trans_begin();
-
-          //--- drop movement
-          if( ! $this->movement_model->drop_movement($doc->code))
+          if($this->receive_material_model->is_exists_in_sap($code))
           {
             $sc = FALSE;
-            $this->error = "Failed to delete stock movement";
+            $this->error = "เอกสารนี้เข้า SAP แล้ว หากต้องการแก้ไข กรุณายกเลิกเอกสารบน SAP ก่อน";
           }
 
-          //---- rollback line status
           if($sc === TRUE)
           {
-            if( ! $this->receive_material_model->update_details($doc->code, ['LineStatus' => 'O']))
+            $this->db->trans_begin();
+
+            //--- drop movement
+            if( ! $this->movement_model->drop_movement($doc->code))
             {
               $sc = FALSE;
-              $this->error = "Failed to update items line status";
+              $this->error = "Failed to delete stock movement";
             }
-          }
 
-          //--- rellback document status
-          if($sc === TRUE)
-          {
-            $arr = array(
-              'status' => 'P',
-              'date_upd' => now(),
-              'update_user' => $this->_user->uname
-            );
-
-            if( ! $this->receive_material_model->update($doc->code, $arr))
+            //---- rollback line status
+            if($sc === TRUE)
             {
-              $sc = FALSE;
-              $this->error = "Failed to update document status";
+              if( ! $this->receive_material_model->update_details($doc->code, ['LineStatus' => 'O']))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update items line status";
+              }
             }
-          }
 
-          if($sc === TRUE)
-          {
-            $this->db->trans_commit();
-          }
-          else
-          {
-            $this->db->trans_rollback();
+            //--- rellback document status
+            if($sc === TRUE)
+            {
+              $arr = array(
+                'status' => 'P',
+                'is_export' => 'N',
+                'inv_code' => NULL,
+                'date_upd' => now(),
+                'update_user' => $this->_user->uname
+              );
+
+              if( ! $this->receive_material_model->update($doc->code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update document status";
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
           }
         }
         else
