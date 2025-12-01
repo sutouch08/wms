@@ -107,7 +107,7 @@
 							</button>
 						<?php endif; ?>
 
-						<?php if($rs->status != 2 && $this->pm->can_delete && (empty($rs->issue_code) && empty($rs->receive_code))) : ?>
+						<?php if($rs->status != 2 && $this->pm->can_delete && (empty($rs->issue_code) && empty($rs->receive_code)) OR $this->_SuperAdmin) : ?>
 							<button type="button" class="btn btn-mini btn-danger" onclick="goCancle('<?php echo $rs->code; ?>')">
 								<i class="fa fa-trash"></i>
 							</button>
