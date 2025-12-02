@@ -28,7 +28,8 @@ class Movement extends PS_Controller
       'zone_code' => get_filter('zone_code', 'mv_zone_code', ''),
       'product_code' => get_filter('product_code', 'mv_product_code', ''),
       'from_date' => get_filter('from_date', 'mv_from_date', ''),
-      'to_date' => get_filter('to_date', 'mv_to_date', '')
+      'to_date' => get_filter('to_date', 'mv_to_date', ''),
+      'range' => get_filter('range', 'mv_range', 'all')
     );
 
     if($this->input->post('search'))
@@ -37,6 +38,7 @@ class Movement extends PS_Controller
     }
     else
     {
+      $filter['id'] = $filter['range'] == 'all' ? NULL : $this->movement_model->get_max_id($filter['range']);
       $perpage = get_rows();
       $rows = $this->movement_model->count_rows($filter);
       $init = pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
@@ -53,6 +55,9 @@ class Movement extends PS_Controller
     ini_set('memory_limit','2048M');
 
     $token = $this->input->post('token');
+    $range = $this->input->post('range');
+
+    $id = $range == 'all' ? NULL : $this->movement_model->get_max_id($range);
 
     $ds = array(
       'reference' => $this->input->post('reference'),
@@ -60,7 +65,8 @@ class Movement extends PS_Controller
       'warehouse_code' => $this->input->post('warehouse_code'),
       'zone_code' => $this->input->post('zone_code'),
       'from_date' => $this->input->post('from_date'),
-      'to_date' => $this->input->post('to_date')
+      'to_date' => $this->input->post('to_date'),
+      'id' => $id
     );
 
 
@@ -86,7 +92,7 @@ class Movement extends PS_Controller
           $rs->warehouse_code,
           $rs->zone_code,
           $rs->move_in,
-          $rs->move_out,          
+          $rs->move_out,
           thai_date($rs->date_upd, TRUE)
         );
 
@@ -122,7 +128,8 @@ class Movement extends PS_Controller
       'mv_zone_code',
       'mv_product_code',
       'mv_from_date',
-      'mv_to_date'
+      'mv_to_date',
+      'mv_range'
     );
 
     return clear_filter($filter);

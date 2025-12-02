@@ -24,13 +24,16 @@ class Movement_model extends CI_Model
   }
 
 
-  public function get_max_id()
+  public function get_max_id($range)
   {
     $rs = $this->db->query("SELECT max(id) AS id FROM stock_movement");
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->id;
+      $range = empty($range) ? 2000000 : $range;
+      $id = $rs->row()->id - $range;
+
+      return $id > 0 ? $id : 0;
     }
 
     return 0;
@@ -39,6 +42,11 @@ class Movement_model extends CI_Model
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
+    if( ! empty($ds['id']))
+    {
+      $this->db->where('id >=', $ds['id']);
+    }
+
     if( ! empty($ds['from_date']))
     {
       $this->db->where('date_upd >=', from_date($ds['from_date']));
@@ -61,7 +69,7 @@ class Movement_model extends CI_Model
 
     if( ! empty($ds['product_code']))
     {
-      $this->db->where('product_code', $ds['product_code']);
+      $this->db->like('product_code', $ds['product_code'], 'after');
     }
 
     if( ! empty($ds['zone_code']))
@@ -85,6 +93,11 @@ class Movement_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
+    if( ! empty($ds['id']))
+    {
+      $this->db->where('id >=', $ds['id']);
+    }
+
     if( ! empty($ds['from_date']))
     {
       $this->db->where('date_upd >=', from_date($ds['from_date']));
@@ -107,7 +120,7 @@ class Movement_model extends CI_Model
 
     if( ! empty($ds['product_code']))
     {
-      $this->db->where('product_code', $ds['product_code']);
+      $this->db->like('product_code', $ds['product_code'], 'after');
     }
 
     if( ! empty($ds['zone_code']))
@@ -121,6 +134,11 @@ class Movement_model extends CI_Model
 
   public function get_export_data(array $ds = array())
   {
+    if( ! empty($ds['id']))
+    {
+      $this->db->where('id >=', $ds['id']);
+    }
+
     if( ! empty($ds['from_date']))
     {
       $this->db->where('date_upd >=', from_date($ds['from_date']));
@@ -143,7 +161,7 @@ class Movement_model extends CI_Model
 
     if( ! empty($ds['product_code']))
     {
-      $this->db->where('product_code', $ds['product_code']);
+      $this->db->like('product_code', $ds['product_code'], 'after');
     }
 
     if( ! empty($ds['zone_code']))

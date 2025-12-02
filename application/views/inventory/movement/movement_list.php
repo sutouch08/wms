@@ -10,22 +10,22 @@
 <hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
   <div class="row">
-    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label>เลขที่เอกสาร</label>
       <input type="text" class="form-control input-sm text-center search-box" name="reference" id="ref" value="<?php echo $reference; ?>" />
     </div>
-    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label>รหัสสินค้า</label>
       <input type="text" class="form-control input-sm text-center search-box" name="product_code" id="pd-code" value="<?php echo $product_code; ?>" />
     </div>
-    <div class="col-lg-3 col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
+    <div class="col-lg-4 col-md-4-harf col-sm-4-harf col-xs-6 padding-5">
       <label>คลัง</label>
       <select class="width-100" name="warehouse_code" id="warehouse">
         <option value="all">ทั้งหมด</option>
         <?php echo select_warehouse($warehouse_code); ?>
       </select>
     </div>
-    <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label>รหัสโซน</label>
       <input type="text" class="form-control input-sm text-center search-box" name="zone_code" id="zone-code" value="<?php echo $zone_code; ?>" />
     </div>
@@ -35,6 +35,13 @@
         <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
         <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
       </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
+      <label>ช่วงข้อมูล</label>
+      <select class="form-control input-sm search" name="range" id="data-range">
+        <option value="all">ทั้งหมด</option>
+        <option value="2000000" <?php echo is_selected('2000000', $range); ?>>2,000,000 รายการล่าสุด</option>
+      </select>
     </div>
     <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
       <label class="display-block not-show">search</label>
@@ -54,6 +61,7 @@
   <input type="hidden" name="zone_code" id="ex-zone-code" />
   <input type="hidden" name="from_date" id="ex-from-date" />
   <input type="hidden" name="to_date" id="ex-to-date" />
+  <input type="hidden" name="range" id="ex-data-range" />
   <input type="hidden" name="token" id="token" />
 </form>
 <hr class="margin-top-15"/>
@@ -97,6 +105,6 @@
   $('#warehouse').select2();
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/movement/movement.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/movement/movement.js?v=<?php echo date('YmdH'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

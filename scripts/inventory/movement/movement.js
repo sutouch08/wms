@@ -50,10 +50,10 @@ function exportFilter() {
   let zone = $('#zone-code').val().trim()
   let from = $('#fromDate').val().trim()
   let to = $('#toDate').val().trim()
+  let range = $('#data-range').val()
 
-  if( ! isDate(from) || ! isDate(to))
-  {
-    swal("กรุณาระบุวันที่");
+  if(! isDate(from) && ! isDate(to) && ref.length == 0 && pd.length == 0 && wh == 'all' && zone.length == 0) {
+    swal("กรุณาระบุตัวกรองอย่างน้อย 1 ตัวกรอง");
     return false;
   }
 
@@ -63,6 +63,7 @@ function exportFilter() {
   $('#ex-zone-code').val(zone)
   $('#ex-from-date').val(from)
   $('#ex-to-date').val(to)
+  $('#ex-data-range').val(range);
   $('#token').val(token)
 
   get_download(token);
