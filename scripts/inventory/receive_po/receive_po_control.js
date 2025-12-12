@@ -45,7 +45,7 @@ function addPoItems() {
 						'vatCode' : vatCode,
 						'vatRate' : vatRate,
 						'price' : price,
-						'priceLabel' : addCommas(price.toFixed(3)),
+						'priceLabel' : addCommas(price.toFixed(4)),
 						'qty' : qty,
 						'qtyLabel' : addCommas(qty.toFixed(2)),
 						'backlogs' : backlogs,
