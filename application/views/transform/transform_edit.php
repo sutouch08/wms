@@ -109,7 +109,6 @@
 	<script src="<?php echo base_url(); ?>scripts/wms/wms_order.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php endif; ?>
 
-<?php if($isAdmin) : ?>
 	<script>
 
 		function closeTransform(code) {
@@ -179,6 +178,5 @@
 		}
 	</script>
 
-<?php endif; ?>
 
 <?php $this->load->view('include/footer'); ?>
