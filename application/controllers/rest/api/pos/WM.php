@@ -274,18 +274,25 @@ class WM extends REST_Controller
     //---- check valid items data
     foreach($data->items as $rs)
     {
-      //---- check valid items
-      $item = $this->products_model->get($rs->product_code);
+      $stock_type = empty($rs->stock_type) ? 'Normal' : $rs->stock_type;
+      $stock_type = ($stock_type == 'Voucher' OR $stock_type == 'voucher') ? 'Voucher' : 'Normal';
+      $rs->stock_type = $stock_type;
 
-      if(empty($item))
+      if($stock_type == 'Normal')
       {
-        $sc = FALSE;
-        $this->error = "Invalid Product code : {$rs->product_code}";
-        break;
-      }
-      else
-      {
-        $rs->item = $item;
+        //---- check valid items
+        $item = $this->products_model->get($rs->product_code);
+
+        if(empty($item))
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Product code : {$rs->product_code}";
+          break;
+        }
+        else
+        {
+          $rs->item = $item;
+        }
       }
     }
 
@@ -417,106 +424,109 @@ class WM extends REST_Controller
               break;
             }
 
-            //--- add new row
-            $total_price = $rs->qty * $rs->price;
-            $discount_amount = $rs->qty * $rs->discount_amount;
-
-            if($discount_amount > $total_price)
+            if($rs->stock_type != 'Voucher')
             {
-              $sc = FALSE;
-              $this->error = "Discounts greater than the selling price. Bill ref : {$rs->bill_ref}, Product code : {$rs->item->code}";
-            }
+              //--- add new row
+              $total_price = $rs->qty * $rs->price;
+              $discount_amount = $rs->qty * $rs->discount_amount;
 
-            if($sc === TRUE)
-            {
-              $item = $rs->item;
-              $line_total = $total_price - $discount_amount;
-
-              $discount_label = $total_price > 0 ? ($discount_amount > 0 ? ($discount_amount / $total_price) * 100 : 0) : 0;
-              $discount_label = number($discount_label, 2)." %";
-
-              $arr = array(
-                'consign_code' => $code,
-                'style_code' => $item->style_code,
-                'product_code' => $item->code,
-                'product_name' => $item->name,
-                'cost' => $item->cost,
-                'price' => $rs->price,
-                'qty' => $rs->qty,
-                'discount' => $discount_label, //-- discount label per item
-                'discount_amount' => $discount_amount,
-                'amount' => $line_total,
-                'status' => $this->create_status,
-                'pos_ref' => $data->pos_ref,
-                'bill_ref' => $rs->bill_ref,
-                'input_type' => 4
-              );
-
-              $id = $this->consign_order_model->add_detail($arr);
-
-              if( ! $id)
+              if($discount_amount > $total_price)
               {
                 $sc = FALSE;
-                $this->error = "Faild to add item : {$item->code}, {$rs->bill_ref}";
+                $this->error = "Discounts greater than the selling price. Bill ref : {$rs->bill_ref}, Product code : {$rs->item->code}";
               }
 
-              if($sc === TRUE && $this->create_status == 1)
+              if($sc === TRUE)
               {
-                $final_price = $line_total/$rs->qty;
+                $item = $rs->item;
+                $line_total = $total_price - $discount_amount;
 
-                //--- ข้อมูลสำหรับบันทึกยอดขาย
+                $discount_label = $total_price > 0 ? ($discount_amount > 0 ? ($discount_amount / $total_price) * 100 : 0) : 0;
+                $discount_label = number($discount_label, 2)." %";
+
                 $arr = array(
-                'reference' => $code,
-                'role'   => 'M',
-                'product_code'  => $item->code,
-                'product_name'  => $item->name,
-                'product_style' => $item->style_code,
-                'cost'  => $item->cost,
-                'price'  => $rs->price,
-                'sell'  => $final_price,
-                'qty'   => $rs->qty,
-                'discount_label'  => $discount_label,
-                'discount_amount' => $discount_amount,
-                'total_amount'   => $line_total,
-                'total_cost'   => $item->cost * $rs->qty,
-                'margin'  =>  ($final_price * $rs->qty) - ($item->cost * $rs->qty),
-                'id_policy'   => NULL,
-                'id_rule'     => NULL,
-                'customer_code' => $customer->code,
-                'customer_ref' => NULL,
-                'sale_code'   => NULL,
-                'user' => $this->user,
-                'date_add'  => $date_add,
-                'zone_code' => $zone->code,
-                'warehouse_code'  => $zone->warehouse_code,
-                'update_user' => $this->user,
-                'order_detail_id' => $id
+                  'consign_code' => $code,
+                  'style_code' => $item->style_code,
+                  'product_code' => $item->code,
+                  'product_name' => $item->name,
+                  'cost' => $item->cost,
+                  'price' => $rs->price,
+                  'qty' => $rs->qty,
+                  'discount' => $discount_label, //-- discount label per item
+                  'discount_amount' => $discount_amount,
+                  'amount' => $line_total,
+                  'status' => $this->create_status,
+                  'pos_ref' => $data->pos_ref,
+                  'bill_ref' => $rs->bill_ref,
+                  'input_type' => 4
                 );
 
-                //--- บันทึกขาย
-                if( ! $this->delivery_order_model->sold($arr))
+                $id = $this->consign_order_model->add_detail($arr);
+
+                if( ! $id)
                 {
                   $sc = FALSE;
-                  $this->error = 'Sales record failed';
+                  $this->error = "Faild to add item : {$item->code}, {$rs->bill_ref}";
                 }
 
-                if($sc === TRUE)
+                if($sc === TRUE && $this->create_status == 1)
                 {
-                  //--- update movement
+                  $final_price = $line_total/$rs->qty;
+
+                  //--- ข้อมูลสำหรับบันทึกยอดขาย
                   $arr = array(
                     'reference' => $code,
-                    'warehouse_code' => $zone->warehouse_code,
+                    'role'   => 'M',
+                    'product_code'  => $item->code,
+                    'product_name'  => $item->name,
+                    'product_style' => $item->style_code,
+                    'cost'  => $item->cost,
+                    'price'  => $rs->price,
+                    'sell'  => $final_price,
+                    'qty'   => $rs->qty,
+                    'discount_label'  => $discount_label,
+                    'discount_amount' => $discount_amount,
+                    'total_amount'   => $line_total,
+                    'total_cost'   => $item->cost * $rs->qty,
+                    'margin'  =>  ($final_price * $rs->qty) - ($item->cost * $rs->qty),
+                    'id_policy'   => NULL,
+                    'id_rule'     => NULL,
+                    'customer_code' => $customer->code,
+                    'customer_ref' => NULL,
+                    'sale_code'   => NULL,
+                    'user' => $this->user,
+                    'date_add'  => $date_add,
                     'zone_code' => $zone->code,
-                    'product_code' => $item->code,
-                    'move_in' => 0,
-                    'move_out' => $rs->qty,
-                    'date_add' => $date_add
+                    'warehouse_code'  => $zone->warehouse_code,
+                    'update_user' => $this->user,
+                    'order_detail_id' => $id
                   );
 
-                  if(! $this->movement_model->add($arr))
+                  //--- บันทึกขาย
+                  if( ! $this->delivery_order_model->sold($arr))
                   {
                     $sc = FALSE;
-                    $this->error = 'Failed to add stock movement';
+                    $this->error = 'Sales record failed';
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    //--- update movement
+                    $arr = array(
+                      'reference' => $code,
+                      'warehouse_code' => $zone->warehouse_code,
+                      'zone_code' => $zone->code,
+                      'product_code' => $item->code,
+                      'move_in' => 0,
+                      'move_out' => $rs->qty,
+                      'date_add' => $date_add
+                    );
+
+                    if(! $this->movement_model->add($arr))
+                    {
+                      $sc = FALSE;
+                      $this->error = 'Failed to add stock movement';
+                    }
                   }
                 }
               }
@@ -549,15 +559,15 @@ class WM extends REST_Controller
             if($this->logs_json)
             {
               $logs = array(
-              'trans_id' => genUid(),
-              'api_path' => $api_path,
-              'type' =>'WM',
-              'code' => $data->pos_ref,
-              'action' => 'create',
-              'status' => 'success',
-              'message' => 'success',
-              'request_json' => $json,
-              'response_json' => json_encode($arr)
+                'trans_id' => genUid(),
+                'api_path' => $api_path,
+                'type' =>'WM',
+                'code' => $data->pos_ref,
+                'action' => 'create',
+                'status' => 'success',
+                'message' => 'success',
+                'request_json' => $json,
+                'response_json' => json_encode($arr)
               );
 
               $this->pos_api_logs_model->add_api_logs($logs);
@@ -575,15 +585,15 @@ class WM extends REST_Controller
             if($this->logs_json)
             {
               $logs = array(
-              'trans_id' => genUid(),
-              'api_path' => $api_path,
-              'type' =>'WM',
-              'code' => $data->pos_ref,
-              'action' => 'create',
-              'status' => 'failed',
-              'message' => $this->error,
-              'request_json' => $json,
-              'response_json' => json_encode($arr)
+                'trans_id' => genUid(),
+                'api_path' => $api_path,
+                'type' =>'WM',
+                'code' => $data->pos_ref,
+                'action' => 'create',
+                'status' => 'failed',
+                'message' => $this->error,
+                'request_json' => $json,
+                'response_json' => json_encode($arr)
               );
 
               $this->pos_api_logs_model->add_api_logs($logs);
