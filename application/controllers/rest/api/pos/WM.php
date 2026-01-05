@@ -271,15 +271,21 @@ class WM extends REST_Controller
       $this->response($arr, 200);
     }
 
+    $exception = [
+      'Staff-50Off-2025' => 'Y',
+      'Staff-50-2026' => 'Y',
+      'Staff-50%-2026' => 'Y'
+    ];
+
     //---- check valid items data
     foreach($data->items as $rs)
     {
       $stock_type = empty($rs->stock_type) ? 'Normal' : $rs->stock_type;
       $stock_type = ($stock_type == 'Voucher' OR $stock_type == 'voucher') ? 'Voucher' : 'Normal';
-      $stock_type = $rs->product_code == 'Staff-50Off-2025' ? 'Voucher' : $stock_type;
+      $stock_type = ! empty($exception[$rs->product_code]) ? 'Voucher' : $stock_type;
       $rs->stock_type = $stock_type;
 
-      if($stock_type == 'Normal' && $rs->product_code != 'Staff-50Off-2025')
+      if($stock_type == 'Normal' && empty($exception[$rs->product_code]))
       {
         //---- check valid items
         $item = $this->products_model->get($rs->product_code);
