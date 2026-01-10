@@ -33,12 +33,26 @@ class Customer_address_model extends CI_Model
   public function get_ship_to_address($code)
   {
     $rs = $this->db->where('customer_code', $code)->get('address_ship_to');
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return array();
+    return NULL;
+  }
+
+
+  public function get_customer_ship_to_id($code)
+  {
+    $rs = $this->db->where('customer_code', $code)->order_by('id', 'DESC')->limit(1)->get('address_ship_to');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id;
+    }
+
+    return NULL;
   }
 
 
@@ -86,10 +100,6 @@ class Customer_address_model extends CI_Model
 
     return FALSE;
   }
-
-
-
-
 
 
   //----- Ship To

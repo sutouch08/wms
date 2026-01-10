@@ -21,6 +21,24 @@ function setToken($token)
 }
 
 
+function parseFloat($number)
+{
+	$number = empty($number) ? 0 : $number;
+	$number = str_replace(",", "", $number);
+
+	return floatval($number);
+}
+
+
+function parseInt($number)
+{
+	$number = empty($number) ? 0 : $number;
+	$number = str_replace(",", "", $number);
+	
+	return intval($number);
+}
+
+
 function parsePhoneNumber($phone, $length = 10)
 {
 	$find = [" ", "-", "+"];

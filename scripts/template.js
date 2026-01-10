@@ -135,8 +135,10 @@ function isDate(txtDate) {
 
 
 function removeCommas(str){
-  while(str.search(",") >= 0) {
-    str = (str + "").replace(',', '');
+  if(typeof(str) !== 'number') {
+    while(str.search(",") >= 0) {
+      str = (str + "").replace(',', '');
+    }
   }
 
   return str;
@@ -295,7 +297,7 @@ function deleteCookie( name ) {
 
 function parseDefault(value, def){
 	if(isNaN(value)){
-		return def; 
+		return def;
 	}
 
 	return value;
@@ -464,6 +466,54 @@ function clearErrorByClass(className) {
     $('#'+name+'-error').text('');
     $(this).removeClass('has-error');
   })
+}
+
+
+function dragElement(el, header) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  // Get the header element to use as the drag handle
+  const elmnt = document.getElementById(el);
+  const headerHandle = document.getElementById(header);
+
+  if (headerHandle) {
+    /* if present, the header is where you move the DIV from:*/
+    headerHandle.onmousedown = dragMouseDown;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // Get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // Call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // Calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // Set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    // Remove the initial centering transform after the first move
+    elmnt.style.transform = "none";
+  }
+
+  function closeDragElement() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
 }
 
 

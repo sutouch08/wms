@@ -18,7 +18,6 @@
 			<option value="all">All</option>
 			<option value="success" <?php echo is_selected('success', $status); ?>>Success</option>
 			<option value="failed" <?php echo is_selected('failed', $status); ?>>Failed</option>
-			<option value="test" <?php echo is_selected('test', $status); ?>>Test</option>
 		</select>
 	</div>
 
@@ -26,7 +25,11 @@
     <label>Type</label>
     <select class="width-100 filter" name="type" id="type">
 			<option value="all">ทั้งหมด</option>
-			<option value="GRPO" <?php echo is_selected('GRPO', $type); ?>>Goods Receipt PO</option>
+			<option value="GRPO" <?php echo is_selected('GRPO', $type); ?>>GRPO | Goods Receipt PO</option>
+			<option value="PDOR" <?php echo is_selected('PDOR', $type); ?>>PDOR | Production Order</option>
+			<option value="PDTR" <?php echo is_selected('PDTR', $type); ?>>PDTR | Transfer For Production</option>
+			<option value="PDGI" <?php echo is_selected('PDGI', $type); ?>>PDGI | Goods Issue For Production</option>
+			<option value="PDGR" <?php echo is_selected('PDGR', $type); ?>>PDGR | Goods Receipt For Production</option>
 			<option value="TOKEN" <?php echo is_selected('TOKEN', $type); ?>>Renew Token</option>
 		</select>
   </div>
@@ -38,6 +41,7 @@
 			<option value="create" <?php echo is_selected('create', $action); ?>>CREATE</option>
 			<option value="update" <?php echo is_selected('update', $action); ?>>UPDATE</option>
 			<option value="cancel" <?php echo is_selected('cancel', $action); ?>>CANCEL</option>
+			<option value="test" <?php echo is_selected('test', $action); ?>>TEST</option>
 		</select>
 	</div>
 
@@ -104,7 +108,7 @@
 </div>
 
 <script>
-	$('#type').select2();
+	//$('#type').select2();
 
 	function goBack() {
 		window.location.href = HOME;

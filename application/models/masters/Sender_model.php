@@ -47,6 +47,19 @@ class Sender_model extends CI_Model
   }
 
 
+  public function get_by_code($code)
+  {
+    $rs = $this->db->where('code', $code)->get('address_sender');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 	public function get_id($code)
 	{
 		$rs = $this->db->select('id')->where('code', $code)->get('address_sender');

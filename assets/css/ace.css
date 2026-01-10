@@ -2024,7 +2024,7 @@ pre.prettyprint {
   line-height: 17px;
   padding-left: 7px;
   text-shadow: none !important;
-  font-size: 13px;
+  font-size: 12px;
   text-decoration: none;
 }
 .nav-list > li > a > .menu-icon {
@@ -2033,7 +2033,7 @@ pre.prettyprint {
   margin-right: 2px;
   vertical-align: sub;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: normal;
 }
 .nav-list > li:before {
@@ -2103,6 +2103,7 @@ pre.prettyprint {
   margin: 0;
   border-top-width: 1px;
   border-top-style: dotted;
+  font-size: 12px;
 }
 .nav-list > li .submenu > li > a:hover {
   text-decoration: none;

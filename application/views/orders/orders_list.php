@@ -1,4 +1,5 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('orders/style'); ?>
 <?php $allow_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
 <?php $cim = get_permission('SOIMOR', $this->_user->uid, $this->_user->id_profile); ?>
 <?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
@@ -92,16 +93,6 @@
       <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
   </div>
-
-	<!-- <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-		<label>WMS</label>
-		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="0" <?php echo is_selected('0', $wms_export); ?>>ยังไม่ส่ง</option>
-			<option value="1" <?php echo is_selected('1', $wms_export); ?>>ส่งแล้ว</option>
-			<option value="3" <?php echo is_selected('3', $wms_export); ?>>Error</option>
-		</select>
-	</div> -->
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
 		<label>ช่วงข้อมูล</label>
@@ -274,11 +265,13 @@
 									</label>
 								<?php endif; ?>
 							</td>
-              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
-              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code . $cn_text; ?></td>
-							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
-              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+								<a href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code . $cn_text; ?></a>
+							</td>
+							<td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>
 								<?php else : ?>
@@ -286,17 +279,17 @@
 									<?php echo $cus_ref; ?>
 								<?php endif; ?>
 							</td>
-              <td class="middle text-right" onclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle text-right" ondblclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo $rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total, 2); ?>
 							</td>
-              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($channelsList[$rs->channels_code]) ? "" : $channelsList[$rs->channels_code]; ?>
 							</td>
-							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $shop_name; ?></td>
-              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $shop_name; ?></td>
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($paymentList[$rs->payment_code]) ? "" : $paymentList[$rs->payment_code];  ?>
 							</td>
-              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->is_expired) : ?>
 									หมดอายุ
 								<?php else : ?>

@@ -68,28 +68,30 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1">
+    <table class="table table-striped border-1" style="min-width:1150px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
           <th class="fix-width-150">เลขที่เอกสาร</th>
           <th class="fix-width-200">รหัสสินค้า</th>
+          <th class="fix-width-100">Batch No.</th>
           <th class="fix-width-150">รหัสคลัง</th>
           <th class="fix-width-200">รหัสโซน</th>
-          <th class="fix-width-100 text-right">เข้า</th>
-          <th class="fix-width-100 text-right">ออก</th>
-          <th class="fix-width-150">วันที่</th>
+          <th class="fix-width-100">เข้า</th>
+          <th class="fix-width-100">ออก</th>
+          <th class="min-width-150">วันที่</th>
         </tr>
       </thead>
       <tbody>
     <?php if( ! empty($data)) : ?>
       <?php foreach($data as $rs) : ?>
-        <tr>
+        <tr class="font-size-11">
           <td><?php echo $rs->reference; ?></td>
           <td><?php echo $rs->product_code; ?></td>
+          <td><?php echo $rs->batchNum; ?></td>
           <td><?php echo $rs->warehouse_code; ?></td>
           <td><?php echo $rs->zone_code; ?></td>
-          <td class="text-right"><?php echo number($rs->move_in); ?></td>
-          <td class="text-right"><?php echo number($rs->move_out); ?></td>
+          <td><?php echo ac_format($rs->move_in, 2); ?></td>
+          <td><?php echo ac_format($rs->move_out, 2); ?></td>
           <td><?php echo thai_date($rs->date_upd, TRUE); ?></td>
         </tr>
       <?php endforeach; ?>

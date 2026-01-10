@@ -1,32 +1,34 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('transfer/style'); ?>
 <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
 	<div class="row">
-		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5 margin-top-5">
+		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 margin-top-5">
 			<h3 class="title"><?php echo $this->title; ?></h3>
 		</div>
-		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 padding-5 text-right">
-			<button type="button" class="btn btn-sm btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+			<button type="button" class="btn btn-white btn-default top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 			<?php if($doc->status == 1) : ?>
-				<button type="button" class="btn btn-sm btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
+				<button type="button" class="btn btn-white btn-info top-btn" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
 				<?php if($this->pm->can_edit) : ?>
-					<button type="button" class="btn btn-sm btn-danger top-btn" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
+					<button type="button" class="btn btn-white btn-danger top-btn" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
 				<?php endif; ?>
 			<?php endif; ?>
 			<?php if(($doc->status == -1 OR $doc->status == 0) && $this->pm->can_add OR $this->pm->can_edit) : ?>
-
-				<?php if(($doc->status == -1 OR $doc->status == 0) && $barcode === TRUE) : ?>
-					<button type="button" class="btn btn-sm btn-primary top-btn" onclick="goUseKeyboard()">คีย์มือ</button>
-				<?php endif; ?>
-
-
-				<?php if(($doc->status == -1 OR $doc->status == 0) && $barcode === FALSE) : ?>
-					<!-- <button type="button" class="btn btn-sm btn-primary" onclick="goUseBarcode()">ใช้บาร์โค้ด</button> -->
-				<?php endif; ?>
-
 				<?php if(($doc->status == -1 OR $doc->status == 0) && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 					<?php if(getConfig('ALLOW_IMPORT_TRANSFER')) : ?>
-						<button type="button" class="btn btn-sm btn-primary top-btn" onclick="getUploadFile()"><i class="fa fa-file-excel-o"></i> Import Excel</button>
-						<button type="button" class="btn btn-sm btn-purple top-btn" onclick="getTemplate()"><i class="fa fa-download"></i> ไฟล์ Template</button>
+						<div class="btn-group">
+							<button type="button" data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+								<i class="ace-icon fa fa-cloud icon-on-left"></i> Import <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-right">
+								<li class="primary">
+									<a href="javascript:getUploadFile()"><i class="fa fa-cloud-upload"></i> &nbsp; Import Excel</a>
+								</li>
+								<li class="purple">
+									<a href="javascript:getTemplate()"><i class="fa fa-cloud-download"></i> &nbsp; Template file</a>
+								</li>
+							</ul>
+						</div>
 					<?php endif; ?>
 
 					<div class="btn-group">
@@ -38,7 +40,7 @@
 		        <ul class="dropdown-menu dropdown-menu-right">
 		          <li class="primary">
 		            <a href="javascript:save()">บันทึกรับเข้าทันที</a>
-		          </li>							
+		          </li>
 							<li class="purple">
 		            <a href="javascript:saveAsRequest()">บันทึกรอรับ</a>
 		          </li>
@@ -51,19 +53,11 @@
 <hr/>
 <?php
 	$this->load->view('transfer/transfer_edit_header');
-
-	if($barcode === TRUE)
-	{
-		$this->load->view('transfer/transfer_detail_barcode');
-	}
-	else
-	{
-		$this->load->view('transfer/transfer_detail');
-	}
+	$this->load->view('transfer/transfer_detail');
 ?>
 
-<input type="hidden" name="from_zone_code" id="from_zone_code" value="" />
-<input type="hidden" name="to_zone_code" id="to_zone_code" value="" />
+<input type="hidden" id="from-zone-code" value="" />
+<input type="hidden" id="to-zone-code" value="" />
 
 <div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
  <div class="modal-dialog" style="width:500px;">

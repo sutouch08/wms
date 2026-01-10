@@ -9,19 +9,19 @@
 			<div class="tab-content" style="padding:0px;">
 				<div id="transfer-table" class="tab-pane fade active in" style="max-height:600px; overflow:auto;">
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" style="padding-top:10px; padding-bottom:10px; border-top:solid 1px #ddd; background-color:#f8f8f8;">
-						<button type="button" class="btn btn-sm btn-danger btn-100 pull-right" style="z-index:1; margin-top:-5px;" onclick="removeChecked()">ลบรายการ</button>
+						<button type="button" class="btn btn-xs btn-danger btn-100 pull-right" style="z-index:1; margin-top:-5px;" onclick="removeChecked()">ลบรายการ</button>
 					</div>
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0 table-responsive">
-						<table class="table table-bordered" style="margin-bottom:0px; min-width:1000px;">
+						<table class="table table-bordered tableFixHead" style="margin-bottom:0px; min-width:1110px;">
 							<thead>
-								<tr>
+								<tr class="font-size-11">
 									<th class="fix-width-40 text-center">
 										<label>
 											<input type="checkbox" class="ace" onchange="checkAll($(this))" />
 											<span class="lbl"></span>
 										</label>
 									</th>
-									<th class="fix-width-40 text-center">ลำดับ</th>
+									<th class="fix-width-40 text-center">#</th>
 									<th class="fix-width-200">รหัส</th>
 									<th class="min-width-250">สินค้า</th>
 									<th class="fix-width-200">ต้นทาง</th>
@@ -39,7 +39,7 @@
 									<?php   $total_qty = 0; ?>
 									<?php   $total_wms = 0; ?>
 									<?php		foreach($details as $rs) : 	?>
-										<tr class="font-size-12" id="row-<?php echo $rs->id; ?>">
+										<tr class="font-size-11" id="row-<?php echo $rs->id; ?>">
 											<td class="middle text-center">
 												<label>
 													<input type="checkbox" class="ace chk"
@@ -57,19 +57,19 @@
 											</td>
 											<!--- บาร์โค้ดสินค้า --->
 											<td class="middle">
-												<?php echo $rs->product_code; ?>
+												<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->product_code; ?>" readonly />
 											</td>
 											<!--- รหัสสินค้า -->
 											<td class="middle">
-												<?php echo $rs->product_name; ?>
+												<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->product_name; ?>" readonly />
 											</td>
 											<!--- โซนต้นทาง --->
 											<td class="middle">
+												<input type="text" class="form-control input-xs text-label" data-fromzone="<?php echo $rs->from_zone; ?>" value="<?php echo $rs->from_zone.' | '.$rs->from_zone_name; ?>" readonly />
 												<input type="hidden" class="row-zone-from" id="row-from-<?php echo $rs->id; ?>" value="<?php echo $rs->from_zone; ?>" />
-												<?php echo $rs->from_zone_name; ?>
 											</td>
 											<td class="middle" id="row-label-<?php echo $rs->id; ?>">
-												<?php 	echo $rs->to_zone_name; 	?>
+												<input type="text" class="form-control input-xs text-label" data-tozone="<?php echo $rs->to_zone; ?>" value="<?php echo $rs->to_zone.' | '.$rs->to_zone_name; ?>" readonly />
 											</td>
 
 										<?php if($doc->is_wms == '-1') : ?>
@@ -120,16 +120,17 @@
 					    <label>โซนต้นทาง</label>
 					    <input type="text" class="form-control input-sm" id="from-zone" placeholder="ค้นหาชื่อโซน" autofocus />
 					  </div>
-
-					  <div class="col-lg-2-harf col-md-3 col-sm-4 col-xs-6 padding-5">
+					  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
 					    <label>รหัสสินค้า</label>
 					    <input type="text" class="form-control input-sm" id="item-code" placeholder="กรองด้วยรหัสสินค้า" />
 					  </div>
 
 					  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 					    <label class="display-block not-show">ok</label>
-					    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductInZone()">แสดงสินค้า</button>
+					    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductInZone()">แสดงรายการ</button>
 					  </div>
+
+						<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">&nbsp;</div>
 
 						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-6 padding-5">
 					    <label>โซนปลายทาง</label>
@@ -141,16 +142,17 @@
 
 					<form id="productForm">
 						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" style="padding-top:10px; padding-bottom: 10px; border-top:solid 1px #ddd; border-bottom: solid 1px #ddd; background-color:#f8f8f8;">
-							<button type="button" class="btn btn-sm btn-info" onclick="selectAll()">เลือกทั้งหมด</button>
-							<button type="button" class="btn btn-sm btn-warning" onclick="clearAll()">เคลียร์</button>
-							<button type="button" class="btn btn-sm btn-primary pull-right" onclick="addToTransfer()">ย้ายรายการที่เลือก</button>
+							<button type="button" class="btn btn-xs btn-info" onclick="selectAll()">เลือกทั้งหมด</button>
+							<button type="button" class="btn btn-xs btn-warning" onclick="clearAll()">เคลียร์</button>
+							<button type="button" class="btn btn-xs btn-primary pull-right" onclick="addToTransfer()">ย้ายรายการที่เลือก</button>
 						</div>
 
 						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="min-width:100px; max-height:600px; overflow:auto; padding-left:0; padding-right:0;">
-							<table class="table table-striped table-bordered tableFixHead" style="min-width:440px; margin-bottom:0px;">
+							<table class="table table-striped table-bordered tableFixHead" style="min-width:800px; margin-bottom:0px;">
 								<thead>
-									<tr>
-										<th class="fix-width-40 text-center fix-header">ลำดับ</th>
+									<tr class="font-size-11">
+										<th class="fix-width-40 text-center fix-header">#</th>
+										<th class="fix-width-150 fix-header">โซน</th>
 										<th class="fix-width-200 fix-header">รหัส</th>
 										<th class="min-width-200 fix-header hidden-xs">สินค้า</th>
 										<th class="fix-width-100 text-center fix-header">จำนวน</th>
@@ -173,18 +175,28 @@
 {{#each this}}
 	{{#if nodata}}
 		<tr>
-			<td colspan="5" class="text-center">
+			<td colspan="6" class="text-center">
 				<h4>ไม่พบสินค้าในโซน</h4>
 			</td>
 		</tr>
 	{{else}}
-		<tr id="zone-row-{{no}}">
-			<td class="text-center zone-no">{{ no }}</td>
-		  <td>{{ product_code }}</td>
-		  <td class="hide-text hidden-xs">{{ product_name }}</td>
-		  <td class="text-center qty-label" id="qty-label-{{no}}">{{ qty }}</td>
-		  <td class="text-center">
-		  	<input type="number" class="form-control input-sm text-center input-qty" max="{{qty}}" id="{{product_code}}" data-no="{{no}}" data-limit="{{qty}}" data-sku="{{product_code}}" />
+		<tr class="font-size-11" id="zone-row-{{no}}">
+			<td class="middle text-center zone-no">{{ no }}</td>
+			<td class="middle">{{ zone_code }}</td>
+		  <td class="middle">{{ product_code }}</td>
+		  <td class="middle hide-text hidden-xs">{{ product_name }}</td>
+		  <td class="middle text-center qty-label" id="qty-label-{{no}}">{{ qty }}</td>
+		  <td class="middle text-center">
+		  	<input type="number"
+				class="form-control input-xs text-center input-qty"
+				max="{{qty}}"
+				id="{{product_code}}"
+				data-no="{{no}}"
+				data-fromzone="{{zone_code}}"
+				data-limit="{{qty}}"
+				data-sku="{{product_code}}"
+				data-name="{{product_name}}"
+				ondblclick="fillQty($(this))" onkeyup="validQty($(this))" />
 		  </td>
 		</tr>
 	{{/if}}
@@ -201,7 +213,7 @@
 	</tr>
 	{{else}}
 		{{#if @last}}
-			<tr>
+			<tr class="font-size-11">
 				<td colspan="6" class="text-right"><strong>รวม</strong></td>
 				<td class="middle text-center" id="total">{{ totalQty }}</td>
 			<?php if($doc->is_wms == -1) : ?>
@@ -209,21 +221,32 @@
 			<?php endif; ?>
 			</tr>
 		{{else}}
-		<tr class="font-size-12" id="row-{{id}}">
+		<tr class="font-size-11" id="row-{{id}}">
 			<td class="middle text-center">
 				<label>
-					<input type="checkbox" class="ace chk" value="{{id}}" />
+					<input type="checkbox" class="ace chk" value="{{id}}"
+						data-id="{{id}}"
+						data-item="{{product_code}}"
+						data-fromzone="{{from_zone}}"
+						data-tozone="{{to_zone}}" />
 					<span class="lbl"></span>
 				</label>
 			</td>
 			<td class="middle text-center no">{{ no }}</td>
-			<td class="middle">{{ product_code }}</td>
-			<td class="middle">{{ product_name }}</td>
-			<td class="middle">{{ from_zone }}</td>
-			<td class="middle">{{{ to_zone }}}</td>
+			<td class="middle">
+				<input type="text" class="form-control input-xs text-label" value="{{product_code}}" readonly />
+			</td>
+			<td class="middle"><input type="text" class="form-control input-xs text-label" value="{{product_name}}" readonly /></td>
+			<td class="middle">
+				<input type="text" class="form-control input-xs text-label" data-fromzone="{{from_zone}}" value="{{from_zone}} | {{from_zone_name}}" readonly />
+				<input type="hidden" class="row-zone-from" id="row-from-{{id}}" value="{{from_zone}}" />
+			</td>
+			<td class="middle">
+				<input type="text" class="form-control input-xs text-label" data-tozone="{{to_zone}}" value="{{to_zone}} | {{to_zone_name}}" readonly />
+			</td>
 		<?php if($doc->is_wms == -1) : ?>
 			<td class="middle text-center qty">
-					<input type="number" class="width-100 e text-center trans-qty"
+					<input type="number" class="form-control input-xs e text-center trans-qty"
 					id="trans-qty-{{id}}"
 					data-qty="{{qty}}"
 					data-wms="{{wms_qty}}"

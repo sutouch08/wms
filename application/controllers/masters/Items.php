@@ -297,8 +297,8 @@ class Items extends PS_Controller
                     'brand_code' => $brand_code,
                     'collection_code' => $collection_code,
                     'year' => $year,
-                    'cost' => round(trim($rs['P']), 2),
-                    'price' => round(trim($rs['Q']), 2),
+                    'cost' => round(parseFloat(trim($rs['P'])), 2),
+                    'price' => round(parseFloat(trim($rs['Q'])), 2),
                     'unit_code' => trim($rs['R']),
                     'count_stock' => trim($rs['S']) === 'N' ? 0:1,
                     'is_api' => $is_api,
@@ -334,8 +334,8 @@ class Items extends PS_Controller
                 'brand_code' => get_null(trim($rs['M'])),
                 'collection_code' => get_null(trim($rs['N'])),
                 'year' => trim($rs['O']),
-                'cost' => round(trim($rs['P']), 2),
-                'price' => round(trim($rs['Q']), 2),
+                'cost' => round(parseFloat(trim($rs['P'])), 2),
+                'price' => round(parseFloat(trim($rs['Q'])), 2),
                 'unit_code' => empty(trim($rs['R'])) ? 'PCS' : trim($rs['R']),
                 'count_stock' => trim($rs['S']) === 'N' ? 0:1,
                 'is_api' => $is_api,
@@ -887,7 +887,7 @@ class Items extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('S1', 'CountStock');
     $this->excel->getActiveSheet()->setCellValue('T1', 'IsAPI');
     $this->excel->getActiveSheet()->setCellValue('U1', 'OldModel');
-    $this->excel->getActiveSheet()->setCellValue('V1', 'OldCode');    
+    $this->excel->getActiveSheet()->setCellValue('V1', 'OldCode');
     $this->excel->getActiveSheet()->setCellValue('W1', 'ApiRate');
     $this->excel->getActiveSheet()->setCellValue('X1', 'Active');
 

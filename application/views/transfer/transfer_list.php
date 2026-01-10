@@ -1,29 +1,25 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('transfer/style'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 padding-5 hidden-xs">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-xs-12 padding-5 visible-xs">
-		<h3 class="title-xs"><?php echo $this->title; ?></h3>
-	</div>
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-  	<p class="pull-right top-p">
-    <?php if($this->pm->can_add) : ?>
-      <button type="button" class="btn btn-sm btn-success btn-top" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
-    <?php endif; ?>
-    </p>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+		<?php if($this->pm->can_add) : ?>
+			<button type="button" class="btn btn-white btn-success btn-top margin-top-5" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+		<?php endif; ?>
   </div>
 </div><!-- End Row -->
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>เลขที่ WX</label>
+    <label>WX No.</label>
     <input type="text" class="form-control input-sm search" name="wx_code"  value="<?php echo $wx_code; ?>" />
   </div>
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
@@ -33,7 +29,7 @@
 
   <div class="col-lg-3-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>คลังต้นทาง</label>
-		<select class="width-100 filter" name="from_warehouse" id="from-warehouse">
+		<select class="form-control input-sm filter" name="from_warehouse" id="from-warehouse">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_warehouse($from_warehouse); ?>
     </select>
@@ -41,25 +37,25 @@
 
 	<div class="col-lg-3-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>คลังปลายทาง</label>
-		<select class="width-100 filter" name="to_warehouse" id="to-warehouse">
+		<select class="form-control input-sm filter" name="to_warehouse" id="to-warehouse">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_warehouse($to_warehouse); ?>
     </select>
   </div>
 
-	<div class="col-lg-2-harf col-md-3 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-3 col-sm-2 col-xs-6 padding-5">
 		<label>พนักงาน</label>
-		<select class="width-100 filter" name="user" id="user">
+		<select class="form-control input-sm filter" name="user" id="user">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_user($user); ?>
 		</select>
 	</div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
-		<label>การดำเนินการ</label>
+		<label>Action</label>
 		<select class="form-control input-sm" name="is_wms" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
-			<option value="0" <?php echo is_selected('0', $is_wms); ?>>Warrix</option>
+			<option value="0" <?php echo is_selected('0', $is_wms); ?>>ปกติ</option>
 			<option value="1" <?php echo is_selected('1', $is_wms); ?>>Pioneer</option>
 			<option value="2" <?php echo is_selected('2', $is_wms); ?>>Sokochan</option>
 			<option value="-1" <?php echo is_selected('-1', $is_wms); ?>>ย้ายคลัง</option>
@@ -67,7 +63,7 @@
 	</div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
-		<label>WMS</label>
+		<label>WMS API</label>
 		<select class="form-control input-sm" name="wms_export" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected('0', $wms_export); ?>>ยังไม่ส่ง</option>
@@ -86,13 +82,21 @@
 			<option value="3" <?php echo is_selected('3', $status); ?>>Wms Process</option>
 			<option value="1" <?php echo is_selected('1', $status); ?>>สำเร็จแล้ว</option>
 			<option value="2" <?php echo is_selected('2', $status); ?>>ยกเลิก</option>
-			<option value="5" <?php echo is_selected('5', $status); ?>>หมดอายุ</option>
+		</select>
+  </div>
+
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+    <label>หมดอายุ</label>
+    <select class="form-control input-sm filter" name="is_expire">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_expire); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $is_expire); ?>>No</option>
 		</select>
   </div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>การอนุมัติ</label>
-    <select class="form-control input-sm" name="is_approve" onchange="getSearch()">
+    <select class="form-control input-sm filter" name="is_approve">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected('0', $is_approve); ?>>รออนุมัติ</option>
 			<option value="1" <?php echo is_selected('1', $is_approve); ?>>อนุมัติแล้ว</option>
@@ -142,6 +146,7 @@
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected('0', $sap); ?>>ยังไม่เข้า</option>
 			<option value="1" <?php echo is_selected('1', $sap); ?>>เข้าแล้ว</option>
+			<option value="3" <?php echo is_selected('3', $sap); ?>>ยังไม่ส่งออก</option>
 		</select>
 	</div>
 
@@ -160,7 +165,7 @@
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
 		<p  class="pull-right top-p">
-			ว่างๆ = ปกติ, &nbsp;
+			<span class="green bold">OK</span> = ปกติ, &nbsp;
 			<span class="red bold">NC</span> = สินค้าไม่ครบ, &nbsp;
 			<span class="orange bold">DF</span> = ยังไม่บันทึก, &nbsp;
 			<span class="blue bold">AP</span> = รออนุมัติ, &nbsp;
@@ -172,22 +177,22 @@
 		</p>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1550px;">
+		<table class="table table-striped border-1" style="min-width:1320px;">
 			<thead>
-				<tr>
-					<th class="fix-width-100 middle"></th>
-					<th class="fix-width-50 middle text-center">ลำดับ</th>
-					<th class="fix-width-100 middle text-center">วันที่</th>
-					<th class="fix-width-150 middle">เลขที่เอกสาร</th>
-					<th class="fix-width-100 middle">การดำเนินการ</th>
+				<tr class="font-size-11">
+					<th class="fix-width-80 middle"></th>
+					<th class="fix-width-50 middle text-center">#</th>
+					<th class="fix-width-80 middle">วันที่</th>
+					<th class="fix-width-100 middle">เลขที่เอกสาร</th>
+					<th class="fix-width-60 middle text-center">Action</th>
 					<th class="fix-width-40 middle text-center">สถานะ</th>
-					<th class="fix-width-200 middle">ต้นทาง</th>
-					<th class="fix-width-200 middle">ปลายทาง</th>
-					<th class="fix-width-80 middle">SAP NO</th>
-					<th class="fix-width-120 middle">เลขที่ WX</th>
-					<th class="fix-width-100 middle">Pallet No</th>
+					<th class="min-width-200 middle">ต้นทาง</th>
+					<th class="min-width-200 middle">ปลายทาง</th>
+					<th class="fix-width-80 middle">SAP No.</th>
+					<th class="fix-width-100 middle">WX No.</th>
+					<th class="fix-width-100 middle">Pallet No.</th>
 					<th class="fix-width-40 middle text-center">อนุมัติ</th>
-					<th class="fix-width-40 middle text-center">WMS</th>
+					<th class="fix-width-40 middle text-center">Inf.</th>
 					<th class="fix-width-150 middle">พนักงาน</th>
 				</tr>
 			</thead>
@@ -196,7 +201,7 @@
           <?php $no = $this->uri->segment(4) + 1; ?>
           <?php foreach($docs as $rs) : ?>
 						<?php $color = $rs->valid == 0 ? 'color:red;' : 'color:black;'; ?>
-            <tr id="row-<?php echo $rs->code; ?>" style="<?php echo $color; ?> <?php echo statusBackgroundColor($rs->is_expire, $rs->status); ?>">
+            <tr class="font-size-11" id="row-<?php echo $rs->code; ?>" style="<?php echo $color; ?> <?php echo statusBackgroundColor($rs->is_expire, $rs->status); ?>">
 							<td class="middle">
 								<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
 								<?php if(($rs->status == -1 OR $rs->status == 0 )&& $rs->is_expire == 0 && $this->pm->can_edit) : ?>
@@ -207,8 +212,8 @@
 								<?php endif; ?>
 							</td>
               <td class="middle text-center"><?php echo $no; ?></td>
-              <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle">
+              <td class="middle"><?php echo thai_date($rs->date_add); ?></td>
+              <td class="middle text-center">
 								<?php echo $rs->code; ?>
 								<?php if($rs->is_wms == 2 && ! empty($rs->soko_code)) : ?>
 									<?php echo "[{$rs->soko_code}]"; ?>
@@ -217,8 +222,8 @@
 									<span class="font-size-10 red">Failed</span>
 								<?php endif; ?>
 							</td>
-							<td class="middle">
-								<?php echo $rs->is_wms == 2 ? "Soko" : ($rs->is_wms == 1 ? "PLC" : ($rs->is_wms == -1 ? "ย้ายคลัง" : "Warrix")); ?>
+							<td class="middle text-center">
+								<?php echo $rs->is_wms == 2 ? "Soko" : ($rs->is_wms == 1 ? "PLC" : ($rs->is_wms == -1 ? "ย้ายคลัง" : "ปกติ")); ?>
 							</td>
 							<td class="middle text-center">
 								<?php if($rs->is_expire == 1) : ?>
@@ -244,6 +249,9 @@
 									<?php endif; ?>
 									<?php if($rs->status == 1 && $rs->valid == 0) : ?>
 										<span class="red">NC</span>
+									<?php endif; ?>
+									<?php if($rs->status == 1 && $rs->is_export == 1 && $rs->valid == 1) : ?>
+										<span class="green">OK</span>
 									<?php endif; ?>
 								<?php endif; ?>
 							</td>

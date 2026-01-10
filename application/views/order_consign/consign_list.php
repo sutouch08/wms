@@ -1,27 +1,47 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('order_consign/style'); ?>
+<?php $allow_upload = getConfig('ALLOW_IMPORT_WT'); ?>
+<?php $cim = get_permission('SOIMWT', $this->_user->uid, $this->_user->id_profile); ?>
+<?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-    	<p class="pull-right top-p">
-      <?php if($this->pm->can_add) : ?>
-        <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
-      <?php endif; ?>
-      </p>
-    </div>
-</div><!-- End Row -->
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+		<?php if($this->pm->can_add) : ?>
+			<?php if($can_upload) : ?>
+				<div class="btn-group">
+					<button type="button" data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+						<i class="ace-icon fa fa-cloud icon-on-left"></i> Import <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-right">
+						<li class="primary">
+							<a href="javascript:getUploadFile()"><i class="fa fa-cloud-upload"></i> &nbsp; Import Excel</a>
+						</li>
+						<li class="purple">
+							<a href="javascript:getOrdersTemplate()"><i class="fa fa-cloud-download"></i> &nbsp; Template file</a>
+						</li>
+					</ul>
+				</div>
+			<?php endif;?>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+		<?php endif; ?>
+	</div>
+</div>
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-lg-2 col-md-2 col-sm-3-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+    <label>เลขที่อ้างอิง</label>
+    <input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
+  </div>
+
+  <div class="col-lg-1-harf col-md-2 col-sm-3-harf col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
@@ -122,38 +142,19 @@
 
 <hr class="padding-5"/>
 <div class="row margin-top-10">
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-1" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-3" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-4" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_4']; ?>" onclick="toggleState(4)">กำลังจัด</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-5" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_5']; ?>" onclick="toggleState(5)">รอตรวจ</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-6" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_6']; ?>" onclick="toggleState(6)">กำลังตรวจ</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-7" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_7']; ?>" onclick="toggleState(7)">รอเปิดบิล</button>
-	</div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-8" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_8']; ?>" onclick="toggleState(8)">เปิดบิลแล้ว</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-state-9" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['state_9']; ?>" onclick="toggleState(9)">ยกเลิก</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-not-save" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['not_save']; ?>" onclick="toggleNotSave()">ไม่บันทึก</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-expire" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['is_expire']; ?>" onclick="toggleIsExpire()">หมดอายุ</button>
-	</div>
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 padding-5">
-		<button type="button" id="btn-only-me" class="btn btn-sm btn-block margin-top-5 margin-bottom-5 <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+
+		<button type="button" id="btn-state-1" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
+		<button type="button" id="btn-state-3" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
+		<button type="button" id="btn-state-4" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_4']; ?>" onclick="toggleState(4)">กำลังจัด</button>
+		<button type="button" id="btn-state-5" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_5']; ?>" onclick="toggleState(5)">รอตรวจ</button>
+		<button type="button" id="btn-state-6" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_6']; ?>" onclick="toggleState(6)">กำลังตรวจ</button>
+		<button type="button" id="btn-state-7" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_7']; ?>" onclick="toggleState(7)">รอเปิดบิล</button>
+		<button type="button" id="btn-state-8" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_8']; ?>" onclick="toggleState(8)">เปิดบิลแล้ว</button>
+		<button type="button" id="btn-state-9" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['state_9']; ?>" onclick="toggleState(9)">ยกเลิก</button>
+		<button type="button" id="btn-not-save" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['not_save']; ?>" onclick="toggleNotSave()">ไม่บันทึก</button>
+		<button type="button" id="btn-expire" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['is_expire']; ?>" onclick="toggleIsExpire()">หมดอายุ</button>
+		<button type="button" id="btn-only-me" class="btn btn-xs margin-top-5 margin-bottom-5 <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
 	</div>
 </div>
 
@@ -174,12 +175,13 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1100px;">
+		<table class="table table-striped border-1" style="min-width:1220px;">
 			<thead>
-				<tr>
+				<tr class="font-size-11">
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
 					<th class="fix-width-120 middle">เลขที่เอกสาร</th>
+					<th class="fix-width-120 middle">เลขที่อ้างอิง</th>
 					<th class="min-width-300 middle">ลูกค้า</th>
 					<th class="fix-width-250 middle">โซน</th>
 					<th class="fix-width-100 middle">ยอดเงิน</th>
@@ -192,20 +194,26 @@
           <?php $no = $this->uri->segment(4) + 1; ?>
           <?php foreach($orders as $rs) : ?>
             <tr id="row-<?php echo $rs->code; ?>" class="font-size-11 <?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
-              <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
-              <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->customer_name; ?></td>
-							<td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->zone_name; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+								<a href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
+							</td>
+							<td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+								<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->customer_name; ?>" readonly /></td>
+							<td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+								<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->zone_name; ?>" readonly />
+							</td>
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
+              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->is_expired) : ?>
 									หมดอายุ
 								<?php else : ?>
 									<?php echo $rs->state_name; ?>
 								<?php endif; ?>
 							</td>
-							<td class="middle pointer text-center" onclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo $rs->is_approved == 1 ? 'Yes' : 'No'; ?>
 							</td>
               </td>
@@ -217,6 +225,14 @@
 		</table>
 	</div>
 </div>
+
+<input type="hidden" id="role" value="<?php echo $this->menu_code == 'SOCCSO' ? 'C' : 'N'; ?>" />
+
+<?php
+if($can_upload) :
+	 $this->load->view('order_consign/import_orders');
+endif;
+?>
 
 <?php if($this->menu_code == 'SOCCSO') : ?>
 <script src="<?php echo base_url(); ?>scripts/order_consign/consign_so.js?v=<?php echo date('Ymd'); ?>"></script>

@@ -45,6 +45,7 @@ class Consign_so extends PS_Controller
   {
     $filter = array(
       'code' => get_filter('code', 'consign_code', ''),
+      'reference' => get_filter('reference', 'consign_reference', ''),
       'customer' => get_filter('customer', 'consign_customer', ''),
       'user' => get_filter('user', 'consign_user', ''),
       'zone_code' => get_filter('zone', 'consign_zone', ''),
@@ -110,7 +111,7 @@ class Consign_so extends PS_Controller
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 		$orders   = $this->orders_model->get_list($filter, $perpage, $this->uri->segment($segment), 'C');
-    $ds       = array();
+
     if( ! empty($orders))
     {
       foreach($orders as $rs)
@@ -119,14 +120,12 @@ class Consign_so extends PS_Controller
         $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
         $rs->state_name    = get_state_name($rs->state);
         $rs->zone_name     = $this->zone_model->get_name($rs->zone_code);
-        $ds[] = $rs;
       }
     }
 
-    $filter['orders'] = $ds;
+    $filter['orders'] = $orders;
     $filter['state'] = $state;
     $filter['btn'] = $button;
-    $ds['backlogs'] = $rs->is_backorder == 1 ? $this->orders_model->get_backlogs_details($rs->code) : NULL;
 
 		$this->pagination->initialize($init);
     $this->load->view('order_consign/consign_list', $filter);
@@ -559,7 +558,7 @@ class Consign_so extends PS_Controller
       		$config = array(   // initial config for upload class
       			"allowed_types" => "xlsx",
       			"upload_path" => $path,
-      			"file_name"	=> "WT-import-{$Ymd}-{$uid}",
+      			"file_name"	=> "WC-import-{$Ymd}-{$uid}",
       			"max_size" => 5120,
       			"overwrite" => TRUE
       		);
@@ -829,6 +828,32 @@ class Consign_so extends PS_Controller
   }
 
 
+  public function get_orders_template_file()
+  {
+    $path = $this->config->item('upload_path').'consign_so/';
+    $file_name = $path."WC-Orders-Template.xlsx";
+
+    if(file_exists($file_name))
+    {
+      header('Content-Description: File Transfer');
+      header('Content-Type:Application/octet-stream');
+      header('Cache-Control: no-cache, must-revalidate');
+      header('Expires: 0');
+      header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
+      header('Content-Length: '.filesize($file_name));
+      header('Pragma: public');
+
+      flush();
+      readfile($file_name);
+      die();
+    }
+    else
+    {
+      echo "File Not Found";
+    }
+  }
+
+
   public function get_new_code($date)
   {
     $date = $date == '' ? date('Y-m-d') : $date;
@@ -856,6 +881,7 @@ class Consign_so extends PS_Controller
   {
     $filter = array(
       'consign_code',
+      'consign_reference',
       'consign_customer',
       'consign_user',
       'consign_zone',

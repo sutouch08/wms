@@ -26,6 +26,112 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_uncomplete_transfer_out_qty($item_code, $warehouse)
+  {
+    $rs = $this->db
+    ->select_sum('td.wms_qty', 'qty')
+    ->from('transfer_detail AS td')
+    ->join('transfer AS tr', 'td.transfer_code = tr.code', 'left')
+    ->where('td.product_code', $item_code)
+    ->where('tr.from_warehouse', $warehouse)
+    ->where('tr.is_wms', 0)
+    ->where('tr.inv_code IS NULL', NULL, FALSE)
+    ->where('tr.is_expire', 0)
+    ->where('tr.status', 1)
+    ->get();
+
+    return empty($rs->row()->qty) ? 0 : $rs->row()->qty;
+  }
+
+
+  public function get_uncomplete_transfer_in_qty($item_code, $warehouse)
+  {
+    $rs = $this->db
+    ->select_sum('td.wms_qty', 'qty')
+    ->from('transfer_detail AS td')
+    ->join('transfer AS tr', 'td.transfer_code = tr.code', 'left')
+    ->where('td.product_code', $item_code)
+    ->where('tr.to_warehouse', $warehouse)
+    ->where('tr.is_wms', 0)
+    ->where('tr.inv_code IS NULL', NULL, FALSE)
+    ->where('tr.is_expire', 0)
+    ->where('tr.status', 1)
+    ->get();
+
+    return empty($rs->row()->qty) ? 0 : $rs->row()->qty;
+  }
+
+
+  public function get_items_reserv_stock_in(array $items = array(), $warehouse)
+  {
+    if( ! empty($items))
+    {
+      $rs = $this->db
+      ->select('td.product_code')
+      ->select_sum('td.wms_qty', 'qty')
+      ->from('transfer_detail AS td')
+      ->join('transfer AS tr', 'td.transfer_code = tr.code', 'left')
+      ->where_in('td.product_code', $items)
+      ->where('tr.to_warehouse', $warehouse)
+      ->where('tr.is_wms', 0)
+      ->where('tr.is_expire', 0)
+      ->where('tr.status', 1)
+      ->where('tr.inv_code IS NULL', NULL, FALSE)
+      ->group_by('td.product_code')
+      ->get();
+
+      if($rs->num_rows() > 0)
+      {
+        $reserved = [];
+
+        foreach($rs->result() as $ro)
+        {
+          $reserved[$ro->product_code] = $ro->qty;
+        }
+
+        return $reserved;
+      }
+    }
+
+    return NULL;
+  }
+
+
+  public function get_items_reserv_stock_out(array $items = array(), $warehouse)
+  {
+    if( ! empty($items))
+    {
+      $rs = $this->db
+      ->select('td.product_code')
+      ->select_sum('td.wms_qty', 'qty')
+      ->from('transfer_detail AS td')
+      ->join('transfer AS tr', 'td.transfer_code = tr.code', 'left')
+      ->where_in('td.product_code', $items)
+      ->where('tr.from_warehouse', $warehouse)
+      ->where('tr.is_wms', 0)
+      ->where('tr.inv_code IS NULL', NULL, FALSE)
+      ->where('tr.is_expire', 0)
+      ->where('tr.status', 1)
+      ->group_by('td.product_code')
+      ->get();
+
+      if($rs->num_rows() > 0)
+      {
+        $reserved = [];
+
+        foreach($rs->result() as $ro)
+        {
+          $reserved[$ro->product_code] = $ro->qty;
+        }
+
+        return $reserved;
+      }
+    }
+
+    return NULL;
+  }
+
+
   public function get_incomplete_details($code)
   {
     $rs = $this->db
@@ -795,16 +901,13 @@ class Transfer_model extends CI_Model
 
     if($ds['status'] != 'all')
     {
-      if($ds['status'] == 5)
-      {
-        $this->db->where('is_expire', 1)->where('status !=', 2);
-      }
-      else
-      {
-        $this->db->where('status', $ds['status']);
-      }
+      $this->db->where('status', $ds['status']);
     }
 
+    if(isset($ds['is_expire']) && $ds['is_expire'] != 'all')
+    {
+      $this->db->where('is_expire', $ds['is_expire']);
+    }
 
     if($ds['is_approve'] != 'all')
     {
@@ -832,16 +935,20 @@ class Transfer_model extends CI_Model
     {
       $this->db->where('is_export', $ds['is_export']);
     }
-
+    
     if(isset($ds['sap']) && $ds['sap'] != 'all')
     {
-      if($ds['sap'] == 0)
+      if($ds['sap'] == 3)
+      {
+        $this->db->where('is_export', 0);
+      }
+      else if($ds['sap'] == 0)
       {
         $this->db->where('inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('is_export', 1)->where('inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 
@@ -904,14 +1011,12 @@ class Transfer_model extends CI_Model
 
     if($ds['status'] != 'all')
     {
-      if($ds['status'] == 5)
-      {
-        $this->db->where('is_expire', 1)->where('status !=', 2);
-      }
-      else
-      {
-        $this->db->where('status', $ds['status']);
-      }
+      $this->db->where('status', $ds['status']);
+    }
+
+    if(isset($ds['is_expire']) && $ds['is_expire'] != 'all')
+    {
+      $this->db->where('is_expire', $ds['is_expire']);
     }
 
     if($ds['is_approve'] != 'all')
@@ -943,13 +1048,17 @@ class Transfer_model extends CI_Model
 
     if(isset($ds['sap']) && $ds['sap'] != 'all')
     {
-      if($ds['sap'] == 0)
+      if($ds['sap'] == 3)
+      {
+        $this->db->where('is_export', 0);
+      }
+      else if($ds['sap'] == 0)
       {
         $this->db->where('inv_code IS NULL', NULL, FALSE);
       }
       else
       {
-        $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
+        $this->db->where('is_export', 1)->where('inv_code IS NOT NULL', NULL, FALSE);
       }
     }
 

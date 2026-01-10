@@ -533,7 +533,7 @@ class Orders_model extends CI_Model
       return $rs->row()->code;
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

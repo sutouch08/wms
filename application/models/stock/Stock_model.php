@@ -211,6 +211,7 @@ class stock_model extends CI_Model
     return NULL;
   }
 
+
 	//--- ยอดรวมสินค้าทั้งหมดในคลังฝากขายเทียมเท่านั้น
   public function get_consignment_stock($item)
   {
@@ -222,6 +223,26 @@ class stock_model extends CI_Model
     ->get();
 
     return intval($rs->row()->qty);
+  }
+
+
+  public function get_available_stock_in_zone($ItemCode, $WhsCode)
+  {
+    $rs = $this->ms
+    ->select('OBIN.BinCode, OBIN.Descr AS BinName, OBIN.WhsCode, OIBQ.OnHandQty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->where('OIBQ.ItemCode', $ItemCode)
+    ->where('OIBQ.WhsCode', $WhsCode)
+    ->where('OIBQ.OnHandQty !=', 0)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 
@@ -259,6 +280,7 @@ class stock_model extends CI_Model
     return array();
   }
 
+
   //---- สินค้าทั้งหมดที่อยู่ในโซน (ใช้โอนสินค้าระหว่างคลัง)
   public function get_all_stock_in_zone($zone_code, $item_code = NULL)
   {
@@ -284,6 +306,41 @@ class stock_model extends CI_Model
     }
 
     $rs = $this->ms->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  //-- for inventory transfer
+  public function getStockList($WhsCode, $BinCode, $ItemCode)
+  {
+    $ItemCode = $ItemCode == '*' ? NULL : $ItemCode;
+
+    $this->ms
+    ->select('OBIN.BinCode AS zone_code')
+    ->select('OIBQ.ItemCode AS product_code, OIBQ.OnHandQty AS qty')
+    ->select('OITM.ItemName AS product_name, OITM.CodeBars AS barcode')
+    ->from('OIBQ')
+    ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+    ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left')
+    ->where('OIBQ.WhsCode', $WhsCode);
+
+    if( ! empty($BinCode))
+    {
+      $this->ms->where('OBIN.BinCode', $BinCode);
+    }
+
+    if( ! empty($ItemCode))
+    {
+      $this->ms->like('OIBQ.ItemCode', $ItemCode);
+    }
+
+    $rs = $this->ms->where('OIBQ.OnHandQty !=', 0)->get();
 
     if($rs->num_rows() > 0)
     {
@@ -390,5 +447,36 @@ class stock_model extends CI_Model
 
 		return NULL;
 	}
+
+
+  public function get_item_stock($ItemCode, $WhsCode, $BinCode = NULL)
+  {
+    if( ! empty($BinCode))
+    {
+      $rs = $this->ms
+      ->select('OIBQ.OnHandQty AS OnHand')
+      ->from('OIBQ')
+      ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
+      ->where('OBIN.BinCode', $BinCode)
+      ->where('OIBQ.ItemCode', $ItemCode)
+      ->where('OIBQ.OnHandQty !=', 0)
+      ->get();
+    }
+    else
+    {
+      $rs = $this->ms
+      ->select('OnHand')
+      ->where('ItemCode', $ItemCode)
+      ->where('WhsCode', $WhsCode)
+      ->get('OITW');
+    }
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->OnHand;
+    }
+
+    return 0;
+  }
 
 }//--- end class

@@ -1,4 +1,5 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('transfer/style'); ?>
 <?php
 	$pm = get_permission('APACWW', $this->_user->uid, $this->_user->id_profile);
 	$canAccept = FALSE;

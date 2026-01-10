@@ -17,6 +17,7 @@ class Wrx_stock_api
     $this->ci->load->model('stock/stock_model');
     $this->ci->load->model('orders/orders_model');
     $this->ci->load->model('orders/reserv_stock_model');
+    $this->ci->load->model('inventory/transfer_model');
 
     $this->api = getWrxApiConfig();
     $this->logs_json = is_true($this->api['WRX_LOG_JSON']);
@@ -51,6 +52,8 @@ class Wrx_stock_api
       $stock = $this->ci->stock_model->get_sell_items_stock($skus, $warehouse_code);
       $ordered = $this->ci->orders_model->get_items_reserv_stock($skus, $warehouse_code);
       $reserved = $this->ci->reserv_stock_model->get_items_reserv_stock($skus, $warehouse_code, $skip_mkp);
+      $transferIn = $this->ci->transfer_model->get_items_reserv_stock_in($skus, $warehouse_code);
+      $transferOut = $this->ci->transfer_model->get_items_reserv_stock_out($skus, $warehouse_code);
       $configRate = getConfig('IX_STOCK_RATE');
       $configRate = ($configRate > 0 && $configRate <= 100) ? $configRate : 100;
       $configType = getConfig('IX_STOCK_RATE_TYPE') == 1 ? 'item' : 'global';
@@ -65,7 +68,10 @@ class Wrx_stock_api
           $reserv_qty = empty($reserved[$item->code]) ? 0 : intval($reserved[$item->code]);
           $available = $sell_stock - $order_qty - $reserv_qty;
           $receive_qty = empty($item->receive_qty) ? 0 : intval(floor($item->receive_qty));
-          $qty = intval(floor(($available + $receive_qty) * $rate));
+          $transfer_in_qty = empty($transferIn[$item->code]) ? 0 : intval($transferIn[$item->code]);
+          $transfer_out_qty = empty($transferOut[$item->code]) ? 0 : intval($transferOut[$item->code]);
+          $qty = $available + $receive_qty + $transfer_in_qty - $transfer_out_qty;
+          $qty = $qty > 0 ? intval(floor($qty * $rate)) : 0;          
 
           $data[] = array(
             'sku' => $item->code,
