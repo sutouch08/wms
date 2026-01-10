@@ -214,7 +214,7 @@
               <td class="middle text-center"><?php echo $no; ?></td>
               <td class="middle"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle text-center">
-								<?php echo $rs->code; ?>
+								<a target="_blank" href="<?php echo $this->home; ?>/view_detail/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
 								<?php if($rs->is_wms == 2 && ! empty($rs->soko_code)) : ?>
 									<?php echo "[{$rs->soko_code}]"; ?>
 								<?php endif; ?>
