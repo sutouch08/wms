@@ -13,7 +13,7 @@ function goDetail(code) {
   let height = 800;
   let center = (viewPort - width) / 2;
   let top = 100;
-  let target = HOME + 'view_detail/'+code;
+  let target = HOME + 'view_detail/'+code+'?nomenu';
 
   window.open(target, "_blank", `width=${width}, height=${height}, left=${center}, top=${top}, scrollbars=yes`);
 }

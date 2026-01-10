@@ -1,4 +1,9 @@
 <?php $this->load->view('include/header'); ?>
+<style>
+	.table > tbody > tr > td {
+		padding: 3px 5px;
+	}
+</style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <h4 class="title">
@@ -138,7 +143,7 @@
     <table class="table table-striped border-1 dataTable" style="min-width:1350px;">
       <thead>
         <tr class="font-size-11">
-					<th class="fix-width-150"></th>
+					<th class="fix-width-80"></th>
           <th class="fix-width-50 text-center">#</th>
           <th class="fix-width-100">วันที่</th>
 					<th class="fix-width-100">วันที่จัดส่ง</th>
@@ -158,35 +163,35 @@
 			<?php $bg = $rs->is_hold ? 'background-color:#fde4e4;' : ''; ?>
 			<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
         <tr class="font-size-11" id="row-<?php echo $rs->code; ?>" style="<?php echo $bg; ?>">
-					<td class="text-right">
-						<button type="button" class="btn btn-mini btn-info" onclick="goDetail('<?php echo $rs->code; ?>')">รายละเอียด</button>
+					<td class="middle">
+						<button type="button" class="btn btn-mini btn-info" title="รายละเอียด" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
 
             <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-							<button type="button" class="btn btn-mini btn-primary" onclick="confirmBill('<?php echo $rs->code; ?>')">เปิดบิล</button>
+							<button type="button" class="btn btn-mini btn-primary" title="เปิดบิล" onclick="confirmBill('<?php echo $rs->code; ?>')"><i class="fa fa-file-text"></i></button>
 						<?php endif; ?>
           </td>
-          <td class="text-center"><?php echo $no; ?></td>
-          <td class=""><?php echo thai_date($rs->date_add); ?></td>
-					<td class=""><?php echo (empty($rs->shipped_date) ? "" : thai_date($rs->shipped_date, FALSE)); ?></td>
-          <td class=""><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
-					<td class=""><?php echo $rs->reference; ?></td>
-					<td class="">
+          <td class="middle text-center"><?php echo $no; ?></td>
+          <td class="middle"><?php echo thai_date($rs->date_add); ?></td>
+					<td class="middle"><?php echo (empty($rs->shipped_date) ? "" : thai_date($rs->shipped_date, FALSE)); ?></td>
+          <td class="middle"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
+					<td class="middle"><?php echo $rs->reference; ?></td>
+					<td class="middle">
 						<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 							<?php echo $rs->empID; ?>
 						<?php else: ?>
 							<?php echo $rs->customer_code; ?>
 						<?php endif; ?>
           </td>
-          <td class="">
+          <td class="middle">
 						<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 							<?php echo $rs->empName; ?>
 						<?php else: ?>
-            	<?php echo $rs->customer_name; ?>
+            	<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->customer_name; ?>" readonly />
 						<?php endif; ?>
           </td>
-          <td class="text-center"><?php echo ($rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total,2)); ?></td>
-          <td class="text-center"><?php echo role_name($rs->role); ?></td>
-          <td class="text-center hide-text"><?php echo $rs->user; ?></td>
+          <td class="middle text-center"><?php echo ($rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total,2)); ?></td>
+          <td class="middle text-center"><?php echo role_name($rs->role); ?></td>
+          <td class="middletext-center hide-text"><?php echo $rs->user; ?></td>
 
         </tr>
 <?php  $no++; ?>
