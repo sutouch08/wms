@@ -197,7 +197,7 @@
               <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
               <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
               <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
-								<a href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
+								<a target="_blank" href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
 							</td>
 							<td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
               <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
