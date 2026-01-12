@@ -446,7 +446,7 @@ $.fn.hasError = function(msg) {
   name = this.attr('id');
 
   if(msg !== undefined) {
-    $('#'+name+'-error').text(msg);
+    //$('#'+name+'-error').text(msg);
   }
 
   return this.addClass('has-error');
@@ -455,7 +455,7 @@ $.fn.hasError = function(msg) {
 
 $.fn.clearError = function() {
   name = this.attr('id');
-  $('#'+name+'-error').text('');
+  //$('#'+name+'-error').text('');
   return this.removeClass('has-error');
 };
 
@@ -463,7 +463,7 @@ $.fn.clearError = function() {
 function clearErrorByClass(className) {
   $('.'+className).each(function() {
     let name = $(this).attr('id');
-    $('#'+name+'-error').text('');
+    //$('#'+name+'-error').text('');
     $(this).removeClass('has-error');
   })
 }
