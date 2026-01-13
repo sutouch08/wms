@@ -193,27 +193,28 @@
         <?php if(!empty($orders)) : ?>
           <?php $no = $this->uri->segment(4) + 1; ?>
           <?php foreach($orders as $rs) : ?>
-            <tr id="row-<?php echo $rs->code; ?>" class="font-size-11 <?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
-              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
-              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+            <tr id="row-<?php echo $rs->code; ?>" class="font-size-11 pointer <?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
+              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
+              <td class="middle">
 								<a target="_blank" href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
 							</td>
-							<td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
-								<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->customer_name; ?>" readonly /></td>
-							<td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->customer_name; ?>" readonly />
+							</td>
+							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<input type="text" class="form-control input-xs text-label" value="<?php echo $rs->zone_name; ?>" readonly />
 							</td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->is_expired) : ?>
 									หมดอายุ
 								<?php else : ?>
 									<?php echo $rs->state_name; ?>
 								<?php endif; ?>
 							</td>
-							<td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo $rs->is_approved == 1 ? 'Yes' : 'No'; ?>
 							</td>
               </td>

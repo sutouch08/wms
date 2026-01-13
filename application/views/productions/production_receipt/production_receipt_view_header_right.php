@@ -1,0 +1,29 @@
+<div class="col-lg-3 col-md-4 col-sm-3-harf col-xs-12">
+	<div class="form-horizontal">
+		<div class="form-group">
+			<label class="sap-label col-lg-6 col-md-6 col-sm-6 padding-0">SAP No.</label>
+			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+				<input type="text" id="doc-num" class="form-control input-xs h" value="<?php echo $doc->inv_code; ?>" disabled/>
+			</div>
+		</div>
+    <div class="form-group">
+			<label class="sap-label col-lg-6 col-md-6 col-sm-6 padding-0">Status</label>
+			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+				<input type="text" class="form-control input-xs h" value="<?php echo production_receipt_status_text($doc->Status); ?>" disabled/>
+			</div>
+		</div>
+    <div class="form-group">
+			<label class="sap-label col-lg-6 col-md-6 col-sm-6 padding-0">Document Date</label>
+			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+				<input type="text" class="form-control input-xs h" value="<?php echo thai_date($doc->date_add); ?>" disabled/>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="sap-label col-lg-6 col-md-6 col-sm-6 padding-0">Posting Date</label>
+			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+				<input type="text" class="form-control input-xs h" value="<?php echo thai_date($doc->shipped_date); ?>" disabled/>
+			</div>
+		</div>
+	</div>
+</div>

@@ -4,7 +4,7 @@
   }
 
   .text-label {
-    font-size: 11px;
+    font-size: 11px !important;
     color: inherit !important;
   }
 </style>

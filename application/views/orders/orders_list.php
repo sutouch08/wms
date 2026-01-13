@@ -226,7 +226,7 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="order-table" style="overflow:auto;">
-		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1480px; margin-bottom:20px;">
+		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1410px; margin-bottom:20px;">
 			<thead>
 				<tr class="font-size-11">
 					<th class="fix-width-40 middle text-center fix-header">
@@ -239,12 +239,12 @@
 					<th class="fix-width-100 middle text-center fix-header sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
 					<th class="fix-width-150 middle fix-header sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
 					<th class="fix-width-150 middle fix-header">เลขที่อ้างอิง</th>
-					<th class="fix-width-350 middle fix-header">ลูกค้า</th>
-					<th class="fix-width-100 middle text-right fix-header">ยอดเงิน</th>
-					<th class="fix-width-150 middle text-center fix-header">ช่องทางขาย</th>
-					<th class="fix-width-150 middle text-center fix-header">Shop name</th>
-					<th class="fix-width-150 middle fix-header">การชำระเงิน</th>
-					<th class="fix-width-150 middle fix-header">สถานะ</th>
+					<th class="min-width-350 middle fix-header">ลูกค้า</th>
+					<th class="fix-width-80 middle text-right fix-header">ยอดเงิน</th>
+					<th class="fix-width-150 middle fix-header">ช่องทางขาย</th>
+					<th class="fix-width-150 middle fix-header">Shop name</th>
+					<th class="fix-width-100 middle fix-header">การชำระเงิน</th>
+					<th class="fix-width-100 middle fix-header">สถานะ</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -265,13 +265,13 @@
 									</label>
 								<?php endif; ?>
 							</td>
-              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
-              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
+              <td class="middle">
 								<a target="_blank" href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code . $cn_text; ?></a>
 							</td>
-							<td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>
 								<?php else : ?>
@@ -279,17 +279,17 @@
 									<?php echo $cus_ref; ?>
 								<?php endif; ?>
 							</td>
-              <td class="middle text-right" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle text-right" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo $rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total, 2); ?>
 							</td>
-              <td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle hide-text" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($channelsList[$rs->channels_code]) ? "" : $channelsList[$rs->channels_code]; ?>
 							</td>
-							<td class="middle text-center" ondblclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $shop_name; ?></td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle hide-text" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $shop_name; ?></td>
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($paymentList[$rs->payment_code]) ? "" : $paymentList[$rs->payment_code];  ?>
 							</td>
-              <td class="middle" ondblclick="editOrder('<?php echo $rs->code; ?>')">
+              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php if($rs->is_expired) : ?>
 									หมดอายุ
 								<?php else : ?>
