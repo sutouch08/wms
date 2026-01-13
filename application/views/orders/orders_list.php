@@ -226,7 +226,7 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="order-table" style="overflow:auto;">
-		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1410px; margin-bottom:20px;">
+		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1430px; margin-bottom:20px;">
 			<thead>
 				<tr class="font-size-11">
 					<th class="fix-width-40 middle text-center fix-header">
@@ -243,7 +243,7 @@
 					<th class="fix-width-80 middle text-right fix-header">ยอดเงิน</th>
 					<th class="fix-width-150 middle fix-header">ช่องทางขาย</th>
 					<th class="fix-width-150 middle fix-header">Shop name</th>
-					<th class="fix-width-100 middle fix-header">การชำระเงิน</th>
+					<th class="fix-width-120 middle fix-header">การชำระเงิน</th>
 					<th class="fix-width-100 middle fix-header">สถานะ</th>
 				</tr>
 			</thead>
