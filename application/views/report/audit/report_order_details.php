@@ -246,13 +246,14 @@
 
 <script id="template" type="text/x-handlebars-template">
 {{#if details}}
-	<table class="table table-striped border-1 tableFixHead" style="min-width:2550px;">
+	<table class="table table-striped border-1 tableFixHead" style="min-width:2650px;">
 		<thead>
 			<tr class="font-size-12">
 				<th class="fix-width-60 text-center">#</th>
 				<th class="fix-width-100 text-center">วันที่</th>
 				<th class="fix-width-120">เลขที่</th>
 				<th class="fix-width-120">อ้างอิง</th>
+				<th class="fix-width-100">SAP No.</th>
 				<th class="fix-width-100 text-right">มูลค่า</th>
 				<th class="fix-width-120">รหัสลูกค้า</th>
 				<th class="fix-width-350">ชื่อลูกค้า</th>
@@ -276,6 +277,7 @@
 					<td class="middle text-center">{{date_add}}</td>
 					<td class="middle">{{code}}</td>
 					<td class="middle">{{reference}}</td>
+					<td class="middle">{{inv_code}}</td>
 					<td class="middle text-right">{{total_amount}}</td>
 					<td class="middle">{{customer_code}}</td>
 					<td class="middle">{{customer_name}}</td>

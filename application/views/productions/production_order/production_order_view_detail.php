@@ -40,7 +40,7 @@
 		          <a href="javascript:createGoodsIssue('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Issue Components</a>
 		        </li>
 						<li class="primary">
-		          <a href="javascript:reportCompletion('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Report Completion</a>
+		          <a href="javascript:createGoodsReceipt('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Report Completion</a>
 		        </li>
 					<?php endif; ?>
 				<?php endif; ?>

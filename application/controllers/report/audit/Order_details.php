@@ -291,6 +291,7 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue("Q{$row}", 'หมายเหตุ');
       $this->excel->getActiveSheet()->setCellValue("R{$row}", 'cancel reason');
       $this->excel->getActiveSheet()->setCellValue("S{$row}", 'Pre-order');
+      $this->excel->getActiveSheet()->setCellValue("T{$row}", 'DO No');
       $row++;
 
       //---- กำหนดความกว้างของคอลัมภ์
@@ -312,6 +313,7 @@ class Order_details extends PS_Controller
       $this->excel->getActiveSheet()->getColumnDimension('Q')->setWidth(40);
       $this->excel->getActiveSheet()->getColumnDimension('R')->setWidth(40);
       $this->excel->getActiveSheet()->getColumnDimension('S')->setWidth(10);
+      $this->excel->getActiveSheet()->getColumnDimension('R')->setWidth(15);
 
       if( ! empty($details))
       {
@@ -366,6 +368,7 @@ class Order_details extends PS_Controller
           }
 
           $this->excel->getActiveSheet()->setCellValue("S{$row}", $rs->is_pre_order == 1 ? 'Y' : 'N');
+          $this->excel->getActiveSheet()->setCellValue("T{$row}", $rs->inv_code);
 
 
           $no++;

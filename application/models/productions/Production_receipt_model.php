@@ -182,6 +182,11 @@ class Production_receipt_model extends CI_Model
       $this->db->like('orderRef', $ds['order_ref']);
     }
 
+    if( ! empty($ds['item_code']))
+    {
+      $this->db->like('ItemCode', $ds['item_code']);
+    }
+
     if( ! empty($ds['from_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
@@ -230,9 +235,14 @@ class Production_receipt_model extends CI_Model
       $this->db->like('reference', $ds['reference']);
     }
 
-    if( ! empty($ds['reference']))
+    if( ! empty($ds['order_ref']))
     {
-      $this->db->like('reference', $ds['reference']);
+      $this->db->like('orderRef', $ds['order_ref']);
+    }
+
+    if( ! empty($ds['item_code']))
+    {
+      $this->db->like('ItemCode', $ds['item_code']);
     }
 
     if( ! empty($ds['from_date']))
@@ -284,7 +294,8 @@ class Production_receipt_model extends CI_Model
   public function get_production_order_data($code)
   {
     $rs = $this->ms
-    ->select('o.DocEntry, o.DocNum, o.ItemCode, o.ProdName AS ItemName, o.Warehouse AS WhsCode, o.Status')
+    ->select('o.DocEntry, o.DocNum, o.Type, o.ItemCode, o.ProdName AS ItemName, o.Warehouse AS WhsCode, o.Status')
+    ->select('o.PostDate, o.DueDate, o.RlsDate AS ReleaseDate, o.OriginNum, o.OriginType, o.CardCode')
     ->select('o.PlannedQty, o.CmpltQty AS CompleteQty, o.RjctQty AS RejectQty, o.Uom, o.UomEntry, u.UomCode, i.ManBtchNum')
     ->from('OWOR AS o')
     ->join('OITM AS i', 'o.ItemCode = i.ItemCode', 'left')
@@ -314,48 +325,6 @@ class Production_receipt_model extends CI_Model
     ->join('OUOM AS u', 'o.UomEntry = u.UomEntry', 'left')
     ->where('o.DocEntry', $DocEntry)
     ->get();
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return NULL;
-  }
-
-
-  public function get_item_batch_rows($ItemCode, array $filter = array())
-  {
-    $this->ms
-    ->select('S.ItemCode, S.DistNumber AS BatchNum, S.MnfSerial AS BatchAttr1, S.LotNumber AS BatchAttr2')
-    ->select('B.BinCode, Q.OnHandQty AS Qty, Q.WhsCode')
-    ->from('OBTN AS S')
-    ->join('OBBQ AS Q', 'S.ItemCode = Q.ItemCode AND S.AbsEntry = Q.SnBMDAbs', 'left')
-    ->join('OBIN AS B', 'Q.BinAbs = B.AbsEntry', 'left')
-    ->where('S.ItemCode', $ItemCode)
-    ->where('Q.OnHandQty >', 0, FALSE);
-
-    if( ! empty($filter['WhsCode']) && $filter['WhsCode'] != 'all')
-    {
-      $this->ms->where('Q.WhsCode', $filter['WhsCode']);
-    }
-
-    if( ! empty($filter['BatchNum']))
-    {
-      $this->ms->like('S.DistNumber', $filter['BatchNum']);
-    }
-
-    if( ! empty($filter['BatchAttr1']))
-    {
-      $this->ms->like('S.MnfSerial', $filter['BatchAttr1']);
-    }
-
-    if( ! empty($filter['BatchAttr2']))
-    {
-      $this->ms->like('S.LotNumber', $filter['BatchAttr2']);
-    }
-
-    $rs = $this->ms->order_by('Q.WhsCode', 'ASC')->get();
 
     if($rs->num_rows() > 0)
     {

@@ -28,14 +28,14 @@
               </td>
               <td class="middle text-center fix-no no" scope="row"><?php echo $no; ?></td>
               <td class="middle text-center">
-                <?php if($rs->ManBtchNum == 'Y') : ?>
+                <?php if($rs->hasBatch) : ?>
                   <a class="pointer add-batch" href="javascript:getPreBatch('<?php echo $uid; ?>')" title="Add Batch Number">
                     <i class="fa fa-plus fa-lg blue"></i>
                   </a>
                 <?php endif; ?>
               </td>
               <td class="middle">
-                <input type="text" class="form-control input-xs item-code r" data-uid="<?php echo $uid; ?>" data-hasbatch="<?php echo $rs->ManBtchNum; ?>" id="item-code-<?php echo $uid; ?>" value="<?php echo $rs->ItemCode; ?>" disabled/>
+                <input type="text" class="form-control input-xs item-code r" data-uid="<?php echo $uid; ?>" data-hasbatch="<?php echo $rs->hasBatch ? 'Y' : 'N'; ?>" id="item-code-<?php echo $uid; ?>" value="<?php echo $rs->ItemCode; ?>" disabled/>
               </td>
               <td class="middle">
                 <input type="text" class="form-control input-xs item-name r" data-uid="<?php echo $uid; ?>" id="item-name-<?php echo $uid; ?>" value="<?php echo $rs->ItemName; ?>" disabled/>
@@ -56,25 +56,20 @@
                 <input type="text" class="form-control input-xs text-right req-qty r" data-uid="<?php echo $uid; ?>" id="instock-<?php echo $uid; ?>" value="<?php echo $rs->InStock; ?>" disabled/>
               </td>
               <td class="middle">
-                <input type="text" class="form-control input-xs text-right tran-qty r"
-                data-code="<?php echo $rs->ItemCode; ?>"
-                data-name="<?php echo $rs->ItemName; ?>"
-                data-hasbatch="<?php echo $rs->ManBtchNum; ?>"
-                data-uomentry="<?php echo $rs->UomEntry; ?>"
-                data-uomcode="<?php echo $rs->UomCode; ?>"
-                data-uom="<?php echo $rs->UomName; ?>"
-                data-method="Load"
-                data-uid="<?php echo $uid; ?>"
-                id="tran-qty-<?php echo $uid; ?>"
-                value="<?php echo $rs->BalanceQty; ?>" />
+                <input type="text"
+                  class="form-control input-xs text-right tran-qty r"
+                  data-code="<?php echo $rs->ItemCode; ?>"
+                  data-name="<?php echo $rs->ItemName; ?>"
+                  data-hasbatch="<?php echo $rs->hasBatch ? 'Y' : 'N'; ?>"
+                  data-uomentry="<?php echo $rs->UomEntry; ?>"
+                  data-uomcode="<?php echo $rs->UomCode; ?>"
+                  data-uom="<?php echo $rs->UomName; ?>"
+                  data-uid="<?php echo $uid; ?>"
+                  id="tran-qty-<?php echo $uid; ?>"
+                  value="<?php echo number($rs->Qty, 2); ?>" />
               </td>
               <td class="middle">
-                <input type="text" class="form-control input-xs r"
-                data-uid="<?php echo $uid; ?>"
-                id="uom-<?php echo $uid; ?>"
-                data-uomentry="<?php echo $rs->UomEntry; ?>"
-                data-uomcode="<?php echo $rs->UomCode; ?>"
-                value="<?php echo $rs->UomName; ?>"  disabled/>
+                <input type="text" class="form-control input-xs r"  value="<?php echo $rs->UomName; ?>"  disabled/>
               </td>
             </tr>
             <?php $no++; ?>
@@ -107,13 +102,6 @@
   			</div>
   		</div>
     </div>
-  </div>
-
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right" style="padding-right:12px;">
-    <?php if($this->pm->can_add) : ?>
-      <button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="add()">Save</button>
-      <button type="button" class="btn btn-white btn-default top-btn btn-100" onclick="leave()">Cancel</button>
-    <?php endif; ?>
   </div>
 </div>
 

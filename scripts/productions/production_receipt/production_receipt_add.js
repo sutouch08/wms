@@ -58,8 +58,6 @@ function add() {
       'rows' : []
     };
 
-    let prevBaseRef = $('#base-ref').data('prev');
-
     if( ! isDate(h.date_add)) {
       $('#date-add').hasError();
       click = 0;
@@ -70,18 +68,6 @@ function add() {
     if(h.baseRef == "") {
       $('#base-ref').hasError();
       click = 0;
-      return false;
-    }
-
-    if(h.baseRef != prevBaseRef) {
-      $('#base-ref').hasError();
-      click = 0;
-      swal({
-        title:'Error',
-        text:'Production order มีการเปลี่ยนแปลง',
-        type:'error'
-      });
-
       return false;
     }
 
@@ -97,7 +83,6 @@ function add() {
         let whsCode = $('#whs-'+uid).val().trim();
         let binCode = $('#bin-'+uid).val().trim();
         let receiptQty = parseDefaultFloat(removeCommas(el.val()), 0);
-        let inStock = parseDefaultFloat(removeCommas($('#instock-'+uid).val()), 0);
         let hasBatch = el.data('hasbatch') == 'Y' ? 1 : 0;
 
         if(receiptQty <= 0) {
@@ -107,27 +92,18 @@ function add() {
           return false;
         }
 
-        if(sc === true && hasBatch == 0) {
-          if(whsCode.length == 0) {
-            sc = false;
-            $('#whs-'+uid).hasError();
-            errMsg = "กรุณาระบุคลัง";
-            return false;
-          }
+        if(whsCode.length == 0) {
+          sc = false;
+          $('#whs-'+uid).hasError();
+          errMsg = "กรุณาระบุคลัง";
+          return false;
+        }
 
-          if(binCode.length == 0) {
-            sc = false;
-            $('#bin-'+uid).hasError();
-            errMsg = "กรุณาระบุโซน";
-            return false;
-          }
-
-          if(inStock < receiptQty) {
-            sc = false;
-            el.hasError();
-            errMsg = 'จำนวนคงเหลือต้นทางไม่เพียงพอ กรุณาแก้ไข';
-            return false;
-          }
+        if(binCode.length == 0) {
+          sc = false;
+          $('#bin-'+uid).hasError();
+          errMsg = "กรุณาระบุโซน";
+          return false;
         }
 
         if(sc === true && hasBatch == 1) {
@@ -149,12 +125,12 @@ function add() {
             'BaseType' : el.data('basetype'),
             'BaseEntry' : el.data('baseentry'),
             'BaseRef' : el.data('baseref'),
-            'BaseLine' : el.data('baseline'),
             'hasBatch' : hasBatch,
             'ItemCode' : itemCode,
             'ItemName' : itemName,
             'WhsCode' : whsCode,
             'BinCode' : binCode,
+            'TranType' : $('#tran-type-'+uid).val(),
             'Qty' : receiptQty,
             'Uom' : el.data('uom'),
             'UomCode' : el.data('uomcode'),
@@ -163,37 +139,54 @@ function add() {
           };
 
           if(hasBatch == 1) {
-            let sumBatchQty = parseDefaultFloat(removeCommas($('#sum-batch-'+uid).val()), 0);
+            let sumBatchQty = 0;
+            let batches = [];
 
             $('.child-of-'+uid).each(function() {
               if(sc === false) { return false; }
 
               let uuid = $(this).data('uid');
               let ro = $('#batch-qty-'+uuid);
-              let bQty = parseDefaultFloat(ro.val(), 0);
-              let bStock = parseDefaultFloat(removeCommas($('#batch-in-stock-'+uuid).val()), 0);
+              let batchNum = $('#batch-'+uuid).val().trim();
+              let batchAttr1 = $('#batch-attr1-'+uuid).val().trim();
+              let batchAttr2 = $('#batch-attr2-'+uuid).val().trim();
 
-              if(bQty > bStock) {
+              if(batchNum == "" || batchNum == null || batchNum == undefined) {
                 sc = false;
-                ro.hasError();
-                errMsg = "จำนวนคงเหลือไม่พอ กรุณาแก้ไข";
+                $('#batch-'+uuid).hasError();
+                errMsg = "กรุณาระบุ Batch No.";
                 return false;
               }
+
+              if(sc === true) {
+                if(batches.includes(batchNum)) {
+                  sc = false;
+                  $('#batch-'+uuid).hasError();
+                  errMsg = "Batch No. ซ้ำ";
+                  return false;
+                }
+                else {
+                  batches.push(batchNum);
+                }
+              }
+
+              let bQty = parseDefaultFloat(ro.val(), 0);
+              sumBatchQty += bQty;
 
               row.batchRows.push({
                 'ItemCode' : itemCode,
                 'ItemName' : itemName,
-                'BatchNum' : ro.data('batchnum'),
-                'BatchAttr1' : ro.data('attr1'),
-                'BatchAttr2' : ro.data('attr2'),
+                'BatchNum' : batchNum,
+                'BatchAttr1' : batchAttr1,
+                'BatchAttr2' : batchAttr2,
                 'Qty' : bQty,
-                'WhsCode' : ro.data('fromwhs'),
-                'BinCode' : ro.data('frombin'),
+                'WhsCode' : whsCode,
+                'BinCode' : binCode,
                 'uid' : uuid
               });
             });
 
-            if(receiptQty != sumBatchQty) {
+            if(sc === true && receiptQty != sumBatchQty) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;
@@ -205,7 +198,6 @@ function add() {
           line++;
         }
       } //--- end sc
-
     }); //--- each
 
     if(sc === false) {
@@ -220,6 +212,7 @@ function add() {
     }
 
     // console.log(h); click = 0; return false;
+
     if(sc === true) {
       load_in();
 
@@ -369,7 +362,7 @@ function addToOrder() {
   if(ds.length) {
     let source = $('#details-template').html();
     let output = $('#details-table');
-    render(source, ds, output);
+    render_append(source, ds, output);
     reIndex('no');
 
     uids.forEach((uuid, i) => {
@@ -414,176 +407,177 @@ function binInit(uid) {
       }
     }
   })
-
-  getAvailableStock(uid);
 }
 
 
-function clearBatchFilter() {
-  $('#whs-filter').val('all').change();
-  $('#batch-num-filter').val('');
-  $('#attr1-filter').val('');
-  $('#attr2-filter').val('');
+function addBatchRow(parentUid) {
+	let el = $('#receipt-qty-'+parentUid);
+	let no = parseDefaultInt(el.data('no'), 0);
+	let ne = no + 1;
+	el.data('no', ne);
+
+	let cuid = el.data('uid'); // pre uid for last child row
+	let uid = generateUID(); //--- new child row uid
+
+	$('.child-of-'+parentUid).each(function() {
+		cuid = $(this).data('uid'); //-- find leatest batch row in parent
+	});
+
+	let ds = {
+		'parentUid' : parentUid,
+		'uid' : uid,
+		'UomName' : el.data('uom')
+	};
+
+	let source = $('#batch-row-template').html();
+	let output = $('#batch-row-'+cuid).length ? $('#batch-row-'+cuid) : $('#row-'+parentUid);
+
+	render_after(source, ds, output);
+	batchInit(uid);
+	setTimeout(() => {
+		$('#batch-'+uid).focus();
+	}, 100)
 }
 
 
-function getPreBatch(uid) {
-  $('#item-code-'+uid).clearError();
-  let itemCode = $('#item-code-'+uid).val().trim();
-  let whsCode = $('#whs-'+uid).val();
+function batchInit(cid) {
+	if(cid == "" || cid == undefined) {
+		$('.batch-row').keyup(function(e) {
+			if(e.keyCode === 13) {
+				if($(this).val().trim() != "") {
+					let uid = $(this).data('uid');
+					let pid = $(this).data('parent');
+					let val = $(this).val().trim();
+					let arr = val.split(' | ');
 
+					if(arr.length == 3) {
 
-  if(itemCode.length == 0) {
-    $('#item-code-'+uid).hasError();
-    swal("กรุณาระบุรหัสสินค้า");
-    return false;
-  }
+						if(arr[0].length) {
+							$('#batch-'+uid).val(arr[0]);
+						}
 
-  if(whsCode != '') {
-    $('#whs-filter').val(whsCode).change();
-  }
+						if(arr[1].length) {
+							$('#batch-attr1-'+uid).val(arr[1]);
+						}
 
-  $('#pre-target-uid').val(uid);
-  $('#pre-batch-modal').modal('show');
+						if(arr[2].length) {
+							let qty = parseDefaultFloat(arr[2], 0);
 
-  dragElement('pre-batch-modal', 'pre-batch-modal-header');
-}
+							if(qty > 0) {
+								$('#batch-qty-'+uid).val(qty);
+								addBatchRow(pid);
+							}
+							else {
+								$('#batch-qty-'+uid).val('').focus();
+							}
+						}
+						else {
+							$('#batch-qty-'+uid).val('').focus();
+						}
+					}
+					else {
+						$('#batch-attr1-'+uid).focus();
+					}
+				}
+			}
+		});
 
+		$('.batch-attr1').keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-attr2-'+uid).focus();
+			}
+		});
 
-function getBatch() {
-  let uid = $('#pre-target-uid').val();
-  let receiptQty = parseDefaultFloat(removeCommas($('#receipt-qty-'+uid).val().trim()), 0);
-  $('#pre-batch-modal').modal('hide');
+		$('.batch-attr2').keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-qty-'+uid).focus();
+			}
+		});
 
-  let filter = {
-    'ItemCode' : $('#item-code-'+uid).val().trim(),
-    'WhsCode' : $('#whs-filter').val(),
-    'BatchNum' : $('#batch-num-filter').val().trim(),
-    'BatchAttr1' : $('#attr1-filter').val().trim(),
-    'BatchAttr2' : $('#attr2-filter').val().trim()
-  }
+		$('.batch-qty').keyup(function(e) {
+			if(e.keyCode === 13) {
+				let qty = parseDefaultFloat($(this).val(), 0);
 
-  load_in();
+				if(qty > 0) {
+					let uid = $(this).data('parent');
+					addBatchRow(uid);
+				}
+			}
+		})
+	}
+	else {
+		$('#batch-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				if($(this).val().trim() != "") {
+					let uid = $(this).data('uid');
+					let pid = $(this).data('parent');
+					let val = $(this).val().trim();
+					let arr = val.split(' | ');
 
-  $.ajax({
-    url:HOME + 'get_item_batch_rows',
-    type:'POST',
-    cache:false,
-    data:{
-      'filter' : JSON.stringify(filter)
-    },
-    success:function(rs) {
-      load_out();
+					if(arr.length == 3) {
 
-      if(isJson(rs)) {
+						if(arr[0].length) {
+							$('#batch-'+uid).val(arr[0]);
+						}
 
-        let ds = JSON.parse(rs);
+						if(arr[1].length) {
+							$('#batch-attr1-'+uid).val(arr[1]);
+						}
 
-        if(ds.status === 'success') {
-          let title = filter.ItemCode;
-          $('#batch-modal-title').text(title);
-          $('#target-uid').val(uid);
-          $('#target-qty').val(receiptQty);
-          $('#receipt-qty').text(addCommas(receiptQty));
+						if(arr[2].length) {
+							let qty = parseDefaultFloat(arr[2], 0);
 
-          let source = $('#batch-modal-template').html();
-          let output = $('#batch-modal-table');
+							if(qty > 0) {
+								$('#batch-qty-'+uid).val(qty);
+								addBatchRow(pid);
+							}
+							else {
+								$('#batch-qty-'+uid).val('').focus();
+							}
+						}
+						else {
+							$('#batch-qty-'+uid).val('').focus();
+						}
+					}
+					else {
+						$('#batch-attr1-'+uid).focus();
+					}
+				}
+			}
+		});
 
-          render(source, ds.data, output);
+		$('#batch-attr1-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-attr2-'+uid).focus();
+			}
+		});
 
-          reIndex('b-no');
-          $('#batch-modal').modal('show');
+		$('#batch-attr2-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				let uid = $(this).data('uid');
+				$('#batch-qty-'+uid).focus();
+			}
+		});
 
-          dragElement('batch-modal', 'batch-modal-header');
-        }
-        else {
-          showError(ds.message);
-        }
-      }
-      else {
-        showError(rs);
-      }
-    },
-    error:function(rs) {
-      showError(rs);
-    }
-  })
-}
+		$('#batch-qty-'+cid).keyup(function(e) {
+			if(e.keyCode === 13) {
+				let qty = parseDefaultFloat($(this).val(), 0);
 
-
-function addBatchRows() {
-  clearErrorByClass('bi-qty');
-  let error = 0;
-  let ds = []; //--- for new rows
-  let us = []; //--- for update rows
-  let uid = $('#target-uid').val();
-
-  if($('.bi-qty').length) {
-    $('.bi-qty').each(function() {
-      let uom = $('#uom-'+uid);
-      let el = $(this);
-      let uuid = el.data('uid');
-      let onHand = parseDefaultFloat(removeCommas($('#bi-onhand-'+uuid).val()), 0);
-      let qty = parseDefaultFloat(el.val(), 0);
-
-      if(onHand < qty || qty < 0) {
-        $('#bi-qty-'+uuid).hasError();
-        error++;
-      }
-
-      if(qty > 0 && onHand >= qty) {
-        if($('#batch-qty-'+uuid).length) {
-          let bQty = parseDefaultFloat($('#batch-qty-'+uuid).val(), 0);
-          let nQty = bQty + qty;
-
-          us.push({
-            'uid' : uuid,
-            'qty' : nQty
-          });
-        }
-        else {
-          ds.push({
-            'uid' : uuid,
-            'parentUid' : uid,
-            'batchNum' : el.data('batch'),
-            'batchAttr1' : el.data('attr1'),
-            'batchAttr2' : el.data('attr2'),
-            'binCode' : el.data('bin'),
-            'whsCode' : el.data('whs'),
-            'InStock' : onHand,
-            'qty' : qty,
-            'UomName' : uom.val()
-          });
-        }
-      }
-    });
-
-    if(error == 0) {
-      if(us.length > 0) {
-        us.forEach((ro) => {
-          $('#batch-qty-' + ro.uid).val(ro.qty);
-        })
-      }
-
-      if(ds.length > 0) {
-        let source = $('#batch-rows-template').html();
-        let output = $('#row-'+uid);
-        render_after(source, ds, output);
-      }
-
-      $('#batch-modal').modal('hide');
-
-      reCalBatchRows(uid);
-    }
-  }
+				if(qty > 0) {
+					let uid = $(this).data('parent');
+					addBatchRow(uid);
+				}
+			}
+		})
+	}
 }
 
 
 function removeBatchRow(uid) {
-  let parentUid = $('#batch-qty-'+uid).data('parent');
-  $('#batch-rows-'+uid).remove();
-
-  reCalBatchRows(parentUid);
+  $('#batch-row-'+uid).remove();
 }
 
 
@@ -592,50 +586,4 @@ function removeRow(uid) {
   $('.child-of-'+uid).remove();
 
   reIndex('no');
-}
-
-
-function getAvailableStock(uid) {
-  let itemCode = $('#item-code-'+uid).val().trim();
-  let whsCode = $('#whs-'+uid).val().trim();
-
-  if(whsCode.length && itemCode.length) {
-    $.ajax({
-      url:HOME + 'get_available_stock',
-      type:'POST',
-      cache:false,
-      data:{
-        'ItemCode' : itemCode,
-        'WhsCode' : whsCode
-      },
-      success:function(rs) {
-        if(isJson(rs)) {
-          let ds = JSON.parse(rs);
-
-          if(ds.status == 'success') {
-            $('#instock-'+uid).val(ds.available);
-          }
-          else {
-            $('#instock-'+uid).val('0.00');
-          }
-        }
-        else {
-          $('#instock-'+uid).val('0.00');
-        }
-      }
-    })
-  }
-}
-
-
-function reCalBatchRows(parentUid) {
-  let pQty = 0;
-
-  $('.child-of-'+parentUid).each(function() {
-    let uid = $(this).data('uid');
-    let qty = parseDefaultFloat(removeCommas($('#batch-qty-'+uid).val()), 0);
-    pQty += qty;
-  });
-
-  $('#sum-batch-'+parentUid).val(addCommas(pQty.toFixed(2)));
 }

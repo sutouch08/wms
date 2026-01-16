@@ -96,7 +96,7 @@ input.batch-span {
 }
 
 .tableFixHead > thead > tr > th {
-  padding:3px !important;
+  padding:3px 8px !important;
   font-size: 10px !important;
 }
 
@@ -114,6 +114,23 @@ input.batch-span {
 
 #ui-datepicker-div {
   z-index: 11 !important;
+}
+
+.batch-label {
+  border:none;
+  background-color: transparent;
+  font-size: 11px;
+  height: 21px;
+  padding: 0 5px 0 0;
+  color:#478fca !important;
+}
+
+.batch-row, .batch-attr1, .batch-attr2, .batch-qty {
+  height:21px;
+  color:#478fca !important;
+  border:solid 1px #a7d8ff;
+  background-color: transparent !important;
+  padding: 0 5px !important;
 }
 
 </style>

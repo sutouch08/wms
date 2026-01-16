@@ -92,16 +92,16 @@
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped border-1" id="table-listing" style="min-width:1200px;">
       <tr class="font-size-11">
-				<th class="fix-width-50 text-center"></th>
+				<th class="fix-width-60 text-center"></th>
         <th class="fix-width-50 text-center">#</th>
-				<th class="fix-width-60 text-center">Status</th>
+				<th class="fix-width-60">Status</th>
         <th class="fix-width-80 text-center">Date</th>
 				<th class="fix-width-100">Document No</th>
 				<th class="fix-width-80">Ref No</th>
 				<th class="fix-width-80">SAP No.</th>
 				<th class="min-width-250">From Warehouse</th>
 				<th class="min-width-250">To Warehouse</th>
-    		<th class="min-width-100">User</th>
+    		<th class="fix-width-100">User</th>
       </tr>
       <tbody>
     <?php if( !empty($data)) : ?>
@@ -110,22 +110,24 @@
     <?php foreach($data as $rs) : ?>
 			<?php if(empty($whsName[$rs->fromWhsCode])) { $whsName[$rs->fromWhsCode] = warehouse_name($rs->fromWhsCode); } ?>
 			<?php if(empty($whsName[$rs->toWhsCode])) { $whsName[$rs->toWhsCode] = warehouse_name($rs->toWhsCode); } ?>
-      <tr class="font-size-11" id="row-<?php echo $rs->id; ?>" style="<?php echo transfer_status_color($rs->Status); ?>">
-				<td class="middle">
+      <tr class="font-size-11 pointer" id="row-<?php echo $rs->id; ?>" style="<?php echo transfer_status_color($rs->Status); ?>">
+				<td class="middle" style="padding: 3px !important;">
 					<button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code;?>')"><i class="fa fa-eye"></i></button>
 					<?php if($this->pm->can_edit && $rs->Status == 'P') : ?>
 						<button type="button" class="btn btn-minier btn-warning" onclick="edit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 					<?php endif; ?>
 				</td>
-        <td class="middle text-center no"><?php echo $no; ?></td>
-				<td class="middle text-center"><?php echo production_transfer_status_text($rs->Status); ?></td>
-        <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
-        <td class="middle"><?php echo $rs->code; ?></td>
-				<td class="middle"><?php echo $rs->reference; ?></td>
-				<td class="middle"><?php echo $rs->inv_code; ?></td>
-				<td class="middle"><?php echo $rs->fromWhsCode.' | '.$whsName[$rs->fromWhsCode]; ?></td>
-				<td class="middle"><?php echo $rs->toWhsCode.' | '.$whsName[$rs->toWhsCode]; ?></td>
-        <td class="middle"> <?php echo $rs->user; ?></td>
+        <td class="middle text-center no" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo production_transfer_status_text($rs->Status); ?></td>
+        <td class="middle text-center" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add, FALSE); ?></td>
+        <td class="middle">
+					<a target="_blank" href="<?php echo $this->home; ?>/view_detail/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
+				</td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->inv_code; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->fromWhsCode.' | '.$whsName[$rs->fromWhsCode]; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->toWhsCode.' | '.$whsName[$rs->toWhsCode]; ?></td>
+        <td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"> <?php echo $rs->user; ?></td>
       </tr>
     <?php  $no++; ?>
     <?php endforeach; ?>

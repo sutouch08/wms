@@ -479,4 +479,25 @@ class stock_model extends CI_Model
     return 0;
   }
 
+
+  public function get_item_batch_qty($ItemCode, $BatchNum, $WhsCode, $BinCode)
+  {
+    $rs = $this->ms
+    ->select('Q.OnHandQty AS Qty')
+    ->from('OBTN AS S')
+    ->join('OBBQ AS Q', 'S.ItemCode = Q.ItemCode AND S.AbsEntry = Q.SnBMDAbs', 'left')
+    ->join('OBIN AS B', 'Q.BinAbs = B.AbsEntry', 'left')
+    ->where('S.ItemCode', $ItemCode)
+    ->where('S.DistNumber', $BatchNum)
+    ->where('Q.WhsCode', $WhsCode)
+    ->where('B.BinCode', $BinCode)
+    ->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->Qty;
+    }
+
+    return 0;
+  }
 }//--- end class

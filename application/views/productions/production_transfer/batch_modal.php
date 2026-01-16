@@ -30,9 +30,9 @@
          </div>
        </div>
 			 <div class="modal-footer">
-         <button type="button" class="btn btn-xs btn-primary" onClick="getBatch()" >Choose</button>
+				 <button type="button" class="btn btn-xs btn-default" data-dismiss="modal">Cancel</button>
 				 <button type="button" class="btn btn-xs btn-warning" onClick="clearBatchFilter()" >Clear</button>
-				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">Cancel</button>
+         <button type="button" class="btn btn-xs btn-primary" onClick="getBatch()" >Choose</button>
 			 </div>
 		</div>
 	</div>
@@ -78,9 +78,9 @@
          </div>
        </div>
 			 <div class="modal-footer">
+				 <button type="button" class="btn btn-xs btn-default" data-dismiss="modal">Cancel</button>
 				 <button type="button" class="btn btn-xs btn-info" onClick="showFilterBatch()" >Filter</button>
         <button type="button" class="btn btn-xs btn-primary" onClick="addBatchRows()" >Choose</button>
-				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">Cancel</button>
 			 </div>
 		</div>
 	</div>

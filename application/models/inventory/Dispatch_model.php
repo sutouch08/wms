@@ -322,6 +322,17 @@ class Dispatch_model extends CI_Model
   }
 
 
+  public function remove_orders_from_pending(array $orders = array())
+  {
+    if( ! empty($orders))
+    {
+      return $this->db->set('dispatch_id', 0)->where_in('code', $orders)->update($this->to);
+    }
+
+    return FALSE;
+  }
+
+
   public function is_exists_detail($order_code)
   {
     $count = $this->db->where('order_code', $order_code)->count_all_results($this->td);
@@ -355,7 +366,10 @@ class Dispatch_model extends CI_Model
   {
     $state_in = $channels_code === 'SHOPEE' ? ['8', '7'] : ['8'];
 
-    $this->db->where('is_wms', 0)->where_in('state', $state_in)->where('dispatch_id IS NULL', NULL, FALSE);
+    $this->db
+    ->where('is_wms', 0)
+    ->where_in('state', $state_in)
+    ->where('dispatch_id IS NULL', NULL, FALSE);
 
     if( ! empty($channels_code))
     {
@@ -375,7 +389,7 @@ class Dispatch_model extends CI_Model
     $state_in = ['8', '7'];
 
     $this->db
-    ->select('code, reference, customer_code, customer_name, channels_code')
+    ->select('code, reference, customer_code, customer_name, channels_code, is_expired, is_cancled')
     ->where('is_wms', 0)
     ->where_in('state', $state_in)
     ->where('dispatch_id IS NULL', NULL, FALSE);

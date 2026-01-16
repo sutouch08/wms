@@ -5,6 +5,7 @@
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-white btn-default top-btn" onclick="window.close()"><i class="fa fa-times"></i> ปิด</button>
+		<button type="button" class="btn btn-white btn-purple top-btn" onclick="removeFromPending()"><i class="fa fa-times"></i> Remove from Pending</button>
 	</div>
 </div><!-- End Row -->
 <hr class=""/>
@@ -13,6 +14,12 @@
     <table class="table table-bordered">
       <thead>
         <tr>
+					<th class="fix-width-40 text-center fix-header">
+						<label>
+							<input type="checkbox" class="ace chk-all" onchange="checkAll($(this))" />
+							<span class="lbl"></span>
+						</label>
+					</th>
           <th class="fix-width-50 text-center fix-header">#</th>
           <th class="fix-width-150 fix-header">เลขที่</th>
 					<th class="fix-width-100 fix-header">จำนวน(กล่อง)</th>
@@ -28,26 +35,34 @@
           <?php $channels = get_channels_array(); ?>
           <?php foreach($orders as $rs) : ?>
 						<?php $qty = $this->dispatch_model->count_order_box($rs->code); ?>
-            <tr class="font-size-11">
-              <td class="text-center"><?php echo $no; ?></td>
-              <td><?php echo $rs->code; ?></td>
-							<td class="text-center"><?php echo $qty; ?></td>
-              <td><?php echo $rs->reference; ?></td>
-              <td><?php echo empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?></td>
-							<td><?php echo $rs->customer_code." : ".$rs->customer_name; ?></td>
+            <tr class="font-size-11" id="row-<?php echo $no; ?>">
+							<td class="middle text-center">
+								<label>
+									<input type="checkbox" class="ace chk" value="<?php echo $rs->code; ?>" data-no="<?php echo $no; ?>" />
+									<span class="lbl"></span>
+								</label>
+							</td>
+              <td class="middle text-center no"><?php echo $no; ?></td>
+              <td class="middle"><?php echo $rs->code; ?></td>
+							<td class="middle text-center">
+								<input type="number" class="form-control input-xs text-label text-center carton-qty" value="<?php echo $qty; ?>" readonly />
+							</td>
+              <td class="middle"><?php echo $rs->reference; ?></td>
+              <td class="middle"><?php echo empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?></td>
+							<td class="middle"><?php echo $rs->customer_code." : ".$rs->customer_name; ?></td>
             </tr>
             <?php $no++; ?>
 						<?php $totalQty += $qty; ?>
           <?php endforeach; ?>
         <?php else : ?>
           <tr>
-            <td colspan="6" class="text-center">---- ไม่พบรายการ ----</td>
+            <td colspan="7" class="text-center">---- ไม่พบรายการ ----</td>
           </tr>
         <?php endif; ?>
       </tbody>
 			<tfoot>
 				<tr>
-					<td colspan="2" class="text-right">รวม</td>
+					<td colspan="3" class="text-right">รวม</td>
 					<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="total-carton" value="<?php echo $totalQty; ?>" readonly/></td>
 					<td colspan="3" class="text-right"></td>
 				</tr>
@@ -58,5 +73,73 @@
 
 <script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/dispatch/dispatch_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script>
+	function checkAll(el) {
+		if(el.is(':checked')) {
+			$('.chk').prop('checked', true);
+		}
+		else {
+			$('.chk').prop('checked', false);
+		}
+	}
+
+	function removeFromPending() {
+		let h = [];
+		let rows = [];
+
+		$('.chk:checked').each(function() {
+			let code = $(this).val().trim();
+			let no = $(this).data('no');
+
+			h.push(code);
+			rows.push(no);
+		});
+
+		if(h.length) {
+			load_in();
+
+			$.ajax({
+				url:HOME + 'remove_orders_from_pending',
+				type:'POST',
+				cache:false,
+				data:{
+					'data' : JSON.stringify(h)
+				},
+				success:function(rs) {
+					load_out();
+
+					if(rs.trim() === 'success') {
+						if(rows.length) {
+							rows.forEach(function(no) {
+								$('#row-'+no).remove();
+							});
+						}
+
+						reIndex();
+
+						recalTotal();
+					}
+					else {
+						showError(rs);
+					}
+				},
+				error:function(rs) {
+					showError(rs);
+				}
+			})
+		}
+	}
+
+	function recalTotal() {
+		let total = 0;
+
+		$('.carton-qty').each(function() {
+			let qty = parseDefaultInt($(this).val(), 0);
+			total += qty;
+		});
+
+		$('#total-carton').val(total);
+	}
+</script>
 
 <?php $this->load->view('include/footer'); ?>

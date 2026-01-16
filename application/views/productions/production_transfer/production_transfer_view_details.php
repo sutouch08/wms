@@ -24,8 +24,8 @@
               <td class="middle text-center fix-no no"><?php echo $no; ?></td>
               <td class="middle text-center">
                 <?php if($rs->hasBatch OR ! empty($rs->batchRows)) : ?>
-                  <a class="pointer add-batch" href="javascript:toggleBatchRow('<?php echo $uid; ?>')" id="toggle-batch-row-<?php echo $uid; ?>" data-option="show" title="Hide Batch Number">
-                    <i class="fa fa-minus fa fa-lg"></i>
+                  <a class="pointer add-batch" href="javascript:toggleBatchRow('<?php echo $uid; ?>')" id="toggle-batch-row-<?php echo $uid; ?>" data-option="hide" title="Show/Hide Batch Number">
+                    <i class="fa fa-plus fa fa-lg"></i>
                   </a>
                 <?php endif; ?>
               </td>
@@ -61,14 +61,13 @@
                 <?php $uuid = $rb->uid; ?>
                 <?php $batchWords = "Batch: {$rb->BatchNum} &nbsp;&nbsp;&nbsp; Attr1: {$rb->BatchAttr1} &nbsp;&nbsp;&nbsp; Attr2: {$rb->BatchAttr2}"; ?>
 
-                <tr id="batch-rows-<?php echo $uuid; ?>" data-uid="<?php echo $uuid; ?>" class="blue font-size-11 child-of-<?php echo $uid; ?>">
-                  <td colspan="2" class="middle text-center">
-                    <button type="button" class="btn btn-info btn-minier" style="border-radius:3px !important;" onclick="showFilterBatch('<?php echo $uid; ?>')">
+                <tr id="batch-rows-<?php echo $uuid; ?>" data-uid="<?php echo $uuid; ?>" class="blue font-size-11 child-of-<?php echo $uid; ?> hide">
+                  <td class="middle text-center">
+                    <!-- <button type="button" class="btn btn-info btn-minier" style="border-radius:3px !important;" onclick="showFilterBatch('<?php echo $uid; ?>')">
                       <i class="fa fa-external-link"></i>
-                      &nbsp; View
-                    </button>
+                    </button> -->
                   </td>
-                  <td colspan="2" class="middle italic">
+                  <td colspan="3" class="middle italic">
                     <span class="label label-success label-white middle">Batch No : <?php echo $rb->BatchNum; ?></span>
                     <span class="label label-info label-white middle">Attr 1 : <?php echo empty($rb->BatchAttr1) ? '-' : $rb->BatchAttr1; ?></span>
                     <span class="label label-default label-white middle">Attr 2 : <?php echo empty($rb->BatchAttr2) ? '-' : $rb->BatchAttr2; ?></span>

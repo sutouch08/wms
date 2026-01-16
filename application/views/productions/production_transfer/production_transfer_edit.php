@@ -13,13 +13,13 @@
 			</button>
 			<ul class="dropdown-menu dropdown-menu-right">
 					<li class="info">
-						<a href="javascript:add('P')">Save as Draft</a>
+						<a href="javascript:save('P')">Save as Draft</a>
 					</li>
 					<li class="purple">
-						<a href="javascript:add('R')">Save and Release</a>
+						<a href="javascript:save('R')">Save and Release</a>
 					</li>
 					<li class="success">
-						<a href="javascript:add('C')">Save and Close</a>
+						<a href="javascript:save('C')">Save and Close</a>
 					</li>
 			</ul>
 		</div>
@@ -28,13 +28,13 @@
 <hr class=""/>
 <div class="row">
   <!-- Left column -->
-  <?php $this->load->view('productions/production_transfer/production_transfer_add_header_left'); ?>
+  <?php $this->load->view('productions/production_transfer/production_transfer_edit_header_left'); ?>
   <!-- Right Column -->
-  <?php $this->load->view('productions/production_transfer/production_transfer_add_header_right'); ?>
+  <?php $this->load->view('productions/production_transfer/production_transfer_edit_header_right'); ?>
 </div>
 <hr class="padding-5">
 
-<?php $this->load->view('productions/production_transfer/production_transfer_add_details'); ?>
+<?php $this->load->view('productions/production_transfer/production_transfer_edit_details'); ?>
 
 <script>
   $('#fromWhsCode').select2();

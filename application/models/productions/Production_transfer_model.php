@@ -165,6 +165,18 @@ class Production_transfer_model extends CI_Model
   }
 
 
+  public function drop_all_batch($code)
+  {
+    return $this->db->where('transfer_code', $code)->delete($this->tm);
+  }
+
+
+  public function drop_all_details($code)
+  {
+    return $this->db->where('transfer_code', $code)->delete($this->td);
+  }
+
+
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     if( ! empty($ds['code']))
@@ -312,7 +324,7 @@ class Production_transfer_model extends CI_Model
     return NULL;
   }
 
-  
+
   public function get_item_batch_rows($ItemCode, array $filter = array())
   {
     $this->ms
@@ -352,6 +364,28 @@ class Production_transfer_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function get_item_batch_qty($ItemCode, $BatchNum, $WhsCode, $BinCode)
+  {
+    $rs = $this->ms
+    ->select('Q.OnHandQty AS Qty')
+    ->from('OBTN AS S')
+    ->join('OBBQ AS Q', 'S.ItemCode = Q.ItemCode AND S.AbsEntry = Q.SnBMDAbs', 'left')
+    ->join('OBIN AS B', 'Q.BinAbs = B.AbsEntry', 'left')
+    ->where('S.ItemCode', $ItemCode)
+    ->where('S.DistNumber', $BatchNum)
+    ->where('Q.WhsCode', $WhsCode)
+    ->where('B.BinCode', $BinCode)
+    ->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->Qty;
+    }
+
+    return 0;
   }
 
 

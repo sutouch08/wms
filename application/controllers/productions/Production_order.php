@@ -749,6 +749,47 @@ class Production_order extends PS_Controller
   }
 
 
+  public function sap_production_order($docNum)
+  {
+    if( ! empty($docNum))
+    {
+      $doc = $this->production_order_model->get_production_order_data($docNum);
+
+      if( ! empty($doc))
+      {
+        $this->load->helper('production_order');
+        $doc->WhsName = warehouse_name($doc->WhsCode);
+        $details = $this->production_order_model->get_production_order_details($doc->DocEntry);
+
+        if( ! empty($details))
+        {
+          $this->load->model('productions/production_order_model');
+
+          foreach($details as $rs)
+          {
+            $rs->issued = $this->production_order_model->get_issue_qty_by_item($rs->ItemCode, $doc->DocEntry, $rs->LineNum);
+          }
+        }
+
+        $ds = array(
+          'doc' => $doc,
+          'details' => $details
+        );
+
+        $this->load->view('productions/sap_production_order_detail', $ds);
+      }
+      else
+      {
+        $this->page_error();
+      }
+    }
+    else
+    {
+      $this->page_error();
+    }
+  }
+
+
   public function get_new_code($date = NULL)
   {
     $date = empty($date) ? date('Y-m-d') : $date;

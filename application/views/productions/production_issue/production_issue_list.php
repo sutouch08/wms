@@ -33,7 +33,7 @@
 			<label>User</label>
 			<select class="form-control input-sm" name="user" id="user">
 				<option value="all">All | ทั้งหมด</option>
-				<?php echo select_user('bigc.ssk'); ?>
+				<?php echo select_user($user); ?>
 			</select>
 		</div>
 

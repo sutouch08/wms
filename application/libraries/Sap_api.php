@@ -940,6 +940,226 @@ class Sap_api
 
     return $sc;
   }
+
+
+  //--- Production Issue
+  public function exportProductionReceipt($code)
+  {
+    $sc = TRUE;
+    $this->type = "PDGR";
+    $action = "create";
+    $api_path = $this->endpoint."/api/pdgr";
+    $headers = array("Content-Type:application/json","Authorization:Bearer {$this->token}");
+    $method = 'POST';
+
+    $req_start = now();
+    $req_end = now();
+
+    $this->ci->load->model('productions/production_receipt_model');
+
+    $doc = $this->ci->production_receipt_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->Status == 'C')
+      {
+        if($this->ci->production_receipt_model->is_exists_in_sap($code))
+        {
+          $sc = FALSE;
+          $this->error = "เอกสารนี้เข้าระบบ SAP แล้ว หากต้องการแก้ไข กรุณายกเลิกเอกสารบน SAP ก่อน";
+        }
+
+        if($sc === TRUE)
+        {
+          $details = $this->ci->production_receipt_model->get_details($code);
+
+          if( ! empty($details))
+          {
+            foreach($details as $rs)
+            {
+              $rs->batchRows = $this->ci->production_receipt_model->get_batch_rows($rs->id);
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "No item found";
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $currency = getConfig('CURRENCY');
+          $vat_rate = getConfig('SALE_VAT_RATE');
+          $vat_code = getConfig('SALE_VAT_CODE');
+          $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
+
+          $req = array(
+            'U_ECOMNO' => $doc->code,
+            'DocType' => 'I',
+            'CANCELED' => 'N',
+            'DocDate' => sap_date($date_add, TRUE),
+            'DocDueDate' => sap_date($date_add, TRUE),
+            'NumAtCard' => $doc->reference,
+            'Comments' => limitText($doc->remark, 250),
+            'F_E_Commerce' => 'A',
+            'F_E_CommerceDate' => sap_date(now(), TRUE),
+            'Details' => []
+          );
+
+          if( ! empty($details))
+          {
+            foreach($details as $rs)
+            {
+              $row = array(
+                'U_ECOMNO' => $doc->code,
+                'LineNum' => $rs->LineNum,
+                'BaseType' => $rs->BaseType,
+                'BaseRef' => $rs->BaseRef,
+                'BaseEntry' => $rs->BaseEntry,
+                'BaseLine' => NULL,
+                'ItemCode' => $rs->ItemCode,
+                'Dscription' => $rs->ItemName,
+                'Quantity' => floatval($rs->Qty),
+                'TranType' => $rs->TranType,
+                'unitMsr' => $rs->unitMsr,
+                'WhsCode' => get_null($rs->WhsCode),
+                'FisrtBin' => get_null($rs->BinCode),
+                'Batchs' => []
+              );
+
+              if( ! empty($rs->batchRows))
+              {
+                foreach($rs->batchRows as $br)
+                {
+                  $row['Batchs'][] = array(
+                    'BatchNum' => $br->BatchNum,
+                    'BatchQuantity' => floatval($br->Qty),
+                    'BatchAttribute1' => $br->BatchAttr1,
+                    'BatchAttribute2' => $br->BatchAttr2,
+                    'WhsCode' => $br->WhsCode,
+                    'BinCode' => $br->BinCode
+                  );
+                }
+              }
+
+              $req['Details'][] = $row;
+            }
+          }
+
+          $json = json_encode($req);
+
+          if($this->test)
+          {
+            if($this->logs_json)
+            {
+              $logs = array(
+                'trans_id' => genUid(),
+                'type' => $this->type,
+                'api_path' => $api_path,
+                'code' => $code,
+                'action' => "test",
+                'status' => "success",
+                'message' => NULL,
+                'req_start' => $req_start,
+                'req_end' => $req_end,
+                'request_json' => $json,
+                'response_json' => NULL
+              );
+
+              $this->ci->sap_api_logs_model->add_logs($logs);
+            }
+          }
+          else
+          {
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => $api_path,
+              CURLOPT_RETURNTRANSFER => TRUE,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => TRUE,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => $method,
+              CURLOPT_POSTFIELDS => $json,
+              CURLOPT_HTTPHEADER => $headers
+            ));
+
+            $req_start = now();
+            $response = curl_exec($curl);
+            curl_close($curl);
+            $req_end = now();
+            $res = json_decode($response);
+
+            if( ! empty($res) && ! empty($res->Code))
+            {
+              if($res->Code == 200 && ! empty($res->DocNum))
+              {
+                $arr = array(
+                  'is_export' => 'Y',
+                  'inv_code' => $res->DocNum
+                );
+
+                $this->ci->production_receipt_model->update($code, $arr);
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "Error : {$res->Message}";
+
+                if(empty($doc->inv_code))
+                {
+                  $arr = array(
+                    'is_export' => 'E'
+                  );
+
+                  $this->ci->production_receipt_model->update($code, $arr);
+                }
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "No response data";
+            }
+
+            if($this->logs_json)
+            {
+              $logs = array(
+                'trans_id' => genUid(),
+                'type' => $this->type,
+                'api_path' => $api_path,
+                'code' => $code,
+                'action' => $action,
+                'status' => $sc === TRUE ? 'success' : 'failed',
+                'message' => $sc === TRUE ? 'success' : $this->error,
+                'req_start' => $req_start,
+                'req_end' => $req_end,
+                'request_json' => $json,
+                'response_json' => $response
+              );
+
+              $this->ci->sap_api_logs_model->add_logs($logs);
+            }
+          }
+        } //-- $sc == TRUE
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid document status";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Invalid document number";
+    }
+
+    return $sc;
+  }
 } //-- end class
 
  ?>

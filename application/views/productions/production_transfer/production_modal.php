@@ -17,7 +17,7 @@
 									 <th class="fix-width-80 fix-header">Warehouse</th>
 									 <th class="fix-width-80 fix-header">Planned Qty</th>
 									 <th class="fix-width-80 fix-header">Issued Qty</th>
-									 <th class="fix-width-80 fix-header">Balance Qty</th>
+									 <th class="fix-width-80 fix-header">Open Qty</th>
 									 <th class="fix-width-80 fix-header">In Stock</th>
 									 <th class="fix-width-80 fix-header">Qty</th>
 									 <th class="fix-width-100 fix-header">Uom</th>
@@ -53,7 +53,7 @@
 				<td class="middle">{{fromWhsCode}}</td>
 				<td class="middle text-right">{{PlannedQty}}</td>
 				<td class="middle text-right">{{IssuedQty}}</td>
-				<td class="middle text-right"><input type="text" class="form-control input-xs text-label" value="{{BalanceQty}}" readonly /></td>
+				<td class="middle text-right"><input type="text" class="form-control input-xs text-label text-right" value="{{BalanceQty}}" readonly /></td>
 				<td class="middle text-right">{{InStock}}</td>
 				<td class="middle">
 					<input type="text" class="form-control input-xs text-right pi-qty"

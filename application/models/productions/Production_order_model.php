@@ -237,7 +237,7 @@ class Production_order_model extends CI_Model
     {
       $this->db->where('is_exported', $ds['is_exported']);
     }
-    
+
     return $this->db->count_all_results($this->tb);
   }
 
@@ -277,6 +277,50 @@ class Production_order_model extends CI_Model
     $count = $this->ms->where('U_ECOMNO', $code)->where('Status !=', 'C')->count_all_results('OWOR');
 
     return $count > 0 ? TRUE : FALSE;
+  }
+
+
+  public function get_production_order_data($code)
+  {
+    $rs = $this->ms
+    ->select('o.DocEntry, o.DocNum, o.Type, o.ItemCode, o.ProdName AS ItemName, o.Warehouse AS WhsCode, o.Status')
+    ->select('o.PostDate, o.DueDate, o.RlsDate AS ReleaseDate, o.OriginNum, o.OriginType, o.CardCode')
+    ->select('o.PlannedQty, o.CmpltQty AS CompleteQty, o.RjctQty AS RejectQty, o.Uom, o.UomEntry, u.UomCode, i.ManBtchNum')
+    ->from('OWOR AS o')
+    ->join('OITM AS i', 'o.ItemCode = i.ItemCode', 'left')
+    ->join('OUOM AS u', 'o.UomEntry = u.UomEntry', 'left')
+    ->where('o.DocNum', $code)
+    ->where('o.Status', 'R')
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_production_order_details($DocEntry)
+  {
+    $rs = $this->ms
+    ->select('o.DocEntry, p.DocNum, o.LineNum, o.ItemCode, o.BaseQty, o.PlannedQty, o.IssuedQty, o.IssueType, o.wareHouse')
+    ->select('o.UomEntry, o.UomCode, u.UomName, o.ItemType')
+    ->select('i.ItemName, i.ManBtchNum')
+    ->from('WOR1 AS o')
+    ->join('OWOR AS p', 'o.DocEntry = p.DocEntry', 'left')
+    ->join('OITM AS i', 'o.ItemCode = i.ItemCode', 'left')
+    ->join('OUOM AS u', 'o.UomEntry = u.UomEntry', 'left')
+    ->where('o.DocEntry', $DocEntry)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

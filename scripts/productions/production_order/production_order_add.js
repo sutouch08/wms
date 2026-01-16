@@ -763,6 +763,32 @@ function createProductionTransfer(code) {
 }
 
 
+function createGoodsIssue(code) {
+  let docNum = $('#doc-num').val().trim();
+
+  if(docNum.length) {
+    let target = BASE_URL + 'productions/production_issue/add_new/'+code;
+    window.open(target, '_blank');
+  }
+  else {
+    showError('เอกสารยังไม่เข้า SAP กรุณาตรวจสอบ');
+  }
+}
+
+
+function createGoodsReceipt(code) {
+  let docNum = $('#doc-num').val().trim();
+
+  if(docNum.length) {
+    let target = BASE_URL + 'productions/production_receipt/add_new/'+code;
+    window.open(target, '_blank');
+  }
+  else {
+    showError('เอกสารยังไม่เข้า SAP กรุณาตรวจสอบ');
+  }
+}
+
+
 function viewTQ() {
   let code = $('#tq-list').val();
 

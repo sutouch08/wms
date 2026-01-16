@@ -1044,6 +1044,28 @@ class Dispatch extends PS_Controller
   }
 
 
+  public function remove_orders_from_pending()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
+    {
+      if( ! $this->dispatch_model->remove_orders_from_pending($ds))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to update orders";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+  
 
   private function get_new_code($date = NULL)
   {

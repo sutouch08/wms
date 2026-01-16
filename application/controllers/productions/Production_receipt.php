@@ -30,6 +30,7 @@ class Production_receipt extends PS_Controller
       'code' => get_filter('code', 'receipt_code', ''),
       'reference' => get_filter('reference', 'receipt_reference', ''),
       'order_ref' => get_filter('order_ref', 'receipt_order_ref', ''),
+      'item_code' => get_filter('item_code', 'receipt_item_code', ''),
       'from_date' => get_filter('from_date', 'receipt_from_date', ''),
       'to_date' => get_filter('to_date', 'receipt_to_date', ''),
       'user' => get_filter('user', 'receipt_user', 'all'),
@@ -147,7 +148,7 @@ class Production_receipt extends PS_Controller
         {
           if($sc === FALSE) { break;}
 
-          if($rs->hasBatch == 0 && (empty($rs->BinCode) OR empty($rs->WhsCode)))
+          if(empty($rs->BinCode) OR empty($rs->WhsCode))
           {
             $sc = FALSE;
             $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode}";
@@ -161,12 +162,12 @@ class Production_receipt extends PS_Controller
               'BaseType' => $rs->BaseType,
               'BaseRef' => $rs->BaseRef,
               'BaseEntry' => $rs->BaseEntry,
-              'BaseLine' => $rs->BaseLine,
               'ItemCode' => $rs->ItemCode,
               'ItemName' => $rs->ItemName,
-              'WhsCode' => $rs->hasBatch == 0 ? $rs->WhsCode : NULL,
-              'BinCode' => $rs->hasBatch == 0 ? $rs->BinCode : NULL,
+              'WhsCode' => $rs->WhsCode,
+              'BinCode' => $rs->BinCode,
               'Qty' => $rs->Qty,
+              'TranType' => $rs->TranType,
               'UomEntry' => $rs->UomEntry,
               'UomCode' => $rs->UomCode,
               'unitMsr' => $rs->Uom,
@@ -202,8 +203,8 @@ class Production_receipt extends PS_Controller
                       'BatchAttr1' => get_null($ro->BatchAttr1),
                       'BatchAttr2' => get_null($ro->BatchAttr2),
                       'Qty' => $ro->Qty,
-                      'WhsCode' => $ro->WhsCode,
-                      'BinCode' => $ro->BinCode,
+                      'WhsCode' => $rs->WhsCode,
+                      'BinCode' => $rs->BinCode,
                       'uid' => $ro->uid
                     );
 
@@ -215,17 +216,17 @@ class Production_receipt extends PS_Controller
 
                     if($sc === TRUE)
                     {
-                      $move_out = array(
+                      $move_in = array(
                         'reference' => $code,
-                        'warehouse_code' => $ro->WhsCode,
-                        'zone_code' => $ro->BinCode,
+                        'warehouse_code' => $rs->WhsCode,
+                        'zone_code' => $rs->BinCode,
                         'product_code' => $ro->ItemCode,
                         'batchNum' => $ro->BatchNum,
-                        'move_in' => 0,
-                        'move_out' => $ro->Qty
+                        'move_in' => $ro->Qty,
+                        'move_out' => 0
                       );
 
-                      if( ! $this->movement_model->add($move_out))
+                      if( ! $this->movement_model->add($move_in))
                       {
                         $sc = FALSE;
                         $this->error = "Failed to insert stock movement out for {$ro->ItemCode} : {$ro->BatchNum}";
@@ -236,16 +237,16 @@ class Production_receipt extends PS_Controller
               }
               else
               {
-                $move_out = array(
+                $move_in = array(
                   'reference' => $code,
                   'warehouse_code' => $rs->WhsCode,
                   'zone_code' => $rs->BinCode,
                   'product_code' => $rs->ItemCode,
-                  'move_in' => 0,
-                  'move_out' => $rs->Qty
+                  'move_in' => $rs->Qty,
+                  'move_out' => 0
                 );
 
-                if( ! $this->movement_model->add($move_out))
+                if( ! $this->movement_model->add($move_in))
                 {
                   $sc = FALSE;
                   $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
@@ -276,7 +277,7 @@ class Production_receipt extends PS_Controller
         {
           $this->load->library('sap_api');
 
-          if( ! $this->sap_api->exportProductionIssue($code))
+          if( ! $this->sap_api->exportProductionReceipt($code))
           {
             $sc = FALSE;
             $ex = 1;
@@ -441,40 +442,6 @@ class Production_receipt extends PS_Controller
   }
 
 
-  public function print_pick_list($code)
-  {
-    $doc = $this->production_receipt_model->get($code);
-
-    if( ! empty($doc))
-    {
-      $this->load->library('printer');
-
-      $details = $this->production_receipt_model->get_details($code);
-
-      if( ! empty($details))
-      {
-        $no = 1;
-
-        foreach($details as $rs)
-        {
-          $rs->batchRows = $this->production_receipt_model->get_batch_rows($rs->id);
-        }
-      }
-
-      $ds = array(
-        'doc' => $doc,
-        'details' => $details
-      );
-
-      $this->load->view('print/print_transfer_pick_list', $ds);
-    }
-    else
-    {
-      $this->page_error();
-    }
-  }
-
-
   public function do_export()
   {
     $sc = TRUE;
@@ -492,7 +459,7 @@ class Production_receipt extends PS_Controller
           {
             $this->load->library('sap_api');
 
-            if( ! $this->sap_api->exportProductionIssue($code))
+            if( ! $this->sap_api->exportProductionReceipt($code))
             {
               $sc = FALSE;
               $this->error = "Send to SAP failed : {$this->sap_api->error}";
@@ -595,166 +562,44 @@ class Production_receipt extends PS_Controller
   }
 
 
-  public function get_production_order_details()
+  public function sap_production_order($docNum)
   {
-    $sc = TRUE;
-    $code = $this->input->post('baseCode');
-
-    if( ! empty($code))
+    if( ! empty($docNum))
     {
-      $pdo = $this->production_receipt_model->get_production_order($code);
+      $doc = $this->production_receipt_model->get_production_order_data($docNum);
 
-      if( ! empty($pdo))
+      if( ! empty($doc))
       {
-        $details = $this->production_receipt_model->get_production_order_details($pdo->DocEntry);
+        $this->load->helper('production_order');
+        $doc->WhsName = warehouse_name($doc->WhsCode);
+        $details = $this->production_receipt_model->get_production_order_details($doc->DocEntry);
 
-        if(! empty($details))
+        if( ! empty($details))
         {
+          $this->load->model('productions/production_order_model');
+
           foreach($details as $rs)
           {
-            $balance = $rs->PlannedQty - $rs->IssuedQty;
-            $instock = $this->stock_model->get_item_stock($rs->ItemCode,  $rs->wareHouse);
-
-            $rs->uid = genUid();
-            $rs->BaseType = 202;
-            $rs->whsCode = $rs->wareHouse;
-            $rs->PlannedQty = number($rs->PlannedQty, 2);
-            $rs->IssuedQty = number($rs->IssuedQty, 2);
-            $rs->OpenQty = $balance > 0 ? number($balance, 2) : 0.00;
-            $rs->InStock = number($instock, 2);
+            $rs->issued = $this->production_order_model->get_issue_qty_by_item($rs->ItemCode, $doc->DocEntry, $rs->LineNum);
           }
         }
-        else
-        {
-          $sc = FALSE;
-          set_error('notfound');
-        }
-      }
-      else
-      {
-        $sc = FALSE;
-        set_error('notfound');
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      set_error('required');
-    }
 
-    $arr = array(
-      'status' => $sc === TRUE ? 'success' : 'failed',
-      'message' => $sc === TRUE ? 'success' : $this->error,
-      'data' => $sc === TRUE ? $details : NULL
-    );
-
-    echo json_encode($arr);
-  }
-
-
-  public function get_item_batch_rows()
-  {
-    $sc = TRUE;
-    $ds = json_decode($this->input->post('filter'));
-
-    $data = [];
-
-    if( ! empty($ds) && ! empty($ds->ItemCode))
-    {
-      $filter = array(
-        'WhsCode' => $ds->WhsCode,
-        'BatchNum' => $ds->BatchNum,
-        'BatchAttr1' => $ds->BatchAttr1,
-        'BatchAttr2' => $ds->BatchAttr2
-      );
-
-      $rows = $this->production_receipt_model->get_item_batch_rows($ds->ItemCode, $filter);
-
-      if( ! empty($rows))
-      {
-        foreach($rows as $rs)
-        {
-          $uid = md5($rs->ItemCode.$rs->BatchNum.$rs->BinCode);
-          $rs->uid = substr($uid, -13);
-          $rs->Qty = number($rs->Qty, 2);
-          $data[] = $rs;
-        }
-      }
-      else
-      {
-        $data[] = ['nodata' => 'nodata'];
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      set_error('required');
-    }
-
-    $arr = array(
-      'status' => $sc === TRUE ? 'success' : 'failed',
-      'message' => $sc === TRUE ? 'success' : $this->error,
-      'data' => $data
-    );
-
-    echo json_encode($arr);
-  }
-
-
-  public function get_item_code_and_nam()
-  {
-    $ds = [];
-    $txt = trim($_REQUEST['term']);
-
-    $this->ms
-    ->select('i.ItemCode, i.ItemName, i.ManBtchNum, i.InvntryUom AS Uom, i.IUoMEntry AS UomEntry, u.UomCode')
-    ->from('OITM AS i')
-    ->join('OUOM AS u', 'i.IUoMEntry = u.UomEntry', 'left');
-
-    if($txt != '*')
-    {
-      $this->ms->like('i.ItemCode', $txt);
-    }
-
-    $rs = $this->ms->order_by('i.ItemCode', 'ASC')->limit(100)->get();
-
-    if($rs->num_rows() > 0)
-    {
-      foreach($rs->result() as $rd)
-      {
-        $ds[] = array(
-          'label' => $rd->ItemCode.' | '.$rd->ItemName,
-          'ItemCode' => $rd->ItemCode,
-          'ItemName' => $rd->ItemName,
-          'hasBatch' => $rd->ManBtchNum,
-          'Uom' => $rd->Uom,
-          'UomEntry' => $rd->UomEntry,
-          'UomCode' => $rd->UomCode
+        $ds = array(
+          'doc' => $doc,
+          'details' => $details
         );
+
+        $this->load->view('productions/sap_production_order_detail', $ds);
+      }
+      else
+      {
+        $this->page_error();
       }
     }
     else
     {
-      $ds = ['notfount'];
+      $this->page_error();
     }
-
-    echo json_encode($ds);
-  }
-
-
-  public function get_available_stock()
-  {
-    $ItemCode = $this->input->post('ItemCode');
-    $WhsCode = $this->input->post('WhsCode');
-
-    $qty = $this->stock_model->get_item_stock($ItemCode, $WhsCode);
-
-    $arr = array(
-      'status' => 'success',
-      'available' => number($qty, 2)
-    );
-
-    echo json_encode($arr);
   }
 
 
@@ -786,6 +631,7 @@ class Production_receipt extends PS_Controller
   {
     $filter = array(
       'receipt_code',
+      'receipt_order_ref',
       'receipt_reference',
       'receipt_from_date',
       'receipt_to_date',

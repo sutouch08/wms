@@ -1,6 +1,7 @@
 window.addEventListener('load', () => {
   binCodeInit();
   baseRefInit();
+  detailsInit();
 });
 
 var click = 0;
@@ -46,10 +47,13 @@ $('#base-ref').keyup(function(e) {
 })
 
 
-function binCodeInit() {
+function binCodeInit(change) {
   let whsCode = $('#toWhsCode').val();
-  $('#bin-code').val('');
-  $('#bin-name').val('');
+
+  if(change == 'Y') {
+    $('#bin-code').val('');
+    $('#bin-name').val('');
+  }
 
   $('#bin-code').autocomplete({
     source:BASE_URL + 'auto_complete/get_zone_code_and_name/'+whsCode,
@@ -58,8 +62,10 @@ function binCodeInit() {
       let arr = $(this).val().split(' | ');
 
       if(arr.length == 2) {
-        $(this).val(arr[0]);
-        $('#bin-name').val(arr[1]);
+        let code = arr[0];
+        let name = arr[1] == '' ? code : arr[1];
+        $(this).val(code);
+        $('#bin-name').val(name);
 
         if($('.to-bin').length) {
           $('.to-bin').val(arr[0]);
@@ -82,7 +88,7 @@ function binCodeInit() {
 }
 
 
-function add() {
+function add(type) {
   if(click == 0) {
     click = 1;
 
@@ -90,6 +96,7 @@ function add() {
     clearErrorByClass('r');
 
     let h = {
+      'type' : type,
       'date_add' : $('#date-add').val().trim(),
       'shipped_date' : $('#posting-date').val().trim(),
       'fromWhsCode' : $('#fromWhsCode').val(),
@@ -128,24 +135,6 @@ function add() {
       click = 0;
       return false;
     }
-
-    // if(h.baseRef == "") {
-    //   $('#base-ref').hasError();
-    //   click = 0;
-    //   return false;
-    // }
-    //
-    // if(h.baseRef != prevBaseRef) {
-    //   $('#base-ref').hasError();
-    //   click = 0;
-    //   swal({
-    //     title:'Error',
-    //     text:'Production order มีการเปลี่ยนแปลง',
-    //     type:'error'
-    //   });
-    //
-    //   return false;
-    // }
 
     let error = 0;
     let errMsg = "";
@@ -326,6 +315,18 @@ function add() {
       return false;
     }
 
+
+    if(type != 'P' && h.rows.length == 0) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:'ไม่พบรายการโอนย้าย',
+        type:'error'
+      });
+
+      return false;
+    }
+
     // console.log(h); click = 0; return false;
 
     if(sc === true) {
@@ -333,6 +334,306 @@ function add() {
 
       $.ajax({
         url:HOME + 'add',
+        type:'POST',
+        cache:false,
+        data:{
+          'data' : JSON.stringify(h)
+        },
+        success:function(rs) {
+          click = 0;
+          load_out();
+
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+
+            if(ds.status === 'success') {
+
+              if(ds.ex == 0) {
+                swal({
+                  title:'Success',
+                  type:'success',
+                  timer:1000
+                });
+
+                setTimeout(() => {
+                  viewDetail(ds.code);
+                }, 1200);
+              }
+              else {
+                swal({
+                  title:'Oops !',
+                  text:ds.message,
+                  type:'info'
+                }, function() {
+                  viewDetail(ds.code);
+                })
+              }
+            }
+            else {
+              showError(ds.message);
+            }
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          click = 0;
+          showError(rs);
+        }
+      })
+    }
+  }
+}
+
+//--- update
+function save(type) {
+  if(click == 0) {
+    click = 1;
+
+    clearErrorByClass('h');
+    clearErrorByClass('r');
+
+    let h = {
+      'code' : $('#code').val().trim(),
+      'type' : type,
+      'date_add' : $('#date-add').val().trim(),
+      'shipped_date' : $('#posting-date').val().trim(),
+      'fromWhsCode' : $('#fromWhsCode').val(),
+      'toWhsCode' : $('#toWhsCode').val(),
+      'toBinCode' : $('#bin-code').val().trim(),
+      'baseRef' : $('#base-ref').val().trim(),
+      'orderRef' : $('#order-ref').val().trim(),
+      'itemCode' : $('#base-item').val().trim(),
+      'remark' : $('#remark').val().trim(),
+      'rows' : []
+    };
+
+    let prevBaseRef = $('#base-ref').data('prev');
+
+    if( ! isDate(h.date_add)) {
+      $('#date-add').hasError();
+      click = 0;
+      return false;
+    }
+
+    if(h.fromWhsCode == "") {
+      $('#fromWhsCode').hasError();
+      click = 0;
+      return false;
+    }
+
+    if(h.toWhsCode == "") {
+      $('#toWhsCode').hasError();
+      click = 0;
+      return false;
+    }
+
+    if(h.toWhsCode == h.fromWhsCode) {
+      $('#fromWhsCode').hasError();
+      $('#toWhsCode').hasError();
+      click = 0;
+      return false;
+    }
+
+    let error = 0;
+    let errMsg = "";
+    let line = 0;
+    let sc = true;
+
+    $('.tran-qty').each(function() {
+      if(sc === true) {
+        let el = $(this);
+        let uid = el.data('uid');
+        let fromWhsCode = $('#from-whs-'+uid).val().trim();
+        let toWhsCode = $('#to-whs-'+uid).val().trim();
+        let fromBinCode = $('#from-bin-'+uid).val().trim();
+        let toBinCode = $('#to-bin-'+uid).val().trim();
+        let trQty = parseDefaultFloat(removeCommas(el.val()), 0);
+        let trStock = parseDefaultFloat(removeCommas($('#instock-'+uid).val()), 0);
+        let hasBatch = el.data('hasbatch') == 'Y' ? 1 : 0;
+
+        if(trQty <= 0) {
+          el.hasError();
+          sc = false;
+          errMsg = "จำนวนไม่ถูกต้อง";
+          return false;
+        }
+
+        if(sc === true) {
+          if(toWhsCode.length == 0) {
+            sc = false;
+            $('#to-whs-'+uid).hasError();
+            errMsg = "กรุณาระบุคลังปลายทาง";
+            return false;
+          }
+        }
+
+        if(sc === true) {
+          if(toBinCode.length == 0) {
+            sc = false;
+            $('#to-bin-'+uid).hasError();
+            errMsg = "กรุณาระบุโซนปลายทาง";
+            return false;
+          }
+        }
+
+        if(sc === true) {
+          if(hasBatch == 0) {
+            if(fromWhsCode.length == 0) {
+              sc = false;
+              $('#from-whs-'+uid).hasError();
+              errMsg = "กรุณาระบุคลังต้นทาง";
+              return false;
+            }
+
+            if(fromBinCode.length == 0) {
+              sc = false;
+              $('#from-bin-'+uid).hasError();
+              errMsg = "กรุณาระบุโซนต้นทาง";
+              return false;
+            }
+          }
+        }
+
+        if(sc === true) {
+          if(hasBatch == 0 && trStock < trQty) {
+            sc = false;
+            el.hasError();
+            errMsg = 'จำนวนคงเหลือต้นทางไม่พอโอน กรุณาแก้ไข';
+            return false;
+          }
+        }
+
+        if(sc === true) {
+          if(hasBatch == 1) {
+            if($('.child-of-'+uid).length == 0) {
+              sc = false;
+              $('#item-code-'+uid).hasError();
+              errMsg = "กรุณาระบุ Batch";
+              return false;
+            }
+          }
+        }
+
+        if(sc === true) {
+          let itemCode = el.data('code');
+          let itemName = el.data('name');
+
+          let row = {
+            'uid' : uid,
+            'LineNum' : line,
+            'hasBatch' : hasBatch,
+            'ItemCode' : itemCode,
+            'ItemName' : itemName,
+            'fromWhsCode' : fromWhsCode,
+            'toWhsCode' : toWhsCode,
+            'fromBinCode' : fromBinCode,
+            'toBinCode' : toBinCode,
+            'Qty' : trQty,
+            'Uom' : el.data('uom'),
+            'UomCode' : el.data('uomcode'),
+            'UomEntry' : el.data('uomentry'),
+            'batchRows' : []
+          };
+
+          if(hasBatch == 1) {
+            let sumBatchQty = 0;
+
+            $('.child-of-'+uid).each(function() {
+              if(sc === false) { return false; }
+
+              let uuid = $(this).data('uid');
+              let ro = $('#batch-qty-'+uuid);
+              let bQty = parseDefaultFloat(ro.val(), 0);
+              let bStock = parseDefaultFloat(removeCommas($('#batch-in-stock-'+uuid).val()), 0);
+              let bToWhs = $('#batch-toWhs-'+uuid).val().trim();
+              let bToBin = $('#batch-toBin-'+uuid).val().trim();
+
+              sumBatchQty += bQty;
+
+              if(bQty > bStock) {
+                sc = false;
+                ro.hasError();
+                errMsg = "จำนวนคงเหลือต้นทางไม่พอโอน กรุณาแก้ไข";
+                return false;
+              }
+
+              if(bToWhs.length == 0) {
+                sc = false;
+                $('#batch-toWhs-'+uuid).hasError();
+                errMsg = "กรุณาระบุคลังปลายทาง";
+                return false;
+              }
+
+              if(bToBin.length == 0) {
+                sc = false;
+                $('#batch-toBin-'+uuid).hasError();
+                errMsg = "กรุณาระบุโซนปลายทาง";
+                return false;
+              }
+
+              row.batchRows.push({
+                'ItemCode' : itemCode,
+                'ItemName' : itemName,
+                'BatchNum' : ro.data('batchnum'),
+                'BatchAttr1' : ro.data('attr1'),
+                'BatchAttr2' : ro.data('attr2'),
+                'Qty' : bQty,
+                'fromWhsCode' : ro.data('fromwhs'),
+                'fromBinCode' : ro.data('frombin'),
+                'toWhsCode' : bToWhs,
+                'toBinCode' : bToBin,
+                'uid' : uuid
+              });
+
+            });
+
+            if(trQty != sumBatchQty) {
+              el.hasError();
+              sc = false;
+              errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข";
+              return false;
+            }
+          }
+
+          h.rows.push(row);
+          line++;
+        }
+      } //--- end sc
+
+    }); //--- each
+
+    if(sc === false) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:errMsg,
+        type:'error'
+      });
+
+      return false;
+    }
+
+
+    if(type != 'P' && h.rows.length == 0) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:'ไม่พบรายการโอนย้าย',
+        type:'error'
+      });
+
+      return false;
+    }
+
+    // console.log(h); click = 0; return false;
+
+    if(sc === true) {
+      load_in();
+
+      $.ajax({
+        url:HOME + 'save',
         type:'POST',
         cache:false,
         data:{
@@ -491,6 +792,24 @@ function addToOrder() {
 }
 
 
+function detailsInit() {
+  $('.tran-qty').each(function() {
+    let uid = $(this).data('uid');
+    fromWhsInit(uid);
+    toWhsInit(uid);
+    fromBinInit(uid);
+    toBinInit(uid);
+
+    $('.child-of-' + uid).each(function() {
+      let uuid = $(this).data('uid');
+
+      batchToWhsInit(uuid);
+      batchToBinInit(uuid);
+    })
+  })
+}
+
+
 function chooseAll() {
   $('.pi-qty').each(function() {
     let el = $(this);
@@ -544,7 +863,7 @@ function fromBinInit(uid, clear) {
   let fromWhsCode = $('#from-whs-'+uid).val();
 
   if(clear) {
-    $('#from-bin-'+uid).val('');    
+    $('#from-bin-'+uid).val('');
   }
 
   $('#from-bin-'+uid).autocomplete({
@@ -645,9 +964,11 @@ function batchToWhsInit(uid) {
 }
 
 
-function batchToBinInit(uid) {
-  $('#batch-toBin-'+uid).val('');
+function batchToBinInit(uid, clear) {
   let whsCode = $('#batch-toWhs-'+uid).val();
+  if(clear) {
+    $('#batch-toBin-'+uid).val('');
+  }
 
   $('#batch-toBin-'+uid).autocomplete({
     source:BASE_URL + 'auto_complete/get_zone_code_and_name/'+whsCode,
