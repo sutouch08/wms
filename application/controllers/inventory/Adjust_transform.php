@@ -420,77 +420,69 @@ class Adjust_transform extends PS_Controller
       {
         if($doc->status != 2)
         {
-          if(empty($doc->issue_code))
-          {
-            $sap = $this->adjust_transform_model->get_sap_issue_doc($code);
+          $sap = $this->adjust_transform_model->get_sap_issue_doc($code);
 
-            if($sap === FALSE)
+          if($sap === FALSE)
+          {
+            $middle = $this->adjust_transform_model->get_middle_goods_issue($code);
+            if(!empty($middle))
             {
-              $middle = $this->adjust_transform_model->get_middle_goods_issue($code);
-              if(!empty($middle))
+              foreach($middle as $rs)
               {
-                foreach($middle as $rs)
+                $this->adjust_transform_model->drop_middle_issue_data($rs->DocEntry);
+              }
+            }
+
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_begin();
+              //---- set is_cancle = 1 in adjust_detail
+              if(! $this->adjust_transform_model->cancle_details($code))
+              {
+                $sc = FALSE;
+                $this->error = "ยกเลิกรายการไม่สำเร็จ";
+              }
+
+              //--- change doc status to 2 Cancled
+              if($sc === TRUE)
+              {
+                $arr = array(
+                  'issue_code' => NULL,
+                  'status' => 2,
+                  'cancle_reason' => trim($this->input->post('reason')),
+                  'cancle_user' => $this->_user->uname
+                );
+
+                if(! $this->adjust_transform_model->update($code, $arr))
                 {
-                  $this->adjust_transform_model->drop_middle_issue_data($rs->DocEntry);
+                  $sc = FALSE;
+                  $this->error = "ยกเลิกเอกสารไม่สำเร็จ";
                 }
+              }
+
+              //--- remove transform reference
+              if($sc === TRUE)
+              {
+                $this->transform_model->update_reference($doc->reference, NULL);
               }
 
 
               if($sc === TRUE)
               {
-                $this->db->trans_begin();
-                //---- set is_cancle = 1 in adjust_detail
-                if(! $this->adjust_transform_model->cancle_details($code))
-                {
-                  $sc = FALSE;
-                  $this->error = "ยกเลิกรายการไม่สำเร็จ";
-                }
-
-                //--- change doc status to 2 Cancled
-                if($sc === TRUE)
-                {
-                  $arr = array(
-                    'issue_code' => NULL,
-                    'status' => 2,
-                    'cancle_reason' => trim($this->input->post('reason')),
-                    'cancle_user' => $this->_user->uname
-                  );
-
-                  if(! $this->adjust_transform_model->update($code, $arr))
-                  {
-                    $sc = FALSE;
-                    $this->error = "ยกเลิกเอกสารไม่สำเร็จ";
-                  }
-                }
-
-                //--- remove transform reference
-                if($sc === TRUE)
-                {
-                  $this->transform_model->update_reference($doc->reference, NULL);
-                }
-
-
-                if($sc === TRUE)
-                {
-                  $this->db->trans_commit();
-                }
-                else
-                {
-                  $this->db->trans_rollback();
-                }
-
+                $this->db->trans_commit();
               }
-            }
-            else
-            {
-              $sc = FALSE;
-              $this->error = "เอกสารเข้า SAP แล้วไม่สามารถยกเลิกได้";
+              else
+              {
+                $this->db->trans_rollback();
+              }
+
             }
           }
           else
           {
             $sc = FALSE;
-            $this->error = "เอกสารเข้า SAP แล้วไม่อนุญาติให้แก้ไข";
+            $this->error = "เอกสารเข้า SAP แล้วไม่สามารถยกเลิกได้";
           }
         }
       }
