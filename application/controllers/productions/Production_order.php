@@ -62,6 +62,7 @@ class Production_order extends PS_Controller
   public function add()
   {
     $sc = TRUE;
+    $ex = 0;
     $ds = json_decode($this->input->post('data'));
     $code = NULL;
 
@@ -69,6 +70,7 @@ class Production_order extends PS_Controller
     {
       if( ! empty($ds->ItemCode) && ! empty($ds->PostDate) && ! empty($ds->rows))
       {
+        $ds->Status = $ds->Status == 'R' ? 'R' : 'P';
         $doc_date = db_date($ds->PostDate);
         $due_date = db_date($ds->DueDate);
 
@@ -141,6 +143,20 @@ class Production_order extends PS_Controller
         {
           $this->db->trans_rollback();
         }
+
+        if($sc === TRUE && $ds->Status == 'R')
+        {
+          if(is_true(getConfig('SAP_API')))
+          {
+            $this->load->library('sap_api');
+
+            if( ! $this->sap_api->exportProductionOrder($code))
+            {
+              $ex = 1;
+              $this->error = "Create Document Success But Failed to send data to SAP";
+            }
+          }
+        }
       }
       else
       {
@@ -157,6 +173,7 @@ class Production_order extends PS_Controller
     $arr = array(
       'status' => $sc === TRUE ? 'success' : 'failed',
       'message' => $sc === TRUE ? 'success' : $this->error,
+      'ex' => $ex,
       'code' => $code
     );
 
@@ -285,7 +302,7 @@ class Production_order extends PS_Controller
 
           if($sc === TRUE)
           {
-            if($ds->Status === 'R' OR $doc->Status == 'C')
+            if($ds->Status === 'R')
             {
               if(is_true(getConfig('SAP_API')))
               {
@@ -335,7 +352,9 @@ class Production_order extends PS_Controller
     $ds = array(
       'doc' => $doc,
       'details' => $this->production_order_model->get_details($code),
-      'transferRef' => $this->production_order_model->get_transfer_ref($code)
+      'transferRef' => $this->production_order_model->get_transfer_ref($code),
+      'issueRef' => $this->production_order_model->get_issue_ref($code),
+      'receiptRef' => $this->production_order_model->get_receipt_ref($code)
     );
 
     if( ! empty($doc))
@@ -355,44 +374,147 @@ class Production_order extends PS_Controller
 
     $code = $this->input->post('code');
 
-    if( ! empty($code))
+    if(empty($code))
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    if( $sc === TRUE && ! empty($code))
     {
       $doc = $this->production_order_model->get($code);
 
-      if( ! empty($doc))
+      if(empty($doc))
       {
-        if($doc->Status == 'R' OR $doc->Status == 'C')
-        {
-          if($doc->Status == 'R')
-          {
-            $arr = array(
-              'Status' => 'C',
-              'update_user' => $this->_user->uname
-            );
+        $sc = FALSE;
+        set_error('notfound');
+      }
 
-            if( ! $this->production_order_model->update($code, $arr))
+      if($sc === TRUE && $doc->Status != 'R')
+      {
+        $sc = FALSE;
+        set_error('status');
+      }
+
+      if($sc === TRUE)
+      {
+        $pdo = $this->production_order_model->get_production_order($doc->inv_code);
+
+        if(empty($pdo))
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Sap No";
+        }
+      }
+
+      if($sc === TRUE && $pdo->Status != 'R' && $pdo->Status != 'L')
+      {
+        //--L = Close
+        $sc = FALSE;
+        $this->error = "Invalid Sap Production Status";
+      }
+
+      if($sc === TRUE && $pdo->Status == 'R')
+      {
+        if(is_true(getConfig('SAP_API')))
+        {
+          $this->load->library('sap_api');
+
+          if( ! $this->sap_api->closeProductionOrder($code))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to Close Sap Production";
+          }
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        $arr = array(
+          'Status' => 'C',
+          'update_user' => $this->_user->uname,
+          'date_upd' => now()
+        );
+
+        if( ! $this->production_order_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          set_error('update');
+        }
+      }
+    }
+
+    $this->_response($sc);
+  }
+
+
+  public function cancel()
+  {
+    $sc = TRUE;
+
+    if($this->pm->can_delete)
+    {
+      $code = $this->input->post('code');
+      $reason = $this->input->post('reason');
+      $force = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
+
+      if( ! empty($code) && ! empty($reason))
+      {
+        $doc = $this->production_order_model->get($code);
+
+        if( ! empty($doc))
+        {
+          if($doc->Status != 'D')
+          {
+            if($doc->Status == 'R' OR $doc->Status == 'C')
             {
-              $sc = FALSE;
-              set_error('update');
+              if($this->production_order_model->is_exists_in_sap($doc->code) && is_true(getConfig('SAP_API')))
+              {
+                $this->load->library('sap_api');
+
+                if( ! $this->sap_api->cancelProductionOrder($doc->code))
+                {
+                  $sc = FALSE;
+                  $this->error = $this->sap_api->error;
+                }
+              }
+            }
+
+            if($sc === TRUE)
+            {
+              $arr = array(
+                'Status' => 'D',
+                'update_user' => $this->_user->uname,
+                'cancel_user' => $this->_user->uname,
+                'cancel_reason' => get_null($reason),
+                'cancel_date' => now(),
+                'date_upd' => now()
+              );
+
+              if( ! $this->production_order_model->update($code, $arr))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update document status";
+              }
             }
           }
         }
         else
         {
           $sc = FALSE;
-          set_error('status');
+          set_error('notfound');
         }
       }
       else
       {
         $sc = FALSE;
-        set_error('notfound');
+        set_error('required');
       }
     }
     else
     {
       $sc = FALSE;
-      set_error('required');
+      set_error('permission');
     }
 
     $this->_response($sc);

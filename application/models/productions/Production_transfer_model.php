@@ -189,6 +189,11 @@ class Production_transfer_model extends CI_Model
       $this->db->like('reference', $ds['reference']);
     }
 
+    if( ! empty($ds['orderRef']))
+    {
+      $this->db->like('orderRef', $ds['orderRef']);
+    }
+
     if( isset($ds['fromWhsCode']) && $ds['fromWhsCode'] != 'all')
     {
       $this->db->where('fromWhsCode', $ds['fromWhsCode']);
@@ -245,6 +250,11 @@ class Production_transfer_model extends CI_Model
     if( ! empty($ds['reference']))
     {
       $this->db->like('reference', $ds['reference']);
+    }
+
+    if( ! empty($ds['orderRef']))
+    {
+      $this->db->like('orderRef', $ds['orderRef']);
     }
 
     if( isset($ds['fromWhsCode']) && $ds['fromWhsCode'] != 'all')

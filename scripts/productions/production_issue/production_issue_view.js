@@ -1,47 +1,23 @@
 function viewProductionOrder(code) {
   if(code.length) {
-    let baseItem = $('#base-item').val().trim();
+    let width = 1250;
+    let height = 750;
+    let left = (window.innerWidth - width) / 2;
+    let target = BASE_URL + 'productions/production_order/sap_production_order/'+code+'?nomenu';
+    let prop = `width=${width}, height=${height}, left=${left}, scrollbars=yes`;
+    window.open(target, '_blank', prop);
+  }
+}
 
-    load_in();
 
-    $.ajax({
-      url:HOME + 'get_production_order_details',
-      type:'POST',
-      cache:false,
-      data:{
-        'baseCode' : code
-      },
-      success:function(rs) {
-        load_out();
-
-        if(isJson(rs)) {
-          let ds = JSON.parse(rs);
-
-          if(ds.status === 'success') {
-            let data = ds.data;
-            let source = $('#production-modal-template').html();
-            let output = $('#production-modal-table');
-
-            render(source, data, output);
-
-            reIndex('p-no');
-            $('#production-modal-title').text(code + '  |  ' + baseItem);
-
-            $('#production-modal').modal('show');
-            dragElement('production-modal', 'production-modal-header');
-          }
-          else {
-            showError(ds.message);
-          }
-        }
-        else {
-          showError(rs);
-        }
-      },
-      error:function(rs) {
-        showError(rs);
-      }
-    })
+function viewIXProductionOrder(code) {
+  if(code.length) {
+    let width = 1250;
+    let height = 750;
+    let left = (window.innerWidth - width) / 2;
+    let target = BASE_URL + 'productions/production_order/view_detail/'+code+'?nomenu';
+    let prop = `width=${width}, height=${height}, left=${left}, scrollbars=yes`;
+    window.open(target, '_blank', prop);
   }
 }
 
@@ -71,6 +47,7 @@ function clearBatchFilter() {
   $('#attr1-filter').val('');
   $('#attr2-filter').val('');
 }
+
 
 function showFilterBatch(uid) {
   $('#batch-modal').modal('hide');
@@ -139,12 +116,134 @@ function viewItemBatch() {
 }
 
 
-function viewIXProductionOrder() {
-  let code = $('#order-ref').val().trim();
+function viewApiLogs(code) {
+  let url = BASE_URL + "rest/V1/sap_api_logs";
+  let mapForm = document.createElement("form");
+  mapForm.target = "Map";
+  mapForm.method = "POST";
+  mapForm.action = url;
 
-  if(code.length) {
-    let target = BASE_URL + 'productions/production_order/view_detail/'+code;
+  let mapInput = document.createElement("input");
+  mapInput.type = "text";
+  mapInput.name = "code";
+  mapInput.value = code;
+  mapForm.appendChild(mapInput);
 
-    window.open(target, '_blank');
-  }
+  document.body.appendChild(mapForm);
+  map = window.open(url, "Map", "width=1350, height=900, scrollbars=yes");
+  mapForm.submit();
+  document.body.removeChild(mapForm);
+}
+
+
+function rollBack(code) {
+  swal({
+    title:'ย้อนสถานะ',
+    text:'ต้องการย้อนเอกสารหรือไม่ ?',
+    type:'warning',
+    html:true,
+    showCancelButton:true,
+    cancelButonText:'No',
+    confirmButtonText:'Yes',
+    closeOnConfirm:true
+  }, function() {
+    load_in();
+
+    $.ajax({
+      url:HOME + 'rollback',
+      type:'POST',
+      cache:false,
+      data:{
+        'code' : code
+      },
+      success:function(rs) {
+        load_out();
+
+        if(rs.trim() === 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(() => {
+            refresh();
+          }, 1200);
+        }
+        else {
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        showError(rs);
+      }
+    })
+  })
+}
+
+
+function close(code) {
+  swal({
+    title:'Close Document',
+    text:'ต้องการบันทึกและปิดเอกสารนี้หรือไม่ ?',
+    type:'info',
+    html:true,
+    showCancelButton:true,
+    cancelButonText:'No',
+    confirmButtonText:'Yes',
+    closeOnConfirm:true
+  }, function() {
+    load_in();
+
+    $.ajax({
+      url:HOME + 'close',
+      type:'POST',
+      cache:false,
+      data:{
+        'code' : code
+      },
+      success:function(rs) {
+        load_out();
+
+        if(isJson(rs)) {
+
+          let ds = JSON.parse(rs);
+
+          if(ds.status === 'success') {
+            if(ds.status === 'success') {
+              if(ds.ex == 0) {
+                swal({
+                  title:'Success',
+                  type:'success',
+                  timer:1000
+                });
+
+                setTimeout(() => {
+                  refresh();
+                }, 1200);
+              }
+              else {
+                swal({
+                  title:'Oops !',
+                  text:ds.message,
+                  type:'info'
+                }, function() {
+                  refresh();
+                })
+              }
+            }
+          }
+          else {
+            showError(ds.message);
+          }
+        }
+        else {
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        showError(rs);
+      }
+    })
+  })
 }

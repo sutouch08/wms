@@ -8,26 +8,6 @@
 				<input type="hidden" id="id" value="<?php echo $doc->id; ?>" />
 			</div>
 		</div>
-    <div class="form-group">
-      <label class="sap-label fix-width-150">Type</label>
-      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-8 padding-5">
-        <select class="form-control input-xs" id="type" <?php echo $disabled; ?>>
-          <option value="S" <?php echo is_selected('S', $doc->Type); ?>>Standard</option>
-          <option value="P" <?php echo is_selected('P', $doc->Type); ?>>Special</option>
-          <option value="D" <?php echo is_selected('D', $doc->Type); ?>>Disassembly</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="sap-label fix-width-150">Status</label>
-      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-8 padding-5">
-        <select class="form-control input-xs" id="status" <?php echo $disabled; ?>>
-          <option value="P" <?php echo is_selected('P', $doc->Status); ?>>Planned</option>
-          <option value="R" <?php echo is_selected('R', $doc->Status); ?>>Released</option>
-        </select>
-      </div>
-    </div>
 
 		<div class="form-group">
       <label class="sap-label fix-width-150">Product No.</label>
@@ -62,6 +42,15 @@
         <select class="form-control input-xs" id="warehouse" <?php echo $disabled; ?>>
           <?php echo select_warehouse($doc->Warehouse); ?>
         </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="sap-label fix-width-150" style="height:48px; display:flex; align-items:end;">
+        <span>Remark</span>
+      </div>
+      <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 padding-5">
+        <textarea class="form-control input-xs" id="remark" rows="2"><?php echo $doc->Comments; ?></textarea>
       </div>
     </div>
   </div>

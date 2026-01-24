@@ -1892,12 +1892,13 @@ class Orders extends REST_Controller
         if($sc === TRUE && $rs->price != $row->price)
         {
           $disc = $rs->discount > 0 ? $rs->discount/$rs->qty : 0;
+          $amount = ($rs->price - $disc) * $rs->qty;
 
           $arr = array(
             'price' => $rs->price,
             'discount1' => round($disc, 2),
             'discount_amount' => $rs->discount,
-            'total_amount' => round($rs->amount)
+            'total_amount' => round($amount)
           );
 
           if( ! $this->orders_model->update_detail($row->id, $arr))

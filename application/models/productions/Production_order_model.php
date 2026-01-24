@@ -259,6 +259,40 @@ class Production_order_model extends CI_Model
   }
 
 
+  public function get_issue_ref($code)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where('orderRef', $code)
+    ->where('Status', 'C')
+    ->get('production_issue');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_receipt_ref($code)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where('orderRef', $code)
+    ->where('Status', 'C')
+    ->get('production_receipt');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_bom_list()
   {
     $rs = $this->ms->select('Code, Name')->get('OITT');
@@ -284,14 +318,28 @@ class Production_order_model extends CI_Model
   {
     $rs = $this->ms
     ->select('o.DocEntry, o.DocNum, o.Type, o.ItemCode, o.ProdName AS ItemName, o.Warehouse AS WhsCode, o.Status')
-    ->select('o.PostDate, o.DueDate, o.RlsDate AS ReleaseDate, o.OriginNum, o.OriginType, o.CardCode')
+    ->select('o.PostDate, o.DueDate, o.RlsDate AS ReleaseDate, o.OriginNum, o.OriginType, o.CardCode, o.U_ECOMNO')
     ->select('o.PlannedQty, o.CmpltQty AS CompleteQty, o.RjctQty AS RejectQty, o.Uom, o.UomEntry, u.UomCode, i.ManBtchNum')
     ->from('OWOR AS o')
     ->join('OITM AS i', 'o.ItemCode = i.ItemCode', 'left')
     ->join('OUOM AS u', 'o.UomEntry = u.UomEntry', 'left')
     ->where('o.DocNum', $code)
-    ->where('o.Status', 'R')
     ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_production_order($code)
+  {
+    $rs = $this->ms
+    ->where('DocNum', $code)
+    ->get('OWOR');
 
     if($rs->num_rows() === 1)
     {

@@ -21,6 +21,11 @@ select.input-xs {
   border-radius: 3px !important;
 }
 
+textarea.input-xs {
+  font-size: 11px;
+  border-radius: 3px !important;
+}
+
 .form-group {
   margin-bottom: 8px;
 }
@@ -42,9 +47,17 @@ select.input-xs {
   float: left;
 }
 
+.table > tbody > tr > th {
+  padding: 3px 8px !important;
+}
+
+.table > tbody > tr > td {
+  padding:3px 8px !important;
+}
+
 .tableFixHead > thead > tr > th {
   padding:3px !important;
-  font-size: 10px !important;
+  font-size: 11px !important;
 }
 
 .tableFixHead > tbody > tr > td {
@@ -55,13 +68,6 @@ select.input-xs {
   font-size: 11px !important;
 }
 
-.table > tbody > tr > th {
-  padding: 3px !important;
-}
-
-.table > tbody > tr > td {
-  padding:3px !important;
-}
 
 .modal-header {
   padding: 5px 15px;

@@ -3,9 +3,18 @@
 		<div class="form-group">
 			<label class="sap-label col-lg-6 col-md-6 col-sm-6 padding-0">SAP No.</label>
 			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-				<input type="text" id="doc-num" class="form-control input-xs h" value="<?php echo $doc->inv_code; ?>" disabled/>
+				<?php if($doc->Status == 'C') : ?>
+					<div class="input-group">
+						<input type="text" id="doc-num" class="form-control input-xs h" value="<?php echo $doc->inv_code; ?>" disabled/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-minier btn-info" title="API Logs" style="border-radius:3px !important; margin-left:5px;" onclick="viewApiLogs('<?php echo $doc->code; ?>')"><i class="fa fa-external-link"></i></button>
+						</span>
+					</div>
+				<?php else : ?>
+					<input type="text" id="doc-num" class="form-control input-xs h" value="<?php echo $doc->inv_code; ?>" disabled/>
+				<?php endif; ?>
 			</div>
-		</div>
+		</div>			
     <div class="form-group">
 			<label class="sap-label col-lg-6 col-md-6 col-sm-6 padding-0">Status</label>
 			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">

@@ -114,25 +114,49 @@ $('#customer').autocomplete({
 
 
 function whInit(uid) {
-  $('#warehouse-'+uid).autocomplete({
-    source:HOME + 'get_warehouse_code_and_name',
-    autoFocus:true,
-    position:{
-      my : "right top",
-      at : "right bottom"
-    },
-    close:function() {
-      let arr = $('#warehouse-'+uid).val().split(' | ');
+  if(uid != null && uid != undefined) {
+    $('#warehouse-'+uid).autocomplete({
+      source:HOME + 'get_warehouse_code_and_name',
+      autoFocus:true,
+      position:{
+        my : "right top",
+        at : "right bottom"
+      },
+      close:function() {
+        let arr = $('#warehouse-'+uid).val().split(' | ');
 
-      if(arr.length == 2) {
-        $('#warehouse-'+uid).val(arr[0]);
+        if(arr.length == 2) {
+          $('#warehouse-'+uid).val(arr[0]);
+        }
+
+        setTimeout(function() {
+          updateAvailableStock(uid);
+        }, 200);
       }
+    });
+  }
+  else {
+    $('.wh-input').autocomplete({
+      source:HOME + 'get_warehouse_code_and_name',
+      autoFocus:true,
+      position:{
+        my : "right top",
+        at : "right bottom"
+      },
+      close:function() {
+        let arr = $(this).val().split(' | ');
 
-      setTimeout(function() {
-        updateAvailableStock(uid);
-      }, 200);
-    }
-  });
+        if(arr.length == 2) {
+          $(this).val(arr[0]);
+        }
+
+        setTimeout(function() {
+          let uid = $(this).data('uid');
+          updateAvailableStock(uid);
+        }, 200);
+      }
+    });
+  }
 }
 
 
@@ -291,6 +315,9 @@ function getBomData() {
           $('#deatil-table').html('');
 
           render(source, ds.data, output);
+          reIndex('no');
+          itemInit();
+          whInit();
         }
         else {
           showError(ds.message);
@@ -332,24 +359,16 @@ function recalQty(uid) {
 
 
 function addRow() {
-  let no = parseDefaultInt($('#row-no').val(), 0);
-  let ne = no + 1;
   let uid = generateUID();
   let whs = $('#warehouse').val();
   let source = $('#new-row-template').html();
   let output = $('#details-table');
   let data = [{
-    'no' : ne,
     'uid' : uid,
-    'Warehouse' : whs,
-    'type_item' : 'selected',
-    'type_resource' : '',
-    'type_text' : ''
+    'Warehouse' : whs
   }];
 
   render_append(source, data, output);
-
-  $('#row-no').val(ne);
 
   reIndex('no');
 
@@ -360,7 +379,31 @@ function addRow() {
 }
 
 
-function add() {
+function removeRows() {
+  $('.chk:checked').each(function() {
+    let uid = $(this).data('uid');
+
+    $('#row-'+uid).remove();
+  });
+
+  reIndex();
+}
+
+
+function toggleChecked(uid) {
+  let el = $('#row-chk-'+uid);
+  if(el.is(':checked')) {
+    el.prop('checked', false);
+    $('#row-'+uid).removeClass('highlight');
+  }
+  else {
+    el.prop('checked', true);
+    $('#row-'+uid).addClass('highlight');
+  }
+}
+
+
+function add(saveType) {
   if(click == 0) {
     click = 1;
 
@@ -368,7 +411,7 @@ function add() {
 
     let h = {
       'Type' : $('#type').val(),
-      'Status' : $('#status').val(),
+      'Status' : saveType,
       'ItemCode' : $('#product-code').val().trim(),
       'ItemName' : $('#product-name').val().trim(),
       'PlannedQty' : parseDefaultFloat($('#planned-qty').val(), 0),
@@ -479,19 +522,31 @@ function add() {
       success:function(rs) {
         click = 0;
         load_out();
+
         if(isJson(rs)) {
           let ds = JSON.parse(rs);
 
           if(ds.status === 'success') {
-            swal({
-              title:'Success',
-              type:'success',
-              timer:1000
-            });
+            if(ds.ex == 1) {
+              swal({
+                title:'Oops !',
+                text:ds.message,
+                type:'info'
+              }, function() {
+                edit(ds.code);
+              })
+            }
+            else {
+              swal({
+                title:'Success',
+                type:'success',
+                timer:1000
+              });
 
-            setTimeout(() => {
-              edit(ds.code);
-            }, 1200);
+              setTimeout(() => {
+                edit(ds.code);
+              }, 1200);
+            }
           }
           else {
             showError(ds.message);
@@ -510,7 +565,7 @@ function add() {
 }
 
 
-function update() {
+function update(saveType) {
   if(click == 0) {
     click = 1;
 
@@ -519,7 +574,7 @@ function update() {
     let h = {
       'code' : $('#code').val(),
       'Type' : $('#type').val(),
-      'Status' : $('#status').val(),
+      'Status' : saveType,
       'ItemCode' : $('#product-code').val().trim(),
       'ItemName' : $('#product-name').val().trim(),
       'PlannedQty' : parseDefaultFloat($('#planned-qty').val(), 0),
@@ -567,8 +622,8 @@ function update() {
 
       if(item_code.length) {
         let uid = $(this).data('uid');
-        let bQty = parseDefaultFloat($('#base-qty-'+uid).val(), 0);
-        let pQty = parseDefaultFloat($('#planned-qty-'+uid).val(), 0);
+        let bQty = parseDefaultFloat(removeCommas($('#base-qty-'+uid).val()), 0);
+        let pQty = parseDefaultFloat(removeCommas($('#planned-qty-'+uid).val()), 0);
         let whs = $('#warehouse-'+uid).val();
 
         if(bQty <= 0) {
@@ -720,6 +775,7 @@ function closeOrder(code) {
   })
 }
 
+
 function itemChangeConfirm() {
   let code = $('#product-code').val().trim();
   let cPrev = $('#product-code').data('prev');
@@ -785,16 +841,5 @@ function createGoodsReceipt(code) {
   }
   else {
     showError('เอกสารยังไม่เข้า SAP กรุณาตรวจสอบ');
-  }
-}
-
-
-function viewTQ() {
-  let code = $('#tq-list').val();
-
-  if(code.length) {
-    let target = BASE_URL + 'productions/production_transfer/view_detail/'+code;
-
-    window.open(target, '_blank');
   }
 }

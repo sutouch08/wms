@@ -72,9 +72,9 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped table-hover border-1" style="min-width:1270px;">
+    <table class="table table-striped table-hover border-1" style="min-width:1290px;">
       <tr class="font-size-11">
-				<th class="fix-width-40 text-center"></th>
+				<th class="fix-width-60 text-center"></th>
         <th class="fix-width-50 text-center">#</th>
 				<th class="fix-width-60 text-center">Status</th>
         <th class="fix-width-80">Order Date</th>
@@ -90,29 +90,31 @@
     <?php if( !empty($data)) : ?>
     <?php $no = $this->uri->segment($this->segment) + 1; ?>
     <?php foreach($data as $rs) : ?>
-      <tr class="font-size-11" id="row-<?php echo $rs->id; ?>" style="<?php echo production_order_status_color($rs->Status); ?>">
-				<td class="middle">
+      <tr class="font-size-11 pointer" id="row-<?php echo $rs->id; ?>" style="<?php echo production_order_status_color($rs->Status); ?>">
+				<td class="middle" style="padding:3px !important;">
 					<button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code;?>')"><i class="fa fa-eye"></i></button>
 					<?php if($this->pm->can_edit && $rs->Status == 'P') : ?>
 						<button type="button" class="btn btn-minier btn-warning" onclick="edit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 					<?php endif; ?>
 				</td>
-        <td class="middle text-center no"><?php echo $no; ?></td>
-				<td class="middle text-center"><?php echo production_order_status_text($rs->Status); ?></td>
-        <td class="middle"><?php echo thai_date($rs->PostDate, FALSE); ?></td>
-				<td class="middle"><?php echo thai_date($rs->DueDate, FALSE); ?></td>
-        <td class="middle"><?php echo $rs->code; ?></td>
-				<td class="middle"><?php echo $rs->inv_code; ?></td>
-				<td class="middle"><?php echo $rs->ItemCode; ?></td>
-				<td class="middle"><?php echo $rs->ProdName; ?></td>
-				<td class="middle text-right" style="padding-right:8px !important;"><?php echo number($rs->PlannedQty, 2); ?></td>
-        <td class="middle"> <?php echo $rs->user; ?></td>
+        <td class="middle text-center no" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo $no; ?></td>
+				<td class="middle text-center" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo production_order_status_text($rs->Status); ?></td>
+        <td class="middle" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo thai_date($rs->PostDate, FALSE); ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo thai_date($rs->DueDate, FALSE); ?></td>
+        <td class="middle">
+					<a target="_blank" href="<?php echo $this->home; ?>/view_detail/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
+				</td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo $rs->inv_code; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo $rs->ItemCode; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo $rs->ProdName; ?></td>
+				<td class="middle text-right" onclick="viewDetail('<?php echo $rs->code;?>')"><?php echo number($rs->PlannedQty, 2); ?></td>
+        <td class="middle" onclick="viewDetail('<?php echo $rs->code;?>')"> <?php echo $rs->user; ?></td>
       </tr>
     <?php  $no++; ?>
     <?php endforeach; ?>
     <?php else : ?>
       <tr>
-        <td colspan="9" class="text-center">--- ไม่พบข้อมูล ---</td>
+        <td colspan="11" class="text-center">--- ไม่พบข้อมูล ---</td>
       </tr>
     <?php endif; ?>
       </tbody>

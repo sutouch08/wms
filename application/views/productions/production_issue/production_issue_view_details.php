@@ -53,13 +53,8 @@
               <?php $batchWords = "Batch: {$rb->BatchNum} &nbsp;&nbsp;&nbsp; Attr1: {$rb->BatchAttr1} &nbsp;&nbsp;&nbsp; Attr2: {$rb->BatchAttr2}"; ?>
 
               <tr id="batch-rows-<?php echo $uuid; ?>" data-uid="<?php echo $uuid; ?>" class="blue font-size-11 child-of-<?php echo $uid; ?>">
-                <td colspan="2" class="middle text-center">
-                  <button type="button" class="btn btn-info btn-minier" style="border-radius:3px !important;" onclick="showFilterBatch('<?php echo $uid; ?>')">
-                    <i class="fa fa-external-link"></i>
-                    &nbsp; View
-                  </button>
-                </td>
-                <td colspan="2" class="middle italic">
+                <td class="middle text-center"></td>
+                <td colspan="3" class="middle italic">
                   <span class="label label-success label-white middle">Batch No : <?php echo $rb->BatchNum; ?></span>
                   <span class="label label-info label-white middle">Attr 1 : <?php echo empty($rb->BatchAttr1) ? '-' : $rb->BatchAttr1; ?></span>
                   <span class="label label-default label-white middle">Attr 2 : <?php echo empty($rb->BatchAttr2) ? '-' : $rb->BatchAttr2; ?></span>

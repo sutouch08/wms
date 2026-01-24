@@ -5,19 +5,22 @@
 			<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
 				<input type="text" id="code" class="form-control input-xs" value="<?php echo $doc->code; ?>" disabled/>
 			</div>
-      <label class="sap-label fix-width-50">IX Ref</label>
-      <div class="col-lg-2 col-md-3 col-sm-2-harf col-xs-8 padding-5">
+		</div>
+
+    <div class="form-group">
+			<label class="sap-label fix-width-150">IX Ref</label>
+			<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
         <input type="text" id="order-ref" class="form-control input-xs" value="<?php echo $doc->orderRef; ?>" disabled/>
-      </div>
+			</div>
       <?php if( ! empty($doc->orderRef)) : ?>
       <div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5">
-        <button type="button" class="btn btn-primary btn-minier" style="border-radius:3px !important;" onclick="viewIXProductionOrder('<?php echo $doc->reference; ?>')">
+        <button type="button" class="btn btn-primary btn-minier" style="border-radius:3px !important;" onclick="viewIXProductionOrder('<?php echo $doc->orderRef; ?>')">
           <i class="fa fa-external-link"></i>
-          &nbsp; View
         </button>
       </div>
       <?php endif; ?>
 		</div>
+
     <div class="form-group">
       <label class="sap-label fix-width-150">Production Order</label>
       <div class="col-lg-2 col-md-2 col-sm-2 col-xs-8 padding-5">
@@ -26,9 +29,12 @@
       <div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5">
         <button type="button" class="btn btn-primary btn-minier" style="border-radius:3px !important;" onclick="viewProductionOrder('<?php echo $doc->reference; ?>')">
           <i class="fa fa-external-link"></i>
-          &nbsp; View
         </button>
       </div>
+    </div>
+
+    <div class="form-group">
+      <label class="sap-label fix-width-150">Item Code</label>
       <div class="col-lg-5 col-md-5 col-sm-4-harf col-xs-8 padding-5">
         <input type="text" class="form-control input-xs h" id="base-item" maxlength="200" value="<?php echo $doc->ItemCode; ?>" disabled/>
       </div>

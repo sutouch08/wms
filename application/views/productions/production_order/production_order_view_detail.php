@@ -6,46 +6,52 @@
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-white btn-default top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i>&nbsp; กลับ</button>
-		<div class="btn-group">
+		<?php if($doc->Status != 'D') : ?>
+			<div class="btn-group">
       <button data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
         Actions
         <i class="ace-icon fa fa-angle-down icon-on-right"></i>
       </button>
       <ul class="dropdown-menu dropdown-menu-right">
+				<?php if($doc->Status == 'P' && $this->pm->can_edit) : ?>
+					<li class="warning">
+						<a href="javascript:edit('<?php echo $doc->code; ?>')"><i class="fa fa-pencil"></i> Edit</a>
+					</li>
+				<?php endif; ?>
 				<?php if($doc->Status == 'R' OR $doc->Status == 'C') : ?>
 					<?php if( empty($doc->DocNum)) : ?>
 						<li class="success">
 							<a href="javascript:sendToSap('<?php echo $doc->code; ?>')"><i class="fa fa-send"></i> Send To SAP</a>
 						</li>
 					<?php endif; ?>
-					<li class="info">
-						<a href="javascript:printOrder('<?php echo $doc->code; ?>')"><i class="fa fa-print"></i> Print</a>
-					</li>
 					<?php if($doc->Status == 'R' && $this->pm->can_edit) : ?>
 						<li class="success">
 		          <a href="javascript:closeOrder('<?php echo $doc->code; ?>')"><i class="fa fa-check"></i> Close</a>
 		        </li>
 					<?php endif; ?>
-					<?php if($doc->Status != 'D' && $this->pm->can_delete) : ?>
-		        <li class="danger">
-		          <a href="javascript:cancelOrder('<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> Cancel</a>
-		        </li>
-					<?php endif; ?>
-					<?php if($doc->Status != 'P' && $doc->Status != 'D' && ! empty($doc->inv_code)) : ?>
-						<li class="divider"></li>
-						<li class="primary">
-		          <a href="javascript:createProductionTransfer('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Transfer Components</a>
-		        </li>
-						<li class="primary">
-		          <a href="javascript:createGoodsIssue('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Issue Components</a>
-		        </li>
-						<li class="primary">
-		          <a href="javascript:createGoodsReceipt('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Report Completion</a>
-		        </li>
-					<?php endif; ?>
+				<?php endif; ?>
+
+				<?php if($doc->Status != 'D' && $this->pm->can_delete) : ?>
+					<li class="danger">
+						<a href="javascript:goCancel('<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> Cancel</a>
+					</li>
+				<?php endif; ?>
+
+				<?php if($doc->Status == 'R' && ! empty($doc->inv_code)) : ?>
+					<li class="divider"></li>
+					<li class="primary">
+						<a href="javascript:createProductionTransfer('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Transfer Components</a>
+					</li>
+					<li class="primary">
+						<a href="javascript:createGoodsIssue('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Issue Components</a>
+					</li>
+					<li class="primary">
+						<a href="javascript:createGoodsReceipt('<?php echo $doc->code; ?>')"><i class="fa fa-plus"></i> Report Completion</a>
+					</li>
 				<?php endif; ?>
       </ul>
     </div>
+		<?php endif; ?>
 	</div>
 </div><!-- End Row -->
 <hr class=""/>
@@ -57,13 +63,14 @@
 
 </div>
 <hr class="padding-5">
+<?php if($doc->Status == 'D') { $this->load->view('cancle_watermark'); } ?>
+
 
 <div class="row">
-	<div class="col-lg-6 col-md-3 col-sm-3 hidden-xs">&nbsp;</div>
 	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 		<label class="font-size-11">Transfer <?php echo empty($transferRef) ? '' : "&nbsp;[ ".count($transferRef)." ]"; ?></label>
 		<div class="input-group">
-			<select class="form-control input-xs" id="tq-list">
+			<select class="form-control input-xs" id="tr-list">
 				<?php if( ! empty($transferRef)) : ?>
 					<?php foreach($transferRef as $tr) : ?>
 						<option value="<?php echo $tr->code; ?>"><?php echo $tr->code; ?></option>
@@ -73,30 +80,42 @@
 				<?php endif; ?>
 			</select>
 			<span class="input-group-btn padding-left-5">
-				<button type="button" class="btn btn-minier btn-info link-button fix-width-40" onclick="viewTQ()"><i class="fa fa-external-link"></i></button>
+				<button type="button" class="btn btn-minier btn-info link-button" onclick="viewTR()"><i class="fa fa-external-link"></i></button>
 			</span>
 		</div>
 	</div>
 	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
-		<label class="font-size-11">Goods Issue</label>
+		<label class="font-size-11">Goods Issue <?php echo empty($issueRef) ? '' : "&nbsp;[ ".count($issueRef)." ]"; ?></label>
 		<div class="input-group">
 			<select class="form-control input-xs" id="gi-list">
+				<?php if( ! empty($issueRef)) : ?>
+					<?php foreach($issueRef as $gi) : ?>
+						<option value="<?php echo $gi->code; ?>"><?php echo $gi->code; ?></option>
+					<?php endforeach; ?>
+				<?php else : ?>
 				<option value="">Not Found</option>
+			<?php endif; ?>
 			</select>
 			<span class="input-group-btn padding-left-5">
-				<button type="button" class="btn btn-minier btn-info link-button fix-width-40" onclick="viewGI()"><i class="fa fa-external-link"></i></button>
+				<button type="button" class="btn btn-minier btn-info link-button" onclick="viewGI()"><i class="fa fa-external-link"></i></button>
 			</span>
 		</div>
 	</div>
 
 	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
-		<label class="font-size-11">Goods Receipt</label>
+		<label class="font-size-11">Goods Receipt <?php echo empty($receiptRef) ? '' : "&nbsp;[ ".count($receiptRef)." ]"; ?></label>
 		<div class="input-group">
 			<select class="form-control input-xs" id="gr-list">
-				<option value="">Not Found</option>
+				<?php if( ! empty($receiptRef)) : ?>
+					<?php foreach($receiptRef as $gr) : ?>
+						<option value="<?php echo $gr->code; ?>"><?php echo $gr->code; ?></option>
+					<?php endforeach; ?>
+				<?php else : ?>
+					<option value="">Not Found</option>
+				<?php endif; ?>
 			</select>
 			<span class="input-group-btn padding-left-5">
-				<button type="button" class="btn btn-minier btn-info link-button fix-width-40" onclick="viewGR()"><i class="fa fa-external-link"></i></button>
+				<button type="button" class="btn btn-minier btn-info link-button" onclick="viewGR()"><i class="fa fa-external-link"></i></button>
 			</span>
 		</div>
 	</div>
@@ -108,17 +127,17 @@
 			<thead>
 				<tr class="font-size-11">
 					<th class="fix-width-25 middle text-center fix-no fix-header">#</th>
-					<th class="fix-width-100 middle">Type</th>
+					<th class="fix-width-50 middle">Type</th>
 					<th class="fix-width-200 middle">Item Code</th>
 					<th class="min-width-250 middle">Item Description.</th>
 					<th class="fix-width-80 middle">Base Qty.</th>
-					<th class="fix-width-80 middle">Base Ratio</th>
+					<th class="fix-width-60 middle">Ratio</th>
 					<th class="fix-width-80 middle">Planned Qty</th>
 					<th class="fix-width-80 middle">Issued</th>
 					<th class="fix-width-80 middle">Available</th>
 					<th class="fix-width-80 middle">Uom</th>
 					<th class="fix-width-100 middle">Warehouse</th>
-					<th class="fix-width-100 middle">Issue Method</th>
+					<th class="fix-width-80 middle">Issue Method</th>
 				</tr>
 			</thead>
 			<tbody id="details-table">
@@ -131,10 +150,12 @@
 						<tr id="row-<?php echo $uid; ?>" data-uid="<?php echo $uid; ?>" class="font-size-11">
 							<td class="middle text-center fix-no no" scope="row"><?php echo $no; ?></td>
 							<td class="middle">
-								<select class="form-control input-xs text-label" id="type-<?php echo $uid; ?>" disabled>
-									<option value="4" <?php echo is_selected('4', strval($rs->ItemType)); ?>>Item</option>
-									<option value="290" <?php echo is_selected('290', strval($rs->ItemType)); ?>>Resource</option>
-									<option value="-18" <?php echo is_selected('-18', strval($rs->ItemType)); ?>>Text</option>
+								<input type="text" class="form-control input-xs text-label" value="Item" readonly />
+								<input type="hidden" id="type-<?php echo $uid; ?>" value="<?php $rs->ItemType; ?>" />
+								<select class="form-control input-xs text-label hide" disabled>
+									<option value="4">Item</option>
+									<option value="290">Resource</option>
+									<option value="-18">Text</option>
 								</select>
 							</td>
 							<td class="middle">
@@ -159,12 +180,7 @@
 								<input type="text" class="form-control input-xs text-label text-right" data-uid="<?php echo $uid; ?>" id="available-<?php echo $uid; ?>" value="<?php echo number($available, 2); ?>" disabled />
 							</td>
 							<td class="middle">
-								<input type="text" class="form-control input-xs text-label"
-									data-uid="<?php echo $uid; ?>"
-									id="uom-<?php echo $uid; ?>"
-									data-uomentry="<?php echo $rs->UomEntry; ?>"
-									data-uomcode="<?php echo $rs->UomCode; ?>"
-									value="<?php echo $rs->Uom; ?>"  disabled/>
+								<input type="text" class="form-control input-xs text-label"	value="<?php echo $rs->Uom; ?>"  disabled/>
 							</td>
 							<td class="middle">
 								<div class="width-100 wh">
@@ -172,10 +188,8 @@
 								</div>
 							</td>
 							<td class="middle">
-								<select class="form-control input-xs text-label" data-uid="<?php echo $uid; ?>" id="issue-type-<?php echo $uid; ?>" disabled>
-									<option value="M" <?php echo is_selected('M', $rs->IssueType); ?>>Manual</option>
-									<option value="B" <?php echo is_selected('B', $rs->IssueType); ?>>Backflush</option>
-								</select>
+								<input type="text" class="form-control input-xs text-label text-center" value="Manual" readonly />
+								<input type="hidden" id="issue-type-<?php echo $uid; ?>" value="M" />
 							</td>
 						</tr>
 						<?php $no++; ?>
@@ -189,27 +203,22 @@
 <div class="divider-hidden"></div>
 
 <div class="row" style="margin-left:0px; margin-right:0px;">
-	<div class="col-lg-6 col-md-6 col-sm-6">
-		<div class="form-horizontal">
-			<div class="form-group">
-				<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 padding-0">User</label>
-				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-					<input type="text" id="user" class="form-control input-xs" value="<?php echo $this->_user->uname; ?>" disabled/>
-				</div>
-			</div>
-		</div>
-		<div class="form-horizontal">
-			<div class="form-group">
-				<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 padding-0">Remark</label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12 padding-5">
-					<textarea class="form-control input-xs" id="remark" rows="2" disabled><?php echo $doc->Comments; ?></textarea>
-				</div>
-			</div>
-		</div>
+<?php if($doc->Status == 'D') : ?>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<p class="logs-text">
+			ยกเลิกโดย : <?php echo $doc->cancel_user; ?> <br/>
+			วันที่ยกเลิก : <?php echo thai_date($doc->cancel_date, TRUE); ?><br/>
+			เหตุผลในการยกเลิก : <?php echo $doc->cancel_reason; ?>
+		</p>
 	</div>
+<?php endif; ?>
+
 </div>
+
+<?php $this->load->view('cancle_modal'); ?>
 
 <script src="<?php echo base_url(); ?>scripts/productions/production_order/production_order.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/productions/production_order/production_order_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/productions/production_order/production_order_view.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

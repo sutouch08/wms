@@ -88,6 +88,14 @@ input.batch-span {
   float: left;
 }
 
+.table > tbody > tr > th {
+  padding: 3px 8px !important;
+}
+
+.table > tbody > tr > td {
+  padding:3px 8px !important;
+}
+
 .tableFixHead > thead > tr > th {
   padding:3px !important;
   font-size: 10px !important;

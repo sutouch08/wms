@@ -1,5 +1,6 @@
 window.addEventListener('load', () => {
-
+  baseRefInit();
+  detailsInit();
 });
 
 var click = 0;
@@ -14,22 +15,26 @@ $('#posting-date').datepicker({
 })
 
 
-$('#base-ref').autocomplete({
-  source:HOME + 'get_production_order_code',
-  autoFocus:true,
-  close:function() {
-    let arr = $(this).val().split(' | ');
+function baseRefInit() {
+  let status = $('#p-status').val();
 
-    if(arr.length == 2) {
-      $(this).val(arr[0]);
-      $('#base-item').val(arr[1]);
+  $('#base-ref').autocomplete({
+    source:HOME + 'get_production_order_code/' + status,
+    autoFocus:true,
+    close:function() {
+      let arr = $(this).val().split(' | ');
+
+      if(arr.length == 3) {
+        $(this).val(arr[0]);
+        $('#base-item').val(arr[1]);
+      }
+      else {
+        $(this).val('');
+        $('#base-item').val('');
+      }
     }
-    else {
-      $(this).val('');
-      $('#base-item').val('');
-    }
-  }
-})
+  })
+}
 
 
 $('#base-ref').keyup(function(e) {
@@ -41,7 +46,18 @@ $('#base-ref').keyup(function(e) {
 })
 
 
-function add() {
+function detailsInit() {
+  $('.issue-qty').each(function() {
+    let uid = $(this).data('uid');
+    whsInit(uid);
+    binInit(uid);
+
+    reCalBatchRows(uid);
+  })
+}
+
+
+function add(type) {
   if(click == 0) {
     click = 1;
 
@@ -49,6 +65,7 @@ function add() {
     clearErrorByClass('r');
 
     let h = {
+      'type' : type,
       'date_add' : $('#date-add').val().trim(),
       'shipped_date' : $('#posting-date').val().trim(),
       'baseRef' : $('#base-ref').val().trim(),
@@ -219,12 +236,275 @@ function add() {
       return false;
     }
 
+    if(type != 'P' && h.rows.length == 0) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:'ไม่พบรายการโอนย้าย',
+        type:'error'
+      });
+
+      return false;
+    }
+
     // console.log(h); click = 0; return false;
     if(sc === true) {
       load_in();
 
       $.ajax({
         url:HOME + 'add',
+        type:'POST',
+        cache:false,
+        data:{
+          'data' : JSON.stringify(h)
+        },
+        success:function(rs) {
+          click = 0;
+          load_out();
+
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+
+            if(ds.status === 'success') {
+
+              if(ds.ex == 0) {
+                swal({
+                  title:'Success',
+                  type:'success',
+                  timer:1000
+                });
+
+                setTimeout(() => {
+                  viewDetail(ds.code);
+                }, 1200);
+              }
+              else {
+                swal({
+                  title:'Oops !',
+                  text:ds.message,
+                  type:'info'
+                }, function() {
+                  viewDetail(ds.code);
+                })
+              }
+            }
+            else {
+              showError(ds.message);
+            }
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          click = 0;
+          showError(rs);
+        }
+      })
+    }
+  }
+}
+
+
+function save(type) {
+  if(click == 0) {
+    click = 1;
+
+    clearErrorByClass('h');
+    clearErrorByClass('r');
+
+    let h = {
+      'type' : type,
+      'code' : $('#code').val().trim(),
+      'date_add' : $('#date-add').val().trim(),
+      'shipped_date' : $('#posting-date').val().trim(),
+      'baseRef' : $('#base-ref').val().trim(),
+      'orderRef' : $('#order-ref').val().trim(),
+      'ItemCode' : $('#base-item').val().trim(),
+      'remark' : $('#remark').val().trim(),
+      'rows' : []
+    };
+
+    let prevBaseRef = $('#base-ref').data('prev');
+
+    if( ! isDate(h.date_add)) {
+      $('#date-add').hasError();
+      click = 0;
+      return false;
+    }
+
+
+    if(h.baseRef == "") {
+      $('#base-ref').hasError();
+      click = 0;
+      return false;
+    }
+
+    if(h.baseRef != prevBaseRef) {
+      $('#base-ref').hasError();
+      click = 0;
+      swal({
+        title:'Error',
+        text:'Production order มีการเปลี่ยนแปลง',
+        type:'error'
+      });
+
+      return false;
+    }
+
+    let error = 0;
+    let errMsg = "";
+    let line = 0;
+    let sc = true;
+
+    $('.issue-qty').each(function() {
+      if(sc === true) {
+        let el = $(this);
+        let uid = el.data('uid');
+        let whsCode = $('#whs-'+uid).val().trim();
+        let binCode = $('#bin-'+uid).val().trim();
+        let issueQty = parseDefaultFloat(removeCommas(el.val()), 0);
+        let inStock = parseDefaultFloat(removeCommas($('#instock-'+uid).val()), 0);
+        let hasBatch = el.data('hasbatch') == 'Y' ? 1 : 0;
+
+        if(issueQty <= 0) {
+          el.hasError();
+          sc = false;
+          errMsg = "จำนวนไม่ถูกต้อง";
+          return false;
+        }
+
+        if(sc === true && hasBatch == 0) {
+          if(whsCode.length == 0) {
+            sc = false;
+            $('#whs-'+uid).hasError();
+            errMsg = "กรุณาระบุคลัง";
+            return false;
+          }
+
+          if(binCode.length == 0) {
+            sc = false;
+            $('#bin-'+uid).hasError();
+            errMsg = "กรุณาระบุโซน";
+            return false;
+          }
+
+          if(inStock < issueQty) {
+            sc = false;
+            el.hasError();
+            errMsg = 'จำนวนคงเหลือต้นทางไม่เพียงพอ กรุณาแก้ไข';
+            return false;
+          }
+        }
+
+        if(sc === true && hasBatch == 1) {
+          if($('.child-of-'+uid).length == 0) {
+            sc = false;
+            $('#item-code-'+uid).hasError();
+            errMsg = "กรุณาระบุ Batch";
+            return false;
+          }
+        }
+
+        if(sc === true) {
+          let itemCode = el.data('code');
+          let itemName = el.data('name');
+
+          let row = {
+            'uid' : uid,
+            'LineNum' : line,
+            'BaseType' : el.data('basetype'),
+            'BaseEntry' : el.data('baseentry'),
+            'BaseRef' : el.data('baseref'),
+            'BaseLine' : el.data('baseline'),
+            'hasBatch' : hasBatch,
+            'ItemCode' : itemCode,
+            'ItemName' : itemName,
+            'WhsCode' : whsCode,
+            'BinCode' : binCode,
+            'Qty' : issueQty,
+            'Uom' : el.data('uom'),
+            'UomCode' : el.data('uomcode'),
+            'UomEntry' : el.data('uomentry'),
+            'batchRows' : []
+          };
+
+          if(hasBatch == 1) {
+            let sumBatchQty = 0;
+
+            $('.child-of-'+uid).each(function() {
+              if(sc === false) { return false; }
+
+              let uuid = $(this).data('uid');
+              let ro = $('#batch-qty-'+uuid);
+              let bQty = parseDefaultFloat(ro.val(), 0);
+              let bStock = parseDefaultFloat(removeCommas($('#batch-in-stock-'+uuid).val()), 0);
+
+              if(bQty > bStock) {
+                sc = false;
+                ro.hasError();
+                errMsg = "จำนวนคงเหลือไม่พอ กรุณาแก้ไข";
+                return false;
+              }
+
+              sumBatchQty += bQty;
+
+              row.batchRows.push({
+                'ItemCode' : itemCode,
+                'ItemName' : itemName,
+                'BatchNum' : ro.data('batchnum'),
+                'BatchAttr1' : ro.data('attr1'),
+                'BatchAttr2' : ro.data('attr2'),
+                'Qty' : bQty,
+                'WhsCode' : ro.data('fromwhs'),
+                'BinCode' : ro.data('frombin'),
+                'uid' : uuid
+              });
+            });
+
+            if(issueQty != sumBatchQty) {
+              el.hasError();
+              sc = false;
+              errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;
+              return false;
+            }
+          }
+
+          h.rows.push(row);
+          line++;
+        }
+      } //--- end sc
+
+    }); //--- each
+
+    if(sc === false) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:errMsg,
+        type:'error'
+      });
+
+      return false;
+    }
+
+    if(type != 'P' && h.rows.length == 0) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:'ไม่พบรายการโอนย้าย',
+        type:'error'
+      });
+
+      return false;
+    }
+
+    // console.log(h); click = 0; return false;
+    if(sc === true) {
+      load_in();
+
+      $.ajax({
+        url:HOME + 'save',
         type:'POST',
         cache:false,
         data:{
@@ -649,5 +929,5 @@ function reCalBatchRows(parentUid) {
     pQty += qty;
   });
 
-  $('#sum-batch-'+parentUid).val(addCommas(pQty.toFixed(2)));
+  $('#issue-qty-'+parentUid).val(addCommas(pQty.toFixed(2)));
 }

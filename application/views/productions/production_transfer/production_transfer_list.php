@@ -15,13 +15,18 @@
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 	<div class="row">
 		<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
-			<label>Doc No.</label>
+			<label>Document No.</label>
 			<input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
 		</div>
 
 		<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
-			<label>Ref No.</label>
-			<input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $code; ?>" />
+			<label>SAP Order No.</label>
+			<input type="text" class="form-control input-sm search" name="reference"  value="<?php echo $reference; ?>" />
+		</div>
+
+		<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
+			<label>IX Order No.</label>
+			<input type="text" class="form-control input-sm search" name="orderRef"  value="<?php echo $orderRef; ?>" />
 		</div>
 
 		<div class="col-lg-3 col-md-3 col-sm-4 col-xs-6 padding-5">
@@ -67,7 +72,7 @@
 			</div>
 		</div>
 		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
-			<label>SAP</label>
+			<label>Exported</label>
 			<select class="form-control input-sm filter" name="is_exported">
 				<option value="all">All</option>
 				<option value="N" <?php echo is_selected('N', $is_exported); ?>>No</option>
@@ -90,14 +95,16 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" id="table-listing" style="min-width:1200px;">
+    <table class="table table-striped border-1" id="table-listing" style="min-width:1310px;">
       <tr class="font-size-11">
 				<th class="fix-width-60 text-center"></th>
         <th class="fix-width-50 text-center">#</th>
 				<th class="fix-width-60">Status</th>
         <th class="fix-width-80 text-center">Date</th>
 				<th class="fix-width-100">Document No</th>
-				<th class="fix-width-80">Ref No</th>
+				<th class="fix-width-100">SAP Order No</th>
+				<th class="fix-width-100">IX Order No</th>
+				<th class="fix-width-80">Exported</th>
 				<th class="fix-width-80">SAP No.</th>
 				<th class="min-width-250">From Warehouse</th>
 				<th class="min-width-250">To Warehouse</th>
@@ -124,9 +131,15 @@
 					<a target="_blank" href="<?php echo $this->home; ?>/view_detail/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code; ?></a>
 				</td>
 				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->orderRef; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->is_exported == 'Y' ? 'Yes' : ($rs->is_exported == 'E' ? 'Failed' : 'No'); ?></td>
 				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->inv_code; ?></td>
-				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->fromWhsCode.' | '.$whsName[$rs->fromWhsCode]; ?></td>
-				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"><?php echo $rs->toWhsCode.' | '.$whsName[$rs->toWhsCode]; ?></td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')">
+					<input type="text" class="form-control input-xs text-label" style="color:inherit;" value="<?php echo $rs->fromWhsCode.' | '.$whsName[$rs->fromWhsCode]; ?>" readonly />
+				</td>
+				<td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')">
+					<input type="text" class="form-control input-xs text-label" style="color:inherit;" value="<?php echo $rs->toWhsCode.' | '.$whsName[$rs->toWhsCode]; ?>" readonly />
+				</td>
         <td class="middle" onclick="viewDetail('<?php echo $rs->code; ?>')"> <?php echo $rs->user; ?></td>
       </tr>
     <?php  $no++; ?>

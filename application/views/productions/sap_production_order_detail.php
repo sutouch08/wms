@@ -11,34 +11,19 @@
   <!-- Left Column -->
   <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 padding-right-15" style="padding-left:17px;">
     <div class="form-horizontal">
+			<div class="form-group">
+  			<label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">SAP No.</label>
+  			<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
+  				<input type="text" class="form-control input-xs" value="<?php echo $doc->DocNum; ?>" disabled/>
+  			</div>
+  		</div>
+
       <div class="form-group">
   			<label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">IX No.</label>
   			<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
   				<input type="text" id="code" class="form-control input-xs" value="<?php echo empty($doc->U_ECOMNO) ? "" : $doc->U_ECOMNO; ?>" disabled/>
   			</div>
   		</div>
-      <div class="form-group">
-        <label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">Type</label>
-        <div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
-          <select class="form-control input-xs" id="type" disabled>
-            <option value="S" <?php echo is_selected('S', $doc->Type); ?>>Standard</option>
-            <option value="P" <?php echo is_selected('P', $doc->Type); ?>>Special</option>
-            <option value="D" <?php echo is_selected('D', $doc->Type); ?>>Disassembly</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">Status</label>
-        <div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
-          <select class="form-control input-xs" id="status" disabled>
-            <option value="P" <?php echo is_selected('P', $doc->Status); ?>>Planned</option>
-            <option value="R" <?php echo is_selected('R', $doc->Status); ?>>Released</option>
-            <option value="C" <?php echo is_selected('C', $doc->Status); ?>>Closed</option>
-            <option value="D" <?php echo is_selected('D', $doc->Status); ?>>Canceled</option>
-          </select>
-        </div>
-      </div>
 
   		<div class="form-group">
         <label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">Product No.</label>
@@ -83,12 +68,19 @@
   <!-- Right Column -->
   <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-left-15">
   	<div class="form-horizontal">
-  		<div class="form-group">
-  			<label class="sap-label col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-0">No.</label>
-  			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
-  				<input type="text" class="form-control input-xs" value="<?php echo $doc->DocNum; ?>" disabled/>
-  			</div>
-  		</div>
+			<div class="form-group">
+        <label class="sap-label col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-0">Type</label>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
+					<input type="text" class="form-control input-xs" value="<?php echo status_type_text($doc->Type); ?>" disabled />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="sap-label col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-0">Status</label>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
+					<input type="text" class="form-control input-xs" value="<?php echo production_order_sap_status_text($doc->Status); ?>" disabled />
+        </div>
+      </div>
 
   		<div class="form-group">
   			<label class="sap-label col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-0">Order Date</label>
@@ -111,26 +103,7 @@
   			</div>
   		</div>
 
-  		<div class="form-group">
-  			<label class="sap-label col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-0">Origin</label>
-  			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
-  				<input type="text" class="form-control input-xs" value="<?php echo originTypeName($doc->OriginType); ?>" data-type="<?php echo $doc->OriginType; ?>" disabled/>
-  			</div>
-  		</div>
 
-  		<div class="form-group">
-  			<label class="sap-label col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-0">Sales Order</label>
-  			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
-  				<input type="text" id="origin-num" class="form-control input-xs" value="<?php echo $doc->OriginNum; ?>" onchange="validOrigin()" disabled/>
-  			</div>
-  		</div>
-
-  		<div class="form-group">
-  			<label class="sap-label col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-0">Customer</label>
-  			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
-  				<input type="text" id="customer" class="form-control input-xs" value="<?php echo $doc->CardCode; ?>" disabled/>
-  			</div>
-  		</div>
   	</div>
   </div>
 
@@ -146,7 +119,7 @@
 					<th class="fix-width-200 middle">Item Code</th>
 					<th class="min-width-250 middle">Item Description.</th>
 					<th class="fix-width-60 middle">Base Qty.</th>
-					<th class="fix-width-60 middle">Base Ratio</th>
+					<th class="fix-width-60 middle">Ratio</th>
 					<th class="fix-width-80 middle">Planned</th>
 					<th class="fix-width-80 middle">Issued</th>
 					<th class="fix-width-80 middle">Uom</th>

@@ -5,17 +5,17 @@
         <thead>
           <tr class="font-size-11">
             <th class="fix-width-25 middle text-center fix-no fix-header">#</th>
-            <th class="fix-width-100 middle">Type</th>
+            <th class="fix-width-50 middle">Type</th>
             <th class="fix-width-200 middle">Item Code</th>
             <th class="min-width-250 middle">Item Description.</th>
-            <th class="fix-width-80 middle">Base Qty.</th>
-            <th class="fix-width-80 middle">Base Ratio</th>
+            <th class="fix-width-60 middle">Base Qty.</th>
+            <th class="fix-width-60 middle">Base Ratio</th>
             <th class="fix-width-80 middle">Planned Qty</th>
             <th class="fix-width-80 middle">Issued</th>
             <th class="fix-width-80 middle">Available</th>
             <th class="fix-width-80 middle">Uom</th>
             <th class="fix-width-100 middle">Warehouse</th>
-            <th class="fix-width-100 middle">Issue Method</th>
+            <th class="fix-width-80 middle">Issue Method</th>
           </tr>
         </thead>
         <tbody id="details-table">

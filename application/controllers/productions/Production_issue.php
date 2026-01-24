@@ -43,7 +43,7 @@ class Production_issue extends PS_Controller
       redirect($this->home);
     }
     else
-    {      
+    {
       $perpage = get_rows();
       $rows = $this->production_issue_model->count_rows($filter);
       $filter['data'] = $this->production_issue_model->get_list($filter, $perpage, $this->uri->segment($this->segment));
@@ -115,46 +115,121 @@ class Production_issue extends PS_Controller
     $ex = 0;
     $ds = json_decode($this->input->post('data'));
 
-    if( ! empty($ds) && ! empty($ds->date_add) && ! empty($ds->baseRef) && ! empty($ds->rows))
+    if( ! empty($ds) && ! empty($ds->date_add) && ! empty($ds->baseRef))
     {
-      $date_add = db_date($ds->date_add);
-      $shipped_date = db_date($ds->shipped_date);
-
-      $code = $this->get_new_code($date_add);
-
-      $arr = array(
-        'code' => $code,
-        'reference' => $ds->baseRef,
-        'orderRef' => get_null($ds->orderRef),
-        'date_add' => $date_add,
-        'shipped_date' => $shipped_date,
-        'user' => $this->_user->uname,
-        'remark' => get_null($ds->remark),
-        'Status' => 'C'
-      );
-
-      $this->db->trans_begin();
-
-      if( ! $this->production_issue_model->add($arr))
+      if($ds->type != 'P' && empty($ds->rows))
       {
         $sc = FALSE;
-        set_error('insert');
+        $this->error = "ไม่พบรายการสินค้า";
       }
 
-      if($sc === TRUE)
+      if($sc === TRUE && ! empty($ds->rows))
       {
         foreach($ds->rows as $rs)
         {
-          if($sc === FALSE) { break;}
+          if($sc === FALSE) { break; }
 
-          if($rs->hasBatch == 0 && (empty($rs->BinCode) OR empty($rs->WhsCode)))
+          if($sc === TRUE && $rs->Qty <= 0)
+          {
+            $sc = FALSE;
+            $this->error = "Invalid Quantity for line item {$rs->ItemCode}";
+          }
+
+          if($sc === TRUE && empty($rs->batchRows) && (empty($rs->WhsCode) OR empty($rs->BinCode)))
           {
             $sc = FALSE;
             $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode}";
           }
 
-          if($sc === TRUE)
+          if($sc === TRUE && ! empty($rs->batchRows))
           {
+            foreach($rs->batchRows as $ro)
+            {
+              if($sc === FALSE) { break; }
+
+              if($sc === TRUE && empty($ro->BatchNum))
+              {
+                $sc = FALSE;
+                $this->error = "Batch Number is required for item {$rs->ItemCode}";
+              }
+
+              if($sc === TRUE && empty($ro->WhsCode))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Warehouse for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+              }
+
+              if($sc === TRUE && empty($ro->BinCode))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Bin Location for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+              }
+
+              if($sc === TRUE && $ro->Qty <= 0)
+              {
+                $sc = FALSE;
+                $this->error = "Batch Quantity is invalid {$rs->ItemCode} - {$ro->BatchNum}";
+              }
+
+              if($sc === TRUE)
+              {
+                $instock = $this->stock_model->get_item_batch_qty($ro->ItemCode, $ro->BatchNum, $ro->WhsCode, $ro->BinCode);
+
+                if($instock < $ro->Qty)
+                {
+                  $sc = FALSE;
+                  $this->error = "สต็อกคงเหลือไม่เพียงพอ Item: {$ro->ItemCode}, Batch No: {$ro->BatchNum}, Zone: {$ro->BinCode}";
+                }
+              }
+            }
+          }
+
+          if($sc === TRUE && empty($rs->batchRows))
+          {
+            $instock = $this->stock_model->get_item_stock($rs->ItemCode, $rs->WhsCode, $rs->BinCode);
+
+            if($instock < $rs->Qty)
+            {
+              $sc = FALSE;
+              $this->error = "สต็อกคงเหลือไม่เพียงพอ Item: {$ro->ItemCode}, Zone: {$ro->BinCode}";
+            }
+          }
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        $date_add = db_date($ds->date_add);
+        $shipped_date = db_date($ds->shipped_date);
+
+        $code = $this->get_new_code($date_add);
+
+        $arr = array(
+          'code' => $code,
+          'reference' => $ds->baseRef,
+          'ItemCode' => get_null($ds->ItemCode),
+          'orderRef' => get_null($ds->orderRef),
+          'date_add' => $date_add,
+          'shipped_date' => $shipped_date,
+          'user' => $this->_user->uname,
+          'remark' => get_null($ds->remark),
+          'Status' => $ds->type
+        );
+
+        $this->db->trans_begin();
+
+        if( ! $this->production_issue_model->add($arr))
+        {
+          $sc = FALSE;
+          set_error('insert');
+        }
+
+        if($sc === TRUE)
+        {
+          foreach($ds->rows as $rs)
+          {
+            if($sc === FALSE) { break;}
+
             $arr = array(
               'issue_code' => $code,
               'LineNum' => $rs->LineNum,
@@ -170,7 +245,7 @@ class Production_issue extends PS_Controller
               'UomEntry' => $rs->UomEntry,
               'UomCode' => $rs->UomCode,
               'unitMsr' => $rs->Uom,
-              'LineStatus' => 'C',
+              'LineStatus' => $ds->type,
               'hasBatch' => $rs->hasBatch,
               'uid' => $rs->uid
             );
@@ -185,70 +260,64 @@ class Production_issue extends PS_Controller
                 {
                   if($sc === FALSE) { break;}
 
-                  if(empty($ro->BatchNum))
+                  $br = array(
+                    'issue_code' => $code,
+                    'issue_detail_id' => $id,
+                    'ItemCode' => $ro->ItemCode,
+                    'ItemName' => $ro->ItemName,
+                    'BatchNum' => $ro->BatchNum,
+                    'BatchAttr1' => get_null($ro->BatchAttr1),
+                    'BatchAttr2' => get_null($ro->BatchAttr2),
+                    'Qty' => $ro->Qty,
+                    'WhsCode' => $ro->WhsCode,
+                    'BinCode' => $ro->BinCode,
+                    'uid' => $ro->uid
+                  );
+
+                  if( ! $this->production_issue_model->add_batch_rows($br))
                   {
                     $sc = FALSE;
-                    $this->error = "Batch Number is required for item {$rs->ItemCode}";
+                    $this->error = "Failed to add batch row for line item {$rs->ItemCode}";
                   }
 
-                  if($sc === TRUE)
+                  if($sc === TRUE && $ds->type == 'C')
                   {
-                    $br = array(
-                      'issue_code' => $code,
-                      'issue_detail_id' => $id,
-                      'ItemCode' => $ro->ItemCode,
-                      'ItemName' => $ro->ItemName,
-                      'BatchNum' => $ro->BatchNum,
-                      'BatchAttr1' => get_null($ro->BatchAttr1),
-                      'BatchAttr2' => get_null($ro->BatchAttr2),
-                      'Qty' => $ro->Qty,
-                      'WhsCode' => $ro->WhsCode,
-                      'BinCode' => $ro->BinCode,
-                      'uid' => $ro->uid
+                    $move_out = array(
+                      'reference' => $code,
+                      'warehouse_code' => $ro->WhsCode,
+                      'zone_code' => $ro->BinCode,
+                      'product_code' => $ro->ItemCode,
+                      'batchNum' => $ro->BatchNum,
+                      'move_in' => 0,
+                      'move_out' => $ro->Qty
                     );
 
-                    if( ! $this->production_issue_model->add_batch_rows($br))
+                    if( ! $this->movement_model->add($move_out))
                     {
                       $sc = FALSE;
-                      $this->error = "Failed to add batch row for line item {$rs->ItemCode}";
-                    }
-
-                    if($sc === TRUE)
-                    {
-                      $move_out = array(
-                        'reference' => $code,
-                        'warehouse_code' => $ro->WhsCode,
-                        'zone_code' => $ro->BinCode,
-                        'product_code' => $ro->ItemCode,
-                        'batchNum' => $ro->BatchNum,
-                        'move_in' => 0,
-                        'move_out' => $ro->Qty
-                      );
-
-                      if( ! $this->movement_model->add($move_out))
-                      {
-                        $sc = FALSE;
-                        $this->error = "Failed to insert stock movement out for {$ro->ItemCode} : {$ro->BatchNum}";
-                      }
+                      $this->error = "Failed to insert stock movement out for {$ro->ItemCode} : {$ro->BatchNum}";
                     }
                   }
                 } // end foreach
               }
               else
               {
-                $move_out = array(
-                  'reference' => $code,
-                  'warehouse_code' => $rs->WhsCode,
-                  'zone_code' => $rs->BinCode,
-                  'product_code' => $rs->ItemCode,
-                  'move_in' => 0,
-                  'move_out' => $rs->Qty
-                );
-
-                if( ! $this->movement_model->add($move_out))
+                if($ds->type == 'C')
                 {
-                  $sc = FALSE;
-                  $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
+                  $move_out = array(
+                    'reference' => $code,
+                    'warehouse_code' => $rs->WhsCode,
+                    'zone_code' => $rs->BinCode,
+                    'product_code' => $rs->ItemCode,
+                    'move_in' => 0,
+                    'move_out' => $rs->Qty
+                  );
+
+                  if( ! $this->movement_model->add($move_out))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
+                  }
                 }
               }
             }
@@ -257,20 +326,368 @@ class Production_issue extends PS_Controller
               $sc = FALSE;
               $this->error = "Failed to add item row for line item {$rs->ItemCode}";
             }
-          } //--- $sc
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+      }
+
+      if($sc === TRUE && $ds->type == 'C')
+      {
+        if(is_true(getConfig('SAP_API')))
+        {
+          $this->load->library('sap_api');
+
+          if( ! $this->sap_api->exportProductionIssue($code))
+          {
+            $sc = FALSE;
+            $ex = 1;
+            $this->error = "Create Document success but send data to SAP failed";
+          }
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'ex' => $ex,
+      'code' => $code
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function edit($code)
+  {
+    $this->load->helper('zone');
+
+    $doc = $this->production_issue_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->Status == 'P')
+      {
+        $doc->toBinName = empty($doc->toBinCode) ? NULL : zone_name($doc->toBinCode);
+
+        $details = $this->production_issue_model->get_details($code);
+
+        if( ! empty($details))
+        {
+          $no = 1;
+
+          foreach($details as $rs)
+          {
+            $rs->InStock = $this->stock_model->get_item_stock($rs->ItemCode, $rs->WhsCode, $rs->BinCode);
+            $rs->batchRows = $this->production_issue_model->get_batch_rows($rs->id);
+          }
+        }
+
+
+        $ds = array(
+          'doc' => $doc,
+          'details' => $details
+        );
+
+        $this->load->view('productions/production_issue/production_issue_edit', $ds);
+      }
+      else
+      {
+        redirect($this->home.'/view_detail/'.$code);
+      }
+    }
+    else
+    {
+      $this->page_error();
+    }
+  }
+
+
+  public function save()
+  {
+    $sc = TRUE;
+    $code = NULL;
+    $ex = 0;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds) && ! empty($ds->code) && ! empty($ds->date_add) && ! empty($ds->baseRef))
+    {
+      if($ds->type != 'P' && empty($ds->rows))
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบรายการสินค้า";
+      }
+
+      if($sc === TRUE)
+      {
+        $doc = $this->production_issue_model->get($ds->code);
+
+        if(empty($doc))
+        {
+          $sc = FALSE;
+          set_error('notfound');
         }
       }
 
       if($sc === TRUE)
       {
-        $this->db->trans_commit();
+        if($doc->Status == 'C' OR $doc->Status == 'D')
+        {
+          $sc = FALSE;
+          $this->error = $doc->Status == 'D' ? 'Document already canceled cannot be change' : 'Document already Closed cannot be change';
+        }
       }
-      else
+
+      if($sc === TRUE && ! empty($ds->rows))
       {
-        $this->db->trans_rollback();
+        foreach($ds->rows as $rs)
+        {
+          if($sc === FALSE) { break; }
+
+          if($sc === TRUE && $rs->Qty <= 0)
+          {
+            $sc = FALSE;
+            $this->error = "Invalid Quantity for line item {$rs->ItemCode}";
+          }
+
+          if($sc === TRUE && empty($rs->batchRows) && (empty($rs->WhsCode) OR empty($rs->BinCode)))
+          {
+            $sc = FALSE;
+            $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode}";
+          }
+
+          if($sc === TRUE && ! empty($rs->batchRows))
+          {
+            foreach($rs->batchRows as $ro)
+            {
+              if($sc === FALSE) { break; }
+
+              if($sc === TRUE && empty($ro->BatchNum))
+              {
+                $sc = FALSE;
+                $this->error = "Batch Number is required for item {$rs->ItemCode}";
+              }
+
+              if($sc === TRUE && empty($ro->WhsCode))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Warehouse for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+              }
+
+              if($sc === TRUE && empty($ro->BinCode))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Bin Location for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+              }
+
+              if($sc === TRUE && $ro->Qty <= 0)
+              {
+                $sc = FALSE;
+                $this->error = "Batch Quantity is invalid {$rs->ItemCode} - {$ro->BatchNum}";
+              }
+
+              if($sc === TRUE)
+              {
+                $instock = $this->stock_model->get_item_batch_qty($ro->ItemCode, $ro->BatchNum, $ro->WhsCode, $ro->BinCode);
+
+                if($instock < $ro->Qty)
+                {
+                  $sc = FALSE;
+                  $this->error = "สต็อกคงเหลือไม่เพียงพอ Item: {$ro->ItemCode}, Batch No: {$ro->BatchNum}, Zone: {$ro->BinCode}";
+                }
+              }
+            }
+          }
+
+          if($sc === TRUE && empty($rs->batchRows))
+          {
+            $instock = $this->stock_model->get_item_stock($rs->ItemCode, $rs->WhsCode, $rs->BinCode);
+
+            if($instock < $rs->Qty)
+            {
+              $sc = FALSE;
+              $this->error = "สต็อกคงเหลือไม่เพียงพอ Item: {$rs->ItemCode}, Zone: {$rs->BinCode}";
+            }
+          }
+        }
       }
 
       if($sc === TRUE)
+      {
+        $date_add = db_date($ds->date_add);
+        $shipped_date = db_date($ds->shipped_date);
+
+        $code = $ds->code;
+
+        $arr = array(
+          'code' => $code,
+          'reference' => $ds->baseRef,
+          'ItemCode' => get_null($ds->ItemCode),
+          'orderRef' => get_null($ds->orderRef),
+          'date_add' => $date_add,
+          'shipped_date' => $shipped_date,
+          'update_user' => $this->_user->uname,
+          'date_upd' => now(),
+          'remark' => get_null($ds->remark),
+          'Status' => $ds->type
+        );
+
+        $this->db->trans_begin();
+
+        if( ! $this->production_issue_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          set_error('update');
+        }
+
+        if($sc === TRUE)
+        {
+          if( ! $this->production_issue_model->drop_all_batch($code))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to remove prev batch data";
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          if( ! $this->production_issue_model->drop_all_details($code))
+          {
+            $sc = FALSE;
+            $this->error = "Failed to remove prev item rows";
+          }
+        }
+
+
+        if($sc === TRUE)
+        {
+          foreach($ds->rows as $rs)
+          {
+            if($sc === FALSE) { break;}
+
+            $arr = array(
+              'issue_code' => $code,
+              'LineNum' => $rs->LineNum,
+              'BaseType' => $rs->BaseType,
+              'BaseRef' => $rs->BaseRef,
+              'BaseEntry' => $rs->BaseEntry,
+              'BaseLine' => $rs->BaseLine,
+              'ItemCode' => $rs->ItemCode,
+              'ItemName' => $rs->ItemName,
+              'WhsCode' => $rs->hasBatch == 0 ? $rs->WhsCode : NULL,
+              'BinCode' => $rs->hasBatch == 0 ? $rs->BinCode : NULL,
+              'Qty' => $rs->Qty,
+              'UomEntry' => $rs->UomEntry,
+              'UomCode' => $rs->UomCode,
+              'unitMsr' => $rs->Uom,
+              'LineStatus' => $ds->type,
+              'hasBatch' => $rs->hasBatch,
+              'uid' => $rs->uid
+            );
+
+            $id = $this->production_issue_model->add_detail($arr);
+
+            if($id)
+            {
+              if( ! empty($rs->batchRows))
+              {
+                foreach($rs->batchRows as $ro)
+                {
+                  if($sc === FALSE) { break;}
+
+                  $br = array(
+                    'issue_code' => $code,
+                    'issue_detail_id' => $id,
+                    'ItemCode' => $ro->ItemCode,
+                    'ItemName' => $ro->ItemName,
+                    'BatchNum' => $ro->BatchNum,
+                    'BatchAttr1' => get_null($ro->BatchAttr1),
+                    'BatchAttr2' => get_null($ro->BatchAttr2),
+                    'Qty' => $ro->Qty,
+                    'WhsCode' => $ro->WhsCode,
+                    'BinCode' => $ro->BinCode,
+                    'uid' => $ro->uid
+                  );
+
+                  if( ! $this->production_issue_model->add_batch_rows($br))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Failed to add batch row for line item {$rs->ItemCode}";
+                  }
+
+                  if($sc === TRUE && $ds->type == 'C')
+                  {
+                    $move_out = array(
+                      'reference' => $code,
+                      'warehouse_code' => $ro->WhsCode,
+                      'zone_code' => $ro->BinCode,
+                      'product_code' => $ro->ItemCode,
+                      'batchNum' => $ro->BatchNum,
+                      'move_in' => 0,
+                      'move_out' => $ro->Qty
+                    );
+
+                    if( ! $this->movement_model->add($move_out))
+                    {
+                      $sc = FALSE;
+                      $this->error = "Failed to insert stock movement out for {$ro->ItemCode} : {$ro->BatchNum}";
+                    }
+                  }
+                } // end foreach
+              }
+              else
+              {
+                if($ds->type == 'C')
+                {
+                  $move_out = array(
+                    'reference' => $code,
+                    'warehouse_code' => $rs->WhsCode,
+                    'zone_code' => $rs->BinCode,
+                    'product_code' => $rs->ItemCode,
+                    'move_in' => 0,
+                    'move_out' => $rs->Qty
+                  );
+
+                  if( ! $this->movement_model->add($move_out))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
+                  }
+                }
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "Failed to add item row for line item {$rs->ItemCode}";
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+      }
+
+      if($sc === TRUE && $ds->type == 'C')
       {
         if(is_true(getConfig('SAP_API')))
         {
@@ -337,6 +754,254 @@ class Production_issue extends PS_Controller
   }
 
 
+  public function close()
+  {
+    $sc = TRUE;
+    $ex = 0;
+    $code = $this->input->post('code');
+
+    if( ! empty($code))
+    {
+      $doc = $this->production_issue_model->get($code);
+
+      if(empty($doc))
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+
+
+      if($sc === TRUE)
+      {
+        if($doc->Status == 'C' OR $doc->Status == 'D')
+        {
+          $sc = FALSE;
+          $this->error = $doc->Status == 'D' ? 'Document already canceled cannot be change' : 'Document already Closed cannot be change';
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        $details = $this->production_issue_model->get_details($code);
+
+        if(empty($details))
+        {
+          $sc = FALSE;
+          $this->error = "ไม่พบรายการสินค้า";
+        }
+
+        if($sc === TRUE && ! empty($details))
+        {
+          foreach($details as $rs)
+          {
+            if($sc === FALSE) { break; }
+
+            $Qty = 0;
+
+
+            if($sc === TRUE && $rs->Qty <= 0)
+            {
+              $sc = FALSE;
+              $this->error = "Invalid Item Qty for {$rs->ItemCode}";
+            }
+
+            if($rs->hasBatch == 0)
+            {
+              if($sc === TRUE && (empty($rs->WhsCode) OR empty($rs->BinCode)))
+              {
+                $sc = FALSE;
+                $this->error = "Missing Warehouse or Bin Location for {$rs->ItemCode}";
+              }
+
+              if($sc === TRUE)
+              {
+                $instock = $this->stock_model->get_item_stock($rs->ItemCode, $rs->WhsCode, $rs->BinCode);
+
+                if($rs->Qty < $instock)
+                {
+                  $sc = FALSE;
+                  $this->error = "สต็อกคงเหลือไม่เพียงพอ Item: {$rs->ItemCode}, Zone: {$rs->BinCode}";
+                }
+              }
+            }
+
+            if($rs->hasBatch == 1)
+            {
+              $batchRows = $this->production_issue_model->get_batch_rows($rs->id);
+
+              if(empty($batchRows))
+              {
+                $sc = FALSE;
+                $this->error = "Batch Number is required for item : {$rs->ItemCode}";
+              }
+
+              if($sc === TRUE)
+              {
+                foreach($batchRows as $ro)
+                {
+                  if($sc === FALSE) { break; }
+
+                  if($sc === TRUE && empty($ro->BatchNum))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Batch Number is required for item {$ro->ItemCode}";
+                  }
+
+                  if($sc === TRUE && empty($ro->WhsCode))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Missing Warehouse for batch row {$ro->ItemCode} - {$ro->BatchNum}";
+                  }
+
+                  if($sc === TRUE && empty($ro->BinCode))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Missing Bin Location for batch row {$ro->ItemCode} - {$ro->BatchNum}";
+                  }
+
+                  if($sc === TRUE && $ro->Qty <= 0)
+                  {
+                    $sc = FALSE;
+                    $this->error = "Batch Quantity is invalid {$ro->ItemCode} - {$ro->BatchNum}";
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    $instock = $this->stock_model->get_item_batch_qty($ro->ItemCode, $ro->BatchNum, $ro->WhsCode, $ro->BinCode);
+
+                    if($instock < $ro->Qty)
+                    {
+                      $sc = FALSE;
+                      $this->error = "สต็อกคงเหลือไม่เพียงพอ Item: {$ro->ItemCode}, Batch No: {$ro->BatchNum}, Zone: {$ro->BinCode}";
+                    }
+                  }
+
+                  if($sc === TRUE)
+                  {
+                    $Qty += $ro->Qty;
+                  }
+                }
+
+                $rs->batchRows = $batchRows;
+              }
+            }
+
+            if($sc === TRUE && $rs->hasBatch == 1)
+            {
+              $this->production_issue_model->update_detail($rs->id, ['Qty' => $Qty]);
+            }
+          }
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        $arr = array(
+          'Status' => 'C',
+          'update_user' => $this->_user->uname,
+          'date_upd' => now()
+        );
+
+        $this->db->trans_begin();
+
+        if( ! $this->production_issue_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          set_error('update');
+        }
+
+        if($sc === TRUE)
+        {
+          foreach($details as $rs)
+          {
+            if($sc === FALSE) { break;}
+
+            if( ! empty($rs->hasBatch) && ! empty($rs->batchRows))
+            {
+              foreach($rs->batchRows as $ro)
+              {
+                if($sc === FALSE) { break; }
+
+                $move_out = array(
+                  'reference' => $code,
+                  'warehouse_code' => $ro->WhsCode,
+                  'zone_code' => $ro->BinCode,
+                  'product_code' => $ro->ItemCode,
+                  'batchNum' => $ro->BatchNum,
+                  'move_in' => 0,
+                  'move_out' => $ro->Qty
+                );
+
+                if( ! $this->movement_model->add($move_out))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to insert stock movement out for {$ro->ItemCode} : {$ro->BatchNum}";
+                }
+              } // end foreach
+            }
+
+            if(empty($rs->hasBatch) && empty($rs->batchRows))
+            {
+              $move_out = array(
+                'reference' => $code,
+                'warehouse_code' => $rs->WhsCode,
+                'zone_code' => $rs->BinCode,
+                'product_code' => $rs->ItemCode,
+                'move_in' => 0,
+                'move_out' => $rs->Qty
+              );
+
+              if( ! $this->movement_model->add($move_out))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
+              }
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        if(is_true(getConfig('SAP_API')))
+        {
+          $this->load->library('sap_api');
+
+          if( ! $this->sap_api->exportProductionIssue($code))
+          {
+            $sc = FALSE;
+            $ex = 1;
+            $this->error = "Create Document success but send data to SAP failed";
+          }
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'ex' => $ex,
+      'code' => $code
+    );
+
+    echo json_encode($arr);
+  }
+
+
   public function cancel()
   {
     $sc = TRUE;
@@ -389,6 +1054,113 @@ class Production_issue extends PS_Controller
                   'cancel_user' => $this->_user->uname,
                   'cancel_reason' => get_null($reason),
                   'cancel_date' => now(),
+                  'date_upd' => now()
+                );
+
+                if( ! $this->production_issue_model->update($code, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to update document status";
+                }
+              }
+
+              if($sc === TRUE)
+              {
+                if( ! $this->movement_model->drop_movement($code))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to delete stock_movement";
+                }
+              }
+
+              if($sc === TRUE)
+              {
+                $this->db->trans_commit();
+              }
+              else
+              {
+                $this->db->trans_rollback();
+              }
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          set_error('notfound');
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('required');
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('permission');
+    }
+
+    $this->_response($sc);
+  }
+
+
+  public function rollback()
+  {
+    $sc = TRUE;
+
+    if($this->pm->can_delete)
+    {
+      $code = $this->input->post('code');
+
+      if( ! empty($code))
+      {
+        $doc = $this->production_issue_model->get($code);
+
+        if( ! empty($doc))
+        {
+          if($doc->Status == 'D')
+          {
+            $sc = FALSE;
+            $this->error = "Document already Canceled cannot be rollback";
+          }
+
+          if($sc === TRUE && $doc->Status == 'C')
+          {
+            if($this->production_issue_model->is_exists_in_sap($code))
+            {
+              $sc = FALSE;
+              $this->error = "เอกสารนี้เข้าระบบ SAP แล้ว หากต้องการแก้ไข กรุณายกเลิกเอกสารบน SAP ก่อน";
+            }
+
+            if($sc === TRUE)
+            {
+              $this->db->trans_begin();
+
+              //--- set cancel batch
+              if( ! $this->production_issue_model->update_batches($code, ['Status' => 'P']))
+              {
+                $sc = FALSE;
+                $this->error = "Failed to update batch rows status";
+              }
+
+              if($sc === TRUE)
+              {
+                if( ! $this->production_issue_model->update_details($code, ['LineStatus' => 'P']))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to update item rows status";
+                }
+              }
+
+              if($sc === TRUE)
+              {
+                $arr = array(
+                  'Status' => 'P',
+                  'update_user' => $this->_user->uname,
+                  'is_exported' => 'N',
+                  'inv_code' => NULL,
                   'date_upd' => now()
                 );
 
@@ -527,13 +1299,22 @@ class Production_issue extends PS_Controller
   }
 
 
-  public function get_production_order_code()
+  public function get_production_order_code($status = 'R')
   {
     $ds = [];
 
     $txt = trim($_REQUEST['term']);
 
-    $qr = "SELECT TOP(100) DocNum, ItemCode FROM OWOR WHERE Status = 'R' ";
+    $qr  = "SELECT TOP(100) DocNum, ItemCode, Status FROM OWOR WHERE Status != 'C' ";
+
+    if($status == 'R' OR $status == 'L')
+    {
+      $qr .= "AND Status = '{$status}' ";
+    }
+    else
+    {
+      $qr .= "AND Status IN('R', 'L') ";
+    }
 
     if($txt != '*')
     {
@@ -548,7 +1329,7 @@ class Production_issue extends PS_Controller
     {
       foreach($qs->result() as $rs)
       {
-        $ds[] = $rs->DocNum.' | '.$rs->ItemCode;
+        $ds[] = $rs->DocNum.' | '.$rs->ItemCode.' | '.($rs->Status == 'R' ? 'Released' : 'Closed');
       }
     }
     else

@@ -1,26 +1,11 @@
 <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 padding-right-15">
   <div class="form-horizontal">
     <div class="form-group">
-      <label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">Type</label>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
-        <select class="form-control input-xs" id="type">
-          <option value="S">Standard</option>
-          <!-- <option value="P">Special</option>
-          <option value="D">Disassembly</option> -->
-        </select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">Status</label>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
-        <select class="form-control input-xs" id="status">
-          <option value="P">Planned</option>
-          <!-- <option value="R">Released</option>
-          <option value="C">Closed</option> -->
-        </select>
-      </div>
-    </div>
+			<label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">Document No.</label>
+			<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
+				<input type="text" id="code" class="form-control input-xs" value="" disabled/>
+			</div>
+		</div>    
 
 		<div class="form-group">
       <label class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0">Product No.</label>
@@ -56,6 +41,14 @@
       </div>
     </div>
 
+    <div class="form-group">
+      <div class="sap-label col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-0" style="height:48px; display:flex; align-items:end;">
+        <span>Remark</span>
+      </div>
+      <div class="col-lg-6 col-md-9 col-sm-9 col-xs-8 padding-5">
+        <textarea class="form-control input-xs" id="remark" rows="2"></textarea>
+      </div>
+    </div>
   </div>
 </div>
 

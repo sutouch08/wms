@@ -43,7 +43,7 @@
     </div>
   </div>
 
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right" style="padding-right:12px;">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hide" style="padding-right:12px;">
     <?php if($this->pm->can_add) : ?>
       <button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="add()">Save</button>
       <button type="button" class="btn btn-white btn-default top-btn btn-100" onclick="leave()">Cancel</button>

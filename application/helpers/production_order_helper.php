@@ -25,6 +25,19 @@ function production_order_status_color($status = 'P')
 }
 
 
+function production_order_sap_status_text($status = 'P')
+{
+  $txt = [
+    'P' => 'Planned',
+    'R' => 'Released',
+    'L' => 'Closed',
+    'C' => 'Canceled'
+  ];
+
+  return empty($txt[$status]) ? 'Planned' : $txt[$status];
+}
+
+
 function originTypeName($type = 'M')
 {
   $txt = [
@@ -49,6 +62,18 @@ function itemTypeName($type = '4')
   ];
 
   return empty($txt[$type]) ? 'Item' : $txt[$type];
+}
+
+
+function status_type_text($type = 'S')
+{
+  $txt = [
+    'S' => 'Standard',
+    'P' => 'Special',
+    'D' => 'Disassembly'
+  ];
+
+  return empty($txt[$type]) ? $txt['S'] : $txt[$type];
 }
 
 

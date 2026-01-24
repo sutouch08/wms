@@ -165,6 +165,18 @@ class Production_issue_model extends CI_Model
   }
 
 
+  public function drop_all_details($code)
+  {
+    return $this->db->where('issue_code', $code)->delete($this->td);
+  }
+
+
+  public function drop_all_batch($code)
+  {
+    return $this->db->where('issue_code', $code)->delete($this->tm);
+  }
+
+
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     if( ! empty($ds['code']))
@@ -269,7 +281,7 @@ class Production_issue_model extends CI_Model
     $rs = $this->ms
     ->select('DocEntry, DocNum, ItemCode')
     ->where('DocNum', $code)
-    ->where('Status', 'R')
+    ->where_in('Status', ['R', 'L'])
     ->get('OWOR');
 
     if($rs->num_rows() === 1)

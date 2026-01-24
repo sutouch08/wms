@@ -29,6 +29,7 @@ class Production_transfer extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'tr_code', ''),
       'reference' => get_filter('reference', 'tr_reference', ''),
+      'orderRef' => get_filter('orderRef', 'tr_orderRef', ''),
       'from_date' => get_filter('from_date', 'tr_from_date', ''),
       'to_date' => get_filter('to_date', 'tr_to_date', ''),
       'fromWhsCode' => get_filter('fromWhsCode', 'tr_fromWhsCode', 'all'),
@@ -132,16 +133,28 @@ class Production_transfer extends PS_Controller
         {
           if($sc === FALSE) { break; }
 
-          if($sc === TRUE && empty($rs->batchRows) && (empty($rs->fromBinCode) OR empty($rs->fromWhsCode)))
+          if($sc === TRUE && empty($rs->fromWhsCode))
           {
             $sc = FALSE;
-            $this->error = "Missing From Whs or From Bin for line item {$rs->ItemCode}";
+            $this->error = "Missing From Warehouse for line item {$rs->ItemCode}";
           }
 
-          if($sc === TRUE && (empty($rs->toWhsCode) OR empty($rs->toBinCode)))
+          if($sc === TRUE && empty($rs->batchRows) && empty($rs->fromBinCode))
           {
             $sc = FALSE;
-            $this->error = "Missing To Whs or To Bin for line item {$rs->ItemCode}";
+            $this->error = "Missing From Bin for line item {$rs->ItemCode}";
+          }
+
+          if($sc === TRUE && empty($rs->toWhsCode))
+          {
+            $sc = FALSE;
+            $this->error = "Missing To Warehouse for line item {$rs->ItemCode}";
+          }
+
+          if($sc === TRUE && empty($rs->batchRows) && empty($rs->toBinCode))
+          {
+            $sc = FALSE;
+            $this->error = "Missing To Bin for line item {$rs->ItemCode}";
           }
 
           if($sc === TRUE && ! empty($rs->batchRows))
@@ -249,10 +262,10 @@ class Production_transfer extends PS_Controller
                 'LineNum' => $rs->LineNum,
                 'ItemCode' => $rs->ItemCode,
                 'ItemName' => $rs->ItemName,
-                'fromWhsCode' => $rs->hasBatch ? NULL : $rs->fromWhsCode,
-                'fromBinCode' => $rs->hasBatch ? NULL : $rs->fromBinCode,
+                'fromWhsCode' => $rs->fromWhsCode,
+                'fromBinCode' => get_null($rs->fromBinCode),
                 'toWhsCode' => $rs->toWhsCode,
-                'toBinCode' => $rs->toBinCode,
+                'toBinCode' => get_null($rs->toBinCode),
                 'Qty' => $rs->Qty,
                 'UomEntry' => $rs->UomEntry,
                 'UomCode' => $rs->UomCode,
@@ -499,7 +512,7 @@ class Production_transfer extends PS_Controller
         if($doc->Status == 'C' OR $doc->Status == 'D')
         {
           $sc = FALSE;
-          set_error('status');
+          $this->error = $doc->Status == 'D' ? 'Document already canceled cannot be change' : 'Document already Closed cannot be change';
         }
       }
 
@@ -510,16 +523,28 @@ class Production_transfer extends PS_Controller
         {
           if($sc === FALSE) { break;}
 
-          if($sc === TRUE && empty($rs->batchRows) && (empty($rs->fromBinCode) OR empty($rs->fromWhsCode)))
+          if($sc === TRUE && empty($rs->fromWhsCode))
           {
             $sc = FALSE;
-            $this->error = "Missing From Whs or From Bin for line item {$rs->ItemCode}";
+            $this->error = "Missing From Warehouse for line item {$rs->ItemCode}";
           }
 
-          if($sc === TRUE && empty($rs->toWhsCode) OR empty($rs->toBinCode))
+          if($sc === TRUE && empty($rs->batchRows) && empty($rs->fromBinCode))
           {
             $sc = FALSE;
-            $this->error = "Missing To Whs or To Bin for line item {$rs->ItemCode}";
+            $this->error = "Missing From Bin for line item {$rs->ItemCode}";
+          }
+
+          if($sc === TRUE && empty($rs->toWhsCode))
+          {
+            $sc = FALSE;
+            $this->error = "Missing To Warehouse line item {$rs->ItemCode}";
+          }
+
+          if($sc === TRUE && empty($rs->batchRows) && empty($rs->toBinCode))
+          {
+            $sc = FALSE;
+            $this->error = "Missing To Bin for line item {$rs->ItemCode}";
           }
 
           if( ! empty($rs->batchRows))
@@ -643,10 +668,10 @@ class Production_transfer extends PS_Controller
               'LineNum' => $rs->LineNum,
               'ItemCode' => $rs->ItemCode,
               'ItemName' => $rs->ItemName,
-              'fromWhsCode' => $rs->hasBatch ? NULL : $rs->fromWhsCode,
-              'fromBinCode' => $rs->hasBatch ? NULL : $rs->fromBinCode,
+              'fromWhsCode' => $rs->fromWhsCode,
               'toWhsCode' => $rs->toWhsCode,
-              'toBinCode' => $rs->toBinCode,
+              'fromBinCode' => get_null($rs->fromBinCode),
+              'toBinCode' => get_null($rs->toBinCode),
               'Qty' => $rs->Qty,
               'UomEntry' => $rs->UomEntry,
               'UomCode' => $rs->UomCode,
@@ -1677,6 +1702,7 @@ class Production_transfer extends PS_Controller
     $filter = array(
       'tr_code',
       'tr_reference',
+      'tr_orderRef',
       'tr_from_date',
       'tr_to_date',
       'tr_fromWhsCode',

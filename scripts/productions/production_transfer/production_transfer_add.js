@@ -161,6 +161,13 @@ function add(type) {
         }
 
         if(sc === true) {
+          if(fromWhsCode.length == 0) {
+            sc = false;
+            $('#from-whs-'+uid).hasError();
+            errMsg = "กรุณาระบุคลังต้นทาง";
+            return false;
+          }
+
           if(toWhsCode.length == 0) {
             sc = false;
             $('#to-whs-'+uid).hasError();
@@ -170,38 +177,29 @@ function add(type) {
         }
 
         if(sc === true) {
-          if(toBinCode.length == 0) {
-            sc = false;
-            $('#to-bin-'+uid).hasError();
-            errMsg = "กรุณาระบุโซนปลายทาง";
-            return false;
-          }
-        }
-
-        if(sc === true) {
           if(hasBatch == 0) {
-            if(fromWhsCode.length == 0) {
-              sc = false;
-              $('#from-whs-'+uid).hasError();
-              errMsg = "กรุณาระบุคลังต้นทาง";
-              return false;
-            }
-
             if(fromBinCode.length == 0) {
               sc = false;
               $('#from-bin-'+uid).hasError();
               errMsg = "กรุณาระบุโซนต้นทาง";
               return false;
             }
-          }
-        }
 
-        if(sc === true) {
-          if(hasBatch == 0 && trStock < trQty) {
-            sc = false;
-            el.hasError();
-            errMsg = 'จำนวนคงเหลือต้นทางไม่พอโอน กรุณาแก้ไข';
-            return false;
+            if(sc === true) {
+              if(toBinCode.length == 0) {
+                sc = false;
+                $('#to-bin-'+uid).hasError();
+                errMsg = "กรุณาระบุโซนปลายทาง";
+                return false;
+              }
+            }
+
+            if(trStock < trQty) {
+              sc = false;
+              el.hasError();
+              errMsg = 'จำนวนคงเหลือต้นทางไม่พอโอน กรุณาแก้ไข';
+              return false;
+            }
           }
         }
 
@@ -461,6 +459,13 @@ function save(type) {
         }
 
         if(sc === true) {
+          if(fromWhsCode.length == 0) {
+            sc = false;
+            $('#from-whs-'+uid).hasError();
+            errMsg = "กรุณาระบุคลังต้นทาง";
+            return false;
+          }
+
           if(toWhsCode.length == 0) {
             sc = false;
             $('#to-whs-'+uid).hasError();
@@ -470,38 +475,27 @@ function save(type) {
         }
 
         if(sc === true) {
-          if(toBinCode.length == 0) {
-            sc = false;
-            $('#to-bin-'+uid).hasError();
-            errMsg = "กรุณาระบุโซนปลายทาง";
-            return false;
-          }
-        }
-
-        if(sc === true) {
           if(hasBatch == 0) {
-            if(fromWhsCode.length == 0) {
-              sc = false;
-              $('#from-whs-'+uid).hasError();
-              errMsg = "กรุณาระบุคลังต้นทาง";
-              return false;
-            }
-
             if(fromBinCode.length == 0) {
               sc = false;
               $('#from-bin-'+uid).hasError();
               errMsg = "กรุณาระบุโซนต้นทาง";
               return false;
             }
-          }
-        }
 
-        if(sc === true) {
-          if(hasBatch == 0 && trStock < trQty) {
-            sc = false;
-            el.hasError();
-            errMsg = 'จำนวนคงเหลือต้นทางไม่พอโอน กรุณาแก้ไข';
-            return false;
+            if(toBinCode.length == 0) {
+              sc = false;
+              $('#to-bin-'+uid).hasError();
+              errMsg = "กรุณาระบุโซนปลายทาง";
+              return false;
+            }
+
+            if(trStock < trQty) {
+              sc = false;
+              el.hasError();
+              errMsg = 'จำนวนคงเหลือต้นทางไม่พอโอน กรุณาแก้ไข';
+              return false;
+            }
           }
         }
 
