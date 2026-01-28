@@ -30,5 +30,11 @@
         </button>
       </div>
     </div>
+    <div class="form-group">
+      <label class="sap-label fix-width-150">Production Item</label>
+      <div class="col-lg-6 col-md-5 col-sm-5 col-xs-12 padding-5 hidden-xs">
+        <input type="text" id="base-item" class="form-control input-xs h" maxlength="200" value="<?php echo $doc->ItemCode; ?>" disabled/>
+      </div>
+    </div>
   </div>
 </div>

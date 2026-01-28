@@ -118,6 +118,7 @@ class Production_receipt extends PS_Controller
 
     if( ! empty($ds) && ! empty($ds->date_add) && ! empty($ds->baseRef) && ! empty($ds->rows))
     {
+      $save_type = $ds->type == 'C' ? 'C' : 'P';
       $date_add = db_date($ds->date_add);
       $shipped_date = db_date($ds->shipped_date);
 
@@ -127,11 +128,12 @@ class Production_receipt extends PS_Controller
         'code' => $code,
         'reference' => $ds->baseRef,
         'orderRef' => get_null($ds->orderRef),
+        'ItemCode' => get_null($ds->ItemCode),
         'date_add' => $date_add,
         'shipped_date' => $shipped_date,
         'user' => $this->_user->uname,
         'remark' => get_null($ds->remark),
-        'Status' => 'C'
+        'Status' => $save_type
       );
 
       $this->db->trans_begin();
@@ -146,12 +148,13 @@ class Production_receipt extends PS_Controller
       {
         foreach($ds->rows as $rs)
         {
+          $line = $rs->LineNum + 1;
           if($sc === FALSE) { break;}
 
           if(empty($rs->BinCode) OR empty($rs->WhsCode))
           {
             $sc = FALSE;
-            $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode}";
+            $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode} at Line {$line}";
           }
 
           if($sc === TRUE)
@@ -171,7 +174,7 @@ class Production_receipt extends PS_Controller
               'UomEntry' => $rs->UomEntry,
               'UomCode' => $rs->UomCode,
               'unitMsr' => $rs->Uom,
-              'LineStatus' => 'C',
+              'LineStatus' => $save_type == 'C' ? 'C' : 'O',
               'hasBatch' => $rs->hasBatch,
               'uid' => $rs->uid
             );
@@ -214,7 +217,7 @@ class Production_receipt extends PS_Controller
                       $this->error = "Failed to add batch row for line item {$rs->ItemCode}";
                     }
 
-                    if($sc === TRUE)
+                    if($sc === TRUE && $save_type == 'C')
                     {
                       $move_in = array(
                         'reference' => $code,
@@ -237,19 +240,22 @@ class Production_receipt extends PS_Controller
               }
               else
               {
-                $move_in = array(
-                  'reference' => $code,
-                  'warehouse_code' => $rs->WhsCode,
-                  'zone_code' => $rs->BinCode,
-                  'product_code' => $rs->ItemCode,
-                  'move_in' => $rs->Qty,
-                  'move_out' => 0
-                );
-
-                if( ! $this->movement_model->add($move_in))
+                if($save_type == 'C')
                 {
-                  $sc = FALSE;
-                  $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
+                  $move_in = array(
+                    'reference' => $code,
+                    'warehouse_code' => $rs->WhsCode,
+                    'zone_code' => $rs->BinCode,
+                    'product_code' => $rs->ItemCode,
+                    'move_in' => $rs->Qty,
+                    'move_out' => 0
+                  );
+
+                  if( ! $this->movement_model->add($move_in))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
+                  }
                 }
               }
             }
@@ -271,7 +277,7 @@ class Production_receipt extends PS_Controller
         $this->db->trans_rollback();
       }
 
-      if($sc === TRUE)
+      if($sc === TRUE && $save_type == 'C')
       {
         if(is_true(getConfig('SAP_API')))
         {
@@ -297,6 +303,322 @@ class Production_receipt extends PS_Controller
       'message' => $sc === TRUE ? 'success' : $this->error,
       'ex' => $ex,
       'code' => $code
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function edit($code)
+  {
+    $this->load->helper('zone');
+    $doc = $this->production_receipt_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->Status == 'P')
+      {
+        $details = $this->production_receipt_model->get_details($code);
+
+        if( ! empty($details))
+        {
+          $no = 1;
+
+          foreach($details as $rs)
+          {
+            $rs->batchRows = $this->production_receipt_model->get_batch_rows($rs->id);
+          }
+        }
+
+
+        $ds = array(
+          'doc' => $doc,
+          'details' => $details
+        );
+
+        $this->load->view('productions/production_receipt/production_receipt_edit', $ds);
+      }
+      else
+      {
+        redirect($this->home.'/view_detail/'.$code);
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('notfound');
+    }
+  }
+
+
+  public function save()
+  {
+    $sc = TRUE;
+    $code = NULL;
+    $ex = 0;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds) && ! empty($ds->code) && ! empty($ds->date_add) && ! empty($ds->baseRef))
+    {
+      $save_type = $ds->type == 'C' ? 'C' : 'P';
+
+      if($save_type != 'P' && empty($ds->rows))
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบรายการสินค้า";
+      }
+
+      $code = $ds->code;
+
+      $doc = $this->production_receipt_model->get($code);
+
+      if(empty($doc))
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+
+      if($sc === TRUE && $doc->Status != 'P')
+      {
+        $sc = FALSE;
+        set_error('status');
+      }
+
+      if($sc === TRUE)
+      {
+        if($doc->Status == 'C' OR $doc->Status == 'D')
+        {
+          $sc = FALSE;
+          $this->error = $doc->Status == 'D' ? 'Document already canceled cannot be change' : 'Document already Closed cannot be change';
+        }
+      }
+
+      //--- check error before action
+      if($sc === TRUE && ! empty($ds->rows))
+      {
+        foreach($ds->rows as $rs)
+        {
+          $line = $rs->LineNum + 1;
+          if($sc === FALSE) { break;}
+
+          if(empty($rs->BinCode) OR empty($rs->WhsCode))
+          {
+            $sc = FALSE;
+            $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode} at Line {$line}";
+          }
+
+          if($rs->Qty <= 0)
+          {
+            $sc = FALSE;
+            $this->error = "Item Qty must be greater than 0 for item {$rs->ItemCode} at Line {$line}";
+          }
+
+          if($sc === TRUE && ! empty($rs->batchRows))
+          {
+            foreach($rs->batchRows as $ro)
+            {
+              if($sc === FALSE) { break;}
+
+              if($ro->Qty <= 0)
+              {
+                $sc = FALSE;
+                $this->error = "Batch Qty must be greater than 0 for item {$ro->ItemCode} at line {$line}";
+              }
+
+              if(empty($ro->BatchNum))
+              {
+                $sc = FALSE;
+                $this->error = "Batch Number is required for item {$ro->ItemCode}";
+              }
+            }
+          }
+        }
+      }
+
+      $this->db->trans_begin();
+
+      //--- drop previous data
+      if($sc === TRUE)
+      {
+        if( ! $this->production_receipt_model->drop_all_batch($code))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to delete previous item batch rows";
+        }
+
+        if($sc === TRUE && ! $this->production_receipt_model->drop_all_details($code))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to delete previous item rows";
+        }
+      }
+
+      //--- update header
+      if($sc === TRUE)
+      {
+        $date_add = db_date($ds->date_add);
+        $shipped_date = db_date($ds->shipped_date);
+
+        $arr = array(
+          'code' => $code,
+          'reference' => $ds->baseRef,
+          'orderRef' => get_null($ds->orderRef),
+          'ItemCode' => get_null($ds->ItemCode),
+          'date_add' => $date_add,
+          'shipped_date' => $shipped_date,
+          'update_user' => $this->_user->uname,
+          'date_upd' => now(),
+          'remark' => get_null($ds->remark),
+          'Status' => $save_type
+        );
+
+        if( ! $this->production_receipt_model->update($code, $arr))
+        {
+          $sc = FALSE;
+          set_error('update');
+        }
+      }
+
+      //--- insert details and batches
+      if($sc === TRUE)
+      {
+        foreach($ds->rows as $rs)
+        {
+          if($sc === FALSE) { break;}
+
+          $arr = array(
+            'receipt_code' => $code,
+            'LineNum' => $rs->LineNum,
+            'BaseType' => $rs->BaseType,
+            'BaseRef' => $rs->BaseRef,
+            'BaseEntry' => $rs->BaseEntry,
+            'ItemCode' => $rs->ItemCode,
+            'ItemName' => $rs->ItemName,
+            'WhsCode' => $rs->WhsCode,
+            'BinCode' => $rs->BinCode,
+            'Qty' => $rs->Qty,
+            'TranType' => $rs->TranType,
+            'UomEntry' => $rs->UomEntry,
+            'UomCode' => $rs->UomCode,
+            'unitMsr' => $rs->Uom,
+            'LineStatus' => $save_type == 'C' ? 'C' : 'O',
+            'hasBatch' => $rs->hasBatch,
+            'uid' => $rs->uid
+          );
+
+          $id = $this->production_receipt_model->add_detail($arr);
+
+          if($id)
+          {
+            if( ! empty($rs->batchRows))
+            {
+              foreach($rs->batchRows as $ro)
+              {
+                if($sc === FALSE) { break;}
+
+                $br = array(
+                  'receipt_code' => $code,
+                  'receipt_detail_id' => $id,
+                  'ItemCode' => $ro->ItemCode,
+                  'ItemName' => $ro->ItemName,
+                  'BatchNum' => $ro->BatchNum,
+                  'BatchAttr1' => get_null($ro->BatchAttr1),
+                  'BatchAttr2' => get_null($ro->BatchAttr2),
+                  'Qty' => $ro->Qty,
+                  'WhsCode' => $ro->WhsCode,
+                  'BinCode' => $ro->BinCode,
+                  'uid' => $ro->uid
+                );
+
+                if( ! $this->production_receipt_model->add_batch_rows($br))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to add batch row for line item {$rs->ItemCode}";
+                }
+
+                if($sc === TRUE && $save_type == 'C')
+                {
+                  $move_in = array(
+                    'reference' => $code,
+                    'warehouse_code' => $ro->WhsCode,
+                    'zone_code' => $ro->BinCode,
+                    'product_code' => $ro->ItemCode,
+                    'batchNum' => $ro->BatchNum,
+                    'move_in' => $ro->Qty,
+                    'move_out' => 0
+                  );
+
+                  if( ! $this->movement_model->add($move_in))
+                  {
+                    $sc = FALSE;
+                    $this->error = "Failed to insert stock movement out for {$ro->ItemCode} : {$ro->BatchNum}";
+                  }
+                }
+              } // end foreach
+            }
+            else
+            {
+              if($save_type == 'C')
+              {
+                $move_in = array(
+                  'reference' => $code,
+                  'warehouse_code' => $rs->WhsCode,
+                  'zone_code' => $rs->BinCode,
+                  'product_code' => $rs->ItemCode,
+                  'move_in' => $rs->Qty,
+                  'move_out' => 0
+                );
+
+                if( ! $this->movement_model->add($move_in))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to insert stock movement out for {$rs->ItemCode}";
+                }
+              }
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "Failed to add item row for line item {$rs->ItemCode}";
+          }
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
+      }
+
+      if($sc === TRUE && $save_type == 'C')
+      {
+        if(is_true(getConfig('SAP_API')))
+        {
+          $this->load->library('sap_api');
+
+          if( ! $this->sap_api->exportProductionReceipt($code))
+          {
+            $sc = FALSE;
+            $ex = 1;
+            $this->error = "Create Document success but send data to SAP failed";
+          }
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'ex' => $ex
     );
 
     echo json_encode($arr);
@@ -539,10 +861,13 @@ class Production_receipt extends PS_Controller
 
       if( ! empty($pd))
       {
+        $balance = $pd->PlannedQty - ($pd->CompleteQty + $pd->RejectQty);
+
         $pd->uid = genUid();
         $pd->Planned = number($pd->PlannedQty, 2);
         $pd->Completed = number($pd->CompleteQty, 2);
         $pd->Rejected = number($pd->RejectQty, 2);
+        $pd->Balance = $balance > 0 ? $balance : 0;
         $ds['data'] = $pd;
       }
       else
@@ -600,6 +925,51 @@ class Production_receipt extends PS_Controller
     {
       $this->page_error();
     }
+  }
+
+
+  public function get_zone_code_and_name($warehouse = NULL)
+  {
+    $sc = array();
+    $txt = $_REQUEST['term'];
+    $this->db->select('code, name, warehouse_code')->where('active', 1);
+
+    if( ! empty($warehouse))
+    {
+      $warehouse = urldecode($warehouse);
+      $arr = explode('|', $warehouse);
+      $this->db->where_in('warehouse_code', $arr);
+    }
+
+    if($txt != '*')
+    {
+      $this->db
+      ->group_start()
+      ->like('code', $txt)
+      ->or_like('name', $txt)
+      ->group_end();
+    }
+
+    $this->db
+    ->order_by('warehouse_code', 'ASC')
+    ->order_by('code', 'ASC')
+    ->limit(50);
+
+    $rs = $this->db->get('zone');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $zone)
+      {
+        $sc[] = $zone->code.' | '.$zone->name.' | '.$zone->warehouse_code;
+      }
+    }
+    else
+    {
+      $sc[] = 'ไม่พบรายการ';
+    }
+
+    echo json_encode($sc);
   }
 
 

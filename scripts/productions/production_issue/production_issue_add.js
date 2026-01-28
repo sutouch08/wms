@@ -124,14 +124,14 @@ function add(type) {
           return false;
         }
 
-        if(sc === true && hasBatch == 0) {
-          if(whsCode.length == 0) {
-            sc = false;
-            $('#whs-'+uid).hasError();
-            errMsg = "กรุณาระบุคลัง";
-            return false;
-          }
+        if(sc === true && whsCode.length == 0) {
+          sc = false;
+          $('#whs-'+uid).hasError();
+          errMsg = "กรุณาระบุคลัง";
+          return false;
+        }
 
+        if(sc === true && hasBatch == 0) {
           if(binCode.length == 0) {
             sc = false;
             $('#bin-'+uid).hasError();
@@ -180,7 +180,7 @@ function add(type) {
           };
 
           if(hasBatch == 1) {
-            let sumBatchQty = parseDefaultFloat(removeCommas($('#sum-batch-'+uid).val()), 0);
+            let sumBatchQty = 0;
 
             $('.child-of-'+uid).each(function() {
               if(sc === false) { return false; }
@@ -189,6 +189,7 @@ function add(type) {
               let ro = $('#batch-qty-'+uuid);
               let bQty = parseDefaultFloat(ro.val(), 0);
               let bStock = parseDefaultFloat(removeCommas($('#batch-in-stock-'+uuid).val()), 0);
+              sumBatchQty += bQty;
 
               if(bQty > bStock) {
                 sc = false;
@@ -374,14 +375,14 @@ function save(type) {
           return false;
         }
 
-        if(sc === true && hasBatch == 0) {
-          if(whsCode.length == 0) {
-            sc = false;
-            $('#whs-'+uid).hasError();
-            errMsg = "กรุณาระบุคลัง";
-            return false;
-          }
+        if(sc === true && whsCode.length == 0) {
+          sc = false;
+          $('#whs-'+uid).hasError();
+          errMsg = "กรุณาระบุคลัง";
+          return false;
+        }
 
+        if(sc === true && hasBatch == 0) {
           if(binCode.length == 0) {
             sc = false;
             $('#bin-'+uid).hasError();
@@ -921,13 +922,14 @@ function getAvailableStock(uid) {
 
 
 function reCalBatchRows(parentUid) {
-  let pQty = 0;
+  if($('.child-of-'+parentUid).length) {
+    let pQty = 0;
+    $('.child-of-'+parentUid).each(function() {
+      let uid = $(this).data('uid');
+      let qty = parseDefaultFloat(removeCommas($('#batch-qty-'+uid).val()), 0);
+      pQty += qty;
+    });
 
-  $('.child-of-'+parentUid).each(function() {
-    let uid = $(this).data('uid');
-    let qty = parseDefaultFloat(removeCommas($('#batch-qty-'+uid).val()), 0);
-    pQty += qty;
-  });
-
-  $('#issue-qty-'+parentUid).val(addCommas(pQty.toFixed(2)));
+    $('#issue-qty-'+parentUid).val(addCommas(pQty.toFixed(2)));
+  }
 }

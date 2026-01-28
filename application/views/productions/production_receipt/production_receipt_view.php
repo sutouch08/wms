@@ -6,19 +6,26 @@
   </div>
   <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-white btn-default top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
-		<?php if($doc->Status == 'C') : ?>
+		<?php if($doc->Status != 'D') : ?>
 			<div class="btn-group">
 				<button data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
 					Actions
 					<i class="ace-icon fa fa-angle-down icon-on-right"></i>
 				</button>
 				<ul class="dropdown-menu dropdown-menu-right">
-					<li class="success">
-						<a href="javascript:sendToSap('<?php echo $doc->code; ?>')"><i class="fa fa-send"></i> Send To SAP</a>
-					</li>					
-					<li class="info">
-						<a href="javascript:printReceipt('<?php echo $doc->code; ?>')"><i class="fa fa-print"></i> Print</a>
-					</li>
+					<?php if($doc->Status == 'C') : ?>
+						<li class="success">
+							<a href="javascript:sendToSap('<?php echo $doc->code; ?>')"><i class="fa fa-send"></i> Send To SAP</a>
+						</li>
+						<li class="info">
+							<a href="javascript:printReceipt('<?php echo $doc->code; ?>')"><i class="fa fa-print"></i> Print</a>
+						</li>
+					<?php endif; ?>
+					<?php if($doc->Status == 'P') : ?>
+						<li class="warning">
+							<a href="javascript:edit('<?php echo $doc->code; ?>')"><i class="fa fa-pencil"></i> &nbsp; Edit</a>
+						</li>
+					<?php endif; ?>
 					<?php if($this->pm->can_delete) : ?>
 						<li class="danger">
 							<a href="javascript:goCancel('<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> Cancel</a>

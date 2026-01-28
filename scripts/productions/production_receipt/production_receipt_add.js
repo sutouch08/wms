@@ -1,5 +1,5 @@
 window.addEventListener('load', () => {
-
+  detailsInit();
 });
 
 var click = 0;
@@ -41,7 +41,18 @@ $('#base-ref').keyup(function(e) {
 })
 
 
-function add() {
+function detailsInit() {
+  $('.receipt-qty').each(function() {
+    let uid = $(this).data('uid');
+    whsInit(uid);
+    binInit(uid);
+
+    reCalBatchRows(uid);
+  })
+}
+
+
+function add(type) {
   if(click == 0) {
     click = 1;
 
@@ -49,6 +60,7 @@ function add() {
     clearErrorByClass('r');
 
     let h = {
+      'type' : type,
       'date_add' : $('#date-add').val().trim(),
       'shipped_date' : $('#posting-date').val().trim(),
       'baseRef' : $('#base-ref').val().trim(),
@@ -271,6 +283,238 @@ function add() {
 }
 
 
+function save(type) {
+  let code = $('#code').val().trim();
+
+  if(click == 0) {
+    click = 1;
+
+    clearErrorByClass('h');
+    clearErrorByClass('r');
+
+    let h = {
+      'type' : type,
+      'code' : code,
+      'date_add' : $('#date-add').val().trim(),
+      'shipped_date' : $('#posting-date').val().trim(),
+      'baseRef' : $('#base-ref').val().trim(),
+      'orderRef' : $('#order-ref').val().trim(),
+      'ItemCode' : $('#base-item').val().trim(),
+      'remark' : $('#remark').val().trim(),
+      'rows' : []
+    };
+
+    if( ! isDate(h.date_add)) {
+      $('#date-add').hasError();
+      click = 0;
+      return false;
+    }
+
+
+    if(h.baseRef == "") {
+      $('#base-ref').hasError();
+      click = 0;
+      return false;
+    }
+
+    let error = 0;
+    let errMsg = "";
+    let line = 0;
+    let sc = true;
+
+    $('.receipt-qty').each(function() {
+      if(sc === true) {
+        let el = $(this);
+        let uid = el.data('uid');
+        let whsCode = $('#whs-'+uid).val().trim();
+        let binCode = $('#bin-'+uid).val().trim();
+        let receiptQty = parseDefaultFloat(removeCommas(el.val()), 0);
+        let hasBatch = el.data('hasbatch') == 'Y' ? 1 : 0;
+
+        if(receiptQty <= 0) {
+          el.hasError();
+          sc = false;
+          errMsg = "จำนวนไม่ถูกต้อง";
+          return false;
+        }
+
+        if(whsCode.length == 0) {
+          sc = false;
+          $('#whs-'+uid).hasError();
+          errMsg = "กรุณาระบุคลัง";
+          return false;
+        }
+
+        if(binCode.length == 0) {
+          sc = false;
+          $('#bin-'+uid).hasError();
+          errMsg = "กรุณาระบุโซน";
+          return false;
+        }
+
+        if(sc === true && hasBatch == 1) {
+          if($('.child-of-'+uid).length == 0) {
+            sc = false;
+            $('#item-code-'+uid).hasError();
+            errMsg = "กรุณาระบุ Batch";
+            return false;
+          }
+        }
+
+        if(sc === true) {
+          let itemCode = el.data('code');
+          let itemName = el.data('name');
+
+          let row = {
+            'uid' : uid,
+            'LineNum' : line,
+            'BaseType' : el.data('basetype'),
+            'BaseEntry' : el.data('baseentry'),
+            'BaseRef' : el.data('baseref'),
+            'hasBatch' : hasBatch,
+            'ItemCode' : itemCode,
+            'ItemName' : itemName,
+            'WhsCode' : whsCode,
+            'BinCode' : binCode,
+            'TranType' : $('#tran-type-'+uid).val(),
+            'Qty' : receiptQty,
+            'Uom' : el.data('uom'),
+            'UomCode' : el.data('uomcode'),
+            'UomEntry' : el.data('uomentry'),
+            'batchRows' : []
+          };
+
+          if(hasBatch == 1) {
+            let sumBatchQty = 0;
+            let batches = [];
+
+            $('.child-of-'+uid).each(function() {
+              if(sc === false) { return false; }
+
+              let uuid = $(this).data('uid');
+              let ro = $('#batch-qty-'+uuid);
+              let batchNum = $('#batch-'+uuid).val().trim();
+              let batchAttr1 = $('#batch-attr1-'+uuid).val().trim();
+              let batchAttr2 = $('#batch-attr2-'+uuid).val().trim();
+
+              if(batchNum == "" || batchNum == null || batchNum == undefined) {
+                sc = false;
+                $('#batch-'+uuid).hasError();
+                errMsg = "กรุณาระบุ Batch No.";
+                return false;
+              }
+
+              if(sc === true) {
+                if(batches.includes(batchNum)) {
+                  sc = false;
+                  $('#batch-'+uuid).hasError();
+                  errMsg = "Batch No. ซ้ำ";
+                  return false;
+                }
+                else {
+                  batches.push(batchNum);
+                }
+              }
+
+              let bQty = parseDefaultFloat(ro.val(), 0);
+              sumBatchQty += bQty;
+
+              row.batchRows.push({
+                'ItemCode' : itemCode,
+                'ItemName' : itemName,
+                'BatchNum' : batchNum,
+                'BatchAttr1' : batchAttr1,
+                'BatchAttr2' : batchAttr2,
+                'Qty' : bQty,
+                'WhsCode' : whsCode,
+                'BinCode' : binCode,
+                'uid' : uuid
+              });
+            });
+
+            if(sc === true && receiptQty != sumBatchQty) {
+              el.hasError();
+              sc = false;
+              errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;
+              return false;
+            }
+          }
+
+          h.rows.push(row);
+          line++;
+        }
+      } //--- end sc
+    }); //--- each
+
+    if(sc === false) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:errMsg,
+        type:'error'
+      });
+
+      return false;
+    }
+
+    if(sc === true) {
+      load_in();
+
+      $.ajax({
+        url:HOME + 'save',
+        type:'POST',
+        cache:false,
+        data:{
+          'data' : JSON.stringify(h)
+        },
+        success:function(rs) {
+          click = 0;
+          load_out();
+
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+
+            if(ds.status === 'success') {
+
+              if(ds.ex == 0) {
+                swal({
+                  title:'Success',
+                  type:'success',
+                  timer:1000
+                });
+
+                setTimeout(() => {
+                  viewDetail(code);
+                }, 1200);
+              }
+              else {
+                swal({
+                  title:'Oops !',
+                  text:ds.message,
+                  type:'info'
+                }, function() {
+                  viewDetail(code);
+                })
+              }
+            }
+            else {
+              showError(ds.message);
+            }
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          click = 0;
+          showError(rs);
+        }
+      })
+    }
+  }
+}
+
+
 function getOrderData() {
   let baseCode = $('#base-ref').val().trim();
   let baseItem = $('#base-item').val().trim();
@@ -393,17 +637,25 @@ function whsInit(uid) {
 
 function binInit(uid) {
   let whsCode = $('#whs-'+uid).val();
+  let zone = $('#bin-'+uid);
+
+  if(zone.data('whs') != whsCode) {
+    zone.val('');
+    zone.data('whs', '');
+  }
 
   $('#bin-'+uid).autocomplete({
-    source:BASE_URL + 'auto_complete/get_zone_code_and_name/'+whsCode,
+    source:HOME + 'get_zone_code_and_name/'+whsCode,
     autoFocus:true,
     close:function() {
       let arr = $(this).val().split(' | ');
-      if(arr.length == 2) {
+      if(arr.length == 3) {
         $(this).val(arr[0]);
+        $(this).data('whs', arr[2]);
       }
       else {
         $(this).val('');
+        $(this).data('whs', '');
       }
     }
   })
@@ -586,4 +838,18 @@ function removeRow(uid) {
   $('.child-of-'+uid).remove();
 
   reIndex('no');
+}
+
+
+function reCalBatchRows(parentUid) {
+  if($('.child-of-'+parentUid).length) {
+    let pQty = 0;
+    $('.child-of-'+parentUid).each(function() {
+      let uid = $(this).data('uid');
+      let qty = parseDefaultFloat(removeCommas($('#batch-qty-'+uid).val()), 0);
+      pQty += qty;
+    });
+
+    $('#receipt-qty-'+parentUid).val(addCommas(pQty.toFixed(2)));
+  }
 }

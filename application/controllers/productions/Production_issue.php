@@ -127,6 +127,8 @@ class Production_issue extends PS_Controller
       {
         foreach($ds->rows as $rs)
         {
+          $line = $rs->LineNum + 1;
+
           if($sc === FALSE) { break; }
 
           if($sc === TRUE && $rs->Qty <= 0)
@@ -135,10 +137,16 @@ class Production_issue extends PS_Controller
             $this->error = "Invalid Quantity for line item {$rs->ItemCode}";
           }
 
-          if($sc === TRUE && empty($rs->batchRows) && (empty($rs->WhsCode) OR empty($rs->BinCode)))
+          if($sc === TRUE && empty($rs->WhsCode))
           {
             $sc = FALSE;
-            $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode}";
+            $this->error = "Missing Warehouse for item {$rs->ItemCode} at Line {$line}";
+          }
+
+          if($sc === TRUE && ! $rs->hasBatch && empty($rs->batchRows) && empty($rs->BinCode))
+          {
+            $sc = FALSE;
+            $this->error = "Missing Bin Location for line item {$rs->ItemCode} at Line {$line}";
           }
 
           if($sc === TRUE && ! empty($rs->batchRows))
@@ -150,25 +158,25 @@ class Production_issue extends PS_Controller
               if($sc === TRUE && empty($ro->BatchNum))
               {
                 $sc = FALSE;
-                $this->error = "Batch Number is required for item {$rs->ItemCode}";
+                $this->error = "Batch Number is required for item {$ro->ItemCode}";
               }
 
               if($sc === TRUE && empty($ro->WhsCode))
               {
                 $sc = FALSE;
-                $this->error = "Missing Warehouse for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+                $this->error = "Missing Warehouse for batch row {$ro->ItemCode} - {$ro->BatchNum}";
               }
 
               if($sc === TRUE && empty($ro->BinCode))
               {
                 $sc = FALSE;
-                $this->error = "Missing Bin Location for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+                $this->error = "Missing Bin Location for batch row {$ro->ItemCode} - {$ro->BatchNum}";
               }
 
               if($sc === TRUE && $ro->Qty <= 0)
               {
                 $sc = FALSE;
-                $this->error = "Batch Quantity is invalid {$rs->ItemCode} - {$ro->BatchNum}";
+                $this->error = "Batch Quantity is invalid {$ro->ItemCode} - {$ro->BatchNum}";
               }
 
               if($sc === TRUE)
@@ -239,8 +247,8 @@ class Production_issue extends PS_Controller
               'BaseLine' => $rs->BaseLine,
               'ItemCode' => $rs->ItemCode,
               'ItemName' => $rs->ItemName,
-              'WhsCode' => $rs->hasBatch == 0 ? $rs->WhsCode : NULL,
-              'BinCode' => $rs->hasBatch == 0 ? $rs->BinCode : NULL,
+              'WhsCode' => $rs->WhsCode,
+              'BinCode' => get_null($rs->BinCode),
               'Qty' => $rs->Qty,
               'UomEntry' => $rs->UomEntry,
               'UomCode' => $rs->UomCode,
@@ -455,6 +463,8 @@ class Production_issue extends PS_Controller
       {
         foreach($ds->rows as $rs)
         {
+          $line = $rs->LineNum + 1;
+
           if($sc === FALSE) { break; }
 
           if($sc === TRUE && $rs->Qty <= 0)
@@ -463,10 +473,16 @@ class Production_issue extends PS_Controller
             $this->error = "Invalid Quantity for line item {$rs->ItemCode}";
           }
 
-          if($sc === TRUE && empty($rs->batchRows) && (empty($rs->WhsCode) OR empty($rs->BinCode)))
+          if($sc === TRUE && empty($rs->WhsCode))
           {
             $sc = FALSE;
-            $this->error = "Missing Warehouse or Bin Location for line item {$rs->ItemCode}";
+            $this->error = "Missing Warehouse for item {$rs->ItemCode} at Line {$line}";
+          }
+
+          if($sc === TRUE && ! $rs->hasBatch && empty($rs->batchRows) && empty($rs->BinCode))
+          {
+            $sc = FALSE;
+            $this->error = "Missing Bin Location for line item {$rs->ItemCode} at Line {$line}";
           }
 
           if($sc === TRUE && ! empty($rs->batchRows))
@@ -478,25 +494,25 @@ class Production_issue extends PS_Controller
               if($sc === TRUE && empty($ro->BatchNum))
               {
                 $sc = FALSE;
-                $this->error = "Batch Number is required for item {$rs->ItemCode}";
+                $this->error = "Batch Number is required for item {$ro->ItemCode}";
               }
 
               if($sc === TRUE && empty($ro->WhsCode))
               {
                 $sc = FALSE;
-                $this->error = "Missing Warehouse for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+                $this->error = "Missing Warehouse for batch row {$ro->ItemCode} - {$ro->BatchNum}";
               }
 
               if($sc === TRUE && empty($ro->BinCode))
               {
                 $sc = FALSE;
-                $this->error = "Missing Bin Location for batch row {$rs->ItemCode} - {$ro->BatchNum}";
+                $this->error = "Missing Bin Location for batch row {$ro->ItemCode} - {$ro->BatchNum}";
               }
 
               if($sc === TRUE && $ro->Qty <= 0)
               {
                 $sc = FALSE;
-                $this->error = "Batch Quantity is invalid {$rs->ItemCode} - {$ro->BatchNum}";
+                $this->error = "Batch Quantity is invalid {$ro->ItemCode} - {$ro->BatchNum}";
               }
 
               if($sc === TRUE)
@@ -587,8 +603,8 @@ class Production_issue extends PS_Controller
               'BaseLine' => $rs->BaseLine,
               'ItemCode' => $rs->ItemCode,
               'ItemName' => $rs->ItemName,
-              'WhsCode' => $rs->hasBatch == 0 ? $rs->WhsCode : NULL,
-              'BinCode' => $rs->hasBatch == 0 ? $rs->BinCode : NULL,
+              'WhsCode' => $rs->WhsCode,
+              'BinCode' => get_null($rs->BinCode),
               'Qty' => $rs->Qty,
               'UomEntry' => $rs->UomEntry,
               'UomCode' => $rs->UomCode,

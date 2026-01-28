@@ -10,7 +10,7 @@
           <th class="min-width-200 middle fix-header">Item Description.</th>
           <th class="fix-width-80 middle fix-header">Warehouse</th>
           <th class="fix-width-150 middle fix-header">Bin Location</th>
-          <th class="fix-width-80 middle fix-header">In Stock</th>
+          <th class="fix-width-80 middle fix-header">Trans. Type</th>
           <th class="fix-width-80 middle fix-header">Qty</th>
           <th class="fix-width-100 middle fix-header">Uom</th>
         </tr>
@@ -40,57 +40,42 @@
   			</div>
   		</div>
     </div>
-  </div>
-
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hide" style="padding-right:12px;">
-    <?php if($this->pm->can_add) : ?>
-      <button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="add()">Save</button>
-      <button type="button" class="btn btn-white btn-default top-btn btn-100" onclick="leave()">Cancel</button>
-    <?php endif; ?>
-  </div>
+  </div>  
 </div>
 
-<?php $this->load->view('productions/production_issue/production_modal'); ?>
-<?php $this->load->view('productions/production_issue/batch_modal'); ?>
+<?php $this->load->view('productions/production_receipt/production_modal'); ?>
+<?php $this->load->view('productions/production_receipt/batch_modal'); ?>
 
-<script id="batch-rows-template" type="text/x-handlebarsTemplate">
-  {{#each this}}
-    <tr id="batch-rows-{{uid}}" data-uid="{{uid}}" class="blue font-size-11 child-of-{{parentUid}}">
-      <td class="middle text-center">
-        <a class="pointer" href="javascript:removeBatchRow('{{uid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a>
-      </td>
-      <td colspan="4" class="middle italic">
-        <span class="label label-success label-white middle italic">Batch No : {{batchNum}}</span>
-        <span class="label label-info label-white middle italic">Attr1 : {{batchAttr1}}</span>
-        <span class="label label-default label-white middle italic">Attr2 : {{batchAttr2}}</span>
-      </td>
-      <td class="middle">
-        <input type="text" class="form-control input-xs blue r" value="{{whsCode}}" disabled />
-      </td>
-      <td class="middle">
-        <input type="text" class="form-control input-xs blue r" value="{{binCode}}" disabled />
-      </td>
-      <td class="middle">
-        <input type="text" class="form-control input-xs blue text-right r" id="batch-in-stock-{{uid}}" value="{{InStock}}" disabled />
-      </td>
-      <td class="middle">
-        <input type="text" class="form-control input-xs blue text-right batch-qty r"
-        id="batch-qty-{{uid}}"
-        data-uid="{{uid}}"
-        data-parent="{{parentUid}}"
-        data-batchnum="{{batchNum}}"
-        data-attr1="{{batchAttr1}}"
-        data-attr2="{{batchAttr2}}"
-        data-fromwhs="{{whsCode}}"
-        data-frombin="{{binCode}}"
-        value="{{qty}}"
-        onchange="reCalBatchRows('{{parentUid}}')"/>
-      </td>
-      <td>
-        <input type="text" class="form-control input-xs blue r" value="{{UomName}}"  disabled/>
-      </td>
-    </tr>
-  {{/each}}
+<script id="batch-row-template" type="text/x-handlebarsTemplate">
+  <tr id="batch-row-{{uid}}" data-uid="{{uid}}" class="blue font-size-11 child-of-{{parentUid}}">
+    <td class="middle text-center">
+      <a class="pointer" href="javascript:removeBatchRow('{{uid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a>
+    </td>
+    <td colspan="7" class="middle italic">
+      <div class="input-group width-30 float-left">
+        <span class="input-group-addon batch-label">Batch No. :</span>
+        <input type="text" class="form-control input-xs batch-row r" id="batch-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" />
+      </div>
+      <div class="input-group width-30 float-left">
+        <span class="input-group-addon batch-label">Attr1 :</span>
+        <input type="text" class="form-control input-xs batch-attr1 r" id="batch-attr1-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" />
+      </div>
+      <div class="input-group width-30 float-left">
+        <span class="input-group-addon batch-label">Attr2 :</span>
+        <input type="text" class="form-control input-xs batch-attr2 r" id="batch-attr2-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" />
+      </div>
+    </td>
+    <td class="middle">
+      <input type="text" class="form-control input-xs blue text-right batch-qty r"
+      id="batch-qty-{{uid}}"
+      data-uid="{{uid}}"
+      data-parent="{{parentUid}}"
+      value="" />
+    </td>
+    <td>
+      <input type="text" class="form-control input-xs blue r" value="{{UomName}}"  disabled/>
+    </td>
+  </tr>
 </script>
 
 <script id="details-template" type="text/x-handlebarsTemplate">
@@ -102,7 +87,7 @@
       <td class="middle text-center fix-no no" scope="row"></td>
       <td class="middle text-center">
         {{#if hasBatch}}
-          <a class="pointer add-batch" href="javascript:getPreBatch('{{uid}}')" title="Add Batch Number">
+          <a class="pointer add-batch" href="javascript:addBatchRow('{{uid}}')" title="Add Batch Number">
             <i class="fa fa-plus fa-lg blue"></i>
           </a>
         {{/if}}
@@ -114,39 +99,34 @@
         <input type="text" class="form-control input-xs item-name r" data-uid="{{uid}}" id="item-name-{{uid}}" value="{{ItemName}}" disabled/>
       </td>
       <td class="middle">
-        <input type="text" class="form-control input-xs from-whs r" data-uid="{{uid}}" id="whs-{{uid}}" value="{{whsCode}}" onchange="binInit('{{uid}}')" />
+        <input type="text" class="form-control input-xs r" data-uid="{{uid}}" id="whs-{{uid}}" value="{{whsCode}}" onchange="binInit('{{uid}}')" />
       </td>
       <td class="middle">
-        <input type="text" class="form-control input-xs from-bin r" data-uid="{{uid}}" id="bin-{{uid}}" value="" />
+        <input type="text" class="form-control input-xs r" data-uid="{{uid}}" id="bin-{{uid}}" value="" />
       </td>
       <td class="middle">
-        <input type="text" class="form-control input-xs text-right r" data-uid="{{uid}}" id="instock-{{uid}}" value="{{InStock}}" disabled/>
+        <select class="form-control input-xs" data-uid="{{uid}}" id="tran-type-{{uid}}">
+          <option value="C" {{tranComplete}}>Complete</option>
+          <option value="R" {{tranReject}}>Reject</option>
+        </select>
       </td>
       <td class="middle">
-        <input type="text" class="form-control input-xs text-right issue-qty r"
+        <input type="text" class="form-control input-xs text-right receipt-qty r"
+          data-no="0"
           data-code="{{ItemCode}}"
           data-name="{{ItemName}}"
           data-hasbatch="{{ManBtchNum}}"
           data-basetype="{{BaseType}}"
           data-baseref="{{BaseRef}}"
           data-baseentry="{{BaseEntry}}"
-          data-baseline="{{BaseLine}}"
           data-uomentry="{{UomEntry}}"
           data-uomcode="{{UomCode}}"
           data-uom="{{UomName}}"
-          data-method="Load"
           data-uid="{{uid}}"
-          id="issue-qty-{{uid}}"
+          id="receipt-qty-{{uid}}"
           value="{{Qty}}" />
-      </td>      
-      <td class="middle">
-        <input type="text" class="form-control input-xs r"
-          data-uid="{{uid}}"
-          id="uom-{{uid}}"
-          data-uomentry="{{UomEntry}}"
-          data-uomcode="{{UomCode}}"
-          value="{{UomName}}"  disabled/>
       </td>
+      <td class="middle"><input type="text" class="form-control input-xs r"  value="{{UomName}}"  disabled/></td>
     </tr>
   {{/each}}
 </script>

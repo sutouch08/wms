@@ -72,9 +72,25 @@
 						data-uomcode="{{UomCode}}"
 						data-whscode="{{WhsCode}}"
 						data-plannedqty="{{PlannedQty}}"
-						value="" />
+						data-balance="{{Balance}}"
+						value="" ondblclick="fillOpenQty('{{uid}}')"/>
 				</td>
 			</tr>
 		{{/if}}
 	{{/each}}
+</script>
+
+<script>
+	function fillOpenQty(uid) {
+		let qty = parseDefaultFloat(removeCommas($('#pi-qty-'+uid).data('balance')), 0);
+
+		if(qty <= 0) {
+			return false;
+		}
+
+		if(qty > 0) {
+			$('#pi-qty-'+uid).val(addCommas(qty));
+		}
+	}
+
 </script>
