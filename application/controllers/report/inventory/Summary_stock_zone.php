@@ -59,9 +59,10 @@ class Summary_stock_zone extends PS_Controller
             foreach($stockZone as $rs)
             {
               $data[] = [
-                'code' => $rs->BinName,
+                'name' => $rs->BinName,
                 'qty' => ac_format($rs->Qty),
-                'color' => $rs->Qty > 1000 ? 'box-1000' : ($rs->Qty > 0 ? 'box-100' : 'box-0')
+                'color' => $rs->Qty > 1000 ? 'box-1000' : ($rs->Qty > 0 ? 'box-100' : 'box-0'),
+                'link' => $rs->Qty > 0 ? 'onclick="getItemStockZone('.$rs->BinAbs.')"' : ""
               ];
             }
           }
@@ -81,6 +82,27 @@ class Summary_stock_zone extends PS_Controller
     );
 
     echo json_encode($arr);
+  }
+
+
+  public function getItemStockZone($BinAbs)
+  {
+    $ds = [
+      'binName' => $this->summary_stock_zone_model->getBinName($BinAbs),
+      'items' => []
+    ];
+
+    $stock = $this->summary_stock_zone_model->getItemStockZone($BinAbs);
+
+    if( ! empty($stock))
+    {
+      foreach($stock as $rs)
+      {
+        $ds['items'][] = (object)['ItemCode' => $rs->ItemCode, 'Qty' => $rs->OnHandQty];
+      }
+    }
+
+    $this->load->view('report/inventory/summary_stock_zone/item_stock_zone', $ds);
   }
 } //--- end class
 

@@ -69,11 +69,11 @@
 
 <script id="template" type="text/x-handlebarsTemplate">
   {{#each this}}
-		<div class="box {{color}}">{{code}}<br/>{{qty}}</div>
+		<div class="pointer box {{color}}" {{{link}}}>{{name}}<br/>{{qty}}</div>
   {{/each}}
 </script>
 
 
-<script src="<?php echo base_url(); ?>scripts/report/inventory/summary_stock_zone.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/report/inventory/summary_stock_zone.js?v=<?php echo date('YmdH'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

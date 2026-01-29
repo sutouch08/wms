@@ -72,65 +72,11 @@ function getReport() {
 }
 
 
-function doExport() {
-  $('#min-stock').clearError();
-
-  let h = {
-    'zone_code' : $('#zone-code').val().trim(),
-    'product_code' : $('#pd-code').val().trim(),
-    'min_stock' : $('#min-stock').val().trim(),
-    'is_min' : $('#is-min').val()
-  }
-
-  if(h.min_stock <= 0) {
-    $('#min-stock').hasError();
-    return false;
-  }
-
-  let token = generateUID();
-
-  $('#data').val(JSON.stringify(h));
-  $('#token').val(token);
-
-  $('#export-form').submit();
-  get_download(token);
-}
-
-function printQr() {
-  $('#min-stock').clearError();
-
-  let h = {
-    'zone_code' : $('#zone-code').val().trim(),
-    'product_code' : $('#pd-code').val().trim(),
-    'min_stock' : $('#min-stock').val().trim(),
-    'is_min' : $('#is-min').val()
-  }
-
-  if(h.min_stock <= 0) {
-    $('#min-stock').hasError();
-    return false;
-  }
-
-  var mapForm = document.createElement('form');
-  mapForm.target = "Map";
-  mapForm.method = "POST";
-  mapForm.action = HOME + "print_qr";
-
-  var mapInput = document.createElement("input");
-  mapInput.type = "hidden";
-  mapInput.name = "data";
-  mapInput.value = JSON.stringify(h);
-
-  mapForm.appendChild(mapInput);
-
-  document.body.appendChild(mapForm);
-
-  map = window.open("", "Map", "status=0,title=0,height=900,width=800,scrollbars=1");
-
-  if(map) {
-    mapForm.submit();
-  }
-  else {
-    swal('You must allow popups for this map to work.');
-  }
+function getItemStockZone(binAbs) {
+  let width = 400;
+  let height = 600;
+  let left = (window.innerWidth - width) / 2;
+  let target = HOME + 'getItemStockZone/'+binAbs + '?nomenu';
+  let prop = `width=${width}, height=${height}, left=${left}, scrollbars=yes`;  
+  window.open(target, '_blank', prop);
 }
