@@ -597,6 +597,8 @@ class Qc extends PS_Controller
           }
           else
           {
+            $no = 0;
+
             foreach($boxes as $box)
             {
               if($box->qty > 0)
@@ -604,7 +606,7 @@ class Qc extends PS_Controller
                 $cod = $order->role === 'S' ? ($order->payment_role == 4 ? 1 : 0) : 0;
                 $cod_amount = $cod === 1 ? ($order->cod_amount == 0 ? $order->doc_total : $order->cod_amount) : 0.00;
                 $packages[] = array(
-                  'order_id' => $box->code,
+                  'order_id' => $box->order_code.(empty($no) ? "" : "-{$no}"),
                   'sender_info' => [
                     'sender_state' => $sender->state,
                     'sender_city' => $sender->city,
@@ -639,6 +641,8 @@ class Qc extends PS_Controller
                     'express_insured_value' => NULL
                   ]
                 );
+
+                $no++;
               }
             } // end foreach boxes
           }
