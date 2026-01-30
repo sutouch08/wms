@@ -50,11 +50,21 @@
 	</div>
 
 	<div class="divider-hidden"></div>
+	<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 padding-5">
+		<div class="input-group">
+			<span class="input-group-addon font-size-11" style="padding:3px 6px;">
+				<label style="font-size: 11px; margin:0;">
+					<input type="checkbox" class="ace" id="item-option" value="1" /><span class="lbl">&nbsp; รหัสสินค้า</span>
+				</label>
+			</span>
+			<input type="text" class="form-control input-xs font-size-11" style="height:28px;" id="item-code" />
+		</div>
+	</div>
 
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-">
-		<label class="label-0">โซนว่าง</label>
-		<label class="label-100">จำนวนน้อยกว่า 1,000</label>
+	<div class="col-lg-8 col-md-8 col-sm-6 col-xs-12 padding-5 text-right hidden-xs">
 		<label class="label-1000">จำนวนมากกว่า 1,000</label>
+		<label class="label-100">จำนวนน้อยกว่า 1,000</label>
+		<label class="label-0">โซนว่าง</label>
 	</div>
 </div>
 

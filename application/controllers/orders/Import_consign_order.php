@@ -671,7 +671,7 @@ class Import_consign_order extends CI_Controller
 
               if($sc === TRUE)
               {
-                $cell = $sheet->getCell("A{$i}");
+                $cell = $sheet->getCell("B{$i}");
                 $date = trim($cell->getValue());
 
                 if (PHPExcel_Shared_Date::isDateTime($cell))

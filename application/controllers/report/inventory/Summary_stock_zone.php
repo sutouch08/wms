@@ -46,13 +46,23 @@ class Summary_stock_zone extends PS_Controller
     {
       $whsCode = getConfig('DEFAULT_WAREHOUSE');
       $option = $ds->option; // E = Only zero sum, S = Only lessthan 1000, A = All
+      $itemOption = $ds->itemOption == 1 ? TRUE : FAlSE;
+      $itemCode = empty($ds->itemCode) ? NULL : $ds->itemCode;
       $res = [];
 
       if( ! empty($ds->rows))
       {
         foreach($ds->rows as $row)
         {
-          $stockZone = $this->summary_stock_zone_model->getStockZone($whsCode, $row, $option);
+          if($itemOption && ! empty($itemCode))
+          {
+            $binAbs = $this->summary_stock_zone_model->getBinAbsByItem($whsCode, $row, $itemCode);
+            $stockZone = $this->summary_stock_zone_model->getStockZoneInclude($option, $binAbs);
+          }
+          else
+          {
+            $stockZone = $this->summary_stock_zone_model->getStockZone($whsCode, $row, $option);
+          }
 
           if( ! empty($stockZone))
           {
@@ -62,7 +72,7 @@ class Summary_stock_zone extends PS_Controller
                 'name' => $rs->BinName,
                 'qty' => ac_format($rs->Qty),
                 'color' => $rs->Qty > 1000 ? 'box-1000' : ($rs->Qty > 0 ? 'box-100' : 'box-0'),
-                'link' => $rs->Qty > 0 ? 'onclick="getItemStockZone('.$rs->BinAbs.')"' : ""
+                'link' => $rs->Qty > 0 ? 'onclick="getItemStockZone('.$rs->BinAbs.')"' : ''
               ];
             }
           }

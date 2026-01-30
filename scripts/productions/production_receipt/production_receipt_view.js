@@ -20,6 +20,25 @@ function viewIXProductionOrder(code) {
   }
 }
 
+function viewApiLogs(code) {
+  let url = BASE_URL + "rest/V1/sap_api_logs";
+  let mapForm = document.createElement("form");
+  mapForm.target = "Map";
+  mapForm.method = "POST";
+  mapForm.action = url;
+
+  let mapInput = document.createElement("input");
+  mapInput.type = "text";
+  mapInput.name = "code";
+  mapInput.value = code;
+  mapForm.appendChild(mapInput);
+
+  document.body.appendChild(mapForm);
+  map = window.open(url, "Map", "width=1350, height=900, scrollbars=yes");
+  mapForm.submit();
+  document.body.removeChild(mapForm);
+}
+
 
 function toggleBatchRow(uid) {
   let el = $('#toggle-batch-row-'+uid);

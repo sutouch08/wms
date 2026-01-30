@@ -16,10 +16,7 @@
 					<?php if($doc->Status == 'C') : ?>
 						<li class="success">
 							<a href="javascript:sendToSap('<?php echo $doc->code; ?>')"><i class="fa fa-send"></i> Send To SAP</a>
-						</li>
-						<li class="info">
-							<a href="javascript:printReceipt('<?php echo $doc->code; ?>')"><i class="fa fa-print"></i> Print</a>
-						</li>
+						</li>						
 					<?php endif; ?>
 					<?php if($doc->Status == 'P') : ?>
 						<li class="warning">

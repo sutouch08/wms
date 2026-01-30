@@ -958,7 +958,7 @@ class Sap_api
     $sc = TRUE;
     $this->type = "PDGI";
     $action = "create";
-    $api_path = $this->endpoint."/api/pdgi";
+    $api_path = $this->endpoint."/api/Production/Issue";
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->token}");
     $method = 'POST';
 
@@ -999,22 +999,13 @@ class Sap_api
 
         if($sc === TRUE)
         {
-          $currency = getConfig('CURRENCY');
-          $vat_rate = getConfig('SALE_VAT_RATE');
-          $vat_code = getConfig('SALE_VAT_CODE');
           $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
 
           $req = array(
             'U_ECOMNO' => $doc->code,
-            'DocType' => 'I',
-            'CANCELED' => 'N',
             'DocDate' => sap_date($date_add, TRUE),
-            'DocDueDate' => sap_date($date_add, TRUE),
-            'NumAtCard' => $doc->reference,
             'Comments' => limitText($doc->remark, 250),
-            'F_E_Commerce' => 'A',
-            'F_E_CommerceDate' => sap_date(now(), TRUE),
-            'Details' => []
+            'ProductionIssueReceiptDetails' => []
           );
 
           if( ! empty($details))
@@ -1022,37 +1013,32 @@ class Sap_api
             foreach($details as $rs)
             {
               $row = array(
-                'U_ECOMNO' => $doc->code,
-                'LineNum' => $rs->LineNum,
+                'ItemCode' => $rs->ItemCode,
+                'Quantity' => floatval($rs->Qty),
+                'Warehouse' => get_null($rs->WhsCode),
+                'FisrtBin' => get_null($rs->BinCode),
                 'BaseType' => $rs->BaseType,
-                'BaseRef' => $rs->BaseRef,
                 'BaseEntry' => $rs->BaseEntry,
                 'BaseLine' => $rs->BaseLine,
-                'ItemCode' => $rs->ItemCode,
-                'Dscription' => $rs->ItemName,
-                'Quantity' => floatval($rs->Qty),
-                'unitMsr' => $rs->unitMsr,
-                'WhsCode' => get_null($rs->WhsCode),
-                'FisrtBin' => get_null($rs->BinCode),
-                'Batchs' => []
+                'ProductionIssueReceiptBatchs' => []
               );
 
               if( ! empty($rs->batchRows))
               {
                 foreach($rs->batchRows as $br)
                 {
-                  $row['Batchs'][] = array(
+                  $row['ProductionIssueReceiptBatchs'][] = array(
                     'BatchNum' => $br->BatchNum,
                     'BatchQuantity' => floatval($br->Qty),
                     'BatchAttribute1' => $br->BatchAttr1,
                     'BatchAttribute2' => $br->BatchAttr2,
-                    'WhsCode' => $br->WhsCode,
-                    'BinCode' => $br->BinCode
+                    'Warehouse' => $br->WhsCode,
+                    'FisrtBin' => $br->BinCode
                   );
                 }
               }
 
-              $req['Details'][] = $row;
+              $req['ProductionIssueReceiptDetails'][] = $row;
             }
           }
 
@@ -1177,7 +1163,7 @@ class Sap_api
     $sc = TRUE;
     $this->type = "PDGR";
     $action = "create";
-    $api_path = $this->endpoint."/api/pdgr";
+    $api_path = $this->endpoint."/api/Production/Receipt";
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->token}");
     $method = 'POST';
 
@@ -1218,22 +1204,13 @@ class Sap_api
 
         if($sc === TRUE)
         {
-          $currency = getConfig('CURRENCY');
-          $vat_rate = getConfig('SALE_VAT_RATE');
-          $vat_code = getConfig('SALE_VAT_CODE');
           $date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
 
           $req = array(
-            'U_ECOMNO' => $doc->code,
-            'DocType' => 'I',
-            'CANCELED' => 'N',
             'DocDate' => sap_date($date_add, TRUE),
-            'DocDueDate' => sap_date($date_add, TRUE),
-            'NumAtCard' => $doc->reference,
             'Comments' => limitText($doc->remark, 250),
-            'F_E_Commerce' => 'A',
-            'F_E_CommerceDate' => sap_date(now(), TRUE),
-            'Details' => []
+            'U_ECOMNO' => $doc->code,
+            'ProductionIssueReceiptDetails' => []
           );
 
           if( ! empty($details))
@@ -1241,38 +1218,34 @@ class Sap_api
             foreach($details as $rs)
             {
               $row = array(
-                'U_ECOMNO' => $doc->code,
-                'LineNum' => $rs->LineNum,
+                'ItemCode' => $rs->ItemCode,
+                'Quantity' => floatval($rs->Qty),
+                'Warehouse' => get_null($rs->WhsCode),
+                'FisrtBin' => get_null($rs->BinCode),
                 'BaseType' => $rs->BaseType,
                 'BaseRef' => $rs->BaseRef,
                 'BaseEntry' => $rs->BaseEntry,
                 'BaseLine' => NULL,
-                'ItemCode' => $rs->ItemCode,
-                'Dscription' => $rs->ItemName,
-                'Quantity' => floatval($rs->Qty),
                 'TranType' => $rs->TranType,
-                'unitMsr' => $rs->unitMsr,
-                'WhsCode' => get_null($rs->WhsCode),
-                'FisrtBin' => get_null($rs->BinCode),
-                'Batchs' => []
+                'ProductionIssueReceiptBatchs' => []
               );
 
               if( ! empty($rs->batchRows))
               {
                 foreach($rs->batchRows as $br)
                 {
-                  $row['Batchs'][] = array(
+                  $row['ProductionIssueReceiptBatchs'][] = array(
                     'BatchNum' => $br->BatchNum,
                     'BatchQuantity' => floatval($br->Qty),
                     'BatchAttribute1' => $br->BatchAttr1,
                     'BatchAttribute2' => $br->BatchAttr2,
-                    'WhsCode' => $br->WhsCode,
-                    'BinCode' => $br->BinCode
+                    'Warehouse' => $br->WhsCode,
+                    'FisrtBin' => $br->BinCode
                   );
                 }
               }
 
-              $req['Details'][] = $row;
+              $req['ProductionIssueReceiptDetails'][] = $row;
             }
           }
 
