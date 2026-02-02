@@ -1889,7 +1889,7 @@ class Orders extends REST_Controller
           }
         }
 
-        if($sc === TRUE && $rs->price != $row->price)
+        if($sc === TRUE)
         {
           $disc = $rs->discount > 0 ? $rs->discount/$rs->qty : 0;
           $amount = ($rs->price - $disc) * $rs->qty;
