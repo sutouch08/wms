@@ -435,29 +435,49 @@ class Sap_api
             $req_end = now();
             $res = json_decode($response);
 
-            if( ! empty($res) && ! empty($res->Code))
+            if( ! empty($res))
             {
-              if($res->Code == 200 && ! empty($res->DocNum))
+              if( ! empty($res->Code))
               {
-                $arr = array(
-                  'is_exported' => 'Y',
-                  'inv_code' => $res->DocNum
-                );
-
-                $this->ci->production_order_model->update($code, $arr);
-              }
-              else
-              {
-                $sc = FALSE;
-                $this->error = "Error : {$res->Message}";
-
-                if(empty($doc->inv_code))
+                if($res->Code == 200 && ! empty($res->DocNum))
                 {
                   $arr = array(
-                    'is_exported' => 'E'
+                    'is_exported' => 'Y',
+                    'inv_code' => $res->DocNum
                   );
 
                   $this->ci->production_order_model->update($code, $arr);
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "Error : {$res->Message}";
+
+                  if(empty($doc->inv_code))
+                  {
+                    $arr = array(
+                      'is_exported' => 'E'
+                    );
+
+                    $this->ci->production_order_model->update($code, $arr);
+                  }
+                }
+              }
+              else
+              {
+                if( ! empty($res->Message))
+                {
+                  $sc = FALSE;
+                  $this->error = "Error : {$res->Message}";
+
+                  if(empty($doc->inv_code))
+                  {
+                    $arr = array(
+                      'is_exported' => 'E'
+                    );
+
+                    $this->ci->production_order_model->update($code, $arr);
+                  }
                 }
               }
             }
