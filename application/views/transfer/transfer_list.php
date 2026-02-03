@@ -13,21 +13,27 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>WX No.</label>
     <input type="text" class="form-control input-sm search" name="wx_code"  value="<?php echo $wx_code; ?>" />
   </div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+
+	<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+    <label>Pos Ref.</label>
+    <input type="text" class="form-control input-sm search" name="pos_ref"  value="<?php echo $pos_ref; ?>" />
+  </div>
+
+	<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>Pallet No.</label>
     <input type="text" class="form-control input-sm search" name="pallet_no"  value="<?php echo $pallet_no; ?>" />
   </div>
 
-  <div class="col-lg-3-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+  <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
     <label>คลังต้นทาง</label>
 		<select class="form-control input-sm filter" name="from_warehouse" id="from-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -35,7 +41,7 @@
     </select>
   </div>
 
-	<div class="col-lg-3-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
     <label>คลังปลายทาง</label>
 		<select class="form-control input-sm filter" name="to_warehouse" id="to-warehouse">
 			<option value="all">ทั้งหมด</option>
@@ -43,7 +49,7 @@
     </select>
   </div>
 
-	<div class="col-lg-3 col-md-3 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>พนักงาน</label>
 		<select class="form-control input-sm filter" name="user" id="user">
 			<option value="all">ทั้งหมด</option>
@@ -114,12 +120,20 @@
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<!-- <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>Interface</label>
 		<select class="form-control input-sm" name="api" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected('1', $api); ?>>ปกติ</option>
 			<option value="0" <?php echo is_selected('0', $api); ?>>ไม่ส่ง</option>
+		</select>
+	</div> -->
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>POS API</label>
+		<select class="form-control input-sm" name="is_pos" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $is_pos); ?>>Yes</option>
+			<option value="0" <?php echo is_selected('0', $is_pos); ?>>No</option>
 		</select>
 	</div>
 

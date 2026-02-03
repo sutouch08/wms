@@ -884,6 +884,11 @@ class Transfer_model extends CI_Model
       $this->db->like('pallet_no', $ds['pallet_no']);
     }
 
+    if( ! empty($ds['pos_ref']))
+    {
+      $this->db->like('pos_ref', $ds['pos_ref']);
+    }
+
     if( ! empty($ds['from_warehouse']) && $ds['from_warehouse'] != 'all')
     {
       $this->db->where('from_warehouse', $ds['from_warehouse']);
@@ -935,7 +940,7 @@ class Transfer_model extends CI_Model
     {
       $this->db->where('is_export', $ds['is_export']);
     }
-    
+
     if(isset($ds['sap']) && $ds['sap'] != 'all')
     {
       if($ds['sap'] == 3)
@@ -955,6 +960,11 @@ class Transfer_model extends CI_Model
 		if($ds['api'] != 'all')
 		{
 			$this->db->where('api', $ds['api']);
+		}
+
+    if($ds['is_pos'] != 'all')
+		{
+			$this->db->where('is_pos', $ds['is_pos']);
 		}
 
     if(isset($ds['is_wms']) && $ds['is_wms'] != 'all')
@@ -994,6 +1004,11 @@ class Transfer_model extends CI_Model
       $this->db->like('pallet_no', $ds['pallet_no']);
     }
 
+    if( ! empty($ds['pos_ref']))
+    {
+      $this->db->like('pos_ref', $ds['pos_ref']);
+    }
+
     if( ! empty($ds['from_warehouse']) && $ds['from_warehouse'] != 'all')
     {
       $this->db->where('from_warehouse', $ds['from_warehouse']);
@@ -1065,6 +1080,11 @@ class Transfer_model extends CI_Model
 		if($ds['api'] != 'all')
 		{
 			$this->db->where('api', $ds['api']);
+		}
+
+    if($ds['is_pos'] != 'all')
+		{
+			$this->db->where('is_pos', $ds['is_pos']);
 		}
 
     if(isset($ds['is_wms']) && $ds['is_wms'] != 'all')
