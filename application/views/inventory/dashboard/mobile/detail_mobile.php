@@ -202,7 +202,7 @@
 </div><!--/ row  -->
 
 <script>
-  const HOME = '<?php echo $this->home; ?>/';
+  //const HOME = '<?php echo $this->home; ?>/';
 	var syncChannels = []; //['offline', 'online', 'tiktok', 'shopee', 'lazada'];
 	var syncState = []; //['3', '4', '5', '6', '7', '8'];
 
