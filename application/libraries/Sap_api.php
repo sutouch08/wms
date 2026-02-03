@@ -258,7 +258,7 @@ class Sap_api
               if($res->Code == 200 && ! empty($res->DocNum))
               {
                 $arr = array(
-                  'is_exported' => 'Y',
+                  'is_export' => 'Y',
                   'inv_code' => $res->DocNum
                 );
 
@@ -272,7 +272,7 @@ class Sap_api
                 if(empty($doc->inv_code))
                 {
                   $arr = array(
-                    'is_exported' => 'E'
+                    'is_export' => 'E'
                   );
 
                   $this->ci->receive_material_model->update($code, $arr);
