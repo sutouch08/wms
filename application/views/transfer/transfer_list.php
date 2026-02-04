@@ -191,10 +191,10 @@
 		</p>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1" style="min-width:1320px;">
+		<table class="table table-striped border-1" style="min-width:1340px;">
 			<thead>
 				<tr class="font-size-11">
-					<th class="fix-width-80 middle"></th>
+					<th class="fix-width-100 middle"></th>
 					<th class="fix-width-50 middle text-center">#</th>
 					<th class="fix-width-80 middle">วันที่</th>
 					<th class="fix-width-100 middle">เลขที่เอกสาร</th>
