@@ -231,6 +231,8 @@ class Production_transfer extends PS_Controller
           'reference' => $ds->baseRef,
           'orderRef' => get_null($ds->orderRef),
           'ItemCode' => get_null($ds->itemCode),
+          'CardCode' => get_null($ds->cardCode),
+          'CardName' => get_null($ds->cardName),
           'fromWhsCode' => $ds->fromWhsCode,
           'toWhsCode' => $ds->toWhsCode,
           'toBinCode' => get_null($ds->toBinCode),
@@ -620,6 +622,8 @@ class Production_transfer extends PS_Controller
           'reference' => $ds->baseRef,
           'orderRef' => get_null($ds->orderRef),
           'ItemCode' => get_null($ds->itemCode),
+          'CardCode' => get_null($ds->cardCode),
+          'CardName' => get_null($ds->cardName),
           'fromWhsCode' => $ds->fromWhsCode,
           'toWhsCode' => $ds->toWhsCode,
           'toBinCode' => get_null($ds->toBinCode),
@@ -1418,6 +1422,32 @@ class Production_transfer extends PS_Controller
     }
 
     $this->_response($sc);
+  }
+
+
+  public function get_vender_code_and_name()
+  {
+    $ds = [];
+
+    $txt = trim($_REQUEST['term']);
+
+    $qr = "SELECT CardCode, CardName FROM OCRD WHERE CardCode LIKE N'%{$txt}%' OR CardName LIKE N'%{$txt}%' ORDER BY CardCode ASC OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY";
+
+    $rs = $this->ms->query($qr);
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $ro)
+      {
+        $ds[] = $ro->CardCode.' | '.$ro->CardName;
+      }
+    }
+    else
+    {
+      $ds[] = "not found";
+    }
+
+    echo json_encode($ds);
   }
 
 

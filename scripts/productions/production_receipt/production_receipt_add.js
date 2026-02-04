@@ -198,7 +198,7 @@ function add(type) {
               });
             });
 
-            if(sc === true && receiptQty != sumBatchQty) {
+            if(sc === true && roundNumber(receiptQty, 4) != roundNumber(sumBatchQty, 4)) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;
@@ -432,7 +432,7 @@ function save(type) {
               });
             });
 
-            if(sc === true && receiptQty != sumBatchQty) {
+            if(sc === true && roundNumber(receiptQty, 4) != roundNumber(sumBatchQty, 4)) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;

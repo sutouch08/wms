@@ -7,6 +7,16 @@
 			</div>
 		</div>
 
+    <div class="form-group hidden-xs">
+			<label class="sap-label col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-4 padding-0">Business Partner</label>
+			<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8 padding-5">
+				<input type="text" id="vender-code" class="form-control input-xs" maxlength="15" value=""/>
+			</div>
+      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5 hidden-xs">
+        <input type="text" id="vender-name" class="form-control input-xs h" maxlength="100" value="" disabled/>
+      </div>
+		</div>
+
     <div class="form-group">
       <label class="sap-label col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-4 padding-0">From Warehouse</label>
       <div class="col-lg-5 col-md-6 col-sm-7-harf col-xs-8 padding-5">

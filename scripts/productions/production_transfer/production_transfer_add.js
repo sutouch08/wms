@@ -1,4 +1,5 @@
 window.addEventListener('load', () => {
+  venderInit();
   binCodeInit();
   baseRefInit();
   detailsInit();
@@ -13,7 +14,27 @@ $('#date-add').datepicker({
 
 $('#posting-date').datepicker({
   dateFormat:'dd-mm-yy'
-})
+});
+
+
+function venderInit() {
+  $('#vender-code').autocomplete({
+    source:HOME + 'get_vender_code_and_name',
+    autoFocus:true,
+    close:function() {
+      let arr = $(this).val().split(' | ');
+
+      if(arr.length == 2) {
+        $(this).val(arr[0]);
+        $('#vender-name').val(arr[1]);
+      }
+      else {
+        $(this).val('');
+        $('#vender-name').val('');
+      }
+    }
+  })
+}
 
 
 function baseRefInit() {
@@ -99,6 +120,8 @@ function add(type) {
       'type' : type,
       'date_add' : $('#date-add').val().trim(),
       'shipped_date' : $('#posting-date').val().trim(),
+      'cardCode' : $('#vender-code').val().trim(),
+      'cardName' : $('#vender-name').val().trim(),
       'fromWhsCode' : $('#fromWhsCode').val(),
       'toWhsCode' : $('#toWhsCode').val(),
       'toBinCode' : $('#bin-code').val().trim(),
@@ -287,7 +310,7 @@ function add(type) {
 
             });
 
-            if(trQty != roundNumber(sumBatchQty, 2)) {
+            if(roundNumber(trQty, 4) != roundNumber(sumBatchQty, 4)) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข";
@@ -397,6 +420,8 @@ function save(type) {
       'type' : type,
       'date_add' : $('#date-add').val().trim(),
       'shipped_date' : $('#posting-date').val().trim(),
+      'cardCode' : $('#vender-code').val().trim(),
+      'cardName' : $('#vender-name').val().trim(),
       'fromWhsCode' : $('#fromWhsCode').val(),
       'toWhsCode' : $('#toWhsCode').val(),
       'toBinCode' : $('#bin-code').val().trim(),
@@ -583,7 +608,7 @@ function save(type) {
 
             });
 
-            if(trQty != roundNumber(sumBatchQty, 2)) {
+            if(roundNumber(trQty, 4) != roundNumber(sumBatchQty, 4)) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข";

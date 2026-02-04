@@ -814,8 +814,11 @@ class Sap_api
             'DocDate' => sap_date($date_add, TRUE),
             'Comments' => limitText($doc->remark, 250),
             'U_ECOMNO' => $doc->code,
+            'CardCode' => $doc->CardCode,
+            'CardName' => $doc->CardName,
             'FromWarehouse' => $doc->fromWhsCode,
             'ToWarehouse' => $doc->toWhsCode,
+            'ToBinCode' => $doc->toBinCode,
             'Transferdetails' => []
           );
 
@@ -1038,8 +1041,8 @@ class Sap_api
                 'Warehouse' => get_null($rs->WhsCode),
                 'FisrtBin' => get_null($rs->BinCode),
                 'BaseType' => $rs->BaseType,
-                'BaseEntry' => $rs->BaseEntry,
-                'BaseLine' => $rs->BaseLine,
+                'BaseEntry' => intval($rs->BaseEntry),
+                'BaseLine' => intval($rs->BaseLine),
                 'ProductionIssueReceiptBatchs' => []
               );
 
@@ -1243,8 +1246,8 @@ class Sap_api
                 'Warehouse' => get_null($rs->WhsCode),
                 'FisrtBin' => get_null($rs->BinCode),
                 'BaseType' => $rs->BaseType,
-                'BaseRef' => $rs->BaseRef,
-                'BaseEntry' => $rs->BaseEntry,
+                'BaseRef' => intval($rs->BaseRef),
+                'BaseEntry' => intval($rs->BaseEntry),
                 'BaseLine' => NULL,
                 'TranType' => $rs->TranType,
                 'ProductionIssueReceiptBatchs' => []

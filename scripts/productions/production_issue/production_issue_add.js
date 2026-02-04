@@ -211,7 +211,7 @@ function add(type) {
               });
             });
 
-            if(issueQty != sumBatchQty) {
+            if(roundNumber(issueQty, 4) != roundNumber(sumBatchQty, 4)) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;
@@ -463,7 +463,7 @@ function save(type) {
               });
             });
 
-            if(issueQty != sumBatchQty) {
+            if(roundNumber(issueQty, 4) != roundNumber(sumBatchQty, 4)) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;
