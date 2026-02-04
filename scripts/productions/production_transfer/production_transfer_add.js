@@ -583,7 +583,7 @@ function save(type) {
 
             });
 
-            if(trQty != sumBatchQty) {
+            if(trQty != roundNumber(sumBatchQty, 2)) {
               el.hasError();
               sc = false;
               errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข";
