@@ -1,4 +1,13 @@
 <?php $this->load->view('include/header'); ?>
+<style>
+	.table > thead > tr > th {
+		padding:3px !important;
+	}
+
+	.table > tbody > tr > td {
+		padding:3px !important;
+	}
+</style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-8 col-xs-12 padding-5">
 		<h3 class="title"><?php echo $this->title; ?></h3>
@@ -22,6 +31,33 @@
 			<label>Description</label>
 			<input type="text" class="form-control input-sm" name="name" value="<?php echo $name; ?>" />
 		</div>
+
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	    <label>Reserv For</label>
+	    <select name="is_mkp" class="form-control input-sm filter">
+				<option value="all">ทั้งหมด</option>
+	      <option value="1" <?php echo is_selected('1', $is_mkp); ?>>Marketplace</option>
+	      <option value="0" <?php echo is_selected('0', $is_mkp); ?>>All Stock</option>
+	    </select>
+	  </div>
+
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	    <label>Platform</label>
+	    <select name="channels" class="form-control input-sm filter">
+				<option value="all">ทั้งหมด</option>
+	      <option value="0009" <?php echo is_selected('0009', $channels); ?>>TIKTOK</option>
+				<option value="SHOPEE" <?php echo is_selected('SHOPEE', $channels); ?>>SHOPEE</option>
+				<option value="LAZADA" <?php echo is_selected('LAZADA', $channels); ?>>LAZADA</option>
+	    </select>
+	  </div>
+
+		<div class="col-lg-2-harf col-md-4 col-sm-2 col-xs-6 padding-5">
+	    <label>For Shop</label>
+	    <select name="shop_id" class="form-control input-sm filter">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_shop_name($shop_id); ?>
+	    </select>
+	  </div>
 
     <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 			<label>Status</label>
@@ -79,18 +115,21 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1" style="min-width:1060px;">
+		<table class="table table-striped table-hover border-1" style="min-width:1440px;">
 			<thead>
 				<tr class="font-size-11">
 					<th class="fix-width-100"></th>
 					<th class="fix-width-40 middle text-center">#</th>
-          <th class="fix-width-100 middle">Date</th>
+          <th class="fix-width-80 middle">Date</th>
 					<th class="fix-width-100 middle">Document No.</th>
-					<th class="fix-width-100 middle text-center">Reserv For</th>
-					<th class="fix-width-100 middle text-center">Start Date</th>
-					<th class="fix-width-100 middle text-center">End Date</th>
-					<th class="fix-width-100 middle text-center">Total SKU</th>
-					<th class="fix-width-100 middle text-center">Total Qty</th>
+					<th class="fix-width-100 middle">Reserv For</th>
+					<th class="fix-width-100 middle">Platform</th>
+					<th class="min-width-200 middle">Shop</th>
+					<th class="fix-width-80 middle">Start Date</th>
+					<th class="fix-width-80 middle">End Date</th>
+					<th class="fix-width-80 middle text-center">SKU</th>
+					<th class="fix-width-80 middle text-center">Total</th>
+					<th class="fix-width-80 middle text-center">Balance</th>
 					<th class="fix-width-60 middle text-center">Active</th>
           <th class="fix-width-60 middle text-center">Status</th>
 					<th class="min-width-200 middle">Description</th>
@@ -118,13 +157,16 @@
 							<?php endif; ?>
 						</td>
 						<td class="middle text-center no"><?php echo $no; ?></td>
-            <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
+            <td class="middle"><?php echo thai_date($rs->date_add); ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
-						<td class="middle text-center"><?php echo $rs->is_mkp == 1 ? 'Marketplace' : 'All'; ?></td>
-						<td class="middle text-center"><?php echo thai_date($rs->start_date); ?></td>
-						<td class="middle text-center"><?php echo thai_date($rs->end_date); ?></td>
+						<td class="middle"><?php echo $rs->is_mkp == 1 ? 'Marketplace' : 'All Stock'; ?></td>
+						<td class="middle"><?php echo channels_name($rs->channels); ?></td>
+						<td class="middle"><?php echo shop_name($rs->shop_id); ?></td> <!-- order_helper -->
+						<td class="middle"><?php echo thai_date($rs->start_date); ?></td>
+						<td class="middle"><?php echo thai_date($rs->end_date); ?></td>
 						<td class="middle text-center"><?php echo number($rs->totalSKU); ?></td>
 						<td class="middle text-center"><?php echo number($rs->totalQty); ?></td>
+						<td class="middle text-center"><?php echo number($this->reserv_stock_model->get_sum_reserv($rs->id)); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
             <td class="middle text-center"><?php echo reserv_stock_status_text($rs->status); ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>

@@ -16,7 +16,7 @@
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <div class="row">
-  <div class="col-lg-2 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+  <div class="col-lg-2 col-md-2 col-sm-1-harf col-xs-4 padding-5">
     <label>เลขที่</label>
     <input type="text" class="form-control input-sm text-center"  id="code" value="<?php echo $doc->code; ?>" disabled />
   </div>
@@ -37,9 +37,16 @@
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>Reserv For</label>
     <select id="is-mkp" class="form-control input-sm">
-			<option value="">Select</option>
       <option value="1" <?php echo is_selected('1', $doc->is_mkp); ?>>Marketplace</option>
       <option value="0" <?php echo is_selected('0', $doc->is_mkp); ?>>All</option>
+    </select>
+  </div>
+
+	<div class="col-lg-2-harf col-md-4 col-sm-2 col-xs-6 padding-5">
+    <label>For Shop</label>
+    <select id="shop-id" class="form-control input-sm rq">
+			<option value="" data-channels="">เลือก</option>
+			<?php echo select_shop_name($doc->shop_id); ?>
     </select>
   </div>
 

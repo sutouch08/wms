@@ -146,7 +146,7 @@ class Reserv_stock_model extends CI_Model
   }
 
 
-  public function get_details_by_product($item_code, $warehouse_code = NULL, $is_mkp = FALSE)
+  public function get_details_by_product($item_code, $warehouse_code = NULL, $is_mkp = FALSE, $shop_id = NULL)
   {
     $date = date('Y-m-d');
     $is_mkp = $is_mkp ? 1 : 0;
@@ -165,6 +165,11 @@ class Reserv_stock_model extends CI_Model
     if( ! empty($warehouse_code))
     {
       $this->db->where('o.warehouse_code', $warehouse_code);
+    }
+
+    if( ! empty($shop_id))
+    {
+      $this->db->where('o.shop_id', $shop_id);
     }
 
     $rs = $this->db->order_by('o.id', 'ASC')->get();
@@ -228,21 +233,22 @@ class Reserv_stock_model extends CI_Model
   }
 
 
-  public function deduct_reserv_qty($item_code, $qty, $warehouse_code = NULL, $is_mkp = FALSE)
+  public function deduct_reserv_qty($item_code, $qty, $warehouse_code = NULL, $is_mkp = FALSE, $shop_id = NULL)
   {
-    $rows = $this->get_details_by_product($item_code, $warehouse_code, $is_mkp);
+    $rows = $this->get_details_by_product($item_code, $warehouse_code, $is_mkp, $shop_id);
 
     if( ! empty($rows))
     {
       foreach($rows as $rs)
       {
+        if($qty <= 0) { break; }
+
         if($qty > 0)
         {
-          $Qty =  $rs->reserv_qty >= $qty ? $qty : $rs->reserv_qty;
-
+          $Qty = $rs->reserv_qty >= $qty ? $qty : $rs->reserv_qty;
           $dQty = $Qty * (-1);
 
-          if($this->db->set("reserv_qty", "reserv_qty + {$dQty}", FALSE)->where('id', $rs->id)->update($this->td))
+          if($this->update_reserv_qty($rs->id, $dQty))
           {
             $qty -= $Qty;
           }
@@ -251,6 +257,15 @@ class Reserv_stock_model extends CI_Model
     }
 
     return TRUE;
+  }
+
+
+  public function update_reserv_qty($id, $qty)
+  {
+    return $this->db
+    ->set("reserv_qty", "reserv_qty + {$qty}", FALSE)
+    ->where('id', $id)
+    ->update($this->td);
   }
 
 
@@ -291,6 +306,22 @@ class Reserv_stock_model extends CI_Model
     if($rs->num_rows() === 1)
     {
       return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
+
+  public function get_sum_reserv($id)
+  {
+    $rs = $this->db
+    ->select_sum('reserv_qty')
+    ->where('reserv_id', $id)
+    ->get($this->td);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->reserv_qty;
     }
 
     return 0;
@@ -339,6 +370,21 @@ class Reserv_stock_model extends CI_Model
       $this->db->where('active', $ds['active']);
     }
 
+    if(isset($ds['is_mkp']) && $ds['is_mkp'] != 'all')
+    {
+      $this->db->where('is_mkp', $ds['is_mkp']);
+    }
+
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('shop_id', $ds['shop_id']);
+    }
+
+    if(isset($ds['channels']) && $ds['channels'] != 'all')
+    {
+      $this->db->where('channels', $ds['channels']);
+    }
+
     return $this->db->count_all_results($this->tb);
   }
 
@@ -383,6 +429,21 @@ class Reserv_stock_model extends CI_Model
     if( isset($ds['active']) && $ds['active'] != 'all')
     {
       $this->db->where('active', $ds['active']);
+    }
+
+    if(isset($ds['is_mkp']) && $ds['is_mkp'] != 'all')
+    {
+      $this->db->where('is_mkp', $ds['is_mkp']);
+    }
+
+    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    {
+      $this->db->where('shop_id', $ds['shop_id']);
+    }
+
+    if(isset($ds['channels']) && $ds['channels'] != 'all')
+    {
+      $this->db->where('channels', $ds['channels']);
     }
 
     $rs = $this->db->order_by('code', 'DESC')->limit($perpage, $offset)->get($this->tb);

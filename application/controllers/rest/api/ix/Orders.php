@@ -165,8 +165,8 @@ class Orders extends REST_Controller
     $zone_code = NULL;
     $channels_code = empty($data->channel) ? NULL : $data->channel;
     $shop_id = empty($data->shop_id) ? NULL : $data->shop_id;
-    $is_mkp = FALSE;
-    $is_reserv = isset($data->is_reserv) ? ($data->is_reserv == 'Y' ? TRUE : FALSE) : FALSE;
+    $is_mkp = empty($shop_id) ? FALSE : TRUE;
+    $is_reserv = empty($shop_id) ? FALSE : TRUE; // ตัดยอด reserv stock หรือไม่ (ตัดตาม shop id);
     $payment_code = NULL;
     $payment_role = NULL;
     $cod_amount = empty($data->cod_amount) ? 0 : floatval($data->cod_amount);
@@ -436,15 +436,15 @@ class Orders extends REST_Controller
         $sc = FALSE;
         $this->error = "Invalid channel code";
       }
-      else
-      {
-        $channels_code = $channels->code;
-
-        if($channels_code == '0009' OR $channels_code == 'SHOPEE' OR $channels_code == 'LAZADA')
-        {
-          $is_mkp = TRUE;
-        }
-      }
+      // else
+      // {
+      //   $channels_code = $channels->code;
+      //
+      //   if($channels_code == '0009' OR $channels_code == 'SHOPEE' OR $channels_code == 'LAZADA')
+      //   {
+      //     $is_mkp = TRUE;
+      //   }
+      // }
     }
 
     //--- check payment_method
@@ -877,9 +877,9 @@ class Orders extends REST_Controller
                     $total_sku[$item->code] = 1;
                   }
 
-                  if($item->count_stock && $is_reserv)
+                  if($item->count_stock && $is_reserv && ! empty($shop_id))
                   {
-                    $this->reserv_stock_model->deduct_reserv_qty($item->code, $rs->qty, $warehouse_code, $is_mkp);
+                    $this->reserv_stock_model->deduct_reserv_qty($item->code, $rs->qty, $warehouse_code, $is_mkp, $shop_id);
                   }
 
                   if($item->count_stock && ! $is_pre_order && ($this->sync_api_stock OR $this->checkBackorder))

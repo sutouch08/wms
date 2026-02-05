@@ -1,13 +1,13 @@
 <!--  Search Product -->
 <div class="row">
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-8 padding-5 margin-bottom-10">
+	<div class="col-lg-2 col-md-3 col-sm-4 col-xs-8 padding-5 margin-bottom-10">
     <input type="text" class="form-control input-sm text-center item-control" id="model-code" placeholder="รุ่นสินค้า" autofocus/>
   </div>
   <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5 margin-bottom-10">
   	<button type="button" class="btn btn-xs btn-primary btn-block item-control" onclick="getProductGrid()">Get Data</button>
   </div>
 
-	<div class="divider visible-xs"></div>
+	<div class="divider-hidden hidden-lg"></div>
 
   <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5 margin-bottom-10">
     <input type="text" class="form-control input-sm text-center item-control" id="item-code" placeholder="รหัสสินค้า">
@@ -27,8 +27,8 @@
 
 	<div class="divider visible-xs"></div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5 text-right">
-		<button type="button" class="btn btn-xs btn-danger" onclick="removeChecked()">ลบรายการ</button>
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-12 padding-5 text-right">
+		<button type="button" class="btn btn-xs btn-danger btn-50" onclick="removeChecked()">ลบ</button>
 	</div>
 </div>
 

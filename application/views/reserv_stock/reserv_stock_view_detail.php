@@ -41,6 +41,14 @@
     </select>
   </div>
 
+	<div class="col-lg-2-harf col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
+    <label>For Shop</label>
+    <select id="shop-id" class="form-control input-sm" disabled>
+			<option value="" data-channels="">เลือก</option>
+			<?php echo select_shop_name($doc->shop_id); ?>
+    </select>
+  </div>
+
   <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
     <label>Active</label>
     <select id="active" class="form-control input-sm" disabled>

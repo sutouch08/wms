@@ -170,7 +170,7 @@ function select_shop_name($shop_id = NULL)
 	{
 		foreach($qs->result() as $rs)
 		{
-			$ds .= '<option value="'.$rs->shop_id.'" '.is_selected($shop_id, $rs->shop_id).'>'.$rs->channels_name.' | '.$rs->shop_name.'</option>';
+			$ds .= '<option value="'.$rs->shop_id.'" data-channels="'.$rs->channels.'" '.is_selected($shop_id, $rs->shop_id).'>'.$rs->channels_name.' | '.$rs->shop_name.'</option>';			
 		}
 	}
 

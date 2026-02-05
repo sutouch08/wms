@@ -172,6 +172,8 @@ function add() {
     'name' : $('#name').val().trim(),
     'active' : $('#active').val(),
     'is_mkp' : $('#is-mkp').val(),
+    'shop_id' : $('#shop-id').val(),
+    'channels' : $('#shop-id option:selected').data('channels'),
     'start_date' : $('#start_date').val(),
     'end_date' : $('#end_date').val()
   }
@@ -186,8 +188,8 @@ function add() {
     return false;
   }
 
-  if(h.is_mkp == "") {
-    $('#is-mkp').hasError();
+  if(h.is_mkp == 1 && h.shop_id == "") {
+    $('#shop-id').hasError();
     return false;
   }
 
@@ -201,6 +203,8 @@ function add() {
     return false;
   }
 
+  load_in();
+
   $.ajax({
     url:HOME + 'add',
     type:'POST',
@@ -209,6 +213,8 @@ function add() {
       'data' : JSON.stringify(h)
     },
     success:function(rs) {
+      load_out();
+
       if(isJson(rs)) {
         let ds = JSON.parse(rs);
 
@@ -242,6 +248,8 @@ function update() {
     'name' : $('#name').val().trim(),
     'active' : $('#active').val(),
     'is_mkp' : $('#is-mkp').val(),
+    'shop_id' : $('#shop-id').val(),
+    'channels' : $('#shop-id option:selected').data('channels'),
     'start_date' : $('#start_date').val(),
     'end_date' : $('#end_date').val()
   }
@@ -256,8 +264,8 @@ function update() {
     return false;
   }
 
-  if(h.is_mkp == "") {
-    $('#is-mkp').hasError();
+  if(h.is_mkp == 1 && h.shop_id == "") {
+    $('#shop-id').hasError();
     return false;
   }
 
@@ -270,6 +278,8 @@ function update() {
     $('#end_date').hasError();
     return false;
   }
+
+  load_in();
 
   $.ajax({
     url:HOME + 'update',

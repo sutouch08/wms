@@ -15,7 +15,9 @@ class Reserv_stock extends PS_Controller
     $this->load->model('orders/reserv_stock_model');
     $this->load->model('masters/products_model');
     $this->load->helper('reserv_stock');
+    $this->load->helper('order');
     $this->load->helper('warehouse');
+    $this->load->helper('channels');
   }
 
 
@@ -29,7 +31,10 @@ class Reserv_stock extends PS_Controller
       'start_date' => get_filter('start_date', 'rs_start_date', ''),
       'end_date' => get_filter('end_date', 'rs_end_date', ''),
       'status' => get_filter('status', 'rs_status', 'all'),
-      'active' => get_filter('active', 'rs_active', 'all')
+      'active' => get_filter('active', 'rs_active', 'all'),
+      'is_mkp' => get_filter('is_mkp', 'rs_is_mkp', 'all'),
+      'shop_id' => get_filter('shop_id', 'rs_shop_id', 'all'),
+      'channels' => get_filter('channels', 'rs_channels', 'all')
     );
 
 
@@ -78,24 +83,35 @@ class Reserv_stock extends PS_Controller
 
       if( ! empty($ds) && ! empty($ds->name) && ! empty($ds->start_date) && ! empty($ds->end_date))
       {
-        $arr = array(
-          'code' => $this->get_new_code(),
-          'name' => $ds->name,
-          'warehouse_code' => $ds->warehouse_code,
-          'status' => 'D',
-          'active' => $ds->active == 1 ? 1 : 0,
-          'is_mkp' => $ds->is_mkp == 1 ? 1 : 0,
-          'start_date' => db_date($ds->start_date),
-          'end_date' => db_date($ds->end_date),
-          'user' => $this->_user->uname
-        );
-
-        $id = $this->reserv_stock_model->add($arr);
-
-        if(empty($id))
+        if( ! empty($ds->is_mkp) && empty($ds->shop_id))
         {
           $sc = FALSE;
-          set_error('insert');
+          $this->error = "กรุณาระบุ Shop";
+        }
+
+        if($sc === TRUE)
+        {
+          $arr = array(
+            'code' => $this->get_new_code(),
+            'name' => $ds->name,
+            'warehouse_code' => $ds->warehouse_code,
+            'status' => 'D',
+            'active' => $ds->active == 1 ? 1 : 0,
+            'is_mkp' => $ds->is_mkp == 1 ? 1 : 0,
+            'shop_id' => $ds->is_mkp ? $ds->shop_id : NULL,
+            'channels' => $ds->is_mkp ? $ds->channels : NULL,
+            'start_date' => db_date($ds->start_date),
+            'end_date' => db_date($ds->end_date),
+            'user' => $this->_user->uname
+          );
+
+          $id = $this->reserv_stock_model->add($arr);
+
+          if(empty($id))
+          {
+            $sc = FALSE;
+            set_error('insert');
+          }
         }
       }
       else
@@ -157,25 +173,36 @@ class Reserv_stock extends PS_Controller
 
       if( ! empty($ds) && ! empty($ds->name) && ! empty($ds->start_date) && ! empty($ds->end_date))
       {
-        $arr = array(
-          'name' => $ds->name,
-          'warehouse_code' => $ds->warehouse_code,
-          'active' => $ds->active == 1 ? 1 : 0,
-          'status' => 'D',
-          'is_mkp' => $ds->is_mkp == 1 ? 1 : 0,
-          'start_date' => db_date($ds->start_date),
-          'end_date' => db_date($ds->end_date),
-          'date_upd' => now(),
-          'update_user' => $this->_user->uname
-        );
-
-        if( ! $this->reserv_stock_model->update($ds->id, $arr))
+        if( ! empty($ds->is_mkp) && empty($ds->shop_id))
         {
           $sc = FALSE;
-          set_error('update');
+          $this->error = "กรุณาระบุ Shop";
         }
 
-        $this->update_summary($ds->id);
+        if($sc === TRUE)
+        {
+          $arr = array(
+            'name' => $ds->name,
+            'warehouse_code' => $ds->warehouse_code,
+            'active' => $ds->active == 1 ? 1 : 0,
+            'status' => 'D',
+            'is_mkp' => $ds->is_mkp == 1 ? 1 : 0,
+            'shop_id' => $ds->is_mkp ? $ds->shop_id : NULL,
+            'channels' => $ds->is_mkp ? $ds->channels : NULL,
+            'start_date' => db_date($ds->start_date),
+            'end_date' => db_date($ds->end_date),
+            'date_upd' => now(),
+            'update_user' => $this->_user->uname
+          );
+
+          if( ! $this->reserv_stock_model->update($ds->id, $arr))
+          {
+            $sc = FALSE;
+            set_error('update');
+          }
+
+          $this->update_summary($ds->id);
+        }
       }
       else
       {
@@ -924,7 +951,10 @@ class Reserv_stock extends PS_Controller
       'rs_start_date',
       'rs_end_date',
       'rs_status',
-      'rs_active'
+      'rs_active',
+      'rs_is_mkp',
+      'rs_shop_id',
+      'rs_channels'
     );
 
     return clear_filter($filter);

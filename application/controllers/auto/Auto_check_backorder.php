@@ -18,6 +18,7 @@ class Auto_check_backorder extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->home = base_url().'auto/auto_check_backorder';
     $this->load->model('orders/orders_model');
+    $this->load->model('orders/reserv_stock_model');
     $this->load->model('stock/stock_model');
     $this->load->model('sync_data_model');
     $this->pm = new stdClass();
@@ -38,7 +39,7 @@ class Auto_check_backorder extends CI_Controller
     if( ! empty($orders))
     {
       foreach($orders as $rs)
-      {
+      {        
         $count++;
 
         if($rs->state == '9' OR $rs->state == '8' OR $rs->is_expired)
@@ -121,7 +122,7 @@ class Auto_check_backorder extends CI_Controller
     $from_date = date('Y-m-d 00:00:00', strtotime("-$days days"));
 
     $rs = $this->db
-    ->select('code, state, status, is_expired, warehouse_code')    
+    ->select('code, state, status, is_expired, warehouse_code')
     ->where('date_add >', $from_date)
     ->where('is_pre_order', 0)
     ->where('is_backorder', 1)
@@ -144,9 +145,12 @@ class Auto_check_backorder extends CI_Controller
     $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse_code);
 
     //---- ยอดจองสินค้า ไม่รวมรายการที่กำหนด
-    $reserv_stock = $this->orders_model->get_reserv_stock($item_code, $warehouse_code);
+    $ordered = $this->orders_model->get_non_backorder_reserv_stock($item_code, $warehouse_code);
 
-    $available = $sell_stock - $reserv_stock;
+    //--- reserv stock
+    $reserved = $this->reserv_stock_model->get_reserv_stock($item_code, $warehouse_code);
+
+    $available = $sell_stock - $ordered - $reserved;
 
     return $available < 0 ? 0 : $available;
   }

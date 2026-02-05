@@ -14,11 +14,15 @@
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <div class="row">
-	<div class="col-lg-3 col-md-5 col-sm-5 col-xs-12 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>Doc No.</label>
+		<input type="text" class="form-control input-sm" value="" disabled />
+	</div>
+	<div class="col-lg-6-harf col-md-5 col-sm-5 col-xs-8 padding-5">
 		<label>Description</label>
 		<input type="text" class="form-control input-sm rq" id="name" value="" required />
 	</div>
-  <div class="col-lg-3 col-md-5 col-sm-5 col-xs-12 padding-5">
+  <div class="col-lg-4 col-md-5 col-sm-5 col-xs-12 padding-5">
     <label>Warhouse</label>
     <select class="width-100 rq" id="warehouse">
       <option value="">เลือกคลัง</option>
@@ -29,15 +33,22 @@
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>Reserv For</label>
     <select id="is-mkp" class="form-control input-sm">
-			<option value="">Select</option>
-      <option value="1">Marketplace</option>
-      <option value="0">All</option>
+			<option value="1">Marketplace</option>
+			<option value="0">All</option>
+    </select>
+  </div>
+
+	<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label>For Shop</label>
+    <select id="shop-id" class="form-control input-sm rq">
+			<option value="" data-channels="">เลือก</option>
+			<?php echo select_shop_name(); ?>
     </select>
   </div>
 
   <div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>Active</label>
-    <select id="active" class="form-control input-sm">
+    <label>Status</label>
+    <select id="active" class="form-control input-sm rq">
       <option value="1">Active</option>
       <option value="0">Inactive</option>
     </select>

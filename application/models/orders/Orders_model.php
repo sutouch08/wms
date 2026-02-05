@@ -1601,6 +1601,36 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_non_backorder_reserv_stock($item_code, $warehouse = NULL)
+  {
+    $this->db
+    ->select_sum('order_details.qty', 'qty')
+    ->from('order_details')
+    ->join('orders', 'order_details.order_code = orders.code', 'left')
+    ->where('orders.is_pre_order', 0)
+    ->where('orders.is_backorder', 0)
+    ->where('order_details.product_code', $item_code)
+		->where('order_details.is_cancle', 0)
+    ->where('order_details.is_complete', 0)
+    ->where('order_details.is_expired', 0)
+    ->where('order_details.is_count', 1);
+
+    if($warehouse !== NULL)
+    {
+      $this->db->where('orders.warehouse_code', $warehouse);
+    }    
+
+    $rs = $this->db->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
+
   public function get_items_reserv_stock(array $items = array(), $warehouse = NULL, $zone = NULL)
   {
     if( ! empty($items))
@@ -1611,7 +1641,6 @@ class Orders_model extends CI_Model
       ->from('order_details')
       ->join('orders', 'order_details.order_code = orders.code', 'left')
       ->where('orders.is_pre_order', 0)
-      ->where('orders.is_backorder', 0)
       ->where('order_details.is_cancle', 0)
       ->where('order_details.is_complete', 0)
       ->where('order_details.is_expired', 0)
@@ -1653,7 +1682,6 @@ class Orders_model extends CI_Model
     ->from('order_details')
     ->join('orders', 'order_details.order_code = orders.code', 'left')
     ->where('orders.is_pre_order', 0)
-    ->where('orders.is_backorder', 0)
     ->where('order_details.product_code', $item_code)
 		->where('order_details.is_cancle', 0)
     ->where('order_details.is_complete', 0)
@@ -1680,7 +1708,6 @@ class Orders_model extends CI_Model
     ->from('order_details')
     ->join('orders', 'order_details.order_code = orders.code', 'left')
     ->where('orders.is_pre_order', 0)
-    ->where('orders.is_backorder', 0)
     ->where('order_details.style_code', $style_code)
     ->where('order_details.is_cancle', 0)
     ->where('order_details.is_complete', 0)
