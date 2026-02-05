@@ -25,21 +25,19 @@ class Import_order extends CI_Controller
 		$this->_user = $this->user_model->get_user_by_uid($uid);
 
     $this->load->model('orders/orders_model');
-    $this->load->model('orders/order_state_model');
-    $this->load->model('orders/reserv_stock_model');
-    $this->load->model('orders/order_import_logs_model');
     $this->load->model('masters/channels_model');
     $this->load->model('masters/payment_methods_model');
     $this->load->model('masters/products_model');
     $this->load->model('masters/customers_model');
+    $this->load->model('orders/order_state_model');
     $this->load->model('masters/products_model');
 		$this->load->model('masters/warehouse_model');
 		$this->load->model('masters/sender_model');
     $this->load->model('address/address_model');
     $this->load->model('stock/stock_model');
+    $this->load->model('orders/order_import_logs_model');
 
     $this->load->library('excel');
-    $this->load->library('stock');
 
     $this->sokoApi = is_true(getConfig('SOKOJUNG_API'));
 
@@ -212,7 +210,7 @@ class Import_order extends CI_Controller
 
                         if($ix_backorder && $row->is_count && ! $order->is_pre_order)
                         {
-                          $available = $this->stock->get_available_stock($row->product_code, $order->warehouse_code);
+                          $available = $this->get_available_stock($row->product_code, $order->warehouse_code);
 
                           if($available < $row->qty)
                           {
@@ -431,7 +429,7 @@ class Import_order extends CI_Controller
 
                               if($ix_backorder && $row->is_count && ! $order->is_pre_order)
                               {
-                                $available = $this->stock->get_available_stock($row->product_code, $order->warehouse_code);
+                                $available = $this->get_available_stock($row->product_code, $order->warehouse_code);
 
                                 if($available < $row->qty)
                                 {
@@ -620,7 +618,6 @@ class Import_order extends CI_Controller
 	private function parse_order_data($collection)
   {
     $sc = TRUE;
-    $whsItems = [];
 
     if( ! empty($collection))
     {
@@ -1100,18 +1097,6 @@ class Import_order extends CI_Controller
                 );
 
                 $ds[$ref_code]->items[$item->code] = $row;
-
-                if($item->count_stock)
-                {
-                  if( ! isset($whsItems[$warehouse_code][$item->code]))
-                  {
-                    $whsItems[$warehouse_code][$item->code] = $qty;
-                  }
-                  else
-                  {
-                    $whsItems[$warehouse_code][$item->code] += $qty;
-                  }
-                }
               } //--- end if $sc == TRUE
             }
             else
@@ -1194,20 +1179,6 @@ class Import_order extends CI_Controller
                 );
 
                 $ds[$ref_code]->items[$item->code] = $row;
-
-                if($item->count_stock)
-                {
-                  $warehouse_code = $ds[$ref_code]->warehouse_code;
-
-                  if( ! isset($whsItems[$warehouse_code][$item->code]))
-                  {
-                    $whsItems[$warehouse_code][$item->code] = $qty;
-                  }
-                  else
-                  {
-                    $whsItems[$warehouse_code][$item->code] += $qty;
-                  }
-                }
               }
             } //--- end if( ! isset($ds[$ref_code]));
           } //--- end if($sc === TRUE && ! empty($rs['A']) && ! empty($rs['I']));
@@ -1222,29 +1193,20 @@ class Import_order extends CI_Controller
       $this->error = "Empty data collection";
     }
 
-    if($sc === TRUE && ! is_true(getConfig('ALLOW_IMPORT_BACKORDER')) && ! empty($whsItems))
-    {
-      $this->error = "สต็อกคงเหลือไม่พอ <br/>";
-
-      foreach($whsItems as $warehouse_code => $items)
-      {
-        if( ! empty($items))
-        {
-          foreach($items as $item_code => $qty)
-          {
-            $available = $this->stock->get_available_stock($item_code, $warehouse_code);
-
-            if($available < $qty)
-            {
-              $sc = FALSE;
-              $this->error .= "{$warehouse_code} | {$item_code} | Qty : {$qty} | Available : {$available} <br/>";
-            }
-          }
-        }
-      }
-    }
-
     return $sc === TRUE ? $ds : FALSE;
+  }
+
+
+  public function get_available_stock($item_code, $warehouse_code)
+  {
+    //---- สต็อกคงเหลือในคลัง
+    $sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse_code);
+    $ordered = $this->orders_model->get_reserv_stock($item_code, $warehouse_code);
+    $reserved = $this->reserv_stock_model->get_reserv_stock($item_code, $warehouse_code);
+
+    $available = $sell_stock - $ordered - $reserved;
+
+    return $available < 0 ? 0 : $available;
   }
 
 

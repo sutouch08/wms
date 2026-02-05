@@ -33,16 +33,17 @@ class Auto_check_backorder extends CI_Controller
 
     $count = 0;
     $update = 0;
+    $start = now();
 
     $orders = $this->get_backorder_list($this->limit);
 
     if( ! empty($orders))
     {
       foreach($orders as $rs)
-      {        
+      {
         $count++;
 
-        if($rs->state == '9' OR $rs->state == '8' OR $rs->is_expired)
+        if($rs->state == '7' OR $rs->state == '9' OR $rs->state == '8' OR $rs->is_expired)
         {
           $this->orders_model->update($rs->code, ['is_backorder' => 0, 'last_sync' => now()]);
           $this->orders_model->drop_backlogs_list($rs->code);
@@ -88,10 +89,14 @@ class Auto_check_backorder extends CI_Controller
       }
     }
 
+    $end = now();
+
     $logs = array(
       'sync_item' => 'BACKORDER',
       'get_item' => $count,
-      'update_item' => $update
+      'update_item' => $update,
+      'process_start' => $start,
+      'process_end' => $end
     );
 
     //--- add logs
@@ -118,7 +123,7 @@ class Auto_check_backorder extends CI_Controller
   public function get_backorder_list($limit = 100)
   {
     $max_id = $this->orders_model->get_max_id();
-    $days = 90; // เช็คย้อนหลังไม่เกิน 60 วัน
+    $days = 30; // เช็คย้อนหลังไม่เกิน 60 วัน
     $from_date = date('Y-m-d 00:00:00', strtotime("-$days days"));
 
     $rs = $this->db

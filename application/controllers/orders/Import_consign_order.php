@@ -31,6 +31,7 @@ class Import_consign_order extends CI_Controller
     $this->load->model('orders/order_import_logs_model');
 
     $this->load->library('excel');
+    $this->load->library('stock');
   }
 
 
@@ -90,10 +91,6 @@ class Import_consign_order extends CI_Controller
 
           if( ! empty($ds))
           {
-            // print_r($ds);
-            // exit();
-            $this->load->library('stock');
-
             $ix_backorder = is_true(getConfig('IX_BACK_ORDER'));
             $ix_warehouse = getConfig('IX_WAREHOUSE');
             $sync_api_stock = is_true(getConfig('SYNC_IX_STOCK'));
@@ -517,7 +514,8 @@ class Import_consign_order extends CI_Controller
 
   private function parse_order_data($role, $sheet)
   {
-    $sc = TRUE;
+    $sc = TRUE;    
+    $whsItems = [];
 
     if( ! empty($sheet))
     {
@@ -785,6 +783,18 @@ class Import_consign_order extends CI_Controller
                   "api_rate" => $item->api_rate,
                   "is_import" => 1
                 );
+
+                if($item->count_stock)
+                {
+                  if( ! isset($whsItems[$warehouse->code][$item->code]))
+                  {
+                    $whsItems[$warehouse->code][$item->code] = $qty;
+                  }
+                  else
+                  {
+                    $whsItems[$warehouse->code][$item->code] += $qty;
+                  }
+                }
               }
             }
             else
@@ -846,6 +856,20 @@ class Import_consign_order extends CI_Controller
                   "api_rate" => $item->api_rate,
                   "is_import" => 1
                 );
+
+                if($item->count_stock)
+                {
+                  $warehouse_code = $ds[$ref_code]->warehouse_code;
+
+                  if( ! isset($whsItems[$warehouse_code][$item->code]))
+                  {
+                    $whsItems[$warehouse_code][$item->code] = $qty;
+                  }
+                  else
+                  {
+                    $whsItems[$warehouse_code][$item->code] += $qty;
+                  }
+                }
               }
             }
           }
@@ -860,9 +884,30 @@ class Import_consign_order extends CI_Controller
       $this->error = "Empty data collection";
     }
 
+    if($sc === TRUE && ! is_true(getConfig('ALLOW_IMPORT_BACKORDER')) && ! empty($whsItems))
+    {
+      $this->error = "สต็อกคงเหลือไม่พอ <br/>";
+
+      foreach($whsItems as $warehouse_code => $items)
+      {
+        if( ! empty($items))
+        {
+          foreach($items as $item_code => $qty)
+          {
+            $available = $this->stock->get_available_stock($item_code, $warehouse_code);
+
+            if($available < $qty)
+            {
+              $sc = FALSE;
+              $this->error .= "{$warehouse_code} | {$item_code} | Qty : {$qty} | Available : {$available} <br/>";
+            }
+          }
+        }
+      }
+    }
+
     return $sc === TRUE ? $ds : FALSE;
   }
-
 
   //---- send calcurated stock to marketplace
   public function update_api_stock(array $ds = array())

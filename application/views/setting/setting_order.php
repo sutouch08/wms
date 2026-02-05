@@ -131,6 +131,17 @@
 		</div>
 		<div class="divider"></div>
 
+		<div class="col-lg-4 col-md-4 col-sm-4"><span class="form-control left-label">Allow Import Backorder </span></div>
+		<div class="col-lg-8 col-md-8 col-sm-8">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="ALLOW_IMPORT_BACKORDER" type="checkbox" value="1" <?php echo is_checked($ALLOW_IMPORT_BACKORDER , '1'); ?> onchange="toggleOption($(this))"/>
+				<span class="lbl margin-left-0" data-lbl="OFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON"></span>
+			</label>
+			<span class="help-block">ถ้า Available stock ไม่พอ อนุญาติให้ import หรือไม่</span>
+			<input type="hidden" name="ALLOW_IMPORT_BACKORDER" id="allow-import-backorder" value="<?php echo $ALLOW_IMPORT_BACKORDER; ?>" />
+		</div>
+		<div class="divider"></div>
+
 		<div class="col-lg-4 col-md-4 col-sm-4"><span class="form-control left-label">ช่องทางขายเว็บไซต์</span></div>
 		<div class="col-lg-4 col-md-6 col-sm-6">
 			<select class="width-100" id="website-channels-code" name="WEB_SITE_CHANNELS_CODE" >

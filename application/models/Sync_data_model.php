@@ -174,6 +174,7 @@ class Sync_data_model extends CI_Model
     {
       return $this->db->insert('ix_sync_logs', $ds);
     }
+    
     return FALSE;
   }
 

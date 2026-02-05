@@ -1,7 +1,8 @@
 <?php $this->load->view('include/header'); ?>
 <?php $this->load->view('order_consign/style'); ?>
-<?php $allow_upload = getConfig('ALLOW_IMPORT_WT'); ?>
-<?php $cim = get_permission('SOIMWT', $this->_user->uid, $this->_user->id_profile); ?>
+<?php $allow_upload = $this->role == 'N' ? getConfig('ALLOW_IMPORT_WT') : getConfig('ALLOW_IMPORT_WC'); ?>
+<?php $menuCode = $this->role == 'N' ? 'SOIMWT' : 'SOIMWC'; ?>
+<?php $cim = get_permission($menuCode, $this->_user->uid, $this->_user->id_profile); ?>
 <?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
@@ -227,7 +228,7 @@
 	</div>
 </div>
 
-<input type="hidden" id="role" value="<?php echo $this->menu_code == 'SOCCSO' ? 'C' : 'N'; ?>" />
+<input type="hidden" id="role" value="<?php echo $this->role; ?>" />
 
 <?php
 if($can_upload) :
