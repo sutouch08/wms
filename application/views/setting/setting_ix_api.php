@@ -83,6 +83,28 @@
 					<option value="1" <?php echo is_selected('1', $IX_STOCK_RATE_TYPE); ?>>ITEM RATE</option>
 				</select>
       </div>
+			<!-- <div class="divider-hidden"></div>
+			<div class="col-lg-4 col-md-4 col-sm-4">
+        <span class="form-control left-label">USE STEPPING RATE</span>
+      </div>
+      <div class="col-lg-8 col-md-8 col-sm-8">
+				<label style="padding-top:5px; margin-bottom:0px;">
+					<input class="ace ace-switch ace-switch-7" data-name="IX_STEPPING_RATE" type="checkbox" value="1" <?php // echo is_checked($IX_STEPPING_RATE , '1'); ?> onchange="toggleOption($(this))"/>
+					<span class="lbl margin-left-0" data-lbl="OFF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON"></span>
+				</label>
+				<input type="hidden" name="IX_STEPPING_RATE" value="<?php //echo $IX_STEPPING_RATE; ?>" />
+      </div>
+			<div class="divider-hidden"></div>
+			<div class="col-lg-4 col-md-4 col-sm-4">
+        <span class="form-control left-label">DEFINED STEPPING RATE (%)</span>
+      </div>
+      <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4">
+      	<div class="input-group width-100">
+      		<span class="input-group-addon width-40">1</span>
+					<input type="number" class="form-control input-sm text-center" placeholder="Step 1" value="<?php // echo $IX_STEPPING_RATE_1; ?>" />
+      	</div>
+      </div> -->
+
       <div class="divider"></div>
 
 			<div class="col-lg-4 col-md-4 col-sm-4">

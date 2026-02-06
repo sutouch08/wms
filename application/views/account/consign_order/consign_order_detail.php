@@ -1,7 +1,7 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1">
+    <table class="table table-striped border-1" style="min-width:1100px;">
       <thead>
         <tr class="font-size-12">
           <th class="fix-width-40 text-center">ลำดับ</th>
@@ -12,9 +12,7 @@
           <th class="fix-width-100 text-right">ส่วนลด</th>
           <th class="fix-width-100 text-right">จำนวน</th>
           <th class="fix-width-100 text-right">มูลค่า</th>
-        <?php if($doc->is_api == 0) : ?>
-          <th class="fix-width-60"></th>
-        <?php endif; ?>
+          <th class="fix-width-40"></th>
         </tr>
       </thead>
       <tbody id="detail-table">
@@ -48,15 +46,14 @@
           <td class="middle text-right amount" id="amount-<?php echo $rs->id; ?>">
             <?php echo number($rs->amount, 2); ?>
           </td>
-        <?php if($doc->is_api == 0) : ?>
           <td class="middle text-center">
-          <?php if($rs->status == 0 && ($this->pm->can_edit OR $this->pm->can_delete)) : ?>
-            <button type="button" class="btn btn-minier btn-danger" onclick="deleteRow('<?php echo $rs->id; ?>', '<?php echo $rs->product_code; ?>')">
-              <i class="fa fa-trash"></i>
-            </button>
-          <?php endif; ?>
+            <?php if($doc->is_api == 0 && $rs->status == 0 && ($this->pm->can_edit OR $this->pm->can_delete)) : ?>
+              <a href="javascript:deleteRow('<?php echo $rs->id; ?>', '<?php echo $rs->product_code; ?>')"><i class="fa fa-times fa-lg red"></i></a>
+              <!-- <button type="button" class="btn btn-minier btn-danger" onclick="deleteRow('<?php echo $rs->id; ?>', '<?php echo $rs->product_code; ?>')">
+                <i class="fa fa-trash"></i>
+              </button> -->
+            <?php endif; ?>
           </td>
-        <?php endif; ?>
         </tr>
 
 <?php  $no++; ?>
@@ -67,14 +64,12 @@
         <td colspan="6" class="middle text-right"><strong>รวม</strong></td>
         <td id="total-qty" class="middle text-right"><?php echo number($totalQty); ?></td>
         <td id="total-amount" class="middle text-right"><?php echo number($totalAmount,2); ?></td>
-      <?php if($doc->is_api == 0) : ?>
         <td></td>
-      <?php endif; ?>
       </tr>
 
 <?php else : ?>
       <tr id="total-row">
-        <td colspan="5" class="middle text-right"><strong>รวม</strong></td>
+        <td colspan="6" class="middle text-right"><strong>รวม</strong></td>
         <td id="total-qty" class="middle text-right">0</td>
         <td id="total-amount" class="middle text-right">0</td>
         <td></td>
@@ -109,11 +104,7 @@
   </td>
   <td class="middle text-right qty" id="qty-{{id}}">{{qty}}</td>
   <td class="middle text-right amount" id="amount-{{id}}">{{amount}}</td>
-  <td class="middle text-center">
-    <button type="button" class="btn btn-xs btn-danger" onclick="deleteRow('{{id}}', '{{product}}')">
-      <i class="fa fa-trash"></i>
-    </button>
-  </td>
+  <td class="middle text-center"><a href="javascript:deleteRow('{{id}}', '{{product}}')"><i class="fa fa-times fa-lg red"></i></a></td>
 </tr>
 </script>
 
@@ -126,11 +117,7 @@
   <td class="middle text-right disc" id="disc-{{id}}">{{discount}}</td>
   <td class="middle text-right qty" id="qty-{{id}}">{{qty}}</td>
   <td class="middle text-right amount" id="amount-{{id}}">{{amount}}</td>
-  <td class="middle text-center">
-    <button type="button" class="btn btn-xs btn-danger" onclick="deleteRow('{{id}}', '{{product}}')">
-      <i class="fa fa-trash"></i>
-    </button>
-  </td>
+  <td class="middle text-center"><a href="javascript:deleteRow('{{id}}', '{{product}}')"><i class="fa fa-times fa-lg red"></i></a></td>
 </script>
 
 <script id="detail-template" type="text/x-handlebarsTemplate">
@@ -156,9 +143,7 @@
       <input type="number" class="form-control input-xs text-center qty" min="0" id="qty-{{id}}" value="{{qty}}" onKeyup="reCal('{{id}}')" onChange="reCal('{{id}}')" />
     </td>
     <td class="middle text-right amount" id="amount-{{id}}">{{ amount }}</td>
-    <td class="middle text-center">
-      <button type="button" class="btn btn-xs btn-danger" onclick="deleteRow('{{id}}', '{{product}}')"><i class="fa fa-trash"></i></button>
-    </td>
+    <td class="middle text-center"><a href="javascript:deleteRow('{{id}}', '{{product}}')"><i class="fa fa-times fa-lg red"></i></a></td>
   </tr>
   {{/if}}
 

@@ -72,7 +72,7 @@
 <input type="hidden" id="count_stock" value="1" />
 <hr class="margin-top-15 margin-bottom-15" />
 <div class="row margin-bottom-5">
-  <div class="col-sm-12 col-xs-12 first last">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
   <?php if(getConfig('ALLOW_EDIT_PRICE')) : ?>
     <button type="button" class="btn btn-xs btn-warning" id="btn-edit-price" onclick="getEditPrice()">แก้ไขราคา</button>
     <button type="button" class="btn btn-xs btn-primary hide" id="btn-update-price" onclick="updatePrice()">บันทึกราคา</button>

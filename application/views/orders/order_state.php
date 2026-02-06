@@ -51,6 +51,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
                        <option value="1">รอดำเนินการ</option>
                        <option value="2">รอชำระเงิน</option>
                        <option value="3">รอจัดสินค้า</option>
+                       <option value="7">รอเปิดบิล</option>
 								 <?php endif; ?>
 
                  <?php if( $order->state < 8 && $this->pm->can_delete ) : ?>

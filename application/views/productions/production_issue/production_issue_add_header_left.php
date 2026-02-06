@@ -22,6 +22,13 @@
     </div>
 
     <div class="form-group">
+      <label class="sap-label col-lg-1-harf col-md-2 col-sm-2 col-xs-2 padding-0">External Ref</label>
+      <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4 padding-5">
+        <input type="text" id="external-ref" class="form-control input-xs" maxlength="11" value="" placeholder="Max 11 charecters" />
+      </div>
+    </div>
+
+    <div class="form-group">
       <label class="sap-label col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-0">Production Order</label>
       <div class="col-lg-4 col-md-5 col-sm-5 col-xs-8 padding-5">
         <div class="input-group">
@@ -32,12 +39,12 @@
               <option value="A">All</option>
             </select>
           </span>
-          <input type="text" id="base-ref" class="form-control input-xs h" maxlength="50" data-prev="<?php echo $code; ?>" value="<?php echo $code; ?>"/>
+          <input type="text" id="base-ref" class="form-control input-xs h" maxlength="50" data-prev="<?php echo $code; ?>" value="<?php echo $code; ?>" placeholder="SAP Production Number"/>
           <span class="input-group-btn">
             <button type="button" class="btn btn-primary btn-minier" style="border-radius:3px !important; margin-left:5px;" onclick="getOrderData()"><i class="fa fa-check"></i>&nbsp; OK</button>
           </span>
         </div>
-      </div>      
+      </div>
     </div>
     <div class="form-group">
       <label class="sap-label col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-0">Production Item</label>

@@ -1,4 +1,15 @@
 <?php $this->load->view('include/header'); ?>
+<style>
+	.table > thead > tr > th {
+		font-size: 11px;
+		padding:3px !important;
+	}
+
+	.table > tbody > tr > td {
+		font-size: 11px;
+		padding:3px !important;
+	}
+</style>
 <div class="row">
 	<div class="col-lg-4 col-md-4 col-sm-4 padding-5 hidden-xs">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -47,26 +58,26 @@
 		<input type="text" class="width-100 text-center" id="tax-status" value="<?php echo $doc->tax_status == 1 ? 'Y' : 'N'; ?>" disabled />
 	</div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>รหัสโซน</label>
 		<input type="text" class="form-control input-sm edit text-center" id="zone_code" name="zone_code" value="<?php echo $doc->zone_code; ?>" disabled />
 	</div>
 
-	<div class="col-lg-3-harf col-md-8 col-sm-8 col-xs-8 padding-5">
+	<div class="col-lg-3-harf col-md-7 col-sm-7 col-xs-8 padding-5">
     <label>โซน[ฝากขาย]</label>
 		<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-4 padding-5">
     <label>อ้างอิง</label>
 		<input type="text" class="form-control input-sm"  value="<?php echo $doc->is_api ? $doc->pos_ref : $doc->ref_code; ?>" disabled />
   </div>
 
-	<div class="col-lg-3-harf col-md-10-harf col-sm-10-harf col-xs-5 padding-5">
+	<div class="col-lg-4 col-md-10-harf col-sm-10-harf col-xs-5 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label>SAP No.</label>
     <input type="text" class="form-control input-sm" id="inv_code" value="<?php echo $doc->inv_code; ?>" disabled>
   </div>
@@ -75,27 +86,31 @@
 <?php if($doc->tax_status == 1) : ?>
 	<hr/>
 	<div class="row">
-		<div class="col-lg-5 col-md-5 col-sm-5 col-xs-6 padding-5">
+		<div class="col-lg-4-harf col-md-6 col-sm-6 col-xs-6 padding-5">
 			<label>ชื่อสำหรับออกใบกำกับภาษี</label>
 			<input type="text" class="width-100" id="name" value="<?php echo $doc->name; ?>" disabled/>
 		</div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 			<label>Tax ID</label>
 			<input type="text" class="width-100 text-center" id="tax-id" value="<?php echo $doc->tax_id; ?>" disabled/>
 		</div>
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1 col-xs-6 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>รหัสสาขา</label>
 			<input type="text" class="width-100 text-center" id="branch-code" value="<?php echo $doc->branch_code; ?>" disabled/>
 		</div>
-		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>ชื่อสาขา</label>
 			<input type="text" class="width-100 text-center" id="branch-name" value="<?php echo $doc->branch_name; ?>" disabled/>
 		</div>
-		<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 			<label>เบอร์โทร</label>
-			<input type="text" class="width-100 text-center" id="phone" value="<?php echo $doc->phone; ?>" disabled/>
+			<input type="text" class="width-100" id="phone" value="<?php echo $doc->phone; ?>" disabled/>
 		</div>
-		<div class="col-lg-6 col-md-4-harf col-sm-4-harf col-xs-12 padding-5">
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+			<label>Email</label>
+			<input type="text" class="width-100" id="email" value="<?php echo $doc->email; ?>" disabled/>
+		</div>
+		<div class="col-lg-6 col-md-7 col-sm-7 col-xs-12 padding-5">
 			<label>ที่อยุ่</label>
 			<input type="text" class="width-100" id="address" value="<?php echo $doc->address; ?>" disabled/>
 		</div>

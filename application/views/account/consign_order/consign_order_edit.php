@@ -1,4 +1,15 @@
 <?php $this->load->view('include/header'); ?>
+<style>
+	.table > thead > tr > th {
+		font-size: 11px;
+		padding:5px 8px !important;
+	}
+
+	.table > tbody > tr > td {
+		font-size: 11px;
+		padding:5px 8px !important;
+	}
+</style>
 <div class="row">
 	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>

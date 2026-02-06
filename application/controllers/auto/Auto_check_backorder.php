@@ -43,7 +43,7 @@ class Auto_check_backorder extends CI_Controller
       {
         $count++;
 
-        if($rs->state == '7' OR $rs->state == '9' OR $rs->state == '8' OR $rs->is_expired)
+        if($rs->state >= 5 OR $rs->is_expired OR $rs->is_cancled)
         {
           $this->orders_model->update($rs->code, ['is_backorder' => 0, 'last_sync' => now()]);
           $this->orders_model->drop_backlogs_list($rs->code);

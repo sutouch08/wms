@@ -1028,6 +1028,7 @@ class Sap_api
             'U_ECOMNO' => $doc->code,
             'DocDate' => sap_date($date_add, TRUE),
             'Comments' => limitText($doc->remark, 250),
+            'Ref2' => get_null($doc->externalRef),
             'ProductionIssueReceiptDetails' => []
           );
 

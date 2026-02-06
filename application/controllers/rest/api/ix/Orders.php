@@ -436,15 +436,6 @@ class Orders extends REST_Controller
         $sc = FALSE;
         $this->error = "Invalid channel code";
       }
-      // else
-      // {
-      //   $channels_code = $channels->code;
-      //
-      //   if($channels_code == '0009' OR $channels_code == 'SHOPEE' OR $channels_code == 'LAZADA')
-      //   {
-      //     $is_mkp = TRUE;
-      //   }
-      // }
     }
 
     //--- check payment_method

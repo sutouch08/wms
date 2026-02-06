@@ -70,6 +70,7 @@ function add(type) {
       'shipped_date' : $('#posting-date').val().trim(),
       'baseRef' : $('#base-ref').val().trim(),
       'orderRef' : $('#order-ref').val().trim(),
+      'externalRef' : $('#external-ref').val().trim(),
       'ItemCode' : $('#base-item').val().trim(),
       'remark' : $('#remark').val().trim(),
       'rows' : []
@@ -321,6 +322,7 @@ function save(type) {
       'shipped_date' : $('#posting-date').val().trim(),
       'baseRef' : $('#base-ref').val().trim(),
       'orderRef' : $('#order-ref').val().trim(),
+      'externalRef' : $('#external-ref').val().trim(),
       'ItemCode' : $('#base-item').val().trim(),
       'remark' : $('#remark').val().trim(),
       'rows' : []

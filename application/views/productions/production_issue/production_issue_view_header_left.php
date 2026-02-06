@@ -22,6 +22,13 @@
 		</div>
 
     <div class="form-group">
+      <label class="sap-label fix-width-150">External Ref</label>
+      <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4 padding-5">
+        <input type="text" id="external-ref" class="form-control input-xs" maxlength="11" value="<?php echo $doc->externalRef; ?>" placeholder="Max 11 charecters" disabled/>
+      </div>
+    </div>
+
+    <div class="form-group">
       <label class="sap-label fix-width-150">Production Order</label>
       <div class="col-lg-2 col-md-2 col-sm-2 col-xs-8 padding-5">
         <input type="text" class="form-control input-xs h" maxlength="50" value="<?php echo $doc->reference; ?>" disabled/>
