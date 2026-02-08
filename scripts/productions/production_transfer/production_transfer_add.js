@@ -3,6 +3,7 @@ window.addEventListener('load', () => {
   binCodeInit();
   baseRefInit();
   detailsInit();
+  reCalTotal();
 });
 
 var click = 0;
@@ -294,27 +295,30 @@ function add(type) {
                 return false;
               }
 
-              row.batchRows.push({
-                'ItemCode' : itemCode,
-                'ItemName' : itemName,
-                'BatchNum' : ro.data('batchnum'),
-                'BatchAttr1' : ro.data('attr1'),
-                'BatchAttr2' : ro.data('attr2'),
-                'Qty' : bQty,
-                'fromWhsCode' : ro.data('fromwhs'),
-                'fromBinCode' : ro.data('frombin'),
-                'toWhsCode' : bToWhs,
-                'toBinCode' : bToBin,
-                'uid' : uuid
-              });
-
+              if(sc === true) {
+                row.batchRows.push({
+                  'ItemCode' : itemCode,
+                  'ItemName' : itemName,
+                  'BatchNum' : ro.data('batchnum'),
+                  'BatchAttr1' : ro.data('attr1'),
+                  'BatchAttr2' : ro.data('attr2'),
+                  'Qty' : bQty,
+                  'fromWhsCode' : ro.data('fromwhs'),
+                  'fromBinCode' : ro.data('frombin'),
+                  'toWhsCode' : bToWhs,
+                  'toBinCode' : bToBin,
+                  'uid' : uuid
+                });
+              }
             });
 
-            if(roundNumber(trQty, 4) != roundNumber(sumBatchQty, 4)) {
-              el.hasError();
-              sc = false;
-              errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข";
-              return false;
+            if(sc === true) {
+              if(roundNumber(trQty, 4) != roundNumber(sumBatchQty, 4)) {
+                el.hasError();
+                sc = false;
+                errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข : Total batch not match to Item Qty | "+roundNumber(trQty, 2) + " | "+roundNumber(sumBatchQty, 2)+" ";
+                return false;
+              }
             }
           }
 
@@ -592,27 +596,30 @@ function save(type) {
                 return false;
               }
 
-              row.batchRows.push({
-                'ItemCode' : itemCode,
-                'ItemName' : itemName,
-                'BatchNum' : ro.data('batchnum'),
-                'BatchAttr1' : ro.data('attr1'),
-                'BatchAttr2' : ro.data('attr2'),
-                'Qty' : bQty,
-                'fromWhsCode' : ro.data('fromwhs'),
-                'fromBinCode' : ro.data('frombin'),
-                'toWhsCode' : bToWhs,
-                'toBinCode' : bToBin,
-                'uid' : uuid
-              });
-
+              if(sc === true) {
+                row.batchRows.push({
+                  'ItemCode' : itemCode,
+                  'ItemName' : itemName,
+                  'BatchNum' : ro.data('batchnum'),
+                  'BatchAttr1' : ro.data('attr1'),
+                  'BatchAttr2' : ro.data('attr2'),
+                  'Qty' : bQty,
+                  'fromWhsCode' : ro.data('fromwhs'),
+                  'fromBinCode' : ro.data('frombin'),
+                  'toWhsCode' : bToWhs,
+                  'toBinCode' : bToBin,
+                  'uid' : uuid
+                });
+              }
             });
 
-            if(roundNumber(trQty, 4) != roundNumber(sumBatchQty, 4)) {
-              el.hasError();
-              sc = false;
-              errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข";
-              return false;
+            if(sc === true) {
+              if(roundNumber(trQty, 4) != roundNumber(sumBatchQty, 4)) {
+                el.hasError();
+                sc = false;
+                errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข";
+                return false;
+              }
             }
           }
 
@@ -808,6 +815,8 @@ function addToOrder() {
       toBinInit(uuid);
     });
   }
+
+  reCalTotal();
 }
 
 
@@ -1188,6 +1197,8 @@ function addBatchRows() {
       reCalBatchRows(uid);
     }
   }
+
+  reCalTotal();
 }
 
 
@@ -1228,6 +1239,7 @@ function addRow() {
     $('#item-code-'+uid).focus();
   }, 200);
 
+  reCalTotal();
 }
 
 
@@ -1236,6 +1248,7 @@ function removeRow(uid) {
   $('.child-of-'+uid).remove();
 
   reIndex('no');
+  reCalTotal();
 }
 
 
@@ -1370,4 +1383,24 @@ function reCalBatchRows(parentUid) {
   });
 
   $('#tran-qty-'+parentUid).val(addCommas(pQty.toFixed(2)));
+
+  reIndex('b-'+parentUid);
+
+  reCalTotal();
+}
+
+/// footer summary
+function reCalTotal() {
+  let totalQty = 0;
+  let totalItems = $('.tran-qty').length;
+  let totalBatch = $('.batch-qty').length;
+
+  $('.tran-qty').each(function() {    
+    totalQty += parseDefaultFloat(removeCommas($(this).val()), 0);
+  });  
+
+  $('#total-item-row').val(addCommas(totalItems.toFixed(2)));
+  $('#total-batch-row').val(addCommas(totalBatch.toFixed(2)));
+  $('#total-item-qty').val(addCommas(totalQty.toFixed(2)));
+  console.log(totalItems);
 }
