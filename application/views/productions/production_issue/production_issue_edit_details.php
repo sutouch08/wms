@@ -1,3 +1,8 @@
+<?php
+$totalItemsRows = 0;
+$totalBatchRows = 0;
+$totalQty = 0;
+?>
 <div class="row" style="margin-left: -8px;">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive" style="min-height:300px; max-height:600px; overflow:scroll; padding:0px; border:solid 1px #dddddd;">
     <table class="table tableFixHead" style="min-width:1220px; margin-bottom:20px;">
@@ -20,32 +25,32 @@
           <?php $no = 1; ?>
           <?php foreach($details as $rs) : ?>
             <?php $uid = $rs->uid; ?>
-              <tr id="row-<?php echo $rs->uid; ?>" data-uid="<?php echo $rs->uid; ?>" class="font-size-11">
+              <tr id="row-<?php echo $uid; ?>" data-uid="<?php echo $uid; ?>" class="font-size-11">
                 <td class="middle text-center">
-                  <a class="pointer" href="javascript:removeRow('<?php echo $rs->uid; ?>')" title="Remove this row"><i class="fa fa-trash fa-lg red"></i></a>
+                  <a class="pointer" href="javascript:removeRow('<?php echo $uid; ?>')" title="Remove this row"><i class="fa fa-trash fa-lg red"></i></a>
                 </td>
-                <td class="middle text-center fix-no no" scope="row"></td>
+                <td class="middle text-center fix-no no" scope="row"><?php echo $no; ?></td>
                 <td class="middle text-center">
                   <?php if( ! empty($rs->hasBatch)) : ?>
-                    <a class="pointer add-batch" href="javascript:getPreBatch('<?php echo $rs->uid; ?>')" title="Add Batch Number">
+                    <a class="pointer add-batch" href="javascript:getPreBatch('<?php echo $uid; ?>')" title="Add Batch Number">
                       <i class="fa fa-plus fa-lg blue"></i>
                     </a>
                   <?php endif; ?>
                 </td>
                 <td class="middle">
-                  <input type="text" class="form-control input-xs item-code r" data-uid="<?php echo $rs->uid; ?>" data-hasbatch="<?php echo $rs->hasBatch ? 'Y' : 'N'; ?>" id="item-code-<?php echo $rs->uid; ?>" value="<?php echo $rs->ItemCode; ?>" disabled/>
+                  <input type="text" class="form-control input-xs item-code r" data-uid="<?php echo $uid; ?>" data-hasbatch="<?php echo $rs->hasBatch ? 'Y' : 'N'; ?>" id="item-code-<?php echo $uid; ?>" value="<?php echo $rs->ItemCode; ?>" disabled/>
                 </td>
                 <td class="middle">
-                  <input type="text" class="form-control input-xs item-name r" data-uid="<?php echo $rs->uid; ?>" id="item-name-<?php echo $rs->uid; ?>" value="<?php echo $rs->ItemName; ?>" disabled/>
+                  <input type="text" class="form-control input-xs item-name r" data-uid="<?php echo $uid; ?>" id="item-name-<?php echo $uid; ?>" value="<?php echo $rs->ItemName; ?>" disabled/>
                 </td>
                 <td class="middle">
-                  <input type="text" class="form-control input-xs from-whs r" data-uid="<?php echo $rs->uid; ?>" id="whs-<?php echo $rs->uid; ?>" value="<?php echo $rs->WhsCode; ?>" onchange="binInit('<?php echo $rs->uid; ?>')" />
+                  <input type="text" class="form-control input-xs from-whs r" data-uid="<?php echo $uid; ?>" id="whs-<?php echo $uid; ?>" value="<?php echo $rs->WhsCode; ?>" onchange="binInit('<?php echo $uid; ?>')" />
                 </td>
                 <td class="middle">
-                  <input type="text" class="form-control input-xs from-bin r" data-uid="<?php echo $rs->uid; ?>" id="bin-<?php echo $rs->uid; ?>" value="<?php echo $rs->BinCode; ?>" />
+                  <input type="text" class="form-control input-xs from-bin r" data-uid="<?php echo $uid; ?>" id="bin-<?php echo $uid; ?>" value="<?php echo $rs->BinCode; ?>" />
                 </td>
                 <td class="middle">
-                  <input type="text" class="form-control input-xs text-right r" data-uid="<?php echo $rs->uid; ?>" id="instock-<?php echo $rs->uid; ?>" value="<?php echo number($rs->InStock, 2); ?>" disabled/>
+                  <input type="text" class="form-control input-xs text-right r" data-uid="<?php echo $uid; ?>" id="instock-<?php echo $uid; ?>" value="<?php echo number($rs->InStock, 2); ?>" disabled/>
                 </td>
                 <td class="middle">
                   <input type="text" class="form-control input-xs text-right issue-qty r"
@@ -59,22 +64,28 @@
                     data-uomentry="<?php echo $rs->UomEntry; ?>"
                     data-uomcode="<?php echo $rs->UomCode; ?>"
                     data-uom="<?php echo $rs->unitMsr; ?>"
-                    data-uid="<?php echo $rs->uid; ?>"
-                    id="issue-qty-<?php echo $rs->uid; ?>"
+                    data-uid="<?php echo $uid; ?>"
+                    id="issue-qty-<?php echo $uid; ?>"
                     value="<?php echo number($rs->Qty, 2); ?>" />
                 </td>
                 <td class="middle">
-                  <input type="text" class="form-control input-xs r" id="uom-<?php echo $rs->uid; ?>" value="<?php echo $rs->unitMsr; ?>"  disabled/>
+                  <input type="text" class="form-control input-xs r" id="uom-<?php echo $uid; ?>" value="<?php echo $rs->unitMsr; ?>"  disabled/>
                 </td>
               </tr>
+              <?php $totalItemsRows++; ?>
+              <?php $totalQty += $rs->Qty; ?>
+              <?php $no++; ?>
+
               <?php if( ! empty($rs->batchRows)) : ?>
+                <?php $bno = 1; ?>
                 <?php foreach($rs->batchRows as $br) : ?>
                   <?php $instock = $this->stock_model->get_item_batch_qty($br->ItemCode, $br->BatchNum, $br->WhsCode, $br->BinCode); ?>
-                  <tr id="batch-rows-<?php echo $br->uid; ?>" data-uid="<?php echo $br->uid; ?>" class="blue font-size-11 child-of-<?php echo $rs->uid; ?>">
+                  <tr id="batch-rows-<?php echo $br->uid; ?>" data-uid="<?php echo $br->uid; ?>" class="blue font-size-11 child-of-<?php echo $uid; ?>">
                     <td class="middle text-center">
                       <a class="pointer" href="javascript:removeBatchRow('<?php echo $br->uid; ?>')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a>
                     </td>
-                    <td colspan="4" class="middle italic">
+                    <td class="middle text-center italic b-<?php echo $uid; ?>"><?php echo $bno; ?></td>
+                    <td colspan="3" class="middle italic">
                       <span class="label label-success label-white middle italic">Batch No : <?php echo $br->BatchNum; ?></span>
                       <span class="label label-info label-white middle italic">Attr1 : <?php echo $br->BatchAttr1; ?></span>
                       <span class="label label-default label-white middle italic">Attr2 : <?php echo $br->BatchAttr2;?></span>
@@ -92,22 +103,23 @@
                       <input type="text" class="form-control input-xs blue text-right batch-qty r"
                       id="batch-qty-<?php echo $br->uid; ?>"
                       data-uid="<?php echo $br->uid; ?>"
-                      data-parent="<?php echo $rs->uid; ?>"
+                      data-parent="<?php echo $uid; ?>"
                       data-batchnum="<?php echo $br->BatchNum; ?>"
                       data-attr1="<?php echo $br->BatchAttr1; ?>"
                       data-attr2="<?php echo $br->BatchAttr2; ?>"
                       data-fromwhs="<?php echo $br->WhsCode; ?>"
                       data-frombin="<?php echo $br->BinCode; ?>"
                       value="<?php echo number($br->Qty, 2); ?>"
-                      onchange="reCalBatchRows('<?php echo $rs->uid; ?>')"/>
+                      onchange="reCalBatchRows('<?php echo $uid; ?>')"/>
                     </td>
                     <td>
                       <input type="text" class="form-control input-xs blue r" value="<?php echo $rs->unitMsr; ?>"  disabled/>
                     </td>
                   </tr>
+                  <?php $totalBatchRows++; ?>
+                  <?php $bno++; ?>
                 <?php endforeach; ?>
               <?php endif; ?>
-            <?php $no++; ?>
           <?php endforeach; ?>
         <?php endif; ?>
       </tbody>
@@ -130,6 +142,29 @@
   			<label class="float-left fix-width-60">Remark</label>
   			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5">
           <textarea class="form-control input-xs" id="remark" rows="3"><?php echo $doc->remark; ?></textarea>
+  			</div>
+  		</div>
+    </div>
+  </div>
+
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+    <div class="form-horizontal">
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Items rows</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-item-row" class="form-control input-xs" value="<?php echo number($totalItemsRows, 2); ?>" disabled/>
+  			</div>
+  		</div>
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Batch rows</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-batch-row" class="form-control input-xs" value="<?php echo number($totalBatchRows, 2); ?>" disabled/>
+  			</div>
+  		</div>
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Qty</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-item-qty" class="form-control input-xs" value="<?php echo number($totalQty, 2); ?>" disabled/>
   			</div>
   		</div>
     </div>
@@ -174,7 +209,7 @@
       </td>
       <td>
         <input type="text" class="form-control input-xs blue r" value="{{UomName}}"  disabled/>
-      </td>      
+      </td>
     </tr>
   {{/each}}
 </script>

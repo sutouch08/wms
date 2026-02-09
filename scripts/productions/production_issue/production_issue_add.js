@@ -1,6 +1,7 @@
 window.addEventListener('load', () => {
   baseRefInit();
   detailsInit();
+  reCalTotal();
 });
 
 var click = 0;
@@ -659,6 +660,8 @@ function addToOrder() {
       binInit(uuid);
     });
   }
+
+  reCalTotal();
 }
 
 
@@ -871,6 +874,8 @@ function addBatchRows() {
       reCalBatchRows(uid);
     }
   }
+
+  reCalTotal();
 }
 
 
@@ -887,6 +892,7 @@ function removeRow(uid) {
   $('.child-of-'+uid).remove();
 
   reIndex('no');
+  reCalTotal();
 }
 
 
@@ -934,4 +940,23 @@ function reCalBatchRows(parentUid) {
 
     $('#issue-qty-'+parentUid).val(addCommas(pQty.toFixed(2)));
   }
+
+  reIndex('b-'+parentUid);
+
+  reCalTotal();
+}
+
+
+function reCalTotal() {
+  let totalQty = 0;
+  let totalItems = $('.issue-qty').length;
+  let totalBatch = $('.batch-qty').length;
+
+  $('.issue-qty').each(function() {
+    totalQty += parseDefaultFloat(removeCommas($(this).val()), 0);
+  });
+
+  $('#total-item-row').val(addCommas(totalItems.toFixed(2)));
+  $('#total-batch-row').val(addCommas(totalBatch.toFixed(2)));
+  $('#total-item-qty').val(addCommas(totalQty.toFixed(2)));
 }

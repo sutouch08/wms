@@ -1395,12 +1395,11 @@ function reCalTotal() {
   let totalItems = $('.tran-qty').length;
   let totalBatch = $('.batch-qty').length;
 
-  $('.tran-qty').each(function() {    
+  $('.tran-qty').each(function() {
     totalQty += parseDefaultFloat(removeCommas($(this).val()), 0);
-  });  
+  });
 
   $('#total-item-row').val(addCommas(totalItems.toFixed(2)));
   $('#total-batch-row').val(addCommas(totalBatch.toFixed(2)));
   $('#total-item-qty').val(addCommas(totalQty.toFixed(2)));
-  console.log(totalItems);
 }

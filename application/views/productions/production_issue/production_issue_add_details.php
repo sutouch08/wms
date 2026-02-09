@@ -1,3 +1,8 @@
+<?php
+$totalItemsRows = 0;
+$totalBatchRows = 0;
+$totalQty = 0;
+?>
 <div class="row" style="margin-left: -8px;">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive" style="min-height:300px; max-height:600px; overflow:scroll; padding:0px; border:solid 1px #dddddd;">
     <table class="table tableFixHead" style="min-width:1220px; margin-bottom:20px;">
@@ -42,11 +47,27 @@
     </div>
   </div>
 
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hide" style="padding-right:12px;">
-    <?php if($this->pm->can_add) : ?>
-      <button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="add()">Save</button>
-      <button type="button" class="btn btn-white btn-default top-btn btn-100" onclick="leave()">Cancel</button>
-    <?php endif; ?>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+    <div class="form-horizontal">
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Items rows</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-item-row" class="form-control input-xs" value="<?php echo number($totalItemsRows, 2); ?>" disabled/>
+  			</div>
+  		</div>
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Batch rows</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-batch-row" class="form-control input-xs" value="<?php echo number($totalBatchRows, 2); ?>" disabled/>
+  			</div>
+  		</div>
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Qty</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-item-qty" class="form-control input-xs" value="<?php echo number($totalQty, 2); ?>" disabled/>
+  			</div>
+  		</div>
+    </div>
   </div>
 </div>
 
@@ -59,7 +80,8 @@
       <td class="middle text-center">
         <a class="pointer" href="javascript:removeBatchRow('{{uid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a>
       </td>
-      <td colspan="4" class="middle italic">
+      <td class="middle text-center italic b-{{parentUid}}"></td>
+      <td colspan="3" class="middle italic">
         <span class="label label-success label-white middle italic">Batch No : {{batchNum}}</span>
         <span class="label label-info label-white middle italic">Attr1 : {{batchAttr1}}</span>
         <span class="label label-default label-white middle italic">Attr2 : {{batchAttr2}}</span>
@@ -138,7 +160,7 @@
           data-uid="{{uid}}"
           id="issue-qty-{{uid}}"
           value="{{Qty}}" />
-      </td>      
+      </td>
       <td class="middle">
         <input type="text" class="form-control input-xs r"
           data-uid="{{uid}}"

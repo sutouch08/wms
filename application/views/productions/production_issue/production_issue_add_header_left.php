@@ -12,9 +12,9 @@
       <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4 padding-5">
         <input type="text" id="order-ref" class="form-control input-xs" value="<?php echo $orderRef; ?>" disabled/>
       </div>
-      <?php if( ! empty($doc->orderRef)) : ?>
+      <?php if( ! empty($orderRef)) : ?>
       <div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5">
-        <button type="button" class="btn btn-primary btn-minier" style="border-radius:3px !important;" onclick="viewIXProductionOrder('<?php echo $doc->reference; ?>')">
+        <button type="button" class="btn btn-primary btn-minier" style="border-radius:3px !important;" onclick="viewIXProductionOrder('<?php echo $orderRef; ?>')">
           <i class="fa fa-external-link"></i>
         </button>
       </div>

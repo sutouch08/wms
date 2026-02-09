@@ -1,3 +1,8 @@
+<?php
+$totalItemsRows = 0;
+$totalBatchRows = 0;
+$totalQty = 0;
+?>
 <div class="row" style="margin-left: -8px;">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive" style="min-height:300px; max-height:600px; overflow:scroll; padding:0px; border:solid 1px #dddddd;">
     <table class="table tableFixHead" style="min-width:1220px; margin-bottom:20px;">
@@ -40,7 +45,30 @@
   			</div>
   		</div>
     </div>
-  </div>  
+  </div>
+
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+    <div class="form-horizontal">
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Items rows</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-item-row" class="form-control input-xs" value="<?php echo number($totalItemsRows, 2); ?>" disabled/>
+  			</div>
+  		</div>
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Batch rows</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-batch-row" class="form-control input-xs" value="<?php echo number($totalBatchRows, 2); ?>" disabled/>
+  			</div>
+  		</div>
+      <div class="form-group">
+  			<label class="col-lg-9 col-md-8 col-sm-7 col-xs-6 padding-5 text-right">Total Qty</label>
+  			<div class="col-lg-3 col-md-4 col-sm-5 col-xs-6 padding-5">
+  				<input type="text" id="total-item-qty" class="form-control input-xs" value="<?php echo number($totalQty, 2); ?>" disabled/>
+  			</div>
+  		</div>
+    </div>
+  </div>
 </div>
 
 <?php $this->load->view('productions/production_receipt/production_modal'); ?>
@@ -51,7 +79,8 @@
     <td class="middle text-center">
       <a class="pointer" href="javascript:removeBatchRow('{{uid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a>
     </td>
-    <td colspan="7" class="middle italic">
+    <td class="middle text-center italic b-{{parentUid}}"></td>
+    <td colspan="6" class="middle italic">
       <div class="input-group width-30 float-left">
         <span class="input-group-addon batch-label">Batch No. :</span>
         <input type="text" class="form-control input-xs batch-row r" id="batch-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" />

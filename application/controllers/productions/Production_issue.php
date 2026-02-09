@@ -81,25 +81,26 @@ class Production_issue extends PS_Controller
             'details' => []
           );
 
-          $details = $this->production_issue_model->get_production_order_details($pdo->DocEntry);
-
-          if( ! empty($details))
-          {
-            foreach($details as $rs)
-            {
-              $balance = $rs->PlannedQty - $rs->IssuedQty;
-              $instock = $this->stock_model->get_item_stock($rs->ItemCode,  $rs->wareHouse);
-
-              $rs->uid = genUid();
-              $rs->fromWhsCode = $rs->wareHouse;
-              $rs->PlannedQty = number($rs->PlannedQty, 2);
-              $rs->IssuedQty = number($rs->IssuedQty, 2);
-              $rs->BalanceQty = $balance > 0 ? number($balance, 2) : 0.00;
-              $rs->InStock = number($instock, 2);
-            }
-
-            $ds['details'] = $details;
-          }
+          // $details = $this->production_issue_model->get_production_order_details($pdo->DocEntry);
+          //
+          // if( ! empty($details))
+          // {
+          //   foreach($details as $rs)
+          //   {
+          //     $balance = $rs->PlannedQty - $rs->IssuedQty;
+          //     $instock = $this->stock_model->get_item_stock($rs->ItemCode,  $rs->wareHouse);
+          //
+          //     $rs->uid = genUid();
+          //     $rs->fromWhsCode = $rs->wareHouse;
+          //     $rs->PlannedQty = number($rs->PlannedQty, 2);
+          //     $rs->IssuedQty = number($rs->IssuedQty, 2);
+          //     $rs->BalanceQty = $balance > 0 ? number($balance, 2) : 0.00;
+          //     $rs->InStock = number($instock, 2);
+          //     $rs->hasBatch = $rs->ManBtchNum == 'Y' ? TRUE : FALSE;
+          //   }
+          //
+          //   $ds['details'] = $details;
+          // }
         }
       }
     }

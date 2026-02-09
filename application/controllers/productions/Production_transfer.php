@@ -99,7 +99,7 @@ class Production_transfer extends PS_Controller
               $rs->IssuedQty = number($rs->IssuedQty, 2);
               $rs->Qty = $balance > 0 ? number($balance, 2) : 0.00;
               $rs->InStock = number($instock, 2);
-              $rs->hasBatch = $rs->ManBtchNum;
+              $rs->hasBatch = $rs->ManBtchNum == 'Y' ? TRUE : FALSE;
             }
 
             $ds['details'] = $details;
