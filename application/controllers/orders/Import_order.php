@@ -116,6 +116,7 @@ class Import_order extends CI_Controller
               //---- ถ้ามีแล้วและยังไม่ได้ยกเลิก ไม่สามารถเพิ่มใหม่ได้
               $order_code = $this->orders_model->get_active_order_code_by_reference($order->reference);
               $is_backorder = 0;
+              $is_hold = 0;
               $backorderList = [];
               $total_amount = 0;
               $total_qty = 0;
@@ -182,6 +183,11 @@ class Import_order extends CI_Controller
                   {
                     foreach($order->items as $row)
                     {
+                      if($row->price <= 0)
+                      {
+                        $is_hold = 1;
+                      }
+
                       $arr = array(
                         'order_code' => $order_code,
                         'style_code' => $row->style_code,
@@ -275,7 +281,8 @@ class Import_order extends CI_Controller
                   $arr = array(
                     'doc_total' => $total_amount,
                     'total_sku' => $this->orders_model->count_order_sku($order_code),
-                    'is_backorder' => $is_backorder
+                    'is_backorder' => $is_backorder,
+                    'is_hold' => $is_hold
                   );
 
                   $this->orders_model->update($order_code, $arr);
@@ -401,6 +408,11 @@ class Import_order extends CI_Controller
                         {
                           foreach($order->items as $row)
                           {
+                            if($row->price <= 0)
+                            {
+                              $is_hold = 1;
+                            }
+                            
                             $arr = array(
                               'order_code' => $order_code,
                               'style_code' => $row->style_code,
@@ -495,7 +507,8 @@ class Import_order extends CI_Controller
                       $arr = array(
                         'doc_total' => $total_amount,
                         'total_sku' => $this->orders_model->count_order_sku($order_code),
-                        'is_backorder' => $is_backorder
+                        'is_backorder' => $is_backorder,
+                        'is_hold' => $is_hold
                       );
 
                       $this->orders_model->update($order_code, $arr);
