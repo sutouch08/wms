@@ -73,6 +73,15 @@ class Production_order extends PS_Controller
         $ds->Status = $ds->Status == 'R' ? 'R' : 'P';
         $doc_date = db_date($ds->PostDate);
         $due_date = db_date($ds->DueDate);
+        $release_date = $ds->Status == 'R' ? date('Y-m-d') : NULL;
+
+        if($ds->Status == 'R')
+        {
+          if($release_date > $due_date)
+          {
+            $due_date = $release_date;
+          }
+        }
 
         $code = $this->get_new_code($doc_date);
 
@@ -80,6 +89,7 @@ class Production_order extends PS_Controller
           'code' => $code,
           'PostDate' => $doc_date,
           'DueDate' => $due_date,
+          'ReleaseDate' => $release_date,
           'ItemCode' => trim($ds->ItemCode),
           'ProdName' => get_null(trim($ds->ItemName)),
           'Status' => $ds->Status,
@@ -224,11 +234,22 @@ class Production_order extends PS_Controller
         {
           $doc_date = db_date($ds->PostDate);
           $due_date = db_date($ds->DueDate);
+          $release_date = $ds->Status == 'R' ? date('Y-m-d') : NULL;
+
+          if($ds->Status == 'R')
+          {
+            if($release_date > $due_date)
+            {
+              $due_date = $release_date;
+            }
+          }
+
           $code = $doc->code;
 
           $arr = array(
             'PostDate' => $doc_date,
             'DueDate' => $due_date,
+            'ReleaseDate' => $release_date,
             'ItemCode' => trim($ds->ItemCode),
             'ProdName' => get_null(trim($ds->ItemName)),
             'Status' => $ds->Status,
