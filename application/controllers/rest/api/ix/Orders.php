@@ -64,6 +64,7 @@ class Orders extends REST_Controller
 
   public function create_post()
   {
+    $start_date = now();
     $sc = TRUE;
     $action = 'create';
     $this->api_path = $this->api_path."/create";
@@ -89,7 +90,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => 'API Not Enabled',
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -119,7 +121,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => 'empty data',
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -149,7 +152,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -296,7 +300,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -332,7 +337,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -399,7 +405,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -585,7 +592,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1044,7 +1052,8 @@ class Orders extends REST_Controller
             'status' => 'success',
             'message' => 'success',
             'request_json' => $json,
-            'response_json' => json_encode($arr)
+            'response_json' => json_encode($arr),
+            'start_date' => $start_date
           );
 
           $this->ix_api_logs_model->add_logs($logs);
@@ -1102,7 +1111,8 @@ class Orders extends REST_Controller
             'status' => 'failed',
             'message' => $this->error,
             'request_json' => $json,
-            'response_json' => json_encode($arr)
+            'response_json' => json_encode($arr),
+            'start_date' => $start_date
           );
 
           $this->ix_api_logs_model->add_logs($logs);
