@@ -1691,6 +1691,7 @@ class Orders extends REST_Controller
   public function update_price_put()
   {
     $sc = TRUE;
+    $start_date = now();
 
     $action = 'update';
 
@@ -1717,7 +1718,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => 'API Not Enabled',
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1747,7 +1749,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => 'empty data',
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1777,7 +1780,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1788,13 +1792,79 @@ class Orders extends REST_Controller
 
     $order_code = $this->orders_model->get_active_order_code_by_reference($data->order_number);
 
-    $order = empty($order_code) ? NULL : $this->orders_model->get($order_code);
-
-    $channels_code = empty($order) ? NULL : $order->channels_code;
-
     if(empty($order_code))
     {
       $this->error = "Active order number not found for {$data->order_number}";
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error,
+        'retry' => FALSE
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $data->order_number,
+          'channels' => NULL,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $order = $this->orders_model->get($order_code);
+
+    if(empty($order))
+    {
+      $sc = FALSE;
+      $this->error = "Oredr not found";
+
+      $arr = array(
+        'status' => FALSE,
+        'error' => $this->error,
+        'retry' => FALSE
+      );
+
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $order_number,
+          'action' => $action,
+          'status' => 'failed',
+          'message' => $this->error,
+          'request_json' => $json,
+          'response_json' => json_encode($arr)
+        );
+
+        $this->ix_api_logs_model->add_logs($logs);
+      }
+
+      $this->response($arr, 400);
+    }
+
+    $channels_code = empty($order) ? NULL : $order->channels_code;
+
+    if($order->state == 8)
+    {
+      $sc = FALSE;
+
+      $err = 'Order already shipped';
+      $this->error = "Invalid order state : ".$err;
 
       $arr = array(
         'status' => FALSE,
@@ -1849,7 +1919,8 @@ class Orders extends REST_Controller
         'status' => 'failed',
         'message' => $this->error,
         'request_json' => $json,
-        'response_json' => json_encode($arr)
+        'response_json' => json_encode($arr),
+        'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1947,7 +2018,8 @@ class Orders extends REST_Controller
           'status' => 'success',
           'message' => 'success',
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1977,7 +2049,8 @@ class Orders extends REST_Controller
           'status' => 'failed',
           'message' => $this->error,
           'request_json' => $json,
-          'response_json' => json_encode($arr)
+          'response_json' => json_encode($arr),
+          'start_date' => $start_date
         );
 
         $this->ix_api_logs_model->add_logs($logs);
