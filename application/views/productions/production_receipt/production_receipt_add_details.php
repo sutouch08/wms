@@ -83,7 +83,7 @@ $totalQty = 0;
     <td colspan="6" class="middle italic">
       <div class="input-group width-30 float-left">
         <span class="input-group-addon batch-label">Batch No. :</span>
-        <input type="text" class="form-control input-xs batch-row r" id="batch-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" />
+        <input type="text" class="form-control input-xs batch-row r" id="batch-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" onpaste="handlePaste(event, $(this))"/>
       </div>
       <div class="input-group width-30 float-left">
         <span class="input-group-addon batch-label">Attr1 :</span>
