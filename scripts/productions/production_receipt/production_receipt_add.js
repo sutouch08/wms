@@ -693,10 +693,10 @@ function addBatchRow(parentUid) {
 		$('#batch-'+uid).focus();
 	}, 100)
 
-  reCalBatchRows(parentUid);  
+  reCalBatchRows(parentUid);
 }
 
-
+//--- for copy paste batch number
 function newBatchRow(parentUid) {
   let el = $('#receipt-qty-'+parentUid);
 	let no = parseDefaultInt(el.data('no'), 0);
@@ -721,11 +721,6 @@ function newBatchRow(parentUid) {
 
 	render_after(source, ds, output);
 	batchInit(uid);
-	setTimeout(() => {
-		$('#batch-'+uid).focus();
-	}, 100)
-
-  reCalBatchRows(parentUid);
   return uid;
 }
 

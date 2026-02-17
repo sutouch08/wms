@@ -328,6 +328,8 @@ $totalQty = 0;
             uid = newBatchRow(parentUid);
           }
         }
+
+        reCalBatchRows(parentUid);
       }
     }
   }
