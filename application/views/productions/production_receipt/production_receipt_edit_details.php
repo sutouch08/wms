@@ -91,7 +91,7 @@ $totalQty = 0;
                     <div class="input-group width-30 float-left">
                       <span class="input-group-addon batch-label">Batch No. :</span>
                       <input type="text" class="form-control input-xs batch-row r"
-                      id="batch-<?php echo $br->uid; ?>" data-uid="<?php echo $br->uid; ?>" data-parent="<?php echo $uid; ?>" value="<?php echo $br->BatchNum; ?>" />
+                      id="batch-<?php echo $br->uid; ?>" data-uid="<?php echo $br->uid; ?>" data-parent="<?php echo $uid; ?>" value="<?php echo $br->BatchNum; ?>" onpaste="handlePaste(event, $(this))" />
                     </div>
                     <div class="input-group width-30 float-left">
                       <span class="input-group-addon batch-label">Attr1 :</span>
@@ -182,7 +182,7 @@ $totalQty = 0;
     <td colspan="6" class="middle italic">
       <div class="input-group width-30 float-left">
         <span class="input-group-addon batch-label">Batch No. :</span>
-        <input type="text" class="form-control input-xs batch-row r" id="batch-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" />
+        <input type="text" class="form-control input-xs batch-row r" id="batch-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" value="" onpaste="handlePaste(event, $(this))"/>
       </div>
       <div class="input-group width-30 float-left">
         <span class="input-group-addon batch-label">Attr1 :</span>
@@ -306,4 +306,45 @@ $totalQty = 0;
         value=""  disabled/>
     </td>
   </tr>
+</script>
+
+<script>
+  function handlePaste(event, el) {
+    let parentUid = el.data('parent');
+    let uid = el.data('uid');
+    let data = event.clipboardData.getData('text/plain');
+    event.preventDefault();
+
+    if(data.length) {
+      let rows = parseExcelString(data);
+      if(rows.length) {
+        for(let i=0; i < rows.length; i++)  {
+          let row = rows[i];
+          $('#batch-'+uid).val(row[0]);
+          $('#batch-attr1-'+uid).val(row[1]);
+          $('#batch-attr2-'+uid).val(row[2]);
+          $('#batch-qty-'+uid).val(row[3]);
+          if(i+1 < rows.length) {
+            uid = newBatchRow(parentUid);
+          }
+        }
+      }
+    }
+  }
+
+
+  function parseExcelString(s) {
+    let rawRows = s.split('\n');
+    let rows = [];
+
+    rawRows.forEach((rawRow) => {
+      if(rawRow.length && rawRow[0] != '') {
+        let values = rawRow.replaceAll('\r', '').split('\t');
+        rows.push(values);
+      }
+    });
+
+    return rows;
+  }
+
 </script>

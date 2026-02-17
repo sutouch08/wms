@@ -693,7 +693,40 @@ function addBatchRow(parentUid) {
 		$('#batch-'+uid).focus();
 	}, 100)
 
+  reCalBatchRows(parentUid);  
+}
+
+
+function newBatchRow(parentUid) {
+  let el = $('#receipt-qty-'+parentUid);
+	let no = parseDefaultInt(el.data('no'), 0);
+	let ne = no + 1;
+	el.data('no', ne);
+
+	let cuid = el.data('uid'); // pre uid for last child row
+	let uid = generateUID(); //--- new child row uid
+
+	$('.child-of-'+parentUid).each(function() {
+		cuid = $(this).data('uid'); //-- find leatest batch row in parent
+	});
+
+	let ds = {
+		'parentUid' : parentUid,
+		'uid' : uid,
+		'UomName' : el.data('uom')
+	};
+
+	let source = $('#batch-row-template').html();
+	let output = $('#batch-row-'+cuid).length ? $('#batch-row-'+cuid) : $('#row-'+parentUid);
+
+	render_after(source, ds, output);
+	batchInit(uid);
+	setTimeout(() => {
+		$('#batch-'+uid).focus();
+	}, 100)
+
   reCalBatchRows(parentUid);
+  return uid;
 }
 
 
