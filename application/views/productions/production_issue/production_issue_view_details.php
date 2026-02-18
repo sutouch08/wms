@@ -98,7 +98,7 @@ $totalQty = 0;
       <div class="form-group">
   			<label class="float-left fix-width-60">User</label>
   			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
-  				<input type="text" id="user" class="form-control input-xs" value="<?php echo $this->_user->uname; ?>" disabled/>
+  				<input type="text" id="user" class="form-control input-xs" value="<?php echo $doc->user; ?>" disabled/>
   			</div>
   		</div>
 

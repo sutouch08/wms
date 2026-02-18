@@ -58,7 +58,7 @@
 		<div class="form-group">
 			<label class="sap-label col-lg-6 col-md-6 col-sm-6 padding-0">User</label>
 			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
-				<input type="text" id="user" class="form-control input-xs" value="<?php echo $this->_user->uname; ?>" disabled/>
+				<input type="text" id="user" class="form-control input-xs" value="<?php echo $doc->user; ?>" disabled/>
 			</div>
 		</div>
 
