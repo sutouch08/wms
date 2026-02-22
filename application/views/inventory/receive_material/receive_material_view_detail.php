@@ -110,6 +110,10 @@
 			</thead>
 			<tbody id="receive-table">
 				<?php $no = 1; ?>
+				<?php $totalItems = 0; ?>
+				<?php $totalBatchs = 0; ?>
+				<?php $totalQty = 0; ?>
+				<?php $totalAmount = 0; ?>
 				<?php if( ! empty($details)) : ?>
 					<?php foreach($details as $rs) : ?>
 						<tr class="font-size-11">
@@ -122,6 +126,9 @@
 							<td class="middle text-right"><?php echo number($rs->LineTotal, 2); ?></td>
 						</tr>
 						<?php $no++; ?>
+						<?php $totalItems++ ?>
+						<?php $totalQty += $rs->Qty; ?>
+						<?php $totalAmount += $rs->LineTotal; ?>
 
 						<?php if( ! empty($rs->batchRows)) : ?>
 							<?php $ne = 1; ?>
@@ -135,6 +142,7 @@
 									<td class="middle"></td>
 								</tr>
 								<?php $ne++; ?>
+								<?php $totalBatchs++; ?>
 							<?php endforeach; ?>
 						<?php endif; ?>
 					<?php endforeach; ?>
@@ -159,20 +167,32 @@
 		</div>
 	</div>
 
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">		
 		<div class="form-horizontal">
 			<div class="form-group" style="margin-bottom:5px;">
-				<label class="col-lg-8 col-md-8 col-sm-8 col-xs-6 control-label no-padding-right">จำนวน</label>
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 padding-5">
-					<input type="text" class="form-control input-sm text-right" id="total-qty" value="<?php echo number($doc->TotalQty, 2); ?>" disabled>
-				</div>
-			</div>
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Item Rows</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-items" value="<?php echo number($totalItems, 2); ?>" disabled>
+        </div>
+      </div>
 			<div class="form-group" style="margin-bottom:5px;">
-				<label class="col-lg-8 col-md-8 col-sm-8 col-xs-6 control-label no-padding-right">มูลค่ารวม</label>
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 padding-5">
-					<input type="text" id="total-amount" class="form-control input-sm text-right" value="<?php echo number($doc->DocTotal, 2); ?>" disabled/>
-				</div>
-			</div>
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Batch Rows</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-batchs" value="<?php echo number($totalBatchs, 2); ?>" disabled>
+        </div>
+      </div>
+			<div class="form-group" style="margin-bottom:5px;">
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Qty</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-receive" value="<?php echo number($totalQty, 2); ?>" disabled>
+        </div>
+      </div>
+			<div class="form-group" style="margin-bottom:5px;">
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Amount</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-amount" value="<?php echo number($totalAmount, 2); ?>" disabled>
+        </div>
+      </div>
 		</div>
 	</div>
 </div> <!-- row -->

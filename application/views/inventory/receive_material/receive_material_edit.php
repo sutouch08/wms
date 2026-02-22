@@ -45,7 +45,7 @@
 		<input type="text" class="width-100 text-center r" id="vendor-code"
 		placeholder="รหัสผู้ขาย"
 		value="<?php echo $doc->vendor_code; ?>" data-prev="<?php echo $doc->vendor_code; ?>"
-		autofocus onchange="confirmChangeVendor()" />
+		autofocus />
 	</div>
 	<div class="col-lg-7 col-md-5 col-sm-5 col-xs-8 padding-5">
 		<label>ชื่อผู้ขาย</label>
@@ -124,11 +124,13 @@
 			</thead>
 			<tbody id="receive-table">
   <?php $no = 1; ?>
+	<?php $totalItems = 0; ?>
+	<?php $totalBatchs = 0; ?>
 	<?php $totalQty = 0; ?>
 	<?php $totalAmount = 0; ?>
 	<?php if( ! empty($details)) : ?>
 		<?php foreach($details as $rs) : ?>
-			<?php $uid = $rs->baseEntry.'-'.$rs->baseLine; ?>
+			<?php $uid = $rs->uid; ?>
 			<tr class="font-size-11 rows r" id="row-<?php echo $uid; ?>" data-uid="<?php echo $uid; ?>">
 				<td class="middle text-center"><a class="pointer" href="javascript:removeRow('<?php echo $uid; ?>')" title="Remove this row"><i class="fa fa-trash fa-lg red"></i></a></td>
 				<td class="middle text-center no"><?php echo $no; ?></td>
@@ -139,7 +141,7 @@
 						</a>
 					<?php endif; ?>
 				</td>
-				<td class="middle"><?php echo $rs->ItemCode; ?></td>
+				<td class="middle" id="item-code-<?php echo $uid; ?>"><?php echo $rs->ItemCode; ?></td>
 				<td colspan="2" class="middle"><?php echo $rs->ItemName; ?></td>
 				<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
 				<td class="middle">
@@ -183,16 +185,17 @@
 				</td>
 			</tr>
 			<?php $no++; ?>
+			<?php $totalItems++; ?>
 			<?php $totalQty += $rs->Qty; ?>
 			<?php $totalAmount += $rs->LineTotal; ?>
 
 			<?php if( ! empty($rs->batchRows)) : ?>
 				<?php $ne = 1; ?>
 				<?php foreach($rs->batchRows as $rb) : ?>
-					<?php $cid =  "{$ne}-{$uid}"; ?>
+					<?php $cid =  $rb->uid; ?>
 					<tr class="font-size-11 batch-rows child-of-<?php echo $uid; ?> blue" id="batch-row-<?php echo $cid; ?>" data-id="<?php echo $cid; ?>" data-no="<?php echo $ne; ?>" data-uid="<?php echo $cid; ?>" data-parent="<?php echo $uid; ?>">
 						<td class="middle text-center"><a class="pointer" href="javascript:removeBatchRow('<?php echo $cid; ?>')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a></td>
-						<td class="text-center ne"><?php echo $ne; ?></td>
+						<td class="text-center ne-<?php echo $ne; ?>"><?php echo $ne; ?></td>
 						<td colspan="2">
 							<div class="input-group">
 								<span class="input-group-addon batch-label">Batch :</span>
@@ -201,7 +204,7 @@
 								id="batch-<?php echo $cid; ?>"
 								data-uid="<?php echo $cid; ?>"
 								data-parent="<?php echo $uid; ?>" value="<?php echo $rb->BatchNum; ?>"
-								maxlength="100" value="" placeholder="Batch No. (Required)"/>
+								maxlength="100" value="" placeholder="Batch No. (Required)" onpaste="handlePaste(event, $(this))"/>
 							</div>
 						</td>
 						<td class="middle">
@@ -238,6 +241,7 @@
 						<td class="middle"></td>
 					</tr>
 					<?php $ne++; ?>
+					<?php $totalBatchs++; ?>
 				<?php endforeach; ?>
 			<?php endif; ?>
 		<?php endforeach; ?>
@@ -262,16 +266,28 @@
 		</div>
 	</div>
 
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">		
 		<div class="form-horizontal">
 			<div class="form-group" style="margin-bottom:5px;">
-        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">จำนวนรวม</label>
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Item Rows</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-items" value="<?php echo number($totalItems, 2); ?>" disabled>
+        </div>
+      </div>
+			<div class="form-group" style="margin-bottom:5px;">
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Batch Rows</label>
+        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
+          <input type="text" class="form-control input-sm text-right" id="total-batchs" value="<?php echo number($totalBatchs, 2); ?>" disabled>
+        </div>
+      </div>
+			<div class="form-group" style="margin-bottom:5px;">
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Qty</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
           <input type="text" class="form-control input-sm text-right" id="total-receive" value="<?php echo number($totalQty, 2); ?>" disabled>
         </div>
       </div>
 			<div class="form-group" style="margin-bottom:5px;">
-        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">มูลค่ารวม</label>
+        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">Total Amount</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5">
           <input type="text" class="form-control input-sm text-right" id="total-amount" value="<?php echo number($totalAmount, 2); ?>" disabled>
         </div>
@@ -296,14 +312,14 @@
 					</a>
 				{{/if}}
 			</td>
-			<td class="middle">{{pdCode}}</td>
+			<td class="middle" id="item-code-{{uid}}">{{pdCode}}</td>
 			<td colspan="2" class="middle">{{pdName}}</td>
 			<td class="middle text-center">{{unitMsr}}</td>
 			<td class="middle">
 				<input type="text" class="form-control input-sm text-right text-label row-price e" id="row-price-{{uid}}" value="{{priceLabel}}" readonly />
 			</td>
 			<td class="middle">
-				<input type="number"
+				<input type="text"
 					class="form-control input-sm text-right text-label receive-qty r"
 					id="receive-qty-{{uid}}"
 					data-no="0"
@@ -312,7 +328,7 @@
 					data-backlogs="{{backlogs}}"
 					data-price="{{price}}"
 					data-bfprice="{{PriceBefDi}}"
-					data-afprice="{PriceAfVAT}"
+					data-afprice="{{PriceAfVAT}}"
 					data-basecode="{{baseCode}}"
 					data-baseentry="{{baseEntry}}"
 					data-baseline="{{baseLine}}"
@@ -341,66 +357,40 @@
 </script>
 
 <script id="batch-row-template" type="text/x-handlebarsTemplate">
-	<tr class="font-size-11 batch-rows child-of-{{uid}} blue" id="batch-row-{{cuid}}" data-id="{{cuid}}" data-no="{{no}}" data-uid="{{cuid}}" data-parent="{{uid}}">
-		<td class="middle text-center"><a class="pointer" href="javascript:removeBatchRow('{{cuid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a></td>
-		<td class="middle text-center ne"></td>
+	<tr class="font-size-11 batch-rows child-of-{{parentUid}} blue" id="batch-row-{{uid}}" data-no="{{no}}" data-uid="{{uid}}" data-parent="{{parentUid}}">
+		<td class="middle text-center"><a class="pointer" href="javascript:removeBatchRow('{{uid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a></td>
+		<td class="middle text-center ne-{{parentUid}}"></td>
 		<td colspan="2" class="middle text-right">
 			<div class="input-group">
 				<span class="input-group-addon batch-label">Batch :</span>
-				<input type="text" class="form-control input-sm blue batch-row batch-row-{{uid}} r"
-				id="batch-{{cuid}}" data-uid="{{cuid}}" data-parent="{{uid}}" maxlength="100" value="" placeholder="Batch No. (Required)"/>
+				<input type="text" class="form-control input-sm blue batch-row r"
+				id="batch-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" maxlength="100" value="" placeholder="Batch No. (Required)" onpaste="handlePaste(event, $(this))"/>
 			</div>
 		</td>
 		<td class="middle">
 			<div class="input-group">
 				<span class="input-group-addon batch-label">Attr 1 :</span>
 				<input type="text"
-				class="form-control input-sm blue batch-attr1" id="batch-attr1-{{cuid}}"
-				data-uid="{{cuid}}" data-parent="{{uid}}" maxlength="32" value="" placeholder="Batch Attribute 1 (Optional)"/>
+				class="form-control input-sm blue batch-attr1" id="batch-attr1-{{uid}}"
+				data-uid="{{uid}}" data-parent="{{parentUid}}" maxlength="32" value="" placeholder="Batch Attribute 1 (Optional)"/>
 			</div>
 		</td>
 		<td colspan="3" class="middle">
 			<div class="input-group">
 				<span class="input-group-addon batch-label">Attr 2 :</span>
 				<input type="text"
-				class="form-control input-sm blue batch-attr2" style="max-width:250px;" id="batch-attr2-{{cuid}}"
-				data-uid="{{cuid}}" data-parent="{{uid}}" maxlength="32" value="" placeholder="Batch Attribute 2 (Optional)"/>
+				class="form-control input-sm blue batch-attr2" style="max-width:250px;" id="batch-attr2-{{uid}}"
+				data-uid="{{uid}}" data-parent="{{parentUid}}" maxlength="32" value="" placeholder="Batch Attribute 2 (Optional)"/>
 			</div>
 		</td>
 		<td class="middle">
 			<div class="input-group">
 				<span class="input-group-addon batch-label">Qty :</span>
-				<input type="number" class="form-control input-sm text-right blue batch-qty batch-qty-{{uid}} r"
-				id="batch-qty-{{cuid}}" data-uid="{{cuid}}" data-parent="{{uid}}" />
+				<input type="text" class="form-control input-sm text-right blue batch-qty r"
+				id="batch-qty-{{uid}}" data-uid="{{uid}}" data-parent="{{parentUid}}" />
 			</div>
 		</td>
 		<td class="middle"></td>
-	</tr>
-</script>
-
-
-<script id="batch-row-templateX" type="text/x-handlebarsTemplate">
-	<tr class="font-size-11 batch-rows child-of-{{uid}} blue italic" id="batch-row-{{cuid}}" data-id="{{cuid}}" data-no="{{no}}" data-uid="{{cuid}}" data-parent="{{uid}}">
-		<td></td>
-		<td class="text-center ne"></td>
-		<td colspan="2" class="middle text-right"><a class="pointer pull-right" href="javascript:removeBatchRow('{{cuid}}')" title="Remove this row"><i class="fa fa-times fa-lg grey"></i></a></td>
-		<td class="middle">
-			<input type="text"
-			class="form-control input-sm text-label blue batch-row batch-row-{{uid}} r"
-			style="height:21px; font-style:italic; color:#478fca !important;"
-			id="batch-{{cuid}}"
-			data-uid="{{cuid}}"
-			data-parent="{{uid}}" value="" />
-		</td>
-		<td class="middle">
-			<input type="number"
-			class="form-control input-sm text-center text-label blue batch-qty batch-qty-{{uid}} r"
-			style="height:21px; font-style:italic;  color:#478fca !important;"
-			id="batch-qty-{{cuid}}"
-			data-uid="{{cuid}}"
-			data-parent="{{uid}}" />
-		</td>
-		<td colspan="3" class="middle"></td>
 	</tr>
 </script>
 

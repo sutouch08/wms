@@ -392,7 +392,8 @@ class Receive_material extends PS_Controller
                   'Rate' => $rs->rate,
                   'LineStatus' => $ds->save_type == 'C' ? 'C' : 'O',
                   'valid' => $ds->save_type == 'C' ? 1 : 0,
-                  'hasBatch' => $rs->hasBatch == 'Y' ? 1 : 0
+                  'hasBatch' => $rs->hasBatch == 'Y' ? 1 : 0,
+                  'uid' => $rs->uid
                 );
 
                 $id = $this->receive_material_model->add_detail($arr);
@@ -444,7 +445,8 @@ class Receive_material extends PS_Controller
                           'BatchAttr1' => get_null($ro->batchAttr1),
                           'BatchAttr2' => get_null($ro->batchAttr2),
                           'Qty' => $ro->batchQty,
-                          'WhsCode' => get_null($ds->warehouse_code)
+                          'WhsCode' => get_null($ds->warehouse_code),
+                          'uid' => $ro->uid
                         );
 
                         if( ! $this->receive_material_model->add_batch_row($br))
@@ -932,7 +934,7 @@ class Receive_material extends PS_Controller
 
               $ds[] = array(
                 'no' => $no,
-                'uid' => $rs->DocEntry.'-'.$rs->LineNum,
+                'uid' => genUid(), //$rs->DocEntry.'-'.$rs->LineNum,
                 'baseCode' => $po_code,
                 'baseEntry' => $rs->DocEntry,
                 'baseLine' => $rs->LineNum,

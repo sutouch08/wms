@@ -234,36 +234,100 @@ function clearPo() {
 }
 
 
-function addBatchRow(uid) {
-	let el = $('#receive-qty-'+uid);
-	let no = parseDefaultInt(el.data('no'), 0);
-	let ne = no + 1;
-	el.data('no', ne);
-
-	let puid = no + '-' + el.data('uid');
-	let cuid = ne + '-' + el.data('uid');
-
-	$('.child-of-'+uid).each(function() {
-		puid = $(this).data('id');
+function addBatchRow(parentUid) {
+	let el = $('#receive-qty-'+parentUid);
+	let cuid = el.data('uid');
+	let uid = generateUID();
+	
+	$('.child-of-'+parentUid).each(function() {
+		cuid = $(this).data('uid');
 	});
 
 	let ds = {
-		'cuid' : cuid,
-		'uid' : uid,
-		'no' : ne,
+		'parentUid' : parentUid,
+		'uid' : uid,		
 		'unitMsr' : el.data('unitmsr')
 	};
 
-
 	let source = $('#batch-row-template').html();
-	let output = $('#batch-row-'+puid).length ? $('#batch-row-'+puid) : $('#row-'+uid);
+	let output = $('#batch-row-'+cuid).length ? $('#batch-row-'+cuid) : $('#row-'+parentUid);
 
 	render_after(source, ds, output);
-	batchInit(cuid);
+	batchInit(uid);
 	reIndex('ne');
+	reCalBatchRows(parentUid);
+
 	setTimeout(() => {
-		$('#batch-'+cuid).focus();
+		$('#batch-'+uid).focus();
 	}, 100)
+
+}
+
+
+//--- for copy paste batch number
+function newBatchRow(parentUid) {
+  let el = $('#receive-qty-'+parentUid);
+	
+	let cuid = el.data('uid'); // pre uid for last child row
+	let uid = generateUID(); //--- new child row uid
+
+	$('.child-of-'+parentUid).each(function() {
+		cuid = $(this).data('uid'); //-- find leatest batch row in parent
+	});
+
+	let ds = {
+		'parentUid' : parentUid,
+		'uid' : uid,
+		'unitMsr' : el.data('unitmsr')
+	};
+
+	let source = $('#batch-row-template').html();
+	let output = $('#batch-row-'+cuid).length ? $('#batch-row-'+cuid) : $('#row-'+parentUid);
+
+	render_after(source, ds, output);
+	batchInit(uid);
+  return uid;
+}
+
+
+function handlePaste(event, el) {
+  let parentUid = el.data('parent');
+  let uid = el.data('uid');
+  let data = event.clipboardData.getData('text/plain');
+  event.preventDefault();
+
+  if(data.length) {
+    let rows = parseExcelString(data);
+    if(rows.length) {
+      for(let i=0; i < rows.length; i++)  {
+        let row = rows[i];
+        $('#batch-'+uid).val(row[0]);
+        $('#batch-attr1-'+uid).val(row[1]);
+        $('#batch-attr2-'+uid).val(row[2]);
+        $('#batch-qty-'+uid).val(row[3]);
+        if(i+1 < rows.length) {
+          uid = newBatchRow(parentUid);
+        }
+      }
+
+      reCalBatchRows(parentUid);
+    }
+  }
+}
+
+
+function parseExcelString(s) {
+  let rawRows = s.split('\n');
+  let rows = [];
+
+  rawRows.forEach((rawRow) => {
+    if(rawRow.length && rawRow[0] != '') {
+      let values = rawRow.replaceAll('\r', '').split('\t');
+      rows.push(values);
+    }
+  });
+
+  return rows;
 }
 
 
@@ -417,6 +481,26 @@ function removeRow(uid) {
 }
 
 
+function reCalBatchRows(parentUid) {
+  if($('.child-of-'+parentUid).length) {
+    let pQty = 0;
+    $('.child-of-'+parentUid).each(function() {
+      let uid = $(this).data('uid');
+      let qty = parseDefaultFloat(removeCommas($('#batch-qty-'+uid).val()), 0);
+      pQty += qty;
+    });
+
+    $('#receive-qty-'+parentUid).val(addCommas(pQty.toFixed(2)));
+
+		recalAmount(parentUid);
+  }
+
+  reIndex('ne-'+parentUid);
+
+  recalTotal();
+}
+
+
 function recalAmount(id) {
 	let price = parseDefault(parseFloat(removeCommas($('#row-price-'+id).val())), 0);
 	let qty = parseDefault(parseFloat($('#receive-qty-'+id).val()), 0);
@@ -428,6 +512,8 @@ function recalAmount(id) {
 
 
 function recalTotal() {
+	let totalItemRows = $('.receive-qty').length;
+	let totalBatchRows = $('.batch-qty').length;
 	let totalAmount = 0;
 	let totalQty = 0;
 
@@ -441,6 +527,8 @@ function recalTotal() {
 		totalAmount += amount;
 	});
 
+	$('#total-items').val(addCommas(totalItemRows.toFixed(2)));
+	$('#total-batchs').val(addCommas(totalBatchRows.toFixed(2)));
 	$('#total-receive').val(addCommas(totalQty.toFixed(2)));
 	$('#total-amount').val(addCommas(totalAmount.toFixed(2)));
 }

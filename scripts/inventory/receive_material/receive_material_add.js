@@ -273,186 +273,193 @@ function save(saveType) {
 			}
 		}
 
+    let errMsg = "";
+    let line = 0;
+    let sc = true;
+
 		$('.receive-qty').each(function() {
-			let el = $(this);
-			let qty = parseDefaultFloat(el.val(), 0);
-			let limit = parseDefaultFloat(el.data('limit'), 0);
-			let batchQty = 0;
-
-			if(qty > 0) {
-
-				if(qty > limit) {
-					err++;
-					el.hasError();
-					showError("จำนวนมากกว่ายอดค้างรับ");
-					click = 0;
-					return false;
-				}
-
+			if(sc === true) {
+				let el = $(this);
 				let uid = el.data('uid');
+				let receiveQty = parseDefaultFloat(el.val(), 0);
+				let limit = parseDefaultFloat(el.data('limit'), 0);
+				let hasBatch = el.data('batch') == 'Y' ? 1 : 0;
 
-				let row = {
-					'uid' : uid,
-					'baseCode' : el.data('basecode'),
-					'baseEntry' : el.data('baseentry'),
-					'baseLine' : el.data('baseline'),
-					'product_code' : el.data('code'),
-					'product_name' : el.data('name'),
-					'qty' : qty,
-					'Price' : el.data('price'),
-					'PriceBefDi' : el.data('bfprice'),
-					'PriceAfVAT' : el.data('afprice'),
-					'backlogs' : el.data('backlogs'),
-					'currency' : h.currency,
-					'rate' : h.rate,
-					'vatGroup' : el.data('vatcode'),
-					'vatRate' : el.data('vatrate'),
-					'UomCode' : el.data('uom'),
-					'UomCode2' : el.data('uom2'),
-					'UomEntry' : el.data('uomentry'),
-					'UomEntry2' : el.data('uomentry2'),
-					'unitMsr' : el.data('unitmsr'),
-					'unitMsr2' : el.data('unitmsr2'),
-					'NumPerMsr' : el.data('numpermsr'),
-					'NumPerMsr2' : el.data('numpermsr2'),
-					'hasBatch' : el.data('batch'),
-					'batchRows' : []
-				}
+				if(receiveQty <= 0) {
+          el.hasError();
+          sc = false;
+          errMsg = "จำนวนไม่ถูกต้อง";
+          return false;
+        }
 
-				bCount = $('.batch-row-'+uid).length;
-
-				if(el.data('batch') == 'Y' && bCount == 0) {
-					err++;
-					$('#row-'+uid).hasError();
-					click = 0;
-					showError("กรุณาระบุ Batch No");
+				if(receiveQty > limit) {
+					el.hasError();
+					sc = false;
+					errMsg = "จำนวนมากกว่ายอดค้างร้บ";
 					return false;
 				}
 
-				if(bCount > 0 ) {
+				if(sc === true && hasBatch == 1) {
+          if($('.child-of-'+uid).length == 0) {
+            sc = false;
+            $('#item-code-'+uid).hasError();
+            errMsg = "กรุณาระบุ Batch";
+            return false;
+          }
+        }
 
-					let values = [];
+				if(sc === true) {
+					let row = {
+						'uid' : uid,
+						'baseCode' : el.data('basecode'),
+						'baseEntry' : el.data('baseentry'),
+						'baseLine' : el.data('baseline'),
+						'product_code' : el.data('code'),
+						'product_name' : el.data('name'),
+						'qty' : receiveQty,
+						'Price' : el.data('price'),
+						'PriceBefDi' : el.data('bfprice'),
+						'PriceAfVAT' : el.data('afprice'),
+						'backlogs' : el.data('backlogs'),
+						'currency' : h.currency,
+						'rate' : h.rate,
+						'vatGroup' : el.data('vatcode'),
+						'vatRate' : el.data('vatrate'),
+						'UomCode' : el.data('uom'),
+						'UomCode2' : el.data('uom2'),
+						'UomEntry' : el.data('uomentry'),
+						'UomEntry2' : el.data('uomentry2'),
+						'unitMsr' : el.data('unitmsr'),
+						'unitMsr2' : el.data('unitmsr2'),
+						'NumPerMsr' : el.data('numpermsr'),
+						'NumPerMsr2' : el.data('numpermsr2'),
+						'hasBatch' : el.data('batch'),
+						'batchRows' : []
+					};
 
-					$('.batch-row-'+uid).each(function() {
-						let cid = $(this).data('uid');
-						let batchNo = $(this).val().trim();
-						let batchAttr1 = $('#batch-attr1-'+cid).val().trim();
-						let batchAttr2 = $('#batch-attr2-'+cid).val().trim();
-						let bQty = parseDefaultFloat($('#batch-qty-'+cid).val(), 0);
+					if(hasBatch == 1) {
+						let sumBatchQty = 0;
+            let batches = [];
 
-						if(batchNo.length == 0 && bQty != 0) {
-							err++;
-							click = 0;
-							$(this).hasError();
-							showError("กรุณาระบุ Batch No");
-							return false;
-						}
+						$('.child-of-'+uid).each(function() {
+              if(sc === false) { return false; }
 
-						if(bQty == 0 && batchNo.length != 0) {
-							err++;
-							click = 0;
-							$('#batch-qty-'+cid).hasError();
-							showError("กรุณาระบุ จำนวน");
-							return false;
-						}
+              let uuid = $(this).data('uid');
+              let ro = $('#batch-qty-'+uuid);
+              let batchNum = $('#batch-'+uuid).val().trim();
+              let batchAttr1 = $('#batch-attr1-'+uuid).val().trim();
+              let batchAttr2 = $('#batch-attr2-'+uuid).val().trim();
 
-						if(batchNo.length > 0 && bQty > 0) {
+              if(batchNum == "" || batchNum == null || batchNum == undefined) {
+                sc = false;
+                $('#batch-'+uuid).hasError();
+                errMsg = "กรุณาระบุ Batch No.";
+                return false;
+              }
 
-							if(values.includes(batchNo)) {
-								err++;
-								click = 0;
-								$(this).hasError();
-								showError("Batch No ต้องไม่ซ้ำในรายการเดียวกัน");
-								return false;
-							}
+              if(sc === true) {
+                if(batches.includes(batchNum)) {
+                  sc = false;
+                  $('#batch-'+uuid).hasError();
+                  errMsg = "Batch No. ซ้ำ";
+                  return false;
+                }
+                else {
+                  batches.push(batchNum);
+                }
+              }
 
-							values.push(batchNo);
+              let bQty = parseDefaultFloat(ro.val(), 0);
+              sumBatchQty += bQty;
 
 							row.batchRows.push({
-								'batchNo' : batchNo,
+								'batchNo' : batchNum,
 								'batchAttr1' : batchAttr1,
 								'batchAttr2' : batchAttr2,
-								'batchQty' : bQty
-							});
+								'batchQty' : bQty,
+								'uid' : uuid
+							});              
+            });
 
-							batchQty += bQty;
-						}
-					})
-
-					if(err == 0 && batchQty != qty) {
-						err++;
-						el.hasError();
-						click = 0;
-						showError("จำนวนรวมของ Batch ไม่ตรงกับจำนวนของรายการ");
-						return false;
+						if(sc === true && roundNumber(receiveQty, 4) != roundNumber(sumBatchQty, 4)) {
+              el.hasError();
+              sc = false;
+              errMsg = "จำนวนไม่ถูกต้อง กรุณาแก้ไข" ;
+              return false;
+            }
 					}
+
+					h.items.push(row);
+          line++;
 				}
+			} //-- end sc
+		}); //-- end foreach 
 
-				h.items.push(row);
-			}
-			else {
-				err++;
-				el.hasError();
-				showError('จำนวนไม่ถูกต้อง');
-				click = 0;
-				return false;
-			}
-		});
+		if(sc === false) {
+      click = 0;
+      swal({
+        title:'Error!',
+        text:errMsg,
+        type:'error'
+      });
 
-		if(err > 0) {
-			return false;
-		}
+      return false;
+    }
 
-		$.ajax({
-			url:HOME + 'save',
-			type:'POST',
-			cache:false,
-			data:{
-				'data' : JSON.stringify(h)
-			},
-			success:function(rs) {
-				load_out();
-				click = 0;
+		if(sc === true) {
+			load_in();
 
-				if(isJson(rs)) {
-					let ds = JSON.parse(rs);
+			$.ajax({
+				url:HOME + 'save',
+				type:'POST',
+				cache:false,
+				data:{
+					'data' : JSON.stringify(h)
+				},
+				success:function(rs) {
+					load_out();
+					click = 0;
 
-					if(ds.status === 'success') {
-						if(ds.ex == 1) {
-							swal({
-								title:'Oops !',
-								text:'บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ <br/>'+ds.message,
-								type:'info',
-								html:true
-							}, function() {
-								viewDetail(h.code);
-							})
+					if(isJson(rs)) {
+						let ds = JSON.parse(rs);
+
+						if(ds.status === 'success') {
+							if(ds.ex == 1) {
+								swal({
+									title:'Oops !',
+									text:'บันทึกเอกสารสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ <br/>'+ds.message,
+									type:'info',
+									html:true
+								}, function() {
+									viewDetail(h.code);
+								})
+							}
+							else {
+								swal({
+									title:'Success',
+									type:'success',
+									timer:1000
+								});
+
+								setTimeout(() => {
+									viewDetail(h.code);
+								}, 1200);
+							}
 						}
 						else {
-							swal({
-								title:'Success',
-								type:'success',
-								timer:1000
-							});
-
-							setTimeout(() => {
-								viewDetail(h.code);
-							}, 1200);
+							showError(ds.message);
 						}
 					}
 					else {
-						showError(ds.message);
+						showError(rs);
 					}
-				}
-				else {
+				},
+				error:function(rs) {
+					click = 0;
 					showError(rs);
 				}
-			},
-			error:function(rs) {
-				click = 0;
-				showError(rs);
-			}
-		});
+			});
+		}		
 	}
 }
 
