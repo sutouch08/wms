@@ -53,11 +53,11 @@ class Orders extends REST_Controller
 		{
 			$arr = array(
 				'status' => FALSE,
-				'error' => "Access denied",
+				'error' => "Service Unavailable",
         'retry' => FALSE
 			);
 
-			$this->response($arr, 400);
+			$this->response($arr, 503);
 		}
   }
 

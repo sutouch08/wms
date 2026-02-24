@@ -5,6 +5,7 @@ use Restserver\Libraries\REST_Controller;
 class Test_connection extends REST_Controller
 {
   public $error;
+  public $api;
 
   public function __construct()
   {
@@ -15,10 +16,10 @@ class Test_connection extends REST_Controller
 		{
 			$arr = array(
 				'status' => FALSE,
-				'error' => "Access denied : Api is not enabled"
+				'error' => "Service Unavailable"
 			);
 
-			$this->response($arr, 400);
+			$this->response($arr, 503);
 		}
   }
 

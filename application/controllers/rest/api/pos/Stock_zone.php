@@ -21,7 +21,7 @@ class Stock_zone extends REST_Controller
     }
     else
     {
-      $this->response(['status' => FALSE, 'error' => "Access denied"], 400);
+      $this->response(['status' => FALSE, 'error' => "Service Unavailable"], 503);
     }
   }
 

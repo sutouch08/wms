@@ -37,7 +37,7 @@ class CN extends REST_Controller
     }
     else
     {
-      $this->response(['status' => FALSE, 'message' => "Access denied"], 400);
+      $this->response(['status' => FALSE, 'message' => "Service Unavailable"], 503);
     }
   }
 

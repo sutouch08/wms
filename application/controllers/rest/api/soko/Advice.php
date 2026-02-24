@@ -9,15 +9,30 @@ class Advice extends REST_Controller
   public $wms;
 	public $api_path = "rest/api/soko/adivce";
 	public $logs_json = FALSE;
+	public $api = FALSE;
+
 	public function __construct()
   {
     parent::__construct();
-		$this->wms = $this->load->database('wms', TRUE); //--- Temp database
 
-		$this->load->model('rest/V1/soko_temp_receive_model');
-		$this->load->model('rest/V1/soko_api_logs_model');
+		$this->api = is_true(getConfig('SOKOJUNG_API'));
 
-		$this->logs_json = is_true(getConfig('SOKOJUNG_LOG_JSON'));
+		if($this->api)
+		{
+			$this->wms = $this->load->database('wms', TRUE); //--- Temp database
+			$this->load->model('rest/V1/soko_temp_receive_model');
+			$this->load->model('rest/V1/soko_api_logs_model');
+			$this->logs_json = is_true(getConfig('SOKOJUNG_LOG_JSON'));
+		}
+		else 
+		{
+			$arr = array(
+				'status' => FALSE,
+				'error' => 'Service Unavailable'
+			);
+
+			$this->response($arr, 503);
+		}
   }
 
 
