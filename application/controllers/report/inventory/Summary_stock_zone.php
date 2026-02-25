@@ -58,22 +58,70 @@ class Summary_stock_zone extends PS_Controller
           {
             $binAbs = $this->summary_stock_zone_model->getBinAbsByItem($whsCode, $row, $itemCode);
             $stockZone = $this->summary_stock_zone_model->getStockZoneInclude($option, $binAbs);
+
+            if( ! empty($stockZone))
+            {
+              foreach($stockZone as $rs)
+              {
+                $data[] = [
+                  'name' => $rs->BinName,
+                  'qty' => ac_format($rs->Qty),
+                  'color' => $rs->Qty > 1000 ? 'box-1000' : ($rs->Qty > 0 ? 'box-100' : 'box-0'),
+                  'link' => $rs->Qty > 0 ? 'onclick="getItemStockZone('.$rs->BinAbs.')"' : ''
+                ];
+              }
+            }
           }
           else
           {
+            $binList =  $this->summary_stock_zone_model->getBinList($whsCode, $row);
             $stockZone = $this->summary_stock_zone_model->getStockZone($whsCode, $row, $option);
-          }
+            $stock = [];
 
-          if( ! empty($stockZone))
-          {
-            foreach($stockZone as $rs)
+            if( ! empty($stockZone))
             {
-              $data[] = [
-                'name' => $rs->BinName,
-                'qty' => ac_format($rs->Qty),
-                'color' => $rs->Qty > 1000 ? 'box-1000' : ($rs->Qty > 0 ? 'box-100' : 'box-0'),
-                'link' => $rs->Qty > 0 ? 'onclick="getItemStockZone('.$rs->BinAbs.')"' : ''
-              ];
+              foreach($stockZone as $st)
+              {
+                $stock[$st->BinAbs] = intval($st->Qty);
+              }
+            }
+
+            if( ! empty($binList))
+            {
+              foreach($binList as $rs)
+              {
+                $Qty = empty($stock[$rs->BinAbs]) ? 0 : intval($stock[$rs->BinAbs]);
+
+                if($option == 'E' && $Qty == 0)
+                {
+                  $data[] = [
+                    'name' => $rs->BinName,
+                    'qty' => "-", //ac_format($Qty),
+                    'color' => 'box-0', //$rs->Qty > 1000 ? 'box-1000' : ($rs->Qty > 0 ? 'box-100' : 'box-0'),
+                    'link' => '' //$rs->Qty > 0 ? 'onclick="getItemStockZone('.$rs->BinAbs.')"' : ''
+                  ];
+                }
+
+                if($option == 'S' && $Qty < 1000)
+                {
+                  $data[] = [
+                    'name' => $rs->BinName,
+                    'qty' => ac_format($Qty),
+                    'color' => $Qty > 0 ? 'box-100' : 'box-0',
+                    'link' => 'onclick="getItemStockZone('.$rs->BinAbs.')"'
+                  ];
+                }
+
+                if($option == 'A')
+                {                  
+                  $data[] = [
+                    'name' => $rs->BinName,
+                    'qty' => ac_format($Qty),
+                    'color' => $Qty > 1000 ? 'box-1000' : ($Qty > 0 ? 'box-100' : 'box-0'),
+                    'link' => $Qty > 0 ? 'onclick="getItemStockZone('.$rs->BinAbs.')"' : ''
+                  ];
+                }
+              }
             }
           }
         }

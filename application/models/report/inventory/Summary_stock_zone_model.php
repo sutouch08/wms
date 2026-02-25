@@ -6,7 +6,28 @@ class Summary_stock_zone_model extends CI_Model
     parent::__construct();
   }
 
-  public function getStockZone($whsCode, $rowCode, $option = 'A')
+
+  public function getBinList($whsCode, $rowCode)
+  {
+    $binCode = $whsCode .'-'.$rowCode;
+
+    $rs = $this->ms
+    ->select('AbsEntry AS BinAbs, BinCode, SL1Code AS BinName')
+    ->where('WhsCode', $whsCode)
+    ->like('BinCode', $binCode, 'after')
+    ->order_by('BinName', 'ASC')
+    ->get('OBIN');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function getStockZone($whsCode, $rowCode)
   {
     $zone = $whsCode.'-'.$rowCode;
 
@@ -14,17 +35,6 @@ class Summary_stock_zone_model extends CI_Model
     $qr .= "FROM (SELECT SUM(Q.OnHandQty) AS Qty, Q.BinAbs, B.SL1Code AS BinName FROM OIBQ Q INNER JOIN OBIN B ON Q.BinAbs = B.AbsEntry ";
     $qr .= "WHERE Q.WhsCode = '{$whsCode}' AND B.BinCode LIKE '{$zone}%' GROUP BY Q.BinAbs, B.SL1Code) AS S ";
     $qr .= "GROUP BY BinAbs, BinName ";
-
-
-    if($option == 'E')
-    {
-      $qr .= "HAVING SUM(Qty) = 0 ";
-    }
-
-    if($option == 'S')
-    {
-      $qr .= "HAVING SUM(Qty) < 1000 ";
-    }
 
     $qr .= "ORDER BY BinName ASC";
 
