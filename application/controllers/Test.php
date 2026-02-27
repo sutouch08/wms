@@ -2,6 +2,7 @@
 class Test extends CI_Controller
 {
   public $ms;
+  public $error = NULL;
 
   public function __construct()
   {
@@ -15,28 +16,6 @@ class Test extends CI_Controller
     $i = ($i == "" OR $i == NULL) ? 0 : $i;
     $i = is_numeric($i) ? $i : "x";
     echo $i;
-
-    // $i = 0;
-    // $n = ['A', 'B', 'C', 'D', 'E'];
-    //
-    // foreach($n as $no)
-    // {
-    //   if($i == 0)
-    //   {
-    //     echo $i ." - " .$no."<br/>";
-    //     $i++;
-    //   }
-    //   else if($i == 1)
-    //   {
-    //     echo $i ." - " .$no."<br/>";
-    //     $i++;
-    //   }
-    //   else
-    //   {
-    //     echo $i ." - " .$no."<br/>";
-    //     $i++;
-    //   }
-    // }
   }
 }
  ?>

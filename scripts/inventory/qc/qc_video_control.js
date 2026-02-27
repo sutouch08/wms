@@ -15,64 +15,50 @@ const resumeButton = document.querySelector('#resume-record');
 const stopButton = document.querySelector('#stop-record');
 const recordedPreview = document.querySelector('.recorded-preview');
 const order = document.getElementById('order-code');
-const API_KEY = "adbd64b022fbb54d22e4d59437338740";
-const AUTH = "Basic YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0";
-
 
 async function uploadToServer(videoBlob) {
   const name = order.value;
-  const endpoint = order.dataset.endpoint;
+  //const endpoint = order.dataset.endpoint;
+  const endpoint = 'http://127.0.0.1/wms/rest/api/ix/qc/';
   const fm = new FormData();
 
   fm.append('video', videoBlob, name + '.webm');
+  fm.append('secret', 'YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0==');
   load_in('บันทึกวีดีโอไปยังเซิร์ฟเวอร์...');
 
   try {
-    const myHeaders = new Headers();
-    myHeaders.append("X-API-KEY", API_KEY);
-    myHeaders.append("Authorization", AUTH);
-    myHeaders.append("Content-type", "application/json");
-
     const requestOptions = {
       method: "POST",
-      headers: myHeaders,
-      body:fm,
-      redirect: "follow"
+      body:fm
     };
 
-    const rs = await fetch(endpoint, requestOptions);
+    fetch(endpoint, requestOptions)
+    .then(res => res.text())
+    .then(data => {
+      load_out();
 
-    load_out();
+      if(isJson(data)) {
+        let ds = JSON.parse(data);
 
-    if( ! rs.ok) {
-      showError(rs.StatusText);
-    }
+        if(ds.status !== 'success') {
+          showError('Cannot upload video to Server : ' + ds.message);
+        }
+      }
+      else {
+        showError(data);
+      }
 
-    console.log(rs);
+      console.log(data);
+    })
+    .catch(error => {
+      showEror(error);
+      console.error(error);
+    })
   }
   catch (error) {
+    showEror('Error during upload to server ' + error);
     console.error('Error during upload to server', error);
   }
-}
-
-function testConnection() {
-  const URI = order.dataset.endpoint;
-  const USERNAME = "api@warrix";
-  const REALM = "Warrix#1";
-  const myHeaders = new Headers();
-  myHeaders.append("X-API-KEY", API_KEY);
-  myHeaders.append("Authorization", AUTH);
-
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    redirect: "follow"
-  };
-
-  fetch(URI, requestOptions)
-  .then((response) => response.text())
-  .then((result) => console.log(result))
-  .catch((error) => console.error(error));
 }
 
 async function init() {

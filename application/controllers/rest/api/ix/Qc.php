@@ -1,83 +1,62 @@
 <?php
-require(APPPATH.'/libraries/REST_Controller.php');
-use Restserver\Libraries\REST_Controller;
-
-class Qc extends REST_Controller
+class Qc extends CI_Controller
 {
-  public $error;
-  public $api;
-
   public function __construct()
   {
     parent::__construct();
-
-		$this->api = is_true(getConfig('IX_API'));
-
-		if( ! $this->api)
-		{
-			$arr = array(
-				'status' => FALSE,
-				'error' => "Service Unavailable"
-			);
-
-			$this->response($arr, 503);
-		}
+    header('Access-Control-Allow-Origin:*');
   }
 
-
-  public function test_post()
+  public function index()
   {
-
-    echo "OK";
-  }
-
-  public function index_post()
-  {
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
-
     $sc = TRUE;
+    $secret = "YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0==";
+    $key = $this->input->post('secret');
 
-    $file = $_FILES['video']; //$this->input->post('video');
-    //$code = $this->input->post('order_code');
-    $path = $this->config->item('upload_path').'video/';
-
-    if( ! empty($file))
+    if($key !== $secret)
     {
-      $fileName = $file['name'];
-
-      $config = array(
-        "allowed_types" => "*",
-        "upload_path" => $path,
-        "file_name"	=> $fileName, // name canbe change
-        "max_size" => 102400, //100 MB in KB base on php.ini setting
-        "overwrite" => TRUE
-      );
-
-      $this->load->library("upload", $config);
-
-      if( ! $this->upload->do_upload('video'))
-      {
-        $sc = FALSE;
-        $this->error = $this->upload->display_errors();
-      }
+      $sc = FALSE;
+      $this->error = "unauthorized";
     }
     else
     {
-      $sc = FALSE;
-      set_error('required');
+      $file = $_FILES['video'];
+      $path = $this->config->item('upload_path').'video/';
+
+      if( ! empty($file))
+      {
+        $fileName = $file['name'];
+
+        $config = array(
+          "allowed_types" => "*",
+          "upload_path" => $path,
+          "file_name"	=> $fileName, // name canbe change
+          "max_size" => 102400, //100 MB in KB base on php.ini setting
+          "overwrite" => TRUE
+        );
+
+        $this->load->library("upload", $config);
+
+        if( ! $this->upload->do_upload('video'))
+        {
+          $sc = FALSE;
+          $this->error = $this->upload->display_errors();
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('required');
+      }
     }
 
     $arr = array(
       'status' => $sc === TRUE ? 'success' : 'failed',
-      'message' => $sc === TRUE ? 'success' : $this->error
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'secret' => $key
     );
 
-    if($sc === TRUE)
-    {
-      $this->response($arr, 200);
-    }
+    echo json_encode($arr);
   }
 }
 ?>
