@@ -1,4 +1,6 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost");
+header("Vary: Origin");
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Qc extends PS_Controller
