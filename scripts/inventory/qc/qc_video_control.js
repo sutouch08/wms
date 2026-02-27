@@ -18,8 +18,7 @@ const order = document.getElementById('order-code');
 
 async function uploadToServer(videoBlob) {
   const name = order.value;
-  //const endpoint = order.dataset.endpoint;
-  const endpoint = 'http://127.0.0.1/wms/rest/api/ix/qc/';
+  const endpoint = order.dataset.endpoint;  
   const fm = new FormData();
 
   fm.append('video', videoBlob, name + '.webm');
