@@ -62,6 +62,48 @@ class Qc extends PS_Controller
   }
 
 
+  public function upload_video()
+  {
+    $sc = TRUE;
+
+    $file = $_FILES['video']; //$this->input->post('video');
+    //$code = $this->input->post('order_code');
+    $path = $this->config->item('upload_path').'video/';
+
+    if( ! empty($file))
+    {
+      $fileName = $file['name'];
+
+      $config = array(
+        "allowed_types" => "*",
+        "upload_path" => $path,
+        "file_name"	=> $fileName, // name canbe change
+        "max_size" => 102400, //100 MB in KB base on php.ini setting
+        "overwrite" => TRUE
+      );
+
+      $this->load->library("upload", $config);
+
+      if( ! $this->upload->do_upload('video'))
+      {
+        $sc = FALSE;
+        $this->error = $this->upload->display_errors();
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error
+    );
+
+    echo json_encode($arr);
+  }
+
   public function ship_order_shopee($reference)
   {
     $sc = TRUE;
@@ -1211,10 +1253,9 @@ class Qc extends PS_Controller
           'allow_input_qty' => getConfig('ALLOW_QC_INPUT_QTY') == 1 ? TRUE : FALSE
         );
 
-        if( ! empty($view))
+        if(getConfig('VIDEO_ON_PACK'))
         {
-          $ds['title'] = $order->code;
-          $this->load->view('inventory/qc/qc_process_mobile', $ds);
+          $this->load->view('inventory/qc/qc_process_video', $ds);
         }
         else
         {
