@@ -18,8 +18,45 @@ const order = document.getElementById('order-code');
 const API_KEY = "adbd64b022fbb54d22e4d59437338740";
 const AUTH = "Basic YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0";
 
+
+async function uploadToServer(videoBlob) {
+  const name = order.value;
+  const endpoint = order.dataset.endpoint;
+  const fm = new FormData();
+
+  fm.append('video', videoBlob, name + '.webm');
+  load_in('บันทึกวีดีโอไปยังเซิร์ฟเวอร์...');
+
+  try {
+    const myHeaders = new Headers();
+    myHeaders.append("X-API-KEY", API_KEY);
+    myHeaders.append("Authorization", AUTH);
+    myHeaders.append("Content-type", "application/json");
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body:fm,
+      redirect: "follow"
+    };
+
+    const rs = await fetch(endpoint, requestOptions);
+
+    load_out();
+
+    if( ! rs.ok) {
+      showError(rs.StatusText);
+    }
+
+    console.log(rs);
+  }
+  catch (error) {
+    console.error('Error during upload to server', error);
+  }
+}
+
 function testConnection() {
-  const URI = 'https://ix.one-system.co/warrix/rest/api/ix/qc/';
+  const URI = order.dataset.endpoint;
   const USERNAME = "api@warrix";
   const REALM = "Warrix#1";
   const myHeaders = new Headers();
@@ -181,41 +218,6 @@ function stopRecord() {
 }
 
 
-async function uploadToServer(videoBlob) {
-  const name = order.value;
-  const endpoint = order.dataset.endpoint;
-  const fm = new FormData();
-
-  fm.append('video', videoBlob, name + '.webm');
-  load_in('บันทึกวีดีโอไปยังเซิร์ฟเวอร์...');
-
-  try {
-    const myHeaders = new Headers();
-    myHeaders.append("X-API-KEY", API_KEY);
-    myHeaders.append("Authorization", AUTH);
-    myHeaders.append("Content-type", "application/json");
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body:fm,
-      redirect: "follow"
-    };
-
-    const rs = await fetch(endpoint, requestOptions);
-
-    load_out();
-
-    if( ! rs.ok) {
-      showError(rs.StatusText);
-    }
-
-    console.log(rs);
-  }
-  catch (error) {
-    console.error('Error during upload to server', error);
-  }
-}
 
 
 function selectDevices() {
