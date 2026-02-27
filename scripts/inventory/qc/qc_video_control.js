@@ -19,7 +19,7 @@ const API_KEY = "adbd64b022fbb54d22e4d59437338740";
 const AUTH = "Basic YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0";
 
 function testConnection() {
-  const URI = 'http://localhost/wms/rest/api/ix/qc/';
+  const URI = 'https://ix.one-system.co/warrix/rest/api/ix/qc/';
   const USERNAME = "api@warrix";
   const REALM = "Warrix#1";
   const myHeaders = new Headers();
@@ -193,6 +193,7 @@ async function uploadToServer(videoBlob) {
     const myHeaders = new Headers();
     myHeaders.append("X-API-KEY", API_KEY);
     myHeaders.append("Authorization", AUTH);
+    myHeaders.append("Content-type", "application/json");
 
     const requestOptions = {
       method: "POST",
