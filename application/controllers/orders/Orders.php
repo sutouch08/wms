@@ -4606,6 +4606,36 @@ class Orders extends PS_Controller
   }
 
 
+  public function get_order_code($ref)
+  {
+    $sc = TRUE;
+    $code = NULL;
+
+    if( ! empty($ref))
+    {
+      $code = $this->orders_model->get_order_code($ref);
+
+      if(empty($code))
+      {
+        $sc = FALSE;
+        $this->error = "{$ref} does not exists";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'code' => $code
+    );
+
+    echo json_encode($arr);
+  }
+
   public function update_web_stock($code, $old_code)
   {
     if(getConfig('SYNC_WEB_STOCK') == 1)
@@ -4679,6 +4709,7 @@ class Orders extends PS_Controller
     $this->wrx_stock_api->test_update_available_stock($items, $warehouse_code);
     echo "End : ".now();
   }
+
 
   public function clear_filter()
   {

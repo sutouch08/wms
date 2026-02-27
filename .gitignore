@@ -6,6 +6,8 @@
 *.pdf
 *.xls
 *.xlsx
+*.mp4
+*.webm
 .htaccess
 index.php
 /application/config/*

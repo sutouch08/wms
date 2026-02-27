@@ -69,10 +69,17 @@ function toggle_layout(){
 }
 
 
-function load_in(){
-	$("#loader").css("display","block");
-	$('#loader-backdrop').css('display', 'block');
-	$("#loader").animate({opacity:0.8},300);
+function load_in(text){
+  if(text !== undefined && text !== null) {
+    $('.loader-text').text(text);
+  }
+  else {
+    $('.loader-text').text('');
+  }
+
+	$("#loader").removeClass('hide'); //css("display","block");
+	$('#loader-backdrop').removeClass('hide'); //css('display', 'block');
+	$("#loader").animate({opacity:0.8});
 }
 
 
@@ -81,8 +88,8 @@ function load_out(){
 		opacity:0
 	},300,
 	function() {
-		$("#loader").css("display","none");
-		$('#loader-backdrop').css('display', 'none');
+		$("#loader").addClass('hide');//css("display","none");
+		$('#loader-backdrop').addClass('hide');//css('display', 'none');
 	});
 }
 

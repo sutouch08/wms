@@ -1,15 +1,4 @@
 
-// window.addEventListener('load', () => {
-//   let height = $(window).height();
-// 	let pageContentHeight = height - 128;
-// 	// header = 80, hr = 15, table margin = 10, footer 170, margin-bottom = 15
-// 	let itemTableHeight = pageContentHeight - (112);
-//
-// 	$('.page-content').css('height', pageContentHeight + 'px');
-// 	$('#order-table').css('height', itemTableHeight + 'px');
-//
-// })
-
 $(document).ready(function() {
 	//---	reload ทุก 5 นาที
 	setTimeout(function(){ goBack(); }, 600000);
@@ -128,8 +117,6 @@ function sendToWms(code) {
 }
 
 
-
-
 function sendOrdersToWms() {
 
 	let count = $('.chk-wms:checked').length;
@@ -192,3 +179,43 @@ function sendOrdersToWms() {
 		}
 	}
 }
+
+
+function quickOpen() {
+	let ref = $('#quick-open').val().trim();
+
+	if(ref.length) {
+		$.ajax({
+			url:BASE_URL + 'orders/orders/get_order_code/'+ref,
+			type:'GET',
+			cache:false,
+			success:function(rs) {
+				if(isJson(rs)) {
+					let ds = JSON.parse(rs);
+
+					if(ds.status === 'success') {
+						$('#quick-open').val('');
+
+						window.open(BASE_URL+'orders/orders/edit_order/'+ds.code, '_blank');
+					}
+					else {
+						showError(ds.message);
+					}
+				}
+				else {
+					showError(rs);
+				}
+			},
+			error:function(rs) {
+				showError(rs);
+			}
+		})
+	}
+}
+
+
+$('#quick-open').keyup(function(e) {
+	if(e.keyCode === 13) {
+		quickOpen();
+	}
+});

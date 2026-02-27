@@ -511,6 +511,24 @@ class Orders_model extends CI_Model
   }
 
 
+  public function get_order_code($ref)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where('code', $ref)
+    ->or_where('reference', $ref)
+    ->limit(1)
+    ->get('orders');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->code;
+    }
+
+    return NULL;
+  }
+  
+
   public function get_order_code_by_reference($reference)
   {
     $rs = $this->db->select('code')->where('reference', $reference)->get('orders');
@@ -1618,7 +1636,7 @@ class Orders_model extends CI_Model
     if($warehouse !== NULL)
     {
       $this->db->where('orders.warehouse_code', $warehouse);
-    }    
+    }
 
     $rs = $this->db->get();
 

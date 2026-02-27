@@ -32,11 +32,11 @@
 	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
 	</head>
 	<body class="no-skin" onload="checkError()">
-		<div id="loader">
-        <div class="loader"></div>
+		<div id="loader" class="">		
+			<div class="loader"></div>
+			<div class="loader-text">กำลังทำงาน ...</div>
 		</div>
-		<div id="loader-backdrop" style="position: fixed; width:100vw; height:100vh; background-color:white; opacity:0.3; display:none; z-index:9;">
-		</div>
+		<div id="loader-backdrop" class="hide" style="position:fixed; top:0px; left:0px; width:100vw; height:100vh; background-color:white; opacity:0.3; z-index:9;"></div>
 
 		<?php if($this->session->flashdata('error')) : ?>
 							<input type="hidden" id="error" value="<?php echo $this->session->flashdata('error'); ?>" />

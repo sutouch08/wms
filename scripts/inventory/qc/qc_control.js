@@ -228,7 +228,7 @@ function qcProduct() {
         $("#all_qty").text( addCommas(all_qty));
 
         //--- เปลียนสีแถวที่ถูกตรวจแล้ว
-        $("#row-"+id).addClass('blue');
+        $("#row-"+id).addClass('heighlight');
 
 
         //--- ย้ายรายการที่กำลังตรวจขึ้นมาบรรทัดบนสุด

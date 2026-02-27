@@ -178,11 +178,23 @@
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label class="display-block not-show">search</label>
-		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
+		<button type="button" class="btn btn-xs btn-primary btn-block" style="height:30px;" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
 	</div>
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label class="display-block not-show">reset</label>
-		<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+		<button type="button" class="btn btn-xs btn-warning btn-block" style="height:30px;" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+	</div>
+
+	<div class="col-lg-1-harf col-md-5 col-sm-1 hidden-xs">&nbsp;</div>
+	<!-- Quick Open -->
+	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
+		<label>Quick Open</label>
+		<div class="input-group width-100">
+			<input type="text" class="form-control input-sm" id="quick-open" placeholder="เลขที่เอกสาร หรือ เลขที่อ้างอิง" />
+			<span class="input-group-btn">
+				<button type="button" class="btn btn-xs btn-primary" style="height:30px;" onclick="quickOpen()"><i class="fa fa-external-link"></i>&nbsp; Open</button>
+			</span>
+		</div>
 	</div>
 </div>
 <hr class="margin-top-15">
