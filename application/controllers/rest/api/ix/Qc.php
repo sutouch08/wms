@@ -2,6 +2,12 @@
 require(APPPATH.'/libraries/REST_Controller.php');
 use Restserver\Libraries\REST_Controller;
 
+header('Access-Control-Allow-Origin: *');
+
+// Set other necessary CORS headers for different request types
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
 class Qc extends REST_Controller
 {
   public $error;
