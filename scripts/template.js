@@ -77,8 +77,8 @@ function load_in(text){
     $('.loader-text').text('');
   }
 
-	$("#loader").removeClass('hide'); //css("display","block");
-	$('#loader-backdrop').removeClass('hide'); //css('display', 'block');
+	$("#loader").removeClass('hide'); 
+	$('#loader-backdrop').removeClass('hide');
 	$("#loader").animate({opacity:0.8});
 }
 

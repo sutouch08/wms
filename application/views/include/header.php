@@ -32,7 +32,7 @@
 	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
 	</head>
 	<body class="no-skin" onload="checkError()">
-		<div id="loader" class="">		
+		<div id="loader" class="hide">		
 			<div class="loader"></div>
 			<div class="loader-text">กำลังทำงาน ...</div>
 		</div>

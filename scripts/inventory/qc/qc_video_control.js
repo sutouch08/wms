@@ -1,6 +1,18 @@
 window.addEventListener('load', () => {
-  init();
-  startCamera();
+  init();  
+  start();
+});
+
+window.addEventListener('keydown', (event) => {
+  if(event.key == 'F1') {
+    event.preventDefault();
+    startRecord();
+  }
+
+  if(event.key == 'Escape') {
+    event.preventDefault();
+    stopRecord();
+  }
 });
 
 
@@ -9,12 +21,16 @@ const audioDevicesSelect = document.querySelector('#audio-devices');
 const cameraButton = document.querySelector('#start-camera');
 const webcam = document.querySelector('.webcam');
 const videoElem = document.querySelector('#video');
+const startCameraButton = document.querySelector('#start-camera');
+const stopCameraButton = document.querySelector('#stop-camera');
 const startButton = document.querySelector('#start-record');
 const pauseButton = document.querySelector('#pause-record');
 const resumeButton = document.querySelector('#resume-record');
 const stopButton = document.querySelector('#stop-record');
 const recordedPreview = document.querySelector('.recorded-preview');
 const order = document.getElementById('order-code');
+const audioRequired = document.getElementById('video-config').dataset.audioRequired == '1' ? true : false;
+const videoAutoRecord = document.getElementById('video-config').dataset.autoRecord == '1' ? true : false;
 
 async function uploadToServer(videoBlob) {
   const name = order.value;
@@ -75,6 +91,15 @@ async function init() {
 }
 
 
+function start() {
+  if(videoAutoRecord) {
+    setTimeout(() => {
+      startRecord();
+    }, 5000);
+  }  
+}
+
+
 async function getDevices() {
   const mediaDevices = await navigator.mediaDevices.enumerateDevices();
   const micId = localStorage.getItem('packAudioId');
@@ -108,59 +133,85 @@ let mediaRecorder = null;
 let blobChunks = [];
 
 async function startCamera() {
-  let videoDeviceId = localStorage.getItem('packCameraId');
-  let audioDeviceId = localStorage.getItem('packAudioId');
+  let videoDeviceId = {deviceId : {exact : localStorage.getItem('packCameraId')}};
+  let audioDeviceId = audioRequired ? {deviceId : {exact : localStorage.getItem('packAudioId')}} : false;
 
   try {
     steam = await navigator.mediaDevices.getUserMedia({
-      video:{
-        deviceId: { exact: videoDeviceId }
-      },
-      audio:false //{
-        //deviceId: { exact: audioDeviceId }
-      //}
+      video: videoDeviceId, //{deviceId : {exact: videoDeviceId }},
+      audio: audioDeviceId  //{deviceId: { exact: audioDeviceId }}
     });
 
     videoElem.srcObject = steam;
+    startCameraButton.classList.add('hide');
+    stopCameraButton.classList.remove('hide');
 
   } catch (e) {
     if(e.message.includes('Permission')) {
-      console.log('Permission denied');
-      return
+      swal({
+        title:'Error!',
+        text:'Permission denied',
+        type:'error'
+      });
+
+      return false;
     }
     else {
-      console.log('Cound not connect to media devices');
+      swal({
+        title:'Warning',
+        text:'Cloud not connect to media devices',
+        type:'info'
+      });
     }
   }
 }
 
 
+function stopCamera() {
+  const activeSteam = videoElem.srcObject;
+
+  if(activeSteam) {
+    //-- get all track (video and audio) in steam
+    const tracks = activeSteam.getTracks();
+
+    //stock each track
+    tracks.forEach((track) => {      
+      track.stop();
+    });
+
+    // remove steam from video element
+    videoElem.srcObject = null;
+    stopCameraButton.classList.add('hide');
+    startCameraButton.classList.remove('hide');
+  }
+}
+
+
 async function startRecord() {
-  if(steam === null) {
-    await startCamera();
-  }
+  await startCamera();
 
-  startButton.classList.add('hide');
-  pauseButton.classList.remove('hide');
+  if(steam) {
+    startButton.classList.add('hide');
+    pauseButton.classList.remove('hide');
 
+    try {
+      mediaRecorder = new MediaRecorder(steam, function() {
+        mimeType: 'video/webm'
+      });
 
-  try {
-    mediaRecorder = new MediaRecorder(steam, function() {
-      mimeType: 'video/webm'
-    });
+      mediaRecorder.addEventListener('dataavailable', (e) => {
+        blobChunks.push(e.data);
+      });
 
-    mediaRecorder.addEventListener('dataavailable', (e) => {
-      blobChunks.push(e.data);
-    });
+      timeReset();
+      mediaRecorder.start(1000);
+      timeStart();
 
-    timeReset();
-    mediaRecorder.start(1000);
-    timeStart();
-
-    webcam.classList.add('recording');
-  }
-  catch (error) {
-    console.error('Error accessing webcam', error);
+      webcam.classList.add('recording');
+    }
+    catch (error) {
+      console.error('Error accessing webcam', error);
+    }
   }
 }
 
@@ -188,44 +239,52 @@ function resumeRecord() {
 
 
 function stopRecord() {
-  if(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused') {
-    mediaRecorder.stop();
-    videoElem.pause();
-    timeStop();
-    const recordedBlob = new Blob(blobChunks, { type: 'video/webm'});
-    uploadToServer(recordedBlob);
-    blobChunks = [];
-    webcam.classList.remove('recording');
-    pauseButton.classList.add('hide');
-    resumeButton.classList.add('hide');
-    startButton.classList.remove('hide');
+  if(mediaRecorder) {
+    if(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused') {
+      mediaRecorder.stop();    
+      timeStop();
+      const recordedBlob = new Blob(blobChunks, { type: 'video/webm'});
+      uploadToServer(recordedBlob);
+      blobChunks = [];
+      webcam.classList.remove('recording');
+      pauseButton.classList.add('hide');
+      resumeButton.classList.add('hide');
+      startButton.classList.remove('hide');
+      //stopCamera();
+    }
   }
 }
 
 
-
-
 function selectDevices() {
+  let audioOption = document.getElementById('audio-option');
+  if(audioRequired) {
+    audioOption.classList.remove('hide');
+  }
+  else {
+    audioOption.classList.add('hide');
+  }
+
   $('#devices-modal').modal('show');
 }
 
 
-function saveDevicesId() {
+function saveDevicesId() {  
   $('#devices-error').text('');
 
   let camId = $('#video-devices').val();
-  let micId = $('#audio-devices').val();
-  console.log(camId);
-  console.log(micId);
-
+  let micId = audioRequired ? $('#audio-devices').val() : '';
+  
   if(camId === undefined || camId == "") {
     $('#devices-error').text("Please choose camera for video record");
     return false;
   }
 
-  if(micId == undefined || micId == "") {
-    $('#devices-error').text("Please choose microphone fo video record");
-    return false;
+  if(audioRequired) {
+    if(micId == undefined || micId == "") {
+      $('#devices-error').text("Please choose microphone for video record");
+      return false;
+    }
   }
 
   localStorage.setItem('packCameraId', camId);

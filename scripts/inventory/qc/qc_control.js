@@ -171,6 +171,11 @@ function saveQc(option){
 }
 
 
+$('#qc-qty').focus(function() {
+  $(this).select();
+})
+
+
 //--- เมื่อยิงบาร์โค้ด
 $("#barcode-item").keyup(function(e){
   if( e.keyCode == 13 && $(this).val() != "" ){
@@ -511,38 +516,47 @@ function showForceCloseBar(){
 }
 
 
-function updateQty(id_qc){
-  remove_qty = Math.ceil($('#input-'+id_qc).val());
-  limit = parseInt($('#label-'+id_qc).text());
-  limit = isNaN(limit) ? 0 : limit;
+function updateQty(id_qc) {
+  let el = $('#input-'+id_qc);
+  let lb = $('#label-'+id_qc);
+  let qty = parseDefaultFloat(el.val(), 0);
+  let limit = parseDefaultFloat(el.data('limit'), 0);
 
-  if(remove_qty > limit){
-    swal('ยอดที่เอาออกต้องไม่มากกว่ายอดตรวจนับ');
-    return false;
-  }
+  if(qty > 0) {
+    if(qty > limit) {
+      showError('ยอดที่เอาออกต้องไม่มากกว่ายอดตรวจนับ');
+      return false;
+    }
 
-  if(limit >= remove_qty){
     load_in();
+
     $.ajax({
-      url:HOME + 'remove_check_qty',
-      //url:'controller/qcController.php?decreaseCheckedQty',
+      url:HOME + 'remove_checked_qty',
       type:'POST',
-      cache:'false',
+      cache:false,
       data:{
         'id' : id_qc,
-        'qty' : remove_qty
+        'qty' : qty
       },
-      success:function(rs){
+      success:function(rs) {
         load_out();
-        var rs = $.trim(rs);
-        if(rs == 'success'){
-          qty = limit - remove_qty;
-          $('#label-'+id_qc).text(qty);
-          $('#input-'+id_qc).val('');
+
+        if(rs.trim() === 'success') {
+          limit = limit - qty;
+
+          el.data('limit', limit);
+          lb.text(addCommas(limit));
+          el.val('').focus();
         }
+        else {
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        showError(rs);
       }
-    });
-  }
+    })
+  }  
 }
 
 

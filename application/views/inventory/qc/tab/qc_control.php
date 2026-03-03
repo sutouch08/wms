@@ -32,4 +32,4 @@
     <label class="display-block not-show">Packing List</label>
     <button type="button" class="btn btn-xs btn-info btn-block" id="btn-print-all" onclick="printAllBox('<?php echo $order->code; ?>')">พิมพ์ทั้งหมด</button>
   </div>
-</div><div class="divider"></div>
+</div>

@@ -1,19 +1,15 @@
 <style>
 .wraper {
-  display: flex;;
-  /* width: 100%; */
+  display: flex;;  
 }
 
 .left-column {
   width:400px;
   min-width: 400px;
-  height: 350px;
-  /* float: left; */
+  height: 350px;  
 }
 
-.right-column {
-  /* width: calc(100vw - 700px);
-  float: left; */
+.right-column {  
   flex: 1;
   width: auto;
   margin-left: 20px;
@@ -70,14 +66,20 @@ video {
   color:red;
 }
 
-#box-row {
-  min-height: 65px;
+#qc-box {
+  min-height: 100px;  
+  padding: 0;
+}
+
+#box-row { 
   width: 100%;
-  padding: 5px;
+  min-height: 65px;
+  padding: 5px;  
 }
 
 .box-control {
   position: relative;
+  display: flex;  
   float: left;
   height: 60px;
   padding: 5px;
@@ -142,6 +144,7 @@ video {
 }
 
 .pack-item {
+  position: relative;
   padding: 10px;
   background-color: #eee;
   border:solid 1px #ddd;
@@ -161,4 +164,33 @@ video {
   margin-bottom:5px;
 }
 
+button.must-edit {
+  width: 35px;
+  height: 35px;
+  border-radius: 5px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.btn.btn-link {
+  padding:0 !important;
+}
+
+#btn-force-close {
+  position: absolute;
+  top: -5px;
+  right: 5px;
+  z-index: 1;
+}
+
+.tableFixHead > thead > tr > th {
+  font-size: 11px !important;
+  padding: 3px 5px !important;
+}
+
+.tableFixHead > tbody > tr > td {
+  font-size: 11px !important;
+  padding: 3px 5px !important
+}
 </style>

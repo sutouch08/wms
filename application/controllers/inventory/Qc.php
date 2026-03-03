@@ -62,48 +62,7 @@ class Qc extends PS_Controller
   }
 
 
-  public function upload_video()
-  {
-    $sc = TRUE;
-
-    $file = $_FILES['video']; //$this->input->post('video');
-    //$code = $this->input->post('order_code');
-    $path = $this->config->item('upload_path').'video/';
-
-    if( ! empty($file))
-    {
-      $fileName = $file['name'];
-
-      $config = array(
-        "allowed_types" => "*",
-        "upload_path" => $path,
-        "file_name"	=> $fileName, // name canbe change
-        "max_size" => 102400, //100 MB in KB base on php.ini setting
-        "overwrite" => TRUE
-      );
-
-      $this->load->library("upload", $config);
-
-      if( ! $this->upload->do_upload('video'))
-      {
-        $sc = FALSE;
-        $this->error = $this->upload->display_errors();
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      set_error('required');
-    }
-
-    $arr = array(
-      'status' => $sc === TRUE ? 'success' : 'failed',
-      'message' => $sc === TRUE ? 'success' : $this->error
-    );
-
-    echo json_encode($arr);
-  }
-
+  
   public function ship_order_shopee($reference)
   {
     $sc = TRUE;
@@ -760,7 +719,7 @@ class Qc extends PS_Controller
         else
         {
           $sc = FALSE;
-          $ths->error = "Cannot get spx order batch no";
+          $this->error = "Cannot get spx order batch no";
         }
       }
     }
@@ -1492,6 +1451,7 @@ class Qc extends PS_Controller
         $arr = array(
           'id_qc' => $rs->id,
           'barcode' => $rs->barcode,
+          'product_code' => $rs->product_code,
           'box_no' => $rs->box_no,
           'qty' => $rs->qty
         );
@@ -1506,6 +1466,67 @@ class Qc extends PS_Controller
     }
 
     echo $sc === TRUE ? json_encode($ds) : $this->error;
+  }
+
+
+  //--- remove checked qty
+  public function remove_checked_qty() 
+  {
+    $sc = TRUE;
+    $id = $this->input->post('id');
+    $qty = $this->input->post('qty');
+
+    if( ! empty($id) && ! empty($qty))
+    {
+      $qc = $this->qc_model->get($id);
+
+      if( ! empty($qc))
+      {
+        if($qc->qty < $qty)
+        {
+          $sc = FALSE;
+          $this->error = "จำนวนที่เอาออกต้องไม่เกินจำนวนที่ตรวจนับ";
+        }
+        
+        if($sc === TRUE)
+        {
+          if($qc->qty === $qty)
+          {
+            if( ! $this->qc_model->delete_qc($id))
+            {
+              $sc = FALSE;
+              $this->error = "ลบรายการไม่สำเร็จ";
+            }
+          }
+
+          if($qc->qty > $qty)
+          {
+            if( ! $this->qc_model->update_qty($id, (-1) * $qty))
+            {
+              $sc = FALSE;
+              $this->error = "Failed to update Packed Qty";
+            }
+          }
+        }
+
+        if($sc === TRUE)
+        {
+          $this->orders_model->unvalid_qc($qc->order_detail_id);
+        }      
+      }
+      else 
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
+    }
+    else 
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
   }
 
 
