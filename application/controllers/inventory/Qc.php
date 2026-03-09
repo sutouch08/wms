@@ -62,7 +62,14 @@ class Qc extends PS_Controller
   }
 
 
-  
+  public function video($code)
+  {
+    $ds = ['code' => $code];
+    $ds['video_data'] = $this->orders_model->get_video_data($code);    
+    $this->load->view('inventory/qc/video', $ds);
+  }
+
+   
   public function ship_order_shopee($reference)
   {
     $sc = TRUE;

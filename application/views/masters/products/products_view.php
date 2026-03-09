@@ -188,7 +188,7 @@
 						<td class="middle text-center">
 							<button type="button" class="btn btn-minier btn-info" onclick="sendToSap('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
 						<?php if($this->pm->can_edit) : ?>
-							<button type="button" class="btn btn-minier btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+							<button type="button" class="btn btn-minier btn-warning" onclick="getEdit('<?php echo $rs->id; ?>')"><i class="fa fa-pencil"></i></button>
 						<?php endif; ?>
 						<?php if($this->pm->can_delete) : ?>
 							<button type="button" class="btn btn-minier btn-danger" onclick="getDelete('<?php echo $rs->code; ?>', '<?php echo $rs->name; ?>', <?php echo $no; ?>)"><i class="fa fa-trash"></i></button>
@@ -215,7 +215,7 @@
 									<?php endif; ?>
 									<?php if($this->pm->can_edit) : ?>
 										<li>
-											<a href="javascript:getEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil orange"></i> Edit</a>
+											<a href="javascript:getEdit('<?php echo $rs->id; ?>')"><i class="fa fa-pencil orange"></i> Edit</a>
 										</li>
 									<?php endif; ?>
 

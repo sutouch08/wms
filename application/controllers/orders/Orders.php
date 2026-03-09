@@ -1065,6 +1065,7 @@ class Orders extends PS_Controller
     $this->load->model('orders/order_payment_model');
     $this->load->helper('bank');
 		$this->load->helper('sender');
+    $video_on_pack = is_true(getConfig('VIDEO_ON_PACK'));
 
     $ds = array();
 
@@ -1079,6 +1080,7 @@ class Orders extends PS_Controller
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
       $rs->has_payment   = $this->order_payment_model->is_exists($code);
+      $rs->has_video = $video_on_pack ? $this->orders_model->has_video($code) : FALSE;
 
 			$state = $this->order_state_model->get_order_state($code);
 	    $ost = array();
@@ -1098,6 +1100,7 @@ class Orders extends PS_Controller
 
       $is_api = $this->is_api($rs->is_wms);
 
+      $ds['video_on_pack'] = $video_on_pack;
 	    $ds['state'] = $ost;
 	    $ds['order'] = $rs;
 	    $ds['details'] = $details;

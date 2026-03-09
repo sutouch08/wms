@@ -44,7 +44,7 @@
 			<div class="help-block col-xs-12 col-sm-reset inline red e" id="style-error"></div>
 		</div>
 
-		<div class="form-group">
+		<div class="form-group hide">
 			<label class="col-sm-3 control-label no-padding-right">รุ่นเก่า</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="text" name="old_style" id="old_style" class="width-100" value="<?php echo $old_style; ?>" placeholder="รหัสรุ่นเก่า (ไม่บังคับ)"/>
@@ -107,9 +107,30 @@
 		</div>
 
 		<div class="form-group">
+			<label class="col-sm-3 control-label no-padding-right">ควบคุมด้วย Batch</label>
+			<div class="col-xs-12 col-sm-3">
+				<select class="form-control input-sm r" name="has_batch" id="has_batch">
+					<option value="0" <?php echo is_selected('0', $has_batch); ?>>No</option>
+					<option value="1" <?php echo is_selected('1', $has_batch); ?>>Yes</option>					
+				</select>
+			</div>			
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-3 control-label no-padding-right">SAP Item Group</label>
+			<div class="col-xs-12 col-sm-3">
+				<select name="brand_code" id="item-group" class="form-control input-sm r">
+					<option value="">โปรดเลือก</option>
+				<?php echo select_item_group($item_group); ?>
+				</select>
+			</div>
+			<div class="help-block col-xs-12 col-sm-reset inline red e" id="item-group-error"></div>
+		</div>
+
+		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="brand_code" id="brand" class="form-control r">
+				<select name="brand_code" id="brand" class="form-control input-sm r">
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_brand($brand_code); ?>
 				</select>
@@ -131,7 +152,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">กลุ่มหลัก</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="main_group_code" id="mainGroup" class="form-control r" required>
+				<select name="main_group_code" id="mainGroup" class="form-control input-sm r" required>
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_main_group($main_group_code); ?>
 				</select>
@@ -142,7 +163,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">กลุ่มย่อย</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="sub_group_code" id="subGroup" class="form-control r">
+				<select name="sub_group_code" id="subGroup" class="form-control input-sm r">
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_sub_group($sub_group_code); ?>
 				</select>
@@ -153,7 +174,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">หมวดหมู่</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="category_code" id="category" class="form-control r" >
+				<select name="category_code" id="category" class="form-control input-sm r" >
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_category($category_code); ?>
 				</select>
@@ -164,7 +185,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ประเภท</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="kind_code" id="kind" class="form-control r" >
+				<select name="kind_code" id="kind" class="form-control input-sm r" >
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_kind($kind_code); ?>
 				</select>
@@ -175,7 +196,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ชนิด</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="type_code" id="type" class="form-control r" >
+				<select name="type_code" id="type" class="form-control input-sm r" >
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_type($type_code); ?>
 				</select>
@@ -186,7 +207,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">คอเล็คชั่น</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="collection_code" id="collection" class="form-control r">
+				<select name="collection_code" id="collection" class="form-control input-sm r">
 					<option value="">กรุณาเลือก</option>
 				<?php echo select_active_collection($collection_code); ?>
 				</select>
@@ -197,7 +218,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ปี</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="year" id="year" class="form-control r">
+				<select name="year" id="year" class="form-control input-sm r">
 					<option value="">โปรดเลือก</option>
 				<?php echo select_years($year); ?>
 				</select>
@@ -271,5 +292,17 @@
 	</form>
 </div><!--/ row  -->
 
+<script>
+	$('#unit_code').select2();
+	$('#item-group').select2();
+	$('#brand').select2();
+	$('#group').select2();
+	$('#mainGroup').select2();
+	$('#subGroup').select2();
+	$('#category').select2();
+	$('#kind').select2();
+	$('#type').select2();
+	$('#collection').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/masters/items.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

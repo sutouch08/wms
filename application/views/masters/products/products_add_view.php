@@ -29,6 +29,18 @@
 </div><!--/ col-sm-9  -->
 </div><!--/ row  -->
 
+<script>
+	$('#unit-code').select2();
+	$('#item-group').select2();
+	$('#brand').select2();
+	$('#group').select2();
+	$('#main-group').select2();
+	$('#sub-group').select2();
+	$('#category').select2();
+	$('#kind').select2();
+	$('#type').select2();
+	$('#collection').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/masters/products.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/masters/product_info.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/code_validate.js?v=<?php echo date('Ymd'); ?>"></script>

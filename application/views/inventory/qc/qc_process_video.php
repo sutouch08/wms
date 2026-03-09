@@ -77,7 +77,12 @@
 <input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
 <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
 <input type="hidden" id="id_box" value="" />
-<input type="hidden" id="order-code" value="<?php echo $order->code; ?>" data-endpoint="<?php echo getConfig('VIDEO_ON_PACK_ENPOINT'); ?>" />
+<input type="hidden" id="order-code" 
+  value="<?php echo $order->code; ?>" 
+  data-role="<?php echo $order->role; ?>" 
+  data-user="<?php echo $this->_user->uname; ?>" 
+  data-endpoint="<?php echo getConfig('VIDEO_ON_PACK_ENDPOINT'); ?>" />
+  
 <input type="hidden" id="video-config"
   data-audio-required="<?php echo getConfig('AUDIO_ON_PACK'); ?>"
   data-auto-record="<?php echo getConfig('VIDEO_ON_PACK_AUTO_RECORD'); ?>" />

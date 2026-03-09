@@ -2194,6 +2194,27 @@ class Orders_model extends CI_Model
   }
 
 
+  public function has_video($code)
+  {
+    $count = $this->db->where('order_code', $code)->count_all_results('order_pack_video');
+
+    return $count > 0 ? TRUE : FALSE;
+  }
+
+
+  public function get_video_data($code)
+  {
+    $rs = $this->db->where('order_code', $code)->order_by('create_date', 'DESC')->limit(1)->get('order_pack_video');
+    
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+    
+    return NULL;
+  }
+
+
 } //--- End class
 
 

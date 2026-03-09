@@ -9,7 +9,7 @@ function select_product_sub_group($code = '')
   {
     foreach($result as $rs)
     {
-      $ds .= '<option value="'.$rs->code.'" '.is_selected($rs->code, $code).'>'.$rs->name.'</option>';
+      $ds .= '<option value="'.$rs->code.'" '.is_selected($rs->code, $code).'>'.$rs->code.' | '.$rs->name.'</option>';
     }
   }
 

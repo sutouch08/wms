@@ -584,3 +584,15 @@ function viewOrderDetail(code, role) {
   window.open(target, '_blank', prop);
 
 }
+
+function goToVideo(endpoint) {				
+		let width = 900;
+		let height = 650;
+		let pageWidth = window.innerWidth;
+		let pageHeight = window.innerHeight;
+		let left = (pageWidth - width) / 2;
+		let top = (pageHeight - height) / 2;
+		let prop = `width=${width}, height=${height}, left=${left}, top=${top}, scrollbars=yes`;
+
+		window.open(endpoint, '_blank', prop);
+	}	

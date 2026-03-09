@@ -247,14 +247,19 @@ class Sponsor extends PS_Controller
     $this->load->model('approve_logs_model');
 		$this->load->model('address/address_model');
 		$this->load->helper('sender');
+    $video_on_pack = is_true(getConfig('VIDEO_ON_PACK'));
+
     $ds = array();
+
     $rs = $this->orders_model->get($code);
+
     if(!empty($rs))
     {
       $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
       $rs->total_amount  = $rs->doc_total <= 0 ? $this->orders_model->get_order_total_amount($rs->code) : $rs->doc_total;
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
+      $rs->has_video = $video_on_pack ? $this->orders_model->has_video($code) : FALSE;
 
       $state = $this->order_state_model->get_order_state($code);
 
@@ -271,7 +276,7 @@ class Sponsor extends PS_Controller
 			$ship_to = $this->address_model->get_ship_to_address($rs->customer_code);
       $is_api = is_api($rs->is_wms, $this->wmsApi, $this->sokoApi);
 
-
+      $ds['video_on_pack'] = $video_on_pack;
       $ds['state'] = $ost;
       $ds['approve_view'] = $approve_view;
       $ds['approve_logs'] = $this->approve_logs_model->get($code);

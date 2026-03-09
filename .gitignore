@@ -11,3 +11,4 @@
 .htaccess
 index.php
 /application/config/*
+/node_modeles/*

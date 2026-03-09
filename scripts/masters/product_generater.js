@@ -1,6 +1,6 @@
-function goBack(){
-  var style = $('#style').val();
-  window.location.href = BASE_URL + 'masters/products/edit/' + style + '/itemTab';
+function goBack(){  
+  let id = $('#id').val();
+  window.location.href = BASE_URL + 'masters/products/edit/' + id + '/itemTab';
 }
 
 

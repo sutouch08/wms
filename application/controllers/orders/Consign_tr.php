@@ -311,9 +311,12 @@ class Consign_tr extends PS_Controller
     $this->load->model('approve_logs_model');
 		$this->load->model('address/address_model');
 		$this->load->helper('sender');
+    $video_on_pack = is_true(getConfig('VIDEO_ON_PACK'));
 
     $ds = array();
+
     $rs = $this->orders_model->get($code);
+
     if(!empty($rs))
     {
       $rs->customer_name = empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name;
@@ -321,9 +324,11 @@ class Consign_tr extends PS_Controller
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
       $rs->zone_name = $this->zone_model->get_name($rs->zone_code);
+      $rs->has_video = $video_on_pack ? $this->orders_model->has_video($rs->code) : FALSE;
     }
 
     $state = $this->order_state_model->get_order_state($code);
+
     $ost = array();
     if(!empty($state))
     {
@@ -341,6 +346,7 @@ class Consign_tr extends PS_Controller
 
     $ds['approve_view'] = $approve_view;
     $ds['approve_logs'] = $approve_logs;
+    $ds['video_on_pack'] = $video_on_pack;
     $ds['state'] = $ost;
     $ds['order'] = $rs;
     $ds['details'] = $details;

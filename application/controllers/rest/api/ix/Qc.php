@@ -12,6 +12,9 @@ class Qc extends CI_Controller
     $sc = TRUE;
     $secret = "YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0==";
     $key = $this->input->post('secret');
+    $code = $this->input->post('order');
+    $role = $this->input->post('role');
+    $user = $this->input->post('user');
 
     if($key !== $secret)
     {
@@ -41,6 +44,17 @@ class Qc extends CI_Controller
         {
           $sc = FALSE;
           $this->error = $this->upload->display_errors();
+        }
+
+        if($sc === TRUE)
+        {
+          $arr = array(
+            'order_code' => $code,
+            'role' => $role,
+            'user' => $user
+          );
+
+          $this->db->insert('order_pack_video', $arr);
         }
       }
       else

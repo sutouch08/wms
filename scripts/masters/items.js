@@ -40,6 +40,10 @@ function add() {
 	data.cost = parseDefault(parseFloat($('#cost').val()), 0);
 	data.price = parseDefault(parseFloat($('#price').val()), 0);
 	data.unit_code = $('#unit_code').val(); // required
+	data.unit_id = $('#unit_code option:selected').data('id');
+	data.unit_group_id = $('#unit_code option:selected').data('group');
+	data.has_batch = $('#has_batch').val();
+	data.item_group = $('#item-group').val();
 	data.brand_code = $('#brand').val();
 	data.group_code = $('#group').val();
 	data.main_group_code = $('#mainGroup').val(); // required
@@ -63,25 +67,15 @@ function add() {
 	if(data.name.length === 0) {
 		set_error($('#name'), $('#name-error'), "required");
 		error++;
-	}
-
-	if(data.style.length === 0) {
-		set_error($('#style'), $('#style-error'), "required");
-		error++;
-	}
-
-	if(data.color_code.length === 0) {
-		set_error($('#color'), $('#color-error'), "required");
-		error++;
-	}
-
-	if(data.size_code.length === 0) {
-		set_error($('#size'), $('#size-error'), "required");
-		error++;
-	}
+	}	
 
 	if(data.unit_code.length === 0) {
 		set_error($('#unit_code'), $('#unit-error'), "required");
+		error++;
+	}
+
+	if(data.item_group.length === 0) {
+		set_error($('#item-group'), $('#item-group-error'), "required");
 		error++;
 	}
 
@@ -157,6 +151,10 @@ function update() {
 	data.cost = parseDefault(parseFloat($('#cost').val()), 0);
 	data.price = parseDefault(parseFloat($('#price').val()), 0);
 	data.unit_code = $('#unit_code').val(); // required
+	data.unit_id = $('#unit_code option:selected').data('id');
+	data.unit_group_id = $('#unit_code option:selected').data('group');
+	data.has_batch = $('#has_batch').val();
+	data.item_group = $('#item-group').val();
 	data.brand_code = $('#brand').val();
 	data.group_code = $('#group').val();
 	data.main_group_code = $('#mainGroup').val(); // required
@@ -177,23 +175,28 @@ function update() {
 		error++;
 	}
 
-	if(data.style.length === 0) {
-		set_error($('#style'), $('#style-error'), "required");
-		error++;
-	}
+	// if(data.style.length === 0) {
+	// 	set_error($('#style'), $('#style-error'), "required");
+	// 	error++;
+	// }
 
-	if(data.color_code.length === 0) {
-		set_error($('#color'), $('#color-error'), "required");
-		error++;
-	}
+	// if(data.color_code.length === 0) {
+	// 	set_error($('#color'), $('#color-error'), "required");
+	// 	error++;
+	// }
 
-	if(data.size_code.length === 0) {
-		set_error($('#size'), $('#size-error'), "required");
-		error++;
-	}
+	// if(data.size_code.length === 0) {
+	// 	set_error($('#size'), $('#size-error'), "required");
+	// 	error++;
+	// }
 
 	if(data.unit_code.length === 0) {
 		set_error($('#unit_code'), $('#unit-error'), "required");
+		error++;
+	}
+
+	if(data.item_group.length === 0) {
+		set_error($('#item-group'), $('#item-group-error'), "required");
 		error++;
 	}
 

@@ -97,16 +97,16 @@ $tab4 = $tab == 'priceTab' ? 'active in' : '';
 <div class="row">
 <div class="col-lg-1 col-md-1 col-sm-1-harf hidden-xs padding-right-0 padding-top-15">
 	<ul id="myTab1" class="setting-tabs width-100" style="margin-left:0px;">
-	  <li class="li-block <?php echo $tab1; ?>" onclick="changeURL('<?php echo $style->code; ?>','styleTab')" >
+	  <li class="li-block <?php echo $tab1; ?>" onclick="changeURL('<?php echo $style->id; ?>','styleTab')" >
 			<a href="#styleTab" data-toggle="tab" id="styleTab-a" style="text-decoration:none;">ข้อมูล</a>
 		</li>
-		<li class="li-block <?php echo $tab2; ?>" onclick="changeURL('<?php echo $style->code; ?>','itemTab')" >
+		<li class="li-block <?php echo $tab2; ?>" onclick="changeURL('<?php echo $style->id; ?>','itemTab')" >
 			<a href="#itemTab" data-toggle="tab" id="itemTab-a" style="text-decoration:none;">รายการ</a>
 		</li>
-		<li class="li-block <?php echo $tab3; ?>" onclick="changeURL('<?php echo $style->code; ?>','imageTab')" >
+		<li class="li-block <?php echo $tab3; ?>" onclick="changeURL('<?php echo $style->id; ?>','imageTab')" >
 			<a href="#imageTab" data-toggle="tab" id="imageTab-a" style="text-decoration:none;" >รูปภาพ</a>
 		</li>
-		<li class="li-block <?php echo $tab4; ?>" onclick="changeURL('<?php echo $style->code; ?>','priceTab')" >
+		<li class="li-block <?php echo $tab4; ?>" onclick="changeURL('<?php echo $style->id; ?>','priceTab')" >
 			<a href="#priceTab" data-toggle="tab" id="priceTab-a" style="text-decoration:none;" >ราคา</a>
 		</li>
 	</ul>

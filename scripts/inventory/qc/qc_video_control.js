@@ -15,7 +15,6 @@ window.addEventListener('keydown', (event) => {
   }
 });
 
-
 const videoDevicesSelect = document.querySelector('#video-devices');
 const audioDevicesSelect = document.querySelector('#audio-devices');
 const cameraButton = document.querySelector('#start-camera');
@@ -38,6 +37,9 @@ async function uploadToServer(videoBlob) {
   const fm = new FormData();
 
   fm.append('video', videoBlob, name + '.webm');
+  fm.append('order', order.value);
+  fm.append('role', order.dataset.role);
+  fm.append('user', order.dataset.user);
   fm.append('secret', 'YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0==');
   load_in('บันทึกวีดีโอไปยังเซิร์ฟเวอร์...');
 

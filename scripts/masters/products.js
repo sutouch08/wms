@@ -1,7 +1,8 @@
+var click = 0;
+
 function addNew(){
   window.location.href = BASE_URL + 'masters/products/add_new';
 }
-
 
 
 function goBack(){
@@ -12,6 +13,260 @@ function goBack(){
 function getEdit(code){
   url = BASE_URL + 'masters/products/edit/' + encodeURIComponent(code);
   window.location.href = url;
+}
+
+
+function add() {
+  if(click === 0) {
+    click = 1;
+
+    clearErrorByClass('e');
+
+    let h = {
+      'code' : $('#code').val().trim(),
+      'name' : $('#name').val().trim(),      
+      'cost' : parseDefaultFloat($('#cost').val(), 0),
+      'price' : parseDefaultFloat($('#price').val(), 0),
+      'unit_code' : $('#unit-code').val(),
+      'unit_id' : $('#unit-code option:selected').data('id'),
+      'unit_group_id' : $('#unit-code option:selected').data('group'),
+      'has_batch' : $('#has-batch').val(),
+      'item_group' : $('#item-group').val(),
+      'main_group_code' : $('#main-group').val(),
+      'group_code' : $('#group').val(),
+      'sub_group_code' : $('#sub-group').val(),
+      'category_code' : $('#category').val(),
+      'kind_code' : $('#kind').val(),
+      'type_code' : $('#type').val(),
+      'brand_code' : $('#brand').val(),
+      'collection_code' : $('#collection').val(),
+      'year' : $('#year').val(),
+      'api_rate' : parseDefaultFloat($('#api-rate').val(), 0),
+      'count_stock' : $('#count-stock').is(':checked') ? 1 : 0,
+      'is_api' : $('#is-api').is(':checked') ? 1 : 0,
+      'can_sell' : $('#can-sell').is(':checked') ? 1 : 0,
+      'active' : $('#active').is(':checked') ? 1 : 0
+    };
+
+    let valid = $('#valid').val();
+
+    if(h.code.length === 0) {
+      $('#code').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.name.length === 0) {
+      $('#name').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.unit_code == "") {
+      $('#unit-code').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.item_group == "") {
+      $('#item-group').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.main_group_code == "") {
+      $('#main-group').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.group_code == "") {
+      $('#group').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.category_code == "") {
+      $('#category').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.kind_code == '') {
+      $('#kind').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.type_code == '') {
+      $('#type').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(valid != 1) {
+      click = 0;
+      return false;
+    }
+
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'masters/products/add_style',
+      type:'POST',
+      cache:false,
+      data:{
+        'data' : JSON.stringify(h)
+      },
+      success:function(rs) {
+        click = 0;
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status === 'success') {
+            getEdit(ds.id);
+          }
+          else {
+            showError(ds.message);
+          }
+        }
+        else {
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        click = 0;
+        showError(rs);
+      }
+    })
+  }
+}
+
+
+function update() {
+  if(click === 0) {
+    click = 1;
+
+    clearErrorByClass('e');
+
+    let h = {
+      'id' : $('#id').val(),
+      'code' : $('#code').val().trim(),
+      'name' : $('#name').val().trim(),      
+      'cost' : parseDefaultFloat($('#cost').val(), 0),
+      'price' : parseDefaultFloat($('#price').val(), 0),
+      'unit_code' : $('#unit-code').val(),
+      'unit_id' : $('#unit-code option:selected').data('id'),
+      'unit_group_id' : $('#unit-code option:selected').data('group'),
+      'has_batch' : $('#has-batch').val(),
+      'item_group' : $('#item-group').val(),
+      'main_group_code' : $('#main-group').val(),
+      'group_code' : $('#group').val(),
+      'sub_group_code' : $('#sub-group').val(),
+      'category_code' : $('#category').val(),
+      'kind_code' : $('#kind').val(),
+      'type_code' : $('#type').val(),
+      'brand_code' : $('#brand').val(),
+      'collection_code' : $('#collection').val(),
+      'year' : $('#year').val(),
+      'api_rate' : parseDefaultFloat($('#api-rate').val(), 0),
+      'count_stock' : $('#count-stock').is(':checked') ? 1 : 0,
+      'is_api' : $('#is-api').is(':checked') ? 1 : 0,
+      'can_sell' : $('#can-sell').is(':checked') ? 1 : 0,
+      'active' : $('#active').is(':checked') ? 1 : 0,
+      'cost_update' : $('#cost-update').is(':checked') ? 1 : 0,
+      'price_update' : $('#price-update').is(':checked') ? 1 : 0
+    };
+    
+    if(h.code.length === 0) {
+      $('#code').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.name.length === 0) {
+      $('#name').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.unit_code == "") {
+      $('#unit-code').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.item_group == "") {
+      $('#item-group').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.main_group_code == "") {
+      $('#main-group').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.group_code == "") {
+      $('#group').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.category_code == "") {
+      $('#category').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.kind_code == '') {
+      $('#kind').hasError('Required');
+      click = 0;
+      return false;
+    }
+
+    if(h.type_code == '') {
+      $('#type').hasError('Required');
+      click = 0;
+      return false;
+    }
+    
+    load_in();
+
+    $.ajax({
+      url:BASE_URL + 'masters/products/update_style',
+      type:'POST',
+      cache:false,
+      data:{
+        'data' : JSON.stringify(h)
+      },
+      success:function(rs) {
+        click = 0;
+        load_out();
+
+        if(isJson(rs)) {
+          let ds = JSON.parse(rs);
+
+          if(ds.status === 'success') {
+            getEdit(ds.id);
+          }
+          else {
+            showError(ds.message);
+          }
+        }
+        else {
+          showError(rs);
+        }
+      },
+      error:function(rs) {
+        click = 0;
+        showError(rs);
+      }
+    })
+  }
 }
 
 
@@ -51,12 +306,10 @@ $('#api-rate').change(function() {
 })
 
 
-function newItems(){
-  var style = $('#style').val();
-  window.location.href = BASE_URL + 'masters/products/item_gen/' + style;
+function newItems(){  
+  let id = $('#id').val();
+  window.location.href = BASE_URL + 'masters/products/item_gen/' + id;
 }
-
-
 
 
 function clearFilter(){
@@ -66,6 +319,7 @@ function clearFilter(){
     window.location.href = page;
   });
 }
+
 
 function export_filter(){
   let code = $('#code').val();
@@ -82,7 +336,6 @@ function export_filter(){
   let sell = $('#sell').val();
   let active = $('#active').val();
   let token	= new Date().getTime();
-
 
   $('#export_code').val(code);
   $('#export_name').val(name);
@@ -102,7 +355,6 @@ function export_filter(){
   get_download(token);
 
   $('#export_filter_form').submit();
-
 }
 
 
@@ -143,7 +395,6 @@ function getDelete(code, name, no){
 
   })
 }
-
 
 
 function getSearch(){
