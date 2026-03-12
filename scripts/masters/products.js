@@ -247,19 +247,16 @@ function update() {
         click = 0;
         load_out();
 
-        if(isJson(rs)) {
-          let ds = JSON.parse(rs);
-
-          if(ds.status === 'success') {
-            getEdit(ds.id);
-          }
-          else {
-            showError(ds.message);
-          }
+        if(rs.trim() === 'success') {
+          swal({
+            title:'Success',
+            type:'success',
+            timer:1000
+          });
         }
         else {
           showError(rs);
-        }
+        }        
       },
       error:function(rs) {
         click = 0;

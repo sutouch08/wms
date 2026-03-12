@@ -197,7 +197,7 @@
 			<label class="col-sm-3 control-label no-padding-right">นับสต็อก</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="count_stock" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->count_stock, 1); ?> />
+					<input name="count_stock" id="count-stock" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->count_stock, 1); ?> />
 					<span class="lbl"></span>
 				</label>
 			</div>
@@ -208,7 +208,7 @@
 			<label class="col-sm-3 control-label no-padding-right">อนุญาติให้ขาย</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="can_sell" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->can_sell, 1); ?> />
+					<input name="can_sell" id="can-sell" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->can_sell, 1); ?> />
 					<span class="lbl"></span>
 				</label>
 			</div>
@@ -220,7 +220,7 @@
 			<label class="col-sm-3 control-label no-padding-right">API</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="is_api" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->is_api, 1); ?> />
+					<input name="is_api" id="is-api" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->is_api, 1); ?> />
 					<span class="lbl"></span>
 				</label>
 			</div>
@@ -232,7 +232,7 @@
 			<label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
-					<input name="active" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->active, 1); ?> />
+					<input name="active" id="active" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->active, 1); ?> />
 					<span class="lbl"></span>
 				</label>
 			</div>
