@@ -421,7 +421,7 @@ class Products extends PS_Controller
     $sc = TRUE;
     $ds = json_decode($this->input->post('data'));
 
-    if(! emtpy($ds) && ! empty($ds->id) && ! empty($ds->code))
+    if(! empty($ds) && ! empty($ds->id) && ! empty($ds->code))
     {
       $code = $ds->code;
       $cost_update = is_true($ds->cost_update);

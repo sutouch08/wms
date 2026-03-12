@@ -122,11 +122,11 @@
 
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 			<label class="display-block not-show">buton</label>
-			<button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+			<button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
 		</div>
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 			<label class="display-block not-show">buton</label>
-			<button type="button" class="btn btn-sm btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
 		</div>
 	</div>
 	<hr class="margin-top-15">

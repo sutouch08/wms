@@ -56,7 +56,7 @@ class Orders extends PS_Controller
 
 
   public function index()
-  {
+  {    
     $filter = array(
       'code' => get_filter('code', 'order_code', ''),
 			'qt_no' => get_filter('qt_no', 'qt_no', ''),
@@ -87,7 +87,7 @@ class Orders extends PS_Controller
       'tax_status' => get_filter('tax_status', 'tax_status', 'all'),
       'is_etax' => get_filter('is_etax', 'is_etax', 'all'),
       'is_cancled' => get_filter('is_cancled', 'is_cancled', 'all'),
-      'range' => get_filter('range', 'range', 'all')
+      'range' => get_filter('range', 'range', 'top')
     );
 
     $state = array(
@@ -133,24 +133,21 @@ class Orders extends PS_Controller
       //--- แสดงผลกี่รายการต่อหน้า
       $perpage = get_rows();
       $segment  = 4; //-- url segment
-      $startTime = now();
+      $startTime = microtime(true);
       $rows = $this->orders_model->count_rows($filter);
-      //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-      $init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-      $offset = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);
-      // $orders = $this->orders_model->get_data($filter, $perpage, $offset);
+      $offset = $rows < $this->uri->segment($segment) ? NULL : $this->uri->segment($segment);      
       $orders = $this->orders_model->get_list($filter, $perpage, $offset);
-
-      $endTime = now();
+      $endTime = microtime(true);      
+      $init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+      $query_time = ($endTime - $startTime);
 
       $filter['orders'] = $orders; //$ds;
       $filter['state'] = $state;
       $filter['channelsList'] = $this->channels_model->get_channels_array();
       $filter['paymentList'] = $this->payment_methods_model->get_payment_array();
       $filter['btn'] = $button;
-      $filter['start'] = $startTime;
-      $filter['end'] = $endTime;
-
+      $filter['query_time'] = number($query_time, 6).' seconds';
+      
       $this->pagination->initialize($init);
       $this->load->view('orders/orders_list', $filter);
     }
@@ -4754,7 +4751,8 @@ class Orders extends PS_Controller
       'is_backorder',
       'tax_status',
       'is_etax',
-      'is_cancled'
+      'is_cancled',
+      'range'
     );
 
     clear_filter($filter);
@@ -4873,7 +4871,7 @@ class Orders extends PS_Controller
       				else
       				{
       					$sc = FALSE;
-      					$this->error = "{$stats} : ไม่พบสถานะเอกสาร";
+      					$this->error = "{$state} : ไม่พบสถานะเอกสาร";
       				}
       			}
       			else

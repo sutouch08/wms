@@ -1,7 +1,9 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 class Orders_model extends CI_Model
 {
+  private $tb = "orders";
+  private $td = "order_details";
 
   public function __construct()
   {
@@ -12,7 +14,7 @@ class Orders_model extends CI_Model
 
   public function add(array $ds = array())
   {
-    if(!empty($ds))
+    if (!empty($ds))
     {
       return $this->db->insert('orders', $ds);
     }
@@ -24,7 +26,7 @@ class Orders_model extends CI_Model
 
   public function update($code, array $ds = array())
   {
-    if(!empty($ds))
+    if (!empty($ds))
     {
       return $this->db->where('code', $code)->update('orders', $ds);
     }
@@ -36,7 +38,7 @@ class Orders_model extends CI_Model
   public function update_orders(array $codes = array(), array $ds = array())
   {
     //  order_code array
-    if( ! empty($codes) && ! empty($ds))
+    if (! empty($codes) && ! empty($ds))
     {
       return $this->db->where_in('code', $codes)->update('orders', $ds);
     }
@@ -48,13 +50,13 @@ class Orders_model extends CI_Model
   public function get($code)
   {
     $rs = $this->db
-    ->select('orders.*, payment_method.role AS payment_role')
-    ->from('orders')
-    ->join('payment_method', 'orders.payment_code = payment_method.code', 'left')
-    ->where('orders.code', $code)
-    ->get();
+      ->select('orders.*, payment_method.role AS payment_role')
+      ->from('orders')
+      ->join('payment_method', 'orders.payment_code = payment_method.code', 'left')
+      ->where('orders.code', $code)
+      ->get();
 
-    if($rs->num_rows() == 1)
+    if ($rs->num_rows() == 1)
     {
       return $rs->row();
     }
@@ -63,27 +65,27 @@ class Orders_model extends CI_Model
   }
 
 
-	public function get_cancle_reason($code)
-	{
-		$rs = $this->db
-    ->select('c.*, g.name AS reason_group')
-    ->from('order_cancle_reason AS c')
-    ->join('cancel_reason AS g', 'c.reason_id = g.id', 'left')
-    ->where('c.code', $code)
-    ->get();
+  public function get_cancle_reason($code)
+  {
+    $rs = $this->db
+      ->select('c.*, g.name AS reason_group')
+      ->from('order_cancle_reason AS c')
+      ->join('cancel_reason AS g', 'c.reason_id = g.id', 'left')
+      ->where('c.code', $code)
+      ->get();
 
-		if($rs->num_rows() > 0)
-		{
-			return $rs->result();
-		}
+    if ($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
 
-		return NULL;
-	}
+    return NULL;
+  }
 
 
   public function add_detail(array $ds = array())
   {
-    if(!empty($ds))
+    if (!empty($ds))
     {
       return $this->db->insert('order_details', $ds);
     }
@@ -92,15 +94,15 @@ class Orders_model extends CI_Model
   }
 
 
-	public function add_cancle_reason(array $ds = array())
-	{
-		if(!empty($ds))
-		{
-			return $this->db->insert('order_cancle_reason', $ds);
-		}
+  public function add_cancle_reason(array $ds = array())
+  {
+    if (!empty($ds))
+    {
+      return $this->db->insert('order_cancle_reason', $ds);
+    }
 
-		return FALSE;
-	}
+    return FALSE;
+  }
 
 
   public function update_detail($id, array $ds = array())
@@ -127,19 +129,19 @@ class Orders_model extends CI_Model
   }
 
 
-	public function log_delete(array $ds = array())
-	{
-		return $this->db->insert('order_delete_logs', $ds);
-	}
+  public function log_delete(array $ds = array())
+  {
+    return $this->db->insert('order_delete_logs', $ds);
+  }
 
 
   public function is_exists_detail($order_code, $item_code)
   {
     $rs = $this->db->select('id')
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->get('order_details');
-    if($rs->num_rows() > 0)
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->get('order_details');
+    if ($rs->num_rows() > 0)
     {
       return TRUE;
     }
@@ -150,13 +152,13 @@ class Orders_model extends CI_Model
 
   public function is_exists_order($code, $old_code = NULL)
   {
-    if($old_code !== NULL)
+    if ($old_code !== NULL)
     {
       $this->db->where('code !=', $old_code);
     }
 
     $rs = $this->db->where('code', $code)->get('orders');
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return TRUE;
     }
@@ -168,12 +170,12 @@ class Orders_model extends CI_Model
   public function get_detail_id($order_code, $item_code)
   {
     $rs = $this->db
-    ->select('id')
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->get('order_details');
+      ->select('id')
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row()->id;
     }
@@ -185,11 +187,11 @@ class Orders_model extends CI_Model
   public function get_order_detail($order_code, $item_code)
   {
     $rs = $this->db
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->get('order_details');
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -201,12 +203,12 @@ class Orders_model extends CI_Model
   public function get_exists_detail($order_code, $item_code, $price)
   {
     $rs = $this->db
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->where('price', $price)
-    ->get('order_details');
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->where('price', $price)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row();
     }
@@ -218,12 +220,12 @@ class Orders_model extends CI_Model
   public function get_exists_free_detail($order_code, $item_code)
   {
     $rs = $this->db
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->where('is_free', 1)
-    ->get('order_details');
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->where('is_free', 1)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row();
     }
@@ -235,12 +237,12 @@ class Orders_model extends CI_Model
   public function get_unvalid_order_detail($order_code, $item_code)
   {
     $rs = $this->db
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->where('valid', 0)
-    ->get('order_details');
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->where('valid', 0)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row();
     }
@@ -252,12 +254,12 @@ class Orders_model extends CI_Model
   public function get_unvalid_qc_detail($order_code, $item_code)
   {
     $rs = $this->db
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->where('valid_qc', 0)
-    ->get('order_details');
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->where('valid_qc', 0)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -270,13 +272,13 @@ class Orders_model extends CI_Model
   public function get_sum_item_qty($order_code, $item_code)
   {
     $rs = $this->db
-    ->select_sum('qty')
-    ->where('order_code', $order_code)
-    ->where('product_code', $item_code)
-    ->group_by('product_code')
-    ->get('order_details');
+      ->select_sum('qty')
+      ->where('order_code', $order_code)
+      ->where('product_code', $item_code)
+      ->group_by('product_code')
+      ->get('order_details');
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->qty;
     }
@@ -285,27 +287,27 @@ class Orders_model extends CI_Model
   }
 
 
-	//--- use by wms api
-	public function get_order_uncount_details($order_code)
-	{
-		$rs = $this->db
-		->where('order_code', $order_code)
-		->where('is_count', 0)
-		->get('order_details');
+  //--- use by wms api
+  public function get_order_uncount_details($order_code)
+  {
+    $rs = $this->db
+      ->where('order_code', $order_code)
+      ->where('is_count', 0)
+      ->get('order_details');
 
-		if($rs->num_rows() > 0)
-		{
-			return $rs->result();
-		}
+    if ($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
 
-		return NULL;
-	}
+    return NULL;
+  }
 
 
   public function get_detail($id)
   {
     $rs = $this->db->where('id', $id)->get('order_details');
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row();
     }
@@ -318,7 +320,7 @@ class Orders_model extends CI_Model
   {
     $rs = $this->db->where('order_code', $order_code)->where('product_code', $product_code)->order_by('id', 'ASC')->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row();
     }
@@ -327,38 +329,38 @@ class Orders_model extends CI_Model
   }
 
 
-	public function get_only_count_stock_details($order_code)
-	{
-		$rs = $this->db
-		->select('od.*, pd.unit_code')
-		->from('order_details AS od')
-		->join('products AS pd', 'od.product_code = pd.code', 'left')
-		->where('od.order_code', $order_code)
-		->get();
+  public function get_only_count_stock_details($order_code)
+  {
+    $rs = $this->db
+      ->select('od.*, pd.unit_code')
+      ->from('order_details AS od')
+      ->join('products AS pd', 'od.product_code = pd.code', 'left')
+      ->where('od.order_code', $order_code)
+      ->get();
 
-		if($rs->num_rows() > 0)
-		{
-			return $rs->result();
-		}
+    if ($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
 
-		return NULL;
-	}
+    return NULL;
+  }
 
 
   public function get_order_details($code)
   {
     $rs = $this->db
-    ->select('order_details.*, products.unit_code, products.is_api, products.api_rate')
-    ->from('order_details')
-    ->join('products', 'order_details.product_code = products.code', 'left')
-    ->join('product_size', 'products.size_code = product_size.code', 'left')
-    ->where('order_code', $code)
-    ->order_by('products.style_code', 'ASC')
-    ->order_by('products.color_code', 'ASC')
-    ->order_by('product_size.position', 'ASC')
-    ->get();
+      ->select('order_details.*, products.unit_code, products.is_api, products.api_rate')
+      ->from('order_details')
+      ->join('products', 'order_details.product_code = products.code', 'left')
+      ->join('product_size', 'products.size_code = product_size.code', 'left')
+      ->where('order_code', $code)
+      ->order_by('products.style_code', 'ASC')
+      ->order_by('products.color_code', 'ASC')
+      ->order_by('product_size.position', 'ASC')
+      ->get();
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -370,18 +372,18 @@ class Orders_model extends CI_Model
   public function get_unvalid_details($code)
   {
     $rs = $this->db
-    ->select('ods.*, pd.old_code')
-    ->from('order_details AS ods')
-    ->join('products AS pd', 'ods.product_code = pd.code', 'left')
-    ->join('product_size AS size', 'pd.size_code = size.code', 'left')
-    ->where('ods.order_code', $code)
-    ->where('ods.valid', 0)
-    ->where('ods.is_count', 1)
-    ->order_by('pd.color_code', 'ASC')
-    ->order_by('size.position', 'ASC')
-    ->get();
+      ->select('ods.*, pd.old_code')
+      ->from('order_details AS ods')
+      ->join('products AS pd', 'ods.product_code = pd.code', 'left')
+      ->join('product_size AS size', 'pd.size_code = size.code', 'left')
+      ->where('ods.order_code', $code)
+      ->where('ods.valid', 0)
+      ->where('ods.is_count', 1)
+      ->order_by('pd.color_code', 'ASC')
+      ->order_by('size.position', 'ASC')
+      ->get();
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -393,17 +395,17 @@ class Orders_model extends CI_Model
   public function get_valid_details($code)
   {
     $rs = $this->db
-    ->select('ods.*, pd.old_code')
-    ->from('order_details AS ods')
-    ->join('products AS pd', 'ods.product_code = pd.code', 'left')
-    ->where('ods.order_code', $code)
-    ->group_start()
-    ->where('ods.valid', 1)
-    ->or_where('ods.is_count', 0)
-    ->group_end()
-    ->get();
+      ->select('ods.*, pd.old_code')
+      ->from('order_details AS ods')
+      ->join('products AS pd', 'ods.product_code = pd.code', 'left')
+      ->where('ods.order_code', $code)
+      ->group_start()
+      ->where('ods.valid', 1)
+      ->or_where('ods.is_count', 0)
+      ->group_end()
+      ->get();
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -415,11 +417,11 @@ class Orders_model extends CI_Model
   public function get_valid_item($id_order_detail)
   {
     $rs = $this->db
-    ->where('id', $id_order_detail)
-    ->where('valid', 1)
-    ->get('order_details');
+      ->where('id', $id_order_detail)
+      ->where('valid', 1)
+      ->get('order_details');
 
-    if($rs->num_rows() == 1)
+    if ($rs->num_rows() == 1)
     {
       return $rs->row();
     }
@@ -431,11 +433,11 @@ class Orders_model extends CI_Model
   public function get_invalid_item($id_order_detail)
   {
     $rs = $this->db
-    ->where('id', $id_order_detail)
-    ->where('valid', 0)
-    ->get('order_details');
+      ->where('id', $id_order_detail)
+      ->where('valid', 0)
+      ->get('order_details');
 
-    if($rs->num_rows() == 1)
+    if ($rs->num_rows() == 1)
     {
       return $rs->row();
     }
@@ -447,7 +449,7 @@ class Orders_model extends CI_Model
   public function get_state($code)
   {
     $rs = $this->db->select('state')->where('code', $code)->get('orders');
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->state;
     }
@@ -461,7 +463,7 @@ class Orders_model extends CI_Model
   {
     $rs = $this->db->where('reference', $reference)->order_by('id', 'DESC')->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row();
     }
@@ -474,13 +476,13 @@ class Orders_model extends CI_Model
   public function get_order_by_tracking($tracking_number)
   {
     $rs = $this->db
-    ->where('shipping_code IS NOT NULL', NULL, FALSE)
-    ->where('shipping_code', $tracking_number)
-    ->order_by('id', 'DESC')
-    ->limit(1)
-    ->get('orders');
+      ->where('shipping_code IS NOT NULL', NULL, FALSE)
+      ->where('shipping_code', $tracking_number)
+      ->order_by('id', 'DESC')
+      ->limit(1)
+      ->get('orders');
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row();
     }
@@ -492,17 +494,17 @@ class Orders_model extends CI_Model
   public function get_order_in_qc_box($tracking_no)
   {
     $rs = $this->db
-    ->select('o.code, o.reference, o.customer_code, o.customer_name, o.customer_ref')
-    ->select('o.channels_code, o.state, o.shop_id, o.shipped_date, o.date_add')
-    ->select('b.tracking_no AS shipping_code')
-    ->from('qc_box AS b')
-    ->join('orders AS o', 'b.order_code = o.code', 'left')
-    ->where('b.tracking_no', $tracking_no)
-    ->where('b.tracking_no IS NOT NULL', NULL, FALSE)
-    ->limit(1)
-    ->get();
+      ->select('o.code, o.reference, o.customer_code, o.customer_name, o.customer_ref')
+      ->select('o.channels_code, o.state, o.shop_id, o.shipped_date, o.date_add')
+      ->select('b.tracking_no AS shipping_code')
+      ->from('qc_box AS b')
+      ->join('orders AS o', 'b.order_code = o.code', 'left')
+      ->where('b.tracking_no', $tracking_no)
+      ->where('b.tracking_no IS NOT NULL', NULL, FALSE)
+      ->limit(1)
+      ->get();
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row();
     }
@@ -514,26 +516,26 @@ class Orders_model extends CI_Model
   public function get_order_code($ref)
   {
     $rs = $this->db
-    ->select('code')
-    ->where('code', $ref)
-    ->or_where('reference', $ref)
-    ->limit(1)
-    ->get('orders');
+      ->select('code')
+      ->where('code', $ref)
+      ->or_where('reference', $ref)
+      ->limit(1)
+      ->get('orders');
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->code;
     }
 
     return NULL;
   }
-  
+
 
   public function get_order_code_by_reference($reference)
   {
     $rs = $this->db->select('code')->where('reference', $reference)->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row()->code;
     }
@@ -546,7 +548,7 @@ class Orders_model extends CI_Model
   {
     $rs = $this->db->select('code')->where('reference', $reference)->where('state !=', 9)->where('status !=', 2)->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row()->code;
     }
@@ -559,12 +561,12 @@ class Orders_model extends CI_Model
   public function is_active_order_reference($reference)
   {
     $rs = $this->db
-    ->select('code')
-    ->where('reference', $reference)
-    ->where_in('state', [4, 5, 6, 7,8])
-    ->get('orders');
+      ->select('code')
+      ->where('reference', $reference)
+      ->where_in('state', [4, 5, 6, 7, 8])
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return TRUE;
     }
@@ -577,7 +579,7 @@ class Orders_model extends CI_Model
   {
     $rs = $this->db->where('reference', $reference)->where('state <=', 7)->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row();
     }
@@ -651,7 +653,7 @@ class Orders_model extends CI_Model
     $this->db->set('is_expired', 0)->where('code', $code)->update('orders');
     $this->db->set('is_expired', 0)->where('order_code', $code)->update('order_details');
     $this->db->trans_complete();
-    if($this->db->trans_status() === FALSE)
+    if ($this->db->trans_status() === FALSE)
     {
       return FALSE;
     }
@@ -692,44 +694,44 @@ class Orders_model extends CI_Model
   {
     $this->db->where('role', $role);
 
-    if(isset($ds['range']) && $ds['range'] != 'all')
+    if (isset($ds['range']) && $ds['range'] != 'all')
     {
       $this->db->where('id >', $this->get_max_id());
     }
 
-    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    if (! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
     //---- เลขที่เอกสาร
-    if( ! empty($ds['code']))
+    if (! empty($ds['code']))
     {
       $this->db->like('code', $ds['code']);
     }
 
-    if(!empty($ds['qt_no']))
+    if (!empty($ds['qt_no']))
     {
       $this->db->like('quotation_no', $ds['qt_no']);
     }
     //--- รหัส/ชื่อ ลูกค้า
-    if( ! empty($ds['customer']))
+    if (! empty($ds['customer']))
     {
       $this->db
-      ->group_start()
-      ->like('customer_code', $ds['customer'])
-      ->or_like('customer_name', $ds['customer'])
-      ->or_like('customer_ref', $ds['customer'])
-      ->group_end();
+        ->group_start()
+        ->like('customer_code', $ds['customer'])
+        ->or_like('customer_name', $ds['customer'])
+        ->or_like('customer_ref', $ds['customer'])
+        ->group_end();
     }
 
     //---- user name / display name
-    if( ! empty($ds['user']))
+    if (! empty($ds['user']))
     {
       $user = $this->user_in($ds['user']);
 
-      if( ! empty($user))
+      if (! empty($user))
       {
         $this->db->where_in('user', $user);
       }
@@ -740,39 +742,39 @@ class Orders_model extends CI_Model
     }
 
     //---- เลขที่อ้างอิงออเดอร์ภายนอก
-    if( ! empty($ds['reference']))
+    if (! empty($ds['reference']))
     {
       $this->db->like('reference', $ds['reference'], 'after');
     }
 
     //---เลขที่จัดส่ง
-    if( ! empty($ds['ship_code']))
+    if (! empty($ds['ship_code']))
     {
       $this->db->like('shipping_code', $ds['ship_code']);
     }
 
     //--- ช่องทางการขาย
-    if( ! empty($ds['channels']))
+    if (! empty($ds['channels']))
     {
       $this->db->where('channels_code', $ds['channels']);
     }
 
-    if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
+    if (isset($ds['shop_id']) && $ds['shop_id'] != 'all')
     {
       $this->db->where('shop_id', $ds['shop_id']);
     }
 
     //--- ช่องทางการชำระเงิน
-    if( ! empty($ds['payment']))
+    if (! empty($ds['payment']))
     {
       $this->db->where('payment_code', $ds['payment']);
     }
 
-    if( ! empty($ds['zone_code']))
+    if (! empty($ds['zone_code']))
     {
       $zone = $this->zone_in($ds['zone_code']);
 
-      if( ! empty($zone))
+      if (! empty($zone))
       {
         $this->db->where_in('zone_code', $zone);
       }
@@ -782,165 +784,166 @@ class Orders_model extends CI_Model
       }
     }
 
-    if( !empty($ds['user_ref']))
+    if (!empty($ds['user_ref']))
     {
       $this->db->like('user_ref', $ds['user_ref']);
     }
 
-    if(!empty($ds['empName']))
+    if (!empty($ds['empName']))
     {
       $this->db->like('empName', $ds['empName']);
     }
 
-    if(!empty($ds['warehouse']))
+    if (!empty($ds['warehouse']))
     {
       $this->db->where('warehouse_code', $ds['warehouse']);
     }
 
-    if(!empty($ds['notSave']))
+    if (!empty($ds['notSave']))
     {
       $this->db->where('status', 0);
     }
     else
     {
-      if(isset($ds['isApprove']))
+      if (isset($ds['isApprove']))
       {
-        if($ds['isApprove'] !== 'all')
+        if ($ds['isApprove'] !== 'all')
         {
           $this->db->where('status', 1);
         }
       }
     }
 
-    if(!empty($ds['onlyMe']))
+    if (!empty($ds['onlyMe']))
     {
       $this->db->where('user', $this->_user->uname);
     }
 
-    if(!empty($ds['isExpire']))
+    if (!empty($ds['isExpire']))
     {
       $this->db->where('is_expired', 1);
     }
 
-    if(!empty($ds['state_list']))
+    if (!empty($ds['state_list']))
     {
       $this->db->where_in('state', $ds['state_list']);
     }
 
     //--- ใช้กับเอกสารที่ต้อง approve เท่านั้น
-    if(isset($ds['isApprove']))
+    if (isset($ds['isApprove']))
     {
-      if($ds['isApprove'] !== 'all')
+      if ($ds['isApprove'] !== 'all')
       {
         $this->db->where('is_approved', $ds['isApprove']);
       }
     }
 
     //--- ใช้กับเอกสารที่ต้อง ว่ารับสินค้าเข้าปลายทางหรือยัง เท่านั้น
-    if(isset($ds['isValid']))
+    if (isset($ds['isValid']))
     {
-      if($ds['isValid'] !== 'all')
+      if ($ds['isValid'] !== 'all')
       {
         $this->db->where('is_valid', $ds['isValid']);
       }
     }
 
-		if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
-		{
-			if($ds['wms_export'] == 0)
-			{
-				$this->db->group_start();
-				$this->db->where('wms_export IS NULL', NULL, FALSE);
-				$this->db->or_where('wms_export', 0);
-				$this->db->group_end();
-			}
-			else
-			{
-				$this->db->where('wms_export', $ds['wms_export']);		}
-		}
+    if (isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
+    {
+      if ($ds['wms_export'] == 0)
+      {
+        $this->db->group_start();
+        $this->db->where('wms_export IS NULL', NULL, FALSE);
+        $this->db->or_where('wms_export', 0);
+        $this->db->group_end();
+      }
+      else
+      {
+        $this->db->where('wms_export', $ds['wms_export']);
+      }
+    }
 
-    if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
+    if (isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
     {
       $this->db->where('is_backorder', $ds['is_backorder']);
     }
 
-    if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
+    if (isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
     {
       $this->db->where('is_cancled', $ds['is_cancled']);
     }
 
-    if( isset($ds['is_pre_order']) && $ds['is_pre_order'] !== 'all')
+    if (isset($ds['is_pre_order']) && $ds['is_pre_order'] !== 'all')
     {
       $this->db->where('is_pre_order', $ds['is_pre_order']);
     }
 
-		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
-		{
-			if($ds['sap_status'] == 0)
-			{
-				$this->db->where('is_exported',0);
-			}
-			else if($ds['sap_status'] == 1)
-			{
-				$this->db
-				->group_start()
-				->where('is_exported', 1)
-				->where('inv_code IS NULL', NULL, FALSE)
-				->group_end();
-			}
-			else if($ds['sap_status'] == 2)
-			{
-				$this->db
-				->group_start()
-				->where('is_exported', 1)
-				->where('inv_code IS NOT NULL', NULL, FALSE)
-				->group_end();
-			}
-			else if($ds['sap_status'] == 3)
-			{
-				$this->db->where('is_exported', 3);
-			}
-		}
+    if (isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
+    {
+      if ($ds['sap_status'] == 0)
+      {
+        $this->db->where('is_exported', 0);
+      }
+      else if ($ds['sap_status'] == 1)
+      {
+        $this->db
+          ->group_start()
+          ->where('is_exported', 1)
+          ->where('inv_code IS NULL', NULL, FALSE)
+          ->group_end();
+      }
+      else if ($ds['sap_status'] == 2)
+      {
+        $this->db
+          ->group_start()
+          ->where('is_exported', 1)
+          ->where('inv_code IS NOT NULL', NULL, FALSE)
+          ->group_end();
+      }
+      else if ($ds['sap_status'] == 3)
+      {
+        $this->db->where('is_exported', 3);
+      }
+    }
 
-		if(isset($ds['DoNo']) && $ds['DoNo'] != "")
-		{
-			$this->db->like('inv_code', $ds['DoNo']);
-		}
+    if (isset($ds['DoNo']) && $ds['DoNo'] != "")
+    {
+      $this->db->like('inv_code', $ds['DoNo']);
+    }
 
-		if(isset($ds['method']) && $ds['method'] != "all")
-		{
-			if($ds['method'] == 0)
-			{
-				$this->db
-				->group_start()
-				->where('is_import', 0)
-				->where('is_api', 0)
-				->group_end();
-			}
-			else if($ds['method'] == 1)
-			{
-				$this->db
-				->group_start()
-				->where('is_import', 1)
-				->where('is_api', 0)
-				->group_end();
-			}
-			else if($ds['method'] == 2)
-			{
-				$this->db
-				->group_start()
-				->where('is_import', 0)
-				->where('is_api', 1)
-				->group_end();
-			}
-		}
+    if (isset($ds['method']) && $ds['method'] != "all")
+    {
+      if ($ds['method'] == 0)
+      {
+        $this->db
+          ->group_start()
+          ->where('is_import', 0)
+          ->where('is_api', 0)
+          ->group_end();
+      }
+      else if ($ds['method'] == 1)
+      {
+        $this->db
+          ->group_start()
+          ->where('is_import', 1)
+          ->where('is_api', 0)
+          ->group_end();
+      }
+      else if ($ds['method'] == 2)
+      {
+        $this->db
+          ->group_start()
+          ->where('is_import', 0)
+          ->where('is_api', 1)
+          ->group_end();
+      }
+    }
 
-    if( isset($ds['tax_status']) && $ds['tax_status'] != 'all')
+    if (isset($ds['tax_status']) && $ds['tax_status'] != 'all')
     {
       $this->db->where('tax_status', $ds['tax_status']);
     }
 
-    if( isset($ds['is_etax'])  && $ds['is_etax'] != 'all')
+    if (isset($ds['is_etax'])  && $ds['is_etax'] != 'all')
     {
       $this->db->where('is_etax', $ds['is_etax']);
     }
@@ -948,7 +951,7 @@ class Orders_model extends CI_Model
     return $this->db->count_all_results('orders');
   }
 
-
+  
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0, $role = 'S')
   {
     $this->db
@@ -1112,19 +1115,19 @@ class Orders_model extends CI_Model
       }
     }
 
-		if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
-		{
-			if($ds['wms_export'] == 0)
-			{
-				$this->db->group_start();
-				$this->db->where('wms_export IS NULL', NULL, FALSE);
-				$this->db->or_where('wms_export', 0);
-				$this->db->group_end();
-			}
-			else
-			{
-				$this->db->where('wms_export', $ds['wms_export']);		}
-		}
+  	if(isset($ds['wms_export']) && $ds['wms_export'] !== 'all')
+  	{
+  		if($ds['wms_export'] == 0)
+  		{
+  			$this->db->group_start();
+  			$this->db->where('wms_export IS NULL', NULL, FALSE);
+  			$this->db->or_where('wms_export', 0);
+  			$this->db->group_end();
+  		}
+  		else
+  		{
+  			$this->db->where('wms_export', $ds['wms_export']);		}
+  	}
 
     if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
     {
@@ -1141,66 +1144,66 @@ class Orders_model extends CI_Model
       $this->db->where('is_pre_order', $ds['is_pre_order']);
     }
 
-		if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
-		{
-			if($ds['sap_status'] == 0)
-			{
-				$this->db->where('is_exported',0);
-			}
-			else if($ds['sap_status'] == 1)
-			{
-				$this->db
-				->group_start()
-				->where('is_exported', 1)
-				->where('inv_code IS NULL', NULL, FALSE)
-				->group_end();
-			}
-			else if($ds['sap_status'] == 2)
-			{
-				$this->db
-				->group_start()
-				->where('is_exported', 1)
-				->where('inv_code IS NOT NULL', NULL, FALSE)
-				->group_end();
-			}
-			else if($ds['sap_status'] == 3)
-			{
-				$this->db->where('is_exported', 3);
-			}
-		}
+  	if(isset($ds['sap_status']) && $ds['sap_status'] !== 'all')
+  	{
+  		if($ds['sap_status'] == 0)
+  		{
+  			$this->db->where('is_exported',0);
+  		}
+  		else if($ds['sap_status'] == 1)
+  		{
+  			$this->db
+  			->group_start()
+  			->where('is_exported', 1)
+  			->where('inv_code IS NULL', NULL, FALSE)
+  			->group_end();
+  		}
+  		else if($ds['sap_status'] == 2)
+  		{
+  			$this->db
+  			->group_start()
+  			->where('is_exported', 1)
+  			->where('inv_code IS NOT NULL', NULL, FALSE)
+  			->group_end();
+  		}
+  		else if($ds['sap_status'] == 3)
+  		{
+  			$this->db->where('is_exported', 3);
+  		}
+  	}
 
-		if(isset($ds['DoNo']) && $ds['DoNo'] != "")
-		{
-			$this->db->like('inv_code', $ds['DoNo']);
-		}
+  	if(isset($ds['DoNo']) && $ds['DoNo'] != "")
+  	{
+  		$this->db->like('inv_code', $ds['DoNo']);
+  	}
 
-		if(isset($ds['method']) && $ds['method'] != "all")
-		{
-			if($ds['method'] == 0)
-			{
-				$this->db
-				->group_start()
-				->where('is_import', 0)
-				->where('is_api', 0)
-				->group_end();
-			}
-			else if($ds['method'] == 1)
-			{
-				$this->db
-				->group_start()
-				->where('is_import', 1)
-				->where('is_api', 0)
-				->group_end();
-			}
-			else if($ds['method'] == 2)
-			{
-				$this->db
-				->group_start()
-				->where('is_import', 0)
-				->where('is_api', 1)
-				->group_end();
-			}
-		}
+  	if(isset($ds['method']) && $ds['method'] != "all")
+  	{
+  		if($ds['method'] == 0)
+  		{
+  			$this->db
+  			->group_start()
+  			->where('is_import', 0)
+  			->where('is_api', 0)
+  			->group_end();
+  		}
+  		else if($ds['method'] == 1)
+  		{
+  			$this->db
+  			->group_start()
+  			->where('is_import', 1)
+  			->where('is_api', 0)
+  			->group_end();
+  		}
+  		else if($ds['method'] == 2)
+  		{
+  			$this->db
+  			->group_start()
+  			->where('is_import', 0)
+  			->where('is_api', 1)
+  			->group_end();
+  		}
+  	}
 
     if( isset($ds['tax_status']) && $ds['tax_status'] != 'all')
     {
@@ -1246,9 +1249,9 @@ class Orders_model extends CI_Model
     $qr = "SELECT code FROM zone WHERE code LIKE '%{$zone}%' OR name LIKE '%{$zone}%'";
     $qs = $this->db->query($qr);
 
-    if($qs->num_rows() > 0)
+    if ($qs->num_rows() > 0)
     {
-      foreach($qs->result() as $rs)
+      foreach ($qs->result() as $rs)
       {
         $ds[] = $rs->code;
       }
@@ -1266,9 +1269,9 @@ class Orders_model extends CI_Model
     $qr = "SELECT code FROM customers WHERE code LIKE '%{$customer}%' OR name LIKE '%{$customer}%'";
     $qs = $this->db->query($qr);
 
-    if($qs->num_rows() > 0)
+    if ($qs->num_rows() > 0)
     {
-      foreach($qs->result() as $rs)
+      foreach ($qs->result() as $rs)
       {
         $ds[] = $rs->code;
       }
@@ -1287,9 +1290,9 @@ class Orders_model extends CI_Model
     $qr = "SELECT uname FROM user WHERE uname LIKE '%{$user}%' OR name LIKE '%{$user}%'";
     $qs = $this->db->query($qr);
 
-    if($qs->num_rows() > 0)
+    if ($qs->num_rows() > 0)
     {
-      foreach($qs->result() as $rs)
+      foreach ($qs->result() as $rs)
       {
         $ds[] = $rs->uname;
       }
@@ -1310,45 +1313,45 @@ class Orders_model extends CI_Model
 
     $rs = $this->db->query($qr);
 
-  	$sc = array();
+    $sc = array();
 
-  	if($rs->num_rows() > 0)
-  	{
-  		foreach($rs->result() as $row)
-  		{
-  			$sc[] = $row->order_code;
-  		}
+    if ($rs->num_rows() > 0)
+    {
+      foreach ($rs->result() as $row)
+      {
+        $sc[] = $row->order_code;
+      }
 
       return $sc;
-  	}
+    }
 
-  	return 'xx';
+    return 'xx';
   }
 
 
   public function get_un_approve_list($role = 'C', $perpage = '')
   {
     $this->db
-    ->select('orders.date_add, orders.code, customers.name AS customer_name, empName')
-    ->from('orders')
-    ->join('customers', 'orders.customer_code = customers.code', 'left')
-    ->where('orders.role', $role)
-    ->where('orders.status', 1)
-    ->where('orders.state <', 3)
-    ->where('orders.is_expired', 0)
-    ->where('orders.is_cancled', 0)
-    ->where('orders.is_approved', 0)
-    ->order_by('orders.date_add', 'ASC')
-    ->order_by('orders.code', 'ASC');
+      ->select('orders.date_add, orders.code, customers.name AS customer_name, empName')
+      ->from('orders')
+      ->join('customers', 'orders.customer_code = customers.code', 'left')
+      ->where('orders.role', $role)
+      ->where('orders.status', 1)
+      ->where('orders.state <', 3)
+      ->where('orders.is_expired', 0)
+      ->where('orders.is_cancled', 0)
+      ->where('orders.is_approved', 0)
+      ->order_by('orders.date_add', 'ASC')
+      ->order_by('orders.code', 'ASC');
 
-    if($perpage != '')
+    if ($perpage != '')
     {
       $this->db->limit($perpage);
     }
 
     $rs = $this->db->get();
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1360,12 +1363,12 @@ class Orders_model extends CI_Model
   public function count_un_approve_rows($role = 'C')
   {
     $this->db
-    ->where('role', $role)
-    ->where('status', 1)
-    ->where('state <', 3)
-    ->where('is_expired', 0)
-    ->where('is_cancled', 0)
-    ->where('is_approved', 0);
+      ->where('role', $role)
+      ->where('status', 1)
+      ->where('state <', 3)
+      ->where('is_expired', 0)
+      ->where('is_cancled', 0)
+      ->where('is_approved', 0);
 
     return $this->db->count_all_results('orders');
   }
@@ -1374,20 +1377,20 @@ class Orders_model extends CI_Model
   public function get_un_received_list($perpage = '', $offset = '')
   {
     $this->db
-    ->select('orders.date_add, orders.code, customers.name AS customer_name')
-    ->from('orders')
-    ->join('customers', 'orders.customer_code = customers.code', 'left')
-    ->where('orders.role', 'N')
-    ->where('orders.status', 1)
-    ->where('orders.state', 8)
-    ->where('orders.is_expired', 0)
-    ->where('orders.is_cancled', 0)
-    ->where('orders.is_approved', 1)
-    ->where('orders.is_valid', 0)
-    ->order_by('orders.date_add', 'ASC')
-    ->order_by('orders.code', 'ASC');
+      ->select('orders.date_add, orders.code, customers.name AS customer_name')
+      ->from('orders')
+      ->join('customers', 'orders.customer_code = customers.code', 'left')
+      ->where('orders.role', 'N')
+      ->where('orders.status', 1)
+      ->where('orders.state', 8)
+      ->where('orders.is_expired', 0)
+      ->where('orders.is_cancled', 0)
+      ->where('orders.is_approved', 1)
+      ->where('orders.is_valid', 0)
+      ->order_by('orders.date_add', 'ASC')
+      ->order_by('orders.code', 'ASC');
 
-    if($perpage != '')
+    if ($perpage != '')
     {
       $offset = $offset === NULL ? 0 : $offset;
       $this->db->limit($perpage, $offset);
@@ -1395,7 +1398,7 @@ class Orders_model extends CI_Model
 
     $rs = $this->db->get();
     //echo $this->db->get_compiled_select('orders');
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1407,13 +1410,13 @@ class Orders_model extends CI_Model
   public function count_un_receive_rows()
   {
     $this->db
-    ->where('role', 'N')
-    ->where('status', 1)
-    ->where('state', 8)
-    ->where('is_expired', 0)
-    ->where('is_cancled', 0)
-    ->where('is_approved', 1)
-    ->where('is_valid', 0);
+      ->where('role', 'N')
+      ->where('status', 1)
+      ->where('state', 8)
+      ->where('is_expired', 0)
+      ->where('is_cancled', 0)
+      ->where('is_approved', 1)
+      ->where('is_valid', 0);
 
     return $this->db->count_all_results('orders');
   }
@@ -1421,7 +1424,7 @@ class Orders_model extends CI_Model
 
   public function get_max_code($code)
   {
-    $qr = "SELECT MAX(code) AS code FROM orders WHERE code LIKE '".$code."%' ORDER BY code DESC";
+    $qr = "SELECT MAX(code) AS code FROM orders WHERE code LIKE '" . $code . "%' ORDER BY code DESC";
     $rs = $this->db->query($qr);
     return $rs->row()->code;
   }
@@ -1430,11 +1433,11 @@ class Orders_model extends CI_Model
   public function get_order_total_amount($code)
   {
     $rs = $this->db
-    ->select_sum('total_amount')
-    ->where('order_code', $code)
-    ->get('order_details');
+      ->select_sum('total_amount')
+      ->where('order_code', $code)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row()->total_amount;
     }
@@ -1446,11 +1449,11 @@ class Orders_model extends CI_Model
   public function get_bill_total_amount($code)
   {
     $rs = $this->db
-    ->select_sum('total_amount', 'amount')
-    ->where('reference', $code)
-    ->get('order_sold');
+      ->select_sum('total_amount', 'amount')
+      ->where('reference', $code)
+      ->get('order_sold');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row()->amount;
     }
@@ -1462,11 +1465,11 @@ class Orders_model extends CI_Model
   public function get_order_total_qty($code)
   {
     $rs = $this->db
-    ->select_sum('qty', 'qty')
-    ->where('order_code', $code)
-    ->get('order_details');
+      ->select_sum('qty', 'qty')
+      ->where('order_code', $code)
+      ->get('order_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row()->qty;
     }
@@ -1487,18 +1490,18 @@ class Orders_model extends CI_Model
   public function get_sum_not_complete_amount($customer_code)
   {
     $rs = $this->db
-    ->select_sum('order_details.total_amount', 'amount')
-    ->from('order_details')
-    ->join('orders', 'orders.code = order_details.order_code', 'left')
-    ->where_in('orders.role', array('S', 'C'))
-		->where('orders.state !=', 9)
-    ->where('orders.customer_code', $customer_code)
-    ->where('order_details.is_complete', 0)
-    ->where('orders.is_expired', 0)
-		->where('order_details.is_cancle', 0)
-    ->get();
+      ->select_sum('order_details.total_amount', 'amount')
+      ->from('order_details')
+      ->join('orders', 'orders.code = order_details.order_code', 'left')
+      ->where_in('orders.role', array('S', 'C'))
+      ->where('orders.state !=', 9)
+      ->where('orders.customer_code', $customer_code)
+      ->where('order_details.is_complete', 0)
+      ->where('orders.is_expired', 0)
+      ->where('order_details.is_cancle', 0)
+      ->get();
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->amount;
     }
@@ -1511,19 +1514,19 @@ class Orders_model extends CI_Model
   public function get_sum_not_complete_amount_exclude($customer_code, $order_code)
   {
     $rs = $this->db
-    ->select_sum('order_details.total_amount', 'amount')
-    ->from('order_details')
-    ->join('orders', 'orders.code = order_details.order_code', 'left')
-    ->where_in('orders.role', array('S', 'C'))
-		->where('orders.state !=', 9)
-    ->where('orders.customer_code', $customer_code)
-    ->where('order_details.is_complete', 0)
-    ->where('orders.is_expired', 0)
-		->where('order_details.is_cancle', 0)
-    ->where('order_details.order_code !=', $order_code)
-    ->get();
+      ->select_sum('order_details.total_amount', 'amount')
+      ->from('order_details')
+      ->join('orders', 'orders.code = order_details.order_code', 'left')
+      ->where_in('orders.role', array('S', 'C'))
+      ->where('orders.state !=', 9)
+      ->where('orders.customer_code', $customer_code)
+      ->where('order_details.is_complete', 0)
+      ->where('orders.is_expired', 0)
+      ->where('order_details.is_cancle', 0)
+      ->where('order_details.order_code !=', $order_code)
+      ->get();
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->amount;
     }
@@ -1551,7 +1554,7 @@ class Orders_model extends CI_Model
 
     $rs = $this->db->query($qr);
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->amount;
     }
@@ -1563,9 +1566,9 @@ class Orders_model extends CI_Model
   public function get_bill_discount($code)
   {
     $rs = $this->db->select('bDiscAmount')
-    ->where('code', $code)
-    ->get('orders');
-    if($rs->num_rows() === 1)
+      ->where('code', $code)
+      ->get('orders');
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->bDiscAmount;
     }
@@ -1577,9 +1580,9 @@ class Orders_model extends CI_Model
   public function get_sum_style_qty($order_code, $style_code)
   {
     $rs = $this->db->select_sum('qty')
-    ->where('order_code', $order_code)
-    ->where('style_code', $style_code)
-    ->get('order_detils');
+      ->where('order_code', $order_code)
+      ->where('style_code', $style_code)
+      ->get('order_detils');
 
     return $rs->row()->qty;
   }
@@ -1588,29 +1591,29 @@ class Orders_model extends CI_Model
   public function get_reserv_stock($item_code, $warehouse = NULL, $zone = NULL)
   {
     $this->db
-    ->select_sum('order_details.qty', 'qty')
-    ->from('order_details')
-    ->join('orders', 'order_details.order_code = orders.code', 'left')
-    ->where('orders.is_pre_order', 0)
-    ->where('order_details.product_code', $item_code)
-		->where('order_details.is_cancle', 0)
-    ->where('order_details.is_complete', 0)
-    ->where('order_details.is_expired', 0)
-    ->where('order_details.is_count', 1);
+      ->select_sum('order_details.qty', 'qty')
+      ->from('order_details')
+      ->join('orders', 'order_details.order_code = orders.code', 'left')
+      ->where('orders.is_pre_order', 0)
+      ->where('order_details.product_code', $item_code)
+      ->where('order_details.is_cancle', 0)
+      ->where('order_details.is_complete', 0)
+      ->where('order_details.is_expired', 0)
+      ->where('order_details.is_count', 1);
 
-    if($warehouse !== NULL)
+    if ($warehouse !== NULL)
     {
       $this->db->where('orders.warehouse_code', $warehouse);
     }
 
-    if($zone !== NULL)
+    if ($zone !== NULL)
     {
       $this->db->where('orders.zone_code', $zone);
     }
 
     $rs = $this->db->get();
 
-    if($rs->num_rows() == 1)
+    if ($rs->num_rows() == 1)
     {
       return $rs->row()->qty;
     }
@@ -1622,25 +1625,25 @@ class Orders_model extends CI_Model
   public function get_non_backorder_reserv_stock($item_code, $warehouse = NULL)
   {
     $this->db
-    ->select_sum('order_details.qty', 'qty')
-    ->from('order_details')
-    ->join('orders', 'order_details.order_code = orders.code', 'left')
-    ->where('orders.is_pre_order', 0)
-    ->where('orders.is_backorder', 0)
-    ->where('order_details.product_code', $item_code)
-		->where('order_details.is_cancle', 0)
-    ->where('order_details.is_complete', 0)
-    ->where('order_details.is_expired', 0)
-    ->where('order_details.is_count', 1);
+      ->select_sum('order_details.qty', 'qty')
+      ->from('order_details')
+      ->join('orders', 'order_details.order_code = orders.code', 'left')
+      ->where('orders.is_pre_order', 0)
+      ->where('orders.is_backorder', 0)
+      ->where('order_details.product_code', $item_code)
+      ->where('order_details.is_cancle', 0)
+      ->where('order_details.is_complete', 0)
+      ->where('order_details.is_expired', 0)
+      ->where('order_details.is_count', 1);
 
-    if($warehouse !== NULL)
+    if ($warehouse !== NULL)
     {
       $this->db->where('orders.warehouse_code', $warehouse);
     }
 
     $rs = $this->db->get();
 
-    if($rs->num_rows() == 1)
+    if ($rs->num_rows() == 1)
     {
       return $rs->row()->qty;
     }
@@ -1651,37 +1654,37 @@ class Orders_model extends CI_Model
 
   public function get_items_reserv_stock(array $items = array(), $warehouse = NULL, $zone = NULL)
   {
-    if( ! empty($items))
+    if (! empty($items))
     {
       $this->db
-      ->select('product_code')
-      ->select_sum('order_details.qty', 'qty')
-      ->from('order_details')
-      ->join('orders', 'order_details.order_code = orders.code', 'left')
-      ->where('orders.is_pre_order', 0)
-      ->where('order_details.is_cancle', 0)
-      ->where('order_details.is_complete', 0)
-      ->where('order_details.is_expired', 0)
-      ->where('order_details.is_count', 1)
-      ->where_in('order_details.product_code', $items);
+        ->select('product_code')
+        ->select_sum('order_details.qty', 'qty')
+        ->from('order_details')
+        ->join('orders', 'order_details.order_code = orders.code', 'left')
+        ->where('orders.is_pre_order', 0)
+        ->where('order_details.is_cancle', 0)
+        ->where('order_details.is_complete', 0)
+        ->where('order_details.is_expired', 0)
+        ->where('order_details.is_count', 1)
+        ->where_in('order_details.product_code', $items);
 
-      if($warehouse !== NULL)
+      if ($warehouse !== NULL)
       {
         $this->db->where('orders.warehouse_code', $warehouse);
       }
 
-      if($zone !== NULL)
+      if ($zone !== NULL)
       {
         $this->db->where('orders.zone_code', $zone);
       }
 
       $rs = $this->db->group_by('order_details.product_code')->get();
 
-      if($rs->num_rows() > 0)
+      if ($rs->num_rows() > 0)
       {
         $ordered = [];
 
-        foreach($rs->result() as $ro)
+        foreach ($rs->result() as $ro)
         {
           $ordered[$ro->product_code] = $ro->qty;
         }
@@ -1696,21 +1699,21 @@ class Orders_model extends CI_Model
   public function get_reserv_stock_exclude($item_code, $warehouse, $order_detail_id)
   {
     $this->db
-    ->select_sum('order_details.qty', 'qty')
-    ->from('order_details')
-    ->join('orders', 'order_details.order_code = orders.code', 'left')
-    ->where('orders.is_pre_order', 0)
-    ->where('order_details.product_code', $item_code)
-		->where('order_details.is_cancle', 0)
-    ->where('order_details.is_complete', 0)
-    ->where('order_details.is_expired', 0)
-    ->where('order_details.is_count', 1)
-    ->where('orders.warehouse_code', $warehouse)
-    ->where('order_details.id !=', $order_detail_id);
+      ->select_sum('order_details.qty', 'qty')
+      ->from('order_details')
+      ->join('orders', 'order_details.order_code = orders.code', 'left')
+      ->where('orders.is_pre_order', 0)
+      ->where('order_details.product_code', $item_code)
+      ->where('order_details.is_cancle', 0)
+      ->where('order_details.is_complete', 0)
+      ->where('order_details.is_expired', 0)
+      ->where('order_details.is_count', 1)
+      ->where('orders.warehouse_code', $warehouse)
+      ->where('order_details.id !=', $order_detail_id);
 
     $rs = $this->db->get();
 
-    if($rs->num_rows() == 1)
+    if ($rs->num_rows() == 1)
     {
       return $rs->row()->qty;
     }
@@ -1722,22 +1725,22 @@ class Orders_model extends CI_Model
   public function get_reserv_stock_by_style($style_code, $warehouse = NULL)
   {
     $this->db
-    ->select_sum('order_details.qty', 'qty')
-    ->from('order_details')
-    ->join('orders', 'order_details.order_code = orders.code', 'left')
-    ->where('orders.is_pre_order', 0)
-    ->where('order_details.style_code', $style_code)
-    ->where('order_details.is_cancle', 0)
-    ->where('order_details.is_complete', 0)
-    ->where('order_details.is_expired', 0)
-    ->where('order_details.is_count', 1);
+      ->select_sum('order_details.qty', 'qty')
+      ->from('order_details')
+      ->join('orders', 'order_details.order_code = orders.code', 'left')
+      ->where('orders.is_pre_order', 0)
+      ->where('order_details.style_code', $style_code)
+      ->where('order_details.is_cancle', 0)
+      ->where('order_details.is_complete', 0)
+      ->where('order_details.is_expired', 0)
+      ->where('order_details.is_count', 1);
 
-    if($warehouse !== NULL)
+    if ($warehouse !== NULL)
     {
       $this->db->where('warehouse_code', $warehouse);
     }
     $rs = $this->db->get();
-    if($rs->num_rows() == 1)
+    if ($rs->num_rows() == 1)
     {
       return $rs->row()->qty;
     }
@@ -1762,22 +1765,22 @@ class Orders_model extends CI_Model
   public function update_approver($code, $user)
   {
     return $this->db
-    ->set('approver', $user)
-    ->set('approve_date', now())
-    ->set('is_approved', 1)
-    ->where('code', $code)
-    ->update('orders');
+      ->set('approver', $user)
+      ->set('approve_date', now())
+      ->set('is_approved', 1)
+      ->where('code', $code)
+      ->update('orders');
   }
 
 
   public function un_approver($code, $user)
   {
     return $this->db
-    ->set('approver', NULL)
-    ->set('approve_date', now())
-    ->set('is_approved', 0)
-    ->where('code', $code)
-    ->update('orders');
+      ->set('approver', NULL)
+      ->set('approve_date', now())
+      ->set('is_approved', 0)
+      ->where('code', $code)
+      ->update('orders');
   }
 
 
@@ -1794,10 +1797,10 @@ class Orders_model extends CI_Model
   }
 
 
-	public function cancle_order_detail($code)
-	{
-		return $this->db->set('is_cancle', 1)->where('order_code', $code)->update('order_details');
-	}
+  public function cancle_order_detail($code)
+  {
+    return $this->db->set('is_cancle', 1)->where('order_code', $code)->update('order_details');
+  }
 
 
   //--- Set is_valid = 1 when transfer draft is confirmed (use in Controller inventory/transfer->confirm_receipted)
@@ -1810,18 +1813,18 @@ class Orders_model extends CI_Model
   public function get_order_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
-    ->where_in('role', 'S')
-    ->where('state', 8)
-    ->where('status', 1)
-    ->where('is_cancled', 0)
-    ->where('is_expired', 0)
-    ->where('inv_code IS NULL', NULL, FALSE)
-    ->order_by('last_sync', 'ASC')
-    ->limit($limit)
-    ->get('orders');
+      ->select('code')
+      ->where_in('role', 'S')
+      ->where('state', 8)
+      ->where('status', 1)
+      ->where('is_cancled', 0)
+      ->where('is_expired', 0)
+      ->where('inv_code IS NULL', NULL, FALSE)
+      ->order_by('last_sync', 'ASC')
+      ->limit($limit)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1833,18 +1836,18 @@ class Orders_model extends CI_Model
   public function get_sponsor_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
-    ->where_in('role', array('P', 'U'))
-    ->where('state', 8)
-    ->where('status', 1)
-    ->where('is_cancled', 0)
-    ->where('is_expired', 0)
-    ->where('inv_code IS NULL', NULL, FALSE)
-    ->order_by('last_sync', 'ASC')
-    ->limit($limit)
-    ->get('orders');
+      ->select('code')
+      ->where_in('role', array('P', 'U'))
+      ->where('state', 8)
+      ->where('status', 1)
+      ->where('is_cancled', 0)
+      ->where('is_expired', 0)
+      ->where('inv_code IS NULL', NULL, FALSE)
+      ->order_by('last_sync', 'ASC')
+      ->limit($limit)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1856,18 +1859,18 @@ class Orders_model extends CI_Model
   public function get_consignment_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
-    ->where('role', 'C')
-    ->where('state', 8)
-    ->where('status', 1)
-    ->where('is_cancled', 0)
-    ->where('is_expired', 0)
-    ->where('inv_code IS NULL', NULL, FALSE)
-    ->order_by('last_sync', 'ASC')
-    ->limit($limit)
-    ->get('orders');
+      ->select('code')
+      ->where('role', 'C')
+      ->where('state', 8)
+      ->where('status', 1)
+      ->where('is_cancled', 0)
+      ->where('is_expired', 0)
+      ->where('inv_code IS NULL', NULL, FALSE)
+      ->order_by('last_sync', 'ASC')
+      ->limit($limit)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1880,18 +1883,18 @@ class Orders_model extends CI_Model
   public function get_order_transfer_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
-    ->where('role', 'N')
-    ->where('state', 8)
-    ->where('status', 1)
-    ->where('is_cancled', 0)
-    ->where('is_expired', 0)
-    ->where('inv_code IS NULL', NULL, FALSE)
-    ->order_by('last_sync', 'ASC')
-    ->limit($limit)
-    ->get('orders');
+      ->select('code')
+      ->where('role', 'N')
+      ->where('state', 8)
+      ->where('status', 1)
+      ->where('is_cancled', 0)
+      ->where('is_expired', 0)
+      ->where('inv_code IS NULL', NULL, FALSE)
+      ->order_by('last_sync', 'ASC')
+      ->limit($limit)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1904,18 +1907,18 @@ class Orders_model extends CI_Model
   public function get_order_lend_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
-    ->where('role', 'L')
-    ->where('state', 8)
-    ->where('status', 1)
-    ->where('is_cancled', 0)
-    ->where('is_expired', 0)
-    ->where('inv_code IS NULL', NULL, FALSE)
-    ->order_by('last_sync', 'ASC')
-    ->limit($limit)
-    ->get('orders');
+      ->select('code')
+      ->where('role', 'L')
+      ->where('state', 8)
+      ->where('status', 1)
+      ->where('is_cancled', 0)
+      ->where('is_expired', 0)
+      ->where('inv_code IS NULL', NULL, FALSE)
+      ->order_by('last_sync', 'ASC')
+      ->limit($limit)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1928,18 +1931,18 @@ class Orders_model extends CI_Model
   public function get_order_transform_non_inv_code($limit = 100)
   {
     $rs = $this->db
-    ->select('code')
-    ->where_in('role', array('Q','T'))
-    ->where('state', 8)
-    ->where('status', 1)
-    ->where('is_cancled', 0)
-    ->where('is_expired', 0)
-    ->where('inv_code IS NULL', NULL, FALSE)
-    ->order_by('last_sync', 'ASC')
-    ->limit($limit)
-    ->get('orders');
+      ->select('code')
+      ->where_in('role', array('Q', 'T'))
+      ->where('state', 8)
+      ->where('status', 1)
+      ->where('is_cancled', 0)
+      ->where('is_expired', 0)
+      ->where('inv_code IS NULL', NULL, FALSE)
+      ->order_by('last_sync', 'ASC')
+      ->limit($limit)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -1951,12 +1954,12 @@ class Orders_model extends CI_Model
   public function get_sap_doc_num($code)
   {
     $rs = $this->ms
-    ->select('DocNum')
-    ->where('U_ECOMNO', $code)
-    ->where('CANCELED', 'N')
-    ->get('ODLN');
+      ->select('DocNum')
+      ->where('U_ECOMNO', $code)
+      ->where('CANCELED', 'N')
+      ->get('ODLN');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->row()->DocNum;
     }
@@ -1980,16 +1983,16 @@ class Orders_model extends CI_Model
   public function get_expire_list($date, array $role = array('S'))
   {
     $rs = $this->db
-    ->select('code')
-    ->where('date_add <', $date)
-    ->where_in('role', $role)
-    ->where_in('state', array(1,2))
-    ->where('is_paid', 0)
-    ->where('never_expire', 0)
-    ->where('is_pre_order', 0)
-    ->get('orders');
+      ->select('code')
+      ->where('date_add <', $date)
+      ->where_in('role', $role)
+      ->where_in('state', array(1, 2))
+      ->where('is_paid', 0)
+      ->where('never_expire', 0)
+      ->where('is_pre_order', 0)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -2000,12 +2003,12 @@ class Orders_model extends CI_Model
 
   public function set_expire_order($code)
   {
-    if(!empty($code))
+    if (!empty($code))
     {
       return $this->db
-      ->set('is_expired', 1)
-      ->where('code', $code)
-      ->update('orders');
+        ->set('is_expired', 1)
+        ->where('code', $code)
+        ->update('orders');
     }
 
     return FALSE;
@@ -2014,12 +2017,12 @@ class Orders_model extends CI_Model
 
   public function set_expire_order_details($code)
   {
-    if(!empty($code))
+    if (!empty($code))
     {
       return $this->db
-      ->set('is_expired', 1)
-      ->where('order_code', $code)
-      ->update('order_details');
+        ->set('is_expired', 1)
+        ->where('order_code', $code)
+        ->update('order_details');
     }
 
     return FALSE;
@@ -2029,14 +2032,14 @@ class Orders_model extends CI_Model
   public function get_order_tracking($code)
   {
     $rs = $this->db
-    ->select('tracking_no, carton_code, courier_code, courier_name')
-    ->select_sum('qty')
-    ->where('order_code', $code)
-    ->group_by('tracking_no')
-    ->group_by('carton_code')
-    ->get('order_tracking_details');
+      ->select('tracking_no, carton_code, courier_code, courier_name')
+      ->select_sum('qty')
+      ->where('order_code', $code)
+      ->group_by('tracking_no')
+      ->group_by('carton_code')
+      ->get('order_tracking_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -2053,7 +2056,7 @@ class Orders_model extends CI_Model
 
   public function add_tracking(array $ds = array())
   {
-    if( ! empty($ds))
+    if (! empty($ds))
     {
       return $this->db->insert('order_tracking_details', $ds);
     }
@@ -2064,7 +2067,7 @@ class Orders_model extends CI_Model
 
   public function add_backlogs_detail(array $ds = array())
   {
-    if( ! empty($ds))
+    if (! empty($ds))
     {
       return $this->db->insert('order_backlog_details', $ds);
     }
@@ -2083,7 +2086,7 @@ class Orders_model extends CI_Model
   {
     $rs = $this->db->where('order_code', $code)->get('order_backlog_details');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -2100,7 +2103,7 @@ class Orders_model extends CI_Model
 
   public function add_cancel_request(array $ds = array())
   {
-    if( ! empty($ds))
+    if (! empty($ds))
     {
       return $this->db->insert('order_cancel_request', $ds);
     }
@@ -2118,11 +2121,11 @@ class Orders_model extends CI_Model
 
   public function shop_name($shop_id = NULL)
   {
-    if( ! empty($shop_id))
+    if (! empty($shop_id))
     {
       $rs = $this->db->select('shop_name')->where('shop_id', $shop_id)->get('market_place_shop');
 
-      if($rs->num_rows() === 1)
+      if ($rs->num_rows() === 1)
       {
         return $rs->row()->shop_name;
       }
@@ -2135,19 +2138,19 @@ class Orders_model extends CI_Model
   public function getUnsendTrackingList($id_sender, $limit = 100)
   {
     $rs = $this->db
-    ->select('code, reference')
-    ->where('role', 'S')
-    ->where('channels_code', 'WRX12')
-    ->where('id_sender', $id_sender)
-    ->where('send_tracking IS NULL', NULL, FALSE)
-    ->where('state', 8)
-    ->where('reference IS NOT NULL')
-    ->where('date_add >=', '2024-04-01 00:00:00')
-    ->order_by('code', 'ASC')
-    ->limit($limit)
-    ->get('orders');
+      ->select('code, reference')
+      ->where('role', 'S')
+      ->where('channels_code', 'WRX12')
+      ->where('id_sender', $id_sender)
+      ->where('send_tracking IS NULL', NULL, FALSE)
+      ->where('state', 8)
+      ->where('reference IS NOT NULL')
+      ->where('date_add >=', '2024-04-01 00:00:00')
+      ->order_by('code', 'ASC')
+      ->limit($limit)
+      ->get('orders');
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -2159,9 +2162,9 @@ class Orders_model extends CI_Model
   public function has_zero_price($code)
   {
     $count = $this->db
-    ->where('order_code', $code)
-    ->where('price', 0)
-    ->count_all_results('order_details');
+      ->where('order_code', $code)
+      ->where('price', 0)
+      ->count_all_results('order_details');
 
     return $count > 0 ? TRUE : FALSE;
   }
@@ -2172,7 +2175,7 @@ class Orders_model extends CI_Model
     $limit = $this->get_limit_rows();
     $rs = $this->db->query("SELECT MAX(id) AS id FROM orders");
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return $rs->row()->id - $limit;
     }
@@ -2185,7 +2188,7 @@ class Orders_model extends CI_Model
   {
     $rs = $this->db->query("SELECT value FROM config WHERE code = 'FILTER_RESULT_LIMIT'");
 
-    if($rs->num_rows() === 1)
+    if ($rs->num_rows() === 1)
     {
       return intval($rs->row()->value);
     }
@@ -2205,17 +2208,12 @@ class Orders_model extends CI_Model
   public function get_video_data($code)
   {
     $rs = $this->db->where('order_code', $code)->order_by('create_date', 'DESC')->limit(1)->get('order_pack_video');
-    
-    if($rs->num_rows() === 1)
+
+    if ($rs->num_rows() === 1)
     {
       return $rs->row();
     }
-    
+
     return NULL;
   }
-
-
 } //--- End class
-
-
- ?>

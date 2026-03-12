@@ -60,50 +60,95 @@ class Items extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code'      => get_filter('code', 'item_code', ''),
-      'name'      => get_filter('name', 'item_name', ''),
-      'barcode'   => get_filter('barcode', 'item_barcode', ''),
-      'color'     => get_filter('color', 'color', ''),
-      'size'      => get_filter('size', 'size', ''),
-      'group'     => get_filter('group', 'group', 'all'),
+      'code' => get_filter('code', 'item_code', ''),
+      'name' => get_filter('name', 'item_name', ''),
+      'barcode' => get_filter('barcode', 'item_barcode', ''),
+      'color' => get_filter('color', 'color', ''),
+      'size' => get_filter('size', 'size', ''),
+      'group' => get_filter('group', 'group', 'all'),
       'sub_group' => get_filter('sub_group', 'sub_group', 'all'),
-      'category'  => get_filter('category', 'category', 'all'),
-      'kind'      => get_filter('kind', 'kind', 'all'),
-      'type'      => get_filter('type', 'type', 'all'),
-      'brand'     => get_filter('brand', 'brand', 'all'),
+      'category' => get_filter('category', 'category', 'all'),
+      'kind' => get_filter('kind', 'kind', 'all'),
+      'type' => get_filter('type', 'type', 'all'),
+      'brand' => get_filter('brand', 'brand', 'all'),
       'collection' => get_filter('collection', 'collection', 'all'),
-      'year'      => get_filter('year', 'year', 'all'),
+      'year' => get_filter('year', 'year', 'all'),
       'active' => get_filter('active', 'active', 'all')
     );
 
     //--- แสดงผลกี่รายการต่อหน้า
     $perpage = get_rows();
-    //--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-    if ($perpage > 300) {
-      $perpage = 20;
-    }
-
     $segment  = 4; //-- url segment
-    $rows     = $this->products_model->count_rows($filter);
+    $rows = $this->products_model->count_rows($filter);
     //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
     $init      = pagination_config($this->home . '/index/', $rows, $perpage, $segment);
     $products = $this->products_model->get_list($filter, $perpage, $this->uri->segment($segment));
-    $ds       = array();
-    if (!empty($products)) {
-      foreach ($products as $rs) {
-        $rs->group   = $this->product_group_model->get_name($rs->group_code);
-        $rs->main_group = $this->product_main_group_model->get_name($rs->main_group_code);
-        $rs->sub_group = $this->product_sub_group_model->get_name($rs->sub_group_code);
-        $rs->kind    = $this->product_kind_model->get_name($rs->kind_code);
-        $rs->type    = $this->product_type_model->get_name($rs->type_code);
-        $rs->category  = $this->product_category_model->get_name($rs->category_code);
-        $rs->brand   = $this->product_brand_model->get_name($rs->brand_code);
-        $rs->collection = $this->product_collection_model->get_name($rs->collection_code);
+
+    if (!empty($products))
+    {
+      $mainGroup = [];
+      $group = []; 
+      $subGroup = [];
+      $category = [];
+      $kind = [];
+      $type = [];
+      $brand = [];
+      $collection = [];
+
+      foreach ($products as $rs)
+      {
+        if( ! empty($rs->main_group_code) && empty($mainGroup[$rs->main_group_code]))
+        {
+          $mainGroup[$rs->main_group_code] = $this->product_main_group_model->get_name($rs->main_group_code);
+        }
+
+        if( ! empty($rs->group_code) && empty($group[$rs->group_code]))
+        {
+          $group[$rs->group_code] = $this->product_group_model->get_name($rs->group_code);
+        }
+
+        if( ! empty($rs->sub_group_code) && empty($subGroup[$rs->sub_group_code]))
+        {
+          $subGroup[$rs->sub_group_code] = $this->product_sub_group_model->get_name($rs->sub_group_code);
+        }
+
+        if( ! empty($rs->category_code) && empty($category[$rs->category_code]))
+        {
+          $category[$rs->category_code] = $this->product_category_model->get_name($rs->category_code);
+        }
+
+        if( ! empty($rs->kind_code) && empty($kind[$rs->kind_code]))
+        {
+          $kind[$rs->kind_code] = $this->product_kind_model->get_name($rs->kind_code);
+        }
+
+        if( ! empty($rs->type_code) && empty($type[$rs->type_code]))
+        {
+          $type[$rs->type_code] = $this->product_type_model->get_name($rs->type_code);
+        }
+
+        if( ! empty($rs->brand_code) && empty($brand[$rs->brand_code]))
+        {
+          $brand[$rs->brand_code] = $this->product_brand_model->get_name($rs->brand_code);
+        }
+
+        if( ! empty($rs->collection_code) && empty($collection[$rs->collection_code]))
+        {
+          $collection[$rs->collection_code] = $this->product_collection_model->get_name($rs->collection_code);
+        }
+
+        $rs->main_group = empty($rs->main_group_code) ? NULL : $mainGroup[$rs->main_group_code];
+        $rs->group = empty($rs->main_group_code) ? NULL : $group[$rs->group_code];
+        $rs->sub_group = empty($rs->sub_group_code) ? NULL : $subGroup[$rs->sub_group_code];
+        $rs->kind = empty($rs->kind_code) ? NULL : $kind[$rs->kind_code];
+        $rs->type = empty($rs->type_code) ? NULL : $type[$rs->type_code];
+        $rs->category = empty($rs->category_code) ? NULL : $category[$rs->category_code];
+        $rs->brand = empty($rs->brand_code) ? NULL : $brand[$rs->brand_code];
+        $rs->collection = empty($rs->collection_code) ? NULL : $collection[$rs->collection_code];
       }
     }
 
     $filter['data'] = $products;
-
     $this->pagination->initialize($init);
     $this->load->view('masters/product_items/items_list', $filter);
   }
@@ -125,10 +170,13 @@ class Items extends PS_Controller
 
     $this->load->library("upload", $config);
 
-    if (! $this->upload->do_upload($file)) {
+    if (! $this->upload->do_upload($file))
+    {
       $sc = FALSE;
       $this->error = $this->upload->display_errors();
-    } else {
+    }
+    else
+    {
       $this->load->library('excel');
       $this->load->library('api');
 
@@ -142,12 +190,15 @@ class Items extends PS_Controller
       $count = count($collection);
       $limit = intval(getConfig('IMPORT_ROWS_LIMIT')) + 1;
 
-      if ($count <= $limit) {
+      if ($count <= $limit)
+      {
         $units = unit_array();
         $itemGroups = item_group_array();
 
-        foreach ($collection as $rs) {
-          if ($i == 1) {
+        foreach ($collection as $rs)
+        {
+          if ($i == 1)
+          {
             $i++;
             $headCol = array(
               'A' => 'Code',
@@ -178,19 +229,25 @@ class Items extends PS_Controller
               'Z' => 'ItemGroup'
             );
 
-            foreach ($headCol as $col => $field) {
-              if ($rs[$col] !== $field) {
+            foreach ($headCol as $col => $field)
+            {
+              if ($rs[$col] !== $field)
+              {
                 $sc = FALSE;
                 $this->error = 'Column ' . $col . ' Should be ' . $field;
                 break;
               }
             }
 
-            if ($sc === FALSE) {
+            if ($sc === FALSE)
+            {
               break;
             }
-          } else if (!empty($rs['A'])) {
-            if ($sc === FALSE) {
+          }
+          else if (!empty($rs['A']))
+          {
+            if ($sc === FALSE)
+            {
               break;
             }
 
@@ -220,44 +277,66 @@ class Items extends PS_Controller
             $api_rate = empty($rs['W']) ? 0 : (floatval(trim($rs['W'])));
             $api_rate = $api_rate < 0 ? 0 : ($api_rate > 100 ? 100 : $api_rate);
 
-            if (!empty($color_code) && ! $this->product_color_model->is_exists($color_code)) {
+            if (!empty($color_code) && ! $this->product_color_model->is_exists($color_code))
+            {
               $sc = FALSE;
               $this->error = "Color : {$color_code}  does not exists";
-            } else if (!empty($size_code) && ! $this->product_size_model->is_exists($size_code)) {
+            }
+            else if (!empty($size_code) && ! $this->product_size_model->is_exists($size_code))
+            {
               $sc = FALSE;
               $this->error = "Size : {$size_code}  does not exists";
-            } else if (!empty($group_code) && ! $this->product_group_model->is_exists($group_code)) {
+            }
+            else if (!empty($group_code) && ! $this->product_group_model->is_exists($group_code))
+            {
               $sc = FALSE;
               $this->error = "Product Group : {$group_code}  does not exists";
-            } else if (!empty($main_group_code) && ! $this->product_main_group_model->is_exists($main_group_code)) {
+            }
+            else if (!empty($main_group_code) && ! $this->product_main_group_model->is_exists($main_group_code))
+            {
               $sc = FALSE;
               $this->error = "Product Sub Group : {$sub_group_code}  does not exists";
-            } else if (!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code)) {
+            }
+            else if (!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
+            {
               $sc = FALSE;
               $this->error = "Product Sub Group : {$sub_group_code}  does not exists";
-            } else if (!empty($category_code) && ! $this->product_category_model->is_exists($category_code)) {
+            }
+            else if (!empty($category_code) && ! $this->product_category_model->is_exists($category_code))
+            {
               $sc = FALSE;
               $this->error = "Product Category : {$category_code} does not exists";
-            } else if (!empty($kind_code) && ! $this->product_kind_model->is_exists($kind_code)) {
+            }
+            else if (!empty($kind_code) && ! $this->product_kind_model->is_exists($kind_code))
+            {
               $sc = FALSE;
               $this->error = "Product Kind : {$kind_code} does not exists";
-            } else if (!empty($type_code) && ! $this->product_type_model->is_exists($type_code)) {
+            }
+            else if (!empty($type_code) && ! $this->product_type_model->is_exists($type_code))
+            {
               $sc = FALSE;
               $this->error = "Product Type : {$type_code} does not exists";
-            } else if (!empty($brand_code) && ! $this->product_brand_model->is_exists($brand_code)) {
+            }
+            else if (!empty($brand_code) && ! $this->product_brand_model->is_exists($brand_code))
+            {
               $sc = FALSE;
               $this->error = "Brand : {$brand_code} does not exists";
-            } else if (! empty($collection_code) && ! $this->product_collection_model->is_exists($collection_code)) {
+            }
+            else if (! empty($collection_code) && ! $this->product_collection_model->is_exists($collection_code))
+            {
               $sc = FALSE;
               $this->error = "Collection : {$collection_code} does not exists";
             }
 
-            if ($sc === FALSE) {
+            if ($sc === FALSE)
+            {
               break;
             }
 
-            if (!empty($style)) {
-              if (! $this->product_style_model->is_exists($style)) {
+            if (!empty($style))
+            {
+              if (! $this->product_style_model->is_exists($style))
+              {
                 $ds = array(
                   'code' => $style,
                   'name' => $style,
@@ -284,7 +363,8 @@ class Items extends PS_Controller
                   'old_code' => $old_style
                 );
 
-                if ($this->product_style_model->add($ds)) {
+                if ($this->product_style_model->add($ds))
+                {
                   //---- export to SAP
                   $this->export_style($style);
                 }
@@ -311,7 +391,7 @@ class Items extends PS_Controller
               'collection_code' => get_null(trim($rs['N'])),
               'year' => trim($rs['O']),
               'cost' => round(parseFloat(trim($rs['P'])), 2),
-              'price' => round(parseFloat(trim($rs['Q'])), 2),              
+              'price' => round(parseFloat(trim($rs['Q'])), 2),
               'unit_code' => $unit,
               'unit_id' => $unit_id,
               'unit_group_id' => $unit_group,
@@ -325,22 +405,29 @@ class Items extends PS_Controller
               'old_code' => $old_code
             );
 
-            if (isset($rs['X']) && $rs['X'] != '' && ($rs['X'] == 'N' or $rs['X'] == 'n' or $rs['X'] == 'Y' or $rs['X'] == 'y')) {
+            if (isset($rs['X']) && $rs['X'] != '' && ($rs['X'] == 'N' or $rs['X'] == 'n' or $rs['X'] == 'Y' or $rs['X'] == 'y'))
+            {
               $arr['active'] = $rs['X'] == 'N' ? 0 : 1;
             }
 
-            if ($this->products_model->is_exists($code)) {
+            if ($this->products_model->is_exists($code))
+            {
               $is_done = $this->products_model->update($code, $arr);
-            } else {
+            }
+            else
+            {
               $is_done = $this->products_model->add($arr);
             }
 
-            if ($is_done) {
+            if ($is_done)
+            {
               $this->do_export($code);
             }
           }
         } //-- end foreach
-      } else {
+      }
+      else
+      {
         $sc = FALSE;
         $this->error = "จำนวนนำเข้าสูงสุดได้ไม่เกิน {$limit} บรรทัด";
       } //-- end if count limit
@@ -363,15 +450,18 @@ class Items extends PS_Controller
     $sc = TRUE;
     $ds = json_decode($this->input->post('data'));
 
-    if (! empty($ds)) {
+    if (! empty($ds))
+    {
       $code = trim($ds->code);
 
-      if ($this->products_model->is_exists($code)) {
+      if ($this->products_model->is_exists($code))
+      {
         $sc = FALSE;
         $this->error = "{$code} already exists";
       }
 
-      if ($sc === TRUE) {
+      if ($sc === TRUE)
+      {
         $user = $this->_user->uname;
 
         $arr = array(
@@ -407,20 +497,27 @@ class Items extends PS_Controller
           'old_code' => get_null($ds->old_code)
         );
 
-        if (! $this->products_model->add($arr)) {
+        if (! $this->products_model->add($arr))
+        {
           $sc = FALSE;
           $this->error = "Failed to add new item";
-        } else {
+        }
+        else
+        {
           $this->do_export($code);
 
-          if ($this->sokoApi) {
-            if (! empty($ds->barcode)) {
+          if ($this->sokoApi)
+          {
+            if (! empty($ds->barcode))
+            {
               $this->soko_product_api->create_item($ds->code, $ds);
             }
           }
         }
       }
-    } else {
+    }
+    else
+    {
       $sc = FALSE;
       $this->error = "Missing required parameter";
     }
@@ -434,9 +531,12 @@ class Items extends PS_Controller
   {
     $item = $this->products_model->get_by_id($id);
 
-    if (! empty($item)) {
+    if (! empty($item))
+    {
       $this->load->view('masters/product_items/items_edit_view', $item);
-    } else {
+    }
+    else
+    {
       $this->page_error();
     }
   }
@@ -447,9 +547,12 @@ class Items extends PS_Controller
   {
     $item = $this->products_model->get_by_id($id);
 
-    if (! empty($item)) {
+    if (! empty($item))
+    {
       $this->load->view('masters/product_items/items_duplicate_view', $item);
-    } else {
+    }
+    else
+    {
       $this->page_error();
     }
   }
@@ -460,7 +563,8 @@ class Items extends PS_Controller
     $sc = TRUE;
     $ds = json_decode($this->input->post('data'));
 
-    if (! empty($ds)) {
+    if (! empty($ds))
+    {
       $code = $ds->code;
 
       $arr = array(
@@ -495,20 +599,26 @@ class Items extends PS_Controller
         'old_code' => get_null($ds->old_code)
       );
 
-      if (! $this->products_model->update($code, $arr)) {
+      if (! $this->products_model->update($code, $arr))
+      {
         $sc = FALSE;
         $this->error = "Update failed";
       }
-    } else {
+    }
+    else
+    {
       $sc = FALSE;
       $this->error = "Missing form data";
     }
 
-    if ($sc === TRUE) {
+    if ($sc === TRUE)
+    {
       $this->do_export($code);
 
-      if ($this->sokoApi) {
-        if (! empty($ds->barcode)) {
+      if ($this->sokoApi)
+      {
+        if (! empty($ds->barcode))
+        {
           $this->soko_product_api->update_item($ds->code, $ds);
         }
       }
@@ -522,9 +632,12 @@ class Items extends PS_Controller
   {
     $item = $this->products_model->get_by_id($id);
 
-    if (! empty($item)) {
+    if (! empty($item))
+    {
       $this->load->view('masters/product_items/items_view_detail', $item);
-    } else {
+    }
+    else
+    {
       $this->page_error();
     }
   }
@@ -532,9 +645,12 @@ class Items extends PS_Controller
 
   public function is_exists_code($code, $old_code = '')
   {
-    if ($this->products_model->is_exists($code, $old_code)) {
+    if ($this->products_model->is_exists($code, $old_code))
+    {
       echo 'รหัสซ้ำ';
-    } else {
+    }
+    else
+    {
       echo 'ok';
     }
   }
@@ -546,9 +662,12 @@ class Items extends PS_Controller
     $status = $this->products_model->get_status('can_sell', $code);
     $status = $status == 1 ? 0 : 1;
 
-    if ($this->products_model->set_status('can_sell', $code, $status)) {
+    if ($this->products_model->set_status('can_sell', $code, $status))
+    {
       echo $status;
-    } else {
+    }
+    else
+    {
       echo 'fail';
     }
   }
@@ -559,9 +678,12 @@ class Items extends PS_Controller
     $status = $this->products_model->get_status('active', $code);
     $status = $status == 1 ? 0 : 1;
 
-    if ($this->products_model->set_status('active', $code, $status)) {
+    if ($this->products_model->set_status('active', $code, $status))
+    {
       echo $status;
-    } else {
+    }
+    else
+    {
       echo 'fail';
     }
   }
@@ -572,9 +694,12 @@ class Items extends PS_Controller
     $status = $this->products_model->get_status('is_api', $code);
     $status = $status == 1 ? 0 : 1;
 
-    if ($this->products_model->set_status('is_api', $code, $status)) {
+    if ($this->products_model->set_status('is_api', $code, $status))
+    {
       echo $status;
-    } else {
+    }
+    else
+    {
       echo 'fail';
     }
   }
@@ -586,17 +711,24 @@ class Items extends PS_Controller
     $id = $this->input->get('id');
     $item = $this->products_model->get_by_id($id);
 
-    if (! empty($item)) {
-      if (! $this->products_model->has_transection($item->code)) {
-        if (! $this->products_model->delete_item_by_id($id)) {
+    if (! empty($item))
+    {
+      if (! $this->products_model->has_transection($item->code))
+      {
+        if (! $this->products_model->delete_item_by_id($id))
+        {
           $sc = FALSE;
           $this->error = "ลบรายการไม่สำเร็จ";
         }
-      } else {
+      }
+      else
+      {
         $sc = FALSE;
         $this->error = "ไม่สามารถลบ {$item->code} ได้ เนื่องจากสินค้ามี Transcetion เกิดขึ้นแล้ว";
       }
-    } else {
+    }
+    else
+    {
       $sc = FALSE;
       $this->error = "Missing required parameter";
     }
@@ -610,20 +742,28 @@ class Items extends PS_Controller
     $sc = TRUE;
     $code = trim($this->input->post('code'));
 
-    if ($this->wmsApi) {
-      if (! empty($code)) {
+    if ($this->wmsApi)
+    {
+      if (! empty($code))
+      {
         $item = $this->products_model->get($code);
 
-        if (! empty($item)) {
-          if (! $this->wms_product_api->export_item($item->code, $item)) {
+        if (! empty($item))
+        {
+          if (! $this->wms_product_api->export_item($item->code, $item))
+          {
             $sc = FALSE;
             $this->error = "Error: " . $this->wms_product_api->error;
           }
-        } else {
+        }
+        else
+        {
           $sc = FALSE;
           $this->error = "Item not found";
         }
-      } else {
+      }
+      else
+      {
         $sc = FALSE;
         $this->error = "Missing required parameter : code";
       }
@@ -640,32 +780,47 @@ class Items extends PS_Controller
 
     $code = trim($this->input->post('code'));
 
-    if ($this->sokoApi) {
-      if (! empty($code)) {
+    if ($this->sokoApi)
+    {
+      if (! empty($code))
+      {
         $item = $this->products_model->get($code);
 
-        if (! empty($item)) {
-          if (! empty($item->barcode)) {
-            if (empty($item->soko_code)) {
-              if (! $this->soko_product_api->create_item($item->code, $item)) {
+        if (! empty($item))
+        {
+          if (! empty($item->barcode))
+          {
+            if (empty($item->soko_code))
+            {
+              if (! $this->soko_product_api->create_item($item->code, $item))
+              {
                 $sc = FALSE;
                 $this->error = "Error: " . $this->soko_product_api->error;
               }
-            } else {
-              if (! $this->soko_product_api->update_item($item->code, $item)) {
+            }
+            else
+            {
+              if (! $this->soko_product_api->update_item($item->code, $item))
+              {
                 $sc = FALSE;
                 $this->error = "Error : " . $this->soko_product_api->error;
               }
             }
-          } else {
+          }
+          else
+          {
             $sc = FALSE;
             $this->error = "Barcode not found !";
           }
-        } else {
+        }
+        else
+        {
           $sc = FALSE;
           $this->error = "Item not found";
         }
-      } else {
+      }
+      else
+      {
         $sc = FALSE;
         $this->error = "Missing required parameter : code";
       }
@@ -688,8 +843,10 @@ class Items extends PS_Controller
 
     //--- เช็คข้อมูลในถังกลาง
     $middle = $this->products_model->get_un_import_middle($item->code);
-    if (!empty($middle)) {
-      foreach ($middle as $mid) {
+    if (!empty($middle))
+    {
+      foreach ($middle as $mid)
+      {
         $this->products_model->drop_middle_item($mid->DocEntry);
       }
     }
@@ -735,11 +892,15 @@ class Items extends PS_Controller
       'F_E_CommerceDate' => sap_date(now(), TRUE)
     );
 
-    if ($this->products_model->add_item($ds)) {
-      if ($this->wmsApi) {
+    if ($this->products_model->add_item($ds))
+    {
+      if ($this->wmsApi)
+      {
         $this->wms_product_api->export_item($item->code, $item);
       }
-    } else {
+    }
+    else
+    {
       $sc = FALSE;
       $this->error = "Update Item failed";
     }
@@ -752,7 +913,8 @@ class Items extends PS_Controller
   {
     $style = $this->product_style_model->get($style_code);
 
-    if (!empty($style)) {
+    if (!empty($style))
+    {
       $ext = $this->product_style_model->is_middle_exists($style_code);
       $flag = $ext === TRUE ? 'U' : 'A';
       $arr = array(

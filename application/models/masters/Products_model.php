@@ -266,7 +266,7 @@ class Products_model extends CI_Model
 
 
 
-  public function get_list(array $ds = array(), $perpage = '', $offset = '')
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     $this->db
     ->select('products.*')
@@ -385,18 +385,11 @@ class Products_model extends CI_Model
       }
     }
 
-    $this->db->order_by('style_code', 'ASC');
+    $this->db->order_by('style_code', 'DESC');
     $this->db->order_by('color_code', 'ASC');
     $this->db->order_by('product_size.position', 'ASC');
-
-
-    if($perpage != '')
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
-    // echo $this->db->get_compiled_select();
-    $rs = $this->db->get();
+    
+    $rs = $this->db->limit($perpage, $offset)->get();
 
     return $rs->result();
   }

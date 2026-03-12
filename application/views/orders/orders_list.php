@@ -9,229 +9,229 @@
 		<h3 class="title"><?php echo $this->title; ?></h3>
 	</div>
 	<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 padding-5 text-right">
-		<?php if($this->pm->can_add) : ?>
-			<?php if($can_upload) : ?>
+		<?php if ($this->pm->can_add) : ?>
+			<?php if ($can_upload) : ?>
 				<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="getUploadFile()"><i class="fa fa-upload"></i> &nbsp; Import Order</button>
-			<?php endif;?>
+			<?php endif; ?>
 			<button type="button" class="btn btn-white btn-purple top-btn btn-100" onclick="getTemplate()"><i class="fa fa-download"></i> &nbsp; Template</button>
 			<button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
 		<?php endif; ?>
-		<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+		<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
 			<div class="btn-group">
-        <button data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
-          <i class="ace-icon fa fa-flash icon-on-left"></i>
-          Pre-order
-          <i class="ace-icon fa fa-angle-down icon-on-right"></i>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right">
-          <li class="primary">
-            <a href="javascript:setAsPreOrder(1)">บันทึกเป็นพรีออเดอร์</a>
-          </li>
+				<button data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+					<i class="ace-icon fa fa-flash icon-on-left"></i>
+					Pre-order
+					<i class="ace-icon fa fa-angle-down icon-on-right"></i>
+				</button>
+				<ul class="dropdown-menu dropdown-menu-right">
+					<li class="primary">
+						<a href="javascript:setAsPreOrder(1)">บันทึกเป็นพรีออเดอร์</a>
+					</li>
 					<li class="success">
-            <a href="javascript:setAsPreOrder(0)">บันทึกเป็นออเดอร์ทั่วไป</a>
-          </li>
-        </ul>
-      </div>
+						<a href="javascript:setAsPreOrder(0)">บันทึกเป็นออเดอร์ทั่วไป</a>
+					</li>
+				</ul>
+			</div>
 		<?php endif; ?>
 	</div>
 </div><!-- End Row -->
-<hr class="padding-5"/>
+<hr class="padding-5" />
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
-<div class="row">
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
-  </div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>เลขที่อ้างอิง</label>
-		<input type="text" class="form-control input-sm search" name="reference" value="<?php echo $reference; ?>" />
-  </div>
+	<div class="row">
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>เลขที่เอกสาร</label>
+			<input type="text" class="form-control input-sm search" name="code" value="<?php echo $code; ?>" />
+		</div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>เลขที่อ้างอิง</label>
+			<input type="text" class="form-control input-sm search" name="reference" value="<?php echo $reference; ?>" />
+		</div>
 
-  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>ลูกค้า</label>
-    <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>ลูกค้า</label>
+			<input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
+		</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>พนักงาน</label>
-    <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>พนักงาน</label>
+			<input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
+		</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>เลขที่จัดส่ง</label>
-		<input type="text" class="form-control input-sm search" name="shipCode" value="<?php echo $ship_code; ?>" />
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>เลขที่จัดส่ง</label>
+			<input type="text" class="form-control input-sm search" name="shipCode" value="<?php echo $ship_code; ?>" />
+		</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>ช่องทางขาย</label>
-		<select class="width-100" name="channels" id="channels" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
-			<?php echo select_channels($channels); ?>
-		</select>
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>ช่องทางขาย</label>
+			<select class="width-100" name="channels" id="channels" onchange="getSearch()">
+				<option value="">ทั้งหมด</option>
+				<?php echo select_channels($channels); ?>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
-    <label>Shop Name</label>
-		<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<?php echo select_shop_name($shop_id); ?>
-		</select>
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+			<label>Shop Name</label>
+			<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<?php echo select_shop_name($shop_id); ?>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label>การชำระเงิน</label>
-		<select class="form-control input-sm" name="payment" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
-			<?php echo select_payment_method($payment); ?>
-		</select>
-  </div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+			<label>การชำระเงิน</label>
+			<select class="form-control input-sm" name="payment" onchange="getSearch()">
+				<option value="">ทั้งหมด</option>
+				<?php echo select_payment_method($payment); ?>
+			</select>
+		</div>
 
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
-    <label>วันที่</label>
-    <div class="input-daterange input-group width-100">
-      <input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
-      <input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
-    </div>
-  </div>
+		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+			<label>วันที่</label>
+			<div class="input-daterange input-group width-100">
+				<input type="text" class="form-control input-sm width-50 text-center from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
+				<input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
+			</div>
+		</div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
-		<label>ช่วงข้อมูล</label>
-		<select class="form-control input-sm" name="range">
-			<option value="top"><?php echo number(getConfig('FILTER_RESULT_LIMIT')); ?> รายการล่าสุด</option>
-			<option value="all" <?php echo is_selected('all', $range); ?>>ทั้งหมด</option>
-		</select>
-	</div>
+		<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+			<label>ช่วงข้อมูล</label>
+			<select class="form-control input-sm" name="range">
+				<option value="top" <?php echo is_selected('top', $range); ?>><?php echo number(getConfig('FILTER_RESULT_LIMIT')); ?> รายการล่าสุด</option>
+				<option value="all" <?php echo is_selected('all', $range); ?>>ทั้งหมด</option>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-		<label>Back order</label>
-		<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="0" <?php echo is_selected('0', $is_backorder); ?>>No</option>
-			<option value="1" <?php echo is_selected('1', $is_backorder); ?>>Yes</option>
-		</select>
-	</div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<label>Back order</label>
+			<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<option value="0" <?php echo is_selected('0', $is_backorder); ?>>No</option>
+				<option value="1" <?php echo is_selected('1', $is_backorder); ?>>Yes</option>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-		<label>Pre order</label>
-		<select class="form-control input-sm" name="is_pre_order" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="1" <?php echo is_selected('1', $is_pre_order); ?>>Yes</option>
-			<option value="0" <?php echo is_selected('0', $is_pre_order); ?>>No</option>
-		</select>
-	</div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<label>Pre order</label>
+			<select class="form-control input-sm" name="is_pre_order" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<option value="1" <?php echo is_selected('1', $is_pre_order); ?>>Yes</option>
+				<option value="0" <?php echo is_selected('0', $is_pre_order); ?>>No</option>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
-    <label>Tax</label>
-    <select class="form-control input-sm" name="tax_status" onchange="getSearch()">
-      <option value="all" <?php echo is_selected($tax_status, 'all'); ?>>ทั้งหมด</option>
-      <option value="1" <?php echo is_selected($tax_status, '1'); ?>>Yes</option>
-      <option value="0" <?php echo is_selected($tax_status, '0'); ?>>No</option>
-    </select>
-  </div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+			<label>Tax</label>
+			<select class="form-control input-sm" name="tax_status" onchange="getSearch()">
+				<option value="all" <?php echo is_selected($tax_status, 'all'); ?>>ทั้งหมด</option>
+				<option value="1" <?php echo is_selected($tax_status, '1'); ?>>Yes</option>
+				<option value="0" <?php echo is_selected($tax_status, '0'); ?>>No</option>
+			</select>
+		</div>
 
-  <div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
-    <label>E-Tax</label>
-    <select class="form-control input-sm" name="is_etax" onchange="getSearch()">
-      <option value="all" <?php echo is_selected($is_etax, 'all'); ?>>ทั้งหมด</option>
-      <option value="1" <?php echo is_selected($is_etax, '1'); ?>>Yes</option>
-      <option value="0" <?php echo is_selected($is_etax, '0'); ?>>No</option>
-    </select>
-  </div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+			<label>E-Tax</label>
+			<select class="form-control input-sm" name="is_etax" onchange="getSearch()">
+				<option value="all" <?php echo is_selected($is_etax, 'all'); ?>>ทั้งหมด</option>
+				<option value="1" <?php echo is_selected($is_etax, '1'); ?>>Yes</option>
+				<option value="0" <?php echo is_selected($is_etax, '0'); ?>>No</option>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
-		<label>SAP</label>
-		<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="0" <?php echo is_selected('0', $sap_status); ?>>ยังไม่ส่งออก</option>
-			<option value="1" <?php echo is_selected('1', $sap_status); ?>>ยังไม่เข้า SAP</option>
-			<option value="2" <?php echo is_selected('2', $sap_status); ?>>เข้า SAP แล้ว</option>
-			<option value="3" <?php echo is_selected('3', $sap_status); ?>>ส่งออกไม่สำเร็จ</option>
-		</select>
-	</div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+			<label>SAP</label>
+			<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<option value="0" <?php echo is_selected('0', $sap_status); ?>>ยังไม่ส่งออก</option>
+				<option value="1" <?php echo is_selected('1', $sap_status); ?>>ยังไม่เข้า SAP</option>
+				<option value="2" <?php echo is_selected('2', $sap_status); ?>>เข้า SAP แล้ว</option>
+				<option value="3" <?php echo is_selected('3', $sap_status); ?>>ส่งออกไม่สำเร็จ</option>
+			</select>
+		</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-4 padding-5">
-		<label>Add By</label>
-		<select class="form-control input-sm" name="method" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="0" <?php echo is_selected('0', $method); ?>>Manual</option>
-			<option value="1" <?php echo is_selected('1', $method); ?>>Upload</option>
-			<option value="2" <?php echo is_selected('2', $method); ?>>API</option>
-		</select>
-	</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-4 padding-5">
+			<label>Add By</label>
+			<select class="form-control input-sm" name="method" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<option value="0" <?php echo is_selected('0', $method); ?>>Manual</option>
+				<option value="1" <?php echo is_selected('1', $method); ?>>Upload</option>
+				<option value="2" <?php echo is_selected('2', $method); ?>>API</option>
+			</select>
+		</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-		<label>Canceled</label>
-		<select class="form-control input-sm" name="is_cancled" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="1" <?php echo is_selected('1', $is_cancled); ?>>Yes</option>
-			<option value="0" <?php echo is_selected('0', $is_cancled); ?>>No</option>
-		</select>
-	</div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<label>Canceled</label>
+			<select class="form-control input-sm" name="is_cancled" onchange="getSearch()">
+				<option value="all">ทั้งหมด</option>
+				<option value="1" <?php echo is_selected('1', $is_cancled); ?>>Yes</option>
+				<option value="0" <?php echo is_selected('0', $is_cancled); ?>>No</option>
+			</select>
+		</div>
 
-	<div class="col-lg-4 col-md-4-harf col-sm-4 col-xs-8 padding-5">
-		<label>คลัง</label>
-		<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
-			<?php echo select_warehouse($warehouse); ?>
-		</select>
-	</div>
+		<div class="col-lg-4 col-md-4-harf col-sm-4 col-xs-8 padding-5">
+			<label>คลัง</label>
+			<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">
+				<option value="">ทั้งหมด</option>
+				<?php echo select_warehouse($warehouse); ?>
+			</select>
+		</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-		<label class="display-block not-show">search</label>
-		<button type="button" class="btn btn-xs btn-primary btn-block" style="height:30px;" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
-	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-		<label class="display-block not-show">reset</label>
-		<button type="button" class="btn btn-xs btn-warning btn-block" style="height:30px;" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
-	</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+			<label class="display-block not-show">search</label>
+			<button type="button" class="btn btn-xs btn-primary btn-block" style="height:30px;" onclick="getSearch()"><i class="fa fa-search"></i> Search</button>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+			<label class="display-block not-show">reset</label>
+			<button type="button" class="btn btn-xs btn-warning btn-block" style="height:30px;" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+		</div>
 
-	<div class="col-lg-1-harf col-md-5 col-sm-1 hidden-xs">&nbsp;</div>
-	<!-- Quick Open -->
-	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
-		<label>Quick Open</label>
-		<div class="input-group width-100">
-			<input type="text" class="form-control input-sm" id="quick-open" placeholder="เลขที่เอกสาร หรือ เลขที่อ้างอิง" />
-			<span class="input-group-btn">
-				<button type="button" class="btn btn-xs btn-primary" style="height:30px;" onclick="quickOpen()"><i class="fa fa-external-link"></i>&nbsp; Open</button>
-			</span>
+		<div class="col-lg-1-harf col-md-5 col-sm-1 hidden-xs">&nbsp;</div>
+		<!-- Quick Open -->
+		<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
+			<label>Quick Open</label>
+			<div class="input-group width-100">
+				<input type="text" class="form-control input-sm" id="quick-open" placeholder="เลขที่เอกสาร หรือ เลขที่อ้างอิง" />
+				<span class="input-group-btn">
+					<button type="button" class="btn btn-xs btn-primary" style="height:30px;" onclick="quickOpen()"><i class="fa fa-external-link"></i>&nbsp; Open</button>
+				</span>
+			</div>
 		</div>
 	</div>
-</div>
-<hr class="margin-top-15">
+	<hr class="margin-top-15">
 
-<div class="row margin-top-10">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-		<button type="button" id="btn-state-1" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
-		<button type="button" id="btn-state-2" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_2']; ?>" onclick="toggleState(2)">รอชำระเงิน</button>
-		<button type="button" id="btn-state-3" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
-		<button type="button" id="btn-state-4" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_4']; ?>" onclick="toggleState(4)">กำลังจัด</button>
-		<button type="button" id="btn-state-5" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_5']; ?>" onclick="toggleState(5)">รอตรวจ</button>
-		<button type="button" id="btn-state-6" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_6']; ?>" onclick="toggleState(6)">กำลังตรวจ</button>
-		<button type="button" id="btn-state-7" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_7']; ?>" onclick="toggleState(7)">รอเปิดบิล</button>
-		<button type="button" id="btn-state-8" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_8']; ?>" onclick="toggleState(8)">เปิดบิลแล้ว</button>
-		<button type="button" id="btn-state-9" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_9']; ?>" onclick="toggleState(9)">ยกเลิก</button>
-		<button type="button" id="btn-not-save" class="btn btn-sm margin-bottom-5 <?php echo $btn['not_save']; ?>" onclick="toggleNotSave()">ไม่บันทึก</button>
-		<button type="button" id="btn-expire" class="btn btn-sm margin-bottom-5 <?php echo $btn['is_expire']; ?>" onclick="toggleIsExpire()">หมดอายุ</button>
-		<button type="button" id="btn-only-me" class="btn btn-sm margin-bottom-5 <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
+	<div class="row margin-top-10">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+			<button type="button" id="btn-state-1" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
+			<button type="button" id="btn-state-2" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_2']; ?>" onclick="toggleState(2)">รอชำระเงิน</button>
+			<button type="button" id="btn-state-3" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
+			<button type="button" id="btn-state-4" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_4']; ?>" onclick="toggleState(4)">กำลังจัด</button>
+			<button type="button" id="btn-state-5" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_5']; ?>" onclick="toggleState(5)">รอตรวจ</button>
+			<button type="button" id="btn-state-6" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_6']; ?>" onclick="toggleState(6)">กำลังตรวจ</button>
+			<button type="button" id="btn-state-7" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_7']; ?>" onclick="toggleState(7)">รอเปิดบิล</button>
+			<button type="button" id="btn-state-8" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_8']; ?>" onclick="toggleState(8)">เปิดบิลแล้ว</button>
+			<button type="button" id="btn-state-9" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_9']; ?>" onclick="toggleState(9)">ยกเลิก</button>
+			<button type="button" id="btn-not-save" class="btn btn-sm margin-bottom-5 <?php echo $btn['not_save']; ?>" onclick="toggleNotSave()">ไม่บันทึก</button>
+			<button type="button" id="btn-expire" class="btn btn-sm margin-bottom-5 <?php echo $btn['is_expire']; ?>" onclick="toggleIsExpire()">หมดอายุ</button>
+			<button type="button" id="btn-only-me" class="btn btn-sm margin-bottom-5 <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
+		</div>
 	</div>
-</div>
 
-<input type="hidden" name="state_1" id="state_1" value="<?php echo $state[1]; ?>" />
-<input type="hidden" name="state_2" id="state_2" value="<?php echo $state[2]; ?>" />
-<input type="hidden" name="state_3" id="state_3" value="<?php echo $state[3]; ?>" />
-<input type="hidden" name="state_4" id="state_4" value="<?php echo $state[4]; ?>" />
-<input type="hidden" name="state_5" id="state_5" value="<?php echo $state[5]; ?>" />
-<input type="hidden" name="state_6" id="state_6" value="<?php echo $state[6]; ?>" />
-<input type="hidden" name="state_7" id="state_7" value="<?php echo $state[7]; ?>" />
-<input type="hidden" name="state_8" id="state_8" value="<?php echo $state[8]; ?>" />
-<input type="hidden" name="state_9" id="state_9" value="<?php echo $state[9]; ?>" />
-<input type="hidden" name="notSave" id="notSave" value="<?php echo $notSave; ?>" />
-<input type="hidden" name="onlyMe" id="onlyMe" value="<?php echo $onlyMe; ?>" />
-<input type="hidden" name="isExpire" id="isExpire" value="<?php echo $isExpire; ?>" />
-<hr class="margin-top-15 padding-5">
-<input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
-<input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
-<input type="hidden" name="search" value="1" />
+	<input type="hidden" name="state_1" id="state_1" value="<?php echo $state[1]; ?>" />
+	<input type="hidden" name="state_2" id="state_2" value="<?php echo $state[2]; ?>" />
+	<input type="hidden" name="state_3" id="state_3" value="<?php echo $state[3]; ?>" />
+	<input type="hidden" name="state_4" id="state_4" value="<?php echo $state[4]; ?>" />
+	<input type="hidden" name="state_5" id="state_5" value="<?php echo $state[5]; ?>" />
+	<input type="hidden" name="state_6" id="state_6" value="<?php echo $state[6]; ?>" />
+	<input type="hidden" name="state_7" id="state_7" value="<?php echo $state[7]; ?>" />
+	<input type="hidden" name="state_8" id="state_8" value="<?php echo $state[8]; ?>" />
+	<input type="hidden" name="state_9" id="state_9" value="<?php echo $state[9]; ?>" />
+	<input type="hidden" name="notSave" id="notSave" value="<?php echo $notSave; ?>" />
+	<input type="hidden" name="onlyMe" id="onlyMe" value="<?php echo $onlyMe; ?>" />
+	<input type="hidden" name="isExpire" id="isExpire" value="<?php echo $isExpire; ?>" />
+	<hr class="margin-top-15 padding-5">
+	<input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
+	<input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
+	<input type="hidden" name="search" value="1" />
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <?php $sort_date = $order_by == '' ? "" : ($order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
@@ -260,66 +260,74 @@
 				</tr>
 			</thead>
 			<tbody>
-        <?php if(!empty($orders)) : ?>
-          <?php $no = $this->uri->segment(4) + 1; ?>
+				<?php if (!empty($orders)) : ?>
+					<?php $no = $this->uri->segment(4) + 1; ?>
 					<?php $shopName = shop_name_arr(); ?>
-          <?php foreach($orders as $rs) : ?>
-						<?php $cus_ref = empty($rs->customer_ref) ? '' : ' ['.$rs->customer_ref.']'; ?>
+					<?php foreach ($orders as $rs) : ?>
+						<?php $cus_ref = empty($rs->customer_ref) ? '' : ' [' . $rs->customer_ref . ']'; ?>
 						<?php $cn_text = $rs->state != 9 && $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
 						<?php $shop_name = empty($rs->shop_id) ? NULL : (empty($shopName[$rs->shop_id]) ? NULL : $shopName[$rs->shop_id]); ?>
-            <tr class="font-size-11 pointer <?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder': ''; ?>"
+						<tr class="font-size-11 pointer <?php echo $rs->is_backorder && $rs->state < 5 ? 'backorder' : ''; ?>"
 							id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
 							<td class="middle text-center">
-								<?php if($rs->state <= 3 && $this->pm->can_edit) : ?>
+								<?php if ($rs->state <= 3 && $this->pm->can_edit) : ?>
 									<label>
-										<input type="checkbox" class="ace chk-order" data-code="<?php echo $rs->code; ?>" value="<?php echo $rs->code; ?>"/>
+										<input type="checkbox" class="ace chk-order" data-code="<?php echo $rs->code; ?>" value="<?php echo $rs->code; ?>" />
 										<span class="lbl"></span>
 									</label>
 								<?php endif; ?>
 							</td>
-              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
-              <td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle">
+							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
+							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
+							<td class="middle">
 								<a target="_blank" href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code . $cn_text; ?></a>
 							</td>
 							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->reference; ?></td>
-              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
-								<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
+							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php if ($rs->role == 'L' or $rs->role == 'R') : ?>
 									<?php echo $rs->empName; ?>
 								<?php else : ?>
 									<?php echo empty($rs->customer_name) ? $this->customers_model->get_name($rs->customer_code) : $rs->customer_name; ?>
 									<?php echo $cus_ref; ?>
 								<?php endif; ?>
 							</td>
-              <td class="middle text-right" onclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle text-right" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo $rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total, 2); ?>
 							</td>
-              <td class="middle hide-text" onclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle hide-text" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($channelsList[$rs->channels_code]) ? "" : $channelsList[$rs->channels_code]; ?>
 							</td>
 							<td class="middle hide-text" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $shop_name; ?></td>
-              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
+							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
 								<?php echo empty($paymentList[$rs->payment_code]) ? "" : $paymentList[$rs->payment_code];  ?>
 							</td>
-              <td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
-								<?php if($rs->is_expired) : ?>
+							<td class="middle" onclick="editOrder('<?php echo $rs->code; ?>')">
+								<?php if ($rs->is_expired) : ?>
 									หมดอายุ
 								<?php else : ?>
 									<?php echo get_state_name($rs->state); ?>
 								<?php endif; ?>
 							</td>
-            </tr>
-            <?php $no++; ?>
-          <?php endforeach; ?>
-        <?php endif; ?>
+						</tr>
+						<?php $no++; ?>
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</tbody>
 		</table>
 	</div>
 </div>
 
 <?php
-if($can_upload) :
-	 $this->load->view('orders/import_order');
+if ($this->_SuperAdmin)
+{
+	echo $query_time;
+}
+
+?>
+
+<?php
+if ($can_upload) :
+	$this->load->view('orders/import_order');
 endif;
 ?>
 
