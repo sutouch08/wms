@@ -81,17 +81,16 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
-    <table class="table table-striped border-1" style="min-width:1360px;">
+    <table class="table table-striped border-1" style="min-width:1250px;">
       <thead>
         <tr class="font-size-11">
-          <th class="fix-width-100"></th>
-          <th class="fix-width-40 text-center">#</th>
-          <th class="fix-width-100">วันที่</th>
-          <th class="fix-width-120">เลขที่เอกสาร</th>
-          <th class="fix-width-40 text-center">สถานะ</th>
-          <th class="fix-width-100 text-center">อ้างอิง</th>
+          <th class="fix-width-80"></th>
+          <th class="fix-width-50 text-center">#</th>
+          <th class="fix-width-80">วันที่</th>
+          <th class="fix-width-100">เลขที่เอกสาร</th>
+          <th class="fix-width-40 text-center">สถานะ</th>          
           <th class="fix-width-60 text-center">SAP NO.</th>
-          <th class="fix-width-350">ลูกค้า</th>
+          <th class="min-width-350">ลูกค้า</th>
           <th class="fix-width-250">โซน</th>
           <th class="fix-width-100 text-right">มูลค่า</th>
           <th class="fix-width-100">User</th>
@@ -103,7 +102,7 @@
           <?php foreach ($docs as $rs) : ?>
             <tr class="font-size-11" id="row-<?php echo $rs->code; ?>">
               <td class="middle">
-                <?php if ($rs->status == 1) : ?>
+                <?php if ($rs->status == 1 OR $rs->status == 2) : ?>
                   <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
                 <?php endif; ?>
                 <?php if ($rs->status == 0 && $this->pm->can_edit) : ?>
@@ -116,8 +115,7 @@
               <td class="middle text-center no"><?php echo $no; ?></td>
               <td class="middle"><?php echo thai_date($rs->date_add, FALSE); ?></td>
               <td class="middle"><?php echo $rs->code; ?></td>
-              <td class="middle text-center"><?php echo consignment_order_status_label($rs->status); ?></td>
-              <td class="middle text-center"><?php echo $rs->ref_code; ?></td>
+              <td class="middle text-center"><?php echo consignment_order_status_label($rs->status); ?></td>              
               <td class="middle text-center"><?php echo $rs->inv_code; ?></td>
               <td class="middle"><?php echo $rs->customer_name; ?></td>
               <td class="middle"><?php echo $rs->zone_name; ?></td>
@@ -128,7 +126,7 @@
           <?php endforeach; ?>
         <?php else : ?>
           <tr>
-            <td colspan="11" class="middle text-center">---- ไม่พบรายการ ----</td>
+            <td colspan="10" class="middle text-center">---- ไม่พบรายการ ----</td>
           </tr>
         <?php endif; ?>
       </tbody>
