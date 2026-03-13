@@ -3,7 +3,7 @@
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
     <table class="table table-striped border-1">
       <thead>
-        <tr class="font-size-12">
+        <tr class="font-size-11">
           <th class="width-5 text-center">ลำดับ</th>
           <th class="width-10">บาร์โค้ด</th>
           <th class="width-40" style="min-width:200px;">สินค้า</th>
@@ -20,7 +20,7 @@
 <?php  $totalQty = 0; ?>
 <?php  $totalAmount = 0; ?>
 <?php  foreach($details as $rs) : ?>
-        <tr class="font-size-12 rox" id="row-<?php echo $rs->id; ?>">
+        <tr class="font-size-11 rox" id="row-<?php echo $rs->id; ?>">
           <td class="middle text-center no">
             <?php echo $no; ?>
           </td>

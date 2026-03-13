@@ -5,15 +5,15 @@
   </div>
   <div class="col-lg-6 col-md-6 col-sm-4 col-xs-4 padding-5">
     <p class="pull-right top-p">
-<?php if( $this->pm->can_add ) : ?>
-      <button type="button" class="btn btn-xs btn-success top-btn" onclick="goAdd()">
-        <i class="fa fa-plus"></i> สร้างใหม่
-      </button>
-<?php endif; ?>
+      <?php if ($this->pm->can_add) : ?>
+        <button type="button" class="btn btn-xs btn-success top-btn" onclick="goAdd()">
+          <i class="fa fa-plus"></i> สร้างใหม่
+        </button>
+      <?php endif; ?>
     </p>
   </div>
 </div>
-<hr/>
+<hr />
 
 <form id="searchForm" method="post">
   <div class="row">
@@ -40,9 +40,9 @@
     <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label class="display-block">วันที่</label>
       <div class="input-daterange input-group">
-          <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>">
-          <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>">
-        </div>
+        <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>">
+        <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>">
+      </div>
     </div>
 
     <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
@@ -66,7 +66,7 @@
     </div>
   </div>
 </form>
-<hr class="margin-top-15 margin-bottom-15"/>
+<hr class="margin-top-15 margin-bottom-15" />
 
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
@@ -81,79 +81,60 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
-    <table class="table table-striped border-1" style="min-width:1100px;">
+    <table class="table table-striped border-1" style="min-width:1360px;">
       <thead>
-        <tr class="font-size-12">
+        <tr class="font-size-11">
+          <th class="fix-width-100"></th>
           <th class="fix-width-40 text-center">#</th>
           <th class="fix-width-100">วันที่</th>
           <th class="fix-width-120">เลขที่เอกสาร</th>
+          <th class="fix-width-40 text-center">สถานะ</th>
+          <th class="fix-width-100 text-center">อ้างอิง</th>
+          <th class="fix-width-60 text-center">SAP NO.</th>
           <th class="fix-width-350">ลูกค้า</th>
           <th class="fix-width-250">โซน</th>
           <th class="fix-width-100 text-right">มูลค่า</th>
-          <th class="fix-width-100 text-center">อ้างอิง</th>
-          <th class="fix-width-40 text-center">สถานะ</th>
-          <th class="fix-width-100"></th>
+          <th class="fix-width-100">User</th>
         </tr>
       </thead>
-       <tbody>
-<?php if(!empty($docs)) : ?>
-<?php   $no = $this->uri->segment(4) + 1; ?>
-<?php   foreach($docs as $rs) : ?>
-        <tr class="font-size-12" id="row-<?php echo $rs->code; ?>">
-          <td class="middle text-center no">
-            <?php echo $no; ?>
-          </td>
-          <td class="middle">
-            <?php echo thai_date($rs->date_add, FALSE); ?>
-          </td>
-          <td class="middle">
-            <?php echo $rs->code; ?>
-          </td>
-          <td class="middle">
-            <?php echo $rs->customer_name; ?>
-          </td>
-          <td class="middle">
-            <?php echo $rs->zone_name; ?>
-          </td>
-          <td class="middle text-right">
-            <?php echo number($rs->amount, 2); ?>
-          </td>
-          <td class="middle text-center">
-            <?php echo $rs->ref_code; ?>
-          </td>
-
-          <td class="middle text-center">
-            <?php if($rs->status == 2) : ?>
-              <span class="red">CN</span>
-            <?php endif; ?>
-            <?php if($rs->status == 0) : ?>
-              <span class="blue">NC</span>
-            <?php endif; ?>
-          </td>
-          <td class="middle text-right">
-            <?php if($rs->status == 1) : ?>
-              <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-              <button type="button" class="btn btn-minier btn-success" onclick="sendToSAP('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i> SAP</button>
-            <?php endif; ?>
-            <?php if($rs->status == 0 && $this->pm->can_edit) : ?>
-              <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
-            <?php endif; ?>
-            <?php if($rs->status == 0 && $this->pm->can_delete) : ?>
-              <button type="button" class="btn btn-minier btn-danger" onclick="getDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
-            <?php endif; ?>
-          </td>
-        </tr>
-<?php    $no++; ?>
-<?php   endforeach; ?>
-<?php else : ?>
-        <tr>
-          <td colspan="9" class="middle text-center">---- ไม่พบรายการ ----</td>
-        </tr>
-<?php endif; ?>
-       </tbody>
-     </table>
-   </div>
- </div>
- <?php $this->load->view('cancle_modal'); ?>
+      <tbody>
+        <?php if (!empty($docs)) : ?>
+          <?php $no = $this->uri->segment(4) + 1; ?>
+          <?php foreach ($docs as $rs) : ?>
+            <tr class="font-size-11" id="row-<?php echo $rs->code; ?>">
+              <td class="middle">
+                <?php if ($rs->status == 1) : ?>
+                  <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+                <?php endif; ?>
+                <?php if ($rs->status == 0 && $this->pm->can_edit) : ?>
+                  <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+                <?php endif; ?>
+                <?php if ($rs->status == 0 && $this->pm->can_delete) : ?>
+                  <button type="button" class="btn btn-minier btn-danger" onclick="getDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
+                <?php endif; ?>
+              </td>
+              <td class="middle text-center no"><?php echo $no; ?></td>
+              <td class="middle"><?php echo thai_date($rs->date_add, FALSE); ?></td>
+              <td class="middle"><?php echo $rs->code; ?></td>
+              <td class="middle text-center"><?php echo consignment_order_status_label($rs->status); ?></td>
+              <td class="middle text-center"><?php echo $rs->ref_code; ?></td>
+              <td class="middle text-center"><?php echo $rs->inv_code; ?></td>
+              <td class="middle"><?php echo $rs->customer_name; ?></td>
+              <td class="middle"><?php echo $rs->zone_name; ?></td>
+              <td class="middle text-right"><?php echo number($rs->amount, 2); ?></td>
+              <td class="middle"><?php echo $rs->user; ?></td>
+            </tr>
+            <?php $no++; ?>
+          <?php endforeach; ?>
+        <?php else : ?>
+          <tr>
+            <td colspan="11" class="middle text-center">---- ไม่พบรายการ ----</td>
+          </tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+<?php $this->load->view('cancle_modal'); ?>
 <script src="<?php echo base_url(); ?>scripts/account/consignment_order/consignment_order.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

@@ -18,6 +18,7 @@ class Consign_order extends PS_Controller
     $this->load->model('masters/products_model');
     $this->load->helper('discount');
     $this->load->helper('print');
+    $this->load->helper('consignment_order');
   }
 
 
@@ -368,7 +369,8 @@ class Consign_order extends PS_Controller
         $c_qty = $item->count_stock == 1 ? $this->consign_order_model->get_unsave_qty($code, $item->code, $price, $discLabel, $input_type) : 0;
         $detail = $this->consign_order_model->get_exists_detail($code, $product_code, $price, $discLabel, $input_type);
         $sum_qty = $qty + $c_qty;
-        $id;
+        $id = FALSE;
+        
         if(empty($detail))
         {
           //--- ถ้าจำนวนที่ยังไม่บันทึก รวมกับจำนวนใหม่ไม่เกินยอดในโซน หรือ คลังสามารถติดลบได้
