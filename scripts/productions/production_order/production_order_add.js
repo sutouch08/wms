@@ -459,8 +459,8 @@ function add(saveType) {
 
       if(item_code.length) {
         let uid = $(this).data('uid');
-        let bQty = parseDefaultFloat($('#base-qty-'+uid).val(), 0);
-        let pQty = parseDefaultFloat($('#planned-qty-'+uid).val(), 0);
+        let bQty = parseDefaultFloat(removeCommas($('#base-qty-'+uid).val()), 0);
+        let pQty = parseDefaultFloat(removeCommas($('#planned-qty-'+uid).val()), 0);
         let whs = $('#warehouse-'+uid).val();
 
         if(bQty <= 0) {
