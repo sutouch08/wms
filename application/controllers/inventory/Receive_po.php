@@ -1254,9 +1254,7 @@ class Receive_po extends PS_Controller
     $doc = $this->receive_po_model->get($code);
 
     $movement_date = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : now();
-
-    $isSoko = ($doc->is_wms == 2 && $this->sokoApi) ? TRUE : FALSE;
-
+    
     if (! empty($doc))
     {
       if ($doc->status == 4)
@@ -1267,7 +1265,7 @@ class Receive_po extends PS_Controller
 
         if (! empty($details))
         {
-          if ($save_type == 1 && ! $isSoko)
+          if ($save_type == 1)
           {
             //--- update movement
             foreach ($details as $rs)
@@ -1279,15 +1277,22 @@ class Receive_po extends PS_Controller
 
               if ($rs->qty > 0)
               {
-                $af = $rs->before_backlogs - $rs->qty;
-                $amount = $rs->qty * $rs->price;
+                $af = $rs->before_backlogs - $rs->qty;                
+                $amount = $rs->qty * $rs->price;                                
+                $lineTotal = $rs->qty * $rs->PriceAfDisc; 
+                $discAmount = $rs->qty * ($rs->PriceBefDi - $rs->PriceAfDisc);
+                $vatAmount = $amount - $lineTotal;                
 
                 $arr = array(
                   'receive_qty' => $rs->qty,
+                  'DiscAmount' => $discAmount,
+                  'LineTotal' => $lineTotal,
+                  'amount' => $amount,
+                  'vatAmount' => $vatAmount,
                   'after_backlogs' => $af,
-                  'amount' => round($amount, 4),
                   'valid' => 1
                 );
+                
 
                 if (! $this->receive_po_model->update_detail($rs->id, $arr))
                 {
@@ -1346,7 +1351,7 @@ class Receive_po extends PS_Controller
 
         if ($sc === TRUE)
         {
-          $status = $isSoko ? 3 : ($save_type == 3 ? 3 : 1);
+          $status = $save_type == 3 ? 3 : 1;
 
           $arr = array(
             'status' => $status,
