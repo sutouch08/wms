@@ -50,10 +50,11 @@ class Temp_receive_po extends PS_Controller
 
 	public function get_detail($id)
   {
-    $doc = $this->temp_receive_po_model->get($id);
-    $detail = $this->temp_receive_po_model->get_detail($id);
-    $ds['details'] = $detail;
-    $ds['code'] = $doc->U_ECOMNO;
+    $ds = array(
+      'doc' => $this->temp_receive_po_model->get($id),
+      'details' => $this->temp_receive_po_model->get_detail($id)
+    );
+    
     $this->load->view('inventory/temp_receive_po/temp_detail', $ds);
   }
 

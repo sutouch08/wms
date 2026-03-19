@@ -1,13 +1,19 @@
 <?php $this->load->view('include/header'); ?>
+<style>
+  .tableFixHead > thead > tr>th, .tableFixHead>tbody>tr>td {
+    font-size: 11px;    
+    padding: 3px;
+  }
+</style>
 <div class="row top-row">
   <div class="col-sm-12 top-col">
-    <h4 class="title"><?php echo $code; ?></h4>
+    <h4 class="title"><?php echo $doc->U_ECOMNO; ?></h4>
   </div>
 </div>
 <hr/>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" style="min-width:700px;">
+    <table class="table table-striped tableFixHead border-1" style="min-width:700px;">
       <thead>
         <tr>
           <th class="fix-width-40 text-center">No.</th>

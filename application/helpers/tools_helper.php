@@ -625,5 +625,16 @@ function genUid($lenght = 13)
 	return substr(bin2hex($bytes), 0, $lenght);
 }
 
+function is_wms_text($is_wms = 0)
+{
+	$text = array(
+		'0' => 'Warrix',
+		'1' => 'Pioneer',
+		'2' => 'Sokochan'
+	);
+
+	return empty($text[$is_wms]) ? 'Unknow' : $text[$is_wms];
+}
+
 
  ?>

@@ -211,23 +211,20 @@ class Receive_po_model extends CI_Model
     return NULL;
   }
 
+
   public function get_po_details($po_code)
   {
     $rs = $this->ms
-      ->select('d.DocEntry, d.LineNum, d.ItemCode, d.Dscription')
-      ->select('d.Quantity, d.LineStatus, d.OpenQty, d.Price')
-      ->select('d.PriceBefDi, d.PriceAfVAT, d.DiscPrcnt')
-      ->select('d.Currency, d.Rate, d.VatGroup, d.VatPrcnt')
-      ->select('d.unitMsr, d.NumPerMsr, d.unitMsr2, d.NumPerMsr2')
-      ->select('d.UomEntry, d.UomEntry2, d.UomCode, d.UomCode2')
-      ->from('POR1 AS d')
-      ->join('OPOR AS o', 'd.DocEntry = o.DocEntry', 'left')
-      ->where('o.DocNum', $po_code)
-      ->where('o.DocStatus', 'O')
-      ->where('d.LineStatus', 'O')
-      ->get();
+    ->select('POR1.DocEntry, POR1.LineNum, POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus, POR1.OpenQty, POR1.PriceAfVAT AS price')
+		->select('POR1.Currency, POR1.Rate, POR1.VatGroup, POR1.VatPrcnt')
+    ->from('POR1')
+    ->join('OPOR', 'POR1.DocEntry = OPOR.DocEntry', 'left')
+    ->where('OPOR.DocNum', $po_code)
+    ->where('OPOR.DocStatus', 'O')
+    ->where('POR1.LineStatus', 'O')
+    ->get();
 
-    if ($rs->num_rows() > 0)
+    if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -239,17 +236,13 @@ class Receive_po_model extends CI_Model
 	public function get_po_detail($po_code, $item_code)
   {
     $rs = $this->ms
-    ->select('d.DocEntry, d.LineNum, d.ItemCode, d.Dscription')
-    ->select('d.Quantity, d.LineStatus, d.OpenQty, d.Price')
-    ->select('d.PriceBefDi, d.PriceAfVAT, d.DiscPrcnt')
-		->select('d.Currency, d.Rate, d.VatGroup, d.VatPrcnt')
-    ->select('d.unitMsr, d.unitMsr2, d.NumPerMsr, d.NumPerMsr2')
-    ->select('d.UomEntry, d.UomEntry2, d.UomCode, d.UomCode2, d.LineStatus')
-    ->from('POR1 AS d')
-    ->join('OPOR AS o', 'd.DocEntry = o.DocEntry', 'left')
-    ->where('o.DocNum', $po_code)
-		->where('d.ItemCode', $item_code)
-    ->where('o.DocStatus', 'O')
+    ->select('POR1.DocEntry, POR1.LineNum, POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus, POR1.OpenQty, POR1.PriceAfVAT AS price')
+		->select('POR1.Currency, POR1.Rate, POR1.VatGroup, POR1.VatPrcnt')
+    ->from('POR1')
+    ->join('OPOR', 'POR1.DocEntry = OPOR.DocEntry', 'left')
+    ->where('OPOR.DocNum', $po_code)
+		->where('POR1.ItemCode', $item_code)
+    ->where('OPOR.DocStatus', 'O')
     ->get();
 
     if($rs->num_rows() > 0)

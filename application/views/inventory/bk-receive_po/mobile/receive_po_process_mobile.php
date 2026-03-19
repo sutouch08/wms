@@ -5,8 +5,10 @@
 <?php $this->load->view('inventory/receive_po/mobile/detail_mobile'); ?>
 <?php $this->load->view('inventory/receive_po/mobile/process_menu'); ?>
 
+<script src="<?php echo base_url(); ?>scripts/beep.js"></script>
+
 <script>
-	var HOME = `${BASE_URL}inventory/receive_po/`;
+	var HOME = BASE_URL + 'inventory/receive_po/';
 
 	window.addEventListener('load', () => {
 		focus_init();
@@ -256,7 +258,7 @@
 			load_in();
 
 			$.ajax({
-				url:`${HOME}save_receive_rows`,
+				url:HOME + 'save_receive_rows',
 				type:'POST',
 				cache:false,
 				data:{
@@ -310,7 +312,7 @@
 		});
 
 		$.ajax({
-			url:`${HOME}save_and_close`,
+			url:HOME + 'save_and_close',
 			type:'POST',
 			cache:false,
 			data:{

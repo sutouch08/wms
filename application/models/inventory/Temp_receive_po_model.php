@@ -9,7 +9,14 @@ class Temp_receive_po_model extends CI_Model
 
 	public function get($docEntry)
 	{
-		$rs = $this->mc->where('DocEntry', $docEntry)->get('OPDN');
+		$rs = $this->mc
+    ->select('U_ECOMNO, DocDate, DocDueDate, CardCode, CardName, NumAtCard')
+    ->select('VatSum, VatSumFC, DiscPrcnt, DiscSum, DiscSumFC, DocCur, DocRate')
+    ->select('DocTotal, DocTotalFC, ToWhsCode, Comments')
+    ->select('F_E_Commerce, F_E_CommerceDate, F_Sap, F_SapDate, Message')
+    ->where('DocEntry', $docEntry)
+    ->get('OPDN');
+
 		if($rs->num_rows() === 1)
 		{
 			return $rs->row();
@@ -18,8 +25,7 @@ class Temp_receive_po_model extends CI_Model
 		return NULL;
 	}
 
-
-
+  
   public function count_rows(array $ds = array())
   {
     if(!empty($ds['code']))
@@ -125,9 +131,10 @@ class Temp_receive_po_model extends CI_Model
 
 
 	public function get_detail($docEntry)
-  {
+  {    
     $rs = $this->mc
-    ->select('U_ECOMNO, ItemCode, Dscription, Quantity, FisrtBin AS BinCode')
+    ->select('U_ECOMNO, LineNum, ItemCode, Dscription, Quantity, FisrtBin AS BinCode')
+    ->select('unitMsr, PriceBefDi, Price, PriceAfVAT, LineTotal, TotalFrgn, Currency, Rate, BaseRef, VatPrcnt, VatSum')
     ->where('DocEntry', $docEntry)
     ->get('PDN1');
 

@@ -1491,26 +1491,27 @@ public function export_receive($code)
         //--- หลังจากเคลียร์รายการค้างออกหมดแล้ว
         if($sc === TRUE)
         {
-          $currency = $doc->currency;
+          // $currency = $doc->currency;
 					$rate = $doc->rate;
-          //--- get Currency, VatGroup And VatPrcnt From SAP => POR1
-          $po_data = $this->ci->receive_po_model->get_po_data($doc->po_code);
-          if(!empty($po_data))
-          {
-            $vat_code = $po_data->VatGroup;
-            $vat_rate = $po_data->VatPrcnt;
-            $currency = $po_data->Currency;
-          }
-          else
-          {
-            $vat_code = getConfig('PURCHASE_VAT_CODE');
-            $vat_rate = getConfig('PURCHASE_VAT_RATE');
-            $currency = getConfig('CURRENCY');
-          }
+          // //--- get Currency, VatGroup And VatPrcnt From SAP => POR1
+          // $po_data = $this->ci->receive_po_model->get_po_data($doc->po_code);
+
+          // if(!empty($po_data))
+          // {
+          //   $vat_code = $po_data->VatGroup;
+          //   $vat_rate = $po_data->VatPrcnt;
+          //   $currency = $po_data->Currency;
+          // }
+          // else
+          // {
+          //   $vat_code = getConfig('PURCHASE_VAT_CODE');
+          //   $vat_rate = getConfig('PURCHASE_VAT_RATE');
+          //   $currency = getConfig('CURRENCY');
+          // }
 
 					$date_add = getConfig('ORDER_SOLD_DATE') == 'D' ? $doc->date_add : (empty($doc->shipped_date) ? now() : $doc->shipped_date);
 
-          $total_amount = $this->ci->receive_po_model->get_sum_amount($code);
+          //$total_amount = $this->ci->receive_po_model->get_sum_amount($code);
 
           $ds = array(
             'U_ECOMNO' => $doc->code,
@@ -1520,17 +1521,16 @@ public function export_receive($code)
             'DocDueDate' => sap_date($date_add,TRUE),
             'CardCode' => $doc->vendor_code,
             'CardName' => $doc->vendor_name,
-            'NumAtCard' => $doc->invoice_code,
-            'VatPercent' => $vat_rate,
-            'VatSum' => get_vat_amount($total_amount, $vat_rate),
-            'VatSumFc' => get_vat_amount($total_amount, $vat_rate),
-            'DiscPrcnt' => 0.000000,
-            'DiscSum' => 0.000000,
-            'DiscSumFC' => 0.000000,
-            'DocCur' => $currency,
-            'DocRate' => $rate,
-            'DocTotal' => remove_vat($total_amount * $rate, $vat_rate),
-            'DocTotalFC' => remove_vat($total_amount, $vat_rate),
+            'NumAtCard' => $doc->invoice_code,            
+            'VatSum' => $doc->VatSum, //get_vat_amount($total_amount, $vat_rate),
+            'VatSumFC' => $doc->VatSum, //get_vat_amount($total_amount, $vat_rate),
+            'DiscPrcnt' => $doc->DiscPrcnt,
+            'DiscSum' => $doc->DiscAmount * $rate,
+            'DiscSumFC' => $doc->DiscAmount,
+            'DocCur' => $doc->currency,
+            'DocRate' => $doc->rate,
+            'DocTotal' => $doc->DocTotal * $rate, //remove_vat($total_amount * $rate, $vat_rate),
+            'DocTotalFC' => $doc->DocTotal, //remove_vat($total_amount, $vat_rate),
             'ToWhsCode' => $doc->warehouse_code,
             'Comments' => limitText($doc->remark, 250),
             'F_E_Commerce' => 'A',
@@ -1562,14 +1562,14 @@ public function export_receive($code)
                     'ItemCode' => $rs->product_code,
                     'Dscription' => limitText($rs->product_name, 95),
                     'Quantity' => $rs->receive_qty,
-                    'unitMsr' => $this->ci->products_model->get_unit_code($rs->product_code),
-                    'PriceBefDi' => remove_vat($rs->price, $rs->vatRate),
-                    'LineTotal' => remove_vat(($rs->amount * $rate), $rs->vatRate),
+                    'unitMsr' => $rs->unitMsr, //$this->ci->products_model->get_unit_code($rs->product_code),
+                    'PriceBefDi' => $rs->PriceBefDi, //remove_vat($rs->price, $rs->vatRate),
+                    'LineTotal' => $rs->LineTotal * $rate, //remove_vat(($rs->amount * $rate), $rs->vatRate),
                     'ShipDate' => sap_date($date_add,TRUE),
                     'Currency' => $rs->currency,
                     'Rate' => $rs->rate,
-                    'Price' => remove_vat($rs->price, $rs->vatRate),
-                    'TotalFrgn' => remove_vat($rs->amount, $rs->vatRate),
+                    'Price' => $rs->PriceAfDisc, //remove_vat($rs->price, $rs->vatRate),
+                    'TotalFrgn' => $rs->LineTotal, //remove_vat($rs->amount, $rs->vatRate),
                     'WhsCode' => $doc->warehouse_code,
                     'FisrtBin' => $doc->zone_code,
                     'BaseRef' => $doc->po_code,
@@ -1577,7 +1577,7 @@ public function export_receive($code)
                     'VatPrcnt' => $rs->vatRate,
                     'VatGroup' => $rs->vatGroup,
                     'PriceAfVAT' => $rs->price,
-                    'VatSum' => get_vat_amount($rs->amount, $rs->vatRate),
+                    'VatSum' => $rs->vatAmount, //get_vat_amount($rs->amount, $rs->vatRate),
                     'TaxType' => 'Y',
                     'F_E_Commerce' => 'A',
                     'F_E_CommerceDate' => sap_date(now(), TRUE)

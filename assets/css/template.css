@@ -853,13 +853,10 @@ hr.padding-5 {
   .col-xs-1-harf {
   	width: 12.5%;
   }
-
-
-
+	
   .col-xs-2-harf{
   	width: 20.8333333334%;
   }
-
 
 	.col-xs-20 {
 		width:20%;
@@ -868,52 +865,85 @@ hr.padding-5 {
   .col-xs-3-harf {
   	width: 29.166666666667%;
   }
-
-
-
+	
   .col-xs-4-harf{
   	width: 37.5%;
   }
-
-
-
+	
   .col-xs-5-harf{
   	width: 45.8333333333%;
   }
-
 
   .col-xs-6-harf{
   	width: 54.1666666667%;
   }
 
-
-
   .col-xs-7-harf{
   	width: 62.5%;
   }
-
-
 
   .col-xs-8-harf{
   	width: 70.833333333%;
   }
 
-
-
   .col-xs-9-harf{
   	width: 79.1666666667%;
   }
-
-
 
   .col-xs-10-harf{
   	width: 87.5%;
   }
 
-
-
   .col-xs-11-harf{
   	width: 95.833333333%;
+  }
+
+	.col-xs-offset-1-harf {
+  	margin-left: 12.5%;
+  }
+	
+  .col-xs-offset-2-harf{
+  	margin-left: 20.8333333334%;
+  }
+
+	.col-xs-offset-20 {
+		margin-left:20%;
+	}
+
+  .col-xs-offset-3-harf {
+  	margin-left: 29.166666666667%;
+  }
+	
+  .col-xs-offset-4-harf{
+  	margin-left: 37.5%;
+  }
+	
+  .col-xs-offset-5-harf{
+  	margin-left: 45.8333333333%;
+  }
+
+  .col-xs-offset-6-harf{
+  	margin-left: 54.1666666667%;
+  }
+
+  .col-xs-offset-7-harf{
+  	margin-left: 62.5%;
+  }
+
+  .col-xs-offset-8-harf{
+  	margin-left: 70.833333333%;
+  }
+
+  .col-xs-offset-9-harf{
+  	margin-left: 79.1666666667%;
+  }
+
+  .col-xs-offset-10-harf{
+  	margin-left: 87.5%;
+  }
+
+  .col-xs-offset-11-harf{
+  	margin-left: 95.833333333%;
   }
 
   .title {
@@ -940,12 +970,9 @@ hr.padding-5 {
     width: 750px;
   }
 
-
   .col-sm-1-harf {
   	width: 12.5%;
   }
-
-
 
   .col-sm-2-harf{
   	width: 20.8333333334%;
@@ -956,57 +983,89 @@ hr.padding-5 {
 		width:20%;
 	}
 
-
-
   .col-sm-3-harf {
   	width: 29.166666666667%;
   }
-
-
 
   .col-sm-4-harf{
   	width: 37.5%;
   }
 
-
-
   .col-sm-5-harf{
   	width: 45.8333333333%;
   }
-
 
   .col-sm-6-harf{
   	width: 54.1666666667%;
   }
 
-
-
   .col-sm-7-harf{
   	width: 62.5%;
   }
-
-
 
   .col-sm-8-harf{
   	width: 70.833333333%;
   }
 
-
-
   .col-sm-9-harf{
   	width: 79.1666666667%;
   }
-
-
 
   .col-sm-10-harf{
   	width: 87.5%;
   }
 
-
-
   .col-sm-11-harf{
   	width: 95.833333333%;
+  }
+
+  .col-sm-offset-1-harf {
+  	margin-left: 12.5%;
+  }
+
+  .col-sm-offset-2-harf{
+  	margin-left: 20.8333333334%;
+  }
+
+	.col-sm-offset-20 {
+		/** ทำให้เป็น 5 column**/
+		margin-left:20%;
+	}
+
+  .col-sm-offset-3-harf {
+  	margin-left: 29.166666666667%;
+  }
+
+  .col-sm-offset-4-harf{
+  	margin-left: 37.5%;
+  }
+
+  .col-sm-offset-5-harf{
+  	margin-left: 45.8333333333%;
+  }
+
+  .col-sm-offset-6-harf{
+  	margin-left: 54.1666666667%;
+  }
+
+  .col-sm-offset-7-harf{
+  	margin-left: 62.5%;
+  }
+
+  .col-sm-offset-8-harf{
+  	margin-left: 70.833333333%;
+  }
+
+  .col-sm-offset-9-harf{
+  	margin-left: 79.1666666667%;
+  }
+
+  .col-sm-offset-10-harf{
+  	margin-left: 87.5%;
+  }
+
+  .col-sm-offset-11-harf{
+  	margin-left: 95.833333333%;
   }
 
 	.cart-modal {
@@ -1030,18 +1089,13 @@ hr.padding-5 {
     width:970px;
   }
 
-
   .col-md-1-harf {
   	width: 12.5%;
   }
 
-
-
   .col-md-2-harf{
   	width: 20.8333333334%;
   }
-
-
 	.col-md-20 {
 		width: 20%;
 	}
@@ -1050,52 +1104,83 @@ hr.padding-5 {
   	width: 29.166666666667%;
   }
 
-
-
   .col-md-4-harf{
   	width: 37.5%;
   }
-
-
 
   .col-md-5-harf{
   	width: 45.8333333333%;
   }
 
-
-
   .col-md-6-harf{
   	width: 54.1666666667%;
   }
-
-
 
   .col-md-7-harf{
   	width: 62.5%;
   }
 
-
-
   .col-md-8-harf{
   	width: 70.833333333%;
   }
-
-
 
   .col-md-9-harf{
   	width: 79.1666666667%;
   }
 
-
-
   .col-md-10-harf{
   	width: 87.5%;
   }
 
-
-
   .col-md-11-harf{
   	width: 95.833333333%;
+  }
+
+  .col-md-offset-1-harf {
+  	margin-left: 12.5%;
+  }
+
+  .col-md-offset-2-harf{
+  	margin-left: 20.8333333334%;
+  }
+	.col-md-offset-20 {
+		margin-left: 20%;
+	}
+
+  .col-md-offset-3-harf {
+  	margin-left: 29.166666666667%;
+  }
+
+  .col-md-offset-4-harf{
+  	margin-left: 37.5%;
+  }
+
+  .col-md-offset-5-harf{
+  	margin-left: 45.8333333333%;
+  }
+
+  .col-md-offset-6-harf{
+  	margin-left: 54.1666666667%;
+  }
+
+  .col-md-offset-7-harf{
+  	margin-left: 62.5%;
+  }
+
+  .col-md-offset-8-harf{
+  	margin-left: 70.833333333%;
+  }
+
+  .col-md-offset-9-harf{
+  	margin-left: 79.1666666667%;
+  }
+
+  .col-md-offset-10-harf{
+  	margin-left: 87.5%;
+  }
+
+  .col-md-offset-11-harf{
+  	margin-left: 95.833333333%;
   }
 
 	.cart-modal {
@@ -1103,9 +1188,7 @@ hr.padding-5 {
 		margin:auto;
 		margin-top:30px;
 	}
-
 }
-
 
 
 .col-lg-1-harf, .col-lg-2-harf, .col-lg-20, .col-lg-3-harf, .col-lg-4-harf, .col-lg-5-harf, .col-lg-6-harf, .col-lg-7-harf, .col-lg-8-harf, .col-lg-9-harf, .col-lg-10-harf, .col-lg-11-harf {
@@ -1122,13 +1205,9 @@ hr.padding-5 {
   	width: 12.5%;
   }
 
-
-
   .col-lg-2-harf{
   	width: 20.8333333334%;
   }
-
-
 	.col-lg-20 {
 		width: 20%;
 	}
@@ -1137,52 +1216,83 @@ hr.padding-5 {
   	width: 29.166666666667%;
   }
 
-
-
   .col-lg-4-harf{
   	width: 37.5%;
   }
-
-
 
   .col-lg-5-harf{
   	width: 45.8333333333%;
   }
 
-
-
   .col-lg-6-harf{
   	width: 54.1666666667%;
   }
-
-
 
   .col-lg-7-harf{
   	width: 62.5%;
   }
 
-
-
   .col-lg-8-harf{
   	width: 70.833333333%;
   }
-
-
 
   .col-lg-9-harf{
   	width: 79.1666666667%;
   }
 
-
-
   .col-lg-10-harf{
   	width: 87.5%;
   }
 
-
-
   .col-lg-11-harf{
   	width: 95.833333333%;
+  }
+
+  .col-lg-offset-1-harf {
+  	margin-left: 12.5%;
+  }
+
+  .col-lg-offset-2-harf{
+  	margin-left: 20.8333333334%;
+  }
+	.col-lg-offset-20 {
+		margin-left: 20%;
+	}
+
+  .col-lg-offset-3-harf {
+  	margin-left: 29.166666666667%;
+  }
+
+  .col-lg-offset-4-harf{
+  	margin-left: 37.5%;
+  }
+
+  .col-lg-offset-5-harf{
+  	margin-left: 45.8333333333%;
+  }
+
+  .col-lg-offset-6-harf{
+  	margin-left: 54.1666666667%;
+  }
+
+  .col-lg-offset-7-harf{
+  	margin-left: 62.5%;
+  }
+
+  .col-lg-offset-8-harf{
+  	margin-left: 70.833333333%;
+  }
+
+  .col-lg-offset-9-harf{
+  	margin-left: 79.1666666667%;
+  }
+
+  .col-lg-offset-10-harf{
+  	margin-left: 87.5%;
+  }
+
+  .col-lg-offset-11-harf{
+  	margin-left: 95.833333333%;
   }
 
 	.cart-modal {
@@ -1190,7 +1300,6 @@ hr.padding-5 {
 		margin:auto;
 		margin-top:30px;
 	}
-
 }
 
 .pointer{

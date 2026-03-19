@@ -434,7 +434,7 @@ public function get_prepare_item_code()
 
     $this->ms->select('DocNum')->where('DocStatus', 'O');
 
-    if( ! empty($vendor))
+    if( ! empty($vendor) && $vendor != 'no_vendor')
     {
       $this->ms->where('CardCode', $vendor);
     }
@@ -577,7 +577,7 @@ public function get_prepare_item_code()
     {
       foreach($rs->result() as $zone)
       {
-        $sc[] = $zone->code.' | '.$zone->name;
+        $sc[] = $zone->code.' | '. (empty($zone->name) ? $zone->code : $zone->name);
       }
     }
     else
@@ -630,7 +630,7 @@ public function get_prepare_item_code()
     {
       foreach($rs->result() as $zone)
       {
-        $sc[] = $zone->code.' | '.$zone->name;
+        $sc[] = $zone->code.' | '.(empty($zone->name) ? $zone->code : $zone->name);
       }
     }
     else
@@ -766,7 +766,7 @@ public function get_prepare_item_code()
     $txt = $_REQUEST['term'];
     $qr = "SELECT BpCode, BpName FROM OOAT ";
     $qr .= "WHERE StartDate <= '".now()."' AND EndDate >= '".now()."' ";
-		$qr .= "AND Cancelled = 'N' ";
+		$qr .= "AND Status = 'A' AND Cancelled = 'N' ";
 
     if($txt != '*')
     {

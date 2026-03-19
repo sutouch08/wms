@@ -1,5 +1,5 @@
 // JavaScript Document
-var HOME = `${BASE_URL}inventory/receive_po/`;
+var HOME = BASE_URL + 'inventory/receive_po/';
 
 function goDelete(code){
 	swal({
@@ -92,6 +92,83 @@ $('#cancle-modal').on('shown.bs.modal', function() {
 
 
 function addNew(){
+	$('.e').removeClass('has-error');
+
+  let date_add = $('#doc-date').val();
+	let due_date = $('#due-date').val();
+	let posting_date = $('#posting-date').val();
+	let is_wms = $('#is_wms').val();
+  let remark = $.trim($('#remark').val());
+	let reqRemark = $('#required_remark').val();
+
+  if( ! isDate(date_add)) {
+		$('#doc-date').addClass('has-error');
+    swal('วันที่ไม่ถูกต้อง');
+    return false;
+  }
+
+	if( ! isDate(due_date)) {
+		$('#due-date').addClass('has-error');
+		swal('กรุณาระบุวันที่สินค้าเข้า');
+		return false;
+	}
+
+	if( is_wms === "") {
+		$('#is_wms').addClass('has-error');
+		swal('กรุณาเลือกช่องทางการรับ');
+		return false;
+	}
+
+	if(reqRemark == 1 && remark.length < 5) {
+		$('#remark').addClass('has-error');
+		swal('กรุณาใส่หมายเหตุ');
+		return false;
+	}
+
+	load_in();
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data: {
+			'date_add' : date_add,
+			'due_date' : due_date,
+			'posting_date' : posting_date,
+			'is_wms' : is_wms,
+			'remark' : remark
+		},
+		success:function(rs) {
+			load_out();
+
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+				if(ds.status == 'success') {
+					goEdit(ds.code);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:ds.message,
+						type:'error',
+						html:true
+					});
+				}
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				});
+			}
+		}
+	})
+}
+
+
+function goAdd(){
   window.location.href = HOME + 'add_new';
 }
 
@@ -153,7 +230,7 @@ $("#toDate").datepicker({
 
 // JavaScript Document
 function printReceived(){
-	var code = $("#code").val();
+	var code = $("#receive_code").val();
 	var center = ($(document).width() - 800) /2;
   var target = HOME + 'print_detail/'+code;
   window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
@@ -162,7 +239,7 @@ function printReceived(){
 
 
 function doExport(){
-	var code = $('#code').val();
+	var code = $('#receive_code').val();
 	load_in();
 	$.ajax({
 		url: HOME + 'do_export/'+code,
@@ -191,7 +268,7 @@ function doExport(){
 
 
 function sendToWms() {
-	var code = $('#code').val();
+	var code = $('#receive_code').val();
 	load_in();
 	$.ajax({
 		url:HOME + 'send_to_wms/'+code,
@@ -230,7 +307,7 @@ function sendToWms() {
 
 
 function sendToSoko() {
-	var code = $('#code').val();
+	var code = $('#receive_code').val();
 	load_in();
 	$.ajax({
 		url:HOME + 'send_to_soko/'+code,
