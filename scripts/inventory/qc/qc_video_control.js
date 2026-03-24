@@ -1,12 +1,38 @@
 window.addEventListener('load', () => {
-  init();  
+  init();
   start();
 });
 
 window.addEventListener('keydown', (event) => {
   if(event.key == 'F1') {
     event.preventDefault();
-    startRecord();
+    if( ! mediaRecorder) {
+      startRecord();
+    }
+    else {
+      if(mediaRecorder) {
+        if(mediaRecorder.state === 'recording') {
+          pauseRecord();
+        }
+        else {
+          resumeRecord();
+        }
+      }
+    }
+  }
+
+  if (event.key == 'F2') {
+    if (!steam) {
+      startCamera();
+    }
+    else {
+      if (videoElem.srcObject != null) {
+        stopCamera();
+      }
+      else {
+        startCamera();
+      }
+    }
   }
 
   if(event.key == 'Escape') {
@@ -33,7 +59,7 @@ const videoAutoRecord = document.getElementById('video-config').dataset.autoReco
 
 async function uploadToServer(videoBlob) {
   const name = order.value;
-  const endpoint = order.dataset.endpoint;  
+  const endpoint = order.dataset.endpoint;
   const fm = new FormData();
 
   fm.append('video', videoBlob, name + '.webm');
@@ -98,7 +124,7 @@ function start() {
     setTimeout(() => {
       startRecord();
     }, 5000);
-  }  
+  }
 }
 
 
@@ -170,6 +196,10 @@ async function startCamera() {
 
 
 function stopCamera() {
+  if(mediaRecorder) {
+    return false;
+  }
+  
   const activeSteam = videoElem.srcObject;
 
   if(activeSteam) {
@@ -177,7 +207,7 @@ function stopCamera() {
     const tracks = activeSteam.getTracks();
 
     //stock each track
-    tracks.forEach((track) => {      
+    tracks.forEach((track) => {
       track.stop();
     });
 
@@ -243,7 +273,7 @@ function resumeRecord() {
 function stopRecord() {
   if(mediaRecorder) {
     if(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused') {
-      mediaRecorder.stop();    
+      mediaRecorder.stop();
       timeStop();
       const recordedBlob = new Blob(blobChunks, { type: 'video/webm'});
       uploadToServer(recordedBlob);
@@ -271,12 +301,12 @@ function selectDevices() {
 }
 
 
-function saveDevicesId() {  
+function saveDevicesId() {
   $('#devices-error').text('');
 
   let camId = $('#video-devices').val();
   let micId = audioRequired ? $('#audio-devices').val() : '';
-  
+
   if(camId === undefined || camId == "") {
     $('#devices-error').text("Please choose camera for video record");
     return false;
