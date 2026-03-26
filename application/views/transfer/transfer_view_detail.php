@@ -1,14 +1,14 @@
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive padding-5" id="transfer-table">
-  	<table class="table table-striped border-1" style="min-width:1150px;">
+  	<table class="table table-striped border-1" style="min-width:1000px;">
     	<thead>
       	<tr class="font-size-11">
         	<th class="fix-width-50 text-center">#</th>
           <th class="fix-width-100">Barcode</th>
           <th class="fix-width-150">Item</th>
 					<th class="min-width-250">Description</th>
-          <th class="fix-width-200">ต้นทาง</th>
-          <th class="fix-width-200">ปลายทาง</th>
+          <th class="fix-width-120">ต้นทาง</th>
+          <th class="fix-width-120">ปลายทาง</th>
           <th class="fix-width-80 text-center">จำนวนออก</th>
 					<th class="fix-width-80 text-center">จำนวนเข้า</th>
         </tr>
@@ -24,10 +24,10 @@
 				<tr class="font-size-11 <?php echo $color; ?>" id="row-<?php echo $rs->id; ?>">
 	      	<td class="middle text-center"><?php echo $no; ?></td>
 	        <td class="middle"><?php echo $rs->barcode; ?></td>
-	        <td class="middle"><input type="text" class="form-control input-xs text-label <?php echo $color; ?>" value="<?php echo $rs->product_code; ?>" readonly /></td>
-					<td class="middle"><input type="text" class="form-control input-xs text-label <?php echo $color; ?>" value="<?php echo $rs->product_name; ?>" readonly /></td>
-	        <td class="middle"><input type="text" class="form-control input-xs text-label <?php echo $color; ?>" value="<?php echo $rs->from_zone.' | '.$rs->from_zone_name; ?>" readonly /></td>
-	        <td class="middle"><input type="text" class="form-control input-xs text-label <?php echo $color; ?>" value="<?php echo $rs->to_zone.' | '.$rs->to_zone_name; ?>" readonly /></td>
+	        <td class="middle"><?php echo $rs->product_code; ?></td>
+					<td class="middle"><?php echo $rs->product_name; ?></td>
+	        <td class="middle"><?php echo $rs->from_zone; ?></td>
+	        <td class="middle"><?php echo $rs->to_zone; ?></td>	        
 					<td class="middle text-center"><?php echo number($rs->qty); ?></td>
 					<td class="middle text-center"><?php echo number($rs->wms_qty); ?></td>
 	      </tr>
