@@ -1,23 +1,25 @@
 <?php
 
 class Wrx_shopee_api
-{
-  private $url;
-  private $token;
+{  
   private $api;
   protected $ci;
   public $error;
   public $logs_json = FALSE;
   public $test = FALSE;
+  public $type = NULL;
+  public $api_path = NULL;
 
   public function __construct()
   {
     $this->ci =& get_instance();
-		$this->ci->load->model('rest/V1/wrx_api_logs_model');
+		$this->ci->load->model('rest/V1/ix_api_logs_model');
     $this->ci->load->model('orders/orders_model');
     $this->ci->load->model('inventory/qc_model');
-
+    
     $this->api = getWrxApiConfig();
+    $this->logs_json = is_true($this->api['WRX_LOG_JSON']);
+    $this->test = is_true($this->api['WRX_API_TEST']);
   }
 
   public function test()
@@ -28,27 +30,31 @@ class Wrx_shopee_api
 
   public function get_order_status($reference, $shop_id)
   {
-    $action = "get_order_detail";
-    $type = "status";
+    $action = "shipped";
+    $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
     $url .= "shopee/{$shop_id}/order/{$reference}";
-    $api_path = $url;
+    $this->api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
     $method = 'GET';
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+    $start_date = now();
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
+    $end_date = now();
 
+    $status = FALSE;
+  
     if( ! empty($res) && ! empty($res->code))
     {
       if($res->code == 200 && $res->status == 'success')
@@ -68,44 +74,90 @@ class Wrx_shopee_api
             - TO_RETURN:The buyer requested to return the order and order's return is processing.
             - COMPLETED:The order has been completed.
           */
-          return $res->data[0]->order_status;
+          $status = $res->data[0]->order_status;
         }
+      }
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => $res->code == 200 ? 'success' : 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => NULL,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
+    }
+    else
+    {
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => 'failed',
+          'message' => 'No response',
+          'request_json' => NULL,
+          'response_json' => NULL,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
       }
     }
 
-    return FALSE;
+    return $status;
   }
 
 
   //--- for shopee
   public function get_shipping_param($reference, $shop_id)
   {
-    $action = "get_shipping_param";
-    $type = "shipping";
+    $action = "shipped";
+    $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
     $url .= "shopee/{$shop_id}/shipping-parameter?orderSN={$reference}";
-    $api_path = $url;
+    $this->api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
     $method = 'GET';
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+    $start_date = now();
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
+    $end_date = now();
+    $ds = FALSE;
 
     if( ! empty($res) && ! empty($res->code) && $res->code == 200)
     {
       if( ! empty($res->data) && ! empty($res->data->pickup) && ! empty($res->data->pickup->address_list))
       {
         $address_id = 200081907;
+
         $ds = [
           'address_id' => 200081907,
           'pickup_time_id' => "",
@@ -118,23 +170,63 @@ class Wrx_shopee_api
           {
             $ds['pickup_time_id'] = $ad->time_slot_list[0]->pickup_time_id;
           }
-        }
+        }        
+      }
 
-        return $ds;
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => $res->code == 200 ? 'success' : 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => NULL,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
+    }
+    else 
+    {
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => NULL,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
       }
     }
 
-    return FALSE;
+    return $ds;
   }
 
 
   public function ship_order($reference, $pickup_data, $shop_id)
   {
     $action = "ship_order";
-    $type = "shipping";
+    $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
     $url .= "shopee/{$shop_id}/ship-order";
-    $api_path = $url;
+    $this->api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
@@ -153,75 +245,169 @@ class Wrx_shopee_api
     $json = json_encode($req);
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+    $start_date = now();
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
+    $end_date = now();
+
+    $status = FALSE;
 
     if( ! empty($res) && ! empty($res->code))
     {
       if($res->code == 200)
       {
-        return TRUE;
+        $status = TRUE;
       }
       else
       {
         $this->error = $res->serviceMessage;
       }
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => $status === TRUE ? 'success' : 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
+    }
+    else 
+    {
+      if($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
     }
 
-    return FALSE;
+    return $status;
   }
 
 
   public function get_tracking_number($reference, $shop_id)
   {
-    $action = "get_tracking_number";
-    $type = "shipping";
+    $action = "shipped";
+    $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
     $url .= "shopee/{$shop_id}/tracking-number?orderSN={$reference}";
-    $api_path = $url;
+    $this->api_path = $url;
 
     $headers = array("Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
     $method = 'GET';
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+    $start_date = now();
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
+    $end_date = now();
+
+    $status = FALSE;
+    $tracking_number = "";
 
     if( ! empty($res) && ! empty($res->code) && $res->code == 200)
     {
       if( ! empty($res->data))
       {
-        return $res->data->tracking_number;
+        $tracking_number = $res->data->tracking_number;
+        $status = TRUE;
+      }
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => $status === TRUE ? 'success' : 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => NULL,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
+    }
+    else 
+    {
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => NULL,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
       }
     }
 
-    return FALSE;
+    return $status === TRUE ? $tracking_number : FALSE;
   }
 
 
   public function create_shipping_document($reference, $tracking_number, $shop_id)
   {
-    $action = "create_shipping_document";
-    $type = "shipping";
+    $action = "shipped";
+    $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
     $url .= "shopee/{$shop_id}/shipping-document-create";
-    $api_path = $url;
+    $this->api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
@@ -240,16 +426,20 @@ class Wrx_shopee_api
     $json = json_encode($req);
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+    $start_date = now();
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
+    $end_date = now();
+
+    $status = FALSE;
 
     if( ! empty($res) && ! empty($res->code))
     {
@@ -258,8 +448,7 @@ class Wrx_shopee_api
         if( ! empty($res->data) && ! empty($res->data->result_list))
         {
           $ods = $res->data->result_list[0]->order_sn;
-
-          return $ods == $reference ? TRUE : FALSE;
+          $status = ($ods == $reference ? TRUE : FALSE);
         }
       }
 
@@ -274,18 +463,61 @@ class Wrx_shopee_api
           $this->error = $res->serviceMessage;
         }
       }
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => $status === TRUE ? 'success' : 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
+    }
+    else
+    {
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
     }
 
-    return FALSE;
+    return $status;
   }
+
 
   public function shipping_document_result($reference, $shop_id)
   {
-    $action = "shipping_document_result";
-    $type = "shipping";
+    $action = "shipped";
+    $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
     $url .= "shopee/{$shop_id}/shipping-document-result";
-    $api_path = $url;
+    $this->api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
@@ -303,54 +535,96 @@ class Wrx_shopee_api
     $json = json_encode($req);
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+    $start_date = now();
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
+    $end_date = now();
+
+    $status = FALSE;
 
     if( ! empty($res) && ! empty($res->code))
     {
       if($res->code == 200)
       {
         if( ! empty($res->data) && ! empty($res->data->result_list))
-        {
-          $status = $res->data->result_list[0]->status;
-
-          if($status != "READY")
+        {          
+          if($res->data->result_list[0]->status != "READY")
           {
             $this->error = $res->data->result_list[0]->fail_message;
           }
 
-          return $status === "READY" ? TRUE : FALSE;
+          $status = $res->data->result_list[0]->status === "READY" ? TRUE : FALSE;
         }
       }
       else
       {
         $this->error = $res->serviceMessage;
       }
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => $status === TRUE ? 'success' : 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
     }
     else
     {
       $this->error = "No response";
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
     }
 
-    return FALSE;
+    return $status;
   }
 
 
   public function shipping_document_download($reference, $shop_id)
   {
-    $action = "shipping_document_result";
-    $type = "shipping";
+    $action = "shipped";
+    $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
     $url .= "shopee/{$shop_id}/shipping-document-download";
-    $api_path = $url;
+    $this->api_path = $url;
 
     $headers = array("Content-Type:application/json","Authorization:Bearer {$this->api['WRX_API_CREDENTIAL']}");
     $apiUrl = str_replace(" ","%20",$url);
@@ -368,16 +642,20 @@ class Wrx_shopee_api
     $json = json_encode($req);
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+    $start_date = now();
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
+    $end_date = now();
+    $status = FALSE;
+    $ds = NULL;
 
     if( ! empty($res) && ! empty($res->code))
     {
@@ -385,20 +663,61 @@ class Wrx_shopee_api
       {
         if( ! empty($res->data))
         {
-          return $res->data;
+          $status = TRUE;
+          $ds = $res->data;
         }
       }
       else
       {
         $this->error = $res->serviceMessage;
       }
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => $status === TRUE ? 'success' : 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
     }
     else
     {
       $this->error = "No response";
+
+      if ($this->logs_json)
+      {
+        $logs = array(
+          'trans_id' => genUid(),
+          'api_path' => $this->api_path,
+          'type' => $this->type,
+          'code' => $reference,
+          'action' => $action,
+          'channels' => 'SHOPEE',
+          'status' => 'failed',
+          'message' => isset($res->serviceMessage) ? $res->serviceMessage : 'No response',
+          'request_json' => $json,
+          'response_json' => $response,
+          'start_date' => $start_date,
+          'end_date' => $end_date
+        );
+
+        $this->ci->ix_api_logs_model->add_logs($logs);
+      }
     }
 
-    return FALSE;
+    return $status === TRUE ? $ds : FALSE;
   }
 
 } //-- end class
