@@ -30,6 +30,7 @@ class Wrx_shopee_api
 
   public function get_order_status($reference, $shop_id)
   {
+    $this->logs_json = FALSE;
     $action = "shipped";
     $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];

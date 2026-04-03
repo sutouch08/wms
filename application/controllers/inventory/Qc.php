@@ -90,7 +90,7 @@ class Qc extends PS_Controller
         $this->error = "ออเดอร์ถูกยกเลิกในระบบ Shopee แล้ว";
       }
 
-      if($sc === TRUE)
+      if($sc === TRUE && $status === 'READY_TO_SHIP')
       {
         $pickup_data = $this->wrx_shopee_api->get_shipping_param($reference, $order->shop_id);
 
@@ -138,7 +138,8 @@ class Qc extends PS_Controller
 
         if(empty($tracking_number))
         {
-          $retry = 5;
+          $retry = 10;
+          $times = 0;
 
           while($retry > 0)
           {
@@ -152,12 +153,13 @@ class Qc extends PS_Controller
             }
 
             $retry--;
+            $times++;
           }
 
           if(empty($tracking_number))
           {
             $sc = FALSE;
-            $this->error = "Cannot get tracking number after try {$retry} times";
+            $this->error = "Cannot get tracking number after try {$times} times";
           }
         }
 
