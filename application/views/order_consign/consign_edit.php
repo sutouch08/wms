@@ -1,6 +1,6 @@
 <?php $this->load->view('include/header'); ?>
-<?php $allow_upload = getConfig('ALLOW_IMPORT_WT'); ?>
-<?php $cim = get_permission('SOIMWT', $this->_user->uid, $this->_user->id_profile); ?>
+<?php $allow_upload = $this->menu_code == 'SOCCSO' ? getConfig('ALLOW_IMPORT_WC') : getConfig('ALLOW_IMPORT_WT'); ?>
+<?php $cim = get_permission($this->menu_code, $this->_user->uid, $this->_user->id_profile); ?>
 <?php $can_upload = (is_true($allow_upload) && can_do($cim)) ? TRUE : FALSE; ?>
 
 <div class="row">
