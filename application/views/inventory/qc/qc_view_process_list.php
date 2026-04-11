@@ -8,7 +8,7 @@
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()">รอตรวจ</button>
 	</div>
 </div><!-- End Row -->
-<hr class=""/>
+<hr class="" />
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 	<div class="row filter-pad move-out" id="filter-pad">
 		<div class="col-xs-12 padding-5 text-center visible-xs">
@@ -16,7 +16,7 @@
 		</div>
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>เลขที่เอกสาร</label>
-			<input type="text" class="width-100" name="code"  value="<?php echo $code; ?>" />
+			<input type="text" class="width-100" name="code" value="<?php echo $code; ?>" />
 		</div>
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
@@ -25,12 +25,12 @@
 		</div>
 
 		<div class="col-lg-2-harf col-md-3 col-sm-3-harf col-xs-6 padding-5">
-	    <label>พนักงาน/ผู้สั่งงาน</label>
+			<label>พนักงาน/ผู้สั่งงาน</label>
 			<select class="width-100 filter" name="user" id="user">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_user($user); ?>
 			</select>
-	  </div>
+		</div>
 
 		<div class="col-lg-3 col-md-3 col-sm-3-harf col-xs-6 padding-5">
 			<label>ช่องทางขาย</label>
@@ -41,12 +41,12 @@
 		</div>
 
 		<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
-	    <label>Shop Name</label>
+			<label>Shop Name</label>
 			<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_shop_name($shop_id); ?>
 			</select>
-	  </div>
+		</div>
 
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<label>ประเภท</label>
@@ -110,12 +110,26 @@
 
 <hr class="margin-top-15 hidden-xs">
 <?php echo $this->pagination->create_links(); ?>
+<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
+	<div class="row">
+		<div class="col-lg-3 col-md-4 col-sm-4 padding-5">
+			<div class="input-group width-100">
+				<span class="input-group-addon">ตรวจสินค้า</span>
+				<input type="text" class="form-control input-sm text-center" id="order-code" placeholder="scan to pack" autofocus />
+			</div>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5">
+			<button type="button" class="btn btn-xs btn-primary btn-block" onclick="goToProcess()">ตรวจสินค้า</button>
+		</div>
+	</div>
+	<hr class="margin-top-15">
+<?php endif; ?>
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-hover border-1 no-border-xs table-listing">
 			<thead>
-				<tr>
+				<tr class="font-size-11">
 					<th class="fix-width-100 middle hidden-xs"></th>
 					<th class="fix-width-50 middle text-center hidden-xs">#</th>
 					<th class="fix-width-100 middle text-center hidden-xs">วันที่</th>
@@ -127,25 +141,25 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php if(!empty($orders)) : ?>
+				<?php if (!empty($orders)) : ?>
 					<?php $channels = get_channels_array(); ?>
 					<?php $whName = []; ?>
 					<?php $no = $this->uri->segment(4) + 1; ?>
-					<?php foreach($orders as $rs) : ?>
+					<?php foreach ($orders as $rs) : ?>
 						<?php $customer_name = (!empty($rs->customer_ref)) ? $rs->customer_ref : (empty($rs->customer_name) ? $rs->empName : $rs->customer_name); ?>
 						<?php $channels_name = empty($rs->channels_code) ? "" : (empty($channels[$rs->channels_code]) ? "" : $channels[$rs->channels_code]); ?>
 						<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
-						<?php if( empty($whName[$rs->warehouse_code])) : ?>
+						<?php if (empty($whName[$rs->warehouse_code])) : ?>
 							<?php $whName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
 						<?php endif; ?>
-						<tr id="row-<?php echo $rs->code; ?>" class="font-size-12">
+						<tr id="row-<?php echo $rs->code; ?>" class="font-size-11">
 							<td class="middle hidden-xs">
-								<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-									<button type="button" class="btn btn-white btn-xs btn-info" onClick="goQc('<?php echo $rs->code; ?>')">ตรวจสินค้า</button>
+								<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
+									<button type="button" class="btn btn-white btn-minier btn-info" onClick="goQc('<?php echo $rs->code; ?>')">ตรวจสินค้า</button>
 								<?php endif; ?>
 							</td>
 							<td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
-							<td class="middle text-center hidden-xs"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
+							<td class="middle text-center hidden-xs"><?php echo thai_date($rs->date_add, FALSE, '/'); ?></td>
 							<td class="middle hidden-xs"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
 							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
 							<td class="middle hidden-xs"><?php echo $channels_name; ?></td>
@@ -154,27 +168,27 @@
 							<td class="visible-xs" style="border:0px; padding:3px; font-size:14px;">
 								<div class="col-xs-12" style="border:solid 1px #ccc; border-radius:5px; box-shadow:0px 1px 2px #f3ecec; padding:5px;">
 									<div class="width-100" style="padding: 3px 3px 3px 10px;">
-										<p class="margin-bottom-3 pre-wrap"><b>วันที่ : </b><?php echo thai_date($rs->date_add, FALSE,'/'); ?></p>
+										<p class="margin-bottom-3 pre-wrap"><b>วันที่ : </b><?php echo thai_date($rs->date_add, FALSE, '/'); ?></p>
 										<p class="margin-bottom-3 pre-wrap"><b>เลขที่ : </b>
 											<?php echo $rs->code; ?>
-											<?php echo (empty($rs->reference) ? "" : "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[".$rs->reference."]"); ?>
+											<?php echo (empty($rs->reference) ? "" : "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" . $rs->reference . "]"); ?>
 											<?php echo $cn_text; ?>
 										</p>
 										<p class="margin-bottom-3 pre-wrap"><b>ลูกค้า : </b>
-											<?php if($rs->role == 'L' OR $rs->role == 'R') : ?>
+											<?php if ($rs->role == 'L' or $rs->role == 'R') : ?>
 												<?php echo $rs->empName; ?>
 											<?php else : ?>
 												<?php echo $customer_name; ?>
 											<?php endif; ?>
 										</p>
-										<p class="margin-bottom-3 pre-wrap"><b>ช่องทางขาย : </b> <?php echo $channels_name; ; ?></p>
+										<p class="margin-bottom-3 pre-wrap"><b>ช่องทางขาย : </b> <?php echo $channels_name;; ?></p>
 										<p class="margin-bottom-3 pre-wrap"><b>คลัง : </b> <?php echo $whName[$rs->warehouse_code]; ?></p>
 									</div>
-									<?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+									<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
 										<button type="button" class="btn btn-white btn-info"
-										onclick="goQc('<?php echo $rs->code; ?>', 'mobile')"
-										style="position:absolute; top:5px; right:5px; border-radius:4px !important;">#<?php echo $no; ?> ตรวจสินค้า</button>
-										<?php endif; ?>
+											onclick="goQc('<?php echo $rs->code; ?>', 'mobile')"
+											style="position:absolute; top:5px; right:5px; border-radius:4px !important;">#<?php echo $no; ?> ตรวจสินค้า</button>
+									<?php endif; ?>
 								</div>
 							</td>
 						</tr>
@@ -215,7 +229,7 @@
 			</div>
 		</div>
 		<input type="hidden" id="filter" value="hide" />
- </div>
+	</div>
 </div>
 
 <script>

@@ -21,6 +21,22 @@ function viewProcess(){
 }
 
 
+function goToProcess() {
+  let code = $('#order-code').val().trim();
+
+  if(code.length > 0) {
+    goQc(code);
+  }
+}
+
+
+$('#order-code').keyup(function(e) {
+  if(e.keyCode === 13) {
+    goToProcess();
+  }
+});
+
+
 function refresh() {
   window.location.reload();
 }
