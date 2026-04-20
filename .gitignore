@@ -11,4 +11,6 @@
 .htaccess
 index.php
 /application/config/*
+/application/sessions/*
+/application/logs/*
 /node_modeles/*

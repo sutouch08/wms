@@ -783,6 +783,13 @@ class Orders extends REST_Controller
         if( ! empty($customer_ref) && ! empty($data->ship_to) && ! empty($data->ship_to->address))
         {
           $sh = $data->ship_to;
+
+          $sh->sub_district = empty($sh->sub_district) ? "" : $sh->sub_district;
+          $sh->district = empty($sh->district) ? "" : $sh->district;
+          $sh->province = empty($sh->province) ? "" : $sh->province;
+          $sh->name = empty($sh->name) ? "" : $sh->name;
+          $sh->phone = empty($sh->phone) ? "" : $sh->phone;
+          $sh->email = empty($sh->email) ? "" : $sh->email;
           $id_address = $this->address_model->get_id($data->customer_ref, $sh->address, $sh->sub_district, $sh->district, $sh->province, $sh->name, $sh->phone);
 
           if($id_address === FALSE)
@@ -1128,6 +1135,7 @@ class Orders extends REST_Controller
   {
     $sc = TRUE;
     $action = 'cancel';
+    $json = file_get_contents("php://input");
 
     if( ! $this->api)
     {
@@ -1156,9 +1164,7 @@ class Orders extends REST_Controller
 
       $this->response($arr, 400);
     }
-
-    $json = file_get_contents("php://input");
-
+  
     $data = json_decode($json);
 
     $this->api_path."/cancel";
@@ -1843,7 +1849,7 @@ class Orders extends REST_Controller
           'trans_id' => genUid(),
           'api_path' => $this->api_path,
           'type' => $this->type,
-          'code' => $order_number,
+          'code' => $data->order_number,
           'action' => $action,
           'status' => 'failed',
           'message' => $this->error,
