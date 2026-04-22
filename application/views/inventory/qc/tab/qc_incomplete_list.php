@@ -61,6 +61,7 @@
   </div>
   <div class="divider-hidden"></div>
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
+    <?php if($order->state == 6) : ?>      
     <div id="force-bar" class="<?php echo $show_force; ?>">
       <button type="button" class="btn btn-sm btn-danger not-show close-order" id="btn-force-close" onclick="forceClose()">
         บังคับจบ
@@ -72,13 +73,17 @@
     </div>
     <div class="<?php echo $show_close; ?>" id="close-bar">
       <button type="button" class="btn btn-sm btn-success close-order" id="btn-close" onclick="closeOrder()" <?php echo $disActive; ?>>
-        ตรวจเสร็จแล้ว
+        ตรวจเสร็จแล้ว (F2)
       </button>
     </div>
-    <div class="hide" id="bill-bar">
+    <?php endif; ?>
+    <?php if($order->state == 6 OR $order->state == 7) : ?>
+    <div class="divider"></div>
+    <div class="<?php echo $order->state == 6 ? 'hide' : ''; ?>" id="bill-bar">
       <button type="button" class="btn btn-sm btn-primary close-order" id="btn-bill" onclick="confirmOrder('<?php echo $order->code; ?>')">
-        เปิดบิลตัดสต็อก
+        เปิดบิลตัดสต็อก (F3)
       </button>
     </div>
+    <?php endif; ?>
   </div>
 </div>

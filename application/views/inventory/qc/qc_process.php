@@ -1,11 +1,23 @@
 <?php $this->load->view('include/header'); ?>
 <script src="<?php echo base_url(); ?>/assets/js/md5.min.js"></script>
+<style>
+  .table-narrow thead tr th,
+  .table-narrow tbody tr td {
+    font-size:11px;
+    padding:4px;
+  }
+
+  .table-narrow thead tr th:first-child,
+  .table-narrow tbody tr td:first-child {
+    padding-left:8px;
+  }
+</style>
 <div class="row">
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
-    <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-cubes"></i> รอตรวจ</button>
+    <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-chevron-left"></i> รอตรวจ (ESC)</button>
     <button type="button" class="btn btn-white btn-info top-btn" onclick="viewProcess()"><i class="fa fa-cube"></i> กำลังตรวจ</button>
     <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
@@ -73,7 +85,8 @@
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
 <input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
 <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
-<input type="hidden" id="id_box" value="" />
+<input type="hidden" id="id_box" value="<?php echo $active_box_id; ?>" />
+<input type="hidden" id="state" value="<?php echo $order->state; ?>">
 <hr />
 
 <?php $this->load->view('inventory/qc/qc_box'); ?>

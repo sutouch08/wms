@@ -3,15 +3,17 @@
   <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12 padding-0">
     <div class="col-lg-1-harf col-md-3 col-sm-1-harf col-xs-4 padding-5">
       <label class="display-block not-show">box</label>
-      <button type="button" class="btn btn-xs btn-info btn-block" id="btn-add-box" onclick="confirmSaveBeforeAddBox()" <?php echo $disActive; ?>><i class="fa fa-plus"></i> เพิ่มกล่อง</button>
+      <button type="button" class="btn btn-xs btn-info btn-block" 
+        id="btn-add-box" onclick="confirmSaveBeforeAddBox()" <?php echo $disActive; ?>>
+        เพิ่มกล่อง (F1)</button>
     </div>
     <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-3 padding-5">
       <label>จำนวน</label>
-      <input type="number" class="form-control input-sm text-center" id="qc-qty" value="1" <?php echo $disActive; ?> <?php echo $allow_input_qty ? "" : "disabled"; ?>/>
+      <input type="number" class="form-control input-sm text-center focus" id="qc-qty" value="1" <?php echo $disActive; ?> <?php echo $allow_input_qty ? "" : "disabled"; ?>/>
     </div>
     <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
       <label>บาร์โค้ดสินค้า</label>
-      <input type="text" class="form-control input-sm text-center item" id="barcode-item" disabled <?php echo $disActive; ?>/>
+      <input type="text" class="form-control input-sm text-center item focus" id="barcode-item" autocomplete="off" autofocus <?php echo $disActive; ?>/>
     </div>
     <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
       <label class="display-block not-show">submit</label>
@@ -20,9 +22,7 @@
 
     <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-3 padding-5">
       <label class="display-block not-show">submit</label>
-      <button type="button" class="btn btn-xs btn-success btn-block item" onclick="saveQc(0)" <?php echo $disActive; ?>>
-        <i class="fa fa-save"></i> บันทึก
-      </button>
+      <button type="button" class="btn btn-xs btn-success btn-block item" onclick="saveQc(0)" <?php echo $disActive; ?>>บันทึก (Space)</button>
     </div>
     <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-3 padding-5">
       <label class="display-block not-show">print</label>

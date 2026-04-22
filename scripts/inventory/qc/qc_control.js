@@ -46,6 +46,7 @@ function closeOrder(){
             timer:1000
           });
 
+          $('#state').val(7);
           $('#close-bar').addClass('hide');
           $('#bill-bar').removeClass('hide');
           $(".item").attr('disabled', 'disabled');
@@ -173,8 +174,7 @@ function saveQc(option){
 
 $('#qc-qty').focus(function() {
   $(this).select();
-})
-
+});
 
 //--- เมื่อยิงบาร์โค้ด
 $("#barcode-item").keyup(function(e){
@@ -233,7 +233,7 @@ function qcProduct() {
         $("#all_qty").text( addCommas(all_qty));
 
         //--- เปลียนสีแถวที่ถูกตรวจแล้ว
-        $("#row-"+id).addClass('heighlight');
+        $("#row-"+id).addClass('highlight');
 
 
         //--- ย้ายรายการที่กำลังตรวจขึ้นมาบรรทัดบนสุด
@@ -282,7 +282,7 @@ function updateBox(qty){
 function updateBoxList(box_id){
   let id_box = box_id != undefined ? box_id : $("#id_box").val();
   let order_code = $("#order_code").val();
-
+  
   $.ajax({
     url: HOME + 'get_box_list',
     type:"GET",
@@ -292,6 +292,7 @@ function updateBoxList(box_id){
       "id_box" : id_box
     },
     success:function(rs) {
+      load_out();
       if(isJson(rs)) {
         let ds = JSON.parse(rs);
 
@@ -391,6 +392,8 @@ function updatePackageId(box_id) {
 function addBox() {
   let order_code = $('#order_code').val();
 
+  load_in();
+  
   $.ajax({
     url:HOME + 'add_new_box',
     type:'POST',

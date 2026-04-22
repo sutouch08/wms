@@ -4,7 +4,7 @@ window.addEventListener('load', () => {
 });
 
 window.addEventListener('keydown', (event) => {
-  if(event.key == 'F1') {
+  if(event.key == 'F8') {
     event.preventDefault();
     if( ! mediaRecorder) {
       startRecord();
@@ -21,7 +21,7 @@ window.addEventListener('keydown', (event) => {
     }
   }
 
-  if (event.key == 'F2') {
+  if (event.key == 'F9') {
     if (!steam) {
       startCamera();
     }
@@ -35,7 +35,7 @@ window.addEventListener('keydown', (event) => {
     }
   }
 
-  if(event.key == 'Escape') {
+  if(event.key == 'F10') {
     event.preventDefault();
     stopRecord();
   }

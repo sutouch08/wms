@@ -1208,12 +1208,37 @@ class Qc extends PS_Controller
           }
         }
 
+        $active_box_id = "";
+        $box_list = $this->qc_model->get_box_list($code);
+
+        if(empty($box_list))
+        {
+          $package_id = getConfig('DEFAULT_PACKAGE');                    
+          $box_code = $this->get_new_code();
+          $box_no = $this->qc_model->get_last_box_no($code) + 1;
+          $box_id = $this->qc_model->add_new_box($code, $box_code, $box_no, $package_id);
+
+          if($box_id)
+          {
+            $active_box_id = $box_id;
+            $box_list = $this->qc_model->get_box_list($code);
+          }
+        }
+        else 
+        {
+          foreach($box_list as $box)
+          {
+            $active_box_id = $box->id;            
+          }
+        }
+
         $ds = array(
           'order' => $order,
           'uncomplete_details' => $uncomplete,
           'complete_details' => $complete,
           'barcode_list' => $barcode_list,
-          'box_list' => $this->qc_model->get_box_list($code),
+          'box_list' => $box_list,
+          'active_box_id' => $active_box_id,
           'qc_qty' => $this->qc_model->total_qc($code),
           'all_qty' => $this->get_sum_qty($code),
           'finished' => empty($uncomplete) ? TRUE : FALSE,

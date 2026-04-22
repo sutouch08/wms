@@ -46,21 +46,21 @@
 <!-- แสดงผลกล่อง  -->
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" id="box-row">
-    <?php if(!empty($box_list)) : ?>
+    <?php if(!empty($box_list)) : ?>      
       <?php   foreach($box_list as $rs) : ?>
         <div class="box-control">
           <label class="box-label">
             <?php if($order->state == 6) : ?>
               <input type="radio" class="ace box-radio" name="box"
               id="box-<?php echo $rs->id; ?>" value="<?php echo $rs->id; ?>"
-              onchange="confirmSaveBeforeChangeBox(<?php echo $rs->id; ?>)" />
+              onchange="confirmSaveBeforeChangeBox(<?php echo $rs->id; ?>)" <?php echo $rs->id == $active_box_id ? 'checked' : ''; ?> />
               <span class="lbl font-size-14">&nbsp;กล่องที่ <?php echo $rs->box_no; ?> | </span>
               <span class="font-size-11" style=""><?php echo $rs->code; ?></span>
             <?php else : ?>
               <span class="lbl font-size-14">&nbsp;กล่องที่ <?php echo $rs->box_no; ?> | </span>
               <span class="font-size-11" style=""><?php echo $rs->code; ?></span>
             <?php endif; ?>
-            <select class="box-package form-control intput-xs" id="package-<?php echo $rs->id; ?>" onchange="updatePackageId(<?php echo $rs->id; ?>)">
+            <select class="box-package form-control intput-xs focus" id="package-<?php echo $rs->id; ?>" onchange="updatePackageId(<?php echo $rs->id; ?>)">
               <?php echo select_active_package($rs->package_id); ?>
             </select>
           </label>

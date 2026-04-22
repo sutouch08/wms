@@ -6,7 +6,7 @@
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
-    <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-cubes"></i> รอตรวจ</button>
+    <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-chevron-left"></i>&nbsp; รอตรวจ (ESC)</button>
     <button type="button" class="btn btn-white btn-info top-btn" onclick="viewProcess()"><i class="fa fa-cube"></i> กำลังตรวจ</button>
     <?php if ($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
@@ -40,12 +40,12 @@
       <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 margin-top-10">
         <div class="btn-group width-100">
           <button class="btn btn-xs btn-purple width-25" onclick="selectDevices()" title="Select Camera"><i class="fa fa-video-camera"></i></button>
-          <button class="btn btn-xs btn-info width-25" id="start-camera" onclick="startCamera()" title="Preview"><i class="fa fa-play"></i> </button>
-          <button class="btn btn-xs btn-info width-25 hide" id="stop-camera" onclick="stopCamera()" title="Stop Preview"><i class="fa fa-stop"></i> </button>
-          <button class="btn btn-xs btn-primary width-25" id="start-record" onclick="startRecord()" title="Start Record"><i class="fa fa-circle"></i></button>
-          <button class="btn btn-xs btn-primary width-25 hide" id="pause-record" onclick="pauseRecord()" title="Pause Recording"><i class="fa fa-pause"></i></button>
-          <button class="btn btn-xs btn-primary width-25 hide" id="resume-record" onclick="resumeRecord()" title="Resume Record"><i class="fa fa-circle"></i></button>
-          <button class="btn btn-xs btn-danger width-25" id="stop-record" onclick="stopRecord()" title="Stop Record"><i class="fa fa-stop"></i></button>
+          <button class="btn btn-xs btn-info width-25" id="start-camera" onclick="startCamera()" title="Preview (F9)"><i class="fa fa-play"></i></button>
+          <button class="btn btn-xs btn-info width-25 hide" id="stop-camera" onclick="stopCamera()" title="Stop Preview (F9)"><i class="fa fa-stop"></i> </button>
+          <button class="btn btn-xs btn-primary width-25" id="start-record" onclick="startRecord()" title="Start Record (F8)"><i class="fa fa-circle"></i></button>
+          <button class="btn btn-xs btn-primary width-25 hide" id="pause-record" onclick="pauseRecord()" title="Pause Recording (F8)"><i class="fa fa-pause"></i></button>
+          <button class="btn btn-xs btn-primary width-25 hide" id="resume-record" onclick="resumeRecord()" title="Resume Record (F8)"><i class="fa fa-circle"></i></button>
+          <button class="btn btn-xs btn-danger width-25" id="stop-record" onclick="stopRecord()" title="Stop Record (F10)"><i class="fa fa-stop"></i></button>
         </div>
         <a target="_blank" class="recorded-preview"></a>
       </div>
@@ -76,13 +76,14 @@
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
 <input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
 <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
-<input type="hidden" id="id_box" value="" />
-<input type="hidden" id="order-code" 
-  value="<?php echo $order->code; ?>" 
-  data-role="<?php echo $order->role; ?>" 
-  data-user="<?php echo $this->_user->uname; ?>" 
+<input type="hidden" id="id_box" value="<?php echo $active_box_id; ?>" />
+<input type="hidden" id="state" value="<?php echo $order->state; ?>">
+<input type="hidden" id="order-code"
+  value="<?php echo $order->code; ?>"
+  data-role="<?php echo $order->role; ?>"
+  data-user="<?php echo $this->_user->uname; ?>"
   data-endpoint="<?php echo getConfig('VIDEO_ON_PACK_ENDPOINT'); ?>" />
-  
+
 <input type="hidden" id="video-config"
   data-audio-required="<?php echo getConfig('AUDIO_ON_PACK'); ?>"
   data-auto-record="<?php echo getConfig('VIDEO_ON_PACK_AUTO_RECORD'); ?>" />
@@ -236,8 +237,10 @@
 
 
 <?php
-if (!empty($barcode_list)) {
-  foreach ($barcode_list as $bc) {
+if (!empty($barcode_list))
+{
+  foreach ($barcode_list as $bc)
+  {
     echo '<input type="hidden" id="bc-' . $bc->barcode . '" data-code="' . $bc->product_code . '" value="1" />';
   }
 }
