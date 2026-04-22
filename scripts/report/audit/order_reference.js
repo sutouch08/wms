@@ -22,7 +22,7 @@ function getOrder() {
             render_append(source, ds.data, output);
 
             reIndex();
-            recalBox();
+            calculateQty();
             $('#order-no').val('').focus();
           }
           else {
@@ -41,7 +41,7 @@ function getOrder() {
 }
 
 
-function recalBox() {
+function calculateQty() {
   let total = 0;
 
   $('.carton-qty').each(function() {
@@ -51,6 +51,16 @@ function recalBox() {
   });
 
   $('#total-carton').val(total);
+
+  total = 0;
+
+  $('.pack-qty').each(function() {
+    let qty = parseDefaultFloat($(this).val(), 0);
+
+    total += qty;
+  });
+
+  $('#total-pack').val(total);
 }
 
 
@@ -73,7 +83,8 @@ function doExport() {
       'tracking_no' : el.data('tracking'),
       'customer' : el.data('customer'),
       'channels' : el.data('channels'),
-      'carton' : el.data('carton')
+      'carton' : el.data('carton'),
+      'pack' : el.data('pack')
     });
   })
 
@@ -90,5 +101,5 @@ function doExport() {
 function deleteRow(id) {
   $('#row-'+id).remove();
   reIndex();
-  recalBox();
+  calculateQty();
 }

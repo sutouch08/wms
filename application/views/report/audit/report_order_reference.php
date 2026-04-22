@@ -47,6 +47,7 @@
 					<th class="min-width-200 fix-header">ลูกค้า</th>
 					<th class="fix-width-150 fix-header">ช่องทางขาย</th>
 					<th class="fix-width-100 text-center fix-header">กล่อง(ทั้งหมด)</th>
+					<th class="fix-width-100 text-center fix-header">จำนวน</th>
 				</tr>
       </thead>
       <tbody id="order-table">
@@ -56,6 +57,7 @@
 				<tr>
 					<td colspan="7" class="text-right">รวม</td>
 					<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="total-carton" value="0" readonly/></td>
+					<td style="padding:0px;"><input type="number" class="form-control input-sm text-label text-center" id="total-pack" value="0" readonly/></td>
 				</tr>
 			</tfoot>
     </table>
@@ -78,6 +80,7 @@
 			data-customer="{{customer_name}}"
 			data-channels="{{channels_name}}"
 			data-carton="{{carton_qty}}"
+			data-pack="{{pack_qty}}"
 			value="{{order_code}}" readonly />
 		</td>
 		<td>{{reference}}</td>
@@ -86,6 +89,9 @@
 		<td>{{channels_name}}</td>
 		<td style="padding:0px;">
 			<input type="number" class="form-control input-xs text-label font-size-11 text-center carton-qty" id="carton-qty-{{id}}" value="{{carton_qty}}" readonly/>
+		</td>
+		<td>
+			<input type="number" class="form-control input-xs text-label font-size-11 text-center pack-qty" id="pack-qty-{{id}}" value="{{pack_qty}}" readonly/>
 		</td>
 	</tr>
 </script>

@@ -58,7 +58,8 @@ class Order_reference extends PS_Controller
           'channels_name' => channels_name($order->channels_code),
           'customer_code' => get_null($order->customer_code),
           'customer_name' => empty($order->customer_ref) ? get_null($order->customer_name) : $order->customer_ref,
-          'carton_qty' => $this->count_order_box($order->code)
+          'carton_qty' => $this->count_order_box($order->code),
+          'pack_qty' => $this->count_qc_qty($order->code)
         );
       }
       else
@@ -88,6 +89,21 @@ class Order_reference extends PS_Controller
     return $this->db->where('order_code', $order_code)->count_all_results('qc_box');
   }
 
+  public function count_qc_qty($order_code)
+  {
+    $rs = $this->db
+    ->select_sum('qty')
+    ->where('order_code', $order_code)
+    ->get('qc');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
   public function do_export()
   {
     ini_set('memory_limit','2048M');
@@ -107,6 +123,7 @@ class Order_reference extends PS_Controller
     $sheet->getColumnDimension("E")->setAutoSize(true);
     $sheet->getColumnDimension("F")->setAutoSize(true);
     $sheet->getColumnDimension("G")->setAutoSize(true);
+    $sheet->getColumnDimension("H")->setAutoSize(true);
 
     //--- set Table header
     $sheet->setCellValue('A1', '#');
@@ -116,6 +133,7 @@ class Order_reference extends PS_Controller
     $sheet->setCellValue('E1', 'ลูกค้า');
     $sheet->setCellValue('F1', 'ช่องทาง');
     $sheet->setCellValue('G1', 'กล่อง');
+    $sheet->setCellValue('H1', 'จำนวน');
 
     if( ! empty($ds))
     {
@@ -131,6 +149,7 @@ class Order_reference extends PS_Controller
         $sheet->setCellValueExplicit("E{$row}", $rs->customer, PHPExcel_Cell_DataType::TYPE_STRING);
         $sheet->setCellValueExplicit("F{$row}", $rs->channels, PHPExcel_Cell_DataType::TYPE_STRING);
         $sheet->setCellValue("G{$row}", $rs->carton);
+        $sheet->setCellValue("H{$row}", $rs->pack);
         $row++;
         $no++;
       }
