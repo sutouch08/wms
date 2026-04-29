@@ -39,6 +39,19 @@ class Pick_list_model extends CI_Model
   }
 
 
+  public function get_code($id)
+  {
+    $rs = $this->db->select('code')->where('id', $id)->get($this->tb);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->code;
+    }
+
+    return NULL;
+  }
+
+
   public function get_details($code)
   {
     $rs = $this->db->where('pick_code', $code)->get($this->td);
@@ -46,6 +59,19 @@ class Pick_list_model extends CI_Model
     if($rs->num_rows() > 0)
     {
       return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_zone_code($id)
+  {
+    $rs = $this->db->select('zone_code')->where('id', $id)->where('status', 'C')->get($this->tb);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->zone_code;
     }
 
     return NULL;

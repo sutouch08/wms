@@ -362,20 +362,21 @@ class Prepare_model extends CI_Model
       $this->db->where('o.role', $ds['role']);
     }
 
-    if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
+    if (! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
-      if(!empty($ds['stated']))
+      if (! empty($ds['startTime']) && ! empty($ds['endTime']))
       {
-        $from_date = from_date($ds['from_date']);
-        $to_date = to_date($ds['to_date']);
-        $array = $this->getOrderStateChangeIn($ds['stated'], $from_date, $to_date, $ds['startTime'], $ds['endTime'] );
-        $this->db->where_in('o.code', $array);
+        $from_date = db_date($ds['from_date'], FALSE) . ' ' . $ds['startTime'];
+        $to_date = db_date($ds['to_date'], FALSE) . ' ' . $ds['endTime'];
       }
       else
       {
-        $this->db->where('o.date_add >=', from_date($ds['from_date']));
-        $this->db->where('o.date_add <=', to_date($ds['to_date']));
+        $from_date = from_date($ds['from_date']);
+        $to_date = to_date($ds['to_date']);
       }
+
+      $this->db->where('o.date_add >=', $from_date);
+      $this->db->where('o.date_add <=', $to_date);
     }
 
     if( ! empty($ds['from_due_date']))
@@ -410,7 +411,7 @@ class Prepare_model extends CI_Model
     $this->db
 		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
     ->select('o.customer_ref, o.date_add, o.due_date, o.channels_code, o.is_backorder, o.is_cancled, o.shop_id')
-    ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user, o.id_sender')
+    ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user, o.id_sender, o.pick_list_id')
     ->select('ch.name AS channels_name, s.name AS sender_name')
     ->from('orders AS o')
     ->join('channels AS ch', 'ch.code = o.channels_code','left')
@@ -530,18 +531,19 @@ class Prepare_model extends CI_Model
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
-      if(!empty($ds['stated']))
+      if( ! empty($ds['startTime']) && ! empty($ds['endTime']))
       {
-        $from_date = from_date($ds['from_date']);
-        $to_date = to_date($ds['to_date']);
-        $array = $this->getOrderStateChangeIn($ds['stated'], $from_date, $to_date, $ds['startTime'], $ds['endTime'] );
-        $this->db->where_in('o.code', $array);
+        $from_date = db_date($ds['from_date'], FALSE) . ' ' . $ds['startTime'];
+        $to_date = db_date($ds['to_date'], FALSE) . ' ' . $ds['endTime'];                
       }
       else
       {
-        $this->db->where('o.date_add >=', from_date($ds['from_date']));
-        $this->db->where('o.date_add <=', to_date($ds['to_date']));
+        $from_date = from_date($ds['from_date']);
+        $to_date = to_date($ds['to_date']);
       }
+
+       $this->db->where('o.date_add >=', $from_date);
+       $this->db->where('o.date_add <=', $to_date);
     }
 
     if( ! empty($ds['from_due_date']))

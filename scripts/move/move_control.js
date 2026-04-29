@@ -135,16 +135,17 @@ function showTempTable(){
 
 
 function inputQtyInit(){
-	$('.input-qty').keyup(function(){
-		var qty = parseInt($(this).val());
-		var limit = parseInt($(this).attr('max'));
-		qty = isNaN(qty) ? 0 : qty;
-		limit = isNaN(limit) ? 0 : limit;
+	$('.input-qty').keyup(function() {
+		let qty = parseDefault(parseInt($(this).val()), 0);
+		let limit = parseDefault(parseInt($(this).attr('max')), 0);
+		
+		if(qty < 0) {
+			swal('จำนวนต้องไม่น้อยกว่า 0');			
+		}
 
 		if(qty > limit)
 		{
-			swal('โอนได้ไม่เกิน ' + limit);
-			$(this).val(limit);
+			swal('โอนได้ไม่เกิน ' + limit);			
 		}
 	})
 }

@@ -701,8 +701,19 @@ class Orders_model extends CI_Model
 
     if (! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      if (! empty($ds['startTime']) && ! empty($ds['endTime']))
+      {
+        $from_date = db_date($ds['from_date'], FALSE) . ' ' . $ds['startTime'];
+        $to_date = db_date($ds['to_date'], FALSE) . ' ' . $ds['endTime'];
+      }
+      else
+      {
+        $from_date = from_date($ds['from_date']);
+        $to_date = to_date($ds['to_date']);
+      }
+
+      $this->db->where('date_add >=', $from_date);
+      $this->db->where('date_add <=', $to_date);
     }
 
     //---- เลขที่เอกสาร
@@ -967,8 +978,19 @@ class Orders_model extends CI_Model
 
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
-      $this->db->where('date_add >=', from_date($ds['from_date']));
-      $this->db->where('date_add <=', to_date($ds['to_date']));
+      if(! empty($ds['startTime']) && ! empty($ds['endTime']))
+      {
+        $from_date = db_date($ds['from_date'], FALSE) . ' ' . $ds['startTime'];
+        $to_date = db_date($ds['to_date'], FALSE) . ' ' . $ds['endTime'];                
+      }
+      else
+      {
+        $from_date = from_date($ds['from_date']);
+        $to_date = to_date($ds['to_date']);
+      }
+      
+      $this->db->where('date_add >=', $from_date);
+      $this->db->where('date_add <=', $to_date);
     }
 
     //---- เลขที่เอกสาร

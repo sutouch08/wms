@@ -15,14 +15,16 @@ function refresh() {
 
 //---- ไปหน้าจัดสินค้า
 function goPrepare(code, view) {
-  if(view === undefined) {
-    let ex = $('#ex').val();
-    window.location.href = HOME + '/process/'+code+'/'+ex;
-  }
-  else {
-    let ex = $('#ex').val();
-    window.location.href = HOME + '/process/'+code+'/' + ex + '/mobile';
-  }
+  let ex = $('#ex').val();
+  let url = `${HOME}/process/${code}/${ex}`;
+
+  if(view !== undefined) {
+    url += '/mobile';
+  }  
+
+  $('#order-code').val('');
+  
+  window.open(url, '_blank');
 }
 
 

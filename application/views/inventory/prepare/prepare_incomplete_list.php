@@ -4,7 +4,7 @@
 
 <div class="row">
   <div class="div-col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" style="min-width:950px;">
+    <table class="table table-striped table-narrow border-1" style="min-width:950px;">
       <thead>
         <tr><td colspan="6" align="center">รายการรอจัด</td></tr>
         <tr>
@@ -22,8 +22,8 @@
 
 <?php  if(!empty($uncomplete_details)) : ?>
 <?php   foreach($uncomplete_details as $rs) : ?>
-    <tr class="font-size-12 incomplete" id="incomplete-<?php echo $rs->id; ?>">
-      <td class="middle text-center b-click">
+    <tr class="font-size-11 incomplete" id="incomplete-<?php echo $rs->id; ?>">
+      <td class="middle b-click">
         <?php echo (empty($rs->barcode) ? $rs->product_code : $rs->barcode); ?>
       </td>
       <td class="middle">
@@ -42,7 +42,7 @@
       <td class="middle text-right">
         <button
           type="button"
-          class="btn btn-default btn-xs btn-pop <?php echo $showBtn; ?>"
+          class="btn btn-default btn-minier btn-pop <?php echo $showBtn; ?>"
           data-container="body"
           data-toggle="popover"
           data-placement="left"
@@ -78,7 +78,7 @@
 
 
         <div id="close-bar" class="<?php echo $close; ?>">
-          <button type="button" class="btn btn-sm btn-success" onclick="finishPrepare()">จัดเสร็จแล้ว</button>
+          <button type="button" class="btn btn-sm btn-success" onclick="finishPrepare()">จัดเสร็จแล้ว (F1)</button>
         </div>
       </td>
     </tr>
@@ -88,7 +88,7 @@
   <tr>
     <td colspan="6" class="text-center">
       <div id="close-bar">
-        <button type="button" class="btn btn-sm btn-success" onclick="finishPrepare()">จัดเสร็จแล้ว</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="finishPrepare()">จัดเสร็จแล้ว (F1)</button>
       </div>
     </td>
   </tr>

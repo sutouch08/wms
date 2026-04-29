@@ -1,4 +1,5 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('inventory/prepare/style'); ?>
 <div class="row">
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -35,28 +36,32 @@
       <label class="not-show">ลูกค้า</label>
       <input type="text" class="width-100" value="<?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>" disabled />
     </div>
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
       <label>ช่องทางขาย</label>
       <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" disabled />
     </div>
-    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+    <div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
       <label>Shop name</label>
       <input type="text" class="width-100" value="<?php echo shop_name($order->shop_id); ?>" disabled />
     </div>
 
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
+    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
       <label>คลัง</label>
       <input type="text" class="width-100" id="whs-name" value="<?php echo $order->warehouse_name; ?>" disabled />
     </div>
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+      <label>Pick List</label>
+      <input type="text" class="width-100" id="pick-list" value="<?php echo empty($order->pick_list_code) ? '' : $order->pick_list_code; ?>" disabled />
+    </div>
 
-    <div class="col-lg-7 col-md-5 col-sm-5 col-xs-12 padding-5">
+    <div class="col-lg-5-harf col-md-12 col-sm-12 col-xs-12 padding-5">
       <label>หมายเหตุ</label>
       <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
     </div>
   </div>
 
   <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
-  <input type="hidden" name="zone_code" id="zone_code" />
+  <input type="hidden" name="zone_code" id="zone_code" value="<?php echo empty($order->zone) ? '' : $order->zone->code; ?>" />
   <input type="hidden" id="warehouse_code" value="<?php echo $order->warehouse_code; ?>" />
   <input type="hidden" id="allow-prepare" value="<?php echo $order->allow_prepare; ?>" />
   <input type="hidden" id="ex" value="<?php echo $ex; ?>" />

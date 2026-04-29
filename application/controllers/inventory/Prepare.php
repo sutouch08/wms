@@ -15,6 +15,7 @@ class Prepare extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/prepare';
     $this->load->model('inventory/prepare_model');
+    $this->load->model('inventory/pick_list_model');
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
     $this->load->model('masters/warehouse_model');
@@ -47,8 +48,7 @@ class Prepare extends PS_Controller
       'from_due_date' => get_filter('from_due_date', 'ic_from_due_date', ''),
       'to_due_date' => get_filter('to_due_date', 'ic_to_due_date', ''),
       'order_by' => get_filter('order_by', 'ic_order_by', ''),
-      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
-      'stated' => get_filter('stated', 'ic_stated', ''),
+      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),      
       'startTime' => get_filter('startTime', 'ic_startTime', ''),
       'endTime' => get_filter('endTime', 'ic_endTime', ''),
       'item_code' => get_filter('item_code', 'ic_item_code', ''),
@@ -105,8 +105,7 @@ class Prepare extends PS_Controller
       'from_due_date' => get_filter('from_due_date', 'ic_from_due_date', ''),
       'to_due_date' => get_filter('to_due_date', 'ic_to_due_date', ''),
       'order_by' => get_filter('order_by', 'ic_order_by', ''),
-      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
-      'stated' => get_filter('stated', 'ic_stated', ''),
+      'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),      
       'startTime' => get_filter('startTime', 'ic_startTime', ''),
       'endTime' => get_filter('endTime', 'ic_endTime', ''),
       'item_code' => get_filter('item_code', 'ic_item_code', ''),
@@ -334,6 +333,7 @@ class Prepare extends PS_Controller
   {
     $this->load->model('masters/customers_model');
     $this->load->model('masters/channels_model');
+    $this->load->model('masters/zone_model');
     $this->load->helper('warehouse');
 
     $is_cancel = FALSE;
@@ -373,13 +373,27 @@ class Prepare extends PS_Controller
           }
         }
 
+        //-- get data from pick list
+        $pickList = empty($order->pick_list_id) ? NULL : $this->pick_list_model->get_by_id($order->pick_list_id);
+
+        if( ! empty($pickList))
+        {
+          $order->pick_list_code = $pickList->code;
+          $zone = $this->zone_model->get($pickList->zone_code);
+
+          if (! empty($zone))
+          {
+            $order->zone = $zone;
+          }
+        }
+        
         $order->customer_name = $this->customers_model->get_name($order->customer_code);
         $order->channels_name = $this->channels_model->get_name($order->channels_code);
 
         $whs = $this->warehouse_model->get($order->warehouse_code);
         $order->warehouse_name = empty($whs) ? NULL : $whs->name;
         $order->allow_prepare = $whs->prepare;
-
+        
         $orderQty = 0;
         $pickedQty = 0;
 
@@ -424,7 +438,7 @@ class Prepare extends PS_Controller
           'complete_details' => $complete,
           'finished' => empty($uncomplete) ? TRUE : FALSE,
           'orderQty' => number($orderQty),
-          'pickedQty' => number($pickedQty),
+          'pickedQty' => number($pickedQty),          
           'ex' => $ex
         );
 

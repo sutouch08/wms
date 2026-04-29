@@ -2,7 +2,7 @@
 <?php $showBtn  = get_cookie('showZone') ? 'hide' : '';  ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1">
+    <table class="table table-striped table-narrow border-1">
       <thead>
         <tr><td colspan="6" align="center">รายการที่ครบแล้ว</td></tr>
         <tr>          
@@ -37,7 +37,7 @@
       <td class="middle text-right">
         <button
           type="button"
-          class="btn btn-default btn-xs btn-pop <?php echo $showBtn; ?>"
+          class="btn btn-default btn-minier btn-pop <?php echo $showBtn; ?>"
           data-container="body"
           data-toggle="popover"
           data-placement="left"

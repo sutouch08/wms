@@ -41,6 +41,16 @@ li {
   min-width:1600px;
 }
 
+.table-narrow thead tr th,
+.table-narrow tbody tr td {
+  padding: 3px;
+}
+
+.table-narrow thead tr th:first-child,
+.table-narrow tbody tr td:first-child {
+  padding-left: 8px;
+}
+
 @media (max-width:767px) {
   .fi {
     margin-bottom: 10px;

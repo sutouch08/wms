@@ -70,7 +70,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>Shop Name</label>
 			<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -78,7 +78,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+		<div class="col-lg-1-harf col-md-3 col-sm-2 col-xs-6 padding-5">
 			<label>การชำระเงิน</label>
 			<select class="form-control input-sm" name="payment" onchange="getSearch()">
 				<option value="">ทั้งหมด</option>
@@ -93,8 +93,22 @@
 				<input type="text" class="form-control input-sm width-50 text-center" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
 			</div>
 		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+			<label>เวลาเริ่มต้น</label>
+			<select class="form-control input-sm" name="startTime">
+				<option value="">ทั้งหมด</option>
+				<?php echo selectTime($startTime); ?>
+			</select>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+			<label>เวลาสิ้นสุด</label>
+			<select class="form-control input-sm" name="endTime">
+				<option value="">ทั้งหมด</option>
+				<?php echo selectTime($endTime); ?>
+			</select>
+		</div>
 
-		<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
+		<div class="col-lg-2 col-md-3 col-sm-2-harf col-xs-6 padding-5">
 			<label>ช่วงข้อมูล</label>
 			<select class="form-control input-sm" name="range">
 				<option value="top" <?php echo is_selected('top', $range); ?>><?php echo number(getConfig('FILTER_RESULT_LIMIT')); ?> รายการล่าสุด</option>
@@ -102,7 +116,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 			<label>Back order</label>
 			<select class="form-control input-sm" name="is_backorder" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -111,7 +125,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 			<label>Pre order</label>
 			<select class="form-control input-sm" name="is_pre_order" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -120,7 +134,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-4 padding-5">
 			<label>Tax</label>
 			<select class="form-control input-sm" name="tax_status" onchange="getSearch()">
 				<option value="all" <?php echo is_selected($tax_status, 'all'); ?>>ทั้งหมด</option>
@@ -129,7 +143,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-4 padding-5">
 			<label>E-Tax</label>
 			<select class="form-control input-sm" name="is_etax" onchange="getSearch()">
 				<option value="all" <?php echo is_selected($is_etax, 'all'); ?>>ทั้งหมด</option>
@@ -138,7 +152,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-4 padding-5">
 			<label>SAP</label>
 			<select class="form-control input-sm" name="sap_status" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -168,7 +182,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-4 col-md-4-harf col-sm-4 col-xs-8 padding-5">
+		<div class="col-lg-4 col-md-4-harf col-sm-4 col-xs-12 padding-5">
 			<label>คลัง</label>
 			<select class="width-100" name="warehouse" id="warehouse" onchange="getSearch()">
 				<option value="">ทั้งหมด</option>
@@ -185,7 +199,7 @@
 			<button type="button" class="btn btn-xs btn-warning btn-block" style="height:30px;" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
 		</div>
 
-		<div class="col-lg-1-harf col-md-5 col-sm-1 hidden-xs">&nbsp;</div>
+		<div class="col-lg-1-harf col-md-12 col-sm-12 col-xs-12">&nbsp;</div>
 		<!-- Quick Open -->
 		<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
 			<label>Quick Open</label>
@@ -238,7 +252,7 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="order-table" style="overflow:auto;">
-		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1430px; margin-bottom:20px;">
+		<table class="table table-striped table-hover dataTable tableFixHead" style="min-width:1450px; margin-bottom:20px;">
 			<thead>
 				<tr class="font-size-11">
 					<th class="fix-width-40 middle text-center fix-header">
@@ -248,7 +262,7 @@
 						</label>
 					</th>
 					<th class="fix-width-40 middle text-center fix-header">ลำดับ</th>
-					<th class="fix-width-100 middle text-center fix-header sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
+					<th class="fix-width-120 middle text-center fix-header sorting <?php echo $sort_date; ?>" id="sort_date_add" onclick="sort('date_add')">วันที่</th>
 					<th class="fix-width-150 middle fix-header sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
 					<th class="fix-width-150 middle fix-header">เลขที่อ้างอิง</th>
 					<th class="min-width-350 middle fix-header">ลูกค้า</th>
@@ -278,7 +292,7 @@
 								<?php endif; ?>
 							</td>
 							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
-							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
+							<td class="middle text-center" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add, TRUE); ?></td>
 							<td class="middle">
 								<a target="_blank" href="<?php echo $this->home; ?>/edit_order/<?php echo $rs->code; ?>" style="color:inherit;"><?php echo $rs->code . $cn_text; ?></a>
 							</td>
