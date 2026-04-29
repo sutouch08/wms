@@ -181,6 +181,7 @@ function addToMove() {
 		let pd_code = $(this).data('products');
 		let qty = parseDefault(parseInt($(this).val()), 0);
 		let limit = parseDefault(parseInt($(this).attr('max')), 0);
+
 		if (qty < 0) {
 			$(this).hasError();
 			swal('จำนวนต้องไม่น้อยกว่า 0');
@@ -193,8 +194,10 @@ function addToMove() {
 			return false;
 		}
 
-		item = { "code": pd_code, "qty": qty };
-		items.push(item);
+		if(qty > 0) {	
+			item = { "code": pd_code, "qty": qty };
+			items.push(item);
+		}
 	});
 
 	if(items.length) {

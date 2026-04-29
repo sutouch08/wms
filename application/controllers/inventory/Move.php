@@ -730,32 +730,35 @@ class Move extends PS_Controller
                 {
                   if( $sc === FALSE) { break; }
 
-                  $id = $this->move_model->get_id($code, $item->code, $from_zone, $to_zone);
-
-                  if(! empty($id))
+                  if($item->qty > 0)
                   {
-                    if( ! $this->move_model->update_qty($id, $item->qty))
+                    $id = $this->move_model->get_id($code, $item->code, $from_zone, $to_zone);
+
+                    if(! empty($id))
                     {
-                      $sc = FALSE;
-                      $this->error = "Update Move Item Qty Failed";
+                      if( ! $this->move_model->update_qty($id, $item->qty))
+                      {
+                        $sc = FALSE;
+                        $this->error = "Update Move Item Qty Failed";
+                      }
                     }
-                  }
-                  else
-                  {
-                    $arr = array(
-                      'move_code' => $code,
-                      'product_code' => $item->code,
-                      'product_name' => $this->products_model->get_name($item->code),
-                      'from_zone' => $from_zone,
-                      'to_zone' => $to_zone,
-                      'qty' => $item->qty,
-                      'must_accept' => $must_accept
-                    );
-
-                    if( ! $this->move_model->add_detail($arr))
+                    else
                     {
-                      $sc = FALSE;
-                      $this->error = "Insert Move Item Failed";
+                      $arr = array(
+                        'move_code' => $code,
+                        'product_code' => $item->code,
+                        'product_name' => $this->products_model->get_name($item->code),
+                        'from_zone' => $from_zone,
+                        'to_zone' => $to_zone,
+                        'qty' => $item->qty,
+                        'must_accept' => $must_accept
+                      );
+
+                      if( ! $this->move_model->add_detail($arr))
+                      {
+                        $sc = FALSE;
+                        $this->error = "Insert Move Item Failed";
+                      }
                     }
                   }
                 }
