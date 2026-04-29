@@ -15,7 +15,7 @@
   <div class="divider-hidden visible-xs"></div>
   <div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-3 padding-5">
     <label>จำนวน</label>
-    <input type="number" class="form-control input-sm text-center" id="qty" value="1" />
+    <input type="number" class="form-control input-sm text-center focus" id="qty" value="1" />
   </div>
   <div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label>บาร์โค้ดสินค้า</label>
