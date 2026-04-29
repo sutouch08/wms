@@ -3,7 +3,7 @@ var autoFocus = 1;
 window.addEventListener('load', () => {
   focus_init();
   bclick_init();
-  $('#barcode-zone').focus();
+  setFocus();  
 });
 
 

@@ -143,7 +143,7 @@
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>เวลาเริ่มต้น</label>
 			<select class="form-control input-sm" name="startTime">
-				<option value="">ทั้งหมด</option>					
+				<option value="">ทั้งหมด</option>
 				<?php echo selectTime($startTime); ?>
 			</select>
 		</div>
@@ -151,7 +151,7 @@
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
 			<label>เวลาสิ้นสุด</label>
 			<select class="form-control input-sm" name="endTime">
-				<option value="">ทั้งหมด</option>					
+				<option value="">ทั้งหมด</option>
 				<?php echo selectTime($endTime); ?>
 			</select>
 		</div>
@@ -302,13 +302,13 @@
 							</td>
 							<td class="middle hidden-xs"><?php echo empty($rs->zone_code) ? NULL : $zName[$rs->zone_code]; ?></td>
 
-							<td class="visible-xs" style="border:0px; padding:3px; font-size:12px;">
+							<td class="visible-xs" style="border:0px; padding:3px; font-size:11px;">
 								<div class="col-xs-12" style="border:solid 1px #ccc; border-radius:5px; box-shadow:0px 1px 2px #f3ecec; padding:5px; max-width:100vw !important;">
 									<div class="width-100" style="padding: 3px 3px 3px 10px;">
 										<p class="margin-bottom-3 pre-wrap"><b>วันที่ : </b><?php echo thai_date($rs->date_add, FALSE, '/'); ?></p>
 										<p class="margin-bottom-3 pre-wrap"><b>เลขที่ : </b>
 											<?php echo $rs->code; ?>
-											<?php echo (empty($rs->reference) ? "" : "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" . $rs->reference . "]"); ?>
+											<?php echo (empty($rs->reference) ? '' : '<br/><span class="not-show"><b>เลขที่ : </b></span>[' . $rs->reference . ']'); ?>
 											<?php echo $cn_text; ?>
 										</p>
 										<p class="margin-bottom-3 pre-wrap"><b>ลูกค้า : </b>
@@ -327,7 +327,9 @@
 										<?php endif; ?>
 										<p class="margin-bottom-3 pre-wrap"><b>คลัง : </b> <?php echo $whName[$rs->warehouse_code]; ?></p>
 										<p class="margin-bottom-3 pre-wrap"><b>จำนวน : </b> <?php echo number($rs->qty); ?></p>
-
+										<?php if (! empty($rs->pick_list_id)) : ?>											
+											<p class="margin-bottom-3 pre-wrap"><b>PickList : </b> <?php echo empty($rs->pick_list_id) ? '-' : $picklist_code; ?></p>
+										<?php endif; ?>
 									</div>
 									<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
 										<button type="button" class="btn btn-white btn-info"

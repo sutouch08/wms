@@ -2,8 +2,8 @@
 <?php $this->load->view('inventory/prepare/style'); ?>
 <?php $this->load->view('inventory/prepare/process_style'); ?>
 
-<?php if($order->state != 4) : ?>
-<?php   $this->load->view('inventory/prepare/invalid_state'); ?>
+<?php if ($order->state != 4) : ?>
+  <?php $this->load->view('inventory/prepare/invalid_state'); ?>
 <?php else : ?>
   <?php $ref = empty($order->reference) ? "" : "&nbsp;&nbsp;&nbsp;[{$order->reference}]"; ?>
   <div class="form-horizontal filter-pad move-out" id="header-pad">
@@ -14,36 +14,36 @@
     <div class="form-group" style="margin-top:50px;">
       <div class="col-xs-12 padding-5">
         <label>เลขที่เอกสาร</label>
-        <input type="text" class="width-100" value="<?php echo $order->code . $ref; ?> " readonly/>
+        <input type="text" class="width-100" value="<?php echo $order->code . $ref; ?> " readonly />
       </div>
     </div>
     <div class="form-group">
       <div class="col-xs-12 padding-5">
         <label>ลูกค้า/ผู้เบิก/ผู้ยืม</label>
-        <input type="text" class="width-100" value="<?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>" readonly/>
+        <input type="text" class="width-100" value="<?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>" readonly />
       </div>
     </div>
 
     <div class="form-group">
       <div class="col-xs-12 padding-5">
         <label>คลัง</label>
-        <input type="text" class="width-100" value="<?php echo $order->warehouse_name; ?>" readonly/>
+        <input type="text" class="width-100" value="<?php echo $order->warehouse_name; ?>" readonly />
       </div>
     </div>
 
-		<?php if($order->role == 'S') : ?>
-	    <div class="form-group">
-	      <div class="col-xs-12 padding-5">
-	        <label>ช่องทาง</label>
-	        <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" readonly/>
-	      </div>
-	    </div>
-		<?php endif; ?>
+    <?php if ($order->role == 'S') : ?>
+      <div class="form-group">
+        <div class="col-xs-12 padding-5">
+          <label>ช่องทาง</label>
+          <input type="text" class="width-100" value="<?php echo $order->channels_name; ?>" readonly />
+        </div>
+      </div>
+    <?php endif; ?>
 
     <div class="form-group">
       <div class="col-xs-12 padding-5">
         <label>วันที่</label>
-        <input type="text" class="width-100" value="<?php echo thai_date($order->date_add); ?>" readonly/>
+        <input type="text" class="width-100" value="<?php echo thai_date($order->date_add); ?>" readonly />
       </div>
     </div>
 
@@ -56,63 +56,70 @@
   </div>
 
 
-	<div class="width-100 header-info hide-text">
+  <div class="width-100 header-info hide-text">
     <div class="col-xs-12 font-size-24 text-center" style="padding:4px;">
       <span id="pick-qty"><?php echo $pickedQty; ?></span>
       &nbsp;/&nbsp;
       <span id="order-qty"><?php echo $orderQty; ?></span>
     </div>
-	</div>
+  </div>
 
   <div id="control-box">
-<?php if($order->allow_prepare) : ?>
-  <?php $showKeyboard = get_cookie('showKeyboard'); ?>
-  <?php $inputmode = $showKeyboard ? 'text' : 'none'; ?>
-  <?php $keyboard = $showKeyboard ? '' : 'hide'; ?>
-  <?php $qr = $showKeyboard ? 'hide' : ''; ?>
+    <?php if ($order->allow_prepare) : ?>
+      <?php $showKeyboard = get_cookie('showKeyboard'); ?>
+      <?php $inputmode = $showKeyboard ? 'text' : 'none'; ?>
+      <?php $keyboard = $showKeyboard ? '' : 'hide'; ?>
+      <?php $qr = $showKeyboard ? 'hide' : ''; ?>
+      <?php $hideZone = empty($order->zone) ? '' : 'hide'; ?>
+      <?php $showItem = empty($order->zone) ? 'hide' : ''; ?>
 
-		<div class="">
-			<div class="width-100 e-zone" id="zone-bc">
-				<span class="width-100">
-					<input type="text" class="form-control input-lg focus"
-          style="padding-left:15px; padding-right:40px;" id="barcode-zone" inputmode="<?php echo $inputmode; ?>" placeholder="Barcode Zone" autocomplete="off">
-					<i class="ace-icon fa fa-keyboard-o fa-2x <?php echo $keyboard; ?>" style="position:absolute; top:15px; right:22px; color:grey;" id="zone-keyboard" onclick="hideKeyboard('zone')"></i>
-          <i class="ace-icon fa fa-qrcode fa-2x <?php echo $qr; ?>" style="position:absolute; top:15px; right:22px; color:grey;" id="zone-qr" onclick="showKeyboard('zone')"></i>
-				</span>
-			</div>
-			<div class="width-100 padding-right-5 margin-bottom-10 text-center e-item hide" id="item-qty">
-				<button type="button" class="btn btn-default" id="btn-decrese"><i class="fa fa-minus"></i></button>
-				<input type="number" class="width-30 input-lg focus text-center" style="padding-left:10px; padding-right:10px;" id="qty" inputmode="numeric" autocomplete="off" placeholder="QTY" value="1">
-				<button type="button" class="btn btn-default" id="btn-increse"><i class="fa fa-plus"></i></button>
-			</div>
+      <div class="">
+        <div class="width-100 e-zone <?php echo $hideZone; ?>" id="zone-bc">
+          <span class="width-100">
+            <input type="text" class="form-control input-lg focus"
+              style="padding-left:15px; padding-right:40px;" id="barcode-zone"
+              inputmode="<?php echo $inputmode; ?>" value="<?php echo empty($order->zone) ? '' : $order->zone->code; ?>"
+              placeholder="Barcode Zone" autocomplete="off">
+            <i class="ace-icon fa fa-keyboard-o fa-2x <?php echo $keyboard; ?>" style="position:absolute; top:15px; right:22px; color:grey;" id="zone-keyboard" onclick="hideKeyboard('zone')"></i>
+            <i class="ace-icon fa fa-qrcode fa-2x <?php echo $qr; ?>" style="position:absolute; top:15px; right:22px; color:grey;" id="zone-qr" onclick="showKeyboard('zone')"></i>
+          </span>
+        </div>
+        <div class="width-100 padding-right-5 margin-bottom-10 text-center e-item <?php echo $showItem; ?>" id="item-qty">
+          <button type="button" class="btn btn-default" id="btn-decrese"><i class="fa fa-minus"></i></button>
+          <input type="number" class="width-30 input-lg focus text-center" style="padding-left:10px; padding-right:10px;" id="qty" inputmode="numeric" autocomplete="off" placeholder="QTY" value="1">
+          <button type="button" class="btn btn-default" id="btn-increse"><i class="fa fa-plus"></i></button>
+        </div>
 
-			<div class="width-100 e-item hide" id="item-bc">
-				<input type="text" class="form-control input-lg focus" style="padding-left:15px; padding-right:40px;" id="barcode-item" inputmode="<?php echo $inputmode; ?>"  placeholder="Barcode Item" autocomplete="off">
-				<i class="ace-icon fa fa-keyboard-o fa-2x <?php echo $keyboard; ?>" style="position:absolute; top:72px; right:22px; color:grey;" onclick="hideKeyboard('item')"></i>
-        <i class="ace-icon fa fa-qr fa-2x <?php echo $qr; ?>" style="position:absolute; top:72px; right:22px; color:grey;" onclick="showKeyboard('item')"></i>
-			</div>
-		</div>
-  <?php else : ?>
-    <div class="row">
-      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center">
-        <h4 class="red">ไม่อนุญาติให้จัดสินค้าในคลังนี้</h4>
+        <div class="width-100 e-item <?php echo $showItem; ?>" id="item-bc">
+          <input type="text" class="form-control input-lg focus" style="padding-left:15px; padding-right:40px;" id="barcode-item" inputmode="<?php echo $inputmode; ?>" placeholder="Barcode Item" autocomplete="off">
+          <i class="ace-icon fa fa-keyboard-o fa-2x <?php echo $keyboard; ?>" style="position:absolute; top:72px; right:22px; color:grey;" onclick="hideKeyboard('item')"></i>
+          <i class="ace-icon fa fa-qr fa-2x <?php echo $qr; ?>" style="position:absolute; top:72px; right:22px; color:grey;" onclick="showKeyboard('item')"></i>
+        </div>
       </div>
-    </div>
-  <?php endif; ?>
-	</div>
+    <?php else : ?>
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center">
+          <h4 class="red">ไม่อนุญาติให้จัดสินค้าในคลังนี้</h4>
+        </div>
+      </div>
+    <?php endif; ?>
+  </div>
 
-  <div class="width-100 text-center bottom-info hide-text" id="zone-name">กรุณาระบุโซน</div>
+  <div class="width-100 text-center bottom-info hide-text" id="zone-name">
+    <?php echo empty($order->zone) ? 'กรุณาระบุโซน' : $order->zone->name; ?>
+  </div>
 
-  <hr class="margin-top-10 margin-bottom-10"/>
+  <hr class="margin-top-10 margin-bottom-10" />
   <div class="row">
     <?php $this->load->view('inventory/prepare/prepare_incomplete_list_mobile');  ?>
     <?php $this->load->view('inventory/prepare/prepare_completed_list_mobile'); ?>
   </div><!--rox-->
 
-<?php endif; //--- endif order->state ?>
+<?php endif; //--- endif order->state 
+?>
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
 <input type="hidden" id="warehouse_code" value="<?php echo $order->warehouse_code; ?>" />
-<input type="hidden" id="zone_code" />
+<input type="hidden" id="zone_code" value="<?php echo empty($order->zone) ? '' : $order->zone->code; ?>" />
 <input type="hidden" id="header" value="hide" />
 <input type="hidden" id="filter" value="hide" />
 <input type="hidden" id="extra" value="hide" />
@@ -221,8 +228,8 @@
   </div>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=1<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_mobile.js?v=1<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare.js?v=2<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/prepare/prepare_mobile.js?v=2<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>
