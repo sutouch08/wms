@@ -36,7 +36,7 @@ function focus_init() {
       if (autoFocus == 1) {
         setFocus();
       }
-    }, 1000)
+    }, 15000)
   })
 
   $('.focus').focusin(function () {
