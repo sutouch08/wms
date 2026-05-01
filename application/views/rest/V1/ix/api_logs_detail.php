@@ -4,22 +4,33 @@
 		margin-top: 10px;
 	}
 </style>
+<?php 
+	$start_at = new DateTime($start_date);
+ 	$end_at = new DateTime($end_date);
+ 	$diff = $start_at->diff($end_at); 
+	$total_seconds = ($diff->h * 3600) + ($diff->i * 60) + $diff->s + ($diff->f);
+	$milliseconds = round($total_seconds * 1000);
+?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		<label>TransId</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $trans_id; ?>" disabled />
 	</div>
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
 		<label>Date Time</label>
-		<input type="text" class="form-control input-sm" value="<?php echo thai_date($date_upd, TRUE); ?>" disabled />
+		<input type="text" class="form-control input-sm text-center" value="<?php echo thai_date($date_upd, TRUE); ?>" disabled />
 	</div>
-	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+	<div class="col-lg-3-harf col-md-3-harf col-sm-3-harf col-xs-12">
 		<label>Request Time</label>
-		<input type="text" class="form-control input-sm" value="<?php echo thai_date($start_date, TRUE); ?>" disabled />
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $start_at->format('d-m-Y H:i:s.v'); ?>" disabled />
 	</div>
-	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+	<div class="col-lg-3-harf col-md-3-harf col-sm-3-harf col-xs-12">
 		<label>Response Time</label>
-		<input type="text" class="form-control input-sm" value="<?php echo thai_date($end_date, TRUE); ?>" disabled />
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $end_at->format('d-m-Y H:i:s.v'); ?>" disabled />
+	</div>
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+		<label>Elapsed (ms)</label>
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $milliseconds; ?>" disabled />
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		<label>Api path</label>

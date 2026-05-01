@@ -45,7 +45,8 @@ function thai_short_text_date($date, $time = FALSE)
 
 function now()
 {
-  return date('Y-m-d H:i:s');
+  $date = new DateTime();
+  return $date->format('Y-m-d H:i:s.u');
 }
 
 
