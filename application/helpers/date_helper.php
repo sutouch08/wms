@@ -43,10 +43,10 @@ function thai_short_text_date($date, $time = FALSE)
 
 
 
-function now()
+function now($millisec = FALSE)
 {
   $date = new DateTime();
-  return $date->format('Y-m-d H:i:s.u');
+  return $millisec === TRUE ? $date->format('Y-m-d H:i:s.u') : $date->format('Y-m-d H:i:s');
 }
 
 
