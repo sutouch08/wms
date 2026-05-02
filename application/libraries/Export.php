@@ -1850,7 +1850,7 @@ public function export_return($code)
             'U_ECOMNO' => $doc->code,
             'U_BOOKCODE' => $doc->bookcode,
             'F_E_Commerce' => 'A',
-            'F_E_CommerceDate' => now(),
+            'F_E_CommerceDate' => sap_date(now(), TRUE),
             'U_OLDINV' => $doc->invoice
           );
 
@@ -1896,7 +1896,7 @@ public function export_return($code)
 	                  'VatSum' => $rs->vat_amount,
 	                  'TaxType' => 'Y',
 	                  'F_E_Commerce' => 'A',
-	                  'F_E_CommerceDate' => now(),
+	                  'F_E_CommerceDate' => sap_date(now(), TRUE),
 	                  'U_OLDINV' => $rs->invoice_code
 	                );
 
@@ -2019,7 +2019,7 @@ public function export_return_consignment($code)
             'U_ECOMNO' => $doc->code,
             'U_BOOKCODE' => $doc->bookcode,
             'F_E_Commerce' => 'A',
-            'F_E_CommerceDate' => now(),
+            'F_E_CommerceDate' => sap_date(now(), TRUE),
             'U_OLDINV' => $doc->invoice //getAllInvoiceText($invoice)
           );
 
@@ -2065,7 +2065,7 @@ public function export_return_consignment($code)
 	                  'VatSum' => $rs->vat_amount,
 	                  'TaxType' => 'Y',
 	                  'F_E_Commerce' => 'A',
-	                  'F_E_CommerceDate' => now(),
+	                  'F_E_CommerceDate' => sap_date(now(), TRUE),
 	                  'U_OLDINV' => $rs->invoice_code
 	                );
 
@@ -2190,7 +2190,7 @@ public function export_return_lend($code)
             'ToWhsCode' => $doc->to_warehouse,
             'Comments' => limitText($doc->remark, 250),
             'F_E_Commerce' => 'A',
-            'F_E_CommerceDate' => now(),
+            'F_E_CommerceDate' => sap_date(now(), TRUE),
             'U_BOOKCODE' => $doc->bookcode,
             'U_REQUESTER' => $this->ci->employee_model->get_name($doc->empID)
           );
@@ -2240,7 +2240,7 @@ public function export_return_lend($code)
                     'VatSum' => round($rs->vat_amount,6),
                     'TaxType' => 'Y',
                     'F_E_Commerce' => 'A',
-                    'F_E_CommerceDate' => now()
+                    'F_E_CommerceDate' => sap_date(now(), TRUE)
                   );
 
                   if( ! $this->ci->transfer_model->add_sap_transfer_detail($arr))
