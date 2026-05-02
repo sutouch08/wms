@@ -1688,7 +1688,7 @@ public function export_receive_transform($code)
             'Comments' => limitText($doc->remark, 250),
 						'U_PDNO' => $doc->order_code,
             'F_E_Commerce' => 'A',
-            'F_E_CommerceDate' => now()
+            'F_E_CommerceDate' => sap_date(now(), TRUE)
           );
 
           $this->ci->mc->trans_begin();
