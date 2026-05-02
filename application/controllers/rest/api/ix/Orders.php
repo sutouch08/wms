@@ -64,7 +64,7 @@ class Orders extends REST_Controller
 
   public function create_post()
   {
-    $start_date = now();
+    $start_date = now(TRUE);
     $sc = TRUE;
     $action = 'create';
     $this->api_path = $this->api_path."/create";
@@ -92,7 +92,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -124,7 +124,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -156,7 +156,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -305,7 +305,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -343,7 +343,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -412,7 +412,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -600,7 +600,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -965,7 +965,7 @@ class Orders extends REST_Controller
   					$this->load->model('masters/bank_model');
   		      $this->load->model('orders/order_payment_model');
 
-            $pay_date = now();
+            $pay_date = now(TRUE);
 
   					if( ! empty($data->payment_date_time))
   					{
@@ -1068,7 +1068,7 @@ class Orders extends REST_Controller
             'request_json' => $json,
             'response_json' => json_encode($arr),
             'start_date' => $start_date,
-            'end_date' => now()
+            'end_date' => now(TRUE)
           );
 
           $this->ix_api_logs_model->add_logs($logs);
@@ -1128,7 +1128,7 @@ class Orders extends REST_Controller
             'request_json' => $json,
             'response_json' => json_encode($arr),
             'start_date' => $start_date,
-            'end_date' => now()
+            'end_date' => now(TRUE)
           );
 
           $this->ix_api_logs_model->add_logs($logs);
@@ -1142,7 +1142,7 @@ class Orders extends REST_Controller
 
   public function cancel_put()
   {
-    $start_date = now();
+    $start_date = now(TRUE);
     $sc = TRUE;
     $action = 'cancel';
     $json = file_get_contents("php://input");
@@ -1168,7 +1168,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1202,7 +1202,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1235,7 +1235,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1273,7 +1273,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1307,7 +1307,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1674,7 +1674,7 @@ class Orders extends REST_Controller
 					'request_json' => $json,
 					'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
 				);
 
 				$this->ix_api_logs_model->add_logs($logs);
@@ -1706,7 +1706,7 @@ class Orders extends REST_Controller
 					'request_json' => $json,
 					'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
 				);
 
 				$this->ix_api_logs_model->add_logs($logs);
@@ -1721,7 +1721,7 @@ class Orders extends REST_Controller
   public function update_price_put()
   {
     $sc = TRUE;
-    $start_date = now();
+    $start_date = now(TRUE);
 
     $action = 'update';
 
@@ -1750,7 +1750,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1782,7 +1782,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1814,7 +1814,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1849,7 +1849,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1884,7 +1884,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1922,7 +1922,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -1959,7 +1959,7 @@ class Orders extends REST_Controller
         'request_json' => $json,
         'response_json' => json_encode($arr),
         'start_date' => $start_date,
-        'end_date' => now()
+        'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2059,7 +2059,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2091,7 +2091,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2108,7 +2108,7 @@ class Orders extends REST_Controller
 
     $action = 'complete';
 
-    $start_date = now();
+    $start_date = now(TRUE);
 
     $this->api_path = $this->api_path."/complete_order/{$order_number}";
     //--- Get raw post data
@@ -2135,7 +2135,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2168,7 +2168,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2202,7 +2202,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2237,7 +2237,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2272,7 +2272,7 @@ class Orders extends REST_Controller
         'request_json' => $json,
         'response_json' => json_encode($arr),
         'start_date' => $start_date,
-        'end_date' => now()
+        'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2325,7 +2325,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
@@ -2354,7 +2354,7 @@ class Orders extends REST_Controller
           'request_json' => $json,
           'response_json' => json_encode($arr),
           'start_date' => $start_date,
-          'end_date' => now()
+          'end_date' => now(TRUE)
         );
 
         $this->ix_api_logs_model->add_logs($logs);
