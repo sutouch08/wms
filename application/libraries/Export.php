@@ -1733,7 +1733,7 @@ public function export_receive_transform($code)
                     'GTotal' => round($rs->amount, 2),
                     'TaxType' => 'Y',
                     'F_E_Commerce' => 'A',
-                    'F_E_CommerceDate' => now()
+                    'F_E_CommerceDate' => sap_date(now(), TRUE)
                   );
 
                   if( ! $this->ci->receive_transform_model->add_sap_receive_transform_detail($arr))
