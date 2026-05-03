@@ -1047,11 +1047,15 @@ class Orders extends REST_Controller
       {
         $this->db->trans_commit();
 
+        $is_secure = (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+        $site_prefix = $is_secure ? 'https://' : 'http://';
+        $site = $site_prefix . $_SERVER['HTTP_HOST']. site_url("orders/orders/edit_order/{$order_code}");
+        
         $arr = array(
           'status' => 'success',
           'message' => 'success',
           'order_code' => $order_code,
-          'url' => site_url("orders/orders/edit_order/{$order_code}")
+          'url' => $site //site_url("orders/orders/edit_order/{$order_code}")
         );
 
         if($this->logs_json)
