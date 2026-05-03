@@ -13,6 +13,17 @@ class Stock_zone extends REST_Controller
     parent::__construct();
     $this->load->model('masters/zone_model');
     $this->load->model('stock/stock_model');
+    $this->api = is_true(getConfig('IX_API'));
+
+    if (! $this->api)
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => "Service Unavailable"
+      );
+
+      $this->response($arr, 503);
+    }
   }
 
 

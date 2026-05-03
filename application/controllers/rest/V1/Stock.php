@@ -24,12 +24,11 @@ class Stock extends REST_Controller
 		{
 			$arr = array(
 				'status' => FALSE,
-				'error' => "Access denied"
+				'error' => "Service Unavailable"
 			);
 
-			$this->response($arr, 400);
+			$this->response($arr, 503);
 		}
-
   }
 
 

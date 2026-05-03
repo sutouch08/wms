@@ -11,6 +11,17 @@ class Zone extends REST_Controller
   {
     parent::__construct();
     $this->user = 'api@warrix';
+    $this->api = is_true(getConfig('IX_API'));
+
+    if (! $this->api)
+    {
+      $arr = array(
+        'status' => FALSE,
+        'error' => "Service Unavailable"
+      );
+
+      $this->response($arr, 503);
+    }
   }
 
 	public function countUpdateZone_get()
