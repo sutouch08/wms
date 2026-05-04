@@ -606,9 +606,22 @@ class Move_model extends CI_Model
       $this->db->where('must_accept', $ds['must_accept']);
     }
 
-    if($ds['is_export'] != 'all')
+    if($ds['sap'] != 'all')
     {
-      $this->db->where('is_exported', $ds['is_export']);
+      if($ds['sap'] == 'N')
+      {
+        $this->db->where('is_exported', 0)->where('inv_code IS NULL', NULL, FALSE);
+      }
+
+      if($ds['sap'] == 'Y')
+      {
+        $this->db->where('is_exported', 1)->where('inv_code IS NULL', NULL, FALSE);
+      }
+
+      if($ds['sap'] == 'C')
+      {
+        $this->db->where('is_exported', 1)->where('inv_code IS NOT NULL', NULL, FALSE);
+      }
     }
 
     if( ! empty($ds['from_date']))
@@ -667,9 +680,22 @@ class Move_model extends CI_Model
       $this->db->where('m.must_accept', $ds['must_accept']);
     }
 
-    if($ds['is_export'] != 'all')
+    if($ds['sap'] != 'all')
     {
-      $this->db->where('m.is_exported', $ds['is_export']);
+      if($ds['sap'] == 'N')
+      {
+        $this->db->where('m.is_exported', 0)->where('m.inv_code IS NULL', NULL, FALSE);
+      }
+
+      if($ds['sap'] == 'Y')
+      {
+        $this->db->where('m.is_exported', 1)->where('m.inv_code IS NULL', NULL, FALSE);
+      }
+
+      if($ds['sap'] == 'C')
+      {
+        $this->db->where('m.is_exported', 1)->where('m.inv_code IS NOT NULL', NULL, FALSE);
+      }
     }
 
     if( ! empty($ds['from_date']))

@@ -34,7 +34,7 @@ class Move extends PS_Controller
       'from_date' => get_filter('fromDate', 'move_fromDate', ''),
       'to_date' => get_filter('toDate', 'move_toDate', ''),
       'status' => get_filter('status', 'move_status', ($this->is_mobile ? '0' : 'all')),
-      'is_export' => get_filter('is_export', 'move_is_export', 'all'),
+      'sap' => get_filter('sap', 'move_sap', 'all'),
       'must_accept' => get_filter('must_accept', 'move_must_accept', 'all')
     );
 
@@ -1525,66 +1525,71 @@ class Move extends PS_Controller
 
       if(empty($docNum))
       {
-        $this->db->trans_begin();
+        //---- delete middle
+        $middle = $this->move_model->get_middle_move_doc($code);
 
-        //--- clear temp
-        if(! $this->move_model->drop_all_temp($code))
+        if (!empty($middle))
         {
-          $sc = FALSE;
-          $this->error = "ลบ temp ไม่สำเร็จ";
-        }
-
-        //--- delete detail
-        if(! $this->move_model->drop_all_detail($code))
-        {
-          $sc = FALSE;
-          $this->error = "ลบรายการไม่สำเร็จ";
-        }
-
-        //--- drop movement
-        if( ! $this->movement_model->drop_movement($code))
-        {
-          $sc = FALSE;
-          $this->error = "ลบ Movement ไม่สำเร็จ";
-        }
-
-        //--- Mare as Cancled
-        if( $sc === TRUE)
-        {
-          $arr = array(
-            'status' => 2,
-            'inv_code' => NULL,
-            'cancle_reason' => trim($this->input->post('reason')),
-            'cancle_user' => $this->_user->uname
-          );
-
-          if(! $this->move_model->update($code, $arr))
+          foreach ($middle as $rows)
           {
-            $sc = FALSE;
-            $this->error = "ลบเอกสารไม่สำเร็จ";
+            if( ! $this->move_model->drop_middle_exits_data($rows->DocEntry))
+            {
+              $sc = FALSE;
+              $this->error = "ลบข้อมูลถังกลางไม่สำเร็จ";
+              break;
+            }
           }
         }
 
         if($sc === TRUE)
-        {
-          $this->db->trans_commit();
-        }
-        else
-        {
-          $this->db->trans_rollback();
-        }
+        {        
+          $this->db->trans_begin();
 
-        if($sc === TRUE && $move->status == 1)
-        {
-          //---- delete middle
-          $middle = $this->move_model->get_middle_move_doc($code);
-
-          if(!empty($middle))
+          //--- clear temp
+          if(! $this->move_model->drop_all_temp($code))
           {
-            foreach($middle as $rows)
+            $sc = FALSE;
+            $this->error = "ลบ temp ไม่สำเร็จ";
+          }
+
+          //--- delete detail
+          if(! $this->move_model->drop_all_detail($code))
+          {
+            $sc = FALSE;
+            $this->error = "ลบรายการไม่สำเร็จ";
+          }
+
+          //--- drop movement
+          if( ! $this->movement_model->drop_movement($code))
+          {
+            $sc = FALSE;
+            $this->error = "ลบ Movement ไม่สำเร็จ";
+          }
+
+          //--- Mark as Canceled
+          if( $sc === TRUE)
+          {
+            $arr = array(
+              'status' => 2,
+              'inv_code' => NULL,
+              'cancle_reason' => trim($this->input->post('reason')),
+              'cancle_user' => $this->_user->uname
+            );
+
+            if(! $this->move_model->update($code, $arr))
             {
-              $this->move_model->drop_middle_exits_data($rows->DocEntry);
+              $sc = FALSE;
+              $this->error = "ลบเอกสารไม่สำเร็จ";
             }
+          }
+
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
           }
         }
       }
@@ -1593,7 +1598,6 @@ class Move extends PS_Controller
         $sc = FALSE;
         $this->error = "เอกสารเข้า SAP แล้วไม่สามารถยกเลิกได้";
       }
-
     }
     else
     {
@@ -1671,7 +1675,7 @@ class Move extends PS_Controller
       'move_fromDate',
       'move_toDate',
       'move_status',
-      'move_is_export',
+      'move_sap',
       'move_must_accept'
     );
 

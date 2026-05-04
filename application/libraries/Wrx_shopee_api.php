@@ -559,7 +559,7 @@ class Wrx_shopee_api
         {          
           if($res->data->result_list[0]->status != "READY")
           {
-            $this->error = $res->data->result_list[0]->fail_message;
+            $this->error = "Status : ".$res->data->result_list[0]->status;
           }
 
           $status = $res->data->result_list[0]->status === "READY" ? TRUE : FALSE;

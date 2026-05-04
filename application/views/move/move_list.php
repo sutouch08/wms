@@ -11,7 +11,7 @@
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
 		<?php if ($this->pm->can_add) : ?>
-			<button type="button" class="btn btn-sm0 btn-success btn-top" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
 		<?php endif; ?>
 	</div>
 </div><!-- End Row -->
@@ -62,10 +62,11 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 			<label>SAP</label>
-			<select class="form-control input-sm" name="is_export" onchange="getSearch()">
+			<select class="form-control input-sm" name="sap" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
-				<option value="0" <?php echo is_selected("0", $is_export); ?>>ยังไม่ส่ง</option>
-				<option value="1" <?php echo is_selected('1', $is_export); ?>>ส่งออกแล้ว</option>
+				<option value="N" <?php echo is_selected('N', $sap); ?>>ยังไม่ส่ง</option>
+				<option value="Y" <?php echo is_selected('Y', $sap); ?>>ยังไม่เข้า</option>
+				<option value="C" <?php echo is_selected('C', $sap); ?>>เข้าแล้ว</option>
 			</select>
 		</div>
 
@@ -93,7 +94,7 @@
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<p class="pull-right top-p">
-			ว่างๆ = ปกติ, &nbsp;
+			<span class="green bold">OK</span> = ปกติ, &nbsp;
 			<span class="blue">NC</span> = ยังไม่บันทึก, &nbsp;
 			<span class="orange">WC</span> = รอการยืนยัน, &nbsp;
 			<span class="red">CN</span> = ยกเลิก, &nbsp;
@@ -116,7 +117,7 @@
 				<?php if (!empty($list)) : ?>
 					<?php $no = $this->uri->segment(4) + 1; ?>
 					<?php foreach ($list as $rs) : ?>
-						<tr id="row-<?php echo $rs->code; ?>" class="font-size-11">
+						<tr id="row-<?php echo $rs->code; ?>" class="font-size-11" style="<?php echo statusBackgroundColor($rs->is_expire, $rs->status); ?>">
 							<td class="middle">
 								<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
 								<?php if ($rs->status == 0 && $this->pm->can_edit) : ?>
@@ -127,21 +128,26 @@
 								<?php endif; ?>
 							</td>
 							<td class="middle text-center">
-								<?php if ($rs->is_expire or $rs->status == 2) : ?>
-									<?php if ($rs->status == 2) : ?>
-										<span class="red">CN</span>
-									<?php else : ?>
-										<span class="dark">EXP</span>
-									<?php endif; ?>
-								<?php else : ?>
-									<?php if ($rs->status == 0) : ?>
-										<span class="blue">NC</span>
-									<?php endif; ?>
-									<?php if ($rs->status == 4) : ?>
-										<span class="orange">WC</span>
-												<?php endif; ?>
-												<?php endif; ?>
-												</td>
+								<?php if ($rs->status == 2) : ?>
+									<span class="red">CN</span>
+								<?php endif; ?>
+
+								<?php if ($rs->status != 2 && $rs->is_expire) : ?>
+									<span class="dark">EXP</span>
+								<?php endif; ?>
+
+								<?php if ($rs->status == 0 && !$rs->is_expire) : ?>
+									<span class="blue">NC</span>
+								<?php endif; ?>
+
+								<?php if ($rs->status == 4 && !$rs->is_expire) : ?>
+									<span class="orange">WC</span>
+								<?php endif; ?>
+
+								<?php if ($rs->status == 1 && !$rs->is_expire) : ?>
+									<span class="green">OK</span>
+								<?php endif; ?>
+							</td>
 							<td class="middle text-center"><?php echo $no; ?></td>
 							<td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
 							<td class="middle"><?php echo $rs->code; ?></td>
