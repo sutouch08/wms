@@ -30,7 +30,7 @@ class Wrx_shopee_api
 
   public function get_order_status($reference, $shop_id)
   {
-    $this->logs_json = FALSE;
+    $log_status = FALSE;
     $action = "shipped";
     $this->type = "shipping";
     $url = $this->api['WRX_API_HOST'];
@@ -48,11 +48,11 @@ class Wrx_shopee_api
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $start_date = now();
+    $start_date = now(TRUE);
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
-    $end_date = now();
+    $end_date = now(TRUE);
 
     $status = FALSE;
   
@@ -79,7 +79,7 @@ class Wrx_shopee_api
         }
       }
 
-      if ($this->logs_json)
+      if ($this->logs_json && $log_status)
       {
         $logs = array(
           'trans_id' => genUid(),
@@ -101,7 +101,7 @@ class Wrx_shopee_api
     }
     else
     {
-      if ($this->logs_json)
+      if ($this->logs_json && $log_status)
       {
         $logs = array(
           'trans_id' => genUid(),
@@ -146,11 +146,11 @@ class Wrx_shopee_api
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $start_date = now();
+    $start_date = now(TRUE);
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
-    $end_date = now();
+    $end_date = now(TRUE);
     $ds = FALSE;
 
     if( ! empty($res) && ! empty($res->code) && $res->code == 200)
@@ -253,11 +253,11 @@ class Wrx_shopee_api
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $start_date = now();
+    $start_date = now(TRUE);
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
-    $end_date = now();
+    $end_date = now(TRUE);
 
     $status = FALSE;
 
@@ -338,11 +338,11 @@ class Wrx_shopee_api
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $start_date = now();
+    $start_date = now(TRUE);
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
-    $end_date = now();
+    $end_date = now(TRUE);
 
     $status = FALSE;
     $tracking_number = "";
@@ -434,11 +434,11 @@ class Wrx_shopee_api
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $start_date = now();
+    $start_date = now(TRUE);
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
-    $end_date = now();
+    $end_date = now(TRUE);
 
     $status = FALSE;
 
@@ -543,11 +543,11 @@ class Wrx_shopee_api
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $start_date = now();
+    $start_date = now(TRUE);
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
-    $end_date = now();
+    $end_date = now(TRUE);
 
     $status = FALSE;
 
@@ -650,11 +650,11 @@ class Wrx_shopee_api
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $start_date = now();
+    $start_date = now(TRUE);
     $response = curl_exec($curl);
     curl_close($curl);
     $res = json_decode($response);
-    $end_date = now();
+    $end_date = now(TRUE);
     $status = FALSE;
     $ds = NULL;
 
