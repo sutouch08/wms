@@ -107,7 +107,7 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-narrow border-1" style="min-width:1120px;">
+		<table class="table table-striped table-narrow border-1" style="min-width:1200px;">
 			<thead>
 				<tr class="font-size-11">
 					<th class="fix-width-100 middle"></th>
@@ -115,6 +115,7 @@
 					<th class="fix-width-40 middle text-center">ลำดับ</th>
 					<th class="fix-width-80 middle text-center">วันที่</th>
 					<th class="fix-width-100 middle">เลขที่เอกสาร</th>
+					<th class="fix-width-80 middle">SAP No.</th>
 					<th class="fix-width-150 middle">ช่องทางขาย</th>
 					<th class="fix-width-150 middle">การจัดส่ง</th>
 					<th class="fix-width-100 middle">โซนปลายทาง</th>
@@ -164,6 +165,7 @@
 							<td class="middle text-center"><?php echo $no; ?></td>
 							<td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
 							<td class="middle"><?php echo $rs->code; ?></td>
+							<td class="middle"><?php echo $rs->inv_code; ?></td>
 							<td class="middle"><?php echo $channelsName; ?></td>
 							<td class="middle"><?php echo $senderName; ?></td>
 							<td class="middle"><?php echo $this->zone_model->get_name($rs->zone_code); ?></td>
@@ -176,7 +178,7 @@
 					<?php endforeach; ?>
 				<?php else : ?>
 					<tr>
-						<td colspan="9" class="text-center">-- No Data --</td>
+						<td colspan="13" class="text-center">-- No Data --</td>
 					</tr>
 				<?php endif; ?>
 			</tbody>
