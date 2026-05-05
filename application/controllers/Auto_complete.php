@@ -765,7 +765,7 @@ public function get_prepare_item_code()
     $sc = array();
     $txt = $_REQUEST['term'];
     $qr = "SELECT BpCode, BpName FROM OOAT ";
-    $qr .= "WHERE StartDate <= '".now()."' AND EndDate >= '".now()."' ";
+    $qr .= "WHERE StartDate <= '".from_date()."' AND EndDate >= '".to_date()."' ";
 		$qr .= "AND Status = 'A' AND Cancelled = 'N' ";
 
     if($txt != '*')
@@ -799,7 +799,7 @@ public function get_prepare_item_code()
     $txt = trim($_REQUEST['term']);
 
     $qr = "SELECT BpCode, BpName FROM OOAT ";
-		$qr .= "WHERE StartDate <= '".now()."' AND EndDate >= '".now()."' ";
+		$qr .= "WHERE StartDate <= '".from_date()."' AND EndDate >= '".to_date()."' ";
     $qr .= "AND Status = 'A' ";
 
     if($txt != '*')
