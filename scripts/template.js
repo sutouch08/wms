@@ -19,6 +19,9 @@ function go_to(page){
 	window.location.href = BASE_URL + page;
 }
 
+$('input[type=number]').on('mousewheel', function (e) {
+  $(e.target).blur();
+});
 
 function goBack() {
   window.location.href = HOME;
