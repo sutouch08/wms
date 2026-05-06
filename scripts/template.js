@@ -19,9 +19,11 @@ function go_to(page){
 	window.location.href = BASE_URL + page;
 }
 
-$('input[type=number]').on('mousewheel', function (e) {
-  $(e.target).blur();
+document.querySelectorAll('input[type="number"]').forEach(input => {
+  // ปิด wheel
+  input.addEventListener('wheel', e => e.preventDefault(), { passive: false });  
 });
+
 
 function goBack() {
   window.location.href = HOME;

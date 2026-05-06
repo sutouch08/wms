@@ -108,6 +108,19 @@ class Dispatch_model extends CI_Model
   }
 
 
+  public function get_by_id($id)
+  {
+    $rs = $this->db->where('id', $id)->get($this->tb);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_details($code)
   {
     $rs = $this->db->where('dispatch_code', $code)->get($this->td);
@@ -362,14 +375,18 @@ class Dispatch_model extends CI_Model
   }
 
 
-  public function count_orders_by_channels($channels_code)
+  public function count_orders_by_channels($channels_code, $warehouse_code = NULL)
   {
     $state_in = $channels_code === 'SHOPEE' ? ['8', '7'] : ['8'];
 
-    $this->db
-    ->where('is_wms', 0)
+    $this->db    
     ->where_in('state', $state_in)
     ->where('dispatch_id IS NULL', NULL, FALSE);
+
+    if( ! empty($warehouse_code))
+    {
+      $this->db->where('warehouse_code', $warehouse_code);
+    }
 
     if( ! empty($channels_code))
     {
@@ -384,15 +401,19 @@ class Dispatch_model extends CI_Model
   }
 
 
-  public function get_pending_order_by_channels($channels_code)
+  public function get_pending_order_by_channels($channels_code, $warehouse_code = NULL)
   {
     $state_in = ['8', '7'];
 
     $this->db
-    ->select('code, reference, customer_code, customer_name, channels_code, is_expired, is_cancled')
-    ->where('is_wms', 0)
+    ->select('code, reference, role, customer_code, customer_name, channels_code, warehouse_code, is_expired, is_cancled')    
     ->where_in('state', $state_in)
     ->where('dispatch_id IS NULL', NULL, FALSE);
+
+    if( ! empty($warehouse_code))
+    {
+      $this->db->where('warehouse_code', $warehouse_code);
+    }
 
     if( ! empty($channels_code))
     {
@@ -414,9 +435,34 @@ class Dispatch_model extends CI_Model
   }
 
 
+  public function get_order_state_timestamp(string $order_code, $state = 7)
+  {
+    $rs = $this->db
+    ->select('update_user, date_upd')
+    ->where('order_code', $order_code)
+    ->where('state', $state)
+    ->order_by('id', 'DESC')
+    ->limit(1)
+    ->get('order_state_change');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+  
+    return NULL;
+  }
+
+
   public function count_order_box($order_code)
   {
     return $this->db->where('order_code', $order_code)->count_all_results('qc_box');
+  }
+
+
+  public function count_orders($code)
+  {
+    return $this->db->where('dispatch_code', $code)->count_all_results($this->td);
   }
 
 

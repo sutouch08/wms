@@ -5,10 +5,10 @@
   <a class="goback-icon pull-left" onclick="goEdit('<?php echo $doc->code; ?>')"><i class="fa fa-angle-left fa-2x"></i></a>
 </div>
 <div class="pending-box">
+	<?php $totalQty = 0; ?>
   <?php  if( ! empty($orders)) : ?>
 		<?php $channels = get_channels_array(); ?>
     <?php $no = 1; ?>
-		<?php $totalQty = 0; ?>
     <?php   foreach($orders as $rs) : ?>
 			<?php $channels_name = empty($channels[$rs->channels_code]) ? NULL : $channels[$rs->channels_code]; ?>
 			<?php $qty = $this->dispatch_model->count_order_box($rs->code); ?>

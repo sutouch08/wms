@@ -1,4 +1,11 @@
 <?php $this->load->view('include/header'); ?>
+<style>
+	.table-narrow thead tr th,
+	.table-narrow tbody tr td {
+		font-size:11px !important;
+		padding: 3px;
+	}
+</style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
 		<h3 class="title"><?php echo $this->title; ?></h3>
@@ -72,43 +79,50 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped table-bordered border-1" style="min-width:950px;">
-      <tr>
-				<th class="fix-width-80 text-center"></th>
-        <th class="fix-width-50 text-center">#</th>
-        <th class="fix-width-100 text-center">วันที่</th>
-        <th class="fix-width-100 text-center">เลขที่เอกสาร</th>
-				<th class="fix-width-150 text-center">ช่องทาง</th>
-        <th class="fix-width-100 text-center">สถานะ</th>
-				<th class="fix-width-100 text-center">ทะเบียนรถ</th>
-				<th class="fix-width-150 text-center">ผู้จัดส่ง</th>
-    		<th class="min-width-100">User</th>
-      </tr>
+    <table class="table table-striped table-bordered table-narrow border-1" style="min-width:1150px;">
+			<thead>
+				<tr>
+					<th class="fix-width-80"></th>
+					<th class="fix-width-50 text-center">#</th>
+					<th class="fix-width-100 text-center">วันที่</th>
+					<th class="fix-width-100">เลขที่เอกสาร</th>
+					<th class="fix-width-80 text-center">คลัง</th>
+					<th class="fix-width-150">ช่องทาง</th>
+					<th class="fix-width-100 text-center">จำนวน</th>
+					<th class="fix-width-100 text-center">สถานะ</th>
+					<th class="fix-width-120">ทะเบียนรถ</th>
+					<th class="fix-width-150">ผู้จัดส่ง</th>
+					<th class="min-width-100">User</th>
+				</tr>
+      </thead>
       <tbody>
     <?php if( !empty($data)) : ?>
     <?php $no = $this->uri->segment($this->segment) + 1; ?>
     <?php foreach($data as $rs) : ?>
-      <tr class="font-size-12" id="row-<?php echo $rs->id; ?>" style="<?php echo textStatusColor($rs->status); ?>">
-				<td class="">
+		<?php $sumOrders = $this->dispatch_model->count_orders($rs->code); ?>
+      <tr id="row-<?php echo $rs->id; ?>" style="<?php echo textStatusColor($rs->status); ?>">
+				<td class="middle">
 					<button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code;?>')"><i class="fa fa-eye"></i></button>
 					<?php if($this->pm->can_edit && $rs->status == 'P') : ?>
 						<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 					<?php endif; ?>
 				</td>
-        <td class="text-center no"><?php echo $no; ?></td>
-        <td class="text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
-        <td class="text-center"><?php echo $rs->code; ?></td>
-				<td class=""><?php echo $rs->channels_name; ?></td>
-    		<td class="text-center"><?php echo dispatch_status($rs->status); ?></td>
-				<td class=""> <?php echo $rs->plate_no; ?></td>
-				<td class=""> <?php echo $rs->sender_name; ?></td>
-        <td class=""> <?php echo $rs->user; ?></td>
+        <td class="middle text-center no"><?php echo $no; ?></td>
+        <td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE); ?></td>
+        <td class="middle"><?php echo $rs->code; ?></td>
+				<td class="middle text-center"><?php echo $rs->warehouse_code; ?></td>
+				<td class="middle"><?php echo $rs->channels_name; ?></td>
+				<td class="middle text-center"><?php echo number($sumOrders); ?></td>
+    		<td class="middle text-center"><?php echo dispatch_status($rs->status); ?></td>
+				<td class="middle"> <?php echo $rs->plate_no; ?></td>
+				<td class="middle"> <?php echo $rs->sender_name; ?></td>
+        <td class="middle"> <?php echo $rs->user; ?></td>
       </tr>
     <?php  $no++; ?>
     <?php endforeach; ?>
     <?php else : ?>
       <tr>
-        <td colspan="6" class="text-center">--- ไม่พบข้อมูล ---</td>
+        <td colspan="11" class="text-center">--- ไม่พบข้อมูล ---</td>
       </tr>
     <?php endif; ?>
       </tbody>

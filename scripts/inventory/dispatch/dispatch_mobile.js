@@ -1,4 +1,5 @@
 var autoFocus = 1;
+const soundSuccess = new Audio(`${BASE_URL}assets/sound/success.mp3`);
 
 window.addEventListener('load',  () => {
   focus_init();
@@ -59,6 +60,7 @@ function add() {
 
   let h = {
     'date_add' : $('#date-add').val(),
+    'warehouse_code' : $('#warehouse').val(),
     'channels_code' : $('#channels').val(),
     'channels_name' : $('#channels option:selected').data('name'),
     'sender_code' : $('#sender').val(),
@@ -124,6 +126,7 @@ function update() {
   let h = {
     'code' : $('#code').val(),
     'date_add' : $('#date-add').val(),
+    'warehouse_code' : $('#warehouse').val(),
     'channels_code' : $('#channels').val(),
     'channels_name' : $('#channels option:selected').data('name'),
     'sender_code' : $('#sender').val(),
@@ -287,8 +290,7 @@ function addToDispatch() {
   $('#order-no').val('').attr('disabled', 'disabled');
 
   if(order_code.length) {
-    load_in();
-
+    
     $.ajax({
       url:HOME + 'add_to_dispatch',
       type:'POST',
@@ -300,12 +302,13 @@ function addToDispatch() {
         'channels_name' : channels_name,
         'order_code' : order_code
       },
-      success:function(rs) {
-        load_out();
+      success:function(rs) {        
         $('#order-no').removeAttr('disabled');
         if(isJson(rs)) {
           let ds = JSON.parse(rs);
           if(ds.status === 'success') {
+            soundSuccess.currentTime = 0;
+            soundSuccess.play();
             let data = ds.data;
 
             if($('#dispatch-'+data.id).length) {
@@ -425,9 +428,7 @@ function removeOrder() {
   let order_code = $('#del-order-no').val().trim();
 
   if(order_code.length) {
-    $('#del-order-no').val('');
-
-    load_in();
+    $('#del-order-no').val('');   
 
     $.ajax({
       url:HOME + 'remove_detail',
@@ -437,13 +438,13 @@ function removeOrder() {
         'code' : code,
         'order_code' : order_code
       },
-      success:function(rs) {
-        load_out();
-
+      success:function(rs) {        
         if(isJson(rs)) {
           let ds = JSON.parse(rs);
 
           if(ds.status === 'success') {
+            soundSuccess.currentTime = 0;
+            soundSuccess.play();
             let id = ds.id;
 
             if(ds.action == 'update') {

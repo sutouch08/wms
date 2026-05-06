@@ -13,38 +13,45 @@
     <label>เลขที่</label>
     <input type="text" class="form-control input-sm text-center" disabled />
   </div>
-  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center" id="date-add" value="<?php echo date('d-m-Y'); ?>" disabled/>
   </div>
-	<div class="col-lg-3 col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
+	<div class="col-lg-3 col-md-4-harf col-sm-4-harf col-xs-6 padding-5">
+		<label>คลังสินค้า</label>
+		<select class="form-control input-sm" id="warehouse">
+			<option value="">เลือก</option>
+			<?php echo select_warehouse(getConfig('DEFAULT_WAREHOUSE')); ?>
+		</select>
+	</div>
+	<div class="col-lg-2 col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>ช่องทางขาย</label>
-		<select class="width-100 e" id="channels">
+		<select class="form-control input-sm e" id="channels">
 			<option value="" data-name="">เลือก</option>
 			<?php echo select_dispatch_channels(); ?>
 		</select>
 	</div>
-	<div class="col-lg-3 col-md-3-harf col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-4 col-sm-4 col-xs-6 padding-5">
 		<label>ผู้จัดส่ง</label>
-		<select class="width-100 e" id="sender">
+		<select class="form-control input-sm e" id="sender">
 			<option value="">เลือก</option>
 			<?php echo select_sender(); ?>
 		</select>
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>ทะเบียนรถ</label>
     <input type="text" class="form-control input-sm text-center e" id="plate-no" value="" />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>จังหวัด</label>
     <input type="text" class="form-control input-sm text-center e" id="province" value="" />
 	</div>
 
-	<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 		<label>ชื่อคนขับ</label>
     <input type="text" class="form-control input-sm text-center e" id="driver-name" value="" />
 	</div>
-  <div class="col-lg-8-harf col-md-7-harf col-sm-7-harf col-xs-12 padding-5">
+  <div class="col-lg-9 col-md-10-harf col-sm-10-harf col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" id="remark" />
   </div>
@@ -57,6 +64,7 @@
 <hr class=""/>
 
 <script>
+	$('#warehouse').select2();
 	$('#sender').select2();
 	$('#channels').select2();
 </script>

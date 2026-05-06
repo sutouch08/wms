@@ -1,8 +1,12 @@
+const soundSuccess = new Audio(`${BASE_URL}assets/sound/success.mp3`);
+//const soundError = new Audio(`${BASE_URL}assets/sound/error.mp3`);
+
 function add() {
   clearErrorByClass('e');
 
   let h = {
     'date_add' : $('#date-add').val(),
+    'warehouse_code' : $('#warehouse').val(),
     'channels_code' : $('#channels').val(),
     'channels_name' : $('#channels option:selected').data('name'),
     'sender_code' : $('#sender').val(),
@@ -63,6 +67,7 @@ function update() {
   let h = {
     'code' : $('#code').val(),
     'date_add' : $('#date-add').val(),
+    'warehouse_code' : $('#warehouse').val(),
     'channels_code' : $('#channels').val(),
     'channels_name' : $('#channels option:selected').data('name'),
     'sender_code' : $('#sender').val(),
@@ -221,9 +226,7 @@ function addToDispatch() {
 
   $('#order-no').val('').attr('disabled', 'disabled');
 
-  if(order_code.length) {
-    load_in();
-
+  if(order_code.length) {    
     $.ajax({
       url:HOME + 'add_to_dispatch',
       type:'POST',
@@ -235,12 +238,14 @@ function addToDispatch() {
         'channels_name' : channels_name,
         'order_code' : order_code
       },
-      success:function(rs) {
-        load_out();
+      success:function(rs) {        
         $('#order-no').removeAttr('disabled');
         if(isJson(rs)) {
           let ds = JSON.parse(rs);
           if(ds.status === 'success') {
+            soundSuccess.currentTime = 0;
+            soundSuccess.play();
+            
             let data = ds.data;
 
             if($('#dispatch-'+data.id).length) {
@@ -271,14 +276,14 @@ function addToDispatch() {
             $('#order-no').focus();
           }
           else {
-            beep();
+            beep();            
             showError(ds.message);
           }
         }
       },
       error:function(rs) {
         $('#order-no').removeAttr('disabled').focus();
-        beep();
+        beep();        
         showError(rs);
       }
     })
