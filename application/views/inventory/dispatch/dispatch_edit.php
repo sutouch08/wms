@@ -5,6 +5,7 @@
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
 		<button type="button" class="btn btn-white btn-default top-btn btn-100" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+		<button type="button" class="btn btn-white btn-info top-btn btn-100" onclick="doExport()"><i class="fa fa-file-excel-o"></i> Export</button>
 		<?php if (($this->pm->can_add or $this->pm->can_edit) && ($doc->status == 'P' or $doc->status == 'S')) : ?>
 			<button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="save()"><i class="fa fa-save"></i> Save</button>
 		<?php endif; ?>
@@ -160,6 +161,11 @@
 		</table>
 	</div>
 </div>
+
+<form id="export-form" method="post" action="<?php echo $this->home; ?>/do_export">
+	<input type="hidden" name="code" value="<?php echo $doc->code; ?>"/>
+	<input type="hidden" name="token" id="token" value="">
+</form>
 
 <script id="row-template" type="text/x-handlebarsTemplate">
 	<tr id="dispatch-{{id}}" class="font-size-11 dispatch-row" data-id="{{id}}">

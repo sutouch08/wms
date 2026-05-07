@@ -581,3 +581,11 @@ $('#province').autocomplete({
     $('#driver-name').focus();
   }
 })
+
+
+function doExport() {
+  const token = generateUID();
+  $('#token').val(token);
+  get_download(token);
+  $('#export-form').submit();
+}

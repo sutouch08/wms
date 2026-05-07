@@ -1270,7 +1270,102 @@ class Dispatch extends PS_Controller
 
     $this->_response($sc);
   }
-  
+
+
+  public function do_export()
+  {
+    ini_set('memory_limit', '2048M');
+
+    $token = $this->input->post('token');
+    $code = $this->input->post('code');
+    
+    $this->load->library('excel');
+
+    $this->excel->setActiveSheetIndex(0);
+    $this->excel->getActiveSheet()->setTitle($code);
+    $sheet = $this->excel->getActiveSheet();    
+    $row = 1;
+
+    $sheet->setCellValue("A{$row}", "รายงานการจัดส่ง");
+    $sheet->mergeCells("A{$row}:H{$row}");
+    $sheet->getStyle("A{$row}")->getFont()->setSize(16)->setBold(true);
+    $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+    $row++;
+
+    $sheet->setCellValue("B{$row}", "เลขที่เอกสาร");
+    $sheet->setCellValue("C{$row}", $code);
+    $sheet->setCellValue("D{$row}", "วันที่");
+    $sheet->setCellValue("E{$row}", thai_date(now(), TRUE));
+    $sheet->getStyle("B{$row}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+    $sheet->getStyle("C{$row}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle("D{$row}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+    $sheet->getStyle("E{$row}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+    $row++;
+
+    //--- set Table header
+    $sheet->setCellValue("A{$row}", '#');
+    $sheet->setCellValue("B{$row}", 'ออเดอร์');
+    $sheet->setCellValue("C{$row}", 'อ้างอิง');
+    $sheet->setCellValue("D{$row}", 'Tracking');
+    $sheet->setCellValue("E{$row}", 'ลูกค้า');
+    $sheet->setCellValue("F{$row}", 'ช่องทาง');
+    $sheet->setCellValue("G{$row}", 'กล่อง');
+    $sheet->setCellValue("H{$row}", 'จำนวน');
+    $row++;
+
+    $ds = $this->dispatch_model->get_details($code);
+
+    if (! empty($ds))
+    {
+      $no = 1;
+
+      foreach ($ds as $rs)
+      {
+        $sheet->setCellValue("A{$row}", $no);
+        $sheet->setCellValueExplicit("B{$row}", $rs->order_code, PHPExcel_Cell_DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit("C{$row}", $rs->reference, PHPExcel_Cell_DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit("D{$row}", $rs->tracking_no, PHPExcel_Cell_DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit("E{$row}", $rs->customer_code .' | '.$rs->customer_name, PHPExcel_Cell_DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit("F{$row}", $rs->channels_name, PHPExcel_Cell_DataType::TYPE_STRING);
+        $sheet->setCellValue("G{$row}", $rs->carton_qty);
+        $sheet->setCellValue("H{$row}", $this->count_qc_qty($rs->order_code));
+        $row++;
+        $no++;
+      }
+    }
+
+    $sheet->getColumnDimension("A")->setAutoSize(true);
+    $sheet->getColumnDimension("B")->setAutoSize(true);
+    $sheet->getColumnDimension("C")->setAutoSize(true);
+    $sheet->getColumnDimension("D")->setAutoSize(true);
+    $sheet->getColumnDimension("E")->setAutoSize(true);
+    $sheet->getColumnDimension("F")->setAutoSize(true);
+    $sheet->getColumnDimension("G")->setAutoSize(true);
+    $sheet->getColumnDimension("H")->setAutoSize(true);
+
+    setToken($token);
+    $file_name = "Dispatch-{$code}.xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $file_name . '"', true);
+    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+    $writer->save('php://output');
+  }
+
+
+  public function count_qc_qty($order_code)
+  {
+    $rs = $this->db
+      ->select_sum('qty')
+      ->where('order_code', $order_code)
+      ->get('qc');
+
+    if ($rs->num_rows() === 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
 
   private function get_new_code($date = NULL)
   {
