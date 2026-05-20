@@ -221,14 +221,13 @@ class Transform_backlogs extends PS_Controller
 		$this->excel->getActiveSheet()->mergeCells("A{$row}:H{$row}");
 		$this->excel->getActiveSheet()->getStyle("A{$row}")->getAlignment()->setHorizontal('right');
 
-		$this->excel->getActiveSheet()->setCellValue("J{$row}", "=SUM(I6:I{$re})");
-		$this->excel->getActiveSheet()->setCellValue("K{$row}", "=SUM(J6:J{$re})");
-		$this->excel->getActiveSheet()->setCellValue("L{$row}", "=SUM(K6:K{$re})");
-		$this->excel->getActiveSheet()->setCellValue("M{$row}", "=SUM(L6:L{$re})");
+		$this->excel->getActiveSheet()->setCellValue("J{$row}", "=SUM(J6:J{$re})");
+		$this->excel->getActiveSheet()->setCellValue("K{$row}", "=SUM(K6:K{$re})");
+		$this->excel->getActiveSheet()->setCellValue("L{$row}", "=SUM(L6:L{$re})");
+		$this->excel->getActiveSheet()->setCellValue("M{$row}", "=SUM(M6:M{$re})");
 
-		$this->excel->getActiveSheet()->getStyle("I6:I{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
-		$this->excel->getActiveSheet()->getStyle("J6:L{$row}")->getNumberFormat()->setFormatCode('#,##0');
-		$this->excel->getActiveSheet()->getStyle("M6:M{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+		$this->excel->getActiveSheet()->getStyle("J6:M{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+		
     }
 		else
 		{
