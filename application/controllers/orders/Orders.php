@@ -2111,14 +2111,14 @@ class Orders extends PS_Controller
 
           if ($qty < 1 && $active === TRUE)
           {
-            $txt = '<span class="font-size-12 red">Sold out</span>';
+            $txt = '<span class="font-size-12"><a href="javascript:availableDetails(\'' . $item->code . '\', \'' . $warehouse . '\')" class="red">Sold out</a></span>';
           }
           else
           {
             $txt = $active === TRUE ? '' : '<span class="font-size-12 blue">' . $active . '</span>';
           }
 
-          $available = $qty === FALSE && $active === TRUE ? '' : (($qty < 1 || $active !== TRUE) ? $txt : number($qty));
+          $available = $qty === FALSE && $active === TRUE ? '' : (($qty < 1 || $active !== TRUE) ? $txt : '<a href="javascript:availableDetails(\'' . $item->code . '\', \'' . $warehouse . '\')">' . number($qty) . '</a>');
           $limit    = $qty === FALSE ? 1000000 : $qty;
 
 

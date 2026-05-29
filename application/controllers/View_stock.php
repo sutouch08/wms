@@ -31,7 +31,29 @@ class View_stock extends PS_Controller
 		$this->load->view('view_stock');
 	}
 
+	public function available_details($item_code, $warehouse)
+	{
+		$this->load->model('orders/reserv_stock_model');
+		$this->load->model('orders/orders_model');
+		$this->load->model('stock/stock_model');
 
+		$sell_stock = $this->stock_model->get_sell_stock($item_code, $warehouse);
+		$ordered = $this->orders_model->get_reserv_stock($item_code, $warehouse);
+		$reserv_stock = $this->reserv_stock_model->get_reserv_stock($item_code, $warehouse);
+		$availableStock = $sell_stock - $ordered - $reserv_stock;
+		$data = array(
+			'item_code' => $item_code,
+			'warehouse' => $warehouse,
+			'sell_stock' => $sell_stock,
+			'ordered' => $ordered,
+			'reserv_stock' => $reserv_stock,
+			'availableStock' => $availableStock
+		);
+
+		$this->load->view('view_available_stock', $data);
+	}
+
+	
 
 }
  ?>
