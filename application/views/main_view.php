@@ -1,15 +1,15 @@
 <?php $this->load->view('include/header'); ?>
-<?php if(!$this->isViewer && $this->notibars) : ?>
-<div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-    <div class="navbar-buttons navbar-header pull-right" role="navigation">
-      <ul class="nav ace-nav noti-nav">
-        <?php $this->load->view('include/notification'); ?>
-      </ul>
-    </div>
-  </div>
-</div>
-<hr/>
+<?php if (!$this->isViewer && $this->notibars) : ?>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+			<div class="navbar-buttons navbar-header pull-right" role="navigation">
+				<ul class="nav ace-nav noti-nav">
+					<?php $this->load->view('include/notification'); ?>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<hr />
 <?php endif; ?>
 <div class="row" style="margin-top:30px;">
 	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5">
@@ -35,14 +35,14 @@
 	</div>
 </div>
 
-<hr class="margin-top-15 margin-bottom-15"/>
+<hr class="margin-top-15 margin-bottom-15" />
 
 <div class="row">
-  <div class="col-sm-12" id="result">
-  </div>
+	<div class="col-sm-12" id="result">
+	</div>
 </div>
 <script id="order-template" type="text/x-handlebarsTemplate">
-<table class="table table-bordered">
+	<table class="table table-bordered">
 	<thead>
 		<tr class="font-size-12">
 			<th class="width-20">รหัสสินค้า</th>
@@ -82,7 +82,7 @@
 
 
 <script id="stock-template" type="text/x-handlebarsTemplate">
-<table class="table table-bordered">
+	<table class="table table-bordered">
 	<thead>
 		<tr class="font-size-12">
 			<th class="width-10 text-center">รูปภาพ</th>
@@ -96,14 +96,14 @@
 {{#each this}}
 	{{#if nodata}}
 		<tr>
-			<td colspan="4" class="text-center">ไม่พบรายการ</td>
+			<td colspan="5" class="text-center">ไม่พบรายการ</td>
 		</tr>
 	{{else}}
 		<tr>
 			<td class="middle text-center">{{{ img }}}</td>
 			<td class="middle">{{ pdCode }}</td>
 			<td class="middle">{{ pdName }}</td>
-			<td class="text-center middle">{{ qty }}</td>
+			<td class="text-center middle"><span class="pointer" onclick="availableDetails('{{ pdCode }}', '{{ warehouse }}')">{{ qty }}</span></td>
 			<td class="text-center middle">
 				<button type="button"
 							class="btn btn-info"
@@ -124,74 +124,84 @@
 </script>
 
 <script>
-var HOME = BASE_URL + 'main/';
-//---- ค้นหาว่าสินค้าติดอยู่ที่ออเดอร์ไหนบ้าง
-function findOrder(){
-	var searchText = $.trim($('#search-text').val());
-  var warehouse = $('#warehouse').val();
-	if(searchText.length > 3){
-		load_in();
+	var HOME = BASE_URL + 'main/';
+	//---- ค้นหาว่าสินค้าติดอยู่ที่ออเดอร์ไหนบ้าง
+	function findOrder() {
+		var searchText = $.trim($('#search-text').val());
+		var warehouse = $('#warehouse').val();
+		if (searchText.length > 3) {
+			load_in();
 
-		$.ajax({
-			url:HOME + 'find_order',
-			type:'POST',
-			cache:'false',
-			data:{
-				'search_text' : searchText,
-        'warehouse_code' : warehouse
-			},
-			success:function(rs){
-				load_out();
-				var source = $('#order-template').html();
-				var data = $.parseJSON(rs);
-				var output = $('#result');
-				render(source, data, output);
-			}
-		});
+			$.ajax({
+				url: HOME + 'find_order',
+				type: 'POST',
+				cache: 'false',
+				data: {
+					'search_text': searchText,
+					'warehouse_code': warehouse
+				},
+				success: function(rs) {
+					load_out();
+					var source = $('#order-template').html();
+					var data = $.parseJSON(rs);
+					var output = $('#result');
+					render(source, data, output);
+				}
+			});
+		}
 	}
-}
 
 
 
-function getSearch(){
-	var searchText = $.trim($('#search-text').val());
-  var warehouse = $('#warehouse').val();
-  var color = $('#color').val();
-  var color_group = $('#color_group').val();
+	function getSearch() {
+		var searchText = $.trim($('#search-text').val());
+		var warehouse = $('#warehouse').val();
+		var color = $('#color').val();
+		var color_group = $('#color_group').val();
 
-	if(searchText.length > 3 ){
-		load_in();
-		$.ajax({
-			url:HOME + 'get_sell_items_stock',
-			type:'POST',
-			cache:'false',
-			data:{
-				'search_text' : searchText,
-        'warehouse_code' : warehouse,
-        'color' : color,
-        'color_group' : color_group
-			},
-			success:function(rs){
-				load_out();
-				var source = $('#stock-template').html();
-				var data = $.parseJSON(rs);
-				var output = $('#result');
-				render(source, data, output);
-				popover_init();
-			}
-		});
+		if (searchText.length > 3) {
+			load_in();
+			$.ajax({
+				url: HOME + 'get_sell_items_stock',
+				type: 'POST',
+				cache: 'false',
+				data: {
+					'search_text': searchText,
+					'warehouse_code': warehouse,
+					'color': color,
+					'color_group': color_group
+				},
+				success: function(rs) {
+					load_out();
+					var source = $('#stock-template').html();
+					var data = $.parseJSON(rs);
+					var output = $('#result');
+					render(source, data, output);
+					popover_init();
+				}
+			});
+		}
 	}
-}
 
-function popover_init(){
-	$('[data-toggle="popover"]').popover();
-}
+	function popover_init() {
+		$('[data-toggle="popover"]').popover();
+	}
 
-function getViewStock(){
-	window.location.href = BASE_URL + 'view_stock' ;
-}
+	function getViewStock() {
+		window.location.href = BASE_URL + 'view_stock';
+	}
 
-$('#warehouse').select2();
+	$('#warehouse').select2();
+
+	function availableDetails(code, warehouse) {
+		const width = 400;
+		const height = 500;
+		const left = (window.screen.width / 2) - (width / 2);
+		const top = (window.screen.height / 2) - (height / 2);
+		const url = `${BASE_URL}view_stock/available_details/${code}/${warehouse}?nomenu`;
+		window.open(url, '_blank', `top=${top},left=${left},width=${width},height=${height}`);
+		
+	}
 </script>
 
 <?php $this->load->view('include/footer'); ?>

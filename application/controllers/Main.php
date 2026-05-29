@@ -127,6 +127,7 @@ class Main extends PS_Controller
     					'img' => '<img src="'.get_product_image($rs->code, $useSize).'" />',
     					'pdCode' => $rs->code,
     					'pdName' => $rs->name,
+              'warehouse' => $warehouse,
     					'qty' => number($qty),
     					'stockInZone' => $stockLabel
     				);
