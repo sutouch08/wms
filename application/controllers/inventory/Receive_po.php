@@ -1033,8 +1033,7 @@ class Receive_po extends PS_Controller
             'DocTotal' => $ds->DocTotal,
             'TotalQty' => $ds->TotalQty,
             'must_accept' => $must_accept,
-            'remark' => $remark,
-            'approver' => $approver,
+            'remark' => $remark,            
             'status' => $ds->save_type == 0 ? 0 : ($must_accept ? 4 : ($ds->save_type == 3 ? 3 : 1))
           );
 
