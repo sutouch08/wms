@@ -57,7 +57,7 @@ class Order_reference extends PS_Controller
           'channels_code' => get_null($order->channels_code),
           'channels_name' => channels_name($order->channels_code),
           'customer_code' => $order->role == 'L' ? $order->user_ref : get_null($order->customer_code),
-          'customer_name' => empty($order->customer_ref) ? get_null($order->customer_name) : $order->customer_ref,
+          'customer_name' => $order->role == 'L' ? $order->user_ref : (empty($order->customer_ref) ? get_null($order->customer_name) : $order->customer_ref),
           'carton_qty' => $this->count_order_box($order->code),
           'pack_qty' => $this->count_qc_qty($order->code)
         );
