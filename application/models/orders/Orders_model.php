@@ -557,13 +557,32 @@ class Orders_model extends CI_Model
   }
 
 
-  //--- เช็คว่า reference นี้มีการเพิ่มเข้า order แล้ว และไม่ได้ยกเลิก เพื่อเพิ่มออเดอร์ใหม่โดยใช้ reference ได้ (chatbot api)
-  public function is_active_order_reference($reference)
+  //--- เช็คว่า reference นี้มีการเพิ่มเข้า order แล้ว และไม่ได้ยกเลิก เพื่อเพิ่มออเดอร์ใหม่โดยใช้ reference ได้
+  public function get_active_code_by_reference($reference)
   {
     $rs = $this->db
       ->select('code')
       ->where('reference', $reference)
       ->where_in('state', [4, 5, 6, 7, 8])
+      ->limit(1)
+      ->get('orders');
+
+    if ($rs->num_rows() > 0)
+    {
+      return $rs->row()->code;
+    }
+
+    return NULL;
+  }
+
+
+  //--- เช็คว่า reference นี้มีการเพิ่มเข้า order แล้ว และไม่ได้ยกเลิก เพื่อเพิ่มออเดอร์ใหม่โดยใช้ reference ได้
+  public function is_active_order_reference($reference)
+  {
+    $rs = $this->db
+      ->select('code')
+      ->where('reference', $reference)
+      ->where_in('state', [4, 5, 6, 7, 8])      
       ->get('orders');
 
     if ($rs->num_rows() > 0)

@@ -234,7 +234,7 @@ class Orders extends PS_Controller
       $sokoWh = getConfig('SOKOJUNG_WAREHOUSE');
 
       $book_code = getConfig('BOOK_CODE_ORDER');
-      $date_add = db_date($data->date_add);
+      $date_add = db_date($data->date_add, TRUE);
       $code = $this->get_new_code($date_add);
 
       $customer = $this->customers_model->get($data->customer_code);

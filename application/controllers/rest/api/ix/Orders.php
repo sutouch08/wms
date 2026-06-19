@@ -16,6 +16,7 @@ class Orders extends REST_Controller
   public $checkBackorder = FALSE;
   public $sync_api_stock = FALSE;
   private $type = 'ORDER';
+  public $order_code = NULL;
 
   public function __construct()
   {
@@ -287,6 +288,7 @@ class Orders extends REST_Controller
       $arr = array(
         'status' => FALSE,
         'error' => $this->error,
+        'order_code' => $this->order_code,
         'retry' => FALSE
       );
 
@@ -2395,7 +2397,9 @@ class Orders extends REST_Controller
 
   public function verify_data($data, $role = 'S')
 	{
-    if($this->orders_model->is_active_order_reference(trim($data->order_number)) !== FALSE)
+    $this->order_code = $this->orders_model->get_active_code_by_reference(trim($data->order_number));
+    
+    if( ! empty($this->order_code))
     {
       $this->error = "Order number '{$data->order_number}' already exists";
 			return FALSE;
