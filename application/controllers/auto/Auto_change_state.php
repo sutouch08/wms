@@ -30,24 +30,43 @@ class Auto_change_state extends PS_Controller
     $limit = getConfig('AUTO_CHANGE_STATE_LIMIT');
     $limit = empty($limit) ? 100 : $limit;
 
-    $data = $this->get_all($limit);
+    $filter = array(
+      'code' => get_filter('code', 'auto_code', ''),
+      'status' => get_filter('status', 'auto_status', '0')
+    );
 
-    $ds['count'] = empty($data) ? 0 : count($data);
-    $ds['all'] = $this->count_all();;
-    $ds['limit'] = $limit;
-    $ds['data'] = $data;
+    $rows = $this->count_all($filter);
+    $data = $this->get_all($filter, $limit);
 
-    $this->load->view('auto/auto_change_state', $ds);
+    $filter['count'] = empty($data) ? 0 : count($data);
+    $filter['all'] = $rows;
+    $filter['limit'] = $limit;
+    $filter['data'] = $data;
+
+    $this->load->view('auto/auto_change_state', $filter);
   }
 
 
-  public function get_all($limit = 100)
+  public function get_all($filter = array(), $limit = 100)
   {
-    $rs = $this->db
+    $this->db
     ->select('a.*, o.state')
     ->from('auto_send_to_sap_order AS a')
-    ->join('orders AS o', 'a.code = o.code', 'left')
-    ->where('a.status', 0)
+    ->join('orders AS o', 'a.code = o.code', 'left');
+
+    if(!empty($filter['code']))
+    {
+      $this->db->like('a.code', $filter['code']);
+    }
+
+    if(!empty($filter['status']) && $filter['status'] != 'all')
+    {
+      $this->db->where('a.status', $filter['status']);
+    }
+
+    $rs = $this->db
+    ->order_by('a.status', 'ASC')
+    ->order_by('a.code', 'ASC')
     ->limit($limit)
     ->get();
 
@@ -60,9 +79,19 @@ class Auto_change_state extends PS_Controller
   }
 
 
-  public function count_all()
+  public function count_all(array $filter = array())
   {
-    $count = $this->db->where('status', 0)->count_all_results('auto_send_to_sap_order');
+    if (!empty($filter['code']))
+    {
+      $this->db->like('code', $filter['code']);
+    }
+
+    if(!empty($filter['status']) && $filter['status'] != 'all')
+    {
+      $this->db->where('status', $filter['status']);
+    }
+
+    $count = $this->db->count_all_results('auto_send_to_sap_order');
 
     return $count;
   }
