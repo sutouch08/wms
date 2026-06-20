@@ -17,13 +17,13 @@
     <div class="col-lg-2-harf col-md-2-harf col-sm-3-harf col-xs-4 padding-5">
       <div class="input-group">
         <span class="input-group-addon">รหัส</span>
-        <input type="text" class="form-control input-sm" name="code" placeholder="Order Code" value="<?php echo $code; ?>" />
+        <input type="text" class="form-control input-sm" id="code" name="code" placeholder="Order Code" value="<?php echo $code; ?>" />
       </div>
     </div>
     <div class="col-lg-2 col-md-2-harf col-sm-3-harf col-xs-4 padding-5">
       <div class="input-group">
         <span class="input-group-addon">สถานะ</span>
-        <select class="form-control input-sm" name="status">
+        <select class="form-control input-sm" id="status" name="status">
           <option value="0" <?php echo is_selected($status, '0'); ?>>Pending</option>
           <option value="1" <?php echo is_selected($status, '1'); ?>>Success</option>
           <option value="3" <?php echo is_selected($status, '3'); ?>>Error</option>
@@ -33,6 +33,9 @@
     </div>
     <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
       <button type="submit" class="btn btn-xs btn-primary btn-block" style="height:30px;">Search</button>
+    </div>
+    <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+      <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearOption()" style="height:30px;">Clear</button>
     </div>
   </form>
 </div>
@@ -48,7 +51,7 @@
 
   <div class="col-lg-2-harf col-md-2-harf col-sm-3-harf col-xs-9 padding-5">
     <div class="input-group">
-      <span class="input-group-addon">สถานะ</span>
+      <span class="input-group-addon">State</span>
       <select class="form-control input-sm" id="state">
         <option value="">Select State</option>
         <option value="1">รอดำเนินการ</option>
@@ -86,6 +89,7 @@ $stateName = array(
         <tr>
           <th class="fix-width-40 text-center">#</th>
           <th class="fix-width-150">Order</th>
+          <th class="fix-width-100">State</th>
           <th class="fix-width-100">Status</th>
           <th class="min-width-100">message</th>
         </tr>
@@ -101,13 +105,14 @@ $stateName = array(
                 <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $rs->id; ?>" value="<?php echo $rs->code; ?>" />
               </td>
               <td id="status-<?php echo $rs->id; ?>"><?php echo empty($stateName[$rs->state]) ? "Unknow" : $stateName[$rs->state]; ?></td>
-              <td id="msg-<?php echo $rs->id; ?>"></td>
+              <td><?php echo $rs->status == 0 ? "Pending" : ($rs->status == 1 ? "Success" : "Error"); ?></td>
+              <td id="msg-<?php echo $rs->id; ?>"><?php echo $rs->message; ?></td>
             </tr>
             <?php $no++; ?>
           <?php endforeach; ?>
         <?php else : ?>
           <tr>
-            <td colspan="4" class="text-center">---- No Order ----</td>
+            <td colspan="5" class="text-center">---- No Order ----</td>
           </tr>
         <?php endif; ?>
       </tbody>
@@ -389,6 +394,12 @@ $stateName = array(
         showError(rs);
       }
     })
+  }
+
+  function clearOption() {
+    $('#code').val('');
+    $('#status').val('0');
+    $('#searchForm').submit();
   }
 </script>
 

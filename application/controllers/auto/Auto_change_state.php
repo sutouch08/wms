@@ -59,7 +59,7 @@ class Auto_change_state extends PS_Controller
       $this->db->like('a.code', $filter['code']);
     }
 
-    if(!empty($filter['status']) && $filter['status'] != 'all')
+    if(isset($filter['status']) && $filter['status'] != 'all')
     {
       $this->db->where('a.status', $filter['status']);
     }
@@ -86,7 +86,7 @@ class Auto_change_state extends PS_Controller
       $this->db->like('code', $filter['code']);
     }
 
-    if(!empty($filter['status']) && $filter['status'] != 'all')
+    if(isset($filter['status']) && $filter['status'] != 'all')
     {
       $this->db->where('status', $filter['status']);
     }
