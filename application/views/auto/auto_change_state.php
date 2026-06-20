@@ -104,8 +104,8 @@ $stateName = array(
                 <?php echo $rs->code; ?>
                 <input type="hidden" class="order" data-id="<?php echo $rs->id; ?>" data-no="<?php echo $no; ?>" id="code-<?php echo $rs->id; ?>" value="<?php echo $rs->code; ?>" />
               </td>
-              <td id="status-<?php echo $rs->id; ?>"><?php echo empty($stateName[$rs->state]) ? "Unknow" : $stateName[$rs->state]; ?></td>
-              <td><?php echo $rs->status == 0 ? "Pending" : ($rs->status == 1 ? "Success" : "Error"); ?></td>
+              <td id="state-<?php echo $rs->id; ?>"><?php echo empty($stateName[$rs->state]) ? "Unknow" : $stateName[$rs->state]; ?></td>
+              <td id="status-<?php echo $rs->id; ?>"><?php echo $rs->status == 0 ? "Pending" : ($rs->status == 1 ? "Success" : "Error"); ?></td>
               <td id="msg-<?php echo $rs->id; ?>"><?php echo $rs->message; ?></td>
             </tr>
             <?php $no++; ?>
@@ -208,7 +208,7 @@ $stateName = array(
           success: function(rs) {
 
             if (rs == 'success') {
-              $('#status-' + id).text('OK');
+              $('#status-' + id).text('Success');
               no++;
               if (no == max) {
                 update_status(code, 1, rs);
@@ -220,7 +220,7 @@ $stateName = array(
                 do_export(no);
               }
             } else {
-              $('#status-' + id).text('failed');
+              $('#status-' + id).text('Error');
               $('#msg-' + id).text(rs);
               no++;
               if (no == max) {
