@@ -12,14 +12,7 @@ class Dashboard extends CI_Controller
   public $isViewer = FALSE;
   public $notibars = 0;
   public $pm;
-  public $channels = array(
-    'offline' => 'offline',
-    'online' => 'online',
-    'tiktok' => '0009',
-    'shopee' => 'SHOPEE',
-    'lazada' => 'LAZADA'
-  );
-
+  
   public function __construct()
   {
     parent::__construct();
@@ -40,8 +33,41 @@ class Dashboard extends CI_Controller
       $this->load->view('inventory/dashboard/mobile/dashboard_mobile');
     }
     else
-    {
+    {      
+      $data = [
+        'total_0' => 0,
+        'total_3' => 0,
+        'total_4' => 0,
+        'total_5' => 0,
+        'total_6' => 0,
+        'total_7' => 0,
+        'total_8' => 0
+      ];
+
+      $channels = [
+        'offline' => 'offline',
+        'online' => 'online',
+        'tiktok' => '0009',
+        'shopee' => 'SHOPEE',
+        'lazada' => 'LAZADA'
+      ];
+
+      $state = ['0', '3', '4', '5', '6', '7', '8'];
       
+
+      foreach($channels as $ch => $code)
+      {
+        foreach($state as $st)
+        {
+          $count = $this->dashboard_model->count_orders_state($code, $st);
+          $data["{$ch}_{$st}"] = $count;
+          if($ch == 'offline' OR $ch == 'online')
+          {
+            $data["total_{$st}"] += $count;
+          }
+        }
+      }
+
       $ds = array(
         'd1' => $this->dashboard_model->getShippedLastDays(1),
         'd2' => $this->dashboard_model->getShippedLastDays(2),
@@ -49,7 +75,8 @@ class Dashboard extends CI_Controller
         'd4' => $this->dashboard_model->getShippedLastDays(4),
         'd5' => $this->dashboard_model->getShippedLastDays(5),
         'd6' => $this->dashboard_model->getShippedLastDays(6),
-        'd7' => $this->dashboard_model->getShippedLastDays(7)
+        'd7' => $this->dashboard_model->getShippedLastDays(7),
+        'data' => (object) $data
       );
 
       $this->load->view('inventory/dashboard/dashboard', $ds);
@@ -94,6 +121,52 @@ class Dashboard extends CI_Controller
   }
 
 
+  public function get_order_data()
+  {
+    $sc = TRUE;
+
+    $data = [
+      'total_0' => 0,
+      'total_3' => 0,
+      'total_4' => 0,
+      'total_5' => 0,
+      'total_6' => 0,
+      'total_7' => 0,
+      'total_8' => 0
+    ];
+
+    $channels = [
+      'offline' => 'offline',
+      'online' => 'online',
+      'tiktok' => '0009',
+      'shopee' => 'SHOPEE',
+      'lazada' => 'LAZADA'
+    ];
+
+    $state = ['0', '3', '4', '5', '6', '7', '8'];
+
+
+    foreach ($channels as $ch => $code)
+    {
+      foreach ($state as $st)
+      {
+        $count = $this->dashboard_model->count_orders_state($code, $st);
+        $data["{$ch}_{$st}"] = $count;
+        if ($ch == 'offline' or $ch == 'online')
+        {
+          $data["total_{$st}"] += $count;
+        }
+      }
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $data
+    );
+
+    echo json_encode($arr);
+  }
 
 } //--- end class
 ?>
