@@ -256,7 +256,7 @@
 			setTimeout(() => {
 				//getOrderData();
 				refresh();
-			}, 60000);
+			}, 180000);
 		});
 
 		function getOrderData() {
