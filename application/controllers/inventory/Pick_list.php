@@ -1387,6 +1387,7 @@ class Pick_list extends PS_Controller
         'is_pick_list' => $filter->is_pick_list,
         'is_1_sku' => $filter->is_1_sku,
         'is_backorder' => $filter->is_backorder,
+        'is_preorder' => $filter->is_preorder,
         'limit' => $filter->limit
       );
 

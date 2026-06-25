@@ -72,6 +72,7 @@ function clearOrderList() {
   $('#order-code').val('');
   $('#item-code').val('');
   $('#is-pick-list').val('0');
+  $('#is-preorder').val('0');
 }
 
 
@@ -92,6 +93,7 @@ function getOrderList() {
     'warehouse_code' : $('#warehouse').val(),
     'is_1_sku' : $('#1sku').is(':checked') ? 1 : 0,
     'is_backorder' : $('#is-backorder').val(),
+    'is_preorder' : $('#is-preorder').val(),
     'limit' : $('#limit').val()
   }
 

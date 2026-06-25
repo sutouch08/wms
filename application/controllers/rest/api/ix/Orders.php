@@ -614,15 +614,13 @@ class Orders extends REST_Controller
     //---- new code start
     if($sc === TRUE)
     {
-      $date_add = date('Y-m-d H:i:s');
-      $doc_date = empty($data->doc_date) ? NULL : db_date($data->doc_date, TRUE);
+      $doc_date = empty($data->doc_date) ? date('Y-m-d H:i:s') : db_date($data->doc_date, TRUE);
+      $date_add = $doc_date;
       $due_date = empty($data->due_date) ? NULL : db_date($data->due_date, TRUE);
 
       $ref_code = trim($data->order_number);
 
-      $sale_code = empty($customer) ? -1 : $customer->sale_code;
-
-      $state = $role == 'T' ? 1 : 3;
+      $sale_code = empty($customer) ? -1 : $customer->sale_code;      
 
       if($role == 'S')
       {
@@ -650,6 +648,7 @@ class Orders extends REST_Controller
       $total_sku = [];
       $is_hold = empty($data->on_hold) ? 0 : ($data->on_hold == 'Y' ? 1 : 0);
       $is_pre_order = empty($data->is_pre_order) ? FALSE : (($data->is_pre_order == 'Y' OR $data->is_pre_order == 'y') ? TRUE : FALSE);
+      $state = $role == 'T' ? 1 : ($is_pre_order ? 1 : 3);
       $is_backorder = FALSE;
       $backorderList = [];
       $sync_stock = []; //--- keep product to sync stock

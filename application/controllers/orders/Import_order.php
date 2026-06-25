@@ -1059,7 +1059,7 @@ class Import_order extends CI_Controller
                   'channels_code' => $channels_code,
                   'payment_code' => $payment_code,
                   'sale_code' => $sale_code,
-                  'state' => $hold ? 1 : 3,
+                  'state' => $hold ? 1 : ($is_preorder ? 1 : 3),
                   'is_paid' => 0,
                   'is_term' => $payment->has_term,
                   'shipping_code' => $shipping_code,

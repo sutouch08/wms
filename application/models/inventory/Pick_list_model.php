@@ -623,16 +623,21 @@ class Pick_list_model extends CI_Model
     {
       $this->db->like('d.product_code', $ds['item_code']);
     }
+    
 
     $this->db
     ->where('o.state', 3)
-    ->where('o.is_cancled', 0)
-    ->where('o.is_pre_order', 0)
+    ->where('o.is_cancled', 0)    
     ->where('o.warehouse_code', $ds['warehouse_code']);
 
     if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
     {
       $this->db->where('o.is_backorder', $ds['is_backorder']);
+    }
+
+    if(isset($ds['is_preorder']) && $ds['is_preorder'] != 'all')
+    {
+      $this->db->where('o.is_pre_order', $ds['is_preorder']);
     }
 
     if( ! empty($ds['from_date']))

@@ -73,7 +73,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
 			<label>Shop Name</label>
 			<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
@@ -81,7 +81,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+		<div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-6 padding-5">
 			<label>การจัดส่ง</label>
 			<select class="width-100 filter" name="id_sender" id="sender">
 				<option value="all">ทั้งหมด</option>
@@ -89,7 +89,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>ออนไลน์</label>
 			<select class="form-control input-sm" name="is_online">
 				<option value="all">ทั้งหมด</option>
@@ -98,7 +98,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>ประเภท</label>
 			<select class="form-control input-sm" name="role">
 				<option value="all">ทั้งหมด</option>
@@ -113,7 +113,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>Backorder</label>
 			<select class="form-control input-sm" name="is_backorder">
 				<option value="all">ทั้งหมด</option>
@@ -122,12 +122,21 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>Canceled</label>
 			<select class="form-control input-sm" name="is_cancled">
 				<option value="all">ทั้งหมด</option>
 				<option value="1" <?php echo is_selected($is_cancled, '1'); ?>>Yes</option>
 				<option value="0" <?php echo is_selected($is_cancled, '0'); ?>>No</option>
+			</select>
+		</div>
+
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
+			<label>Preorder</label>
+			<select class="form-control input-sm" name="is_pre_order">
+				<option value="0" <?php echo is_selected($is_pre_order, '0'); ?>>No</option>
+				<option value="1" <?php echo is_selected($is_pre_order, '1'); ?>>Yes</option>
+				<option value="all" <?php echo is_selected($is_pre_order, 'all'); ?>>ทั้งหมด</option>
 			</select>
 		</div>
 
@@ -139,7 +148,7 @@
 			</div>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>เวลาเริ่มต้น</label>
 			<select class="form-control input-sm" name="startTime">
 				<option value="">ทั้งหมด</option>
@@ -147,7 +156,7 @@
 			</select>
 		</div>
 
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5 fi">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 fi">
 			<label>เวลาสิ้นสุด</label>
 			<select class="form-control input-sm" name="endTime">
 				<option value="">ทั้งหมด</option>
@@ -163,7 +172,7 @@
 			</div>
 		</div>
 
-		<div class="col-lg-2-harf col-md-4 col-sm-3 col-xs-6 padding-5 fi">
+		<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 fi">
 			<label>รหัสสินค้า</label>
 			<input type="text" class="form-control input-sm search" name="item_code" id="item_code" value="<?php echo $item_code; ?>" />
 		</div>

@@ -279,6 +279,11 @@ class Prepare_model extends CI_Model
       $this->db->where('is_backorder', $ds['is_backorder']);
     }
 
+    if(isset($ds['is_pre_order']) && $ds['is_pre_order'] != 'all')
+    {
+      $this->db->where('is_pre_order', $ds['is_pre_order']);
+    }
+
     if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')
     {
       $this->db->where('is_cancled', $ds['is_cancled']);
@@ -410,7 +415,7 @@ class Prepare_model extends CI_Model
   {
     $this->db
 		->select('o.id, o.code, o.role, o.reference, o.customer_code, o.customer_name')
-    ->select('o.customer_ref, o.date_add, o.due_date, o.channels_code, o.is_backorder, o.is_cancled, o.shop_id')
+    ->select('o.customer_ref, o.date_add, o.due_date, o.channels_code, o.is_backorder, o.is_pre_order, o.is_cancled, o.shop_id')
     ->select('o.warehouse_code, o.zone_code, o.empName, o.user, o.update_user, o.id_sender, o.pick_list_id')
     ->select('ch.name AS channels_name, s.name AS sender_name')
     ->from('orders AS o')
@@ -439,6 +444,11 @@ class Prepare_model extends CI_Model
     if(isset($ds['is_backorder']) && $ds['is_backorder'] != 'all')
     {
       $this->db->where('is_backorder', $ds['is_backorder']);
+    }
+
+    if(isset($ds['is_pre_order']) && $ds['is_pre_order'] != 'all')
+    {
+      $this->db->where('is_pre_order', $ds['is_pre_order']);
     }
 
     if(isset($ds['is_cancled']) && $ds['is_cancled'] != 'all')

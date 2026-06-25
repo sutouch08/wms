@@ -43,7 +43,7 @@
     </div>
   </div>
 
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label>Backorder</label>
     <select class="form-control input-sm" id="is-backorder">
       <option value="0">No</option>
@@ -52,15 +52,24 @@
     </select>
   </div>
 
-  <div class="col-lg-2 col-md-3-harf col-sm-3-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+    <label>Pre Order</label>
+    <select class="form-control input-sm" id="is-preorder">
+      <option value="0">No</option>
+      <option value="1">Yes</option>
+      <option value="all">ทั้งหมด</option>
+    </select>
+  </div>
+
+  <div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="width-100" id="customer" />
   </div>
-  <div class="col-lg-1-harf col-md-4 col-sm-4 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>เลขที่ออเดอร์</label>
     <input type="text" class="width-100 text-center" id="order-code" />
   </div>
-  <div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+  <div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>รหัสสินค้า</label>
     <input type="text" class="width-100 text-center" id="item-code" />
   </div>

@@ -56,6 +56,7 @@ class Prepare extends PS_Controller
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all'),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
+      'is_pre_order' => get_filter('is_pre_order', 'ic_is_pre_order', '0'),
       'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all'),
       'range' => get_filter('range', 'range', 'all')
     );
@@ -113,6 +114,7 @@ class Prepare extends PS_Controller
       'warehouse' => get_filter('warehouse', 'ic_warehouse', 'all'),
       'is_backorder' => get_filter('is_backorder', 'ic_is_backorder', 'all'),
       'is_cancled' => get_filter('is_cancled', 'ic_is_cancled', 'all'),
+      'is_pre_order' => get_filter('is_pre_order', 'ic_is_pre_order', '0'),
       'id_sender' => get_filter('id_sender', 'ic_id_sender', 'all'),
       'range' => get_filter('range', 'range', 'all')
     );
@@ -982,6 +984,7 @@ class Prepare extends PS_Controller
       'ic_warehouse',
       'ic_is_backorder',
       'ic_is_cancled',
+      'ic_is_pre_order',
       'ic_id_sender'
     );
 
