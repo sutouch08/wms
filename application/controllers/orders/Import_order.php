@@ -1114,7 +1114,7 @@ class Import_order extends CI_Controller
 
                 $ds[$ref_code]->items[$item->code] = $row;
 
-                if($item->count_stock)
+                if($item->count_stock && ! $is_preorder)
                 {
                   if( ! isset($whsItems[$warehouse_code][$item->code]))
                   {
@@ -1208,7 +1208,7 @@ class Import_order extends CI_Controller
 
                 $ds[$ref_code]->items[$item->code] = $row;
 
-                if($item->count_stock)
+                if($item->count_stock && ! $ds[$ref_code]->is_pre_order)
                 {
                   $warehouse_code = $ds[$ref_code]->warehouse_code;
 
