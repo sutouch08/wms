@@ -99,14 +99,14 @@
         <div class="row">
           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <label><i class="fa fa-video-camera"></i>&nbsp; Choose Camera</label>
-            <select class="form-control input-sm" id="video-devices">
+            <select class="form-control input-sm focus" id="video-devices">
               <option value="">Select Video Device</option>
             </select>
           </div>
           <div class="divider-hidden"></div>
           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 hide" id="audio-option">
             <label><i class="fa fa-microphone"></i>&nbsp; Choose Microphone</label>
-            <select class="form-control input-sm" id="audio-devices">
+            <select class="form-control input-sm focus" id="audio-devices">
               <option value="">Select Audio Device</option>
             </select>
           </div>

@@ -196,7 +196,7 @@ async function startCamera() {
 
 
 function stopCamera() {
-  if(mediaRecorder) {
+  if(mediaRecorder && mediaRecorder.state !== 'inactive') {
     return false;
   }
   
@@ -282,7 +282,7 @@ function stopRecord() {
       pauseButton.classList.add('hide');
       resumeButton.classList.add('hide');
       startButton.classList.remove('hide');
-      //stopCamera();
+      stopCamera();
     }
   }
 }
