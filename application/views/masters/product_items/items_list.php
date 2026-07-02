@@ -48,7 +48,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>กลุ่ม</label>
-			<select class="form-control input-sm filter" name="group" id="group" >
+			<select class="form-control input-sm filter" name="group" id="group">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_product_group($group); ?>
 			</select>
@@ -56,7 +56,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>กลุ่มย่อย</label>
-			<select class="form-control input-sm filter" name="sub_group" id="sub-group" >
+			<select class="form-control input-sm filter" name="sub_group" id="sub-group">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_product_sub_group($sub_group); ?>
 			</select>
@@ -64,7 +64,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>หมวดหมู่</label>
-			<select class="form-control input-sm filter" name="category" id="category" >
+			<select class="form-control input-sm filter" name="category" id="category">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_product_category($category); ?>
 			</select>
@@ -72,7 +72,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>ประเภท</label>
-			<select class="form-control input-sm filter" name="kind" id="kind" >
+			<select class="form-control input-sm filter" name="kind" id="kind">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_product_kind($kind); ?>
 			</select>
@@ -80,7 +80,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>ชนิด</label>
-			<select class="form-control input-sm filter" name="type" id="type" >
+			<select class="form-control input-sm filter" name="type" id="type">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_product_type($type); ?>
 			</select>
@@ -88,7 +88,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>ยี่ห้อ</label>
-			<select class="form-control input-sm filter" name="brand" id="brand" >
+			<select class="form-control input-sm filter" name="brand" id="brand">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_product_brand($brand); ?>
 			</select>
@@ -96,7 +96,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>คอลเล็คชั่น</label>
-			<select class="form-control input-sm filter" name="collection" id="collection" >
+			<select class="form-control input-sm filter" name="collection" id="collection">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_all_collection($collection); ?>
 			</select>
@@ -104,7 +104,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>ปี</label>
-			<select class="form-control input-sm filter" name="year" id="year" >
+			<select class="form-control input-sm filter" name="year" id="year">
 				<option value="all">ทั้งหมด</option>
 				<option value="0000" <?php is_selected('0000', $year); ?>>0000</option>
 				<?php echo select_years($year); ?>
@@ -113,7 +113,7 @@
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 			<label>Active</label>
-			<select class="form-control input-sm filter" name="active" id="active" >
+			<select class="form-control input-sm filter" name="active" id="active">
 				<option value="all">ทั้งหมด</option>
 				<option value="1" <?php echo is_selected('1', $active); ?>>Yes</option>
 				<option value="0" <?php echo is_selected('0', $active); ?>>No</option>
@@ -134,7 +134,7 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive" style="min-height:400px; overflow:auto;">
-		<table class="table table-bordered tableFixHead" style="min-width:2250px;">
+		<table class="table table-bordered tableFixHead" style="min-width:2610px;">
 			<thead>
 				<tr>
 					<th class="fix-width-100 text-center"></th>
@@ -157,6 +157,9 @@
 					<th class="fix-width-40 middle text-center">ขาย</th>
 					<th class="fix-width-40 middle text-center">Active</th>
 					<th class="fix-width-150 middle text-center">รหัสเก่า</th>
+					<th class="fix-width-120 middle text-center">Create at</th>
+					<th class="fix-width-120 middle text-center">Last modified</th>
+					<th class="fix-width-120 middle text-center">Modified by</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -195,6 +198,9 @@
 							<td class="middle text-center"><?php echo is_active($rs->can_sell); ?></td>
 							<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
 							<td class="middle"><?php echo $rs->old_code; ?></td>
+							<td class="middle"><?php echo thai_date($rs->date_add, TRUE); ?></td>
+							<td class="middle"><?php echo thai_date($rs->date_upd, TRUE); ?></td>
+							<td class="middle"><?php echo $rs->update_user; ?></td>
 						</tr>
 						<?php $no++; ?>
 					<?php endforeach; ?>
