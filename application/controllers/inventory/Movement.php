@@ -32,20 +32,20 @@ class Movement extends PS_Controller
       'range' => get_filter('range', 'mv_range', 'all')
     );
 
-    if($this->input->post('search'))
+    if ($this->input->post('search'))
     {
-      redirect($this->home);
+      redirect($this->home . '/index/0');
     }
     else
     {
       $filter['id'] = $filter['range'] == 'all' ? NULL : $this->movement_model->get_max_id($filter['range']);
       $perpage = get_rows();
       $rows = $this->movement_model->count_rows($filter);
-      $init = pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
+      $init = pagination_config($this->home . '/index/', $rows, $perpage, $this->segment);
       $this->pagination->initialize($init);
       $filter['data'] = $this->movement_model->get_list($filter, $perpage, $this->uri->segment($this->segment));
       $this->load->view('inventory/movement/movement_list', $filter);
-    }
+    }    
   }
 
 

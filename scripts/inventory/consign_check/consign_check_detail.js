@@ -125,10 +125,10 @@ function closeCheck(){
   var sumChecked = parseInt($('#sumCount').val());
   var sumDiff = parseInt($('#sumDiff').val());
 
-  if(sumDiff <= 0){
-    swal('ไม่พบยอดต่าง');
-    return false;
-  }
+  // if(sumDiff <= 0){
+  //   swal('ไม่พบยอดต่าง');
+  //   return false;
+  // }
 
   swal({
     title:'ตรวจนับเสร็จแล้ว',

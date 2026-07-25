@@ -98,6 +98,86 @@ class Invoice extends PS_Controller
   }
 
 
+  public function confirm_receipted($code)
+  {
+    $sc = TRUE;     
+
+    if( ! empty($code))
+    {
+      $order = $this->orders_model->get($code);
+
+      if(! empty($order))
+      {
+        if($order->role == 'C')
+        {
+          $arr = array(
+            'is_valid' => 1,
+            'confirm_by' => $this->_user->uname,
+            'confirm_date' => now()
+          );
+
+          if(! $this->orders_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            set_error('update');
+          }
+        }
+
+        if($order->role == 'N')
+        {
+          $this->load->model('inventory/transfer_model');
+          //--- check ว่ามีเลขที่เอกสารนี้ใน transfer draft หรือไม่
+          $draft = $this->transfer_model->get_transfer_draft($code);
+
+          if (!empty($draft))
+          {
+            if (empty($draft->F_Receipt) or $draft->F_Receipt == 'N' or $draft->F_Receipt == 'D')
+            {
+              //---- ยืนยันรับสินค้า
+              if ($this->transfer_model->confirm_draft_receipted($draft->DocEntry))
+              {
+                $arr = array(
+                  'is_valid' => 1,
+                  'confirm_by' => $this->_user->uname,
+                  'confirm_date' => now()
+                );
+
+                $this->orders_model->update($code, $arr);
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "ยืนยันการรับสินค้าใน Transfer Draft ไม่สำเร็จ";
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "เอกสารถูกยืนยันไปแล้ว";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "ไม่พบเอกสาร Transfer draft";
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('not_found');
+      }      
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }    
+
+    $this->_response($sc);
+  }
+
 
 
   public function print_order($code, $barcode = '')

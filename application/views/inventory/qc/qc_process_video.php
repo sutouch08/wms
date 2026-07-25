@@ -81,12 +81,13 @@
 <input type="hidden" id="order-code"
   value="<?php echo $order->code; ?>"
   data-role="<?php echo $order->role; ?>"
-  data-user="<?php echo $this->_user->uname; ?>"
-  data-endpoint="<?php echo getConfig('VIDEO_ON_PACK_ENDPOINT'); ?>" />
+  data-user="<?php echo $this->_user->uname; ?>" />
 
 <input type="hidden" id="video-config"
   data-audio-required="<?php echo getConfig('AUDIO_ON_PACK'); ?>"
-  data-auto-record="<?php echo getConfig('VIDEO_ON_PACK_AUTO_RECORD'); ?>" />
+  data-auto-record="<?php echo getConfig('VIDEO_ON_PACK_AUTO_RECORD'); ?>"
+  data-endpoint="<?php echo getConfig('VIDEO_ON_PACK_ENDPOINT'); ?>"
+  data-format="<?php echo getConfig('VIDEO_FORMAT'); ?>" />
 
 <div class="modal fade" id="devices-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" style="width:300px; max-width:95%; margin-left:auto; margin-right:auto;">

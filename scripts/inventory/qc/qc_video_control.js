@@ -54,15 +54,19 @@ const resumeButton = document.querySelector('#resume-record');
 const stopButton = document.querySelector('#stop-record');
 const recordedPreview = document.querySelector('.recorded-preview');
 const order = document.getElementById('order-code');
-const audioRequired = document.getElementById('video-config').dataset.audioRequired == '1' ? true : false;
-const videoAutoRecord = document.getElementById('video-config').dataset.autoRecord == '1' ? true : false;
+const config = document.getElementById('video-config');
+const audioRequired = config.dataset.audioRequired == '1' ? true : false;
+const videoAutoRecord = config.dataset.autoRecord == '1' ? true : false;
+const format = config.dataset.format ? config.dataset.format : 'webm';
+
+const videoMimeType = format === 'mp4' ? 'video/mp4' : 'video/webm';
 
 async function uploadToServer(videoBlob) {
   const name = order.value;
-  const endpoint = order.dataset.endpoint;
+  const endpoint = config.dataset.endpoint;
   const fm = new FormData();
 
-  fm.append('video', videoBlob, name + '.webm');
+  fm.append('video', videoBlob, name + '.' + format);
   fm.append('order', order.value);
   fm.append('role', order.dataset.role);
   fm.append('user', order.dataset.user);
@@ -227,8 +231,8 @@ async function startRecord() {
     pauseButton.classList.remove('hide');
 
     try {
-      mediaRecorder = new MediaRecorder(steam, function() {
-        mimeType: 'video/webm'
+      mediaRecorder = new MediaRecorder(steam, {
+        mimeType: videoMimeType
       });
 
       mediaRecorder.addEventListener('dataavailable', (e) => {
@@ -275,7 +279,7 @@ function stopRecord() {
     if(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused') {
       mediaRecorder.stop();
       timeStop();
-      const recordedBlob = new Blob(blobChunks, { type: 'video/webm'});
+      const recordedBlob = new Blob(blobChunks, { type: videoMimeType });
       uploadToServer(recordedBlob);
       blobChunks = [];
       webcam.classList.remove('recording');

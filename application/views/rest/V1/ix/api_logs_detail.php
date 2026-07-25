@@ -36,21 +36,21 @@
 		<label>Api path</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $api_path; ?>" disabled />
 	</div>
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
 		<label>Code</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $code; ?>" disabled />
 	</div>
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
 		<label>Type</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $type; ?>" disabled />
 	</div>
 
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
 		<label>Action</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $action; ?>" disabled />
 	</div>
 
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
 		<label>Status</label>
 		<input type="text" class="form-control input-sm" value="<?php echo $status; ?>" disabled />
 	</div>

@@ -1847,7 +1847,13 @@ class Orders_model extends CI_Model
   //--- Set is_valid = 1 when transfer draft is confirmed (use in Controller inventory/transfer->confirm_receipted)
   public function valid_transfer_draft($code)
   {
-    return $this->db->set('is_valid', 1)->where('code', $code)->update('orders');
+    $arr = array(
+      'is_valid' => 1,
+      'confirm_by' => $this->_user->uname,
+      'confirm_date' => now()
+    );
+
+    return $this->db->where('code', $code)->update('orders', $arr);
   }
 
 

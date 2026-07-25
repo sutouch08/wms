@@ -14,6 +14,10 @@
       <button type="button" class="btn btn-sm btn-default" disabled><i class="fa fa-check"></i> รับสินค้าแล้ว</button>
     <?php endif; ?>
 
+    <?php if($order->role == 'C' && $order->is_valid == '0') : ?>
+      <button type="button" class="btn btn-sm btn-primary" onclick="confirm_receipted()"><i class="fa fa-check"></i> ยืนยันการรับสินค้า</button>
+    <?php endif; ?>
+
     <?php if(empty($approve_view)) : ?>
       <button type="button" class="btn btn-sm btn-success" onclick="doExport()">ส่งข้อมูลไป SAP</button>
     <?php endif; ?>
@@ -336,6 +340,14 @@
         </tbody>
       </table>
     </div>
+
+    <?php if(($order->role == 'N' OR $order->role == 'C') && $order->is_valid == 1) : ?>
+      <?php if( ! empty($order->confirm_by)) : ?>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+          <p class="logs-text">ยืนยันการรับสินค้าโดย : <?php echo $order->confirm_by; ?> (<?php echo thai_date($order->confirm_date, TRUE); ?>)</p>
+        </div>
+      <?php endif; ?>
+    <?php endif; ?>
   </div>
 
 
@@ -502,10 +514,11 @@
     document.body.removeChild(mapForm);
   }
 </script>
-<script>
-
+<script>  
   function confirm_receipted(){
-    var code = $('#order_code').val();
+    const code = $('#order_code').val();
+    const url = `${HOME}confirm_receipted/${code}`;
+
     swal({
       title: "ยืนยันการรับสินค้า",
       text: "คุณได้รับสินค้าครบเอกสารเลขที่ "+code+" แล้วใช่หรือไม่ ?",
@@ -515,14 +528,11 @@
       confirmButtonText:"ยืนยัน ได้รับครบแล้ว",
       cancelButtonText:"ยกเลิก",
       closeOnConfirm: false
-    }, function(){
+    }, function() {
       $.ajax({
-        url:BASE_URL + 'inventory/transfer/confirm_receipted',
-        type:'POST',
-        cache:false,
-        data:{
-          'code' : code
-        },
+        url: url,
+        type:'GET',
+        cache:false,        
         success:function(rs){
           var rs = $.trim(rs);
           if(rs === 'success'){
