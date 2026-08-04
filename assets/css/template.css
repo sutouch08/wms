@@ -144,6 +144,11 @@ h4.title {
   color:#333333 !important;
 }
 
+.label-top {
+	font-size: 12px;
+	margin: 5px 0px 0px 0px;
+}
+
 p > button{
 	margin-left: 5px;
 }
@@ -2010,6 +2015,11 @@ input[type=number]::-webkit-outer-spin-button {
 	background-color: lightsalmon;
 	min-height: 30px;
 	height: 60px;
+}
+
+.table-narrow tr > th, .table-narrow tr > td {
+	font-size: 11px;
+	padding: 3px !important;
 }
 
 .tableFixHead {

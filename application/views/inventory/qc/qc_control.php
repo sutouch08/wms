@@ -3,17 +3,17 @@
   <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12 padding-0">
     <div class="col-lg-1-harf col-md-3 col-sm-1-harf col-xs-4 padding-5">
       <label class="display-block not-show">box</label>
-      <button type="button" class="btn btn-xs btn-info btn-block" 
+      <button type="button" class="btn btn-xs btn-info btn-block"
         id="btn-add-box" onclick="confirmSaveBeforeAddBox()" <?php echo $disActive; ?>>
         เพิ่มกล่อง (F1)</button>
     </div>
     <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-3 padding-5">
       <label>จำนวน</label>
-      <input type="number" class="form-control input-sm text-center focus" id="qc-qty" value="1" <?php echo $disActive; ?> <?php echo $allow_input_qty ? "" : "disabled"; ?>/>
+      <input type="number" class="form-control input-sm text-center focus" id="qc-qty" value="1" <?php echo $disActive; ?> <?php echo $allow_input_qty ? "" : "disabled"; ?> />
     </div>
     <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 padding-5">
       <label>บาร์โค้ดสินค้า</label>
-      <input type="text" class="form-control input-sm text-center item focus" id="barcode-item" autocomplete="off" autofocus <?php echo $disActive; ?>/>
+      <input type="text" class="form-control input-sm text-center item focus" id="barcode-item" autocomplete="off" autofocus <?php echo $disActive; ?> />
     </div>
     <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
       <label class="display-block not-show">submit</label>
@@ -24,15 +24,34 @@
       <label class="display-block not-show">submit</label>
       <button type="button" class="btn btn-xs btn-success btn-block item" onclick="saveQc(0)" <?php echo $disActive; ?>>บันทึก (Space)</button>
     </div>
-    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-3 padding-5">
-      <label class="display-block not-show">print</label>
-      <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-print-address" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)">พิมพ์ใบปะหน้า</button>
-    </div>
 
     <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-3 padding-5">
+      <label class="display-block not-show">print</label>
+      <div class="btn-group width-100">
+        <button data-toggle="dropdown" class="btn btn-info btn-white btn-xs btn-block dropdown-toggle" aria-expanded="false">
+          <i class="ace-icon fa fa-print icon-on-left"></i>
+          พิมพ์ทั้งหมด
+          <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+        </button>        
+        <ul class="dropdown-menu">
+          <li><a href="javascript:printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)">พิมพ์ใบปะหน้า</a></li>
+          <li><a href="javascript:printAllBox('<?php echo $order->code; ?>')">พิมพ์ Packing List</a></li>
+          <li class="divider"></li>
+          <li><a href="javascript:printAddressEng(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)">Print Shipping Label (Eng)</a></li>
+          <li><a href="javascript:printAllBoxEng('<?php echo $order->code; ?>')">Print Packing List (Eng)</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-3 padding-5">
+      <label class="display-block not-show">print</label>
+      <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-print-address" onclick="printAddress(<?php echo $order->id_address; ?>, '<?php echo $order->code; ?>', <?php echo $order->id_sender; ?>)">พิมพ์ใบปะหน้า</button>
+    </div> -->
+
+    <!-- <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-3 padding-5">
       <label class="display-block not-show">Packing List</label>
       <button type="button" class="btn btn-xs btn-info btn-block" id="btn-print-all" onclick="printAllBox('<?php echo $order->code; ?>')">พิมพ์ทั้งหมด</button>
-    </div>
+    </div> -->
   </div>
 
   <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12 padding-5">

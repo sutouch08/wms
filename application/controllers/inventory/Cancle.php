@@ -9,11 +9,14 @@ class Cancle extends PS_Controller
 	public $title = 'ตรวจสอบ CANCLE ZONE';
   public $filter;
   public $error;
+  public $segment = 4; //-- url segment
   public function __construct()
   {
     parent::__construct();
     $this->home = base_url().'inventory/cancle';
     $this->load->model('inventory/cancle_model');
+    $this->load->helper('state');
+    $this->load->helper('zone');
   }
 
 
@@ -28,21 +31,10 @@ class Cancle extends PS_Controller
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
-
-		$segment  = 4; //-- url segment
-		$rows     = $this->cancle_model->count_rows($filter);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$ds   = $this->cancle_model->get_data($filter, $perpage, $this->uri->segment($segment));
-
-    $filter['data'] = $ds;
-
+		$perpage = get_rows();	
+		$rows = $this->cancle_model->count_rows($filter);
+    $filter['data'] = $this->cancle_model->get_list($filter, $perpage, $this->uri->segment($this->segment));		
+		$init = pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);		
 		$this->pagination->initialize($init);
     $this->load->view('inventory/cancle/cancle_view', $filter);
   }

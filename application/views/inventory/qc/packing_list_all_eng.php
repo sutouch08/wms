@@ -16,9 +16,9 @@ foreach($boxes as $box)
   $header .= '<tr>';
   $header .= '<td style="width:65%; height:20mm; font-size:50px; font-weight:bold; padding-left:10px; border-bottom:solid 1px #ccc; text-align:center;">'.$order->code.'</td>';
   $header .= '<td class="middle text-center bold" style="width:20%; border-left:solid 1px #CCC; border-bottom:solid 1px #ccc;">
-              <span class="display-block" style="font-size:12px; text-align:center">กล่องที่</span>
+              <span class="display-block" style="font-size:12px; text-align:center">Box No.</span>
               <span class="display-block" style="font-size:40px; text-align:center;">'.$box->box_no.'/'.$all_box.'</span>
-              <span class="display-block" style="font-size:12px; text-align:center;"> No: '.$box->code.'</span></td>';
+              <span class="display-block" style="font-size:12px; text-align:center;"> Ref: '.$box->code.'</span></td>';
   $header .= '<td style="width:15%; border-left:solid 1px #ccc; border-bottom:solid 1px #ccc; text-align:center;">';
   $header .= '<image src="data:image/png;base64, '.$order->qrcode.'" style="width:20mm;"/>';
   $header .= '</td>';
@@ -34,9 +34,9 @@ foreach($boxes as $box)
 
   //--- กำหนดหัวตาราง
   $thead	= array(
-    array("ลำดับ", "width:10%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
-    array("สินค้า", "width:75%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
-    array("จำนวน", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
+    array("No.", "width:10%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
+    array("Items description", "width:75%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
+    array("Qty", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
   );
 
   $this->printer->add_subheader($thead);
@@ -125,16 +125,16 @@ foreach($boxes as $box)
 
 
     $sub  = '<td class="subtotal-first subtotal-last" style="height:20mm; font-size:36px;">';
-    $sub .= '<span class="width-50 pull-left blod">น้ำหนัก  : ' . number($box->weight, 2) . ' Kgs.</span>';
-    $sub .= '<span class="width-50 pull-right blod text-right">รวม  : '.number($total_qty).'</span>';
+    $sub .= '<span class="width-50 pull-left blod">Weight  : ' . number($box->weight, 2) . ' Kgs.</span>';
+    $sub .= '<span class="width-50 pull-right blod text-right">Total  : '.number($total_qty).'</span>';
     $sub .= '</td>';
 
     $sub2  = '<td class="subtotal-first subtotal-last font-size-14" style="height:'.($this->printer->row_height *2).'mm;">';
-    $sub2 .= 'หมายเหตุ : '.$order->remark;
+    $sub2 .= 'Remark : '.$order->remark;
     $sub2 .= '</td>';
 
     $sub3  = '<td class="subtotal-first subtotal-last font-size-14 text-right" style="height:'.($this->printer->row_height).'mm;">';
-    $sub3 .= 'พิมพ์โดย : '.$this->_user->uname. '  วันที่ : '.date('d/m/Y H:i').' น.';
+    $sub3 .= 'Printed by : '.$this->_user->uname. '  Date : '.date('d/m/Y H:i');
     $sub3 .= '</td>';
 
     $sub_total = array(

@@ -1,5 +1,5 @@
 <?php
-function get_state_name($state)
+function get_state_name($state = NULL)
 {
   $name = array(
     '1' => 'รอดำเนินการ',
@@ -26,7 +26,7 @@ function get_state_name($state)
     '36' => 'Cancelled'
   );
 
-  return $name[$state];
+  return isset($name[$state]) ? $name[$state] : 'Unknown';
 }
 
 

@@ -1,4 +1,4 @@
-var HOME = BASE_URL + 'inventory/qc/';
+var HOME = `${BASE_URL}inventory/qc/`;
 
 function goBack(){
   window.location.href = HOME;

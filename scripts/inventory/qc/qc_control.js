@@ -395,7 +395,7 @@ function addBox() {
   load_in();
   
   $.ajax({
-    url:HOME + 'add_new_box',
+    url: `${HOME}add_new_box`,
     type:'POST',
     cache:false,
     data:{
@@ -438,9 +438,9 @@ function getBox(){
   var order_code = $("#order_code").val();
   if( barcode.length > 0){
     $.ajax({
-      url: HOME + 'get_box',
-      type:"GET",
-      cache:"false",
+      url: `${HOME}get_box`,
+      type:'GET',
+      cache:false,
       data:{
         "barcode":barcode,
         "order_code" : order_code
@@ -804,4 +804,33 @@ function confirmOrder(){
       showError(rs);
     }
   });
+}
+
+async function addWeight(box_id, weight, unit) {
+  const deviceCode = document.getElementById('device-code').value;
+  
+  if(!box_id) {
+    beep();
+    swal("กรุณาระบุกล่อง");
+    return false;
+  }
+
+  weight = parseDefaultFloat(weight, 0);
+
+  if(unit === 'g') {
+    weight = weight / 1000; // convert grams to kilograms
+  }
+
+  const url = `${HOME}update_weight`;
+  const data = { box_id: box_id, weight: weight, device_code: deviceCode };
+  const response = await postData(url, data);
+  const res = await response.text();
+
+  if(res.trim() === 'success') {
+    document.getElementById(`weight-${box_id}`).textContent = addCommas(weight.toFixed(2));
+  } 
+  else {
+    beep();
+    showError(res);
+  }  
 }

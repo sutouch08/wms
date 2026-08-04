@@ -438,8 +438,33 @@ $('.search').keyup(function(e){
 })
 
 function generateUID() {
-    return Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15);
+  return generateUUID(26);
+}
+
+function generateUUID(length = 16) {
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var uuid = '';
+  var values;
+  var index;
+
+  length = Number(length) || 16;
+
+  if(window.crypto && window.crypto.getRandomValues) {
+    values = new Uint32Array(length);
+    window.crypto.getRandomValues(values);
+
+    for(index = 0; index < length; index++) {
+      uuid += characters.charAt(values[index] % characters.length);
+    }
+
+    return uuid;
+  }
+
+  for(index = 0; index < length; index++) {
+    uuid += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  return uuid;
 }
 
 
@@ -601,3 +626,14 @@ function goToVideo(endpoint) {
 
 		window.open(endpoint, '_blank', prop);
 	}	
+
+
+async function postData(url, data) {
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+}

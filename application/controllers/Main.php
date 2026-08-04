@@ -43,20 +43,20 @@ class Main extends PS_Controller
 
     if(!empty($txt))
     {
-
       $limit = 100; //--- limit result
       $list = $this->main_model->get_search_order($txt, $warehouse, $limit);
 
       if(!empty($list))
       {
+        $this->load->helper('state');
+
         foreach($list as $rs)
         {
           $arr = array(
             'pdCode' => $rs->product_code,
-						'oldCode' => $rs->old_code,
             'reference' => $rs->code,
             'qty' => number($rs->qty),
-            'state' => $rs->state,
+            'state' => get_state_name($rs->state),
             'cusName' => $rs->customer_name,
             'empName' => $rs->user
           );

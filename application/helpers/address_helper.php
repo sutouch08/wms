@@ -1,5 +1,5 @@
 <?php
-function get_address_form($adds, $sds, $ds, $dd)
+function get_address_form($adds, $sds, $ds, $dd, $lang = 'th')
 {
   $sc = 'no_address';
     //--- มีที่อยู่เดียว และผู้จัดส่งเดียว
@@ -36,7 +36,7 @@ function get_address_form($adds, $sds, $ds, $dd)
             $add .= '<tr>';
             $add .=   '<td class="width-35 middle">';
             $add .=     '<label>';
-            $add .=       '<input type="radio" class="ace" name="id_address" value="'.$rs->id.'" '.$se.' />';
+            $add .=       '<input type="radio" class="ace" name="id_address" data-lang="'.$lang.'" value="'.$rs->id.'" '.$se.' />';
             $add .=       '<span class="lbl">&nbsp;&nbsp;'.$rs->alias.'</span>';
             $add .=     '</label>';
             $add .=   '</td>';
@@ -67,7 +67,7 @@ function get_address_form($adds, $sds, $ds, $dd)
           $dds .= '<tr >';
           $dds .=   '<td colspan="2">';
           $dds .=     '<label>';
-          $dds .=       '<input type="radio" class="ace" name="id_sender" value="'.$dd->main_sender.'" checked />';
+          $dds .=       '<input type="radio" class="ace" name="id_sender" data-lang="'.$lang.'" value="'.$dd->main_sender.'" checked />';
           $dds .=       '<span class="lbl">&nbsp;&nbsp; '.$dd->main.'</span>'; //---  transport_helper
           $dds .=     '</label>';
           $dds .=   '</td>';
@@ -80,7 +80,7 @@ function get_address_form($adds, $sds, $ds, $dd)
             $dds .= '<tr>';
             $dds .=   '<td colspan="2">';
             $dds .=     '<label>';
-            $dds .=       '<input type="radio" class="ace" name="id_sender" value="'.$dd->second_sender.'" />';
+            $dds .=       '<input type="radio" class="ace" name="id_sender" data-lang="'.$lang.'" value="'.$dd->second_sender.'" />';
             $dds .=       '<span class="lbl">&nbsp;&nbsp; '.$dd->second.'</span>'; //---  transport_helper
             $dds .=     '</label>';
             $dds .=   '</td>';
@@ -94,7 +94,7 @@ function get_address_form($adds, $sds, $ds, $dd)
             $dds .= '<tr>';
             $dds .=   '<td colspan="2">';
             $dds .=     '<label>';
-            $dds .=       '<input type="radio" class="ace" name="id_sender" value="'.$dd->third_sender.'" />';
+            $dds .=       '<input type="radio" class="ace" name="id_sender" data-lang="'.$lang.'" value="'.$dd->third_sender.'" />';
             $dds .=       '<span class="lbl">&nbsp;&nbsp; '.$dd->third_sender.'</span>'; //---  transport_helper
             $dds .=     '</label>';
             $dds .=   '</td>';

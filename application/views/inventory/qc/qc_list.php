@@ -6,6 +6,17 @@
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hidden-xs">
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="viewProcess()">กำลังตรวจ</button>
+		<?php if ($this->weight_on_pack) : ?>
+			<div class="btn-group">
+				<button type="button" class="btn btn-white btn-purple top-btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					<i class="ace-icon fa fa-cogs icon-on-left"></i>
+				</button>
+				<ul class="dropdown-menu dropdown-menu-right">
+					<li class="success"><a href="javascript:void(0)" onclick="getDeviceList()">เลือกเครื่องชั่ง</a></li>
+					<li class="primary"><a href="javascript:void(0)" onclick="showActiveDevice()">ตั้งค่าเครื่องชั่ง</a></li>
+				</ul>
+			</div>
+		<?php endif; ?>
 	</div>
 </div><!-- End Row -->
 <hr class="" />
@@ -110,19 +121,19 @@
 
 <hr class="margin-top-15 hidden-xs">
 <?php echo $this->pagination->create_links(); ?>
-<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>	
-<div class="row">
-	<div class="col-lg-3 col-md-4 col-sm-4 padding-5">
-		<div class="input-group width-100">
-			<span class="input-group-addon">ตรวจสินค้า</span>
-			<input type="text" class="form-control input-sm text-center" id="order-code" placeholder="scan to pack" autofocus />
+<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
+	<div class="row">
+		<div class="col-lg-3 col-md-4 col-sm-4 padding-5">
+			<div class="input-group width-100">
+				<span class="input-group-addon">ตรวจสินค้า</span>
+				<input type="text" class="form-control input-sm text-center" id="order-code" placeholder="scan to pack" autofocus />
+			</div>
+		</div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5">
+			<button type="button" class="btn btn-xs btn-primary btn-block" onclick="goToProcess()">ตรวจสินค้า</button>
 		</div>
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5">
-		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="goToProcess()">ตรวจสินค้า</button>
-	</div>
-</div>
-<hr class="margin-top-15">
+	<hr class="margin-top-15">
 <?php endif; ?>
 
 <div class="row">
@@ -232,6 +243,10 @@
 	</div>
 </div>
 
+<?php if($this->weight_on_pack) : ?>	
+<?php $this->load->view('inventory/qc/device_modal'); ?>
+<?php endif; ?>
+
 <script>
 	$('#user').select2();
 	$('#channels').select2();
@@ -239,5 +254,7 @@
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_list.js?v=<?php echo date('Ymd'); ?>"></script>
-
+<?php if ($this->weight_on_pack) : ?>
+	<script src="<?php echo base_url(); ?>scripts/inventory/qc/device.js?v=<?php echo date('Ymd'); ?>"></script>
+<?php endif; ?>
 <?php $this->load->view('include/footer'); ?>

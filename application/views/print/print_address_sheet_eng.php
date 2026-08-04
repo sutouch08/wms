@@ -4,7 +4,7 @@
 	$sender			= '<div class="col-lg-12" style="font-size:12px; padding-top:15px; padding-bottom:30px;">';
 	$sender			.= '<span style="display:block;">'.$cName.'</span>';
 	$sender			.= '<span style="width:70%; display:block;">'.$cAddress.' '.$cPostCode.'</span>';
-	$sender			.= '<span style="display:block"> โทร. '.$cPhone.'</span>';
+	$sender			.= '<span style="display:block"> Phone. '.$cPhone.'</span>';
 	$sender			.= '</div>';
 	/********* / Sender *************/
 
@@ -14,9 +14,9 @@
 	$receiver		= '<div class="col-lg-12" style="font-size:24px; padding-left: 100px; padding-right:100px; padding-top:15px; padding-bottom:40px;">';
 	$receiver		.= '<span style="display:block; margin-bottom:10px;">'.$ad->name.'</span>';
 	$receiver		.= '<span style="display:block;">'.$ad->address.'</span>';
-	$receiver		.= '<span style="display:block;"> ต. '.$ad->sub_district.' อ. '.$ad->district.'</span>';
-	$receiver		.= '<span style="display:block;">จ. '.$ad->province.' '.$ad->postcode.'</span>';
-	$receiver		.= $ad->phone == '' ? '' : '<span style="display:block;">โทร. '.$ad->phone.'</span>';
+	$receiver		.= '<span style="display:block;"> '.$ad->sub_district.', '.$ad->district.'</span>';
+	$receiver		.= '<span style="display:block;">'.$ad->province.' '.$ad->postcode.'</span>';
+	$receiver		.= $ad->phone == '' ? '' : '<span style="display:block;">Phone. '.$ad->phone.'</span>';
 	$receiver		.= '</div>';
 	/********** / Receiver ***********/
 
@@ -28,13 +28,13 @@
 		$transport	= '<table style="width:100%; border:0px; margin-left: 30px; position: relative; bottom:1px;">';
 		$transport	.= '<tr style="font-18px;"><td>'. $sd->name .'</td></tr>';
 		$transport	.= '<tr style="font-18px;"><td>'. $sd->address1 .' '.$sd->address2.'</td></tr>';
-		$transport	.= '<tr style="font-18px;"><td>โทร. '. $sd->phone.' เวลาทำการ : '.date('H:i', strtotime($sd->open)).' - '.date('H:i', strtotime($sd->close)).' น. - ( '.$sd->type.')</td></tr>';
+		$transport	.= '<tr style="font-18px;"><td>Tel. '. $sd->phone.' Opening hours: '.date('H:i', strtotime($sd->open)).' - '.date('H:i', strtotime($sd->close)).' - ( '.$sd->type.')</td></tr>';
 		$transport 	.= '</table>';
 	}
 
-	/*********** / transport **********/
+	/*********** / transport **********/	
 	$count_box	= empty($boxes) ? 1 : count($boxes);
-	$total_page		= $count_box > 1 ? ($count_box/2) : 1;
+	$total_page	= $count_box > 1 ? ($count_box/2) : 1;
 	$Page = '';
 
 	$config = array("row" => 16, "header_row" => 0, "footer_row" => 0, "sub_total_row" => 0);
@@ -55,7 +55,7 @@
 			$Page .= '<div class="col-lg-6-harf col-md-6-harf col-sm-6-harf col-xs-6-harf padding-5">'.$sender.'</div>';
 			$Page .= '<div class="col-lg-3-harf col-md-3-harf col-sm-3-harf col-xs-3-harf padding-5 text-right margin-top-10">
 								<span class="display-block font-size-24 text-right">'.$reference.'</span>
-								<span class="display-block font-size-24 text-right">กล่องที่ '.$n.' / '.$count_box.'</span>
+								<span class="display-block font-size-24 text-right">Box No. '.$n.' / '.$count_box.'</span>
 								<span class="display-block font-size-20 text-right">('.$boxes[$i]->weight.' Kg.)</span>
 								</div>';
 			$Page .= '<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right margin-top-10">'.$barcode.'</div>';
@@ -73,7 +73,9 @@
 			$Page .= '<div class="col-lg-6-harf col-md-6-harf col-sm-6-harf col-xs-6-harf padding-5">'.$sender.'</div>';
 			$Page .= '<div class="col-lg-3-harf col-md-3-harf col-sm-3-harf col-xs-3-harf padding-5 text-right margin-top-10">
 								<span class="font-size-24 pull-right text-right">'.$reference.'</span>
-								<br/><span class="pull-right font-size-24">กล่องที่ '.$n.' / '.$count_box.'</span></div>';
+								<br/><span class="pull-right font-size-24">Box No. '.$n.' / '.$count_box.'</span>
+								<span class="display-block font-size-12 text-right">('.$boxes[$i]->weight.' Kg.)</span>
+								</div>';
 			$Page .= '<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right margin-top-10">'.$barcode.'</div>';
 			$Page .= '<div class="divider-hidden"></div>';
 			$Page .= $receiver;

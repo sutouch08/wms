@@ -211,7 +211,7 @@
 	      <span class="help-block">กรณีปิดจะไม่สามารถ Import SM ด้วยไฟล์ Excel ได้</span>
 	    </div>
 	    <div class="divider"></div>
-
+<!--
 	    <div class="col-lg-4 col-md-4 col-sm-4">
 	      <span class="form-control left-label">บันทึก Video การแพ็คสินค้า</span>
 	    </div>
@@ -250,7 +250,7 @@
 	      <span class="help-block">บันทึก Video อัตโนมัติทันทีที่เปิดหน้าจอแพ็คสินค้าหรือไม่</span>
 	    </div>	    
 	    <div class="divider"></div>
-
+-->
 
 	    <div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-sm-offset-4">
 	      <?php if ($this->pm->can_add or $this->pm->can_edit) : ?>

@@ -14,7 +14,7 @@
 <div class="row" style="margin-top:30px;">
 	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5">
 		<label>รหัสสินค้า</label>
-		<input type="text" class="width-100 text-center" id="search-text" placeholder="พิมพ์รหัสสินค้า 4 ตัวอักษรขึ้นไป" />
+		<input type="text" class="width-100 text-center" id="search-text" placeholder="กรณีตรวจสอบออเดอร์ต้องพิมพ์รหัสให้ครบถ้วน" />
 	</div>
 
 	<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 padding-5">
@@ -61,13 +61,7 @@
 				</tr>
 			{{else}}
 				<tr class="font-size-12">
-					<td class="middle">
-          {{#if oldCode}}
-            {{oldCode}} |
-          {{/if}}
-
-          {{ pdCode }}
-          </td>
+					<td class="middle">{{ pdCode }}</td>
 					<td class="middle text-center">{{ reference }}</td>
 					<td class="middle text-center">{{ qty }}</td>
 					<td class="middle text-center">{{ state }}</td>

@@ -9,11 +9,14 @@ class Pack extends PS_Controller
 	public $title = 'ตรวจสอบ QC';
   public $filter;
   public $error;
+	public $segment = 4;
+
   public function __construct()
   {
     parent::__construct();
     $this->home = base_url().'inventory/pack';
     $this->load->model('inventory/pack_model');
+		$this->load->helper('state');
   }
 
 
@@ -25,23 +28,11 @@ class Pack extends PS_Controller
       'from_date' => get_filter('from_date', 'from_date', ''),
       'to_date' => get_filter('to_date', 'to_date', '')
     );
-
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
-
-		$segment  = 4; //-- url segment
-		$rows     = $this->pack_model->count_rows($filter);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$ds   = $this->pack_model->get_data($filter, $perpage, $this->uri->segment($segment));
-
-    $filter['data'] = $ds;
-
+		
+		$perpage = get_rows();		
+		$rows = $this->pack_model->count_rows($filter);
+		$filter['data'] = $this->pack_model->get_list($filter, $perpage, $this->uri->segment($this->segment));		
+		$init = pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);		
 		$this->pagination->initialize($init);
     $this->load->view('inventory/pack/pack_view', $filter);
   }

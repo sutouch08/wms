@@ -9,6 +9,7 @@ class Qc extends PS_Controller
 	public $title = 'ตรวจสินค้า';
   public $filter;
   public $segment;
+  public $weight_on_pack = FALSE;
 
   public function __construct()
   {
@@ -23,6 +24,8 @@ class Qc extends PS_Controller
     $this->load->helper('package');
     $this->load->helper('sender');
     $this->load->helper('order');
+
+    $this->weight_on_pack = getConfig('WEIGHT_ON_PACK') == 1 ? TRUE : FALSE;
   }
 
   public function index()
@@ -832,25 +835,35 @@ class Qc extends PS_Controller
     $code = $this->input->post('order_code');
     $state = $this->orders_model->get_state($code);
     if($state == 6)
-    {
-      $arr = array(
-        'order_code' => $code,
+    {      
+      $ds = array(        
         'state' => 7,
-        'update_user' => get_cookie('uname')
+        'update_user' => $this->_user->uname
       );
 
-      if($this->orders_model->change_state($code, 7))
+      if($this->weight_on_pack === TRUE)
       {
+        $ds['total_weight'] = $this->qc_model->get_total_weight($code);
+      }
+
+      if($this->orders_model->update($code, $ds))
+      {
+        $arr = array(
+          'order_code' => $code,
+          'state' => 7,
+          'update_user' => $this->_user->uname
+        );
+
         $this->order_state_model->add_state($arr);
       }
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่สามารถปิดออเดอร์ได้ เนื่องจากสถานะออเดอร์ได้ถูกเปลี่ยนไปแล้ว';
+      $this->error = 'ไม่สามารถปิดออเดอร์ได้ เนื่องจากสถานะออเดอร์ได้ถูกเปลี่ยนไปแล้ว';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    $this->_response($sc);
   }
 
 
@@ -1413,7 +1426,7 @@ class Qc extends PS_Controller
       'box_code' => $code,
       'box_id' => $box_id,
       'box_no' => $box_no,
-      'package_id' => get_null($package_id)
+      'package_id' => get_null($package_id),
     );
 
     echo json_encode($arr);
@@ -1438,6 +1451,7 @@ class Qc extends PS_Controller
           'package_id' => $box->package_id,
           'package' => select_active_package($box->package_id),
           'qty' => number($box->qty),
+          'weight' => number($box->weight, 2),
           'checked' => $box->id == $id ? 'checked' : '',
           'class' => $box->id == $id ? 'btn-success' : 'btn-default'
         );
@@ -1467,6 +1481,32 @@ class Qc extends PS_Controller
       $this->error = "Failed to update package id";
     }
 
+    $this->_response($sc);
+  }
+
+  public function update_weight()
+  {
+    $sc = TRUE;
+    $ds = json_decode(file_get_contents('php://input'));
+
+    if( ! empty($ds))
+    {
+      $box_id = $ds->box_id;
+      $weight = $ds->weight;
+      $device_code = $ds->device_code;
+
+      if (! $this->qc_model->update_box($box_id, ['weight' => $weight, 'device_code' => $device_code ]))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to update weight";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+    
     $this->_response($sc);
   }
 
@@ -1718,16 +1758,14 @@ class Qc extends PS_Controller
   }
 
 
-  public function print_box($code, $box_id)
+  public function print_box($code, $box_id, $lang = 'th')
   {
     $this->load->library('printer');
     $this->load->model('masters/customers_model');
     $this->load->library('ixqrcode');
 
-    $order = $this->orders_model->get($code);
-    $order->customer_name = $this->customers_model->get_name($order->customer_code);
-    $details = $this->qc_model->get_box_details($code, $box_id);
-    $box_no = $this->qc_model->get_box_no($box_id);
+    $order = $this->orders_model->get($code);       
+    $box = $this->qc_model->get_box_by_id($box_id);    
     $all_box = $this->qc_model->count_box($code);
 
     $qr = array(
@@ -1744,16 +1782,25 @@ class Qc extends PS_Controller
 
     $ds = array();
     $ds['order'] = $order;
-    $ds['details'] = $details;
-    $ds['box_no'] = $box_no;
+    $ds['details'] = $this->qc_model->get_box_details($code, $box_id);
+    $ds['box_no'] = $box->box_no;
+    $ds['code'] = $box->code;
+    $ds['weight'] = $box->weight;
     $ds['all_box'] = $all_box;
     $ds['qrcode'] = $qr;
 
-    $this->load->view('inventory/qc/packing_list', $ds);
+    if($lang === 'eng')
+    {
+      $this->load->view('inventory/qc/packing_list_eng', $ds);
+    }
+    else
+    {
+      $this->load->view('inventory/qc/packing_list', $ds);
+    }
   }
 
 
-  public function print_all_box($code)
+  public function print_all_box($code, $lang = 'th')
   {
     $ds = [];
 
@@ -1792,12 +1839,21 @@ class Qc extends PS_Controller
         $ds['boxes'][] = (object) array(
           'box_no' => $box->box_no,
           'box_id' => $box->id,
+          'code' => $box->code,
+          'weight' => $box->weight,
           'details' => $this->qc_model->get_box_details($code, $box->id)
         );
       }
     }
 
-    $this->load->view('inventory/qc/packing_list_all', $ds);
+    if($lang === 'eng')
+    {
+      $this->load->view('inventory/qc/packing_list_all_eng', $ds);
+    }
+    else
+    {
+      $this->load->view('inventory/qc/packing_list_all', $ds);
+    }
   }
 
 
@@ -1929,6 +1985,46 @@ class Qc extends PS_Controller
       'status' => $sc === TRUE ? 'success' : 'failed',
       'message' => $sc === TRUE ? 'success' : $this->error,
       'data' => $sc === TRUE ? $items : NULL
+    );
+
+    echo json_encode($arr);
+  }
+
+
+  public function get_device_list()
+  {
+    $sc = TRUE;
+    $ds = [];
+    $this->load->model('masters/weighing_machine_model');    
+    $list = $this->weighing_machine_model->get_all_active();
+
+    if( ! empty($list))
+    {
+      foreach($list as $rs)
+      {
+        $ds[] = array(
+          'id' => $rs->id,
+          'deviceId' => $rs->device_id,
+          'deviceCode' => $rs->code,
+          'deviceName' => $rs->name,
+          'deviceUnit' => $rs->unit,
+          'deviceBaudRate' => $rs->baud_rate,
+          'devicePort' => $rs->port,
+          'deviceDataBits' => $rs->data_bit,
+          'deviceStopBits' => $rs->stop_bit,
+          'deviceParity' => $rs->parity
+        );        
+      }
+    }
+    else 
+    {
+      $ds[] = ['nodata' => true];
+    }
+
+    $arr = array(
+      'status' => $sc === TRUE ? 'success' : 'failed',
+      'message' => $sc === TRUE ? 'success' : $this->error,
+      'data' => $sc === TRUE ? $ds : NULL
     );
 
     echo json_encode($arr);

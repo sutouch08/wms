@@ -68,17 +68,43 @@ $("#chk-force-close").change(function () {
   }
 });
 
+function printAddressEng() {
+
+}
+
 
 function printBox(id) {
-  var code = $("#order_code").val();
-  var center = ($(document).width() - 800) / 2;
-  var target = HOME + 'print_box/' + code + '/' + id;
-  window.open(target, "_blank", "width=800, height=900. left=" + center + ", scrollbars=yes");
+  const code = $("#order_code").val();
+  const width = 800;
+  const height = 900;
+  const left = (window.innerWidth - width) / 2;
+  const target = `${HOME}print_box/${code}/${id}`;
+  window.open(target, "_blank", `width=${width}, height=${height}, left=${left}, scrollbars=yes`);
+} 
+
+function printBoxEng(id) {
+  const code = $("#order_code").val();
+  const width = 800;
+  const height = 900;
+  const left = (window.innerWidth - width) / 2;
+  const target = `${HOME}print_box/${code}/${id}/eng`;
+  window.open(target, "_blank", `width=${width}, height=${height}, left=${left}, scrollbars=yes`);
 }
 
 
 function printAllBox(code) {
-  var center = ($(document).width() - 800) / 2;
-  var target = HOME + 'print_all_box/' + code;
-  window.open(target, "_blank", "width=800, height=900. left=" + center + ", scrollbars=yes");
+  const width = 800;
+  const height = 900;
+  const left = (window.innerWidth - width) / 2;
+  const target = `${HOME}print_all_box/${code}`;
+  window.open(target, "_blank", `width=${width}, height=${height}, left=${left}, scrollbars=yes`);
+}
+
+
+function printAllBoxEng(code) {
+  const width = 800;
+  const height = 900;
+  const left = (window.innerWidth - width) / 2;
+  const target = `${HOME}print_all_box/${code}/eng`;
+  window.open(target, "_blank", `width=${width}, height=${height}, left=${left}, scrollbars=yes`);
 }

@@ -3,13 +3,13 @@
 <style>
   .table-narrow thead tr th,
   .table-narrow tbody tr td {
-    font-size:11px;
-    padding:4px;
+    font-size: 11px;
+    padding: 4px;
   }
 
   .table-narrow thead tr th:first-child,
   .table-narrow tbody tr td:first-child {
-    padding-left:8px;
+    padding-left: 8px;
   }
 </style>
 <div class="row">
@@ -19,26 +19,26 @@
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
     <button type="button" class="btn btn-white btn-primary top-btn" onclick="goBack()"><i class="fa fa-chevron-left"></i> รอตรวจ (ESC)</button>
     <button type="button" class="btn btn-white btn-info top-btn" onclick="viewProcess()"><i class="fa fa-cube"></i> กำลังตรวจ</button>
-    <?php if($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
+    <?php if ($order->channels_code == '0009' && ! empty($order->reference) && is_true(getConfig('WRX_TIKTOK_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderTiktok('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
-    <?php elseif($order->channels_code == 'SHOPEE' && ! empty($order->reference) && is_true(getConfig('WRX_SHOPEE_API'))) : ?>
+    <?php elseif ($order->channels_code == 'SHOPEE' && ! empty($order->reference) && is_true(getConfig('WRX_SHOPEE_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderShopee('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
-    <?php elseif($order->channels_code == 'LAZADA' && ! empty($order->reference) && is_true(getConfig('WRX_LAZADA_API'))) : ?>
+    <?php elseif ($order->channels_code == 'LAZADA' && ! empty($order->reference) && is_true(getConfig('WRX_LAZADA_API'))) : ?>
       <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderLazada('<?php echo $order->reference; ?>')"><i class="fa fa-print"></i> Print Label</button>
     <?php endif; ?>
-    <?php if(is_true(getConfig('PORLOR_API'))) : ?>
-      <?php if($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
-      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print Porlor Label</button>
+    <?php if (is_true(getConfig('PORLOR_API'))) : ?>
+      <?php if ($order->id_sender == getConfig('PORLOR_SENDER_ID')) : ?>
+        <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderPorlor('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print Porlor Label</button>
       <?php endif; ?>
     <?php endif; ?>
-    <?php if(is_true(getConfig('SPX_API'))) : ?>
-      <?php if($order->id_sender == getConfig('SPX_ID')) : ?>
-      <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderSPX('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print SPX Label</button>
+    <?php if (is_true(getConfig('SPX_API'))) : ?>
+      <?php if ($order->id_sender == getConfig('SPX_ID')) : ?>
+        <button type="button" class="btn btn-white btn-info top-btn" onclick="shipOrderSPX('<?php echo $order->code; ?>')"><i class="fa fa-print"></i> Print SPX Label</button>
       <?php endif; ?>
-    <?php endif; ?>
+    <?php endif; ?>    
   </div>
 </div>
-<hr/>
+<hr />
 <div class="row">
   <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
     <label>เลขที่</label>
@@ -70,16 +70,27 @@
   </div>
   <div class="col-lg-6 col-md-5 col-sm-6 col-xs-6 padding-5">
     <label>คลัง</label>
-    <input type="text" class="width-100" value="<?php echo $order->warehouse_code.' | '.warehouse_name($order->warehouse_code); ?>" disabled />
+    <input type="text" class="width-100" value="<?php echo $order->warehouse_code . ' | ' . warehouse_name($order->warehouse_code); ?>" disabled />
   </div>
   <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
     <label>ขนส่ง</label>
     <input type="text" class="width-100" value="<?php echo sender_name($order->id_sender); ?>" disabled />
   </div>
-  <div class="col-lg-12 col-md-12 col-sm-9 col-xs-12 padding-5">
-    <label>หมายเหตุ</label>
-    <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
-  </div>
+  <?php if ($this->weight_on_pack) : ?>
+    <div class="col-lg-10 col-md-9-harf col-sm-9 col-xs-12 padding-5">
+      <label>หมายเหตุ</label>
+      <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
+    </div>
+    <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+      <label>เครื่องชั่ง</label>
+      <input type="text" class="width-100" id="device-label" value="" disabled />
+    </div>
+  <?php else : ?>
+    <div class="col-lg-12 col-md-12 col-sm-9 col-xs-12 padding-5">
+      <label>หมายเหตุ</label>
+      <input type="text" class="width-100" value="<?php echo $order->remark; ?>" disabled />
+    </div>
+  <?php endif; ?>
 </div>
 
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
@@ -87,48 +98,53 @@
 <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
 <input type="hidden" id="id_box" value="<?php echo $active_box_id; ?>" />
 <input type="hidden" id="state" value="<?php echo $order->state; ?>">
+<input type="hidden" id="device-code" value="" />
+<input type="hidden" id="device-unit" value="kg" />
 <hr />
 
 <?php $this->load->view('inventory/qc/qc_box'); ?>
 <?php $this->load->view('inventory/qc/qc_control'); ?>
 <?php $this->load->view('inventory/qc/qc_incomplete_list'); ?>
 <?php $this->load->view('inventory/qc/qc_complete_list'); ?>
+<?php if ($this->weight_on_pack) : ?>
+  <?php $this->load->view('inventory/qc/device_modal'); ?>
+<?php endif; ?>
 
 
-  <!--************** Address Form Modal ************-->
-  <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="addressModal" aria-hidden="true">
-    <div class="modal-dialog" style="width:500px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="colse" data-dismiss="modal" aria-hidden="true">&times;</button>
-        </div>
-        <div class="modal-body" id="info_body">
+<!--************** Address Form Modal ************-->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="addressModal" aria-hidden="true">
+  <div class="modal-dialog" style="width:500px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="colse" data-dismiss="modal" aria-hidden="true">&times;</button>
+      </div>
+      <div class="modal-body" id="info_body">
 
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-primary" onclick="printSelectAddress()"><i class="fa fa-print"></i> พิมพ์</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-primary" onclick="printSelectAddress()"><i class="fa fa-print"></i> พิมพ์</button>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="optionModal" aria-hidden="true">
-    <div class="modal-dialog" style="width:500px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="edit-title"></h4>
-        </div>
-        <div class="modal-body" id="edit-body">
-
-        </div>
+<div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="optionModal" aria-hidden="true">
+  <div class="modal-dialog" style="width:500px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="edit-title"></h4>
       </div>
+      <div class="modal-body" id="edit-body">
 
+      </div>
     </div>
-  </div>
 
-  <script id="edit-template" type="text/x-handlebarsTemplate">
-    <div class="row">
+  </div>
+</div>
+
+<script id="edit-template" type="text/x-handlebarsTemplate">
+  <div class="row">
       <div class="col-sm-12">
         <table class="table table-striped">
           <thead>
@@ -150,7 +166,7 @@
               <input type="number" class="form-control input-sm text-center" id="input-{{id_qc}}" />
             </td>
             <td class="text-right">
-            <?php if($this->pm->can_delete) : ?>
+            <?php if ($this->pm->can_delete) : ?>
               <button type="button" class="btn btn-sm btn-danger" onclick="updateQty({{id_qc}})">Update</button>
             <?php endif; ?>
             </td>
@@ -162,25 +178,25 @@
     </div>
     </script>
 
-    <div class="modal fade" id="edit-box-modal" tabindex="-1" role="dialog" aria-labelledby="optionModal" aria-hidden="true">
-      <div class="modal-dialog" style="width:600px; max-width:95vw;">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="edit-box-title"></h4>
-          </div>
-          <div class="modal-body" id="edit-box-table">
+<div class="modal fade" id="edit-box-modal" tabindex="-1" role="dialog" aria-labelledby="optionModal" aria-hidden="true">
+  <div class="modal-dialog" style="width:600px; max-width:95vw;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="edit-box-title"></h4>
+      </div>
+      <div class="modal-body" id="edit-box-table">
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger btn-xs btn-100" onclick="updateEditQty()"> Update</button>
-          </div>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-xs btn-100" onclick="updateEditQty()"> Update</button>
       </div>
     </div>
+  </div>
+</div>
 
-  <script id="edit-box-template" type="text/x-handlebarsTemplate">
-    <div class="row">
+<script id="edit-box-template" type="text/x-handlebarsTemplate">
+  <div class="row">
       <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
         <table class="table table-striped">
           <thead>
@@ -211,184 +227,178 @@
 
 
 <?php
-if(!empty($barcode_list))
+if (!empty($barcode_list))
 {
-  foreach($barcode_list as $bc)
+  foreach ($barcode_list as $bc)
   {
-    echo '<input type="hidden" id="bc-'.$bc->barcode.'" data-code="'.$bc->product_code.'" value="1" />';
+    echo '<input type="hidden" id="bc-' . $bc->barcode . '" data-code="' . $bc->product_code . '" value="1" />';
   }
 }
- ?>
+?>
 
 
- <script>
-   function shipOrderTiktok(reference) {
-     load_in();
+<script>
+  function shipOrderTiktok(reference) {
+    load_in();
 
-     $.ajax({
-       url:HOME + 'ship_order_tiktok/'+reference,
-       type:'POST',
-       cache:false,
-       success:function(rs) {
-         load_out();
+    $.ajax({
+      url: HOME + 'ship_order_tiktok/' + reference,
+      type: 'POST',
+      cache: false,
+      success: function(rs) {
+        load_out();
 
-         if(isJson(rs)) {
-           let ds = JSON.parse(rs);
+        if (isJson(rs)) {
+          let ds = JSON.parse(rs);
 
-           if(ds.status === 'success') {
-             window.open(ds.data.fileUrl, "_blank");
-           }
-           else {
-             beep();
-             showError(ds.message);
-           }
-         }
-         else {
-           beep();
-           showError(rs);
-         }
-       },
-       error:function(rs) {
-         beep();
-         showError(rs);
-       }
-     })
-   }
+          if (ds.status === 'success') {
+            window.open(ds.data.fileUrl, "_blank");
+          } else {
+            beep();
+            showError(ds.message);
+          }
+        } else {
+          beep();
+          showError(rs);
+        }
+      },
+      error: function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
 
 
-   function shipOrderShopee(reference) {
-     load_in();
+  function shipOrderShopee(reference) {
+    load_in();
 
-     $.ajax({
-       url:HOME + 'ship_order_shopee/'+reference,
-       type:'POST',
-       cache:false,
-       success:function(rs) {
-         load_out();
+    $.ajax({
+      url: HOME + 'ship_order_shopee/' + reference,
+      type: 'POST',
+      cache: false,
+      success: function(rs) {
+        load_out();
 
-         if(isJson(rs)) {
-           let ds = JSON.parse(rs);
+        if (isJson(rs)) {
+          let ds = JSON.parse(rs);
 
-           if(ds.status === 'success') {
-             window.open(ds.data.fileUrl, "_blank");
-           }
-           else {
-             beep();
-             showError(ds.message);
-           }
-         }
-         else {
-           beep();
-           showError(rs);
-         }
-       },
-       error:function(rs) {
-         beep();
-         showError(rs);
-       }
-     })
-   }
+          if (ds.status === 'success') {
+            window.open(ds.data.fileUrl, "_blank");
+          } else {
+            beep();
+            showError(ds.message);
+          }
+        } else {
+          beep();
+          showError(rs);
+        }
+      },
+      error: function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
 
 
-   function shipOrderLazada(reference) {
-     load_in();
+  function shipOrderLazada(reference) {
+    load_in();
 
-     $.ajax({
-       url:HOME + 'ship_order_lazada/'+reference,
-       type:'POST',
-       cache:false,
-       success:function(rs) {
-         load_out();
+    $.ajax({
+      url: HOME + 'ship_order_lazada/' + reference,
+      type: 'POST',
+      cache: false,
+      success: function(rs) {
+        load_out();
 
-         if(isJson(rs)) {
-           let ds = JSON.parse(rs);
+        if (isJson(rs)) {
+          let ds = JSON.parse(rs);
 
-           if(ds.status === 'success') {
-             window.open(ds.data.fileUrl, "_blank");
-           }
-           else {
-             beep();
-             showError(ds.message);
-           }
-         }
-         else {
-           beep();
-           showError(rs);
-         }
-       },
-       error:function(rs) {
-         beep();
-         showError(rs);
-       }
-     })
-   }
+          if (ds.status === 'success') {
+            window.open(ds.data.fileUrl, "_blank");
+          } else {
+            beep();
+            showError(ds.message);
+          }
+        } else {
+          beep();
+          showError(rs);
+        }
+      },
+      error: function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
 
 
-   function shipOrderPorlor(code) {
-     load_in();
+  function shipOrderPorlor(code) {
+    load_in();
 
-     $.ajax({
-       url:HOME + 'ship_order_porlor/'+code,
-       type:'POST',
-       cache:false,
-       success:function(rs) {
-         load_out();
+    $.ajax({
+      url: HOME + 'ship_order_porlor/' + code,
+      type: 'POST',
+      cache: false,
+      success: function(rs) {
+        load_out();
 
-         if(rs.trim() === 'success') {
-           target = HOME + 'print_porlor_label/'+code;
-           window.open(target, "_blank");
-         }
-         else {
-           beep();
-           showError(rs);
-         }
-       },
-       error:function(rs) {
-         beep();
-         showError(rs);
-       }
-     })
-   }
+        if (rs.trim() === 'success') {
+          target = HOME + 'print_porlor_label/' + code;
+          window.open(target, "_blank");
+        } else {
+          beep();
+          showError(rs);
+        }
+      },
+      error: function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
 
 
-   function shipOrderSPX(code) {
-     load_in();
+  function shipOrderSPX(code) {
+    load_in();
 
-     $.ajax({
-       url:HOME + 'ship_order_spx/'+code,
-       type:'POST',
-       cache:false,
-       success:function(rs) {
-         load_out();
+    $.ajax({
+      url: HOME + 'ship_order_spx/' + code,
+      type: 'POST',
+      cache: false,
+      success: function(rs) {
+        load_out();
 
-         if(isJson(rs)) {
-           let ds = JSON.parse(rs);
+        if (isJson(rs)) {
+          let ds = JSON.parse(rs);
 
-           if(ds.status == 'success') {
-             window.open(ds.data.awb_link, "_blank");
-           }
-           else {
-             beep();
-             showError(ds.message);
-           }
-         }
-         else {
-           beep();
-           showError(rs);
-         }         
-       },
-       error:function(rs) {
-         beep();
-         showError(rs);
-       }
-     })
-   }
+          if (ds.status == 'success') {
+            window.open(ds.data.awb_link, "_blank");
+          } else {
+            beep();
+            showError(ds.message);
+          }
+        } else {
+          beep();
+          showError(rs);
+        }
+      },
+      error: function(rs) {
+        beep();
+        showError(rs);
+      }
+    })
+  }
 </script>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_process.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_control.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
+<?php if ($this->weight_on_pack) : ?>
+  <script src="<?php echo base_url(); ?>scripts/inventory/qc/serialPort.js?v=<?php echo date('Ymd'); ?>"></script>
+<?php endif; ?>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 
 <?php $this->load->view('include/footer'); ?>
