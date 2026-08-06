@@ -585,6 +585,7 @@ function editBox(id_box, box_label) {
           let source = $('#edit-box-template').html();
           let output = $('#edit-box-table');
           render(source, ds.data, output);
+          focus_init();
 
           $('#edit-box-title').text(box_label);
           $('#edit-box-modal').modal('show');

@@ -163,7 +163,7 @@
             <td>กล่องที่ {{box_no}}</td>
             <td class="text-center"><span id="label-{{id_qc}}">{{qty}}</span></td>
             <td class="text-center">
-              <input type="number" class="form-control input-sm text-center" id="input-{{id_qc}}" />
+              <input type="number" class="form-control input-sm text-center focus" id="input-{{id_qc}}" />
             </td>
             <td class="text-right">
             <?php if ($this->pm->can_delete) : ?>
@@ -214,7 +214,7 @@
             <td class="middle">{{product_code}}</td>
             <td class="middle text-center"><span id="label-{{id}}">{{qty}}</span></td>
             <td class="middle text-center">
-              <input type="number" class="width-100 text-center edit-input-qty e" data-item="{{product_code}}" data-qty="{{qty}}" data-id="{{id}}" id="edit-input-{{id}}" onkeyup="checkEditQty({{id}})"/>
+              <input type="number" class="width-100 text-center edit-input-qty e focus" data-item="{{product_code}}" data-qty="{{qty}}" data-id="{{id}}" id="edit-input-{{id}}" onkeyup="checkEditQty({{id}})"/>
             </td>
           </tr>
         {{/each}}
