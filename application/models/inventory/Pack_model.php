@@ -7,15 +7,20 @@ class Pack_model extends CI_Model
   }
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
-  {    		
+  {
+    if (isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('id >', $this->get_max_id());
+    }
+
     if(!empty($ds['order_code']))
     {
-      $this->db->like('order_code',$ds['order_code']);
+      $this->db->where('order_code', $ds['order_code']);
     }
 
     if(!empty($ds['pd_code']))
     {
-      $this->db->like('product_code', $ds['pd_code']);
+      $this->db->where('product_code', $ds['pd_code']);
     }
 
     if( ! empty($ds['from_date']))
@@ -40,15 +45,20 @@ class Pack_model extends CI_Model
 
 
   public function count_rows(array $ds = array())
-  {		
+  {
+    if (isset($ds['range']) && $ds['range'] != 'all')
+    {
+      $this->db->where('id >', $this->get_max_id());
+    }
+
     if(!empty($ds['order_code']))
     {
-      $this->db->like('order_code',$ds['order_code']);
+      $this->db->where('order_code', $ds['order_code']);
     }
 
     if(!empty($ds['pd_code']))
     {
-      $this->db->like('product_code', $ds['pd_code']);
+      $this->db->where('product_code', $ds['pd_code']);
     }
 
     if( ! empty($ds['from_date']))
@@ -92,6 +102,31 @@ class Pack_model extends CI_Model
     }
 
     return NULL;
+  }
+
+  public function get_max_id()
+  {
+    $limit = $this->get_limit_rows();
+    $rs = $this->db->query("SELECT MAX(id) AS id FROM qc");
+
+    if ($rs->num_rows() === 1)
+    {
+      return $rs->row()->id - $limit;
+    }
+
+    return $limit;
+  }
+
+  public function get_limit_rows()
+  {
+    $rs = $this->db->query("SELECT value FROM config WHERE code = 'FILTER_RESULT_LIMIT'");
+
+    if ($rs->num_rows() === 1)
+    {
+      return intval($rs->row()->value);
+    }
+
+    return 0;
   }
 }
  ?>

@@ -25,8 +25,16 @@
         <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
         <input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
       </div>
-
     </div>
+
+    <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5">
+      <label>ช่วงข้อมูล</label>
+      <select class="form-control input-sm filter" name="range" id="range">
+        <option value="top" <?php echo is_selected('top', $range); ?>><?php echo number(getConfig('FILTER_RESULT_LIMIT')); ?> รายการล่าสุด</option>
+        <option value="all" <?php echo is_selected('all', $range); ?>>ทั้งหมด</option>
+      </select>
+    </div>
+    
     <div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
       <label class="display-block not-show">buton</label>
       <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> ค้นหา</button>

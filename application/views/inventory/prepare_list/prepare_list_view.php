@@ -126,7 +126,7 @@
 					<?php endforeach; ?>
 				<?php else : ?>
 					<tr>
-						<td colspan="8" class="text-center">--- ไม่พบข้อมูล ---</td>
+						<td colspan="9" class="text-center">--- ไม่พบข้อมูล ---</td>
 					</tr>
 				<?php endif; ?>
 			</tbody>

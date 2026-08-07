@@ -26,7 +26,8 @@ class Pack extends PS_Controller
       'order_code' => get_filter('order_code', 'order_code', ''),
       'pd_code' => get_filter('pd_code', 'pd_code'),
       'from_date' => get_filter('from_date', 'from_date', ''),
-      'to_date' => get_filter('to_date', 'to_date', '')
+      'to_date' => get_filter('to_date', 'to_date', ''),
+			'range' => get_filter('range', 'range', 'top')
     );
 		
 		$perpage = get_rows();		
@@ -63,7 +64,7 @@ class Pack extends PS_Controller
 
 
   function clear_filter(){
-    $filter = array('order_code', 'pd_code', 'from_date', 'to_date');
+    $filter = array('order_code', 'pd_code', 'from_date', 'to_date', 'range');
 
     clear_filter($filter);
   }
