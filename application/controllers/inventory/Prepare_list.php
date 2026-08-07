@@ -16,6 +16,7 @@ class Prepare_list extends PS_Controller
     $this->load->model('inventory/prepare_list_model');
     $this->load->model('masters/zone_model');
     $this->load->helper('warehouse');
+    $this->load->helper('state');
   }
 
 
@@ -28,7 +29,8 @@ class Prepare_list extends PS_Controller
       'pd_code' => get_filter('pd_code', 'pd_code'),
       'user' => get_filter('user', 'user', 'all'),
       'from_date' => get_filter('from_date', 'from_date', ''),
-      'to_date' => get_filter('to_date', 'to_date', '')
+      'to_date' => get_filter('to_date', 'to_date', ''),
+      'range' => get_filter('range', 'range', 'top')
     );
 
     if($this->input->post('search'))
@@ -62,7 +64,8 @@ class Prepare_list extends PS_Controller
       'zone_code' => $this->input->post('zone_code'),
       'from_date' => $this->input->post('from_date'),
       'to_date' => $this->input->post('to_date'),
-      'user' => $this->input->post('user')
+      'user' => $this->input->post('user'),
+      'range' => $this->input->post('range')
     );
   
     $header = array(
@@ -139,7 +142,7 @@ class Prepare_list extends PS_Controller
 
 
   function clear_filter(){
-    $filter = array('order_code', 'pd_code', 'warehouse_code', 'zone_code', 'user', 'from_date', 'to_date');
+    $filter = array('order_code', 'pd_code', 'warehouse_code', 'zone_code', 'user', 'from_date', 'to_date', 'range');
     clear_filter($filter);
   }
 
