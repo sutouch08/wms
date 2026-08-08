@@ -33,8 +33,12 @@ $canCancleShipped = ($cn->can_add + $cn->can_edit + $cn->can_delete) > 0 ? TRUE 
           <button type="button" class="btn btn-xs btn-default pull-right margin-left-5" onclick="showBacklogs()">Back order logs</button>
         <?php endif; ?>
         <?php if (isset($video_on_pack) && $video_on_pack && $order->has_video) : ?>
-          <?php $endpoint = getConfig('VIDEO_SOURCE_ENDPOINT').$order->code; ?>
-          <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="goToVideo('<?php echo $endpoint; ?>')"><i class="fa fa-video-camera"></i> Video</button>
+          <?php $secret = getConfig('VIDEO_ENDPOINT_SECRET'); ?>
+          <?php $owner = getConfig('VIDEO_SOURCE_OWNER'); ?>
+          <?php $endpoint = getConfig('VIDEO_SOURCE_ENDPOINT'); ?>
+          <?php $lastChar = substr($endpoint, -1); ?>
+          <?php $url = $endpoint. ($lastChar !== '/' ? '/' : '')."view?order={$order->code}&owner={$owner}&secret={$secret}"; ?>
+          <button type="button" class="btn btn-xs btn-info pull-right margin-left-5" onclick="goToVideo('<?php echo $url; ?>')"><i class="fa fa-play"></i>&nbsp; Packing video</button>
         <?php endif; ?>
       </div>
 

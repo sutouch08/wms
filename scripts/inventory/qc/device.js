@@ -261,11 +261,11 @@ function showActiveDevice() {
     $('#add-modal').modal('show');
   }
   else {
-    showError("ไม่พบเครื่องชั่งที่บันทึกไว้ กรุณาเลือกเครื่องชั่งจากรายการเครื่องชั่ง");
+    showInfo("ไม่พบเครื่องชั่งที่บันทึกไว้ กรุณาเลือกเครื่องชั่งจากรายการเครื่องชั่ง");
   }
 }
 
-
+//---- ลบเครื่องชั่งที่บันทึกไว้
 function removeDevice() {
   localStorage.removeItem('WrxActiveDevice');
   $('#add-modal').modal('hide');
@@ -278,3 +278,144 @@ function removeDevice() {
   $('#device-id').val("");
   $('#del-btn').addClass('hide');
 }
+
+window.addEventListener('load', () => {
+  let camera = localStorage.getItem('packCameraId');
+  
+  if(camera) {
+    cameraInit();
+  }
+});
+//--- for video on pack
+const videoDevicesSelect = document.querySelector('#video-devices');
+const videoResolutionSelect = document.querySelector('#video-resolution');
+const audioDevicesSelect = document.querySelector('#audio-devices');
+const config = document.getElementById('video-config');
+const audioRequired = config.dataset.audioRequired == '1' ? true : false;
+
+async function cameraInit() {
+  const cameraPermission = await navigator.permissions.query({ name: 'camera' });
+  const microphonePermission = await navigator.permissions.query({ name: 'microphone' });
+  console.log('camera permission:', cameraPermission.state);
+
+  if (cameraPermission.state === 'prompt' || (audioRequired && microphonePermission.state === 'prompt')) {
+    await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: audioRequired
+    });
+  }
+
+  await getCamera();
+}
+
+async function getCamera() {
+  const mediaDevices = await navigator.mediaDevices.enumerateDevices();
+  const micId = localStorage.getItem('packAudioId');
+  const camId = localStorage.getItem('packCameraId');
+  let resolution = localStorage.getItem('packResolution');
+
+  for (const device of mediaDevices) {
+    const optionElement = document.createElement('option');
+    optionElement.value = device.deviceId;
+    optionElement.innerText = device.label;
+
+    if (device.kind === 'audioinput') {
+      if (device.deviceId === micId) {
+        optionElement.defaultSelected = true;
+      }
+
+      audioDevicesSelect.appendChild(optionElement);
+    }
+
+    if (device.kind === 'videoinput') {
+      if (device.deviceId == camId) {
+        optionElement.defaultSelected = true;
+      }
+
+      videoDevicesSelect.appendChild(optionElement);
+      videoResolutionSelect.value = resolution ? resolution : '1280x720';
+    }
+  }
+}
+
+function selectCameras() {  
+  cameraInit();
+
+  let audioOption = document.getElementById('audio-option');
+
+  if (audioRequired) {
+    audioOption.classList.remove('hide');
+  }
+  else {
+    audioOption.classList.add('hide');
+  }
+
+  $('#cameras-modal').modal('show');
+}
+
+
+function saveDevicesId() {
+  $('#cameras-error').text('');
+
+  let camId = $('#video-devices').val();
+  let micId = audioRequired ? $('#audio-devices').val() : '';
+  let resolution = $('#video-resolution').val();
+
+  if (camId === undefined || camId == "") {
+    $('#cameras-error').text("Please choose camera for video record");
+    return false;
+  }
+
+  if (audioRequired) {
+    if (micId == undefined || micId == "") {
+      $('#cameras-error').text("Please choose microphone for video record");
+      return false;
+    }
+  }
+
+  if (resolution == undefined || resolution == "") {
+    resolution = '1280x720';
+  }
+
+  localStorage.setItem('packCameraId', camId);
+  localStorage.setItem('packAudioId', micId);
+  localStorage.setItem('packResolution', resolution);
+
+  $('#cameras-modal').modal('hide');  
+}
+
+async function showActiveCamera() {
+  const mediaDevices = await navigator.mediaDevices.enumerateDevices();  
+  const camId = localStorage.getItem('packCameraId');
+
+  if( ! camId) {
+    showInfo("ไม่พบกล้องที่บันทึกไว้ กรุณาเลือกกล้องจากรายการกล้อง");
+    return;
+  }
+
+  const removeVideoDeviceInput = document.getElementById('remove-video-devices');
+  for (const device of mediaDevices) {    
+    if (device.kind === 'videoinput') {
+      if (device.deviceId == camId) {
+        removeVideoDeviceInput.value = device.label;
+      }
+    }
+  }
+
+  $('#remove-camera-modal').modal('show');
+}
+
+
+function removeCamera() {
+  localStorage.removeItem('packCameraId');
+  localStorage.removeItem('packAudioId');
+  localStorage.removeItem('packResolution');
+
+  $('#remove-camera-modal').modal('hide');
+  swal({
+    title: 'ลบกล้องเรียบร้อยแล้ว',
+    type: 'success',
+    timer: 1000
+  });  
+}
+

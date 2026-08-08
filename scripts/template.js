@@ -62,6 +62,42 @@ function showError(response) {
   }, 100);
 }
 
+function showWarning(message) {
+  load_out();
+  setTimeout(() => {
+    swal({
+      title:'Warning!',
+      text:(typeof message === 'object') ? message.responseText : message,
+      type:'warning',
+      html:true
+    })
+  }, 100);
+}
+
+function showSuccess(message) {
+  load_out();
+  setTimeout(() => {
+    swal({
+      title:'Success',
+      text:(typeof message === 'object') ? message.responseText : message,
+      type:'success',
+      html:true
+    })
+  }, 100);
+}
+
+function showInfo(message) {
+  load_out();
+  setTimeout(() => {
+    swal({
+      title:'Info',
+      text:(typeof message === 'object') ? message.responseText : message,
+      type:'info',
+      html:true
+    })
+  }, 100);
+} 
+
 
 //--- save side bar layout to cookie
 function toggle_layout(){

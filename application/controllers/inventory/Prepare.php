@@ -291,7 +291,7 @@ class Prepare extends PS_Controller
   {
     $is_cancel = FALSE;
 
-    if($channels == '0009')
+    if($channels == '0009' && is_true(getConfig('WRX_TIKTOK_API')))
     {
       $this->load->library('wrx_tiktok_api');
 
@@ -303,7 +303,7 @@ class Prepare extends PS_Controller
       }
     }
 
-    if($channels == 'SHOPEE')
+    if($channels == 'SHOPEE' && is_true(getConfig('WRX_SHOPEE_API')))
     {
       $this->load->library('wrx_shopee_api');
 
@@ -315,7 +315,7 @@ class Prepare extends PS_Controller
       }
     }
 
-    if($channels == 'LAZADA')
+    if($channels == 'LAZADA' && is_true(getConfig('WRX_LAZADA_API')))
     {
       $this->load->library('wrx_lazada_api');
 

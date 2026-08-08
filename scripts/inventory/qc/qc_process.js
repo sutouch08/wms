@@ -1,10 +1,31 @@
 var autoFocus = 1;
 
 window.addEventListener('load', () => {
-  focus_init();
-  
+  let box_id = $('#id_box').val();
+  layoutInit();
+  updateBoxList(box_id);
+  focus_init();  
   $('#barcode-item').focus();
 });
+
+function layoutInit() {
+  let videoOnPack = $('#video-on-pack').val() == 1 ? true : false;
+  let weightOnPack = $('#weight-on-pack').val() == 1 ? true : false;
+
+  if(videoOnPack) {
+    const videoDevices = localStorage.getItem('packCameraId');
+    if(videoDevices) {
+      $('#video-box').removeClass('hide');
+    }    
+  }
+
+  if(weightOnPack) {
+    const weighingDevice = localStorage.getItem('WrxActiveDevice');
+    if(weighingDevice) {      
+      $('#weight-box').removeClass('hide');
+    }
+  }
+}
 
 
 window.addEventListener('keydown', (event) => {

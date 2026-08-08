@@ -1,6 +1,9 @@
 window.addEventListener('load', () => {
-  init();
-  start();
+  let camera = localStorage.getItem('packCameraId');
+  if(camera) {
+    cameraInit();
+    start();
+  }  
 });
 
 window.addEventListener('keydown', (event) => {
@@ -42,6 +45,7 @@ window.addEventListener('keydown', (event) => {
 });
 
 const videoDevicesSelect = document.querySelector('#video-devices');
+const videoResolutionSelect = document.querySelector('#video-resolution');
 const audioDevicesSelect = document.querySelector('#audio-devices');
 const cameraButton = document.querySelector('#start-camera');
 const webcam = document.querySelector('.webcam');
@@ -52,25 +56,29 @@ const startButton = document.querySelector('#start-record');
 const pauseButton = document.querySelector('#pause-record');
 const resumeButton = document.querySelector('#resume-record');
 const stopButton = document.querySelector('#stop-record');
-const recordedPreview = document.querySelector('.recorded-preview');
 const order = document.getElementById('order-code');
 const config = document.getElementById('video-config');
 const audioRequired = config.dataset.audioRequired == '1' ? true : false;
 const videoAutoRecord = config.dataset.autoRecord == '1' ? true : false;
-const format = config.dataset.format ? config.dataset.format : 'webm';
+const format = 'webm';
+const owner = config.dataset.owner;
+const endpoint = config.dataset.endpoint.endsWith('/') ? config.dataset.endpoint : config.dataset.endpoint + '/';
+const secret = config.dataset.secret;
 
-const videoMimeType = format === 'mp4' ? 'video/mp4' : 'video/webm';
+console.log(endpoint);
+
+let videoMimeType = 'video/webm;codecs=h264' + (audioRequired ? ',opus' : ''); //format === 'mp4' ? 'video/mp4' : 'video/webm';
 
 async function uploadToServer(videoBlob) {
-  const name = order.value;
-  const endpoint = config.dataset.endpoint;
+  const name = order.value;  
   const fm = new FormData();
 
   fm.append('video', videoBlob, name + '.' + format);
   fm.append('order', order.value);
   fm.append('role', order.dataset.role);
   fm.append('user', order.dataset.user);
-  fm.append('secret', 'YXBpQHdhcnJpeDpaSzExbzE1bzE1TDEycyRwMHJ0==');
+  fm.append('owner', owner);
+  fm.append('secret', secret);
   load_in('บันทึกวีดีโอไปยังเซิร์ฟเวอร์...');
 
   try {
@@ -87,6 +95,10 @@ async function uploadToServer(videoBlob) {
       if(isJson(data)) {
         let ds = JSON.parse(data);
 
+        if(ds.status === 'success') {          
+          addVideoList(ds.data);
+        }
+
         if(ds.status !== 'success') {
           showError('Cannot upload video to Server : ' + ds.message);
         }
@@ -98,24 +110,24 @@ async function uploadToServer(videoBlob) {
       console.log(data);
     })
     .catch(error => {
-      showEror(error);
+      showError(error);
       console.error(error);
     })
   }
   catch (error) {
-    showEror('Error during upload to server ' + error);
+    showError('Error during upload to server ' + error);
     console.error('Error during upload to server', error);
   }
 }
 
-async function init() {
+async function cameraInit() {
   const cameraPermission = await navigator.permissions.query({name: 'camera'});
   const microphonePermission = await navigator.permissions.query({name: 'microphone'});
 
-  if(cameraPermission.state === 'prompt' || microphonePermission.state === 'prompt') {
+  if(cameraPermission.state === 'prompt' || (audioRequired && microphonePermission.state === 'prompt')) {
     await navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: true
+      audio: audioRequired
     });
   }
 
@@ -136,6 +148,7 @@ async function getDevices() {
   const mediaDevices = await navigator.mediaDevices.enumerateDevices();
   const micId = localStorage.getItem('packAudioId');
   const camId = localStorage.getItem('packCameraId');
+  let resolution = localStorage.getItem('packResolution');
 
   for(const device of mediaDevices) {
     const optionElement = document.createElement('option');
@@ -156,7 +169,8 @@ async function getDevices() {
       }
 
       videoDevicesSelect.appendChild(optionElement);
-    }
+      videoResolutionSelect.value = resolution ? resolution : '1280x720';
+    }    
   }
 }
 
@@ -165,14 +179,22 @@ let mediaRecorder = null;
 let blobChunks = [];
 
 async function startCamera() {
-  let videoDeviceId = {deviceId : {exact : localStorage.getItem('packCameraId')}};
-  let audioDeviceId = audioRequired ? {deviceId : {exact : localStorage.getItem('packAudioId')}} : false;
-
+  let resolution = localStorage.getItem('packResolution');
+  let width = resolution ? parseInt(resolution.split('x')[0]) : 1280;
+  let height = resolution ? parseInt(resolution.split('x')[1]) : 720;
+  let constraints = {
+    video: {
+      deviceId: { exact: localStorage.getItem('packCameraId') },
+      width: { exact: width },
+      height: { exact: height },
+      aspectRatio: { exact: 1.7777777778 }, //--- 16:9 aspect ratio
+      frameRate: { ideal: 24 }, //--- 30 fps
+    },
+    audio: audioRequired
+  };
+  
   try {
-    steam = await navigator.mediaDevices.getUserMedia({
-      video: videoDeviceId, //{deviceId : {exact: videoDeviceId }},
-      audio: audioDeviceId  //{deviceId: { exact: audioDeviceId }}
-    });
+    steam = await navigator.mediaDevices.getUserMedia(constraints);
 
     videoElem.srcObject = steam;
     startCameraButton.classList.add('hide');
@@ -224,19 +246,43 @@ function stopCamera() {
 
 
 async function startRecord() {
+  blobChunks = [];
+  blobChunks.length = 0;
+
   await startCamera();
+
+  if (!MediaRecorder.isTypeSupported(videoMimeType)) {
+    videoMimeType = 'video/webm;codecs=vp9' + (audioRequired ? ',opus' : '');
+  }
+  else if (!MediaRecorder.isTypeSupported(videoMimeType)) {
+    videoMimeType = 'video/webm;codecs=vp8' + (audioRequired ? ',opus' : '');
+  }
+  
+  // ตัวเลือกโครงสร้างเพื่อจำกัดขนาดไฟล์ให้เล็กที่สุด
+  const recorderOptions = {
+    mimeType: videoMimeType,
+    // บิตเรตวิดีโอ 1,000,000 bits/sec (1Mbps) ภาพ HD ชัดกำลังดีและไฟล์เล็กมาก
+    videoBitsPerSecond: 1000000
+  }
+
+  if(audioRequired) {
+    // บิตเรตเสียง 64,000 bits/sec (64kbps) เสียงคุยทั่วไปชัดเจน ประหยัดพื้นที่
+    recorderOptions.audioBitsPerSecond = 64000;    
+    // เปิดโหมดเสียงแปรผัน (Variable Bitrate) ช่วยประหยัดเนื้อที่ช่วงที่เงียบไม่มีเสียงพูด
+    recorderOptions.audioBitrateMode = 'variable';
+  }
 
   if(steam) {
     startButton.classList.add('hide');
     pauseButton.classList.remove('hide');
-
+    
     try {
-      mediaRecorder = new MediaRecorder(steam, {
-        mimeType: videoMimeType
-      });
+      mediaRecorder = new MediaRecorder(steam, recorderOptions);
 
       mediaRecorder.addEventListener('dataavailable', (e) => {
-        blobChunks.push(e.data);
+        if(e.data.size > 0) {
+          blobChunks.push(e.data);
+        }
       });
 
       timeReset();
@@ -279,7 +325,7 @@ function stopRecord() {
     if(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused') {
       mediaRecorder.stop();
       timeStop();
-      const recordedBlob = new Blob(blobChunks, { type: videoMimeType });
+      const recordedBlob = new Blob(blobChunks, { type: 'video/webm' });
       uploadToServer(recordedBlob);
       blobChunks = [];
       webcam.classList.remove('recording');
@@ -292,7 +338,7 @@ function stopRecord() {
 }
 
 
-function selectDevices() {
+function selectCameras() {
   let audioOption = document.getElementById('audio-option');
   if(audioRequired) {
     audioOption.classList.remove('hide');
@@ -301,32 +347,38 @@ function selectDevices() {
     audioOption.classList.add('hide');
   }
 
-  $('#devices-modal').modal('show');
+  $('#cameras-modal').modal('show');
 }
 
 
 function saveDevicesId() {
-  $('#devices-error').text('');
+  $('#cameras-error').text('');
 
   let camId = $('#video-devices').val();
   let micId = audioRequired ? $('#audio-devices').val() : '';
+  let resolution = $('#video-resolution').val();
 
   if(camId === undefined || camId == "") {
-    $('#devices-error').text("Please choose camera for video record");
+    $('#cameras-error').text("Please choose camera for video record");
     return false;
   }
 
   if(audioRequired) {
     if(micId == undefined || micId == "") {
-      $('#devices-error').text("Please choose microphone for video record");
+      $('#cameras-error').text("Please choose microphone for video record");
       return false;
     }
   }
 
+  if(resolution == undefined || resolution == "") {
+    resolution = '1280x720';
+  }
+
   localStorage.setItem('packCameraId', camId);
   localStorage.setItem('packAudioId', micId);
+  localStorage.setItem('packResolution', resolution);
 
-  $('#devices-modal').modal('hide');
+  $('#cameras-modal').modal('hide');
 
   startCamera();
 }
@@ -380,4 +432,24 @@ function timeReset() {
 //-- make 0 perfix times
 function zeroPad(num) {
   return String(num).padStart(2, '0');
+}
+
+
+function addVideoList(videoData) {
+  $.ajax({
+    url:`${HOME}add_video_log`,
+    type:'POST',
+    cache:false,
+    data:{
+      'data':JSON.stringify(videoData)
+    },
+    success:function(rs) {
+      if(rs.trim() !== 'success') {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  });
 }

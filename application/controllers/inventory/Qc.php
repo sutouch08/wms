@@ -8,8 +8,9 @@ class Qc extends PS_Controller
   public $menu_sub_group_code = 'PICKPACK';
 	public $title = 'ตรวจสินค้า';
   public $filter;
-  public $segment;
+  public $segment = 4;
   public $weight_on_pack = FALSE;
+  public $video_on_pack = FALSE;
 
   public function __construct()
   {
@@ -25,11 +26,20 @@ class Qc extends PS_Controller
     $this->load->helper('sender');
     $this->load->helper('order');
 
-    $this->weight_on_pack = getConfig('WEIGHT_ON_PACK') == 1 ? TRUE : FALSE;
+    $this->weight_on_pack = is_true(getConfig('WEIGHT_ON_PACK'));
+    $this->video_on_pack = is_true(getConfig('VIDEO_ON_PACK'));
   }
 
   public function index()
   {
+    $this->load->library('user_agent');
+
+    if($this->agent->is_mobile())
+    {
+      $this->load->view('inventory/qc/not_support');
+      return;
+    }
+
     $this->title = "รายการรอตรวจ";
 
     $filter = array(
@@ -51,11 +61,9 @@ class Qc extends PS_Controller
       redirect($this->home);
     }
     else
-    {
-      //--- แสดงผลกี่รายการต่อหน้า
+    {          
       $perpage = get_rows();
-      $state = 5; //---- รอตรวจ
-      $this->segment  = 4; //-- url segment
+      $state = 5; //---- รอตรวจ      
       $rows = $this->qc_model->count_rows($filter, $state);
       $init = pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
       $filter['orders'] = $this->qc_model->get_list($filter, $state, $perpage, $this->uri->segment($this->segment));
@@ -814,12 +822,9 @@ class Qc extends PS_Controller
       redirect($this->home . '/view_process');
     }
     else
-    {
-      //--- แสดงผลกี่รายการต่อหน้า
+    {      
       $perpage = get_rows();
-
-      $state = 6; //---- รอตรวจ
-      $this->segment  = 4; //-- url segment
+      $state = 6; //---- รอตรวจ      
       $rows = $this->qc_model->count_rows($filter, $state);
       $init = pagination_config($this->home.'/view_process/', $rows, $perpage, $this->segment);
       $filter['orders'] = $this->qc_model->get_list($filter, $state, $perpage, $this->uri->segment($this->segment));
@@ -1089,37 +1094,47 @@ class Qc extends PS_Controller
 
     if($channels == '0009')
     {
-      $this->load->library('wrx_tiktok_api');
-
-      $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
-
-      if($order_status == 'CANCELLED' OR $order_status == '140')
+      if(is_true(getConfig('WRX_TIKTOK_API')))
       {
-        $is_cancel = TRUE;
+        $this->load->library('wrx_tiktok_api');
+
+        $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
+
+        if($order_status == 'CANCELLED' OR $order_status == '140')
+        {
+          $is_cancel = TRUE;
+        }
       }
     }
 
     if($channels == 'SHOPEE')
     {
-      $this->load->library('wrx_shopee_api');
-
-      $order_status = $this->wrx_shopee_api->get_order_status($reference, $shop_id);
-
-      if($order_status == 'CANCELLED')
+      if(is_true(getConfig('WRX_SHOPEE_API')))
       {
-        $is_cancel = TRUE;
+        $this->load->library('wrx_shopee_api');
+
+        $order_status = $this->wrx_shopee_api->get_order_status($reference, $shop_id);
+
+        if($order_status == 'CANCELLED')
+        {
+          $is_cancel = TRUE;
+        }
       }
+
     }
 
     if($channels == 'LAZADA')
     {
-      $this->load->library('wrx_lazada_api');
-
-      $order_status = $this->wrx_lazada_api->get_order_status($reference, $shop_id);
-
-      if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
+      if(is_true(getConfig('WRX_LAZADA_API')))
       {
-        $is_cancel = TRUE;
+        $this->load->library('wrx_lazada_api');
+
+        $order_status = $this->wrx_lazada_api->get_order_status($reference, $shop_id);
+
+        if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
+        {
+          $is_cancel = TRUE;
+        }
       }
     }
 
@@ -1127,157 +1142,168 @@ class Qc extends PS_Controller
   }
 
 
-  public function process($code, $view = NULL)
+  public function process($code)
   {
-    $this->load->model('masters/customers_model');
-    $this->load->model('masters/channels_model');
-    $this->load->model('inventory/buffer_model');
+    $this->load->library('user_agent');
 
-    $is_cancel = FALSE;
-
-    $order = $this->orders_model->get($code);
-
-    if( ! empty($order))
+    if($this->agent->is_mobile())
     {
-      if( ! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
+      $this->load->view('inventory/qc/not_support');
+    }
+    else
+    {
+      $this->load->model('masters/customers_model');
+      $this->load->model('masters/channels_model');
+      $this->load->model('inventory/buffer_model');
+      $this->video_on_pack = is_true(getConfig('VIDEO_ON_PACK'));
+      $this->weight_on_pack = is_true(getConfig('WEIGHT_ON_PACK'));
+
+      $is_cancel = FALSE;
+
+      $order = $this->orders_model->get($code);
+
+      if (! empty($order) && (($order->state == 5 || $order->state == 6)))
       {
-        $is_cancel = $this->is_cancel($order->reference, $order->channels_code, $order->shop_id);
-      }
-
-      if( ! $is_cancel)
-      {
-        if($order->is_cancled == 1)
+        if (! $is_cancel && ! empty($order->reference) && ($order->channels_code == '0009' or $order->channels_code == 'SHOPEE' or $order->channels_code == 'LAZADA'))
         {
-          $this->orders_model->update($order->code, ['is_cancled' => 0]);
+          $is_cancel = $this->is_cancel($order->reference, $order->channels_code, $order->shop_id);
         }
 
-        $state = $this->orders_model->get_state($code);
-
-        if($state == 5)
+        if (! $is_cancel)
         {
-          $rs = $this->orders_model->change_state($code, 6);
-
-          if($rs)
+          if ($order->is_cancled == 1)
           {
-            $arr = array(
-              'order_code' => $code,
-              'state' => 6,
-              'update_user' => get_cookie('uname')
-            );
-
-            $this->order_state_model->add_state($arr);
-            $order->state = 6;
+            $this->orders_model->update($order->code, ['is_cancled' => 0]);
           }
-        }
 
-        $order->customer_name = $this->customers_model->get_name($order->customer_code);
-        $order->channels_name = $this->channels_model->get_name($order->channels_code);
-        $order->warehouse_name = warehouse_name($order->warehouse_code);
+          $state = $this->orders_model->get_state($code);
 
-        $barcode_list = array();
-
-        $uncomplete = $this->qc_model->get_in_complete_list($code);
-
-        if(!empty($uncomplete))
-        {
-          foreach($uncomplete as $rs)
+          if ($state == 5)
           {
-            $barcode = $this->get_barcode($rs->product_code);
-            $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
-            $bc = new stdClass();
-            $bc->barcode = md5($rs->barcode);
-            $bc->product_code = $rs->product_code;
-            $barcode_list[] = $bc;
-            $arr = array(
-              'order_code' => $code,
-              'product_code' => $rs->product_code,
-              'is_count' => $rs->is_count
-            );
+            $rs = $this->orders_model->change_state($code, 6);
 
-            $rs->from_zone = $this->get_prepared_from_zone($arr);
+            if ($rs)
+            {
+              $arr = array(
+                'order_code' => $code,
+                'state' => 6,
+                'update_user' => get_cookie('uname')
+              );
+
+              $this->order_state_model->add_state($arr);
+              $order->state = 6;
+            }
           }
-        }
 
-        $complete = $this->qc_model->get_complete_list($code);
+          $order->customer_name = $this->customers_model->get_name($order->customer_code);
+          $order->channels_name = $this->channels_model->get_name($order->channels_code);
+          $order->warehouse_name = warehouse_name($order->warehouse_code);
 
-        if(!empty($complete))
-        {
-          foreach($complete as $rs)
+          $barcode_list = array();
+
+          $uncomplete = $this->qc_model->get_in_complete_list($code);
+
+          if (!empty($uncomplete))
           {
-            $barcode = $this->get_barcode($rs->product_code);
-            $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
-            $bc = new stdClass();
-            $bc->barcode = md5($rs->barcode);
-            $bc->product_code = $rs->product_code;
-            $barcode_list[] = $bc;
+            foreach ($uncomplete as $rs)
+            {
+              $barcode = $this->get_barcode($rs->product_code);
+              $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
+              $bc = new stdClass();
+              $bc->barcode = md5($rs->barcode);
+              $bc->product_code = $rs->product_code;
+              $barcode_list[] = $bc;
+              $arr = array(
+                'order_code' => $code,
+                'product_code' => $rs->product_code,
+                'is_count' => $rs->is_count
+              );
 
-            $arr = array(
-              'order_code' => $code,
-              'product_code' => $rs->product_code,
-              'is_count' => $rs->is_count
-            );
-
-            $rs->from_zone = $this->get_prepared_from_zone($arr);
+              $rs->from_zone = $this->get_prepared_from_zone($arr);
+            }
           }
-        }
 
-        $active_box_id = "";
-        $box_list = $this->qc_model->get_box_list($code);
+          $complete = $this->qc_model->get_complete_list($code);
 
-        if(empty($box_list))
-        {
-          $package_id = getConfig('DEFAULT_PACKAGE');                    
-          $box_code = $this->get_new_code();
-          $box_no = $this->qc_model->get_last_box_no($code) + 1;
-          $box_id = $this->qc_model->add_new_box($code, $box_code, $box_no, $package_id);
-
-          if($box_id)
+          if (!empty($complete))
           {
-            $active_box_id = $box_id;
-            $box_list = $this->qc_model->get_box_list($code);
+            foreach ($complete as $rs)
+            {
+              $barcode = $this->get_barcode($rs->product_code);
+              $rs->barcode = empty($barcode) ? $rs->product_code : $barcode;
+              $bc = new stdClass();
+              $bc->barcode = md5($rs->barcode);
+              $bc->product_code = $rs->product_code;
+              $barcode_list[] = $bc;
+
+              $arr = array(
+                'order_code' => $code,
+                'product_code' => $rs->product_code,
+                'is_count' => $rs->is_count
+              );
+
+              $rs->from_zone = $this->get_prepared_from_zone($arr);
+            }
           }
-        }
-        else 
-        {
-          foreach($box_list as $box)
+
+          $active_box_id = "";
+          $box_list = $this->qc_model->get_box_list($code);
+
+          if (empty($box_list))
           {
-            $active_box_id = $box->id;            
+            $package_id = getConfig('DEFAULT_PACKAGE');
+            $box_code = $this->get_new_code();
+            $box_no = $this->qc_model->get_last_box_no($code) + 1;
+            $box_id = $this->qc_model->add_new_box($code, $box_code, $box_no, $package_id);
+
+            if ($box_id)
+            {
+              $active_box_id = $box_id;
+              $box_list = $this->qc_model->get_box_list($code);
+            }
           }
-        }
+          else
+          {
+            foreach ($box_list as $box)
+            {
+              $active_box_id = $box->id;
+            }
+          }
 
-        $ds = array(
-          'order' => $order,
-          'uncomplete_details' => $uncomplete,
-          'complete_details' => $complete,
-          'barcode_list' => $barcode_list,
-          'box_list' => $box_list,
-          'active_box_id' => $active_box_id,
-          'qc_qty' => $this->qc_model->total_qc($code),
-          'all_qty' => $this->get_sum_qty($code),
-          'finished' => empty($uncomplete) ? TRUE : FALSE,
-          'disActive' => $order->state == 6 ? '' : 'disabled',
-          'allow_input_qty' => getConfig('ALLOW_QC_INPUT_QTY') == 1 ? TRUE : FALSE
-        );
-
-        if(getConfig('VIDEO_ON_PACK'))
-        {
-          $this->load->view('inventory/qc/qc_process_video', $ds);
+          $ds = array(
+            'order' => $order,
+            'uncomplete_details' => $uncomplete,
+            'complete_details' => $complete,
+            'barcode_list' => $barcode_list,
+            'box_list' => $box_list,
+            'active_box_id' => $active_box_id,
+            'qc_qty' => $this->qc_model->total_qc($code),
+            'all_qty' => $this->get_sum_qty($code),
+            'finished' => empty($uncomplete) ? TRUE : FALSE,
+            'disActive' => $order->state == 6 ? '' : 'disabled',
+            'allow_input_qty' => getConfig('ALLOW_QC_INPUT_QTY') == 1 ? TRUE : FALSE
+          );          
+          
+          $this->load->view('inventory/qc/qc_process', $ds);
         }
         else
         {
-          $this->load->view('inventory/qc/qc_process', $ds);
+          $this->orders_model->update($code, ['is_cancled' => 1]);
+          $this->load->view('inventory/qc/order_cancelled', ['order' => $order]);
         }
       }
       else
       {
-        $this->orders_model->update($code, ['is_cancled' => 1]);
-        $this->load->view('inventory/qc/order_cancelled', ['order' => $order]);
-      }
-    }
-    else
-    {
-      $this->error_page();
-    }
+        if( ! empty($order))
+        {
+          $this->load->view('inventory/qc/invalid_state');
+        }
+        else
+        {
+          $this->error_page();
+        }
+      }      
+    }    
   }
 
 
@@ -1426,7 +1452,7 @@ class Qc extends PS_Controller
       'box_code' => $code,
       'box_id' => $box_id,
       'box_no' => $box_no,
-      'package_id' => get_null($package_id),
+      'package_id' => get_null($package_id)
     );
 
     echo json_encode($arr);
@@ -1453,7 +1479,9 @@ class Qc extends PS_Controller
           'qty' => number($box->qty),
           'weight' => number($box->weight, 2),
           'checked' => $box->id == $id ? 'checked' : '',
-          'class' => $box->id == $id ? 'btn-success' : 'btn-default'
+          'class' => $box->id == $id ? 'btn-success' : 'btn-default',
+          'video_on_pack' => $this->video_on_pack,
+          'weight_on_pack' => $this->weight_on_pack
         );
 
         array_push($ds, $arr);
@@ -2031,6 +2059,51 @@ class Qc extends PS_Controller
   }
 
 
+  public function add_video_log()
+  {
+    $sc = TRUE;
+    $ds = json_decode($this->input->post('data'));
+
+    if( ! empty($ds))
+    {
+      $arr = array(
+        'order_code' => $ds->order_code,
+        'role' => $ds->role,
+        'create_date' => now(),
+        'user' => $ds->user,
+        'file_name' => $ds->file_name,
+        'file_format' => $ds->file_format
+      );
+
+      $id = $this->qc_model->get_video_log_id($ds->order_code);
+
+      if($id)
+      {
+        if( ! $this->qc_model->update_video_log($id, $arr))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to update video log";
+        }
+      }
+      else
+      {
+        if( ! $this->qc_model->add_video_log($arr))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to add video log";
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
+  }
+
+  
   public function get_new_code($date = NULL)
   {
     $date = empty($date) ? date('Y-m-d') : $date;

@@ -185,6 +185,7 @@ $("#barcode-item").keyup(function(e){
 
 
 function qcProduct() {
+  const order_code = $('#order_code').val();
   let id_box = $('#id_box').val();
 
   if(id_box == "") {
@@ -197,6 +198,20 @@ function qcProduct() {
   let iqty = parseDefault(parseInt($('#qc-qty').val()), 1);
 
   $('#barcode-item').val('');
+
+  if(input_barcode.length && input_barcode == order_code) {
+    if (mediaRecorder && (mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused')) {
+      stopRecord();
+    }
+    else {
+      startRecord();
+    }
+
+    $('#qc-qty').val(1);
+    $('#barcode-item').focus();
+
+    return;
+  }
 
   if(input_barcode.length) {
     let barcode = md5(input_barcode); //--- id กับ barcode คือตัวเดียวกัน
@@ -280,8 +295,8 @@ function updateBox(qty){
 
 
 function updateBoxList(box_id){
-  let id_box = box_id != undefined ? box_id : $("#id_box").val();
-  let order_code = $("#order_code").val();
+  const id_box = box_id != undefined ? box_id : $("#id_box").val();
+  const order_code = $("#order_code").val();  
   
   $.ajax({
     url: HOME + 'get_box_list',
@@ -298,6 +313,14 @@ function updateBoxList(box_id){
 
         if(ds.status == 'success') {
           if(ds.box_list != 'no box') {
+            const weight_on_pack = $('#weight-on-pack').val() == 1 ? true : false;
+            const activeDevice = localStorage.getItem('WrxActiveDevice') ? true : false;
+            const showWeight = weight_on_pack && activeDevice ? true : false;
+            
+            ds.box_list.forEach(box => {
+              box.show_weight = showWeight;
+            });
+
             var source = $("#box-template").html();
             var data = ds.box_list;
             var output = $("#box-row");

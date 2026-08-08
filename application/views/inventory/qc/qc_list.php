@@ -1,30 +1,36 @@
 <?php $this->load->view('include/header'); ?>
-<?php $this->load->view('inventory/qc/style'); ?>
+<?php $this->load->view('inventory/qc/style_qc_list'); ?>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
 		<h3 class="title"><?php echo $this->title; ?></h3>
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right hidden-xs">
 		<button type="button" class="btn btn-white btn-primary top-btn" onclick="viewProcess()">กำลังตรวจ</button>
-		<?php if ($this->weight_on_pack) : ?>
+		<?php if ($this->weight_on_pack || $this->video_on_pack) : ?>
 			<div class="btn-group">
 				<button type="button" class="btn btn-white btn-purple top-btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 					<i class="ace-icon fa fa-cogs icon-on-left"></i>
 				</button>
 				<ul class="dropdown-menu dropdown-menu-right">
-					<li class="success"><a href="javascript:void(0)" onclick="getDeviceList()">เลือกเครื่องชั่ง</a></li>
-					<li class="primary"><a href="javascript:void(0)" onclick="showActiveDevice()">ตั้งค่าเครื่องชั่ง</a></li>
+					<?php if ($this->weight_on_pack) : ?>
+						<li class="primary"><a href="javascript:void(0)" onclick="getDeviceList()"><i class="fa fa-check"></i> เลือกเครื่องชั่ง</a></li>
+						<li class="danger"><a href="javascript:void(0)" onclick="showActiveDevice()"><i class="fa fa-times"></i> ลบเครื่องชั่ง</a></li>
+					<?php endif; ?>
+					<?php if ($this->weight_on_pack && $this->video_on_pack) : ?>
+						<li class="divider"></li>
+					<?php endif; ?>
+					<?php if ($this->video_on_pack) : ?>
+						<li class="primary"><a href="javascript:void(0)" onclick="selectCameras()"><i class="fa fa-check"></i> เลือกกล้อง</a></li>
+						<li class="danger"><a href="javascript:void(0)" onclick="showActiveCamera()"><i class="fa fa-times"></i> ลบกล้อง</a></li>
+					<?php endif; ?>
 				</ul>
 			</div>
 		<?php endif; ?>
 	</div>
 </div><!-- End Row -->
-<hr class="" />
+<hr />
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
-	<div class="row filter-pad move-out" id="filter-pad">
-		<div class="col-xs-12 padding-5 text-center visible-xs">
-			<h4 class="title">ตัวกรอง</h4>
-		</div>
+	<div class="row">
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>เลขที่เอกสาร</label>
 			<input type="text" class="width-100" name="code" value="<?php echo $code; ?>" />
@@ -123,13 +129,13 @@
 <?php echo $this->pagination->create_links(); ?>
 <?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
 	<div class="row">
-		<div class="col-lg-3 col-md-4 col-sm-4 padding-5">
+		<div class="col-lg-3 col-md-4 col-sm-4 col-xs-9 padding-5">
 			<div class="input-group width-100">
 				<span class="input-group-addon">ตรวจสินค้า</span>
 				<input type="text" class="form-control input-sm text-center" id="order-code" placeholder="scan to pack" autofocus />
 			</div>
 		</div>
-		<div class="col-lg-1 col-md-1-harf col-sm-1-harf padding-5">
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 			<button type="button" class="btn btn-xs btn-primary btn-block" onclick="goToProcess()">ตรวจสินค้า</button>
 		</div>
 	</div>
@@ -141,67 +147,35 @@
 		<table class="table table-hover border-1 no-border-xs table-listing">
 			<thead>
 				<tr class="font-size-11">
-					<th class="fix-width-100 middle hidden-xs"></th>
-					<th class="fix-width-50 middle text-center hidden-xs">#</th>
-					<th class="fix-width-100 middle text-center hidden-xs">วันที่</th>
-					<th class="fix-width-150 middle hidden-xs">เลขที่เอกสาร</th>
-					<th class="fix-width-150 middle hidden-xs">เลขที่อ้างอิง</th>
-					<th class="fix-width-150 middle hidden-xs">ช่องทาง</th>
-					<th class="min-width-200 middle hidden-xs">ลูกค้า/พนักงาน</th>
-					<th class="width-100 text-center hide">รายการรอจัด</th>
+					<th class="fix-width-100 middle"></th>
+					<th class="fix-width-50 middle text-center">#</th>
+					<th class="fix-width-100 middle text-center">วันที่</th>
+					<th class="fix-width-150 middle">เลขที่เอกสาร</th>
+					<th class="fix-width-150 middle">เลขที่อ้างอิง</th>
+					<th class="fix-width-150 middle">ช่องทาง</th>
+					<th class="min-width-200 middle">ลูกค้า/พนักงาน</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php if (!empty($orders)) : ?>
 					<?php $channels = get_channels_array(); ?>
-					<?php $whName = []; ?>
 					<?php $no = $this->uri->segment(4) + 1; ?>
 					<?php foreach ($orders as $rs) : ?>
 						<?php $customer_name = (!empty($rs->customer_ref)) ? $rs->customer_ref : (empty($rs->customer_name) ? $rs->empName : $rs->customer_name); ?>
 						<?php $channels_name = empty($rs->channels_code) ? "" : (empty($channels[$rs->channels_code]) ? "" : $channels[$rs->channels_code]); ?>
 						<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
-						<?php if (empty($whName[$rs->warehouse_code])) : ?>
-							<?php $whName[$rs->warehouse_code] = warehouse_name($rs->warehouse_code); ?>
-						<?php endif; ?>
 						<tr id="row-<?php echo $rs->code; ?>" class="font-size-11">
-							<td class="middle hidden-xs">
+							<td class="middle">
 								<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
 									<button type="button" class="btn btn-white btn-minier btn-info" onClick="goQc('<?php echo $rs->code; ?>')">ตรวจสินค้า</button>
 								<?php endif; ?>
 							</td>
-							<td class="middle text-center no hidden-xs"><?php echo $no; ?></td>
-							<td class="middle text-center hidden-xs"><?php echo thai_date($rs->date_add, FALSE, '/'); ?></td>
-							<td class="middle hidden-xs"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
-							<td class="middle hidden-xs"><?php echo $rs->reference; ?></td>
-							<td class="middle hidden-xs"><?php echo $channels_name; ?></td>
-							<td class="middle hidden-xs"><?php echo $customer_name; ?></td>
-
-							<td class="visible-xs" style="border:0px; padding:3px; font-size:14px;">
-								<div class="col-xs-12" style="border:solid 1px #ccc; border-radius:5px; box-shadow:0px 1px 2px #f3ecec; padding:5px;">
-									<div class="width-100" style="padding: 3px 3px 3px 10px;">
-										<p class="margin-bottom-3 pre-wrap"><b>วันที่ : </b><?php echo thai_date($rs->date_add, FALSE, '/'); ?></p>
-										<p class="margin-bottom-3 pre-wrap"><b>เลขที่ : </b>
-											<?php echo $rs->code; ?>
-											<?php echo (empty($rs->reference) ? "" : "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" . $rs->reference . "]"); ?>
-											<?php echo $cn_text; ?>
-										</p>
-										<p class="margin-bottom-3 pre-wrap"><b>ลูกค้า : </b>
-											<?php if ($rs->role == 'L' or $rs->role == 'R') : ?>
-												<?php echo $rs->empName; ?>
-											<?php else : ?>
-												<?php echo $customer_name; ?>
-											<?php endif; ?>
-										</p>
-										<p class="margin-bottom-3 pre-wrap"><b>ช่องทางขาย : </b> <?php echo $channels_name;; ?></p>
-										<p class="margin-bottom-3 pre-wrap"><b>คลัง : </b> <?php echo $whName[$rs->warehouse_code]; ?></p>
-									</div>
-									<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
-										<button type="button" class="btn btn-white btn-info"
-											onclick="goQc('<?php echo $rs->code; ?>', 'mobile')"
-											style="position:absolute; top:5px; right:5px; border-radius:4px !important;">#<?php echo $no; ?> ตรวจสินค้า</button>
-									<?php endif; ?>
-								</div>
-							</td>
+							<td class="middle text-center no"><?php echo $no; ?></td>
+							<td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE, '/'); ?></td>
+							<td class="middle"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
+							<td class="middle"><?php echo $rs->reference; ?></td>
+							<td class="middle"><?php echo $channels_name; ?></td>
+							<td class="middle"><?php echo $customer_name; ?></td>
 						</tr>
 						<?php $no++; ?>
 					<?php endforeach; ?>
@@ -215,36 +189,13 @@
 	</div>
 </div>
 
-<div class="pg-footer visible-xs">
-	<div class="pg-footer-inner">
-		<div class="pg-footer-content text-right">
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="refresh()">
-					<i class="fa fa-refresh fa-2x white"></i><span class="fon-size-12">Refresh</span>
-				</button>
-			</div>
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="goToBuffer()">
-					<i class="fa fa-history fa-2x white"></i><span class="fon-size-12">Buffer</span>
-				</button>
-			</div>
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="viewProcess()">
-					<i class="fa fa-cube fa-2x white"></i><span class="fon-size-12">กำลังตรวจ</span>
-				</button>
-			</div>
-			<div class="footer-menu width-25">
-				<button class="btn btn-block" style="border:none; padding:0; background-color:transparent !important;" onclick="toggleFilter()">
-					<i class="fa fa-search fa-2x white"></i><span class="fon-size-12">ตัวกรอง</span>
-				</button>
-			</div>
-		</div>
-		<input type="hidden" id="filter" value="hide" />
-	</div>
-</div>
+<input type="hidden" id="video-config" data-audio-required="<?php echo getConfig('AUDIO_ON_PACK'); ?>" />
 
-<?php if($this->weight_on_pack) : ?>	
-<?php $this->load->view('inventory/qc/device_modal'); ?>
+<?php if ($this->weight_on_pack) : ?>
+	<?php $this->load->view('inventory/qc/device_modal'); ?>
+<?php endif; ?>
+<?php if ($this->video_on_pack) : ?>
+	<?php $this->load->view('inventory/qc/cameras_modal'); ?>
 <?php endif; ?>
 
 <script>
@@ -254,7 +205,7 @@
 </script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_list.js?v=<?php echo date('Ymd'); ?>"></script>
-<?php if ($this->weight_on_pack) : ?>
+<?php if ($this->weight_on_pack || $this->video_on_pack) : ?>
 	<script src="<?php echo base_url(); ?>scripts/inventory/qc/device.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php endif; ?>
 <?php $this->load->view('include/footer'); ?>

@@ -340,6 +340,22 @@ class Qc_model extends CI_Model
     return NULL;
   }
 
+  public function get_last_box_id($order_code)
+  {
+    $rs = $this->db
+    ->select('id')
+    ->where('order_code', $order_code)
+    ->order_by('box_no', 'DESC')
+    ->limit(1)
+    ->get('qc_box');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
   public function get_last_box_no($order_code)
   {
@@ -661,6 +677,30 @@ class Qc_model extends CI_Model
     return 0;
   }
 
+
+  public function add_video_log(array $ds = array())
+  {
+    return $this->db->insert('order_pack_video', $ds);
+  }
+
+
+  public function update_video_log($id, array $ds = array())
+  {
+    return $this->db->where('id', $id)->update('order_pack_video', $ds);
+  }
+
+
+  public function get_video_log_id($order_code)
+  {
+    $rs = $this->db->select('id')->where('order_code', $order_code)->get('order_pack_video');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id;
+    }
+
+    return NULL;
+  }
 
 } //--- end class
 
