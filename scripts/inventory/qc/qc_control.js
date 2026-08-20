@@ -796,8 +796,17 @@ $('.bc').click(function(){
 });
 
 
-function confirmOrder(){
+function confirmOrder() {
   let code = $('#order_code').val();
+  let videoOnPack = $('#video-on-pack').val() == 1 ? true : false;
+
+  if (videoOnPack) {
+    // --- Upload video to server
+    if (mediaRecorder && (mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused')) {
+      stopRecord();
+    }
+  }
+
   load_in();
 
   $.ajax({
@@ -816,7 +825,7 @@ function confirmOrder(){
           timer:1000
         });
 
-        $('#btn-bill').addClass('hide');
+        $('#btn-bill').addClass('hide');        
       }
       else {
         beep();

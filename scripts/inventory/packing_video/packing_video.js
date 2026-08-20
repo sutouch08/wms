@@ -1,3 +1,7 @@
+const clearFilter = () => {
+  $.get(`${HOME}/clear_filter`, function(){ goBack(); });
+}
+
 $('#fromDate').datepicker({
   dateFormat:'dd-mm-yy',
   onClose:function(sd){

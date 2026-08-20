@@ -78,37 +78,46 @@ class Delivery_order extends PS_Controller
 
     if($channels == '0009')
     {
-      $this->load->library('wrx_tiktok_api');
-
-      $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
-
-      if($order_status == 'CANCELLED' OR $order_status == '140')
+      if (is_true(getConfig('WRX_TIKTOK_API')))
       {
-        $is_cancel = TRUE;
-      }
+        $this->load->library('wrx_tiktok_api');
+
+        $order_status = $this->wrx_tiktok_api->get_order_status($reference, $shop_id);
+
+        if ($order_status == 'CANCELLED' or $order_status == '140')
+        {
+          $is_cancel = TRUE;
+        }
+      }     
     }
 
     if($channels == 'SHOPEE')
     {
-      $this->load->library('wrx_shopee_api');
-
-      $order_status = $this->wrx_shopee_api->get_order_status($reference, $shop_id);
-
-      if($order_status == 'CANCELLED')
+      if (is_true(getConfig('WRX_SHOPEE_API')))
       {
-        $is_cancel = TRUE;
+        $this->load->library('wrx_shopee_api');
+
+        $order_status = $this->wrx_shopee_api->get_order_status($reference, $shop_id);
+
+        if ($order_status == 'CANCELLED')
+        {
+          $is_cancel = TRUE;
+        }
       }
     }
 
     if($channels == 'LAZADA')
     {
-      $this->load->library('wrx_lazada_api');
-
-      $order_status = $this->wrx_lazada_api->get_order_status($reference, $shop_id);
-
-      if($order_status == 'canceled' OR $order_status == 'CANCELED' OR $order_status == 'Canceled')
+      if (is_true(getConfig('WRX_LAZADA_API')))
       {
-        $is_cancel = TRUE;
+        $this->load->library('wrx_lazada_api');
+
+        $order_status = $this->wrx_lazada_api->get_order_status($reference, $shop_id);
+
+        if ($order_status == 'canceled' or $order_status == 'CANCELED' or $order_status == 'Canceled')
+        {
+          $is_cancel = TRUE;
+        }
       }
     }
 

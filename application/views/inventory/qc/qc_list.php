@@ -33,17 +33,17 @@
 	<div class="row">
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>เลขที่เอกสาร</label>
-			<input type="text" class="width-100" name="code" value="<?php echo $code; ?>" />
+			<input type="text" class="form-control input-sm" name="code" value="<?php echo $code; ?>" />
 		</div>
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>ลูกค้า</label>
-			<input type="text" class="width-100" name="customer" value="<?php echo $customer; ?>" />
+			<input type="text" class="form-control input-sm" name="customer" value="<?php echo $customer; ?>" />
 		</div>
 
 		<div class="col-lg-2-harf col-md-3 col-sm-3-harf col-xs-6 padding-5">
 			<label>พนักงาน/ผู้สั่งงาน</label>
-			<select class="width-100 filter" name="user" id="user">
+			<select class="form-control input-sm filter" name="user" id="user">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_user($user); ?>
 			</select>
@@ -51,7 +51,7 @@
 
 		<div class="col-lg-3 col-md-3 col-sm-3-harf col-xs-6 padding-5">
 			<label>ช่องทางขาย</label>
-			<select class="width-100" name="channels" id="channels">
+			<select class="form-control input-sm" name="channels" id="channels">
 				<option value="">ทั้งหมด</option>
 				<?php echo select_channels($channels); ?>
 			</select>
@@ -91,7 +91,7 @@
 
 		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 			<label>การจัดส่ง</label>
-			<select class="width-100" name="id_sender" id="sender" onchange="getSearch()">
+			<select class="form-control input-sm" name="id_sender" id="sender" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_sender($id_sender); ?>
 			</select>
@@ -100,8 +100,8 @@
 		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 			<label>วันที่</label>
 			<div class="input-daterange input-group width-100">
-				<input type="text" class="width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
-				<input type="text" class="width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
+				<input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
+				<input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
 			</div>
 		</div>
 

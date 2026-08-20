@@ -65,8 +65,6 @@ const owner = config.dataset.owner;
 const endpoint = config.dataset.endpoint.endsWith('/') ? config.dataset.endpoint : config.dataset.endpoint + '/';
 const secret = config.dataset.secret;
 
-console.log(endpoint);
-
 let videoMimeType = 'video/webm;codecs=h264' + (audioRequired ? ',opus' : ''); //format === 'mp4' ? 'video/mp4' : 'video/webm';
 
 async function uploadToServer(videoBlob) {
@@ -139,7 +137,7 @@ function start() {
   if(videoAutoRecord) {
     setTimeout(() => {
       startRecord();
-    }, 5000);
+    }, 1000);
   }
 }
 

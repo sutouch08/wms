@@ -87,6 +87,6 @@
     </table>
   </div>
 </div>
-<script src="<?php echo base_url(); ?>scripts/inventory/packing_video/packing_video.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/packing_video/packing_video.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

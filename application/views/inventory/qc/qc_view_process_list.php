@@ -10,20 +10,20 @@
 </div><!-- End Row -->
 <hr class="" />
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
-	<div class="row">		
+	<div class="row">
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>เลขที่เอกสาร</label>
-			<input type="text" class="width-100" name="code" value="<?php echo $code; ?>" />
+			<input type="text" class="form-control input-sm" name="code" value="<?php echo $code; ?>" />
 		</div>
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 			<label>ลูกค้า</label>
-			<input type="text" class="width-100" name="customer" value="<?php echo $customer; ?>" />
+			<input type="text" class="form-control input-sm" name="customer" value="<?php echo $customer; ?>" />
 		</div>
 
 		<div class="col-lg-2-harf col-md-3 col-sm-3-harf col-xs-6 padding-5">
 			<label>พนักงาน/ผู้สั่งงาน</label>
-			<select class="width-100 filter" name="user" id="user">
+			<select class="form-control input-sm filter" name="user" id="user">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_user($user); ?>
 			</select>
@@ -31,7 +31,7 @@
 
 		<div class="col-lg-3 col-md-3 col-sm-3-harf col-xs-6 padding-5">
 			<label>ช่องทางขาย</label>
-			<select class="width-100" name="channels" id="channels">
+			<select class="form-control input-sm" name="channels" id="channels">
 				<option value="">ทั้งหมด</option>
 				<?php echo select_channels($channels); ?>
 			</select>
@@ -71,7 +71,7 @@
 
 		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 			<label>การจัดส่ง</label>
-			<select class="width-100" name="id_sender" id="sender" onchange="getSearch()">
+			<select class="form-control input-sm" name="id_sender" id="sender" onchange="getSearch()">
 				<option value="all">ทั้งหมด</option>
 				<?php echo select_sender($id_sender); ?>
 			</select>
@@ -80,8 +80,8 @@
 		<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 			<label>วันที่</label>
 			<div class="input-daterange input-group width-100">
-				<input type="text" class="width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
-				<input type="text" class="width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
+				<input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>" />
+				<input type="text" class="form-control input-sm width-50 text-center" name="to_date" id="toDate" value="<?php echo $to_date; ?>" />
 			</div>
 		</div>
 
@@ -133,17 +133,17 @@
 					<th class="fix-width-150 middle">เลขที่เอกสาร</th>
 					<th class="fix-width-150 middle">เลขที่อ้างอิง</th>
 					<th class="fix-width-150 middle">ช่องทาง</th>
-					<th class="min-width-200 middle">ลูกค้า/พนักงาน</th>					
+					<th class="min-width-200 middle">ลูกค้า/พนักงาน</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php if (!empty($orders)) : ?>
-					<?php $channels = get_channels_array(); ?>					
+					<?php $channels = get_channels_array(); ?>
 					<?php $no = $this->uri->segment($this->segment) + 1; ?>
 					<?php foreach ($orders as $rs) : ?>
 						<?php $customer_name = (!empty($rs->customer_ref)) ? $rs->customer_ref : (empty($rs->customer_name) ? $rs->empName : $rs->customer_name); ?>
 						<?php $channels_name = empty($rs->channels_code) ? "" : (empty($channels[$rs->channels_code]) ? "" : $channels[$rs->channels_code]); ?>
-						<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>						
+						<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
 						<tr id="row-<?php echo $rs->code; ?>" class="font-size-11">
 							<td class="middle">
 								<?php if ($this->pm->can_add or $this->pm->can_edit) : ?>
@@ -155,7 +155,7 @@
 							<td class="middle"><a href="javascript:viewOrderDetail('<?php echo $rs->code; ?>', '<?php echo $rs->role; ?>')"><?php echo $rs->code . $cn_text; ?></a></td>
 							<td class="middle"><?php echo $rs->reference; ?></td>
 							<td class="middle"><?php echo $channels_name; ?></td>
-							<td class="middle"><?php echo $customer_name; ?></td>							
+							<td class="middle"><?php echo $customer_name; ?></td>
 						</tr>
 						<?php $no++; ?>
 					<?php endforeach; ?>
