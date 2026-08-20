@@ -49,7 +49,8 @@ class Transfer extends PS_Controller
       'sap' => get_filter('sap', 'tr_sap', 'all'),
       'must_accept' => get_filter('must_accept', 'tr_must_accept', 'all'),
       'from_date' => get_filter('fromDate', 'tr_fromDate', ''),
-      'to_date' => get_filter('toDate', 'tr_toDate', '')
+      'to_date' => get_filter('toDate', 'tr_toDate', ''),
+      'is_arrival' => get_filter('is_arrival', 'tr_is_arrival', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -436,6 +437,33 @@ class Transfer extends PS_Controller
     );
 
     $this->load->view('transfer/transfer_view', $ds);
+  }
+
+  function set_product_arrival()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $is_arrival = $this->input->post('is_arrival');
+
+    if( ! empty($code))
+    {
+      $arr = array(
+        'product_arrival' => $is_arrival
+      );
+
+      if( ! $this->transfer_model->update($code, $arr))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to update product arrival";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    $this->_response($sc);
   }
 
 
@@ -891,7 +919,8 @@ class Transfer extends PS_Controller
               {
                 $arr = array(
                   'status' => 3,
-                  'is_approve' => 0
+                  'is_approve' => 0,
+                  'product_arrival' => 0
                 );
 
                 if( ! $this->transfer_model->update($code, $arr))
@@ -3487,7 +3516,8 @@ class Transfer extends PS_Controller
       'tr_valid',
       'tr_sap',
       'tr_must_accept',
-      'pallet_no'
+      'pallet_no',
+      'tr_is_arrival'
     );
 
     clear_filter($filter);

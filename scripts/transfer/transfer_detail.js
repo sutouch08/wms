@@ -509,98 +509,52 @@ function addToTransfer() {
 }
 
 
-// function addToTransfer() {
-// 	var code	= $('#transfer_code').val();
-//
-// 	//---	โซนต้นทาง
-// 	var from_zone = $("#from_zone_code").val();
-//
-// 	if(from_zone.length == 0)
-// 	{
-// 		swal('โซนต้นทางไม่ถูกต้อง');
-// 		return false;
-// 	}
-//
-// 	//--- โซนปลายทาง
-// 	var to_zone = $('#to_zone_code').val();
-//
-// 	if(to_zone.length == 0)
-// 	{
-// 		swal('โซนปลายทางไม่ถูกต้อง');
-// 		return false;
-// 	}
-//
-// 	//---	จำนวนช่องที่มีการป้อนตัวเลขเพื่อย้ายสินค้าออก
-// 	var count  = countInput();
-//
-// 	if(count == 0)
-// 	{
-// 		swal('ข้อผิดพลาด !', 'กรุณาระบุจำนวนในรายการที่ต้องการย้าย อย่างน้อย 1 รายการ', 'warning');
-// 		return false;
-// 	}
-//
-// 	//---	ตัวแปรสำหรับเก็บ ojbect ข้อมูล
-// 	var ds  = {};
-// 	var items = [];
-//
-// 	ds.transfer_code = code;
-// 	ds.from_zone = from_zone;
-// 	ds.to_zone = to_zone;
-//
-//
-//
-// 	$('.input-qty').each(function(index, element) {
-// 	    let qty = parseDefault(parseInt($(this).val()),0);
-//
-// 			if(qty > 0) {
-// 				let pd_code  = $(this).data('sku'); //$(this).attr('id')
-// 				items.push({"item_code" : pd_code, "qty" : qty});
-// 			}
-//     });
-//
-// 	ds.items = items;
-//
-// 	if( count > 0 ) {
-// 		load_in();
-// 		setTimeout(function(){
-// 			$.ajax({
-// 				url: HOME + 'add_to_transfer',
-// 				type:"POST",
-// 				cache:"false",
-// 				data: {
-// 					"data" : JSON.stringify(ds)
-// 				},
-// 				success: function(rs){
-// 					load_out();
-// 					var rs = $.trim(rs);
-// 					if( rs == 'success' ){
-// 						swal({
-// 							title: 'success',
-// 							text: 'เพิ่มรายการเรียบร้อยแล้ว',
-// 							type: 'success',
-// 							timer: 1000
-// 						});
-//
-// 						setTimeout( function(){
-// 							showTransferTable();
-// 							recalZoneQty();
-// 						}, 1200);
-//
-// 					}else{
-//
-// 						swal("ข้อผิดพลาด", rs, "error");
-// 					}
-// 				}
-// 			});
-// 		}, 500);
-// 	}
-// 	else
-// 	{
-//
-// 		swal('ข้อผิดพลาด !', 'กรุณาระบุจำนวนในรายการที่ต้องการย้าย อย่างน้อย 1 รายการ', 'warning');
-//
-// 	}
-// }
+function setProductArrival(code, is_arrival) {
+	let title = is_arrival == 1 ? 'สินค้ามาถึงแล้ว' : 'สินค้ายังไม่มาถึง';
+	let msg = is_arrival == 1 ? 'ยืนยันการมาถึงของสินค้า' : 'ยืนยันการยกเลิกการมาถึงของสินค้า';
+	swal({
+		title: title,
+		text: msg,
+		type: 'info',
+		showCancelButton: true,
+		confirmButtonColor: '#87B87F',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		closeOnConfirm: true
+	}, function () {
+		load_in();
+
+		setTimeout(() => {
+			$.ajax({
+				url: `${HOME}set_product_arrival`,
+				type: 'POST',
+				cache: false,
+				data: {
+					'code': code,
+					'is_arrival': is_arrival
+				},
+				success: function (rs) {
+					load_out();
+
+					if (rs.trim() == 'success') {
+						swal({
+							title: 'Success',
+							type: 'success',
+							timer: 1000
+						});
+
+						setTimeout(() => {
+							window.location.reload();
+						}, 1200);
+					}
+					else {
+						showError(rs);
+					}
+				}
+			});
+		}, 100);
+	});		
+}
 
 function recalZoneQty() {
 	$('.input-qty').each(function() {

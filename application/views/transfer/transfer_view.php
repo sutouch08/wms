@@ -81,6 +81,12 @@
 					<button type="button" class="btn btn-xs btn-purple" onclick="unExpire()"><i class="fa fa-flash"></i> ต่ออายุ</button>
 				<?php endif; ?>
 				<?php if($doc->is_wms < 1 && $doc->is_expire == 0 && $doc->status == 3 && $this->pm->can_approve) : ?>
+					<?php if($doc->status == 3 && $doc->product_arrival == 0) : ?>
+						<button type="button" class="btn btn-xs btn-info" onclick="setProductArrival('<?php echo $doc->code; ?>', 1)"><i class="fa fa-check"></i> สินค้ามาถึงแล้ว</button>
+					<?php endif; ?>
+					<?php if($doc->status == 3 && $doc->product_arrival == 1) : ?>
+						<button type="button" class="btn btn-xs btn-warning" onclick="setProductArrival('<?php echo $doc->code; ?>', 0)"><i class="fa fa-times"></i> ยกเลิกการมาถึงของสินค้า</button>
+					<?php endif; ?>
 					<button type="button" class="btn btn-xs btn-primary" onclick="pullBack('<?php echo $doc->code; ?>')">ย้อนสถานะกลับมาแก้ไข</button>
 				<?php endif; ?>
 				<?php if($doc->is_wms < 1 && $doc->is_expire == 0 && $doc->status == -1 && $this->pm->can_edit) : ?>

@@ -983,6 +983,11 @@ class Transfer_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
+    if (isset($ds['is_arrival']) && $ds['is_arrival'] != 'all')
+    {
+      $this->db->where('product_arrival', $ds['is_arrival']);
+    }
+    
     return $this->db->count_all_results('transfer');
   }
 
@@ -1101,6 +1106,11 @@ class Transfer_model extends CI_Model
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
+    }
+
+    if(isset($ds['is_arrival']) && $ds['is_arrival'] != 'all')
+    {
+      $this->db->where('product_arrival', $ds['is_arrival']);
     }
 
     $rs = $this->db->order_by('code', 'DESC')->limit($perpage, $offset)->get('transfer');
