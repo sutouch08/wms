@@ -796,43 +796,49 @@ $('.bc').click(function(){
 });
 
 
-function confirmOrder() {
-  let code = $('#order_code').val();
+async function confirmOrder() {
+  canGoBack = false;
   let videoOnPack = $('#video-on-pack').val() == 1 ? true : false;
 
   if (videoOnPack) {
     // --- Upload video to server
     if (mediaRecorder && (mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused')) {
-      stopRecord();
+      await stopRecord();
     }
   }
 
-  load_in();
+  await openBill();  
+}
 
+async function openBill() {
+  let code = $('#order_code').val();  
+  load_in();
   $.ajax({
-    url:BASE_URL + 'inventory/delivery_order/confirm_order',
-    type:'POST',
-    cache:false,
-    data:{
-      'order_code' : code
+    url: BASE_URL + 'inventory/delivery_order/confirm_order',
+    type: 'POST',
+    cache: false,
+    data: {
+      'order_code': code
     },
-    success:function(rs) {
+    success: function (rs) {
+      canGoBack = true;
       load_out();
-      if( rs.trim() == 'success') {
+      if (rs.trim() == 'success') {
         swal({
-          title:'Success',
-          type:'success',
-          timer:1000
+          title: 'Success',
+          type: 'success',
+          timer: 1000
         });
 
-        $('#btn-bill').addClass('hide');        
+        $('#btn-bill').addClass('hide');
       }
       else {
         beep();
         showError(rs);
       }
     },
-    error:function(rs) {
+    error: function (rs) {
+      canGoBack = true;
       beep();
       showError(rs);
     }

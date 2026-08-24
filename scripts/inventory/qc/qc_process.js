@@ -1,4 +1,5 @@
 var autoFocus = 1;
+var canGoBack = true;
 
 window.addEventListener('load', () => {
   let box_id = $('#id_box').val();
@@ -26,7 +27,6 @@ function layoutInit() {
     }
   }
 }
-
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'F1') {
@@ -56,7 +56,24 @@ window.addEventListener('keydown', (event) => {
 
   if(event.key === 'Escape') {
     event.preventDefault();
-    goBack();
+    if(canGoBack) {
+      goBack();
+    }
+    else {
+      let time = 15;
+      const timer = setInterval(() => {
+        if(time > 0) {
+          time--;
+          if(canGoBack) {
+            clearInterval(timer);
+            goBack();
+          }
+        }
+        else {
+          goBack();
+        }
+      }, 200);
+    }
   }
 });
 
@@ -79,7 +96,6 @@ function barcodeFocus() {
   $('#barcode-item').focus();
 }
 
-
 $("#chk-force-close").change(function () {
   if ($("#chk-force-close").prop('checked') == true) {
     $("#btn-force-close").removeClass('not-show');
@@ -88,11 +104,6 @@ $("#chk-force-close").change(function () {
     $("#btn-force-close").addClass('not-show');
   }
 });
-
-function printAddressEng() {
-
-}
-
 
 function printBox(id) {
   const code = $("#order_code").val();
@@ -112,7 +123,6 @@ function printBoxEng(id) {
   window.open(target, "_blank", `width=${width}, height=${height}, left=${left}, scrollbars=yes`);
 }
 
-
 function printAllBox(code) {
   const width = 800;
   const height = 900;
@@ -120,7 +130,6 @@ function printAllBox(code) {
   const target = `${HOME}print_all_box/${code}`;
   window.open(target, "_blank", `width=${width}, height=${height}, left=${left}, scrollbars=yes`);
 }
-
 
 function printAllBoxEng(code) {
   const width = 800;

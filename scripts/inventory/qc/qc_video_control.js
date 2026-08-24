@@ -132,15 +132,13 @@ async function cameraInit() {
   await getDevices();
 }
 
-
 function start() {
   if(videoAutoRecord) {
     setTimeout(() => {
       startRecord();
-    }, 1000);
+    }, 200);
   }
 }
-
 
 async function getDevices() {
   const mediaDevices = await navigator.mediaDevices.enumerateDevices();
@@ -218,7 +216,6 @@ async function startCamera() {
   }
 }
 
-
 function stopCamera() {
   if(mediaRecorder && mediaRecorder.state !== 'inactive') {
     return false;
@@ -241,7 +238,6 @@ function stopCamera() {
     startCameraButton.classList.remove('hide');
   }
 }
-
 
 async function startRecord() {
   blobChunks = [];
@@ -284,7 +280,7 @@ async function startRecord() {
       });
 
       timeReset();
-      mediaRecorder.start(1000);
+      mediaRecorder.start(500);
       timeStart();
 
       webcam.classList.add('recording');
@@ -294,7 +290,6 @@ async function startRecord() {
     }
   }
 }
-
 
 function pauseRecord() {
   if(mediaRecorder.state === 'recording') {
@@ -306,7 +301,6 @@ function pauseRecord() {
   }
 }
 
-
 function resumeRecord() {
   if(mediaRecorder.state === 'paused') {
     mediaRecorder.resume();
@@ -317,12 +311,12 @@ function resumeRecord() {
   }
 }
 
-
-function stopRecord() {
+async function stopRecord() {
   if(mediaRecorder) {
     if(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused') {
+      mediaRecorder.requestData();
       mediaRecorder.stop();
-      timeStop();
+      timeStop();      
       const recordedBlob = new Blob(blobChunks, { type: 'video/webm' });
       uploadToServer(recordedBlob);
       blobChunks = [];
@@ -335,7 +329,6 @@ function stopRecord() {
   }
 }
 
-
 function selectCameras() {
   let audioOption = document.getElementById('audio-option');
   if(audioRequired) {
@@ -347,7 +340,6 @@ function selectCameras() {
 
   $('#cameras-modal').modal('show');
 }
-
 
 function saveDevicesId() {
   $('#cameras-error').text('');
@@ -381,7 +373,6 @@ function saveDevicesId() {
   startCamera();
 }
 
-
 // for video duration
 let ms = 0;
 let sec = 0;
@@ -414,7 +405,6 @@ function timeStart() {
   }, 100);
 }
 
-
 function timeStop() {
   clearInterval(timeInterval);
 }
@@ -432,8 +422,7 @@ function zeroPad(num) {
   return String(num).padStart(2, '0');
 }
 
-
-function addVideoList(videoData) {
+async function addVideoList(videoData) {
   $.ajax({
     url:`${HOME}add_video_log`,
     type:'POST',

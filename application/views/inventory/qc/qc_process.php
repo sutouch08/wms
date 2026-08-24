@@ -408,11 +408,11 @@ if (!empty($barcode_list))
 </script>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_process.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_process.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_control.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php if ($this->video_on_pack) : ?>
-  <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_video_control.js?v=<?php echo date('Ymd'); ?>"></script>
+  <script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_video_control.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php endif; ?>
 <?php if ($this->weight_on_pack) : ?>
   <script src="<?php echo base_url(); ?>scripts/inventory/qc/serialPort.js?v=<?php echo date('Ymd'); ?>"></script>
