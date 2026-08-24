@@ -316,9 +316,11 @@ async function stopRecord() {
     if(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused') {
       mediaRecorder.requestData();
       mediaRecorder.stop();
-      timeStop();      
+      timeStop();
+
+      await new Promise(resolve => setTimeout(resolve, 300)); // wait for dataavailable event to finish 
       const recordedBlob = new Blob(blobChunks, { type: 'video/webm' });
-      uploadToServer(recordedBlob);
+      await uploadToServer(recordedBlob);
       blobChunks = [];
       webcam.classList.remove('recording');
       pauseButton.classList.add('hide');
