@@ -20,6 +20,16 @@ function deleteChecked(){
 	}
 }
 
+function clearReturnQty() {
+	var count = $('.input-qty').length;
+	if(count > 0) {
+		$('.input-qty').each(function() {
+			$(this).val('');
+			recalRow($(this).data('no'));
+		});
+	}
+}
+
 
 function unsave(){
 	var code = $('#return_code').val();
@@ -504,13 +514,11 @@ $('#zone').autocomplete({
 
 
 function recalRow(no) {
-	var price = parseFloat($('#price_' + no).val());
-	var qty = parseFloat($('#qty_'+no).val());
-	var discount = parseFloat($('#discount_' + no).val()) * 0.01;
-	price = isNaN(price) ? 0 : price;
-	qty = isNaN(qty) ? 0 : qty;
+	let price = parseDefaultFloat($('#price_' + no).val(), 0);
+	let qty = parseDefaultFloat($('#qty_'+no).val(), 0);
+	let discount = parseDefaultFloat($('#discount_' + no).val(), 0) * 0.01;
 	discount = qty * (price * discount);
-	var amount = (qty * price) - discount;
+	let amount = (qty * price) - discount;
 	amount = amount.toFixed(2);
 	$('#amount_' + no).text(addCommas(amount));
 	recalTotal();
@@ -518,17 +526,15 @@ function recalRow(no) {
 
 
 function recalTotal(){
-	var totalAmount = 0;
-	var totalQty = 0;
+	let totalAmount = 0;
+	let totalQty = 0;
 	$('.amount-label').each(function(){
-		let amount = removeCommas($(this).text());
-		amount = parseFloat(amount);
+		let amount = parseDefaultFloat(removeCommas($(this).text()), 0);		
 		totalAmount += amount;
 	});
 
 	$('.input-qty').each(function(){
-		let qty = $(this).val();
-		qty = parseFloat(qty);
+		let qty = parseDefaultFloat($(this).val(), 0);
 		totalQty += qty;
 	});
 
