@@ -322,7 +322,6 @@ class Return_consignment extends PS_Controller
     $this->load->view('inventory/return_consignment/return_consignment_add');
   }
 
-
   public function add()
   {
     $sc = TRUE;
@@ -412,7 +411,6 @@ class Return_consignment extends PS_Controller
     echo json_encode($ds);
   }
 
-
   public function edit($code)
   {
     $this->load->helper('return_consignment');
@@ -454,7 +452,6 @@ class Return_consignment extends PS_Controller
     }
   }
 
-
   public function get_invoice_list($code)
   {
     $arr = array(
@@ -482,72 +479,91 @@ class Return_consignment extends PS_Controller
     return $arr;
   }
 
-
-
   public function update()
   {
     $sc = TRUE;
-    if ($this->input->post('return_code'))
+
+    if ($this->input->post('code'))
     {
-      $code = $this->input->post('return_code');
-      $date_add = db_date($this->input->post('date_add'), TRUE);
-      $invoice = trim($this->input->post('invoice'));
+      $code = $this->input->post('code');
 
-      $is_wms = $this->input->post('is_wms');
-      $is_api = $is_wms != 0 ? $this->input->post('is_api') : 0;
-
-      $customer_code = trim($this->input->post('customer_code'));
-      $from_zone = $this->zone_model->get($this->input->post('from_zone'));
-      $remark = trim($this->input->post('remark'));
-      $gp = empty($this->input->post('gp')) ? 0 : $this->input->post('gp');
-
-      //--- check zone
-      if ($is_wms == 1)
-      {
-        $zone_code = getConfig('WMS_ZONE');
-        $warehouse_code = getConfig('WMS_WAREHOUSE');
-      }
-
-      if ($is_wms == 2)
-      {
-        $zone_code = getConfig('SOKOJUNG_ZONE');
-        $warehouse_code = getConfig('SOKOJUNG_WAREHOUSE');
-      }
-      else
-      {
-        $zone = $this->zone_model->get($this->input->post('zone_code'));
-        $zone_code = $zone->code;
-        $warehouse_code = $zone->warehouse_code;
-      }
-
-      $arr = array(
-        'date_add' => $date_add,
-        'invoice' => $invoice,
-        'customer_code' => $customer_code,
-        'is_wms' => $is_wms,
-        'is_api' => $is_api,
-        'from_warehouse_code' => $from_zone->warehouse_code,
-        'from_zone_code' => $from_zone->code,
-        'warehouse_code' => $warehouse_code,
-        'zone_code' => $zone_code,
-        'gp' => $gp,
-        'remark' => $remark,
-        'update_user' => get_cookie('uname')
-      );
-
-      if ($this->return_consignment_model->update($code, $arr) === FALSE)
+      if(empty($code))
       {
         $sc = FALSE;
-        $message = 'ปรับปรุงข้อมูลไม่สำเร็จ';
+        set_error('ไม่พบเลขที่เอกสาร');
+      }      
+
+      if($sc === TRUE)
+      {
+        $doc = $this->return_consignment_model->get($code);
+
+        if(empty($doc))
+        {
+          $sc = FALSE;
+          set_error('notfound');
+        }
+      }
+
+      if($sc === TRUE && $doc->status != 0)
+      {
+        $sc = FALSE;
+        set_error('status');
+      }
+
+      if($sc === TRUE)
+      {
+        $date_add = db_date($this->input->post('date_add'), TRUE);
+        $invoice = trim($this->input->post('invoice'));
+        $customer_code = trim($this->input->post('customer_code'));
+        $from_zone = $this->input->post('from_zone');
+        $zone_code = $this->input->post('zone_code');
+        $remark = get_null(trim($this->input->post('remark')));
+        $gp = empty($this->input->post('gp')) ? 0 : $this->input->post('gp');
+        $zone = $this->zone_model->get($zone_code);
+        $fromZone = $this->zone_model->get($from_zone);
+
+        if (empty($fromZone))
+        {
+          $sc = FALSE;
+          set_error('ไม่พบโซนต้นทาง');
+        }
+
+        if ($sc === TRUE && empty($zone))
+        {
+          $sc = FALSE;
+          set_error('ไม่พบโซนปลายทาง');
+        }
+
+        if($sc === TRUE)
+        {
+          $arr = array(
+            'date_add' => $date_add,
+            'invoice' => $invoice,
+            'customer_code' => $customer_code,
+            'from_warehouse_code' => empty($fromZone) ? '' : $fromZone->warehouse_code,
+            'from_zone_code' => empty($fromZone) ? '' : $fromZone->code,
+            'warehouse_code' => empty($zone) ? '' : $zone->warehouse_code,
+            'zone_code' => empty($zone) ? '' : $zone->code,
+            'gp' => $gp,
+            'remark' => $remark,
+            'update_user' => $this->_user->uname
+          );
+
+          if( ! $this->return_consignment_model->update($code, $arr))
+          {
+            $sc = FALSE;
+            set_error('update');
+          }
+        }
       }
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบเลขที่เอกสาร';
+      set_error('required');
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    $this->_response($sc);
   }
 
 

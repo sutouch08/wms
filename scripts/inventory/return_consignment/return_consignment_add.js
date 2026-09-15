@@ -200,43 +200,45 @@ function editHeader(){
 function update() {
 	let h = {
 		'code' : $('#code').val(),
-		'date_add' : $('#date-add').val(),
-		'invoice' : $('#invoice').val(),
-		'customer_code' : $('#customer-code').val(),
-		'is_wms' : $('#is_wms').val(),
-		'is_api' : $('#is_api').val(),
-		'warehouse_code' : $('#warehouse-code').val(),
-		'zone_code' : $('#zone-code').val(),		
-		'from_zone' : $('#from-zone').val(),
-		'remark' : $('#remark').val(),
-		'gp' : $('#gp').val()
+		'date_add': $('#date-add').val(),
+		'invoice': $('#invoice').val(),
+		'gp': parseDefaultFloat($('#gp').val(), 0),
+		'customer_code': $('#customer-code').val(),
+		'from_zone': $('#from-zone').val(),
+		'zone_code': $('#zone-code').val(),
+		'remark': $('#remark').val().trim()
 	};
-	
-	if(!isDate(h.date_add)){
-    swal('วันที่ไม่ถูกต้อง');
-    return false;
-  }
 
-	if(h.invoice.length == 0){
+	if (!isDate(h.date_add)) {
+		swal('วันที่ไม่ถูกต้อง');
+		return false;
+	}
+
+	if (h.customer_code.length == 0) {
+		swal('กรุณาระบุลูกค้า');
+		return false;
+	}
+
+	if (h.invoice.length == 0) {
 		swal('กรุณาอ้างอิงเลขที่บิล');
 		return false;
 	}
 
-	if(h.customer_code.length == 0){
-		swal('กรุณาอ้างอิงลูกค้า');
+	if (h.gp > 100 || h.gp < 0) {
+		swal('GP ต้องอยู่ระหว่าง 0-100');
 		return false;
 	}
 
-	if(h.zone_code.length == 0){
-		swal('กรุณาระบุโซนรับสินค้า');
-		return false;
-	}
-
-	if(h.from_zone.length == 0){
+	if (h.from_zone.length == 0) {
 		swal('กรุณาระบุโซนฝากขาย');
 		return false;
 	}
 
+	if (h.zone_code.length == 0) {
+		swal('กรุณาระบุโซนรับสินค้า');
+		return false;
+	}
+	
   load_in();
 
 	$.ajax({
@@ -246,7 +248,7 @@ function update() {
 		data:h,
 		success:function(rs){
 			load_out();
-			if(rs == 'success'){
+			if(rs == 'success') {
 				$('.e').attr('disabled', 'disabled');
 				$('#btn-update').addClass('hide');
 				$('#btn-edit').removeClass('hide');
