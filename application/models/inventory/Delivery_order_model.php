@@ -77,7 +77,11 @@ class Delivery_order_model extends CI_Model
       }
       else
       {
-        $this->db->where_in('channels_code', offline_channels_array());
+        $this->db
+        ->group_start()
+        ->where_in('channels_code', offline_channels_array())
+        ->where('channels_code IS NULL', NULL, FALSE)
+        ->group_end();
       }
     }
 
@@ -220,7 +224,11 @@ class Delivery_order_model extends CI_Model
       }
       else
       {
-        $this->db->where_in('channels_code', offline_channels_array());
+        $this->db
+        ->group_start()
+        ->where_in('channels_code', offline_channels_array())
+        ->or_where('channels_code IS NULL', NULL, FALSE)
+        ->group_end();
       }
     }
 
