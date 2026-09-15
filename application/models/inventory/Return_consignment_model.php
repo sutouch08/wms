@@ -545,18 +545,20 @@ class Return_consignment_model extends CI_Model
       $this->db->where('from_warehouse_code', $ds['from_warehouse']);
     }
 
-
     if ($ds['to_warehouse'] != 'all')
     {
       $this->db->where('warehouse_code', $ds['to_warehouse']);
     }
 
+    if(isset($ds['is_arrival']) && $ds['is_arrival'] != 'all')
+    {
+      $this->db->where('product_arrival', $ds['is_arrival']);
+    }
 
     if (!empty($ds['status']) && $ds['status'] != 'all')
     {
       $this->db->where('status', $ds['status']);
     }
-
 
     if (!empty($ds['approve']) && $ds['approve'] != 'all')
     {
@@ -567,7 +569,6 @@ class Return_consignment_model extends CI_Model
     {
       $this->db->where('is_api', $ds['api']);
     }
-
 
     if (isset($ds['sap']) && $ds['sap'] != 'all')
     {
@@ -580,7 +581,6 @@ class Return_consignment_model extends CI_Model
         $this->db->where('inv_code IS NOT NULL', NULL, FALSE);
       }
     }
-
 
     if (!empty($ds['from_date']) && !empty($ds['to_date']))
     {
@@ -620,18 +620,20 @@ class Return_consignment_model extends CI_Model
       $this->db->where('from_warehouse_code', $ds['from_warehouse']);
     }
 
-
     if ($ds['to_warehouse'] != 'all')
     {
       $this->db->where('warehouse_code', $ds['to_warehouse']);
     }
-
 
     if ($ds['status'] != 'all')
     {
       $this->db->where('status', $ds['status']);
     }
 
+    if (isset($ds['is_arrival']) && $ds['is_arrival'] != 'all')
+    {
+      $this->db->where('product_arrival', $ds['is_arrival']);
+    }
 
     if ($ds['approve'] != 'all')
     {
