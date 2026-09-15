@@ -1,25 +1,14 @@
 <?php $this->load->view('include/header'); ?>
-<div class="row hidden-print">
-  <div class="col-lg-6 col-md-6 col-sm-6 padding-5 hidden-xs">
-    <h3 class="title">
-      <i class="fa fa-bar-chart"></i>
-      <?php echo $this->title; ?>
-    </h3>
+<div class="row">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
+    <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-  <div class="col-xs-12 padding-5 visible-xs">
-    <h4 class="title-xs">
-      <i class="fa fa-bar-chart"></i>
-      <?php echo $this->title; ?>
-    </h4>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+    <button type="button" class="btn btn-white btn-success top-btn" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
+    <button type="button" class="btn btn-white btn-primary top-btn" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
   </div>
-  <div class="col-sm-6">
-    <p class="pull-right top-p">
-      <button type="button" class="btn btn-xs btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
-      <button type="button" class="btn btn-xs btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> ส่งออก</button>
-    </p>
-  </div>
-</div><!-- End Row -->
-<hr class="hidden-print" />
+</div>
+<hr />
 <div class="row">
   <div class="col-lg-2 col-md-2 col-sm-2-harf col-xs-6 padding-5 ">
     <label class="display-block">สินค้า</label>
@@ -103,7 +92,7 @@
           <th class="fix-width-60 text-right">ต้นทุน</th>
           <th class="fix-width-60 text-right">ราคา</th>
           <th class="fix-width-60 text-right">ส่วนลด</th>
-          <th class="fix-width-60 text-right">หลังส่วนลด</th>
+          <th class="fix-width-60 text-right">ราคาขาย</th>
           <th class="fix-width-60 text-right">จำนวน</th>
           <th class="fix-width-60 text-right">ส่วนลดรวม</th>
           <th class="fix-width-60 text-right">มูลค่ารวม</th>
