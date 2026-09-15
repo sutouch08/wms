@@ -1,23 +1,22 @@
 $('#barcode').keyup(function(e){
   if(e.keyCode == 13){
-    var barcode = $.trim($(this).val());
-    var qty = $('#qty').val();
+    let barcode = $.trim($(this).val());
+    let qty = $('#qty').val();
     doReceive();
   }
 });
-
 
 $('#invoice-box').keyup(function(e){
   if(e.keyCode === 13){
     add_invoice();
   }
 })
-
+;
 $('#item_code').autocomplete({
 	source:BASE_URL + 'auto_complete/get_item_code',
 	autoFocus:true,
 	close:function() {
-		var arr = $(this).val().split(' | ');
+		let arr = $(this).val().split(' | ');
 		if(arr.length == 2) {
 			$(this).val(arr[0]);
 		}
@@ -25,21 +24,19 @@ $('#item_code').autocomplete({
 			$(this).val('');
 		}
 	}
-})
-
+});
 
 $('#i-gp').keyup(function(e) {
 	if(e.keyCode == 13) {
 		$('#i-qty').focus();
 	}
-})
+});
 
 $('#i-qty').keyup(function(e) {
 	if(e.keyCode == 13) {
 		add_item();
 	}
-})
-
+});
 
 $('#item_code').keyup(function(e) {
 	if(e.keyCode === 13) {
@@ -47,14 +44,13 @@ $('#item_code').keyup(function(e) {
 			get_item_by_code();
 		}, 300);
 	}
-})
-
+});
 
 function get_item_by_code() {
-	var item_code = $('#item_code').val();
+	let item_code = $('#item_code').val().trim();
 	if(item_code.length > 0) {
 		$.ajax({
-			url:HOME + 'get_item_by_code',
+			url:`${HOME}get_item_by_code`,
 			type:'POST',
 			cache:false,
 			data:{
@@ -62,13 +58,10 @@ function get_item_by_code() {
 			},
 			success:function(rs){
 				if(isJson(rs)){
-					var pd = $.parseJSON(rs);
-					var code = pd.code;
-					var gp = $('#gp').val();
-					var price = parseFloat(pd.price).toFixed(2);
-					var discount = (parseFloat(gp) * 0.01).toFixed(2);
-					var amount = price * qty;
-					var disAmount = (price * discount) * qty;
+					let pd = JSON.parse(rs);
+					let code = pd.code;
+					let gp = parseDefaultFloat($('#gp').val(), 0);
+					let price = parseFloat(pd.price).toFixed(2);								
 
 					if(code.length)
 					{
@@ -93,23 +86,20 @@ function get_item_by_code() {
 			}//-- success
 		}); //--- ajax
 	}
-
 }
 
-
-
 function add_item() {
-	var barcode = $('#i-barcode').val();
-	var qty = parseInt($('#i-qty').val());
-	if(!isNaN(qty) && barcode.length > 0)
-  {
+	let barcode = $('#i-barcode').val().trim();
+  let qty = parseDefaultFloat($('#i-qty').val(), 1);
+
+	if(qty > 0 && barcode.length > 0) {
     //---- ถ้ามีรายการนี้อยู่ในตารางแล้ว
-    if($('#barcode_'+barcode).length)
+    if($(`#barcode_${barcode}`).length)
     {
-      var no = $('#barcode_'+barcode).val();
-      var c_qty = parseDefault(parseInt($('#qty_'+no).val()), 0);
-      var new_qty = c_qty + qty;
-      $('#qty_'+no).val(new_qty);
+      let no = $(`#barcode_${barcode}`).val();
+      let c_qty = parseDefault(parseInt($(`#qty_${no}`).val()), 0);
+      let new_qty = c_qty + qty;
+      $(`#qty_${no}`).val(new_qty);
       recalRow(no);
       $('#item_code').val('');
 			$('#item_name').val('');
@@ -124,23 +114,21 @@ function add_item() {
     {
       //---- ถ้าไม่มีรายการอยู่
       //---- เช็คสินค้า แล้วเพิ่มเข้ารายการ
-			var code = $('#item_code').val();
-			var name = $('#item_name').val();
-			var gp = parseDefault(parseFloat($('#i-gp').val()), 0);
-			var price = parseDefault(parseFloat($('#i-price').val()), 0);
-			var price = price.toFixed(2);
-			var discount = (gp * 0.01).toFixed(2);
-			var amount = price * qty;
-			var disAmount = (price * discount) * qty;
-
+			let code = $('#item_code').val();
+			let name = $('#item_name').val();
+			let gp = parseDefaultFloat($('#i-gp').val(), 0);			
+      let price = parseDefaultFloat($('#i-price').val(), 0).toFixed(2);
+			let discount = (gp * 0.01).toFixed(2);
+			let amount = price * qty;
+			let disAmount = (price * discount) * qty;
 
 			if(code.length)
 			{
-				var invoice = $('#invoice_code').val();
-				var no = $('#no').val();
+				let invoice = $('#invoice_code').val();
+				let no = $('#no').val();
 				no++;
 				$('#no').val(no);
-				var data = {
+				let data = {
 					'no' : no,
 					'barcode' : barcode,
 					'code' : code,
@@ -152,8 +140,8 @@ function add_item() {
 					'amount' : addCommas((amount - disAmount ).toFixed(2))
 				};
 
-				var source = $('#row-template').html();
-				var output = $('#detail-table');
+				let source = $('#row-template').html();
+				let output = $('#detail-table');
 				render_append(source, data, output);
 				reIndex();
 				recalTotal();
@@ -175,22 +163,21 @@ function add_item() {
 //---- 1. เช็คก่อนว่ามีรายการอยู่ในตารางหน้านี้หรือไม่ ถ้ามีเพิ่มจำนวน แล้วคำนวนยอดใหม่
 //---- 2. ถ้าไม่มีรายการอยู่ เช็คสินค้าก่อนว่ามีในระบบหรือไม่
 //---- 3. ถ้ามีในระบบ เพิ่มรายการเข้าตาราง
-function doReceive()
-{
-  var barcode = $('#barcode').val();
-  var qty = parseInt($('#qty').val());
+function doReceive() {
+  let barcode = $('#barcode').val();
+  let qty = parseDefaultInt($('#qty').val(), 1);
 
-  if(!isNaN(qty) && barcode.length > 0)
+  if(qty > 0 && barcode.length > 0)
   {
     $('#barcode').attr('disabled', 'disabled');
 
     //---- ถ้ามีรายการนี้อยู่ในตารางแล้ว
-    if($('#barcode_'+barcode).length)
+    if($(`#barcode_${barcode}`).length)
     {
-      var no = $('#barcode_'+barcode).val();
-      var c_qty = parseDefault(parseInt($('#qty_'+no).val()), 0);
-      var new_qty = c_qty + qty;
-      $('#qty_'+no).val(new_qty);
+      let no = $(`#barcode_${barcode}`).val();      
+      let c_qty = parseDefaultInt($(`#qty_${no}`).val(), 0);  
+      let new_qty = c_qty + qty;
+      $(`#qty_${no}`).val(new_qty);
       recalRow(no);
       $('#barcode').val('');
       $('#qty').val(1);
@@ -203,7 +190,7 @@ function doReceive()
       //---- เช็คสินค้า แล้วเพิ่มเข้ารายการ
       load_in();
       $.ajax({
-        url:HOME + 'get_item',
+        url:`${HOME}get_item`,
         type:'POST',
         cache:false,
         data:{
@@ -212,21 +199,21 @@ function doReceive()
         success:function(rs){
           load_out();
           if(isJson(rs)){
-            var pd = $.parseJSON(rs);
-            var code = pd.code;
-            var gp = $('#gp').val();
-            var price = parseFloat(pd.price).toFixed(2);
-            var discount = (parseFloat(gp) * 0.01).toFixed(2);
-            var amount = price * qty;
-            var disAmount = (price * discount) * qty;
+            let pd = JSON.parse(rs);
+            let code = pd.code;
+            let gp = parseDefaultFloat($('#gp').val(), 0);
+            let price = roundNumber(parseDefaultFloat(pd.price, 0), 2);
+            let discount = roundNumber(gp * 0.01, 2);
+            let amount = price * qty;
+            let disAmount = (price * discount) * qty;
 
             if(code.length)
             {
-              var invoice = $('#invoice_code').val();
-              var no = $('#no').val();
+              let invoice = $('#invoice_code').val();
+              let no = $('#no').val();
               no++;
               $('#no').val(no);
-              var data = {
+              let data = {
                 'no' : no,
                 'barcode' : barcode,
                 'code' : pd.code,
@@ -238,8 +225,8 @@ function doReceive()
                 'amount' : addCommas((amount - disAmount ).toFixed(2))
               };
 
-              var source = $('#row-template').html();
-              var output = $('#detail-table');
+              let source = $('#row-template').html();
+              let output = $('#detail-table');
               render_append(source, data, output);
               reIndex();
               recalTotal();
@@ -261,62 +248,52 @@ function doReceive()
   }
 }
 
-
-
-function add_invoice()
-{
-  var code = $('#return_code').val();
-  var invoice = $('#invoice-box').val();
-  var customer_code = $('#customer_code').val();
-
-  if(invoice.length == 0){
+function add_invoice() {
+  let h = {
+    'code' : $('#code').val(),
+    'invoice' : $('#invoice-box').val(),
+    'customer_code' : $('#customer-code').val()
+  };
+  
+  if(h.invoice.length == 0) {
     return false;
   }
 
-  if(customer_code.length == 0){
+  if(h.customer_code.length == 0) {
     return false;
   }
-
 
   load_in();
 
   $.ajax({
-    url:HOME + 'add_invoice',
+    url:`${HOME}add_invoice`,
     type:'POST',
     cache:false,
-    data:{
-      'invoice' : invoice,
-      'customer_code' : customer_code,
-      'return_code' : code
-    },
-    success:function(rs){
+    data: h,
+    success:function(rs) {
       load_out();
-      if(isJson(rs))
-      {
-        var data = $.parseJSON(rs);
+
+      if(isJson(rs)) {
+        let data = JSON.parse(rs);
         $('#invoice_list').html(data.invoice);
         $('#bill_amount').val(data.amount);
         $('#invoice-box').val('');
       }
-      else
-      {
-        swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
-        });
+      else {
+        showError(rs);
       }
+    },
+    error:function(rs) {
+      showError(rs);
     }
-  })
+  });
 }
-
-
 
 function removeInvoice(return_code, invoice_code)
 {
   load_in();
   $.ajax({
-    url:HOME + 'remove_invoice',
+    url:`${HOME}remove_invoice`,
     type:'GET',
     cache:false,
     data:{
@@ -326,18 +303,21 @@ function removeInvoice(return_code, invoice_code)
     success:function(rs){
       load_out();
       if(isJson(rs)){
-        var ds = $.parseJSON(rs);
+        let ds = JSON.parse(rs);
         $('#invoice_list').html(ds.invoice);
         $('#bill_amount').val(ds.amount);
       }
       else
       {
-        swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
-        });
+        showError(rs);
       }
+    },
+    error:function(rs) {
+      showError(rs);
     }
-  })
+  });
 }
+
+$('.input-qty').focusin(function() {
+  $(this).select();
+});

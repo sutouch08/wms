@@ -1,12 +1,9 @@
-var HOME = BASE_URL + 'report/sales/sales_consignment_report/';
-
 $('#fromDate').datepicker({
   dateFormat:'dd-mm-yy',
   onClose:function(sd) {
     $('#toDate').datepicker("option", "minDate", sd);
   }
 });
-
 
 $('#toDate').datepicker({
   dateFormat:'dd-mm-yy',
@@ -38,14 +35,14 @@ function toggleAllProduct(option){
 
 
 $('#pdFrom').autocomplete({
-  source : BASE_URL + 'auto_complete/get_style_code',
+  source : `${BASE_URL}auto_complete/get_style_code`,
   autoFocus:true,
   close:function(){
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    var pdFrom = arr[0];
+    let rs = $(this).val();
+    let arr = rs.split(' | ');
+    let pdFrom = arr[0];
     $(this).val(pdFrom);
-    var pdTo = $('#pdTo').val();
+    let pdTo = $('#pdTo').val();
     if(pdTo.length > 0 && pdFrom.length > 0){
       if(pdFrom > pdTo){
         $('#pdTo').val(pdFrom);
@@ -57,14 +54,14 @@ $('#pdFrom').autocomplete({
 
 
 $('#pdTo').autocomplete({
-  source:BASE_URL + 'auto_complete/get_style_code',
+  source: `${BASE_URL}auto_complete/get_style_code`,
   autoFocus:true,
   close:function(){
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    var pdTo = arr[0];
+    let rs = $(this).val();
+    let arr = rs.split(' | ');
+    let pdTo = arr[0];
     $(this).val(pdTo);
-    var pdFrom = $('#pdFrom').val();
+    let pdFrom = $('#pdFrom').val();
     if(pdTo.length > 0 && pdFrom.length > 0){
       if(pdFrom > pdTo){
         $('#pdTo').val(pdFrom);
@@ -98,14 +95,14 @@ function toggleAllCustomer(option){
 
 
 $('#cusFrom').autocomplete({
-  source : BASE_URL + 'auto_complete/get_customer_code_and_name',
+  source : `${BASE_URL}auto_complete/get_customer_code_and_name`,
   autoFocus:true,
   close:function(){
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    var cusFrom = arr[0];
+    let rs = $(this).val();
+    let arr = rs.split(' | ');
+    let cusFrom = arr[0];
     $(this).val(cusFrom);
-    var cusTo = $('#cusTo').val();
+    let cusTo = $('#cusTo').val();
     if(cusTo.length > 0 && cusFrom.length > 0){
       if(cusFrom > cusTo){
         $('#cusTo').val(cusFrom);
@@ -117,14 +114,14 @@ $('#cusFrom').autocomplete({
 
 
 $('#cusTo').autocomplete({
-  source:BASE_URL + 'auto_complete/get_customer_code_and_name',
+  source: `${BASE_URL}auto_complete/get_customer_code_and_name`,
   autoFocus:true,
   close:function(){
-    var rs = $(this).val();
-    var arr = rs.split(' | ');
-    var cusTo = arr[0];
+    let rs = $(this).val();
+    let arr = rs.split(' | ');
+    let cusTo = arr[0];
     $(this).val(cusTo);
-    var cusFrom = $('#cusFrom').val();
+    let cusFrom = $('#cusFrom').val();
     if(cusTo.length > 0 && cusFrom.length > 0){
       if(cusFrom > cusTo){
         $('#cusTo').val(cusFrom);
@@ -173,38 +170,30 @@ function toggleAllZone(option){
   }
 }
 
-
-function zone_init(){
-  var warehouse = "";
+function zone_init() {
+  let warehouse = "";
   let i = 0;
-  $('.chk').each(function(index, el) {
-    if($(this).is(':checked')){
-      if(i == 0){
-        warehouse = warehouse + $(this).val();
-      }
-      else{
-        warehouse = warehouse + "|"+$(this).val();
-      }
 
-      i++;
-    }
+  $('.chk:checked').each(function (index, el) {
+    warehouse += (i === 0 ? $(this).val() : "|" + $(this).val());
+    i++;
   });
 
-  if(warehouse.length > 0){
-    warehouse = "/"+warehouse;
+  if (warehouse.length > 0) {
+    warehouse = "/" + warehouse;
   }
 
   $('#zoneName').autocomplete({
-    source:BASE_URL + 'auto_complete/get_zone_code_and_name' + warehouse,
-    autoFocus:true,
-    close:function(){
-      var rs = $(this).val();
-      var rs = rs.split(' | ');
-      if(rs.length == 2){
-        $(this).val(rs[1]);
-        $('#zoneCode').val(rs[0]);
+    source: `${BASE_URL}auto_complete/get_zone_code_and_name${warehouse}`,
+    autoFocus: true,
+    close: function () {
+      let val = $(this).val();
+      let arr = val.split(' | ');
+      if (arr.length == 2) {
+        $(this).val(arr[1]);
+        $('#zoneCode').val(arr[0]);
       }
-      else{
+      else {
         $(this).val('');
         $('#zoneCode').val('');
       }
@@ -212,250 +201,209 @@ function zone_init(){
   })
 }
 
-
 $('.chk').change(function(){
   zone_init();
 })
 
+function getReport() {
+  clearErrorByClass('r');
 
+  const h = {
+    "allProduct": $('#allProduct').val(),
+    "pdFrom": $('#pdFrom').val(),
+    "pdTo": $('#pdTo').val(),
+    "allCustomer": $('#allCustomer').val(),
+    "cusFrom": $('#cusFrom').val(),
+    "cusTo": $('#cusTo').val(),
+    "allWhouse": $('#allWarehouse').val(),
+    "whsList": [],
+    "allZone": $('#allZone').val(),
+    "zoneCode": $('#zoneCode').val(),
+    "fromDate": $('#fromDate').val(),
+    "toDate": $('#toDate').val()
+  };
 
-
-
-function getReport(){
-  var allProduct = $('#allProduct').val();
-  var pdFrom = $('#pdFrom').val();
-  var pdTo = $('#pdTo').val();
-  var allCustomer = $('#allCustomer').val();
-  var cusFrom = $('#cusFrom').val();
-  var cusTo = $('#cusTo').val();
-  var allWhouse = $('#allWarehouse').val();
-  var allZone = $('#allZone').val();
-  var zoneCode = $('#zoneCode').val();
-  var zoneName = $('#zoneName').val();
-  var fromDate = $('#fromDate').val();
-  var toDate = $('#toDate').val();
-
-  if( ! isDate(fromDate) || ! isDate(toDate))
-  {
+  if (!isDate(h.fromDate) || !isDate(h.toDate)) {
     swal("วันที่ไม่ถูกต้อง");
     return false;
   }
 
-  if(allProduct == 0) {
-    if(pdFrom.length == 0) {
-      $('#pdFrom').addClass('has-error');
+  if (h.allProduct == 0) {
+    if (h.pdFrom.length == 0) {
+      $('#pdFrom').hasError();
       return false;
     }
-    else {
-      $('#pdFrom').removeClass('has-error');
-    }
 
-    if(pdTo.length == 0) {
-      $('#pdTo').addClass('has-error');
+    if (h.pdTo.length == 0) {
+      $('#pdTo').hasError();
       return false;
     }
-    else {
-      $('#pdTo').removeClass('has-error');
-    }
-  }
-  else {
-    $('#pdFrom').removeClass('has-error');
-    $('#pdTo').removeClass('has-error');
   }
 
-
-  if(allCustomer == 0) {
-    if(cusFrom.length == 0) {
-      $('#cusFrom').addClass('has-error');
+  if (h.allCustomer == 0) {
+    if (h.cusFrom.length == 0) {
+      $('#cusFrom').hasError();
       return false;
     }
-    else {
-      $('#cusFrom').removeClass('has-error');
-    }
 
-    if(cusTo.length == 0) {
-      $('#cusTo').addClass('has-error');
+    if (h.cusTo.length == 0) {
+      $('#cusTo').hasError();
       return false;
     }
-    else {
-      $('#cusTo').removeClass('has-error');
-    }
-  }
-  else {
-    $('#cusFrom').removeClass('has-error');
-    $('#cusTo').removeClass('has-error');
   }
 
-
-  if(allWhouse == 0) {
-    var count = $('.chk:checked').length;
-    console.log(count);
-    if(count == 0) {
+  if (h.allWhouse == 0) {
+    let count = $('.chk:checked').length;
+    if (count == 0) {
       $('#wh-modal').modal('show');
       return false;
     }
+
+    $('.chk:checked').each(function () {
+      h.whsList.push($(this).val());
+    });
   }
 
-  if(allZone == 0) {
-    if(zoneCode == '' || zoneName == ''){
-      $('#zoneName').addClass('has-error');
+  if (h.allZone == 0) {
+    if (h.zoneCode == '' || $('#zoneName').val().trim() == '') {
+      $('#zoneName').hasError();
       return false;
     }
-    else {
-      $('#zoneName').removeClass('has-error');
-    }
-  }
-  else {
-    $('#zoneName').removeClass('has-error');
-  }
-
-  var data = [
-    {'name' : 'allProduct', 'value' : allProduct},
-    {'name' : 'allCustomer', 'value' : allCustomer},
-    {'name' : 'allWhouse' , 'value' : allWhouse},
-    {'name' : 'allZone' , 'value' : allZone},
-    {'name' : 'pdFrom', 'value' : pdFrom},
-    {'name' : 'pdTo', 'value' : pdTo},
-    {'name' : 'cusFrom', 'value' : cusFrom},
-    {'name' : 'cusTo', 'value' : cusTo},
-    {'name' : 'zoneCode', 'value' : zoneCode},
-    {'name' : 'zoneName', 'value' : zoneName},
-    {'name' : 'fromDate', 'value' : fromDate},
-    {'name' : 'toDate', 'value' : toDate}
-  ];
-
-  if(allWhouse == 0){
-    $('.chk').each(function(index, el) {
-      if($(this).is(':checked')){
-        let names = 'warehouse['+$(this).val()+']';
-        data.push({'name' : names, 'value' : $(this).val() });
-      }
-    });
   }
 
   load_in();
 
   $.ajax({
-    url:HOME + 'get_report',
-    type:'GET',
-    cache:'false',
-    data:data,
-    success:function(rs) {
+    url: `${HOME}get_report`,
+    type: 'GET',
+    cache: 'false',
+    data: {
+      'data': JSON.stringify(h)
+    },
+    success: function (rs) {
       load_out();
-      var rs = $.trim(rs);
-      if(isJson(rs)) {
-        var source = $('#template').html();
-        var data = $.parseJSON(rs);
-        var output = $('#rs');
-        render(source,  data, output);
-      }else{
-        swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
-        })
+      if (isJson(rs)) {
+        let ds = JSON.parse(rs);
+        let data = ds.data;
+        let total = ds.total;
+        let source = $('#template').html();
+        let output = $('#data-row');
+        render(source, data, output);
+
+        $('#total-qty').text(total.totalQty);
+        $('#total-discount').text(total.totalDiscount);
+        $('#total-cost').text(total.totalCost);
+        $('#total-amount').text(total.totalAmount);
       }
+      else {
+        showError(rs);
+      }
+    },
+    error: function (rs) {
+      showError(rs);
     }
   });
-
 }
 
+async function doExport() {
+  clearErrorByClass('r');
 
-function doExport() {
-  var allProduct = $('#allProduct').val();
-  var pdFrom = $('#pdFrom').val();
-  var pdTo = $('#pdTo').val();
-  var allCustomer = $('#allCustomer').val();
-  var cusFrom = $('#cusFrom').val();
-  var cusTo = $('#cusTo').val();
-  var allWhouse = $('#allWarehouse').val();
-  var allZone = $('#allZone').val();
-  var zoneCode = $('#zoneCode').val();
-  var zoneName = $('#zoneName').val();
-  var fromDate = $('#fromDate').val();
-  var toDate = $('#toDate').val();
+  const h = {
+    "allProduct": $('#allProduct').val(),
+    "pdFrom": $('#pdFrom').val(),
+    "pdTo": $('#pdTo').val(),
+    "allCustomer": $('#allCustomer').val(),
+    "cusFrom": $('#cusFrom').val(),
+    "cusTo": $('#cusTo').val(),
+    "allWhouse": $('#allWarehouse').val(),
+    "whsList": [],
+    "allZone": $('#allZone').val(),
+    "zoneCode": $('#zoneCode').val(),
+    "fromDate": $('#fromDate').val(),
+    "toDate": $('#toDate').val()
+  };
 
-  if( ! isDate(fromDate) || ! isDate(toDate))
-  {
+  if (!isDate(h.fromDate) || !isDate(h.toDate)) {
     swal("วันที่ไม่ถูกต้อง");
     return false;
   }
 
-  if(allProduct == 0) {
-    if(pdFrom.length == 0) {
-      $('#pdFrom').addClass('has-error');
+  if (h.allProduct == 0) {
+    if (h.pdFrom.length == 0) {
+      $('#pdFrom').hasError();
       return false;
     }
-    else {
-      $('#pdFrom').removeClass('has-error');
-    }
 
-    if(pdTo.length == 0) {
-      $('#pdTo').addClass('has-error');
+    if (h.pdTo.length == 0) {
+      $('#pdTo').hasError();
       return false;
     }
-    else {
-      $('#pdTo').removeClass('has-error');
-    }
-  }
-  else {
-    $('#pdFrom').removeClass('has-error');
-    $('#pdTo').removeClass('has-error');
   }
 
-
-  if(allCustomer == 0) {
-    if(cusFrom.length == 0) {
-      $('#cusFrom').addClass('has-error');
+  if (h.allCustomer == 0) {
+    if (h.cusFrom.length == 0) {
+      $('#cusFrom').hasError();
       return false;
     }
-    else {
-      $('#cusFrom').removeClass('has-error');
-    }
 
-    if(cusTo.length == 0) {
-      $('#cusTo').addClass('has-error');
+    if (h.cusTo.length == 0) {
+      $('#cusTo').hasError();
       return false;
     }
-    else {
-      $('#cusTo').removeClass('has-error');
-    }
-  }
-  else {
-    $('#cusFrom').removeClass('has-error');
-    $('#cusTo').removeClass('has-error');
   }
 
-
-  if(allWhouse == 0) {
-    var count = $('.chk:checked').length;
-    console.log(count);
-    if(count == 0) {
+  if (h.allWhouse == 0) {
+    let count = $('.chk:checked').length;
+    if (count == 0) {
       $('#wh-modal').modal('show');
       return false;
     }
+
+    $('.chk:checked').each(function () {
+      h.whsList.push($(this).val());
+    });
   }
 
-  if(allZone == 0) {
-    if(zoneCode == '' || zoneName == ''){
-      $('#zoneName').addClass('has-error');
+  if (h.allZone == 0) {
+    if (h.zoneCode == '' || $('#zoneName').val().trim() == '') {
+      $('#zoneName').hasError();
       return false;
     }
-    else {
-      $('#zoneName').removeClass('has-error');
-    }
-  }
-  else {
-    $('#zoneName').removeClass('has-error');
   }
 
+  let url = `${HOME}/count_export`;
+  let filter = JSON.stringify(h);
+  load_in('0%');
+  const total = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: filter
+  }).then(r => r.json());
 
-  var token = new Date().getTime();
-  $('#token').val(token);
+  const limit = 5000;
+  let offset = 0;
+  while (offset < total) {
+    const percent = Math.floor((offset / total) * 100);
+    updateProgress(percent);
+    const res = await fetch(`${HOME}/export_chunk/${total}/${limit}/${offset}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: filter
+    }).then(r => r.json());    
 
-  get_download(token);
+    offset += res.offset;
+  }
 
-  $('#reportForm').submit();
+  load_out();
+  window.location = `${HOME}/export_finished`;
+}
+
+function updateProgress(percent) {
+  document.getElementsByClassName('loader-text')[0].innerText = percent + "%";
 }
 
 

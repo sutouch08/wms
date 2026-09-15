@@ -29,6 +29,17 @@ function goBack() {
   window.location.href = HOME;
 }
 
+function getSearch() {
+  $("#searchForm").submit();
+}
+
+function clearFilter() {
+  var url = HOME + 'clear_filter';
+  $.get(url, function(rs) {
+    goBack();
+  });
+}
+
 function checkError(){
 	if($('#error').length){
 		swal({
@@ -362,16 +373,9 @@ function parseDefaultFloat(value, def) {
   return isNaN(val) ? def : val;
 }
 
-function roundNumber(num, digit)
-{
-	if(digit === undefined) {
-		digit = 2;
-	}
-	else {
-		digit = parseDefault(parseInt(digit), 2);
-	}
-
-	return Number(parseFloat(num).toFixed(digit));
+function roundNumber(num, digit) {
+  digit = digit ? parseInt(digit) : 2;
+  return Number(parseDefaultFloat(num, 0).toFixed(digit));
 }
 
 function parseDiscountAmount(discount_label, price) {
@@ -471,7 +475,22 @@ $('.search').keyup(function(e){
   if(e.keyCode == 13){
     getSearch();
   }
-})
+});
+
+function genUid(length = 8) {
+  if (length < 6 || length > 32) {
+    throw new Error("UID length must be between 6 and 32 characters");
+  }
+
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let uid = "";
+
+  for (let i = 0; i < length; i++) {
+    uid += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  return uid;
+}
 
 function generateUID() {
   return generateUUID(26);

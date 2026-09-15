@@ -9,6 +9,7 @@ class PS_Controller extends CI_Controller
   public $mc;
   public $cn;
   public $close_system;
+  public $error = "";
   public $notibars;
   public $WC;
   public $WT;

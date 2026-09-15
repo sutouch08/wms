@@ -15,6 +15,8 @@ class Sales_consignment_report extends PS_Controller
     $this->load->model('report/sales/sales_consignment_report_model');
     $this->load->model('masters/products_model');
     $this->load->model('masters/customers_model');
+    $this->load->model('masters/zone_model');
+    $this->load->model('masters/warehouse_model');
   }
 
   public function index()
@@ -25,273 +27,299 @@ class Sales_consignment_report extends PS_Controller
     $this->load->view('report/sales/sales_consignment_report', $ds);
   }
 
-
   public function get_report()
   {
-    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
-    ini_set('sqlsrv.ClientBufferMaxKBSize','2097152'); // Setting to 2048M
-    ini_set('sqlsrv.client_buffer_max_kb_size','2097152'); // Setting to 512M - for pdo_sqlsrv
+    ini_set('memory_limit', '2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)    
+    ini_set('max_execution_time', 300); // 5 minutes
 
     $sc = TRUE;
-    $allProduct = $this->input->get('allProduct');
-    $pdFrom = $this->input->get('pdFrom');
-    $pdTo = $this->input->get('pdTo');
-
-    $allCustomer = $this->input->get('allCustomer');
-    $cusFrom = $this->input->get('cusFrom');
-    $cusTo = $this->input->get('cusTo');
-
-    $allWhouse = $this->input->get('allWhouse');
-    $warehouse = $this->input->get('warehouse');
-
-    $allZone = $this->input->get('allZone');
-    $zoneCode = $this->input->get('zoneCode');
-    $zoneName = $this->input->get('zoneName');
-
-    $fromDate = $this->input->get('fromDate');
-    $toDate = $this->input->get('toDate');
-
-    $wh_list = '';
-
-    if(!empty($warehouse) && empty($zoneCode))
-    {
-      $i = 1;
-      foreach($warehouse as $wh)
-      {
-        $wh_list .= $i === 1 ? $wh : ', '.$wh;
-        $i++;
-      }
-    }
-
-    $bs = array();
-
-    $filter = array(
-      'fromDate' => $fromDate,
-      'toDate' => $toDate,
-      'allProduct' => $allProduct,
-      'pdFrom' => $pdFrom,
-      'pdTo' => $pdTo,
-      'allCustomer' => $allCustomer,
-      'cusFrom' => $cusFrom,
-      'cusTo' => $cusTo,
-      'allWarehouse' => $allWhouse,
-      'warehouse_code' => $warehouse,
-      'allZone' => $allZone,
-      'zone_code' => $zoneCode
+    $bs = array(
+      'data' => [],
+      'total' => []
     );
 
-    $result = $this->sales_consignment_report_model->get_data($filter);
+    $ds = json_decode($this->input->get('data'));
 
-    if(! empty($result))
+    $filter = array(
+      'fromDate' => $ds->fromDate,
+      'toDate' => $ds->toDate,
+      'allProduct' => $ds->allProduct,
+      'pdFrom' => $ds->pdFrom,
+      'pdTo' => $ds->pdTo,
+      'allCustomer' => $ds->allCustomer,
+      'cusFrom' => $ds->cusFrom,
+      'cusTo' => $ds->cusTo,
+      'allWarehouse' => $ds->allWhouse,
+      'whsList' => $ds->whsList,
+      'allZone' => $ds->allZone,
+      'zone_code' => $ds->zoneCode
+    );
+
+    $limit = 1000;
+    $offset = 0;
+    $rows = $this->sales_consignment_report_model->count_rows($filter);
+
+    if ($rows > 2000)
     {
-      if(count($result) > 2000)
-      {
-        $sc = FALSE;
-        $this->error = "ข้อมูลมีปริมาณมากเกินกว่าจะแสดงผลได้ กรุณาส่งออกข้อมูลแทนการแสดงผลหน้าจอ";
-      }
-      else
-      {
-        $no = 1;
-        $totalQty = 0;
-        $totalDiscount = 0;
-        $totalAmount = 0;
-        $totalCost = 0;
+      $sc = FALSE;
+      $this->error = "ข้อมูลมีปริมาณมากเกินกว่าจะแสดงผลได้ กรุณาส่งออกข้อมูลแทนการแสดงผลหน้าจอ";
+    }
 
-        foreach($result as $rs)
+    if ($rows === 0)
+    {
+      $bs[] = array('nodata' => 'nodata');
+    }
+
+    if ($sc === TRUE && $rows > 0)
+    {
+      $no = 1;
+      $totalQty = 0;
+      $totalDiscount = 0;
+      $totalAmount = 0;
+      $totalCost = 0;
+
+      $custTemp = [];
+      $whTemp = [];
+      $zoneTemp = [];
+
+      while ($rows > 0)
+      {
+        $result = $this->sales_consignment_report_model->get_data($filter, $limit, $offset);
+
+        if (! empty($result))
         {
-          $arr = array(
-            'no' => number($no),
-            'date_add' => thai_date($rs->date_add, FALSE),
-            'reference' => $rs->reference,
-            'product_code' => $rs->product_code,
-            'product_name' => $rs->product_name,
-            'cost' => number($rs->cost, 2),
-            'price' => number($rs->price, 2),
-            'discount_label' => $rs->discount_label,
-            'sell' => number($rs->sell, 2),
-            'qty' => number($rs->qty),
-            'total_discount' => number(($rs->discount_amount * $rs->qty), 2),
-            'total_amount' => number($rs->total_amount, 2),
-            'total_cost' => number($rs->total_cost, 2),
-            'customer_code' => $rs->customer_code,
-            'customer_name' => $rs->customer_name,
-            'warehouse_code' => $rs->warehouse_code,
-            'warehouse_name' => $rs->warehouse_name,
-            'zone_code' => $rs->zone_code,
-            'zone_name' => $rs->zone_name
-          );
+          $rows -= count($result);
+          $offset += count($result);
 
-          array_push($bs, $arr);
-          $totalQty += $rs->qty;
-          $totalDiscount += ($rs->qty * $rs->discount_amount);
-          $totalAmount += $rs->total_amount;
-          $totalCost += $rs->total_cost;
-          $no++;
+          foreach ($result as $rs)
+          {
+            if (!in_array($rs->customer_code, $custTemp))
+            {
+              $custTemp[$rs->customer_code] = $this->customers_model->get_name($rs->customer_code);
+            }
+
+            if (!in_array($rs->warehouse_code, $whTemp))
+            {
+              $whTemp[$rs->warehouse_code] = $this->warehouse_model->get_name($rs->warehouse_code);
+            }
+
+            if (!in_array($rs->zone_code, $zoneTemp))
+            {
+              $zoneTemp[$rs->zone_code] = $this->zone_model->get_name($rs->zone_code);
+            }
+
+            $bs['data'][] = array(
+              'no' => number($no),
+              'date_add' => thai_date($rs->date_add, FALSE),
+              'reference' => $rs->reference,
+              'product_code' => $rs->product_code,
+              'product_name' => $rs->product_name,
+              'cost' => number($rs->cost, 2),
+              'price' => number($rs->price, 2),
+              'discount_label' => $rs->discount_label,
+              'sell' => number($rs->sell, 2),
+              'qty' => number($rs->qty),
+              'total_discount' => number(($rs->discount_amount * $rs->qty), 2),
+              'total_amount' => number($rs->total_amount, 2),
+              'total_cost' => number($rs->total_cost, 2),
+              'customer_code' => $rs->customer_code,
+              'customer_name' => $custTemp[$rs->customer_code],
+              'warehouse_code' => $rs->warehouse_code,
+              'warehouse_name' => $whTemp[$rs->warehouse_code],
+              'zone_code' => $rs->zone_code,
+              'zone_name' => $zoneTemp[$rs->zone_code]
+            );
+
+            $totalQty += $rs->qty;
+            $totalDiscount += ($rs->qty * $rs->discount_amount);
+            $totalAmount += $rs->total_amount;
+            $totalCost += $rs->total_cost;
+            $no++;
+          }
         }
-
-        $arr = array(
-          'totalQty' => number($totalQty),
-          'totalDiscount' => number($totalDiscount, 2),
-          'totalAmount' => number($totalAmount, 2),
-          'totalCost' => number($totalCost, 2)
-        );
-
-        array_push($bs, $arr);
       }
-    }
-    else
-    {
-      $arr = array('nodata' => 'nodata');
-      array_push($bs, $arr);
+
+      $bs['total'] = array(
+        'totalQty' => number($totalQty),
+        'totalDiscount' => number($totalDiscount, 2),
+        'totalAmount' => number($totalAmount, 2),
+        'totalCost' => number($totalCost, 2)
+      );
     }
 
-    $ds['bs'] = $bs;
-
-    echo $sc === TRUE ? json_encode($ds) : $this->error;
+    echo $sc === TRUE ? json_encode($bs) : $this->error;
   }
 
-
-
-
-
-  public function do_export()
+  public function count_export()
   {
-    ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
-    ini_set('sqlsrv.ClientBufferMaxKBSize','2097152'); // Setting to 2048M
-    ini_set('sqlsrv.client_buffer_max_kb_size','2097152'); // Setting to 512M - for pdo_sqlsrv
-
-    $sc = TRUE;
-    $allProduct = $this->input->post('allProduct');
-    $pdFrom = $this->input->post('pdFrom');
-    $pdTo = $this->input->post('pdTo');
-
-    $allCustomer = $this->input->post('allCustomer');
-    $cusFrom = $this->input->post('cusFrom');
-    $cusTo = $this->input->post('cusTo');
-
-    $allWhouse = $this->input->post('allWhouse');
-    $warehouse = $this->input->post('warehouse');
-
-    $allZone = $this->input->post('allZone');
-    $zoneCode = $this->input->post('zoneCode');
-    $zoneName = $this->input->post('zoneName');
-
-    $fromDate = $this->input->post('fromDate');
-    $toDate = $this->input->post('toDate');
-
-    $token = $this->input->post('token');
-
-    $wh_list = '';
-
-    if(!empty($warehouse) && empty($zoneCode))
-    {
-      $i = 1;
-      foreach($warehouse as $wh)
-      {
-        $wh_list .= $i === 1 ? $wh : ', '.$wh;
-        $i++;
-      }
-    }
-
-    //---  Report title
-    $report_title = "รายงานตัดยอดฝากขายเทียม";
-    $whList = $allWhouse == 1 ? 'ทั้งหมด' : $wh_list;
-    $zoneList = $allZone == 1 ? 'ทั้งหมด' : $zoneCode." - ".$zoneName;
-    $productList  = $allProduct == 1 ? 'ทั้งหมด' : '('.$pdFrom.') - ('.$pdTo.')';
-    $dateRange = "วันที่ ".thai_date($fromDate, FALSE, '/').' - '.thai_date($toDate, FALSE, '/');
-    $cusList = $allCustomer == 1 ? 'ทั้งหมด' : "({$cusFrom}) - ({$cusTo})";
-
+    ini_set('memory_limit', '2048M');
+    ini_set('max_execution_time', 600);
+    $ds = json_decode(file_get_contents('php://input'));
 
     $filter = array(
-      'fromDate' => $fromDate,
-      'toDate' => $toDate,
-      'allProduct' => $allProduct,
-      'pdFrom' => $pdFrom,
-      'pdTo' => $pdTo,
-      'allCustomer' => $allCustomer,
-      'cusFrom' => $cusFrom,
-      'cusTo' => $cusTo,
-      'allWarehouse' => $allWhouse,
-      'warehouse_code' => $warehouse,
-      'allZone' => $allZone,
-      'zone_code' => $zoneCode
+      'fromDate' => $ds->fromDate,
+      'toDate' => $ds->toDate,
+      'allProduct' => $ds->allProduct,
+      'pdFrom' => $ds->pdFrom,
+      'pdTo' => $ds->pdTo,
+      'allCustomer' => $ds->allCustomer,
+      'cusFrom' => $ds->cusFrom,
+      'cusTo' => $ds->cusTo,
+      'allWarehouse' => $ds->allWhouse,
+      'whsList' => $ds->whsList,
+      'allZone' => $ds->allZone,
+      'zone_code' => $ds->zoneCode
     );
 
-    $result = $this->sales_consignment_report_model->get_data($filter);
+    $rows = $this->sales_consignment_report_model->count_rows($filter);
+    echo json_encode($rows);
+  }
 
-    //--- load excel library
-    $this->load->library('excel');
+  public function export_chunk($total, $limit, $offset)
+  {
+    $ds = json_decode(file_get_contents('php://input'));
 
-    $this->excel->setActiveSheetIndex(0);
-    $this->excel->getActiveSheet()->setTitle('Sales Consignment Report (WD)');
-
-    //--- set report title header
-    $this->excel->getActiveSheet()->setCellValue('A1', $report_title);
-    $this->excel->getActiveSheet()->setCellValue('A2', $dateRange);
-    $this->excel->getActiveSheet()->setCellValue('A3', 'ลูกค้า : '.$cusList);
-    $this->excel->getActiveSheet()->setCellValue('A4', 'คลัง : '.$whList);
-    $this->excel->getActiveSheet()->setCellValue('A5', 'โซน : '.$zoneList);
-    $this->excel->getActiveSheet()->setCellValue('A4', 'สินค้า : '.$productList);
-
-    $row = 6;
-    //--- set Table header
-    $this->excel->getActiveSheet()->setCellValue("A{$row}", "วันที่");
-    $this->excel->getActiveSheet()->setCellValue("B{$row}", "เลขที่");
-    $this->excel->getActiveSheet()->setCellValue("C{$row}", "รหัส");
-    $this->excel->getActiveSheet()->setCellValue("D{$row}", "สินค้า");
-    $this->excel->getActiveSheet()->setCellValue("E{$row}", "ทุน");
-    $this->excel->getActiveSheet()->setCellValue("F{$row}", "ราคา");
-    $this->excel->getActiveSheet()->setCellValue("G{$row}", "ขาย");
-    $this->excel->getActiveSheet()->setCellValue("H{$row}", "จำนวน");
-    $this->excel->getActiveSheet()->setCellValue("I{$row}", "ส่วนลด");
-    $this->excel->getActiveSheet()->setCellValue("J{$row}", "มูลค่าส่วนลด");
-    $this->excel->getActiveSheet()->setCellValue("K{$row}", "มูลค่ารวม");
-    $this->excel->getActiveSheet()->setCellValue("L{$row}", "ทุนรวม");
-    $this->excel->getActiveSheet()->setCellValue("M{$row}", "รหัสลูกค้า");
-    $this->excel->getActiveSheet()->setCellValue("N{$row}", "ชื่อลูกค้า");
-    $this->excel->getActiveSheet()->setCellValue("O{$row}", "รหัสคลัง");
-    $this->excel->getActiveSheet()->setCellValue("P{$row}", "ชื่อคลัง");
-    $this->excel->getActiveSheet()->setCellValue("Q{$row}", "รหัสโซน");
-    $this->excel->getActiveSheet()->setCellValue("R{$row}", "ชื่อโซน");
-
-    $row++;
-
-    if(! empty($result))
+    if (empty($ds))
     {
-      // print_r($result);
-      foreach($result as $rs)
-      {
-        $this->excel->getActiveSheet()->setCellValue("A{$row}", thai_date($rs->date_add, FALSE, '/'));
-        $this->excel->getActiveSheet()->setCellValue("B{$row}", $rs->reference);
-        $this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->product_code);
-        $this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->product_name);
-        $this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->cost);
-        $this->excel->getActiveSheet()->setCellValue("F{$row}", $rs->price);
-        $this->excel->getActiveSheet()->setCellValue("G{$row}", $rs->sell);
-        $this->excel->getActiveSheet()->setCellValue("H{$row}", $rs->qty);
-        $this->excel->getActiveSheet()->setCellValueExplicit("I{$row}", $rs->discount_label, PHPExcel_Cell_DataType::TYPE_STRING);
-        $this->excel->getActiveSheet()->setCellValue("J{$row}", $rs->discount_amount);
-        $this->excel->getActiveSheet()->setCellValue("K{$row}", $rs->total_amount);
-        $this->excel->getActiveSheet()->setCellValue("L{$row}", $rs->total_cost);
-        $this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->customer_code);
-        $this->excel->getActiveSheet()->setCellValue("N{$row}", $rs->customer_name);
-        $this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->warehouse_code);
-        $this->excel->getActiveSheet()->setCellValue("P{$row}", $rs->warehouse_name);
-        $this->excel->getActiveSheet()->setCellValue("Q{$row}", $rs->zone_code);
-        $this->excel->getActiveSheet()->setCellValue("R{$row}", $rs->zone_name);
-        $row++;
-      }
-
-      $this->excel->getActiveSheet()->getStyle("E7:L{$row}")->getAlignment()->setHorizontal('right');
+      echo json_encode(array('error' => 'No data received'));
+      return;
     }
 
-    setToken($token);
-    $file_name = "Report Sales Consignment.xlsx";
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
-    header('Content-Disposition: attachment;filename="'.$file_name.'"');
-    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
-    $writer->save('php://output');
+    $filter = array(
+      'fromDate' => $ds->fromDate,
+      'toDate' => $ds->toDate,
+      'allProduct' => $ds->allProduct,
+      'pdFrom' => $ds->pdFrom,
+      'pdTo' => $ds->pdTo,
+      'allCustomer' => $ds->allCustomer,
+      'cusFrom' => $ds->cusFrom,
+      'cusTo' => $ds->cusTo,
+      'allWarehouse' => $ds->allWhouse,
+      'whsList' => $ds->whsList,
+      'allZone' => $ds->allZone,
+      'zone_code' => $ds->zoneCode
+    );
 
+    $tmpFile = FCPATH . "tmp/consignment-report-{$this->_user->id}.csv";
+    $header = ["ลำดับ", "วันที่", "เลขที่", "รหัส", "สินค้า", "ทุน", "ราคา", "ขาย", "จำนวน", "ส่วนลด", "มูลค่าส่วนลด", "มูลค่ารวม", "ทุนรวม", "รหัสลูกค้า", "ชื่อลูกค้า", "รหัสคลัง", "ชื่อคลัง", "รหัสโซน", "ชื่อโซน"];
+    $delimiter = ",";
+
+    $f = fopen($tmpFile, $offset == 0 ? 'w' : 'a');
+    $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF));
+    fputs($f, $bom);
+
+    if ($offset == 0)
+    {
+      $wh_list = '';
+
+      if (!empty($ds->whsList) && empty($ds->zoneCode))
+      {
+        $i = 1;
+        foreach ($ds->whsList as $wh)
+        {
+          $wh_list .= $i === 1 ? $wh : ', ' . $wh;
+          $i++;
+        }
+      }
+
+      //---  Report title
+      $report_title = "รายงานตัดยอดฝากขายแท้";
+      $whList = $ds->allWhouse == 1 ? 'ทั้งหมด' : $wh_list;
+      $zoneList = $ds->allZone == 1 ? 'ทั้งหมด' : $ds->zoneCode . " - " . $ds->zoneName;
+      $productList  = $ds->allProduct == 1 ? 'ทั้งหมด' : '(' . $ds->pdFrom . ') - (' . $ds->pdTo . ')';
+      $dateRange = "วันที่ " . thai_date($ds->fromDate, FALSE, '/') . ' - ' . thai_date($ds->toDate, FALSE, '/');
+      $cusList = $ds->allCustomer == 1 ? 'ทั้งหมด' : "({$ds->cusFrom}) - ({$ds->cusTo})";
+
+      fputcsv($f, [$report_title], $delimiter);
+      fputcsv($f, ['Warehouse', $whList], $delimiter);
+      fputcsv($f, ['Zone', $zoneList], $delimiter);
+      fputcsv($f, ['Product', $productList], $delimiter);
+      fputcsv($f, ['Date Range', $dateRange], $delimiter);
+      fputcsv($f, ['Customer', $cusList], $delimiter);
+      fputcsv($f, [], $delimiter);
+      fputcsv($f, $header, $delimiter);
+    }
+
+    $chunk = $this->sales_consignment_report_model->get_data($filter, $limit, $offset);
+    $count = 0;
+    $no = $offset + 1;
+    $custTemp = [];
+    $whTemp = [];
+    $zoneTemp = [];
+
+    if (! empty($chunk))
+    {
+      foreach ($chunk as $rs)
+      {
+        if (!in_array($rs->customer_code, $custTemp))
+        {
+          $custTemp[$rs->customer_code] = $this->customers_model->get_name($rs->customer_code);
+        }
+
+        if (!in_array($rs->warehouse_code, $whTemp))
+        {
+          $whTemp[$rs->warehouse_code] = $this->warehouse_model->get_name($rs->warehouse_code);
+        }
+
+        if (!in_array($rs->zone_code, $zoneTemp))
+        {
+          $zoneTemp[$rs->zone_code] = $this->zone_model->get_name($rs->zone_code);
+        }
+
+        $row = [
+          $no,
+          thai_date($rs->date_add, FALSE, '/'),
+          $rs->reference,
+          $rs->product_code,
+          $rs->product_name,
+          $rs->cost,
+          $rs->price,
+          $rs->sell,
+          $rs->qty,
+          $rs->discount_label,
+          $rs->discount_amount,
+          $rs->total_amount,
+          $rs->total_cost,
+          $rs->customer_code,
+          $custTemp[$rs->customer_code],
+          $rs->warehouse_code,
+          $whTemp[$rs->warehouse_code],
+          $rs->zone_code,
+          $zoneTemp[$rs->zone_code]
+        ];
+
+        fputcsv($f, $row, $delimiter);
+        $no++;
+        $count++;
+      }
+    }
+
+    fclose($f);
+    $exported = $offset + $count;
+    echo json_encode([
+      "status" => "ok",
+      "offset" => $count,
+      "message" => "Exporting " . (number($exported)) . " rows of " . number($total)
+    ]);
+  }
+
+  public function export_finished()
+  {
+    $filename = "consignment-report-{$this->_user->id}.csv";
+    $filepath = FCPATH . 'tmp/' . $filename;
+
+    if (!file_exists($filepath))
+    {
+      echo "File not found.";
+      exit;
+    }
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . basename($filepath) . '"');
+    header('Content-Length: ' . filesize($filepath));
+    readfile($filepath);
+    unlink($filepath);
+    exit;
   }
 
 

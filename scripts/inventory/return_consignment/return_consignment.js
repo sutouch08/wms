@@ -1,5 +1,14 @@
-// JavaScript Document
-var HOME = BASE_URL + 'inventory/return_consignment/';
+const addNew = () => {
+	window.location.href = `${HOME}add_new`;
+}
+
+const edit = (code) => {
+	window.location.href = `${HOME}edit/${code}`;
+}
+
+const viewDetail = (code) => {
+	window.location.href = `${HOME}view_detail/${code}`;
+}
 
 function goDelete(code){
 	swal({
@@ -32,16 +41,15 @@ function cancle_return(code)
 	load_in();
 
 	$.ajax({
-		url: HOME + 'cancle_return/'+code,
+		url: `${HOME}cancle_return/${code}`,
 		type:"POST",
 		cache:"false",
 		data:{
 			"reason" : reason,
 			"force_cancel" : force_cancel
 		},
-		success: function(rs) {
-			var rs = $.trim(rs);
-			if( rs == 'success' ) {
+		success: function(rs) {			
+			if( rs.trim() === 'success' ) {
 				setTimeout(function() {
 					swal({
 						title: 'Cancled',
@@ -82,19 +90,16 @@ function doCancle() {
 	return cancle_return(code);
 }
 
-
-
 $('#cancle-modal').on('shown.bs.modal', function() {
 	$('#cancle-reason').focus();
 });
-
 
 
 function pullBack(code) {
 	load_in();
 
 	$.ajax({
-		url:HOME + 'pull_back',
+		url:`${HOME}pull_back`,
 		type:'POST',
 		cache:false,
 		data:{
@@ -126,48 +131,12 @@ function pullBack(code) {
 	});
 }
 
-
-
-function goAdd(){
-  window.location.href = HOME + 'add_new';
-}
-
-
-function goEdit(code){
-	window.location.href = HOME + 'edit/'+ code;
-}
-
-
-function viewDetail(code){
-	window.location.href = HOME + 'view_detail/'+ code;
-}
-
-
-function goBack(){
-	window.location.href = HOME;
-}
-
-function getSearch(){
-	$("#searchForm").submit();
-}
-
-
-$(".search").keyup(function(e){
-	if( e.keyCode == 13 ){
-		getSearch();
-	}
-});
-
-
-
 $("#fromDate").datepicker({
 	dateFormat: 'dd-mm-yy',
 	onClose: function(ds){
 		$("#toDate").datepicker("option", "minDate", ds);
 	}
 });
-
-
 
 $("#toDate").datepicker({
 	dateFormat: 'dd-mm-yy',
@@ -176,29 +145,11 @@ $("#toDate").datepicker({
 	}
 });
 
-
-
-// JavaScript Document
-function printReturn(){
-	var code = $("#return_code").val();
-	var center = ($(document).width() - 800) /2;
-  var target = HOME + 'print_detail/'+code;
-  window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
-}
-
-
-function printWmsReturn(){
-	var code = $("#return_code").val();
-	var center = ($(document).width() - 800) /2;
-  	var target = HOME + 'print_wms_return/'+code;
-  	window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
-}
-
-
-
-function clearFilter(){
-  var url = HOME + 'clear_filter';
-  $.get(url, function(rs){
-    goBack();
-  });
+function printReturn() {
+	const code = $('#return_code').val();
+	const width = 800;
+	const height = 900;
+	const center = ($(document).width() - width) /2;
+	const url = `${HOME}print_detail/${code}`;
+  window.open(url, "_blank", `width=${width}, height=${height}, left=${center}, scrollbars=yes`);
 }

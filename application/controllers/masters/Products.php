@@ -183,7 +183,8 @@ class Products extends PS_Controller
     // Create a file pointer
     $f = fopen('php://memory', 'w');
     $delimiter = ",";
-    fputs($f, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
+    $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF));
+    fputs($f, $bom);
     fputcsv($f, $header, $delimiter);
 
     if (!empty($products))

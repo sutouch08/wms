@@ -1,19 +1,19 @@
 function toggleCheckAll(el) {
 	if (el.is(":checked")) {
 		$('.chk').prop("checked", true);
-	} else {
+	} 
+	else {
 		$('.chk').prop("checked", false);
 	}
 }
 
-
 function deleteChecked(){
-	var count = $('.chk:checked').length;
+	let count = $('.chk:checked').length;
 	if(count > 0){
 		load_in();
 		$('.chk:checked').each(function(){
-			var id = $(this).data('id');
-			var no = $(this).val();
+			let id = $(this).data('id');
+			let no = $(this).val();
 			count--;
 			removeRow(no, id, count);
 		})
@@ -21,7 +21,7 @@ function deleteChecked(){
 }
 
 function clearReturnQty() {
-	var count = $('.input-qty').length;
+	let count = $('.input-qty').length;
 	if(count > 0) {
 		$('.input-qty').each(function() {
 			$(this).val('');
@@ -30,11 +30,10 @@ function clearReturnQty() {
 	}
 }
 
-
 function unsave(){
-	var code = $('#return_code').val();
+	let code = $('#code').val();
 	$.ajax({
-		url:HOME + 'unsave/'+code,
+		url:`${HOME}unsave/${code}`,
 		type:'POST',
 		cache:false,
 		success:function(rs){
@@ -54,46 +53,49 @@ function unsave(){
 	})
 }
 
+function save(option = 1) {	
+	let count = 0;
+	let items = [];
 
-function save()
-{
-	var error = 0;
-	var count = 0;
-	var items = [];
 	$('.input-qty').each(function(){
 		let no = $(this).data("no");
 		let qty = parseDefault(parseFloat($(this).val()), 0);
 
 		if(qty > 0) {
-			let item_code = $('#item_'+no).val();
-			let item_name = $('#item_name_'+no).val();
-			let price = parseDefault(parseFloat($('#price_'+no).val()), 0);
-			let discount = parseDefault(parseFloat($('#discount_'+no).val()), 0);
+			let item_code = $(`#item_${no}`).val();
+			let item_name = $(`#item_name_${no}`).val();
+			let price = parseDefault(parseFloat($(`#price_${no}`).val()), 0);
+			let discount = parseDefault(parseFloat($(`#discount_${no}`).val()), 0);
 
-			var ds = {
+			let ds = {
 				"item_code" : item_code,
 				"item_name" : item_name,
 				"price" : price.toFixed(2),
 				"discount" : discount.toFixed(2),
 				"qty" : qty
-			}
+			};
 
 			items.push(ds);
-
 			count++;
 		}
-	})
+	});
 
 	if(count == 0) {
 		swal("ไม่พบรายการคืนสินค้า", "", "error");
 		return false;
 	}
 
-	var code = $('#return_code').val();
-	var data = {"code" : code, "items" : items}
+	let code = $('#code').val();
+	let data = {
+		"code" : code, 
+		"save_type" : option, // 0 = darft, 1 = save immediately, 3 = save as request
+		"items" : items
+	};
+
 	load_in();
+
 	$.ajax({
-		url:HOME + 'add_details',
+		url:`${HOME}save`,
 		type:'POST',
 		cache:false,
 		data:JSON.stringify(data),
@@ -110,7 +112,6 @@ function save()
 				setTimeout(function() {
 					viewDetail(code);
 				}, 1200);
-
 			}
 			else {
 				if(rs.status == 200) {
@@ -131,17 +132,17 @@ function save()
 				}
 			}
 		}
-	})
+	});
 }
 
-
-
-function approve(){
-	var code = $('#return_code').val();
+function approve() {
+	let code = $('#code').val();
+	let url = `${HOME}approve/${code}`;
 	load_in();
-	$.get(HOME+'approve/'+code, function(rs){
-		if(rs === 'success'){
+	$.get(url, function(rs) {
+		if(rs === 'success') {
 			load_out();
+
 			swal({
 				title:'Success',
 				type:'success',
@@ -152,24 +153,18 @@ function approve(){
 				window.location.reload();
 			}, 1000);
 
-		}else{
-			swal({
-				title:'Error',
-				text:rs,
-				type:'error',
-				html:true
-			})
+		}
+		else {
+			showError(rs);			
 		}
 	});
 }
 
-
-
 function doExport(){
-	var code = $('#return_code').val();
+	let code = $('#code').val();
 	load_in();
 	$.ajax({
-		url:HOME + 'export_return/'+code,
+		url:`${HOME}export_return/${code}`,
 		type:'GET',
 		cache:false,
 		success:function(rs) {
@@ -181,135 +176,78 @@ function doExport(){
 					type:'success',
 					timer:1000
 				});
+
 				setTimeout(function(){
 					viewDetail(code);
 				}, 1500);
 			}
 			else {
-				swal({
-					title:"Error!",
-					text:rs,
-					type:'error',
-					html:true
-				})
-			}
-		}
-	})
-}
-
-
-function sendToWms() {
-	var code = $('#return_code').val();
-
-	load_in();
-	$.ajax({
-		url:HOME + 'send_to_wms',
-		type:'POST',
-		cache:false,
-		data:{
-			'code' : code
-		},
-		success:function(rs) {
-			load_out();
-			var rs = $.trim(rs);
-			if(rs === 'success') {
-				swal({
-					title:'Success',
-					type:'success',
-					timer:1000
-				});
-			}
-			else {
-				swal({
-					title:'Error!',
-					text:rs,
-					type:'error',
-					html:true
-				});
+				showError(rs);
 			}
 		},
-		error:function(xhr, status, error) {
-			load_out();
-			swal({
-				title:'Error!',
-				text:xhr.responseText,
-				type:'error',
-				html:true
-			})
+		error:function(rs) {
+			showError(rs);
 		}
-	})
+	});
 }
-
-
 
 function editHeader(){
-	$('.edit').removeAttr('disabled');
+	$('.e').removeAttr('disabled');
 	$('#btn-edit').addClass('hide');
 	$('#btn-update').removeClass('hide');
 }
 
-
-function updateHeader(){
-	var code = $('#return_code').val();
-	var date_add = $('#dateAdd').val();
-	var invoice = $('#invoice').val();
-	var customer_code = $('#customer_code').val();
-	var is_wms = $('#is_wms').val();
-	var is_api = $('#is_api').val();
-	var warehouse_code = $('#warehouse_code').val();
-	var zone_code = $('#zone_code').val();
-	var from_warehouse_code = $('#from_warehouse_code').val();
-	var from_zone_code = $('#from_zone_code').val();
-  var remark = $('#remark').val();
-	var gp = $('#gp').val();
-
-	if(!isDate(date_add)){
+function update() {
+	let h = {
+		'code' : $('#code').val(),
+		'date_add' : $('#date-add').val(),
+		'invoice' : $('#invoice').val(),
+		'customer_code' : $('#customer-code').val(),
+		'is_wms' : $('#is_wms').val(),
+		'is_api' : $('#is_api').val(),
+		'warehouse_code' : $('#warehouse-code').val(),
+		'zone_code' : $('#zone-code').val(),		
+		'from_zone' : $('#from-zone').val(),
+		'remark' : $('#remark').val(),
+		'gp' : $('#gp').val()
+	};
+	
+	if(!isDate(h.date_add)){
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
-	if(invoice.length == 0){
+	if(h.invoice.length == 0){
 		swal('กรุณาอ้างอิงเลขที่บิล');
 		return false;
 	}
 
-	if(customer_code.length == 0){
+	if(h.customer_code.length == 0){
 		swal('กรุณาอ้างอิงลูกค้า');
 		return false;
 	}
 
-	if(zone_code.length == 0){
+	if(h.zone_code.length == 0){
 		swal('กรุณาระบุโซนรับสินค้า');
 		return false;
 	}
 
-	if(from_zone_code.length == 0){
+	if(h.from_zone.length == 0){
 		swal('กรุณาระบุโซนฝากขาย');
 		return false;
 	}
 
   load_in();
+
 	$.ajax({
-		url:HOME + 'update',
+		url:`${HOME}update`,
 		type:'POST',
 		cache:false,
-		data:{
-			'return_code' : code,
-			'date_add' : date_add,
-			'invoice' : invoice,
-			'customer_code' : customer_code,
-			'is_wms' : is_wms,
-			'is_api' : is_api,
-			'warehouse_code' : warehouse_code,
-			'zone_code' : zone_code,
-			'from_zone' : from_zone_code,
-			'remark' : remark,
-			'gp' : gp
-		},
+		data:h,
 		success:function(rs){
 			load_out();
 			if(rs == 'success'){
-				$('.edit').attr('disabled', 'disabled');
+				$('.e').attr('disabled', 'disabled');
 				$('#btn-update').addClass('hide');
 				$('#btn-edit').removeClass('hide');
 
@@ -321,33 +259,26 @@ function updateHeader(){
 			}
 			else
 			{
-				swal({
-					title:'Error!!',
-					text:rs,
-					type:'error',
-					html:true
-				});
+				showError(rs);
 			}
+		},
+		error:function(rs) {
+			showError(rs);
 		}
-	})
+	});
 }
 
-
-
-$('#dateAdd').datepicker({
+$('#date-add').datepicker({
 	dateFormat:'dd-mm-yy'
 });
 
-
-function invoice_init()
-{
-	var customer_code = $('#customer_code').val();
+function invoice_init() {	
 	$('#invoice').autocomplete({
-		source:HOME + 'search_invoice_code',
+		source:`${HOME}search_invoice_code`,
 		autoFocus:true,
 		close:function(){
-			var rs = $.trim($(this).val());
-			var arr = rs.split(' | ');
+			let rs = $(this).val().trim();
+			let arr = rs.split(' | ');
 			if(arr.length == 2)
 			{
 				$(this).val(arr[0]);
@@ -356,42 +287,43 @@ function invoice_init()
 	})
 }
 
+function add() {  
+	let h = {
+		'date_add' : $('#date-add').val(),
+		'invoice' : $('#invoice').val(),		
+		'gp' : parseDefaultFloat($('#gp').val(), 0),
+		'customer_code' : $('#customer-code').val(),
+		'from_zone' : $('#from-zone').val(),
+		'zone_code' : $('#zone-code').val(),
+		'remark' : $('#remark').val().trim()
+	};
 
-
-
-function addNew()
-{
-  var date_add = $('#dateAdd').val();
-	var invoice = $('#invoice').val();
-	var is_wms = $('#is_wms').val();
-	var is_api = $('#is_api').val();
-	var gp = $('#gp').val();
-	var customer_code = $('#customer_code').val();
-	var from_zone = $('#from_zone_code').val();
-	var zone_code = $('#zone_code').val();
-	var remark = $('#remark').val();
-
-  if(!isDate(date_add)){
+  if(!isDate(h.date_add)) {
     swal('วันที่ไม่ถูกต้อง');
     return false;
   }
 
-	if(invoice.length == 0){
-		swal('กรุณาอ้างอิงเลขที่บิล');
-		return false;
-	}
-
-	if(customer_code.length == 0){
+	if(h.customer_code.length == 0) {
 		swal('กรุณาระบุลูกค้า');
 		return false;
 	}
 
-	if(from_zone.length == 0){
+	if(h.invoice.length == 0) {
+		swal('กรุณาอ้างอิงเลขที่บิล');
+		return false;
+	}
+
+	if(h.gp > 100 || h.gp < 0) {
+		swal('GP ต้องอยู่ระหว่าง 0-100');
+		return false;
+	}
+
+	if(h.from_zone.length == 0) {
 		swal('กรุณาระบุโซนฝากขาย');
 		return false;
 	}
 
-	if(zone_code.length == 0){
+	if(h.zone_code.length == 0) {
 		swal('กรุณาระบุโซนรับสินค้า');
 		return false;
 	}
@@ -399,119 +331,88 @@ function addNew()
 	load_in();
 
 	$.ajax({
-		url: HOME + 'add',
+		url: `${HOME}add`,
 		type:'POST',
 		cache:false,
-		data:{
-			'date_add' : date_add,
-			'invoice' : invoice,
-			'is_wms' : is_wms,
-			'is_api' : is_api,
-			'gp' : gp,
-			'customer_code' : customer_code,
-			'from_zone' : from_zone,
-			'zone_code' : zone_code,
-			'remark' : remark
-		},
-		success:function(rs){
+		data:h,
+		success:function(rs) {
 			load_out();
-			var rs = $.parseJSON(rs);
-			if(rs.status === 'success'){
-				goEdit(rs.code);
-			}else{
-				swal({
-					title:'Error',
-					text:rs.message,
-					type:'error'
-				})
+
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+				
+				if(ds.status === 'success') {
+					edit(ds.code);
+				}
+				else{
+					showError(ds.message);
+				}
 			}
+			else {
+				showError(rs);
+			}
+		},
+		error:function(rs) {
+			showError(rs);
 		}
 	});
 }
 
-
-$('#customer').autocomplete({
-	source:BASE_URL + 'auto_complete/get_customer_code_and_name',
+$('#customer-code').autocomplete({
+	source:`${BASE_URL}auto_complete/get_customer_code_and_name`,
 	autoFocus:true,
 	close:function(){
-		var arr = $(this).val().split(' | ');
-		if(arr.length == 2){
-			$('#customer_code').val(arr[0]);
-			$('#customerCode').val(arr[0]);
-			$('#customer').val(arr[1]);
-		}else{
-			$('#customer_code').val('');
-			$('#customerCode').val('');
-			$('#customer').val('');
+		let arr = $(this).val().split(' | ');
+		if(arr.length == 2) {
+			$('#customer-code').val(arr[0]);
+			$('#customer-name').val(arr[1]);
 		}
-
+		else {
+			$('#customer-code').val('');
+			$('#customer-name').val('');
+		}
+		
 		fromZoneInit();
 		invoice_box_init();
 		invoiceInit();
 	}
 });
 
+function fromZoneInit() {
+	let customer = $('#customer-code').val();
 
-$('#customerCode').autocomplete({
-	source:BASE_URL + 'auto_complete/get_customer_code_and_name',
-	autoFocus:true,
-	close:function(){
-		var arr = $(this).val().split(' | ');
-		if(arr.length == 2){
-			$('#customer_code').val(arr[0]);
-			$('#customerCode').val(arr[0]);
-			$('#customer').val(arr[1]);
-		}else{
-			$('#customer_code').val('');
-			$('#customerCode').val('');
-			$('#customer').val('');
-		}
-
-		fromZoneInit();
-		invoice_box_init();
-		invoiceInit();
-	}
-});
-
-
-function fromZoneInit(){
-	var customer = $('#customer_code').val();
-	$('#fromZone').autocomplete({
-		source : BASE_URL + 'auto_complete/get_consignment_zone/'+customer,
+	$('#from-zone').autocomplete({
+		source : `${BASE_URL}auto_complete/get_consignment_zone/${customer}`,
 		autoFocus:true,
 		close:function(){
-			var arr = $(this).val().split(' | ');
-			if(arr.length == 2){
-				$(this).val(arr[1]);
-				$('#from_zone_code').val(arr[0]);
-			}else{
-				$(this).val('');
-				$('#from_zone_code').val('');
+			let arr = $(this).val().split(' | ');
+			if(arr.length == 2) {
+				$('#from-zone').val(arr[0]);
+				$('#from-zone-name').val(arr[1]);				
+			}
+			else {
+				$('#from-zone').val('');
+				$('#from-zone-name').val('');
 			}
 		}
 	});
 }
 
-
-
-
-$('#zone').autocomplete({
-	source : BASE_URL + 'auto_complete/get_common_zone_code_and_name',
+$('#zone-code').autocomplete({
+	source : `${BASE_URL}auto_complete/get_common_zone_code_and_name`,
 	autoFocus:true,
 	close:function(){
-		var arr = $(this).val().split(' | ');
-		if(arr.length == 2){
-			name = arr[1] == '' ? arr[0] : arr[1];
-			$(this).val(name);
-			$('#zone_code').val(arr[0]);
-		}else{
-			$(this).val('');
-			$('#zone_code').val('');
+		let arr = $(this).val().split(' | ');
+		if(arr.length == 2) {
+			$('#zone-code').val(arr[0]);			
+			$('#zone-name').val(arr[1]);
+		}
+		else {
+			$('#zone-code').val('');
+			$('#zone-name').val('');
 		}
 	}
-})
-
-
+});
 
 function recalRow(no) {
 	let price = parseDefaultFloat($('#price_' + no).val(), 0);
@@ -524,10 +425,10 @@ function recalRow(no) {
 	recalTotal();
 }
 
-
-function recalTotal(){
-	let totalAmount = 0;
+function recalTotal() {
 	let totalQty = 0;
+	let totalAmount = 0;
+
 	$('.amount-label').each(function(){
 		let amount = parseDefaultFloat(removeCommas($(this).text()), 0);		
 		totalAmount += amount;
@@ -538,11 +439,9 @@ function recalTotal(){
 		totalQty += qty;
 	});
 
-	$('#total-qty').text(addCommas(totalQty));
-	$('#total-amount').text(addCommas(totalAmount.toFixed(2)));
+	$('#total-qty').val(addCommas(totalQty));
+	$('#total-amount').val(addCommas(totalAmount.toFixed(2)));
 }
-
-
 
 function removeRow(no, id, count){
 	if(id != '' && id != '0' && id != 0){
@@ -561,8 +460,7 @@ function removeRow(no, id, count){
 	}
 }
 
-
-function load_stock_in_zone(){
+function load_stock_in_zone() {
 	swal({
     title: "นำเข้าสินค้าในโซน",
 		text: "รายการที่มีอยู่ในเอกสารจะถูกลบแล้วแทนที่ด้วยสินค้าในโซน <br/> ต้องการดำเนินการหรือไม่ ?",
@@ -571,48 +469,52 @@ function load_stock_in_zone(){
 		confirmButtonText: 'ดำเนินการ',
 		cancelButtonText: 'ยกเลิก',
 		html:true,
-		closeOnConfirm: false
+		closeOnConfirm: true
   },function(){
-    var code = $('#return_code').val();
+    let code = $('#code').val();
     load_in();
-    $.ajax({
-      url: HOME + 'load_stock_in_zone',
-      type:'POST',
-      cache:'false',
-      data:{
-        'code' : code
-      },
-      success:function(rs){
-        load_out();
-        var rs = $.trim(rs);
-        if(rs == 'success'){
-          swal({
-            title: 'Success',
-            type:'success',
-            timer:1000
-          });
 
-          setTimeout(function(){
-            window.location.reload();
-          },1500);
-        }else{
-          swal('Error!', rs, 'error');
-        }
-      }
-    });
+		setTimeout(() => {
+			$.ajax({
+				url: `${HOME}load_stock_in_zone`,
+				type: 'POST',
+				cache: false,
+				data: {
+					'code': code
+				},
+				success: function (rs) {
+					load_out();
+					if (rs.trim() == 'success') {
+						swal({
+							title: 'Success',
+							type: 'success',
+							timer: 1000
+						});
 
-  });//--- swal
+						setTimeout(function () {
+							window.location.reload();
+						}, 1500);
+					} 
+					else {
+						showError(rs);
+					}
+				},
+				error:function(rs) {
+					showError(rs);
+				}
+			});
+		}, 100);
+	});
 }
 
-
-
 function invoice_box_init() {
-	var customer_code = $('#customer_code').val();
+	let customer_code = $('#customer-code').val().trim();
+
 	$('#invoice-box').autocomplete({
-		source: BASE_URL + 'auto_complete/get_sap_invoice_code/'+customer_code,
+		source: `${BASE_URL}auto_complete/get_sap_invoice_code/${customer_code}`,
 		autoFocus:true,
 		close:function() {
-			var arr = $(this).val().split(' | ');
+			let arr = $(this).val().split(' | ');
 			if(arr.length === 2) {
 				$(this).val(arr[0]);
 			}
@@ -623,17 +525,16 @@ function invoice_box_init() {
 	})
 }
 
-
 function get_invoice_gp(invoice) {
 	$.ajax({
-		url:HOME + 'get_invoice_gp',
+		url:`${HOME}get_invoice_gp`,
 		type:'GET',
 		cache:false,
 		data:{
 			'invoice' : invoice
 		},
 		success:function(rs) {
-			var arr = rs.split(' | ');
+			let arr = rs.split(' | ');
 			if(arr.length == 2) {
 				$('#gp').val(arr[1]);
 			}
@@ -644,15 +545,13 @@ function get_invoice_gp(invoice) {
 	})
 }
 
-
-
 function invoiceInit() {
-	var customer_code = $('#customer_code').val();
+	let customer_code = $('#customer-code').val();
 	$('#invoice').autocomplete({
-		source: BASE_URL + 'auto_complete/get_sap_invoice_code/'+customer_code,
+		source: `${BASE_URL}auto_complete/get_sap_invoice_code/${customer_code}`,
 		autoFocus:true,
 		close:function() {
-			var arr = $(this).val().split(' | ');
+			let arr = $(this).val().split(' | ');
 			if(arr.length === 2) {
 				$(this).val(arr[0]);
 				get_invoice_gp(arr[0]);
@@ -661,12 +560,44 @@ function invoiceInit() {
 				$(this).val('');
 			}
 		}
-	})
+	});
 }
 
+function setProductArrival(code, status) {
+	load_in();
+	$.ajax({
+		url: `${HOME}set_product_arrival`,
+		type: 'POST',
+		cache: false,
+		data: {
+			'code': code,
+			'arrival': status
+		},
+		success: function (rs) {
+			load_out();
+			if (rs.trim() == 'success') {
+				swal({
+					title: 'Success',
+					type: 'success',
+					timer: 1000
+				});
+				setTimeout(function () {
+					window.location.reload();
+				}, 1500);
+			} 
+			else {
+				showError(rs);
+			}
+		},
+		error: function (rs) {
+			load_out();
+			showError(rs);
+		}
+	});
+}	
 
-$(document).ready(function(){
+window.addEventListener('load', function() {
 	fromZoneInit();
 	invoice_box_init();
 	invoiceInit();
-})
+});

@@ -1,24 +1,22 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Return_consignment extends PS_Controller
 {
   public $menu_code = 'ICRTSM';
-	public $menu_group_code = 'IC';
+  public $menu_group_code = 'IC';
   public $menu_sub_group_code = 'RETURN';
-	public $title = 'ลดหนี้ฝากขายเทียม';
-  public $filter;
-  public $error;
-	public $isAPI;
+  public $title = 'ลดหนี้ฝากขายเทียม';
+  public $isAPI;
   public $wmsApi;
   public $sokoApi;
-	public $wms;
+  public $wms;
   public $required_remark = 1;
 
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'inventory/return_consignment';
+    $this->home = base_url() . 'inventory/return_consignment';
     $this->load->model('inventory/return_consignment_model');
     $this->load->model('masters/warehouse_model');
     $this->load->model('masters/zone_model');
@@ -32,39 +30,40 @@ class Return_consignment extends PS_Controller
 
   public function index()
   {
-		$this->load->helper('warehouse');
-		$this->load->helper('print');
+    $this->load->helper('warehouse');
+    $this->load->helper('print');
     $filter = array(
-      'code'    => get_filter('code', 'cn_code', ''),
+      'code' => get_filter('code', 'cn_code', ''),
       'invoice' => get_filter('invoice', 'cn_invoice', ''),
       'customer_code' => get_filter('customer_code', 'cn_customer_code', ''),
-			'from_warehouse' => get_filter('from_warehouse', 'cn_from_warehouse', 'all'),
-			'to_warehouse' => get_filter('to_warehouse', 'cn_to_warehouse', 'all'),
+      'from_warehouse' => get_filter('from_warehouse', 'cn_from_warehouse', 'all'),
+      'to_warehouse' => get_filter('to_warehouse', 'cn_to_warehouse', 'all'),
       'from_date' => get_filter('from_date', 'cn_from_date', ''),
       'to_date' => get_filter('to_date', 'cn_to_date', ''),
       'status' => get_filter('status', 'cn_status', 'all'),
       'approve' => get_filter('approve', 'cn_approve', 'all'),
-			'api' => get_filter('api', 'cn_api', 'all'),
-      'sap' => get_filter('sap', 'cn_sap', 'all')
+      'api' => get_filter('api', 'cn_api', 'all'),
+      'sap' => get_filter('sap', 'cn_sap', 'all'),
+      'is_arrival' => get_filter('is_arrival', 'cn_is_arrival', 'all')
     );
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_rows();
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
-		{
-			$perpage = 20;
-		}
-
-		$segment  = 4; //-- url segment
-		$rows     = $this->return_consignment_model->count_rows($filter);
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$document = $this->return_consignment_model->get_list($filter, $perpage, $this->uri->segment($segment));
-
-    if(!empty($document))
+    //--- แสดงผลกี่รายการต่อหน้า
+    $perpage = get_rows();
+    //--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
+    if ($perpage > 300)
     {
-      foreach($document as $rs)
+      $perpage = 20;
+    }
+
+    $segment  = 4; //-- url segment
+    $rows     = $this->return_consignment_model->count_rows($filter);
+    //--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+    $init      = pagination_config($this->home . '/index/', $rows, $perpage, $segment);
+    $document = $this->return_consignment_model->get_list($filter, $perpage, $this->uri->segment($segment));
+
+    if (!empty($document))
+    {
+      foreach ($document as $rs)
       {
         $rs->qty = $this->return_consignment_model->get_sum_qty($rs->code);
         $rs->amount = $this->return_consignment_model->get_sum_amount($rs->code);
@@ -73,83 +72,95 @@ class Return_consignment extends PS_Controller
     }
 
     $filter['docs'] = $document;
-		$this->pagination->initialize($init);
+    $this->pagination->initialize($init);
     $this->load->view('inventory/return_consignment/return_consignment_list', $filter);
   }
 
-  public function add_details()
+  public function save()
   {
     $sc = TRUE;
-		$data = json_decode(file_get_contents("php://input"));
+    $ds = json_decode(file_get_contents("php://input"));
 
-    if(!empty($data))
+    if (empty($ds) or empty($ds->code) or empty($ds->items))
     {
-      //--- start transection
-      $this->db->trans_begin();
-			$code = $data->code;
-			$details = $data->items;
+      $sc = FALSE;
+      set_error('required');
+    }
+
+    if ($sc === TRUE)
+    {
+      $code = $ds->code;
+      $items = $ds->items;
+
       $doc = $this->return_consignment_model->get($code);
-      if(!empty($doc))
+
+      if (empty($doc))
       {
-        $vat = getConfig('SALE_VAT_RATE'); //--- 0.07
-				$date_add = $doc->date_add;
-        $is_wms = ($doc->is_wms == 0  OR $doc->is_api == 0) ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
+        $sc = FALSE;
+        set_error('not_found');
+      }
 
-				if(!empty($details))
-				{
-					//--- drop old detail
-	        $this->return_consignment_model->drop_details($code);
+      if ($sc === TRUE)
+      {
+        $this->db->trans_begin();
 
-					foreach($details as $rs)
-					{
-						if($sc === FALSE)
-						{
-							break;
-						}
+        if (! $this->return_consignment_model->drop_details($code))
+        {
+          $sc = FALSE;
+          $this->error = "Failed to remove prevoius rows items";
+        }
 
-						if($rs->qty > 0)
-						{
-							$disc_amount = $rs->qty * ($rs->price * ($rs->discount * 0.01));
-							$amount = ($rs->qty * $rs->price) - $disc_amount;
-							$arr = array(
-								'return_code' => $code,
-								'invoice_code' => $doc->invoice,
-								'product_code' => $rs->item_code,
-								'product_name' => $rs->item_name,
-								'qty' => $rs->qty,
-								'price' => $rs->price,
-								'discount_percent' => $rs->discount,
-								'amount' => $amount,
-								'vat_amount' => get_vat_amount($amount)
-							);
+        if ($sc === TRUE)
+        {
+          if (! empty($items))
+          {
+            foreach ($items as $rs)
+            {
+              if ($sc === FALSE)
+              {
+                break;
+              }
 
-							if($is_wms === FALSE)
-							{
-								$arr['receive_qty'] = $rs->qty;
-							}
+              if ($rs->qty > 0)
+              {
+                $disc_amount = $rs->qty * ($rs->price * ($rs->discount * 0.01));
+                $amount = ($rs->qty * $rs->price) - $disc_amount;
 
-							if($this->return_consignment_model->add_detail($arr) === FALSE)
-							{
-								$sc = FALSE;
-								$this->error = "บันทึกรายการ {$rs->product_code} ไม่สำเร็จ";
-							}
-						}
+                $arr = [
+                  'return_code' => $code,
+                  'invoice_code' => $doc->invoice,
+                  'product_code' => $rs->item_code,
+                  'product_name' => $rs->item_name,
+                  'qty' => $rs->qty,
+                  'receive_qty' => $ds->save_type == 1 ? $rs->qty : 0,
+                  'price' => $rs->price,
+                  'discount_percent' => $rs->discount,
+                  'amount' => $amount,
+                  'vat_amount' => get_vat_amount($amount)
+                ];
 
-					} //--- endforeach
+                if (! $this->return_consignment_model->add_detail($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Failed to add item {$rs->item_code}";
+                }
+              }
+            } //-- endforeach
 
-					if($sc === TRUE)
-					{
-						$this->return_consignment_model->set_status($code, 1);
-					}
-				}
-        else
-				{
-					$sc = FALSE;
-					$this->error = "ไม่พบรายการรับคืน";
-				}
+            if ($sc === TRUE)
+            {
+              $arr = [
+                'status' => $ds->save_type,
+                'date_upd' => now(),
+                'update_user' => $this->_user->uname
+              ];
 
+              $this->return_consignment_model->update($code, $arr);
+            }
+          } //-- end if
+        }
 
-        if($sc === TRUE)
+        if ($sc === TRUE)
         {
           $this->db->trans_commit();
         }
@@ -158,29 +169,29 @@ class Return_consignment extends PS_Controller
           $this->db->trans_rollback();
         }
       }
-      else
-      {
-        //--- empty document
-        $sc = FALSE;
-				$this->error = 'ไม่พบเลขที่เอกสาร';
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = 'ไม่พบข้อมูลในฟอร์ม';
     }
 
-		echo $sc === TRUE ? 'success' : $this->error;
-
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
+  public function set_product_arrival()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+    $arrival = $this->input->post('arrival');
 
+    if (! $this->return_consignment_model->update($code, ['product_arrival' => $arrival]))
+    {
+      $sc = FALSE;
+      $this->error = "Failed to update product arrival status";
+    }
 
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
 
   public function delete_detail($id = NULL)
   {
-    if($id === NULL)
+    if ($id === NULL)
     {
       echo 'success';
     }
@@ -195,40 +206,39 @@ class Return_consignment extends PS_Controller
   public function unsave($code)
   {
     $sc = TRUE;
-    if($this->pm->can_edit)
+    if ($this->pm->can_edit)
     {
-			$doc = $this->return_consignment_model->get($code);
+      $doc = $this->return_consignment_model->get($code);
 
-			if(!empty($doc))
-			{
-				if($doc->status != 1)
-				{
-					$sc = FALSE;
-					$this->error = "Invalid Document Status";
-				}
-				else
-				{
-					if($doc->is_approve == 1)
-					{
-						$sc = FALSE;
-						$this->error = "เอกสารถูกอนุมัติแล้ว ไม่สามารถย้อนการบันทึกได้";
-					}
-					else
-					{
-						if($this->return_consignment_model->set_status($code, 0) === FALSE)
-			      {
-			        $sc = FALSE;
-			        $this->error = 'ยกเลิกการบันทึกไม่สำเร็จ';
-			      }
-					}
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
-			}
-
+      if (!empty($doc))
+      {
+        if ($doc->status != 1)
+        {
+          $sc = FALSE;
+          $this->error = "Invalid Document Status";
+        }
+        else
+        {
+          if ($doc->is_approve == 1)
+          {
+            $sc = FALSE;
+            $this->error = "เอกสารถูกอนุมัติแล้ว ไม่สามารถย้อนการบันทึกได้";
+          }
+          else
+          {
+            if ($this->return_consignment_model->set_status($code, 0) === FALSE)
+            {
+              $sc = FALSE;
+              $this->error = 'ยกเลิกการบันทึกไม่สำเร็จ';
+            }
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "เลขที่เอกสารไม่ถูกต้อง";
+      }
     }
     else
     {
@@ -243,109 +253,67 @@ class Return_consignment extends PS_Controller
 
   public function approve($code)
   {
-		$sc = TRUE;
+    $sc = TRUE;
 
-    if($this->pm->can_approve)
+    if ($this->pm->can_approve)
     {
-			$doc = $this->return_consignment_model->get($code);
+      $doc = $this->return_consignment_model->get($code);
 
-			if(!empty($doc))
-			{
-				if($doc->status == 1)
-				{
-					if($doc->is_approve == 0)
-					{
-						if(!$this->return_consignment_model->approve($code))
-						{
-							$sc = FALSE;
-							$this->error = "อนุมัติเอกสารไม่สำเร็จ";
-						}
-						else
-						{
-							$this->load->model('approve_logs_model');
-							$this->approve_logs_model->add($code, 1, $this->_user->uname);
-              $is_wms = ($doc->is_wms == 0  OR $doc->is_api == 0) ? FALSE : ($doc->is_wms == 1 && $this->wmsApi ? TRUE : ($doc->is_wms == 2 && $this->sokoApi ? TRUE : FALSE));
+      if (!empty($doc))
+      {
+        if ($doc->status == 1)
+        {
+          if ($doc->is_approve == 0)
+          {
+            if (!$this->return_consignment_model->approve($code))
+            {
+              $sc = FALSE;
+              $this->error = "อนุมัติเอกสารไม่สำเร็จ";
+            }
 
-							if($is_wms === FALSE)
-							{
-								$date_add = getConfig('ORDER_SOLD_DATE') === 'D' ? $doc->date_add : now();
-								$this->return_consignment_model->update($code, array('shipped_date' => now()));
-								$qr = "UPDATE return_consignment_detail SET receive_qty = qty, valid = 1 WHERE return_code = '{$code}'";
-								$this->db->qurey($qr);
-							}
-						}
-					}
+            if($sc === TRUE)
+            {
+              $this->load->model('approve_logs_model');
+              $this->approve_logs_model->add($code, 1, $this->_user->uname);
+              $date_add = getConfig('ORDER_SOLD_DATE') === 'D' ? $doc->date_add : now();
+              $this->return_consignment_model->update($code, array('shipped_date' => now()));
+              $this->return_consignment_model->update_received_qty($code);
+            }
+          }
 
-					if($sc === TRUE)
-					{
-						$details = $this->return_consignment_model->get_details($code);
+          if ($sc === TRUE)
+          {
+            $details = $this->return_consignment_model->get_details($code);
 
-						if( ! empty($details))
-						{
-              if(($doc->is_wms == 0 OR $doc->is_api == 0) OR ($doc->is_wms == 1 && ! $this->wmsApi) OR ($doc->is_wms == 2 && ! $this->sokoApi))
+            if (! empty($details))
+            {                            
+              if (! $this->do_export($code))
               {
-                $this->transfer_model->update($code, array('shipped_date' => $date_add));
-
-                if( ! $this->do_export($code))
-                {
-                  $sc = FALSE;
-                  $this->error = "อนุมัติสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ กรุณา refresh หน้าจอแล้วกดส่งข้อมูลอีกครั้ง";
-                }
+                $sc = FALSE;
+                $this->error = "อนุมัติสำเร็จ แต่ส่งข้อมูลไป SAP ไม่สำเร็จ กรุณา refresh หน้าจอแล้วกดส่งข้อมูลอีกครั้ง";
               }
-
-              if($doc->is_wms == 1 && $doc->is_api == 1 && $this->wmsApi)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-                $this->load->library('wms_receive_api');
-
-                if( ! $this->wms_receive_api->export_return_consignment($doc, $details))
-                {
-                  $sc = FALSE;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป WMS ไม่สำเร็จ";
-                }
-                else
-                {
-                  $this->return_consignment_model->set_status($code, 3); //--- on wms process;
-                }
-              }
-
-              if($doc->is_wms == 2 && $doc->is_api == 1 && $this->sokoApi)
-              {
-                $this->wms = $this->load->database('wms', TRUE);
-                $this->load->library('soko_receive_api');
-
-                if( ! $this->soko_receive_api->create_return_consignment($doc, $details))
-                {
-                  $sc = FALSE;
-                  $this->error = "บันทึกสำเร็จ แต่ส่งข้อมูลไป SOKOCHAN ไม่สำเร็จ";
-                }
-                else
-                {
-                  $this->return_consignment_model->set_status($code, 3); //--- on wms process;
-                }
-              }
-						}
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "Invalid document status";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "ไม่พบเอกสาร";
-			}
+            }
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "Invalid document status";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบเอกสาร";
+      }
     }
     else
     {
       $sc = FALSE;
-			$this->error = 'คุณไม่มีสิทธิ์อนุมัติ';
+      $this->error = 'คุณไม่มีสิทธิ์อนุมัติ';
     }
 
-		echo $sc === TRUE ? 'success' : $this->error;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -359,11 +327,10 @@ class Return_consignment extends PS_Controller
   {
     $sc = TRUE;
 
-    if($this->input->post('date_add'))
+    if ($this->input->post('date_add'))
     {
       $date_add = db_date($this->input->post('date_add'), TRUE);
       $invoice = trim($this->input->post('invoice'));
-			$is_api = $this->input->post('is_api');
       $customer_code = trim($this->input->post('customer_code'));
       $remark = trim($this->input->post('remark'));
       $gp = empty($this->input->post('gp')) ? 0 : $this->input->post('gp');
@@ -373,44 +340,19 @@ class Return_consignment extends PS_Controller
       $fZone = $this->zone_model->get($from_zone);
       $tZone = $this->zone_model->get($to_zone);
 
-      if(empty($fZone))
+      if (empty($fZone))
       {
         $sc = FALSE;
         $this->error = "โซนฝากขายไม่ถูกต้อง";
       }
 
-      if(empty($tZone))
+      if (empty($tZone))
       {
         $sc = FALSE;
         $this->error = "โซนรับคืนไม่ถูกต้อง";
       }
 
-      if($sc === TRUE)
-      {
-        $wmsZone = getConfig('WMS_ZONE');
-        $sokoZone = getConfig('SOKOJUNG_ZONE');
-        $is_wms = $this->input->post('is_wms');
-
-        if($is_wms == 1 && $this->wmsApi && $to_zone != $wmsZone)
-        {
-          $sc = FALSE;
-          $this->error = "เอกสารต้องรับเข้าที่โซน {$wmsZone}";
-        }
-
-        if($is_wms == 2 && $this->sokoApi && $to_zone != $sokoZone)
-        {
-          $sc = FALSE;
-          $this->error = "เอกสารต้องรับเข้าที่โซน {$sokoZone}";
-        }
-
-        if($is_wms == 0 && ($to_zone == $wmsZone OR $to_zone == $sokoZone))
-        {
-          $sc = FALSE;
-          $this->error = "เอกสารต้องรับเข้าที่โซนของ WARRIX";
-        }
-      }
-
-      if($sc === TRUE)
+      if ($sc === TRUE)
       {
         $code = $this->get_new_code($date_add);
 
@@ -426,23 +368,22 @@ class Return_consignment extends PS_Controller
           'gp' => $gp,
           'user' => $this->_user->uname,
           'date_add' => $date_add,
-          'remark' => $remark,
-          'is_wms' => $is_wms,
-          'is_api' => $is_api
+          'remark' => $remark
         );
 
-        if( ! $this->return_consignment_model->add($arr))
+        if (! $this->return_consignment_model->add($arr))
         {
           $sc = FALSE;
           $this->error = "เพิ่มเอกสารไม่สำเร็จ";
         }
-        else
+
+        if ($sc === TRUE)
         {
-          if( ! empty($invoice))
+          if (! empty($invoice))
           {
             $inv_amount = $this->return_consignment_model->get_sap_invoice_amount($invoice, $customer_code);
 
-            if(!empty($inv_amount))
+            if (!empty($inv_amount))
             {
               $inv_arr = array(
                 'return_code' => $code,
@@ -486,42 +427,24 @@ class Return_consignment extends PS_Controller
 
     $details = $this->return_consignment_model->get_details($code);
 
-    $detail = array();
-      //--- ถ้าไม่มีรายละเอียดให้ไปดึงจากใบกำกับมา
-    if(empty($details))
+    if (! empty($details))
     {
-      $details = NULL;
-    }
-    else
-    {
-      foreach($details as $rs)
+      foreach ($details as $rs)
       {
-        $returned_qty = $this->return_consignment_model->get_returned_qty($doc->invoice, $rs->product_code);
-
-        if($rs->qty > 0)
-        {
-          $dt = new stdClass();
-          $dt->id = $rs->id;
-          $dt->invoice_code = $doc->invoice;
-          $dt->barcode = $this->products_model->get_barcode($rs->product_code);
-          $dt->product_code = $rs->product_code;
-          $dt->product_name = $rs->product_name;
-          $dt->discount_percent = $rs->discount_percent;
-          $dt->qty = $rs->qty;
-          $dt->price = round($rs->price,2);
-          $dt->amount = round($rs->amount,2);
-          $detail[] = $dt;
-        }
+        $rs->returned_qty = $this->return_consignment_model->get_returned_qty($doc->invoice, $rs->product_code);
+        $rs->balance_qty = $rs->qty - $rs->returned_qty;
+        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
+        $rs->price = round($rs->price, 2);
+        $rs->amount = round($rs->amount, 2);
       }
     }
 
-
     $ds = array(
       'doc' => $doc,
-      'details' => $detail
+      'details' => $details
     );
 
-    if($doc->status == 0)
+    if ($doc->status == 0 or $doc->status == 3)
     {
       $this->load->view('inventory/return_consignment/return_consignment_edit', $ds);
     }
@@ -529,7 +452,6 @@ class Return_consignment extends PS_Controller
     {
       $this->load->view('inventory/return_consignment/return_consignment_view_detail', $ds);
     }
-
   }
 
 
@@ -541,12 +463,12 @@ class Return_consignment extends PS_Controller
     );
 
     $invoice = $this->return_consignment_model->get_all_invoice($code);
-    if(!empty($invoice))
+    if (!empty($invoice))
     {
       $list = "";
       $amount = 0;
       $i = 1;
-      foreach($invoice as $rs)
+      foreach ($invoice as $rs)
       {
         $list .= $i === 1 ? $rs->invoice_code : ", {$rs->invoice_code}";
         $amount += $rs->invoice_amount;
@@ -565,45 +487,45 @@ class Return_consignment extends PS_Controller
   public function update()
   {
     $sc = TRUE;
-    if($this->input->post('return_code'))
+    if ($this->input->post('return_code'))
     {
       $code = $this->input->post('return_code');
       $date_add = db_date($this->input->post('date_add'), TRUE);
       $invoice = trim($this->input->post('invoice'));
 
-			$is_wms = $this->input->post('is_wms');
-			$is_api = $is_wms != 0 ? $this->input->post('is_api') : 0;
+      $is_wms = $this->input->post('is_wms');
+      $is_api = $is_wms != 0 ? $this->input->post('is_api') : 0;
 
       $customer_code = trim($this->input->post('customer_code'));
       $from_zone = $this->zone_model->get($this->input->post('from_zone'));
       $remark = trim($this->input->post('remark'));
       $gp = empty($this->input->post('gp')) ? 0 : $this->input->post('gp');
 
-			//--- check zone
-			if($is_wms == 1)
-			{
-				$zone_code = getConfig('WMS_ZONE');
-				$warehouse_code = getConfig('WMS_WAREHOUSE');
-			}
+      //--- check zone
+      if ($is_wms == 1)
+      {
+        $zone_code = getConfig('WMS_ZONE');
+        $warehouse_code = getConfig('WMS_WAREHOUSE');
+      }
 
-      if($is_wms == 2)
+      if ($is_wms == 2)
       {
         $zone_code = getConfig('SOKOJUNG_ZONE');
         $warehouse_code = getConfig('SOKOJUNG_WAREHOUSE');
       }
-			else
-			{
-				$zone = $this->zone_model->get($this->input->post('zone_code'));
-				$zone_code = $zone->code;
-				$warehouse_code = $zone->warehouse_code;
-			}
+      else
+      {
+        $zone = $this->zone_model->get($this->input->post('zone_code'));
+        $zone_code = $zone->code;
+        $warehouse_code = $zone->warehouse_code;
+      }
 
       $arr = array(
         'date_add' => $date_add,
         'invoice' => $invoice,
         'customer_code' => $customer_code,
-				'is_wms' => $is_wms,
-				'is_api' => $is_api,
+        'is_wms' => $is_wms,
+        'is_api' => $is_api,
         'from_warehouse_code' => $from_zone->warehouse_code,
         'from_zone_code' => $from_zone->code,
         'warehouse_code' => $warehouse_code,
@@ -613,12 +535,11 @@ class Return_consignment extends PS_Controller
         'update_user' => get_cookie('uname')
       );
 
-      if($this->return_consignment_model->update($code, $arr) === FALSE)
+      if ($this->return_consignment_model->update($code, $arr) === FALSE)
       {
         $sc = FALSE;
         $message = 'ปรับปรุงข้อมูลไม่สำเร็จ';
       }
-
     }
     else
     {
@@ -636,17 +557,17 @@ class Return_consignment extends PS_Controller
     $code = $this->input->post('code');
     $date = $this->input->post('shipped_date');
 
-    if( ! empty($code) && ! empty($date))
+    if (! empty($code) && ! empty($date))
     {
       $doc = $this->return_consignment_model->get($code);
 
-      if( ! empty($doc))
+      if (! empty($doc))
       {
         $arr = array(
           'shipped_date' => db_date($date, TRUE)
         );
 
-        if( ! $this->return_consignment_model->update($code, $arr))
+        if (! $this->return_consignment_model->update($code, $arr))
         {
           $sc = FALSE;
           set_error('update');
@@ -666,12 +587,12 @@ class Return_consignment extends PS_Controller
 
     $this->_response($sc);
   }
-  
+
 
   public function view_detail($code)
   {
-		$this->load->helper('print');
-		$this->load->helper('return_consignment');
+    $this->load->helper('print');
+    $this->load->helper('return_consignment');
     $doc = $this->return_consignment_model->get($code);
     $doc->customer_name = $this->customers_model->get_name($doc->customer_code);
     $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
@@ -692,118 +613,117 @@ class Return_consignment extends PS_Controller
   }
 
 
-	public function load_stock_in_zone()
-	{
-		$sc = TRUE;
-		$code = trim($this->input->post('code'));
+  public function load_stock_in_zone()
+  {
+    $sc = TRUE;
+    $code = trim($this->input->post('code'));
 
-		if(!empty($code))
-		{
-			$doc = $this->return_consignment_model->get($code);
-			if(!empty($doc))
-			{
-				//--- check zone customer
-				if($this->zone_model->is_exists_customer($doc->from_zone_code, $doc->customer_code))
-				{
-					//-- check warehouse is consignment ?
-					if($this->warehouse_model->is_consignment($doc->from_warehouse_code))
-					{
-						//--- load stock
-						$this->load->model('stock/stock_model');
+    if (!empty($code))
+    {
+      $doc = $this->return_consignment_model->get($code);
+      if (!empty($doc))
+      {
+        //--- check zone customer
+        if ($this->zone_model->is_exists_customer($doc->from_zone_code, $doc->customer_code))
+        {
+          //-- check warehouse is consignment ?
+          if ($this->warehouse_model->is_consignment($doc->from_warehouse_code))
+          {
+            //--- load stock
+            $this->load->model('stock/stock_model');
 
-						$details = $this->stock_model->get_all_stock_consignment_zone($doc->from_zone_code);
+            $details = $this->stock_model->get_all_stock_consignment_zone($doc->from_zone_code);
 
-						if(!empty($details))
-						{
-							$this->db->trans_begin();
-							if($this->return_consignment_model->drop_details($code))
-							{
-								foreach($details as $rs)
-								{
-									if($sc === FALSE)
-									{
-										break;
-									}
+            if (!empty($details))
+            {
+              $this->db->trans_begin();
+              if ($this->return_consignment_model->drop_details($code))
+              {
+                foreach ($details as $rs)
+                {
+                  if ($sc === FALSE)
+                  {
+                    break;
+                  }
 
-									$item = $this->products_model->get($rs->product_code);
-									if(!empty($item))
-									{
-										$discount = $item->price * ($doc->gp * 0.01);
-										$amount = $rs->qty * ($item->price - $discount);
-										$vat_amount = get_vat_amount($amount, NULL); //-- tool_helper
-										$arr = array(
-											'return_code' => $doc->code,
-											'invoice_code' => $doc->invoice,
-											'product_code' => $item->code,
-											'product_name' => $item->name,
-											'qty' => $rs->qty,
-											'price' => $item->price,
-											'discount_percent' => $doc->gp,
-											'amount' => $amount,
-											'vat_amount' => $vat_amount
-										);
+                  $item = $this->products_model->get($rs->product_code);
+                  if (!empty($item))
+                  {
+                    $discount = $item->price * ($doc->gp * 0.01);
+                    $amount = $rs->qty * ($item->price - $discount);
+                    $vat_amount = get_vat_amount($amount, NULL); //-- tool_helper
+                    $arr = array(
+                      'return_code' => $doc->code,
+                      'invoice_code' => $doc->invoice,
+                      'product_code' => $item->code,
+                      'product_name' => $item->name,
+                      'qty' => $rs->qty,
+                      'price' => $item->price,
+                      'discount_percent' => $doc->gp,
+                      'amount' => $amount,
+                      'vat_amount' => $vat_amount
+                    );
 
-										if(!$this->return_consignment_model->add_detail($arr))
-										{
-											$sc = FALSE;
-											$this->error = "เพิ่มรายการไม่สำเร็จ : {$item->code} => {$rs->qty}";
-										}
-									}
-									else
-									{
-										$sc = FALSE;
-										$this->error = "Invalid item code : {$rs->product_code}";
-									}
-								}
-							}
-							else
-							{
-								$sc = FALSE;
-								$this->error = "ลบรายการปัจจุบันไม่สำเร็จ";
-							}
+                    if (!$this->return_consignment_model->add_detail($arr))
+                    {
+                      $sc = FALSE;
+                      $this->error = "เพิ่มรายการไม่สำเร็จ : {$item->code} => {$rs->qty}";
+                    }
+                  }
+                  else
+                  {
+                    $sc = FALSE;
+                    $this->error = "Invalid item code : {$rs->product_code}";
+                  }
+                }
+              }
+              else
+              {
+                $sc = FALSE;
+                $this->error = "ลบรายการปัจจุบันไม่สำเร็จ";
+              }
 
-							if($sc === TRUE)
-							{
-								$this->db->trans_commit();
-							}
-							else
-							{
-								$this->db->trans_rollback();
-							}
+              if ($sc === TRUE)
+              {
+                $this->db->trans_commit();
+              }
+              else
+              {
+                $this->db->trans_rollback();
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "ไม่พบสต็อกคงเหลือในโซน {$doc->from_zone_code}";
+            }
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "รหัสคลังไม่ใช้คลังฝากขายเทียม";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "รหัสโซนกับรหัสลูกค้าไม่ตรงกัน";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "เลขที่เอกสารไม่ถูกต้อง";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบเลขที่เอกสาร";
+    }
 
-						}
-						else
-						{
-							$sc = FALSE;
-							$this->error = "ไม่พบสต็อกคงเหลือในโซน {$doc->from_zone_code}";
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "รหัสคลังไม่ใช้คลังฝากขายเทียม";
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "รหัสโซนกับรหัสลูกค้าไม่ตรงกัน";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "ไม่พบเลขที่เอกสาร";
-		}
-
-		echo $sc === TRUE ? 'success' : $this->error;
-	}
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
 
 
   public function add_invoice()
@@ -812,18 +732,18 @@ class Return_consignment extends PS_Controller
     $this->load->helper('return_consignment');
     $invoice = $this->input->post('invoice');
     $customer_code = $this->input->post('customer_code');
-    $code = $this->input->post('return_code');
+    $code = $this->input->post('code');
     $doc = $this->return_consignment_model->get($code);
 
-    if(!empty($doc))
+    if (!empty($doc))
     {
       //--- check invoice with customer
       $amount = $this->return_consignment_model->get_sap_invoice_amount($invoice, $customer_code);
-      if(!empty($amount))
+      if (!empty($amount))
       {
         //--- check invoice in table
         $isExists = $this->return_consignment_model->is_exists_invoice($invoice, $code);
-        if($isExists === FALSE)
+        if ($isExists === FALSE)
         {
           //-- เตรียมข้อมูลเพิ่มเข้าตาราง
           $arr = array(
@@ -832,16 +752,15 @@ class Return_consignment extends PS_Controller
             'invoice_amount' => $amount
           );
 
-          if($this->return_consignment_model->add_invoice($arr))
+          if ($this->return_consignment_model->add_invoice($arr))
           {
             $invoice_list = $this->return_consignment_model->get_all_invoice($code);
             $amount = $this->return_consignment_model->get_sum_invoice_amount($code);
 
             $ds = array(
-              'invoice' => getInvoiceList($code,$invoice_list, $doc->status),
+              'invoice' => getInvoiceList($code, $invoice_list, $doc->status),
               'amount' => $amount
             );
-
           }
           else
           {
@@ -864,7 +783,7 @@ class Return_consignment extends PS_Controller
     else
     {
       $sc = FALSE;
-      $this->error = "เลขที่เอกสารไม่ถูกต้อง";
+      $this->error = "เลขที่เอกสารไม่ถูกต้องx";
     }
 
     echo $sc === FALSE ? $this->error : json_encode($ds);
@@ -881,11 +800,11 @@ class Return_consignment extends PS_Controller
     $invoice_code = $this->input->get('invoice_code');
     $doc = $this->return_consignment_model->get($code);
 
-    if(!empty($doc))
+    if (!empty($doc))
     {
-      if(!empty($invoice_code))
+      if (!empty($invoice_code))
       {
-        if($this->return_consignment_model->delete_invoice($code, $invoice_code))
+        if ($this->return_consignment_model->delete_invoice($code, $invoice_code))
         {
           $amount = $this->return_consignment_model->get_sum_invoice_amount($code);
           $invoice_list = $this->return_consignment_model->get_all_invoice($code);
@@ -928,20 +847,20 @@ class Return_consignment extends PS_Controller
 
     $details = $this->return_consignment_model->get_invoice_details($invoice, $customer_code);
     $ds = array();
-    if(empty($details))
+    if (empty($details))
     {
       $sc = FALSE;
       $message = 'ไม่พบข้อมูล';
     }
 
-    if(!empty($details))
+    if (!empty($details))
     {
-      foreach($details as $rs)
+      foreach ($details as $rs)
       {
         $returned_qty = $this->return_consignment_model->get_returned_qty($invoice, $rs->product_code);
         $qty = $rs->qty - $returned_qty;
         $row = new stdClass();
-        if($qty > 0)
+        if ($qty > 0)
         {
           $no++;
           $row->barcode = $this->products_model->get_barcode($rs->product_code);
@@ -954,7 +873,6 @@ class Return_consignment extends PS_Controller
           $row->amount = 0;
           $row->no = $no;
           $ds[] = $row;
-
         }
       }
     }
@@ -974,15 +892,15 @@ class Return_consignment extends PS_Controller
   {
     $sc = array();
 
-    if(!empty($customer_code))
+    if (!empty($customer_code))
     {
       $txt = $_REQUEST['term'];
       $result = $this->return_consignment_model->search_invoice_code($customer_code, $txt);
-      if(!empty($result))
+      if (!empty($result))
       {
-        foreach($result as $rs)
+        foreach ($result as $rs)
         {
-          $sc[] = $rs->DocNum.' | '.number($rs->DocTotal, 2);
+          $sc[] = $rs->DocNum . ' | ' . number($rs->DocTotal, 2);
         }
       }
       else
@@ -1012,9 +930,9 @@ class Return_consignment extends PS_Controller
     $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
     $details = $this->return_consignment_model->get_details($code);
 
-    if(!empty($details))
+    if (!empty($details))
     {
-      foreach($details as $rs)
+      foreach ($details as $rs)
       {
         $rs->barcode = $this->products_model->get_barcode($rs->product_code);
       }
@@ -1028,7 +946,7 @@ class Return_consignment extends PS_Controller
   }
 
 
-	public function print_wms_return($code)
+  public function print_wms_return($code)
   {
     $this->load->library('xprinter');
     $doc = $this->return_consignment_model->get($code);
@@ -1054,52 +972,52 @@ class Return_consignment extends PS_Controller
     $reason = trim($this->input->post('reason'));
     $force_cancel = $this->input->post('force_cancel') == 1 ? TRUE : FALSE;
 
-    if($this->pm->can_delete)
+    if ($this->pm->can_delete)
     {
-			$doc = $this->return_consignment_model->get($code);
+      $doc = $this->return_consignment_model->get($code);
 
-			if(!empty($doc))
-			{
-				if($doc->status != 2)
-				{
-					if($doc->status == 1)
-					{
-						//-- check SAP return doc ORDN
-						$sap = $this->return_consignment_model->get_sap_return_consignment($code);
-						//--- if document exists in sap, reject cancelation
-						if( ! empty($sap))
-						{
-							$sc = FALSE;
-							$this->error = "เอกสารเข้า SAP แล้ว กรุณายกเลิกเอกสารใน SAP ก่อนดำเนินการต่อไป";
-						}
-
-            if($sc === TRUE)
+      if (!empty($doc))
+      {
+        if ($doc->status != 2)
+        {
+          if ($doc->status == 1)
+          {
+            //-- check SAP return doc ORDN
+            $sap = $this->return_consignment_model->get_sap_return_consignment($code);
+            //--- if document exists in sap, reject cancelation
+            if (! empty($sap))
             {
-              if( ! $this->cancle_sap_doc($code))
+              $sc = FALSE;
+              $this->error = "เอกสารเข้า SAP แล้ว กรุณายกเลิกเอกสารใน SAP ก่อนดำเนินการต่อไป";
+            }
+
+            if ($sc === TRUE)
+            {
+              if (! $this->cancle_sap_doc($code))
               {
                 $sc = FALSE;
                 $this->error = "ลบรายค้างใน SAP Temp ไม่สำเร็จ";
               }
             }
-					}
+          }
 
-          if($sc === TRUE)
+          if ($sc === TRUE)
           {
-            if($doc->status == 3 && ! $force_cancel)
+            if ($doc->status == 3 && ! $force_cancel)
             {
-              if($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)
+              if ($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)
               {
                 $this->wms = $this->load->database('wms', TRUE);
                 $this->load->library('soko_receive_api');
 
-                if( ! $this->soko_receive_api->cancel_return_consignment($doc))
+                if (! $this->soko_receive_api->cancel_return_consignment($doc))
                 {
                   $sc = FALSE;
-                  $this->error = "SOKOCHAN Error : ".$this->soko_receive_api->error;
+                  $this->error = "SOKOCHAN Error : " . $this->soko_receive_api->error;
                 }
               }
 
-              if($doc->is_wms == 1 && ! $this->_SuperAdmin)
+              if ($doc->is_wms == 1 && ! $this->_SuperAdmin)
               {
                 $sc = FALSE;
                 $this->error = "เอกสารอยู่ระหว่างรับเข้า ไม่อนุญาติให้ยกเลิก";
@@ -1108,9 +1026,9 @@ class Return_consignment extends PS_Controller
           }
 
 
-					if($sc === TRUE)
-					{
-						$this->db->trans_begin();
+          if ($sc === TRUE)
+          {
+            $this->db->trans_begin();
 
             $arr = array(
               'status' => 2,
@@ -1119,38 +1037,38 @@ class Return_consignment extends PS_Controller
               'cancle_user' => $this->_user->uname
             );
 
-			      if(! $this->return_consignment_model->update($code, $arr))
-						{
-							$sc = FALSE;
-							$this->error = "Change document status failed";
-						}
+            if (! $this->return_consignment_model->update($code, $arr))
+            {
+              $sc = FALSE;
+              $this->error = "Change document status failed";
+            }
 
 
-						if($sc === TRUE)
-						{
-							if(! $this->return_consignment_model->cancle_details($code))
-							{
-								$sc = FALSE;
-								$this->error = "Change return items status failed";
-							}
-						}
+            if ($sc === TRUE)
+            {
+              if (! $this->return_consignment_model->cancle_details($code))
+              {
+                $sc = FALSE;
+                $this->error = "Change return items status failed";
+              }
+            }
 
-			      if($sc === TRUE)
-						{
-							$this->db->trans_commit();
-						}
-						else
-						{
-							$this->db->trans_rollback();
-						}
-					}
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				set_error('notfound');
-			}
+            if ($sc === TRUE)
+            {
+              $this->db->trans_commit();
+            }
+            else
+            {
+              $this->db->trans_rollback();
+            }
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        set_error('notfound');
+      }
     }
     else
     {
@@ -1164,22 +1082,22 @@ class Return_consignment extends PS_Controller
 
 
 
-	public function pull_back()
-	{
-		$sc = TRUE;
-		$code = trim($this->input->post('code'));
+  public function pull_back()
+  {
+    $sc = TRUE;
+    $code = trim($this->input->post('code'));
 
-		if($this->_SuperAdmin)
-		{
-			$doc = $this->return_consignment_model->get($code);
+    if ($this->_SuperAdmin)
+    {
+      $doc = $this->return_consignment_model->get($code);
 
-			if( ! empty($doc))
-			{
-        if($doc->status == 1 && $doc->is_approve == 1)
+      if (! empty($doc))
+      {
+        if ($doc->status == 1 && $doc->is_approve == 1)
         {
           $sap = $this->return_consignment_model->get_sap_return_consignment($code);
 
-          if( ! empty($sap))
+          if (! empty($sap))
           {
             $sc = FALSE;
             $this->error = "เอกสารถูกนำเข้า SAP แล้ว หากต้องการเปลี่ยนแปลงกรุณายกเลิกเอกสารใน SAP ก่อน";
@@ -1188,11 +1106,11 @@ class Return_consignment extends PS_Controller
           {
             $middle = $this->return_consignment_model->get_middle_return_doc($code);
 
-            if(!empty($middle))
+            if (!empty($middle))
             {
-              foreach($middle as $rows)
+              foreach ($middle as $rows)
               {
-                if($this->return_consignment_model->drop_middle_exits_data($rows->DocEntry) === FALSE)
+                if ($this->return_consignment_model->drop_middle_exits_data($rows->DocEntry) === FALSE)
                 {
                   $sc = FALSE;
                   $this->error = "ลบรายการที่ค้างใน temp ไม่สำเร็จ";
@@ -1202,24 +1120,24 @@ class Return_consignment extends PS_Controller
           }
         }
 
-        if($sc === TRUE)
+        if ($sc === TRUE)
         {
           $this->db->trans_begin();
 
-          if($doc->status == 2)
+          if ($doc->status == 2)
           {
             $arr = array(
               'is_cancle' => 0
             );
 
-            if( ! $this->return_consignment_model->update_details($code, $arr))
+            if (! $this->return_consignment_model->update_details($code, $arr))
             {
               $sc = FALSE;
               $this->error = "Failed to roll back transections";
             }
           }
 
-          if($sc === TRUE)
+          if ($sc === TRUE)
           {
             $arr = array(
               'status' => 0,
@@ -1227,7 +1145,7 @@ class Return_consignment extends PS_Controller
               'inv_code' => NULL
             );
 
-            if( ! $this->return_consignment_model->update($code, $arr))
+            if (! $this->return_consignment_model->update($code, $arr))
             {
               $sc = FALSE;
               $this->error = "Failed to update document status";
@@ -1235,7 +1153,7 @@ class Return_consignment extends PS_Controller
           }
 
 
-          if($sc === TRUE)
+          if ($sc === TRUE)
           {
             $this->db->trans_commit();
           }
@@ -1244,32 +1162,32 @@ class Return_consignment extends PS_Controller
             $this->db->trans_rollback();
           }
         }
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid Document number";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			set_error('permission');
-		}
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "Invalid Document number";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      set_error('permission');
+    }
 
-		echo $sc === TRUE ? 'success' : $this->error;
-	}
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
 
 
 
-	public function cancle_sap_doc($code)
+  public function cancle_sap_doc($code)
   {
     $sc = TRUE;
 
     $middle = $this->return_consignment_model->get_middle_return_doc($code);
-    if(!empty($middle))
+    if (!empty($middle))
     {
-      foreach($middle as $rs)
+      foreach ($middle as $rs)
       {
         $this->return_consignment_model->drop_middle_exits_data($rs->DocEntry);
       }
@@ -1282,11 +1200,11 @@ class Return_consignment extends PS_Controller
 
   public function get_item()
   {
-    if($this->input->post('barcode'))
+    if ($this->input->post('barcode'))
     {
       $barcode = trim($this->input->post('barcode'));
       $item = $this->products_model->get_product_by_barcode($barcode);
-      if(!empty($item))
+      if (!empty($item))
       {
         echo json_encode($item);
       }
@@ -1298,13 +1216,13 @@ class Return_consignment extends PS_Controller
   }
 
 
-	public function get_item_by_code()
+  public function get_item_by_code()
   {
-    if($this->input->post('item_code'))
+    if ($this->input->post('item_code'))
     {
       $code = trim($this->input->post('item_code'));
       $item = $this->products_model->get($code);
-      if(!empty($item))
+      if (!empty($item))
       {
         echo json_encode($item);
       }
@@ -1318,28 +1236,28 @@ class Return_consignment extends PS_Controller
 
 
 
-	public function get_invoice_gp()
-	{
-		$invoice = trim($this->input->get('invoice'));
-		if(!empty($invoice))
-		{
-			$qr  = "SELECT DISTINCT OINV.DocTotal, INV1.DiscPrcnt
+  public function get_invoice_gp()
+  {
+    $invoice = trim($this->input->get('invoice'));
+    if (!empty($invoice))
+    {
+      $qr  = "SELECT DISTINCT OINV.DocTotal, INV1.DiscPrcnt
 			FROM INV1 JOIN OINV ON INV1.DocEntry = OINV.DocEntry
 			WHERE OINV.DocNum = {$invoice}
 			ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 1 ROW ONLY";
 
-			$rs = $this->ms->query($qr);
+      $rs = $this->ms->query($qr);
 
-			if($rs->num_rows() === 1)
-			{
-				echo round($rs->row()->DocTotal, 2).' | '.round($rs->row()->DiscPrcnt, 2);
-			}
-			else
-			{
-				echo "not found";
-			}
-		}
-	}
+      if ($rs->num_rows() === 1)
+      {
+        echo round($rs->row()->DocTotal, 2) . ' | ' . round($rs->row()->DiscPrcnt, 2);
+      }
+      else
+      {
+        echo "not found";
+      }
+    }
+  }
 
 
 
@@ -1349,7 +1267,7 @@ class Return_consignment extends PS_Controller
   {
     $sc = TRUE;
     $this->load->library('export');
-    if(! $this->export->export_return_consignment($code))
+    if (! $this->export->export_return_consignment($code))
     {
       $sc = FALSE;
       $this->error = trim($this->export->error);
@@ -1364,7 +1282,7 @@ class Return_consignment extends PS_Controller
   //---- เรียกใช้จากภายนอก
   public function export_return($code)
   {
-    if($this->do_export($code))
+    if ($this->do_export($code))
     {
       echo 'success';
     }
@@ -1376,79 +1294,79 @@ class Return_consignment extends PS_Controller
 
 
   public function send_to_wms()
-	{
-		$sc = TRUE;
+  {
+    $sc = TRUE;
 
-		if($this->input->post('code'))
-		{
-			$code = trim($this->input->post('code'));
+    if ($this->input->post('code'))
+    {
+      $code = trim($this->input->post('code'));
 
-			$doc = $this->return_consignment_model->get($code);
+      $doc = $this->return_consignment_model->get($code);
 
-			if(!empty($doc))
-			{
-				if($doc->status != 2 && $doc->status != 0)
-				{
-					$details = $this->return_consignment_model->get_details($doc->code);
+      if (!empty($doc))
+      {
+        if ($doc->status != 2 && $doc->status != 0)
+        {
+          $details = $this->return_consignment_model->get_details($doc->code);
 
-					if( ! empty($details))
-					{
-            if($doc->is_wms == 1 && $this->wmsApi && $doc->is_api)
+          if (! empty($details))
+          {
+            if ($doc->is_wms == 1 && $this->wmsApi && $doc->is_api)
             {
               $this->wms = $this->load->database('wms', TRUE);
               $this->load->library('wms_receive_api');
-              if($this->wms_receive_api->export_return_consignment($doc, $details))
+              if ($this->wms_receive_api->export_return_consignment($doc, $details))
               {
                 $this->return_consignment_model->set_status($doc->code, 3);
               }
               else
               {
                 $sc = FALSE;
-  							$this->error = $this->wms_receive_api->error;
+                $this->error = $this->wms_receive_api->error;
               }
             }
 
-            if($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)
+            if ($doc->is_wms == 2 && $this->sokoApi && $doc->is_api)
             {
               $this->wms = $this->load->database('wms', TRUE);
               $this->load->library('soko_receive_api');
-              if($this->soko_receive_api->create_return_consignment($doc, $details))
+              if ($this->soko_receive_api->create_return_consignment($doc, $details))
               {
                 $this->return_consignment_model->set_status($doc->code, 3);
               }
               else
               {
                 $sc = FALSE;
-  							$this->error = $this->soko_receive_api->error;
+                $this->error = $this->soko_receive_api->error;
               }
             }
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "ไม่พบรายการคืนสินค้า";
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "สถานะเอกสารไม่ถุกต้อง";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "รหัสเอกสารไม่ถูกต้อง";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Missing required parameter: code";
-		}
+          }
+          else
+          {
+            $sc = FALSE;
+            $this->error = "ไม่พบรายการคืนสินค้า";
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = "สถานะเอกสารไม่ถุกต้อง";
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "รหัสเอกสารไม่ถูกต้อง";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing required parameter: code";
+    }
 
-		echo $sc === TRUE ? 'success' : $this->error;
-	}
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
 
 
   public function get_new_code($date)
@@ -1458,16 +1376,16 @@ class Return_consignment extends PS_Controller
     $M = date('m', strtotime($date));
     $prefix = getConfig('PREFIX_RETURN_CONSIGNMENT');
     $run_digit = getConfig('RUN_DIGIT_RETURN_CONSIGNMENT');
-    $pre = $prefix .'-'.$Y.$M;
+    $pre = $prefix . '-' . $Y . $M;
     $code = $this->return_consignment_model->get_max_code($pre);
-    if(! is_null($code))
+    if (! is_null($code))
     {
-      $run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;
-      $new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', $run_no);
+      $run_no = mb_substr($code, ($run_digit * -1), NULL, 'UTF-8') + 1;
+      $new_code = $prefix . '-' . $Y . $M . sprintf('%0' . $run_digit . 'd', $run_no);
     }
     else
     {
-      $new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', '001');
+      $new_code = $prefix . '-' . $Y . $M . sprintf('%0' . $run_digit . 'd', '001');
     }
 
     return $new_code;
@@ -1480,20 +1398,18 @@ class Return_consignment extends PS_Controller
       'cn_code',
       'cn_invoice',
       'cn_customer_code',
-			'cn_from_warehouse',
-			'cn_to_warehouse',
-			'cn_warehouse',
+      'cn_from_warehouse',
+      'cn_to_warehouse',
+      'cn_warehouse',
       'cn_from_date',
       'cn_to_date',
       'cn_status',
-			'cn_api',
+      'cn_api',
       'cn_approve',
-      'cn_sap'
+      'cn_sap',
+      'cn_is_arrival'
     );
 
     clear_filter($filter);
   }
-
-
 } //--- end class
-?>
