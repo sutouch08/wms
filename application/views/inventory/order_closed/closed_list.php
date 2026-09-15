@@ -148,7 +148,7 @@
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1370px;">
+    <table class="table table-striped table-narrow border-1 dataTable" style="min-width:1370px;">
       <thead>
         <tr class="font-size-11">
 					<th class="fix-width-80 text-center"></th>
@@ -172,8 +172,8 @@
 
         <tr class="font-size-11">
 					<td class="middle">
-						<button type="button" class="btn btn-mini btn-info" title="รายละเอียด" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-            <button type="button" class="btn btn-mini btn-success" title="Send To SAP" onclick="do_export('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
+						<button type="button" class="btn btn-minier btn-info" title="รายละเอียด" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+            <button type="button" class="btn btn-minier btn-success" title="Send To SAP" onclick="do_export('<?php echo $rs->code; ?>')"><i class="fa fa-send"></i></button>
           </td>
           <td class="middle text-center"><?php echo $no; ?></td>
           <td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>

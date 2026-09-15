@@ -31,21 +31,29 @@
 
 	<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>พนักงาน/ผู้สั่งงาน</label>
-		<select class="width-100 filter" name="user" id="user">
+		<select class="form-control input-sm filter" name="user" id="user">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_user($user); ?>
 		</select>
   </div>
 
-	<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+		<label>Online</label>
+		<select class="form-control input-sm filter" name="is_online">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected($is_online, '1'); ?>>Online</option>
+			<option value="0" <?php echo is_selected($is_online, '0'); ?>>Offline</option>
+		</select>
+	</div>
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
-		<select class="width-100 filter" name="channels" id="channels">
+		<select class="form-control input-sm filter" name="channels" id="channels">
       <option value="">ทั้งหมด</option>
       <?php echo select_channels($channels); ?>
     </select>
   </div>
 
-	<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 		<label>Shop Name</label>
 		<select class="form-control input-sm" name="shop_id" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -55,7 +63,7 @@
 
 	<div class="col-lg-2-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>คลังสินค้า</label>
-		<select class="width-100 filter" name="warehouse" id="warehouse">
+		<select class="form-control input-sm filter" name="warehouse" id="warehouse">
       <option value="all">ทั้งหมด</option>
       <?php echo select_sell_warehouse($warehouse); ?>
     </select>
@@ -140,7 +148,7 @@
 <?php $sort_code = $order_by == '' ? '' : ($order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''); ?>
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:1350px;">
+    <table class="table table-striped table-narrow border-1 dataTable" style="min-width:1350px;">
       <thead>
         <tr class="font-size-11">
 					<th class="fix-width-80"></th>
@@ -164,10 +172,10 @@
 			<?php $cn_text = $rs->is_cancled == 1 ? '<span class="badge badge-danger font-size-10 margin-left-5">ยกเลิก</span>' : ''; ?>
         <tr class="font-size-11" id="row-<?php echo $rs->code; ?>" style="<?php echo $bg; ?>">
 					<td class="middle">
-						<button type="button" class="btn btn-mini btn-info" title="รายละเอียด" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+						<button type="button" class="btn btn-minier btn-info" title="รายละเอียด" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
 
             <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-							<button type="button" class="btn btn-mini btn-primary" title="เปิดบิล" onclick="confirmBill('<?php echo $rs->code; ?>')"><i class="fa fa-file-text"></i></button>
+							<button type="button" class="btn btn-minier btn-primary" title="เปิดบิล" onclick="confirmBill('<?php echo $rs->code; ?>')"><i class="fa fa-file-text"></i></button>
 						<?php endif; ?>
           </td>
           <td class="middle text-center"><?php echo $no; ?></td>
@@ -191,7 +199,7 @@
           </td>
           <td class="middle text-center"><?php echo ($rs->doc_total <= 0 ? number($this->orders_model->get_order_total_amount($rs->code), 2) : number($rs->doc_total,2)); ?></td>
           <td class="middle text-center"><?php echo role_name($rs->role); ?></td>
-          <td class="middletext-center hide-text"><?php echo $rs->user; ?></td>
+          <td class="middle text-center hide-text"><?php echo $rs->user; ?></td>
 
         </tr>
 <?php  $no++; ?>

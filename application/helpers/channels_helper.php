@@ -83,4 +83,42 @@ function channels_array()
 
   return $ds;
 }
+
+function online_channels_array()
+{
+  $arr = ['x'];
+  $ci =& get_instance();
+  $ci->load->model('masters/channels_model');
+  $qr = "SELECT code FROM channels WHERE is_online = 1";
+  $chs = $ci->db->query($qr); 
+  
+  if($chs->num_rows() > 0)
+  {
+    foreach($chs->result() as $r)
+    {
+      $arr[] = $r->code;
+    }
+  }
+
+  return $arr;
+}
+
+function offline_channels_array()
+{
+  $arr = ['x'];
+  $ci =& get_instance();
+  $ci->load->model('masters/channels_model');
+  $qr = "SELECT code FROM channels WHERE is_online = 0 OR is_online IS NULL";
+  $chs = $ci->db->query($qr); 
+
+  if($chs->num_rows() > 0)
+  {
+    foreach($chs->result() as $r)
+    {
+      $arr[] = $r->code;
+    }
+  }
+
+  return $arr;
+}
  ?>

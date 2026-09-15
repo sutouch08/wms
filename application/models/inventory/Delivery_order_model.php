@@ -69,6 +69,18 @@ class Delivery_order_model extends CI_Model
       $this->db->where('channels_code', $ds['channels']);
     }
 
+    if(isset($ds['is_online']) && $ds['is_online'] != 'all')
+    {
+      if($ds['is_online'] == 1)
+      {
+        $this->db->where_in('channels_code', online_channels_array());
+      }
+      else
+      {
+        $this->db->where_in('channels_code', offline_channels_array());
+      }
+    }
+
     if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
     {
       $this->db->where('shop_id', $ds['shop_id']);
@@ -200,6 +212,18 @@ class Delivery_order_model extends CI_Model
       $this->db->where('channels_code', $ds['channels']);
     }
 
+    if (isset($ds['is_online']) && $ds['is_online'] != 'all')
+    {
+      if ($ds['is_online'] == 1)
+      {
+        $this->db->where_in('channels_code', online_channels_array());
+      }
+      else
+      {
+        $this->db->where_in('channels_code', offline_channels_array());
+      }
+    }
+
     if(isset($ds['shop_id']) && $ds['shop_id'] != 'all')
     {
       $this->db->where('shop_id', $ds['shop_id']);
@@ -209,7 +233,6 @@ class Delivery_order_model extends CI_Model
     {
       $this->db->where('warehouse_code', $ds['warehouse']);
     }
-
 
     if(isset($ds['is_valid']) && $ds['is_valid'] != 'all')
     {

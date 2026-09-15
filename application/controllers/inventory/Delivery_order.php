@@ -20,6 +20,7 @@ class Delivery_order extends PS_Controller
     $this->load->model('orders/orders_model');
     $this->load->model('orders/order_state_model');
     $this->load->helper('order');
+    $this->load->helper('channels');
   }
 
 
@@ -33,6 +34,7 @@ class Delivery_order extends PS_Controller
       'role' => get_filter('role', 'ic_role', 'all'),
       'channels' => get_filter('channels', 'ic_channels', 'all'),
       'shop_id' => get_filter('shop_id', 'ic_shop_id', 'all'),
+      'is_online' => get_filter('is_online', 'ic_is_online', 'all'),
       'from_date' => get_filter('from_date', 'ic_from_date', ''),
       'to_date' => get_filter('to_date', 'ic_to_date', ''),
       'sort_by' => get_filter('sort_by', 'ic_sort_by', ''),
@@ -785,6 +787,7 @@ class Delivery_order extends PS_Controller
       'ic_user',
       'ic_role',
       'ic_channels',
+      'ic_is_online',
       'ic_from_date',
       'ic_to_date',
       'ic_sort_by',
