@@ -32,9 +32,9 @@ function closeOrder(){
   else {
     //--- close order
     $.ajax({
-      url: HOME +'close_order',
+      url: `${HOME}close_order`,
       type:'POST',
-      cache:'false',
+      cache:false,
       data:{
         "order_code": order_code
       },
@@ -115,9 +115,9 @@ function saveQc(option){
   if(ds.rows.length) {
     load_in();
     $.ajax({
-      url: HOME + 'save_qc',
+      url: `${HOME}save_qc`,
       type:"POST",
-      cache:"false",
+      cache:false,
       data: {
         "data" : JSON.stringify(ds)
       },
@@ -299,9 +299,9 @@ function updateBoxList(box_id){
   const order_code = $("#order_code").val();  
   
   $.ajax({
-    url: HOME + 'get_box_list',
+    url: `${HOME}get_box_list`,
     type:"GET",
-    cache: "false",
+    cache: false,
     data:{
       "order_code" : order_code,
       "id_box" : id_box
@@ -391,7 +391,7 @@ function updatePackageId(box_id) {
   let package_id = $('#package-'+box_id).val();
 
   $.ajax({
-    url:HOME + 'update_package_id',
+    url: `${HOME}update_package_id`,
     type:'POST',
     cache:false,
     data:{
@@ -408,8 +408,10 @@ function updatePackageId(box_id) {
       beep();
       showError(rs);
     }
-  })
+  });
 }
+
+
 
 
 function addBox() {
@@ -445,7 +447,7 @@ function addBox() {
     error:function(rs) {
       showError(rs);
     }
-  })
+  });
 }
 
 
@@ -462,8 +464,8 @@ function getBox(){
   if( barcode.length > 0){
     $.ajax({
       url: `${HOME}get_box`,
-      type:'GET',
-      cache:false,
+      type: 'GET',
+      cache: false,
       data:{
         "barcode":barcode,
         "order_code" : order_code
@@ -557,7 +559,7 @@ function updateQty(id_qc) {
     load_in();
 
     $.ajax({
-      url:HOME + 'remove_checked_qty',
+      url: `${HOME}remove_checked_qty`,
       type:'POST',
       cache:false,
       data:{
@@ -581,7 +583,7 @@ function updateQty(id_qc) {
       error:function(rs) {
         showError(rs);
       }
-    })
+    });
   }  
 }
 
@@ -591,7 +593,7 @@ function editBox(id_box, box_label) {
   load_in();
 
   $.ajax({
-    url:HOME + 'get_checked_box_details',
+    url: `${HOME}get_checked_box_details`,
     type:'GET',
     cache:false,
     data:{
@@ -625,7 +627,7 @@ function editBox(id_box, box_label) {
       load_out();
       showError(rs);
     }
-  })
+  });
 }
 
 
@@ -678,7 +680,7 @@ function updateEditQty() {
   load_in();
 
   $.ajax({
-    url:HOME + 'update_check_qty',
+    url: `${HOME}update_check_qty`,
     type:'POST',
     cache:false,
     data:{
@@ -705,7 +707,7 @@ function updateEditQty() {
     error:function(rs) {
       showError(rs);
     }
-  })
+  });
 }
 
 
@@ -726,7 +728,7 @@ function removeBox(id_box, box_label) {
     load_in();
     setTimeout(() => {
       $.ajax({
-        url:HOME + 'remove_checked_box',
+        url: `${HOME}remove_checked_box`,
         type:'POST',
         cache:false,
         data:{
@@ -762,9 +764,9 @@ function showEditOption(order_code, product_code){
   $('#edit-title').text(product_code);
   load_in();
   $.ajax({
-    url:HOME + 'get_checked_table',
-    type:'GET',
-    cache:'false',
+    url: `${HOME}get_checked_table`,
+    type: 'GET',
+    cache: false,
     data:{
       'order_code' : order_code,
       'product_code' : product_code
@@ -814,7 +816,7 @@ async function openBill() {
   let code = $('#order_code').val();  
   load_in();
   $.ajax({
-    url: BASE_URL + 'inventory/delivery_order/confirm_order',
+    url: `${BASE_URL}inventory/delivery_order/confirm_order`,
     type: 'POST',
     cache: false,
     data: {

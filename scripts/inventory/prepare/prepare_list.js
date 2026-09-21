@@ -1,15 +1,5 @@
 
-function getSearch(){
-  $("#searchForm").submit();
-}
-
-
-function clearFilter(){
-  $.get(HOME + '/clear_filter', function(){ goBack(); });
-}
-
-
-function clearProcessFilter(){
+  function clearProcessFilter(){
   $.get(HOME + '/clear_filter', function(){ viewProcess(); });
 }
 
@@ -120,7 +110,7 @@ function updateBackorder(option) {
         load_in();
 
         $.ajax({
-          url:HOME + '/update_back_order',
+          url:`${HOME}update_back_order`,
           type:'POST',
           cache:false,
           data:{

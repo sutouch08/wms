@@ -1,9 +1,4 @@
 
-$(document).ready(function(){
-  //var interv = setInterval(function(){ goBack(); }, 100000);
-});
-
-
 $('#fromDate').datepicker({
   dateFormat:'dd-mm-yy',
   onClose:function(sd){
@@ -20,27 +15,8 @@ $('#toDate').datepicker({
 });
 
 
-function getSearch(){
-  $('#searchForm').submit();
-}
-
-
-$('.search').keyup(function(e) {
-  if(e.keyCode == 13){
-    getSearch();
-  }
-});
-
-
-function clearFilter(){
-  $.get(HOME + 'clear_filter', function(){
-    goBack();
-  });
-}
-
-
 function clearProcessFilter(){
-  $.get(HOME + 'clear_filter', function(){
+  $.get(`${HOME}clear_filter`, function(){
     viewProcess();
   });
 }

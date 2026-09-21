@@ -1,11 +1,3 @@
-var HOME = BASE_URL + 'inventory/prepare';
-
-
-function goBack(){
-    window.location.href = HOME;
-}
-
-
 function refresh() {
   load_in();
   setTimeout(() => {
@@ -29,17 +21,17 @@ function goPrepare(code, view) {
 
 
 function goProcess(view){
-  window.location.href = HOME + '/view_process';
+  window.location.href = `${HOME}view_process`;
 }
 
 
 function express_order() {
-  window.location.href = HOME + '/express_order';
+  window.location.href = `${HOME}express_order`;
 }
 
 
 function goToBuffer() {
-  window.location.href = BASE_URL + 'inventory/buffer';
+  window.location.href = `${BASE_URL}inventory/buffer`;
 }
 
 
@@ -101,7 +93,7 @@ function genPickList() {
       var mapForm = document.createElement('form');
        mapForm.target = "Map";
        mapForm.method = "POST";
-       mapForm.action = HOME + "/gen_pick_list";
+       mapForm.action = `${HOME}gen_pick_list`;
 
        var mapInput = document.createElement("input");
        mapInput.type = "hidden";
@@ -127,7 +119,7 @@ function genPickList() {
 
 function pullBack(code){
   $.ajax({
-    url:HOME + '/pull_order_back',
+    url:`${HOME}pull_order_back`,
     type:'POST',
     cache:'false',
     data:{
@@ -147,7 +139,7 @@ function pullBack(code){
 
 
 function viewProcess(){
-  window.location.href = HOME + '/view_process';
+  window.location.href = `${HOME}view_process`;
 }
 
 
@@ -156,7 +148,7 @@ function confirmCanceledOrder(code) {
   load_in();
 
   $.ajax({
-    url:BASE_URL + 'orders/orders/order_state_change',
+    url:`${BASE_URL}orders/orders/order_state_change`,
     type:'POST',
     cache:false,
     data:{

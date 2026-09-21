@@ -1,23 +1,15 @@
-var HOME = `${BASE_URL}inventory/qc/`;
-
-function goBack(){
-  window.location.href = HOME;
-}
-
-
-//--- ต้องการจัดสินค้า
 function goQc(code, view){
   if(view === undefined) {
-    window.location.href = HOME + 'process/'+code;
+    window.location.href = `${HOME}process/${code}`;
   }
   else {
-    window.location.href = HOME + 'process/'+code+'/mobile';
+    window.location.href = `${HOME}process/${code}/mobile`;
   }
 }
 
 
 function viewProcess(){
-  window.location.href = HOME + 'view_process';
+  window.location.href = `${HOME}view_process`;
 }
 
 
@@ -52,7 +44,7 @@ function confirmCanceledOrder(code) {
   load_in();
 
   $.ajax({
-    url:BASE_URL + 'orders/orders/order_state_change',
+    url:`${BASE_URL}orders/orders/order_state_change`,
     type:'POST',
     cache:false,
     data:{

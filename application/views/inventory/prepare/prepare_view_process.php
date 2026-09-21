@@ -191,7 +191,7 @@
 		</div>
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 hidden-xs">
 			<label class="display-block not-show">&nbsp;</label>
-			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter('<?php echo $this->home; ?>/view_process/')"><i class="fa fa-retweet"></i> Reset</button>
 		</div>
 		<div class="divider-hidden visible-xs"></div>
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 visible-xs fi">
@@ -200,7 +200,7 @@
 		</div>
 		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5 visible-xs fi">
 			<label class="display-block not-show">&nbsp;</label>
-			<button type="button" class="btn btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+			<button type="button" class="btn btn-warning btn-block" onclick="clearFilter('<?php echo $this->home; ?>/view_process/')"><i class="fa fa-retweet"></i> Reset</button>
 		</div>
 	</div>
 	<input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">

@@ -83,9 +83,9 @@ function updateBoxList(){
   let order_code = $("#order_code").val();
 
   $.ajax({
-    url: HOME + 'get_box_list',
+    url: `${HOME}get_box_list`,
     type:"GET",
-    cache: "false",
+    cache: false,
     data:{
       "order_code" : order_code,
       "id_box" : id_box
@@ -132,7 +132,7 @@ function addBox() {
   let allow_input_qty = $('#allow-input-qty').val();
 
   $.ajax({
-    url:HOME + 'get_box',
+    url: `${HOME}get_box`,
     type:'GET',
     cache:false,
     data:{
@@ -181,9 +181,9 @@ function getBox() {
 
   if(barcode.length > 0) {
     $.ajax({
-      url: HOME + 'get_box',
+      url: `${HOME}get_box`,
       type:"GET",
-      cache:"false",
+      cache: false,
       data:{
         "barcode":barcode,
         "order_code" : order_code
@@ -229,9 +229,9 @@ function getSelectBox(barcode) {
 
   if(barcode.length > 0) {
     $.ajax({
-      url: HOME + 'get_box',
-      type:"GET",
-      cache:"false",
+      url: `${HOME}get_box`,
+      type: "GET",
+      cache: false,
       data:{
         "barcode":barcode,
         "order_code" : order_code
@@ -352,7 +352,7 @@ function qcProduct() {
       load_in();
 
       $.ajax({
-        url:HOME + 'do_qc',
+        url: `${HOME}do_qc`,
         type:'POST',
         cache:false,
         data:{
@@ -422,7 +422,7 @@ function changeBox() {
 
 function getCompleteItem(id) {
   $.ajax({
-    url:HOME + '/get_complete_item/' + id,
+    url: `${HOME}get_complete_item/` + id,
     type:'GET',
     cache:false,
     success:function(rs) {
@@ -461,7 +461,7 @@ function getIncompleteItem(id) {
   let whsCode = $('#warehouse_code').val();
 
   $.ajax({
-    url:HOME + '/get_incomplete_item',
+    url: `${HOME}get_incomplete_item`,
     type:'POST',
     cache:false,
     data:{
@@ -511,9 +511,9 @@ function showEditOption(order_code, product_code) {
   load_in();
 
   $.ajax({
-    url:HOME + 'get_checked_table',
-    type:'GET',
-    cache:'false',
+    url: `${HOME}get_checked_table`,
+    type: 'GET',
+    cache: false,
     data:{
       'order_code' : order_code,
       'product_code' : product_code
@@ -562,7 +562,7 @@ function updateQty(id_qc) {
       load_in();
 
       $.ajax({
-        url:HOME + 'remove_check_qty',
+        url: `${HOME}remove_check_qty`,
         type:'POST',
         cache:'false',
         data:{
@@ -600,9 +600,9 @@ function viewBoxItems(box_id) {
   let order_code = $('#order_code').val();
 
   $.ajax({
-    url:HOME + 'get_box_details',
-    type:'POST',
-    cache:false,
+    url: `${HOME}get_box_details`,
+    type: 'POST',
+    cache: false,
     data:{
       'order_code' : order_code,
       'box_id' : box_id
@@ -740,9 +740,9 @@ function closeOrder(){
   else {
     //--- close order
     $.ajax({
-      url: HOME +'close_order',
+      url: `${HOME}close_order`,
       type:'POST',
-      cache:'false',
+      cache: false,
       data:{
         "order_code": order_code
       },

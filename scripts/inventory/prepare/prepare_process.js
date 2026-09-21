@@ -71,7 +71,7 @@ function doPrepare(){
   }
 
   $.ajax({
-    url: BASE_URL + 'inventory/prepare/do_prepare',
+    url: `${BASE_URL}inventory/prepare/do_prepare`,
     type:"POST",
     cache:"false",
     data:{
@@ -137,7 +137,7 @@ function finishPrepare(){
   let ex = $('#ex').val();
 
   $.ajax({
-    url: BASE_URL + 'inventory/prepare/finish_prepare',
+    url: `${BASE_URL}inventory/prepare/finish_prepare`,
     type:"POST",
     cache:"false",
     data: {
@@ -218,7 +218,7 @@ $("#barcode-zone").keyup(function(e) {
       if(barcode.length) {
         load_in();
         $.ajax({
-          url: BASE_URL + 'masters/zone/get_zone',
+          url: `${BASE_URL}masters/zone/get_zone`,
           type:"GET",
           cache:"false",
           data:{
@@ -345,14 +345,14 @@ $("#showZone").change(function(){
 
 function setZoneLabel(showZone){
   //---- 1 = show , 0 == not show;
-  $.get(BASE_URL + 'inventory/prepare/set_zone_label/'+showZone);
+  $.get(`${BASE_URL}inventory/prepare/set_zone_label/${showZone}`);
 }
 
 
 var intv = setInterval(function() {
   var order_code = $('#order_code').val();
   $.ajax({
-    url: BASE_URL + 'inventory/prepare/check_state',
+    url: `${BASE_URL}inventory/prepare/check_state`,
     type:'GET',
     cache:'false',
     data:{
@@ -370,7 +370,7 @@ var intv = setInterval(function() {
 
 function removeBuffer(orderCode, pdCode, order_detail_id) {
   $.ajax({
-    url:BASE_URL + 'inventory/prepare/remove_buffer/',
+    url:`${BASE_URL}inventory/prepare/remove_buffer/`,
     type:'POST',
     cache:false,
     data:{

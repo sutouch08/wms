@@ -99,7 +99,7 @@
 		</div>
 		<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
 			<label class="not-show">buton</label>
-			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()">Reset</button>
+			<button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter('<?php echo $this->home; ?>/view_process/')">Reset</button>
 		</div>
 	</div>
 	<input type="hidden" name="search" value="1" />

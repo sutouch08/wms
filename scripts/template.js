@@ -25,18 +25,18 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
 });
 
 
-function goBack() {
-  window.location.href = HOME;
+function goBack(url = null) {    
+  window.location.href = url ? url : HOME;
 }
 
 function getSearch() {
   $("#searchForm").submit();
 }
 
-function clearFilter() {
-  var url = HOME + 'clear_filter';
-  $.get(url, function(rs) {
-    goBack();
+function clearFilter(backUrl = null) {
+  var url = `${HOME}/clear_filter`;
+  $.get(url, function() {
+    goBack(backUrl);
   });
 }
 
