@@ -94,6 +94,24 @@ class Dashboard extends CI_Controller
   }
 
 
+  public function get_dashboard_data()
+  {
+    $sc = TRUE;
+
+    $data = $this->dashboard_model->get_dashboard_data();
+
+    $ds = [];
+
+    if( ! empty($data))
+    {
+      foreach($data as $row)
+      {
+        
+      }
+    }
+    
+  }
+
 
 } //--- end class
 ?>

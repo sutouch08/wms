@@ -60,18 +60,33 @@ class Temp_delivery_model extends CI_Model
       }
     }
 
+    if(isset($ds['role']) && $ds['role'] != 'all')
+    {
+      $this->mc->where('U_ROLE', $ds['role']);
+    }
+
+    if(isset($ds['channels']) && $ds['channels'] != 'all')
+    {
+      $this->mc->where('U_Channels', $ds['channels']);
+    }
+
+    if(isset($ds['online']) && $ds['online'] != 'all')
+    {
+      $this->mc->where('U_Online', $ds['online']);
+    }
+
     return $this->mc->count_all_results('ODLN');
   }
 
 
 
-  public function get_list(array $ds = array(), $perpage = NULL, $offset = 0)
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     $this->mc
     ->select('DocEntry, U_ECOMNO, DocDate, CardCode, CardName')
     ->select('F_E_Commerce, F_E_CommerceDate')
     ->select('F_Sap, F_SapDate, U_BOOKCODE')
-    ->select('Message');
+    ->select('Message, U_ROLE, U_Channels, U_ChannelsName, U_Online');
 
     if(!empty($ds['code']))
     {
@@ -113,13 +128,23 @@ class Temp_delivery_model extends CI_Model
       }
     }
 
-    $this->mc->order_by('DocDate', 'DESC')->order_by('U_ECOMNO', 'DESC');
-
-    if(!empty($perpage))
+    if (isset($ds['role']) && $ds['role'] != 'all')
     {
-      $this->mc->limit($perpage, $offset);
+      $this->mc->where('U_ROLE', $ds['role']);
     }
 
+    if (isset($ds['channels']) && $ds['channels'] != 'all')
+    {
+      $this->mc->where('U_Channels', $ds['channels']);
+    }
+
+    if (isset($ds['online']) && $ds['online'] != 'all')
+    {
+      $this->mc->where('U_Online', $ds['online']);
+    }
+
+    $this->mc->order_by('DocDate', 'DESC')->order_by('U_ECOMNO', 'DESC');
+    $this->mc->limit($perpage, $offset);    
     $rs = $this->mc->get('ODLN');
 
     if($rs->num_rows() > 0)

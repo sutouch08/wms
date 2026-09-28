@@ -32,6 +32,7 @@ class Export
     $this->ci->load->model('masters/products_model');
     $this->ci->load->model('discount/discount_policy_model');
     $this->ci->load->model('masters/zone_model');
+    $this->ci->load->model('masters/channels_model');
     $this->ci->load->helper('discount');
 
     $order = $this->ci->orders_model->get($code);
@@ -92,6 +93,8 @@ class Export
           $address .= empty($order->postcode) ? "" : " {$order->postcode}";
         }
 
+        $ch = ! empty($order->channels_code) ? $this->ci->channels_model->get($order->channels_code) : NULL;
+
         //--- header
         $ds = array(
           'DocType' => 'I', //--- I = item, S = Service
@@ -134,7 +137,11 @@ class Export
           'U_PROVINCE' => $order->province,
           'U_POSTCODE' => $order->postcode,
           'U_PHONE' => $order->phone,
-          'U_EMAIL' => $order->email
+          'U_EMAIL' => $order->email,
+          'U_ROLE' => $order->role,
+          'U_Channels' => $order->channels_code,
+          'U_ChannelsName' => ! empty($ch) ? $ch->name : NULL,
+          'U_Online' => ! empty($ch) ? $ch->is_online : NULL
         );
 
         $this->ci->mc->trans_begin();

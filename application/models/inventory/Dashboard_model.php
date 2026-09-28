@@ -118,6 +118,18 @@ class Dashboard_model extends CI_Model
 
     return 0;
   }
+
+  public function get_dashboard_data()
+  {
+    $rs = $this->db->get('dashboard');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 } // end class
 
  ?>

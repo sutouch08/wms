@@ -1,7 +1,7 @@
 <style>
 .head-line {
-  font-size: clamp(2rem, 2.5rem, 6rem);
-  text-align: center;
+  font-size: clamp(1rem, 2rem, 4.6rem);
+  /* text-align: center; */
   font-weight: bolder;
   vertical-align:middle !important;
   /* writing-mode: vertical-lr; */

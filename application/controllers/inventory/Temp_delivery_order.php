@@ -13,6 +13,7 @@ class Temp_delivery_order extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/temp_delivery_order';
     $this->load->model('inventory/temp_delivery_model');
+    $this->load->helper('channels');
   }
 
 
@@ -23,7 +24,10 @@ class Temp_delivery_order extends PS_Controller
       'customer' => get_filter('customer', 'temp_customer', ''),
       'from_date' => get_filter('from_date', 'temp_from_date', ''),
       'to_date' => get_filter('to_date', 'temp_to_date', ''),
-      'status' => get_filter('status', 'temp_status', 'all')
+      'status' => get_filter('status', 'temp_status', 'all'),
+      'role' => get_filter('role', 'temp_role', 'all'),
+      'channels' => get_filter('channels', 'temp_channels', 'all'),
+      'online' => get_filter('online', 'temp_online', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -215,7 +219,10 @@ class Temp_delivery_order extends PS_Controller
       'temp_customer',
       'temp_from_date',
       'temp_to_date',
-      'temp_status'
+      'temp_status',
+      'temp_online',
+      'temp_channels',
+      'temp_role'
     );
 
     clear_filter($filter);
