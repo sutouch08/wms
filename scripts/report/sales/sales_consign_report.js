@@ -378,7 +378,7 @@ async function doExport() {
     }
   }
 
-  let url = `${HOME}/count_export`;
+  let url = `${HOME}count_export`;
   let filter = JSON.stringify(h);
   load_in('0%');
   const total = await fetch(url, {
@@ -391,22 +391,29 @@ async function doExport() {
   
   const limit = 5000;
   let offset = 0;  
-  while (offset < total) {
-    const percent = Math.floor((offset / total) * 100);
-    updateProgress(percent);    
-    const res = await fetch(`${HOME}/export_chunk/${total}/${limit}/${offset}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: filter
-    }).then(r => r.json());    
 
-    offset += res.offset;
+  if(total > 0) {
+    while (offset < total) {
+      const percent = Math.floor((offset / total) * 100);
+      updateProgress(percent);
+      const res = await fetch(`${HOME}export_chunk/${total}/${limit}/${offset}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: filter
+      }).then(r => r.json());
+
+      offset += res.offset;
+    }
+
+    load_out();
+    window.location = `${HOME}export_finished`; 
   }
- 
-  load_out();
-  window.location = `${HOME}/export_finished`; 
+  else {
+    load_out();
+    swal("ไม่พบข้อมูลที่ต้องการส่งออก");
+  }
 }
 
 function updateProgress(percent) {
