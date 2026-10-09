@@ -208,3 +208,24 @@ function removeShipTo(id)
 			});
 		});
 }
+
+function setDefaultShippingAddress(customer_code, id_address) {
+	$.ajax({
+		url:BASE_URL + 'masters/customers/set_default_shipping_address',
+		type:"POST",
+		cache:false,
+		data:{
+			"customer_code" : customer_code,
+			"id_address" : id_address
+		},
+		success: function(rs){
+			if(rs.trim() === 'success') {
+				$(".btn-address").removeClass('btn-success');
+				$("#btn-" + id_address).addClass('btn-success');
+			}
+			else {
+				swal("ข้อผิดพลาด!!", "ตั้งค่าที่อยู่เริ่มต้นไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "error");
+			}
+		}
+	});
+}

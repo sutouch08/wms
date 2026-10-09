@@ -6,6 +6,16 @@ class Customer_address_model extends CI_Model
     parent::__construct();
   }
 
+  public function unset_default_shipping_address($customer_code)
+  {
+    return $this->db->where('customer_code', $customer_code)->update('address_ship_to', array('is_default' => 0));
+  }
+
+  public function set_default_shipping_address($id_address)
+  {
+    return $this->db->where('id', $id_address)->update('address_ship_to', array('is_default' => 1));
+  }
+
   public function get_customer_bill_to_address($customer_code)
   {
     $rs = $this->db->where('customer_code', $customer_code)->get('address_bill_to');
@@ -45,7 +55,12 @@ class Customer_address_model extends CI_Model
 
   public function get_customer_ship_to_id($code)
   {
-    $rs = $this->db->where('customer_code', $code)->order_by('id', 'DESC')->limit(1)->get('address_ship_to');
+    $rs = $this->db
+    ->where('customer_code', $code)
+    ->order_by('is_default', 'DESC')
+    ->order_by('id', 'DESC')
+    ->limit(1)
+    ->get('address_ship_to');
 
     if($rs->num_rows() === 1)
     {

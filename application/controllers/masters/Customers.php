@@ -352,7 +352,46 @@ class Customers extends PS_Controller
     }
   }
 
+  public function set_default_shipping_address()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('customer_code');
+    $id_address = $this->input->post('id_address');
 
+    if(!empty($code) && !empty($id_address))
+    {
+      $this->load->model('address/customer_address_model');
+      $this->db->trans_begin();
+
+      if(! $this->customer_address_model->unset_default_shipping_address($code))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to unset default shipping address";
+      }
+
+      if($sc === TRUE && ! $this->customer_address_model->set_default_shipping_address($id_address))
+      {
+        $sc = FALSE;
+        $this->error = "Failed to set default shipping address";
+      }
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();        
+      }
+      else
+      {
+        $this->db->trans_rollback();
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Customer code or address ID is required";      
+    }
+
+    $this->_response($sc);
+  }
 
   public function update()
   {
@@ -640,6 +679,7 @@ class Customers extends PS_Controller
           foreach($adrs as $rs)
           {
             $arr = array(
+              'customer_code' => $code,
               'id' => $rs->id,
               'name' => $rs->name,
               'address' => $rs->address.' '.$rs->sub_district.' '.$rs->district.' '.$rs->province.' '.$rs->postcode,
