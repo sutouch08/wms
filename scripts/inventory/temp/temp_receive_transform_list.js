@@ -48,3 +48,42 @@ function get_detail(code)
 	var target 	= HOME + 'get_detail/'+code+'?nomenu';
 	window.open(target, "_blank", prop );
 }
+
+function deleteTemp(docEntry, code, row_no) {
+  swal({
+    title: 'คุณแน่ใจ ?',
+    text: 'ต้องการลบ ' + code + ' หรือไม่ ?',
+    type: 'warning',
+    showCancelButton: true,
+    comfirmButtonColor: '#DD6855',
+    confirmButtonText: 'ใช่ ฉันต้องการ',
+    cancelButtonText: 'ไม่ใช่',
+    closeOnConfirm: false
+  }, function () {
+    $.ajax({
+      url: HOME + 'delete_temp/' + docEntry,
+      type: 'POST',
+      cache: false,
+      success: function (rs) {
+        var rs = $.trim(rs);
+        if (rs === 'success') {
+          $('#row-' + row_no).remove();
+          reIndex();
+          swal({
+            title: 'Success',
+            text: code + ' has been deleted',
+            type: 'success',
+            timer: 1000
+          })
+        }
+        else {
+          swal({
+            title: 'Error!',
+            text: rs,
+            type: 'error'
+          });
+        }
+      }
+    })
+  })
+}

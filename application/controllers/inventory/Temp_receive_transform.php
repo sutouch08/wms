@@ -66,6 +66,40 @@ class Temp_receive_transform extends PS_Controller
     $this->load->view('inventory/temp_receive_transform/temp_detail', $ds);
   }
 
+  function delete_temp($id)
+  {
+    $sc = TRUE;
+    $doc = $this->temp_receive_transform_model->get($id);
+
+    if (!empty($doc))
+    {
+      if ($doc->F_Sap === 'N' or $doc->F_Sap == NULL)
+      {
+        $this->mc->trans_begin();
+        $ds = $this->temp_receive_transform_model->delete_temp_details($id);
+        $rs = $this->temp_receive_transform_model->delete_temp($id);
+
+        if ($ds && $rs)
+        {
+          $this->mc->trans_commit();
+        }
+        else
+        {
+          $this->mc->trans_rollback();
+          $sc = FALSE;
+          $this->error = "Delete Temp failed";
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ยกเลิกไม่สำเร็จ เอกสารถูกนำเข้า SAP แล้ว";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
 
 
   public function clear_filter()

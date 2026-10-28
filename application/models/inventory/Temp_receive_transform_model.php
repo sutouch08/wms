@@ -109,6 +109,16 @@ class Temp_receive_transform_model extends CI_Model
     return NULL;
   }
 
+  public function delete_temp_details($id)
+  {
+    return $this->mc->where('DocEntry', $id)->delete('IGN1');
+  }
+
+  public function delete_temp($id)
+  {
+    return $this->mc->where('DocEntry', $id)->delete('OIGN');
+  }
+
 } //--- end model
 
 ?>

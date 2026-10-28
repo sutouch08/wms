@@ -1,15 +1,15 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-    <h4 class="title"><?php echo $this->title; ?> </h4>
-  </div>
+		<h4 class="title"><?php echo $this->title; ?> </h4>
+	</div>
 </div><!-- End Row -->
-<hr class=""/>
+<hr class="" />
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 	<div class="row">
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 			<label>เลขที่เอกสาร</label>
-			<input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
+			<input type="text" class="form-control input-sm search" name="code" value="<?php echo $code; ?>" />
 		</div>
 
 		<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
@@ -44,63 +44,70 @@
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-    <p class="pull-right">
-      สถานะ : <span class="green">สำเร็จ</span> = เข้า SAP แล้ว, &nbsp;
-      <span class="red">ERROR</span> = เกิดข้อผิดพลาด, &nbsp;
-      <span class="blue">NC</span> = ยังไม่เข้า SAP
-    </p>
-  </div>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<p class="pull-right">
+			สถานะ : <span class="green">สำเร็จ</span> = เข้า SAP แล้ว, &nbsp;
+			<span class="red">ERROR</span> = เกิดข้อผิดพลาด, &nbsp;
+			<span class="blue">NC</span> = ยังไม่เข้า SAP
+		</p>
+	</div>
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1 dataTable" style="min-width:900px;">
-      <thead>
+		<table class="table table-striped border-1 dataTable" style="min-width:900px;">
+			<thead>
 				<tr class="font-size-11">
 					<th class="fix-width-80"></th>
 					<th class="fix-width-60 text-center">สถานะ</th>
-          <th class="fix-width-40 text-center">ลำดับ</th>
-          <th class="fix-width-100 text-center">วันที่</th>
-          <th class="fix-width-150">เลขที่เอกสาร </th>
-          <th class="fix-width-150">เข้าถังกลาง</th>
-          <th class="fix-width-150">เข้า SAP</th>
+					<th class="fix-width-40 text-center">ลำดับ</th>
+					<th class="fix-width-100 text-center">วันที่</th>
+					<th class="fix-width-150">เลขที่เอกสาร </th>
+					<th class="fix-width-150">เข้าถังกลาง</th>
+					<th class="fix-width-150">เข้า SAP</th>
 					<th class="min-width-100">หมายเหตุ</th>
-        </tr>
-      </thead>
-      <tbody>
-<?php if(!empty($orders))  : ?>
-<?php $no = $this->uri->segment(4) + 1; ?>
-<?php   foreach($orders as $rs)  : ?>
-        <tr class="font-size-11">
-					<td>
-						<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
-							<i class="fa fa-eye"></i>
-						</button>
-					</td>
-					<td class="text-center">
-            <?php if($rs->F_Sap === NULL) : ?>
-              <span class="blue">NC</span>
-            <?php elseif($rs->F_Sap === 'N') : ?>
-              <span class="red">ERROR</span>
-						<?php elseif($rs->F_Sap == 'Y') : ?>
-							<span class="green">สำเร็จ</span>
-            <?php endif; ?>
-          </td>
-					<td class="text-center"><?php echo $no; ?></td>
-          <td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
-          <td><?php echo $rs->U_ECOMNO; ?></td>
-          <td><?php echo empty($rs->F_E_CommerceDate) ? NULL : thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
-          <td><?php echo empty($rs->F_SapDate) ? NULL : thai_date($rs->F_SapDate, TRUE); ?></td>
-          <td><?php echo $rs->F_Sap === 'N' ? $rs->Message : NULL; ?></td>
-        </tr>
-<?php  $no++; ?>
-<?php endforeach; ?>
-<?php else : ?>
-      <tr>
-        <td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
-      </tr>
-<?php endif; ?>
-      </tbody>
-    </table>
-  </div>
+				</tr>
+			</thead>
+			<tbody>
+				<?php if (!empty($orders)) : ?>
+					<?php $no = $this->uri->segment(4) + 1; ?>
+					<?php foreach ($orders as $rs) : ?>
+						<tr class="font-size-11">
+							<td>
+								<button type="button" class="btn btn-minier btn-info" onclick="get_detail(<?php echo $rs->DocEntry; ?>)">
+									<i class="fa fa-eye"></i>
+								</button>
+								<?php if (($rs->F_Sap === 'N' or $rs->F_Sap == NULL)) : ?>
+									<button type="button" class="btn btn-minier btn-danger" onclick="deleteTemp(<?php echo $rs->DocEntry; ?>, '<?php echo $rs->U_ECOMNO; ?>', <?php echo $no; ?>)">
+										<i class="fa fa-trash"></i>
+									</button>
+								<?php endif; ?>
+							</td>
+							<td class="text-center">
+								<?php if ($rs->F_Sap === NULL) : ?>
+									<span class="blue">NC</span>
+								<?php elseif ($rs->F_Sap === 'N') : ?>
+									<span class="red">ERROR</span>
+								<?php elseif ($rs->F_Sap == 'Y') : ?>
+									<span class="green">สำเร็จ</span>
+								<?php endif; ?>
+							</td>
+							<td class="text-center"><?php echo $no; ?></td>
+							<td class="text-center"><?php echo thai_date($rs->DocDate); ?></td>
+							<td><?php echo $rs->U_ECOMNO; ?></td>
+							<td><?php echo empty($rs->F_E_CommerceDate) ? NULL : thai_date($rs->F_E_CommerceDate, TRUE); ?></td>
+							<td><?php echo empty($rs->F_SapDate) ? NULL : thai_date($rs->F_SapDate, TRUE); ?></td>
+							<td><?php echo $rs->F_Sap === 'N' ? $rs->Message : NULL; ?></td>
+						</tr>
+						<?php $no++; ?>
+					<?php endforeach; ?>
+				<?php else : ?>
+					<tr>
+						<td colspan="8" class="text-center">
+							<h4>ไม่พบรายการ</h4>
+						</td>
+					</tr>
+				<?php endif; ?>
+			</tbody>
+		</table>
+	</div>
 </div>
 
 <script src="<?php echo base_url(); ?>scripts/inventory/temp/temp_receive_transform_list.js?v=<?php echo date('YmdH'); ?>"></script>

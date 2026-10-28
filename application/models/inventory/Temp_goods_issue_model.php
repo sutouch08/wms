@@ -128,6 +128,16 @@ class Temp_goods_issue_model extends CI_Model
     return NULL;
   }
 
+  public function delete_temp_details($id)
+  {
+    return $this->mc->where('DocEntry', $id)->delete('IGE1');
+  }
+
+  public function delete_temp($id)
+  {
+    return $this->mc->where('DocEntry', $id)->delete('OIGE');
+  }
+
 } //--- end model
 
 ?>
