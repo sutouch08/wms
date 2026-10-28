@@ -6,6 +6,16 @@ class Temp_receive_transform_model extends CI_Model
     parent::__construct();
   }
 
+  public function get($docEntry)
+  {
+    $rs = $this->mc->where('DocEntry', $docEntry)->get('OIGN');
+    if ($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
   public function count_rows(array $ds = array())
   {

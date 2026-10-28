@@ -1,4 +1,3 @@
-var HOME = BASE_URL + '/inventory/temp_goods_issue/';
 
 function goBack(){
   window.location.href = HOME;

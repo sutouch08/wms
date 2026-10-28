@@ -1,5 +1,3 @@
-var HOME = BASE_URL + '/inventory/temp_receive_transform/';
-
 function goBack(){
   window.location.href = HOME;
 }
