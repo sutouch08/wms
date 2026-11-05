@@ -4156,7 +4156,7 @@ class Orders extends PS_Controller
               } //--- if wms = 1
 
               //--- if Sokochan
-              if ($order->is_wms = 2)
+              if ($order->is_wms == 2)
               {
                 $this->load->model('rest/V1/soko_temp_order_model');
                 $this->load->library('soko_receive_api');
@@ -4498,14 +4498,15 @@ class Orders extends PS_Controller
   {
     $code = $this->input->post('order_code');
     $ds = $this->input->post('price');
-    $approver  = $this->input->post('approver');
-    $user = get_cookie('uname');
+    $approver  = $this->input->post('approver');    
     $this->load->model('orders/discount_logs_model');
+
     foreach ($ds as $id => $value)
     {
       //----- ข้ามรายการที่ไม่ได้กำหนดค่ามา
       if ($value != "")
       {
+        $value = floatval($value);
         //--- ได้ Obj มา
         $detail = $this->orders_model->get_detail($id);
 
@@ -4513,26 +4514,27 @@ class Orders extends PS_Controller
         if (! empty($detail))
         {
           //------ คำนวณส่วนลดใหม่
-          $price   = $value;
+          $price = $value;
           $discAmount = 0;
           $step = array($detail->discount1, $detail->discount2, $detail->discount3);
+
           foreach ($step as $discount_text)
           {
             $disc   = explode('%', $discount_text);
-            $disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
-            $discount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
+            $disc[0] = trim($disc[0] ?? ''); //--- ตัดช่องว่างออก
+            $discount = count($disc ?? []) == 1 ? floatval($disc[0]) : $price * (floatval($disc[0]) * 0.01); //--- ส่วนลดต่อชิ้น
             $discAmount += $discount;
             $price -= $discount;
           }
 
-          $total_discount = $detail->qty * $discAmount; //---- ส่วนลดรวม
-          $total_amount = ($detail->qty * $value) - $total_discount; //--- ยอดรวมสุดท้าย
+          $total_discount = floatval($detail->qty) * $discAmount; //---- ส่วนลดรวม
+          $total_amount = (floatval($detail->qty) * $value) - $total_discount; //--- ยอดรวมสุดท้าย
 
           $arr = array(
             'price' => $value,
             'discount_amount' => $total_discount,
             'total_amount' => $total_amount,
-            'update_user' => $user
+            'update_user' => $this->_user->uname
           );
 
           $cs = $this->orders_model->update_detail($id, $arr);
@@ -4540,13 +4542,14 @@ class Orders extends PS_Controller
           if ($cs)
           {
             $log_data = array(
-              "order_code"    => $code,
+              "order_code" => $code,
               "product_code"  => $detail->product_code,
               "old_price"  => $detail->price,
               "new_price"  => $value,
-              "user"  => $user,
-              "approver"    => $approver
+              "user" => $this->_user->uname,
+              "approver" => $approver
             );
+
             $this->discount_logs_model->logs_price($log_data);
           }
         }  //--- end if detail
