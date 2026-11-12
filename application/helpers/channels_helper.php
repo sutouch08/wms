@@ -121,4 +121,24 @@ function offline_channels_array()
 
   return $arr;
 }
+
+function shop_name_array()
+{  
+  $ci =& get_instance();
+  $ci->load->model('masters/channels_model');
+  $shops = $ci->channels_model->get_shop_list();
+
+  if(!empty($shops))
+  {
+    $arr = [];
+    foreach($shops as $shop)
+    {
+      $arr[$shop->shop_id] = $shop->shop_name;
+    }
+
+    return $arr;
+  }
+
+  return [];
+}
  ?>

@@ -214,5 +214,11 @@ class Channels_model extends CI_Model
     return NULL;
   }
 
+  public function get_shop_list()
+  {
+    $rs = $this->db->get('market_place_shop');
+    return $rs->num_rows() > 0 ? $rs->result() : NULL;
+  }
+
 }
 ?>
