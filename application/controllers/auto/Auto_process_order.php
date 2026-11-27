@@ -74,6 +74,7 @@ class Auto_process_order extends CI_Controller
 
           $arr = array(
             'state' => 7,
+            'dispatch_id' => -1,
             'update_user' => $this->user
           );
 
