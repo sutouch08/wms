@@ -1536,6 +1536,10 @@ class Return_order extends PS_Controller
 
   public function load_invoice()
   {
+    ini_set('memory_limit', '2048M');
+    ini_set('sqlsrv.ClientBufferMaxKBSize', '2097152'); 
+    ini_set('sqlsrv.client_buffer_max_kb_size', '2097152');
+
     $sc = TRUE;
     $invoice = $this->input->post('invoice_code');
     $order_code = $this->input->post('order_code');
