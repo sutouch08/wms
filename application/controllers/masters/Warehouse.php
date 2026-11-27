@@ -139,51 +139,7 @@ class Warehouse extends PS_Controller
     echo 'success';
   }
 
-  public function updatex()
-  {
-    if($this->pm->can_edit)
-    {
-      if($this->input->post('code'))
-      {
-        $code = $this->input->post('code');
-        
-        $arr = array(
-          'role' => $this->input->post('role'),
-          'sell' => $this->input->post('sell'),
-          'prepare' => $this->input->post('prepare'),
-          'lend' => $this->input->post('lend'),
-          'auz' => $this->input->post('auz'),
-          'active' => $this->input->post('active'),
-          'is_consignment' => get_null($this->input->post('is_consignment')),
-          'is_pos' => $this->input->post('is_pos') == 1 ? 1 : 0,
-          'update_user' => get_cookie('uname')
-        );
-
-        if($this->warehouse_model->update($code, $arr))
-        {
-          set_message("Update Successfull");
-          redirect($this->home.'/edit/'.$code);
-        }
-        else
-        {
-          set_error("Update Fail");
-          redirect($this->home.'/edit/'.$code);
-        }
-      }
-      else
-      {
-        set_error('ไม่พบรหัสคลังสินค้า');
-        redirect($this->home);
-      }
-    }
-    else
-    {
-      set_error('คุณไม่มีสิทธิ์แก้ไขคลังสินค้า');
-      redirect($this->home);
-    }
-  }
-
-
+  
   public function delete($code)
   {
     $sc = TRUE;

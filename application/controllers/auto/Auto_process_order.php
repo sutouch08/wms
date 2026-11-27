@@ -125,6 +125,7 @@ class Auto_process_order extends CI_Controller
                 $prepare = array(
                   'order_code' => $order->code,
                   'product_code' => $rs->product_code,
+                  'warehouse_code' => $whs->code,
                   'zone_code' => $whs->default_zone,
                   'qty' => $rs->qty,
                   'user' => $this->user,
@@ -141,6 +142,7 @@ class Auto_process_order extends CI_Controller
                 $buffer = array(
                   'order_code' => $order->code,
                   'product_code' => $rs->product_code,
+                  'warehouse_code' => $whs->code,
                   'zone_code' => $whs->default_zone,
                   'qty' => $rs->qty,
                   'user' => $this->user,
