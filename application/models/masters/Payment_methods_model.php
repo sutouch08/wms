@@ -168,6 +168,17 @@ class Payment_methods_model extends CI_Model
   }
 
 
+  public function get_all()
+  {
+    $rs = $this->db->get('payment_method');
+    
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 
 
   public function is_exists($code, $id = NULL)

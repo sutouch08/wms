@@ -1,26 +1,17 @@
-var HOME = BASE_URL + 'masters/warehouse';
-
 function goBack(){
-  window.location.href = HOME;
+  window.location.href = `${HOME}`;
 }
-
-function getSearch(){
-  $('#searchForm').submit();
-}
-
-
-function clearFilter(){
-  $.get(HOME +'/clear_filter', function(){
-    goBack();
-  });
-}
-
-
 
 function getEdit(code){
-  window.location.href = HOME + '/edit/'+code;
+  window.location.href = `${HOME}edit/${code}`;
 }
 
+function toggleOption(el) {
+  let name = el.data('name');
+  let option = el.is(':checked') ? 1 : 0;
+  $("input[name='" + name + "']").val(option);
+  console.log(name + ' : ' + $("input[name='" + name + "']").val());
+}
 
 
 function getDelete(code){
@@ -35,7 +26,7 @@ function getDelete(code){
 		closeOnConfirm: false
   },function(){
     $.ajax({
-      url: HOME + '/delete/' + code,
+      url: `${HOME}delete/${code}`,
       type:'GET',
       cache:false,
       success:function(rs){
@@ -61,113 +52,9 @@ function getDelete(code){
   })
 }
 
-function toggleConsignment(option)
-{
-  $('#is_consignment').val(option);
-  if(option == 1){
-    $('#btn-cm-yes').addClass('btn-success');
-    $('#btn-cm-no').removeClass('btn-danger');
-  }
-  else
-  {
-    $('#btn-cm-yes').removeClass('btn-success');
-    $('#btn-cm-no').addClass('btn-danger');
-  }
-}
-
-
-function toggleSell(option)
-{
-  $('#sell').val(option);
-  if(option == 1){
-    $('#btn-sell-yes').addClass('btn-success');
-    $('#btn-sell-no').removeClass('btn-danger');
-  }
-  else
-  {
-    $('#btn-sell-yes').removeClass('btn-success');
-    $('#btn-sell-no').addClass('btn-danger');
-  }
-}
-
-
-function togglePrepare(option)
-{
-  $('#prepare').val(option);
-  if(option == 1){
-    $('#btn-prepare-yes').addClass('btn-success');
-    $('#btn-prepare-no').removeClass('btn-danger');
-  }
-  else
-  {
-    $('#btn-prepare-yes').removeClass('btn-success');
-    $('#btn-prepare-no').addClass('btn-danger');
-  }
-}
-
-
-function toggleLend(option)
-{
-  $('#lend').val(option);
-  if(option == 1){
-    $('#btn-lend-yes').addClass('btn-success');
-    $('#btn-lend-no').removeClass('btn-danger');
-  }
-  else
-  {
-    $('#btn-lend-yes').removeClass('btn-success');
-    $('#btn-lend-no').addClass('btn-danger');
-  }
-}
-
-function toggleAuz(option)
-{
-  $('#auz').val(option);
-  if(option == 1){
-    $('#btn-auz-yes').addClass('btn-success');
-    $('#btn-auz-no').removeClass('btn-danger');
-  }
-  else
-  {
-    $('#btn-auz-yes').removeClass('btn-success');
-    $('#btn-auz-no').addClass('btn-danger');
-  }
-}
-
-
-function toggleIsPos(option)
-{
-  $('#is_pos').val(option);
-
-  if(option == 1) {
-    $('#btn-pos-yes').addClass('btn-success');
-    $('#btn-pos-no').removeClass('btn-primary');
-  }
-
-  if(option == 0) {
-    $('#btn-pos-no').addClass('btn-primary');
-    $('#btn-pos-yes').removeClass('btn-success');
-  }
-}
-
-function toggleActive(option)
-{
-  $('#active').val(option);
-  if(option == 1){
-    $('#btn-active-yes').addClass('btn-success');
-    $('#btn-active-no').removeClass('btn-danger');
-  }
-  else
-  {
-    $('#btn-active-yes').removeClass('btn-success');
-    $('#btn-active-no').addClass('btn-danger');
-  }
-}
-
-
 function syncData(){
   load_in();
-  $.get(HOME +'/syncData', function(){
+  $.get(`${HOME}syncData`, function(){
     load_out();
     swal({
       title:'Completed',
@@ -184,7 +71,7 @@ function syncData(){
 function syncAllData() {
   load_in();
 
-  $.get(HOME + '/syncAllData', function() {
+  $.get(`${HOME}syncAllData`, function() {
     load_out();
     swal({
       title:'Completed',
@@ -223,4 +110,84 @@ function exportFilter(){
   var token = $('#token').val();
   get_download(token);
   $('#exportForm').submit();
+}
+
+
+$('#default-zone-code').autocomplete({
+  source: `${HOME}get_zone_code_and_name/${$('#code').val()}`,
+  autoFocus: true,
+  close: function() {
+    let arr = $(this).val().trim().split(' | ');
+    
+    if(arr.length === 2) {
+      $('#default-zone-code').val(arr[0]);
+      $('#default-zone-name').val(arr[1]);
+    } 
+    else {
+      $('#default-zone-code').val('');
+      $('#default-zone-name').val('');
+    }
+  }
+});
+
+function update() {
+  $('#role').clearError();
+  $('#default-zone-code').clearError();
+
+  let h = {
+    'code' : $('#code').val(),
+    'role' : $('#role').val(),
+    'default_zone' : $('#default-zone-code').val().trim(),
+    'is_consignment' : $('#is-consignment').val(),
+    'sell' : $('#sell').val(),
+    'prepare' : $('#prepare').val(),
+    'lend' : $('#lend').val(),    
+    'auz' : $('#auz').val(),
+    'is_pos' : $('#is-pos').val(),
+    'auto_shipping' : $('#auto-shipping').val()
+  };
+
+  if(h.role === '') {
+    $('#role').hasError();
+    return false;
+  }
+
+  if(h.auto_shipping == 1 && h.default_zone === '') {
+    $('#default-zone-code').hasError();
+    swal({
+      title:'Required',
+      text: 'Default zone is required when auto shipping is enabled.',
+      type: 'error'
+    });
+
+    return false;
+  }
+
+  load_in();
+  
+  $.ajax({
+    url: `${HOME}update`,
+    type:'POST',
+    cache:false,
+    data: {
+      'data' : JSON.stringify(h)
+    },
+    success:function(rs) {
+      load_out();
+
+      if(rs.trim() === 'success') {
+        swal({
+          title: 'Success',
+          type: 'success',
+          timer: 1000
+        });
+      }
+      else {
+        showError(rs);
+      }
+    },
+    error:function(rs) {
+      showError(rs);
+    }
+  });
 }

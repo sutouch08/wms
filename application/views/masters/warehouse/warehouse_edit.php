@@ -1,176 +1,175 @@
 <?php $this->load->view('include/header'); ?>
 <?php
-	$sell_yes = $ds->sell == 1 ? 'btn-success' : '';
-	$sell_no = $ds->sell == 0 ? 'btn-danger' : '';
-	$prepare_yes = $ds->prepare == 1 ? 'btn-success' : '';
-	$prepare_no = $ds->prepare == 0 ? 'btn-danger' : '';
-	$lend_yes = $ds->lend == 1 ? 'btn-success' : '';
-	$lend_no = $ds->lend == 0 ? 'btn-danger' : '';
-	$auz_yes = $ds->auz == 1 ? 'btn-success' : '';
-	$auz_no = $ds->auz == 0 ? 'btn-danger' : '';
-	$btn_active = $ds->active == 1 ? 'btn-success' : 'btn-danger';
-	$active_yes = $ds->active == 1 ? 'btn-success' : '';
-	$active_no = $ds->active == 0 ? 'btn-danger' : '';
-	$cm_yes = $ds->is_consignment == 1 ? 'btn-success' : '';
-	$cm_no = empty($ds->is_consignment) ? 'btn-danger' : '';
-	$pos_yes = $ds->is_pos == 1 ? 'btn-success' : '';
-	$pos_no = $ds->is_pos == 0 ? 'btn-primary' : '';
- ?>
+$sell_yes = $ds->sell == 1 ? 'btn-success' : '';
+$sell_no = $ds->sell == 0 ? 'btn-danger' : '';
+$prepare_yes = $ds->prepare == 1 ? 'btn-success' : '';
+$prepare_no = $ds->prepare == 0 ? 'btn-danger' : '';
+$lend_yes = $ds->lend == 1 ? 'btn-success' : '';
+$lend_no = $ds->lend == 0 ? 'btn-danger' : '';
+$auz_yes = $ds->auz == 1 ? 'btn-success' : '';
+$auz_no = $ds->auz == 0 ? 'btn-danger' : '';
+$btn_active = $ds->active == 1 ? 'btn-success' : 'btn-danger';
+$active_yes = $ds->active == 1 ? 'btn-success' : '';
+$active_no = $ds->active == 0 ? 'btn-danger' : '';
+$cm_yes = $ds->is_consignment == 1 ? 'btn-success' : '';
+$cm_no = empty($ds->is_consignment) ? 'btn-danger' : '';
+$pos_yes = $ds->is_pos == 1 ? 'btn-success' : '';
+$pos_no = $ds->is_pos == 0 ? 'btn-primary' : '';
+?>
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title"><?php echo $this->title; ?></h3>
-  </div>
-	<div class="col-sm-6">
-		<p class="pull-right">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
-		</p>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-top-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
+		<button type="button" class="btn btn-white btn-default top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
 	</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
-<form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update"; ?>">
+<hr />
+<div class="form-horizontal margin-top-30">
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">รหัสคลัง</label>
-    <div class="col-xs-12 col-sm-3">
-      <input type="text" class="form-control input-sm" value="<?php echo $ds->code; ?>" disabled />
-    </div>
-  </div>
-
-
-
-  <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">ชื่อคลัง</label>
-    <div class="col-xs-12 col-sm-3">
-			<input type="text" class="form-control input-sm" value="<?php echo $ds->name; ?>" disabled />
-    </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">ประเภทคลัง</label>
- 	 <div class="col-xs-12 col-sm-3">
- 		 <select class="form-control input-sm" name="role" required>
- 		 	<option value="">กรุณาเลือก</option>
-			<?php echo select_warehouse_role($ds->role); ?>
- 		 </select>
- 	 </div>
-  </div>
-
-	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">มูลค่าสูงสุด</label>
-    <div class="col-xs-12 col-sm-3">
-			<input type="text" class="form-control input-sm" value="<?php echo number($ds->limit_amount, 2); ?>" disabled />
-    </div>
-    <div class="help-block col-xs-12 col-sm-reset inline" >
-			มูลค่ารวม(ทุน)ของสินค้าที่อนุญาติให้มีได้ในคลังนี้ หากไม่ต้องการจำกัดมูลค่า ให้กำหนดเป็น 0.00
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label no-padding-right">รหัสคลัง</label>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-12">
+			<input type="text" class="form-control input-sm" value="<?php echo $ds->code; ?>" disabled />
 		</div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">ฝากขายเทียม</label>
- 	 <div class="col-xs-12 col-sm-2">
- 		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $cm_yes; ?>" id="btn-cm-yes" onclick="toggleConsignment(1)">ใช่</button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $cm_no; ?>" id="btn-cm-no" onclick="toggleConsignment(0)">ไม่ใช่</button>
- 		</div>
- 	 </div>
-  </div>
-
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้ขาย</label>
- 	 <div class="col-xs-12 col-sm-2">
- 		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $sell_yes; ?>" id="btn-sell-yes" onclick="toggleSell(1)">ใช่</button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $sell_no; ?>" id="btn-sell-no" onclick="toggleSell(0)">ไม่ใช่</button>
- 		</div>
- 	 </div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้จัด</label>
- 	 <div class="col-xs-12 col-sm-2">
- 		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $prepare_yes; ?>" id="btn-prepare-yes" onclick="togglePrepare(1)">ใช่</button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $prepare_no; ?>" id="btn-prepare-no" onclick="togglePrepare(0)">ไม่ใช่</button>
- 		</div>
- 	 </div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้ยืม</label>
- 	 <div class="col-xs-12 col-sm-2">
- 		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $lend_yes; ?>" id="btn-lend-yes" onclick="toggleLend(1)">ใช่</button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $lend_no; ?>" id="btn-lend-no" onclick="toggleLend(0)">ไม่ใช่</button>
- 		</div>
- 	 </div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้ติดลบ</label>
- 	 <div class="col-xs-12 col-sm-2">
- 		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $auz_yes; ?>" id="btn-auz-yes" onclick="toggleAuz(1)">ใช่</button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $auz_no; ?>" id="btn-auz-no" onclick="toggleAuz(0)">ไม่ใช่</button>
- 		</div>
- 	 </div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">POS API</label>
- 	 <div class="col-xs-12 col-sm-2">
- 		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $pos_yes; ?>" id="btn-pos-yes" onclick="toggleIsPos(1)">ใช่</button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $pos_no; ?>" id="btn-pos-no" onclick="toggleIsPos(0)">ไม่ใช่</button>
- 		</div>
- 	 </div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">สถานะ</label>
- 	 <div class="col-xs-12 col-sm-2">
-		<?php if($this->_SuperAdmin) : ?>
-			<div class="btn-group width-100">
-				<button type="button" class="btn btn-sm width-50 <?php echo $active_yes; ?>" id="btn-active-yes" onclick="toggleActive(1)">Active</button>
-				<button type="button" class="btn btn-sm width-50 <?php echo $active_no; ?>" id="btn-active-no" onclick="toggleActive(0)">Inactive</button>
-			</div>
-		<?php else : ?>
-		 <button type="button" class="btn btn-sm <?php echo $btn_active; ?>" style="width:100px;" disabled>
-			 <?php echo $ds->active == 1 ? 'Active' : 'Inactive'; ?>
-		 </button>
-	 <?php endif; ?>
-		 <input type="hidden" name="active" id="active" value="<?php echo $ds->active; ?>" />
- 	 </div>
-  </div>
-
-
-
-	<div class="divider-hidden">
-
 	</div>
-  <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"></label>
-    <div class="col-xs-12 col-sm-3">
-      <p class="pull-right">
-        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Save</button>
-      </p>
-    </div>
-    <div class="help-block col-xs-12 col-sm-reset inline">
-      &nbsp;
-    </div>
-  </div>
-	<input type="hidden" name="code" value="<?php echo $ds->code; ?>">
-	<input type="hidden" name="sell" id="sell" value="<?php echo $ds->sell; ?>">
-	<input type="hidden" name="prepare" id="prepare" value="<?php echo $ds->prepare; ?>">
-	<input type="hidden" name="lend" id="lend" value="<?php echo $ds->lend; ?>">
-	<input type="hidden" name="auz" id="auz" value="<?php echo $ds->auz; ?>">
-	<input type="hidden" name="is_pos" id="is_pos" value="<?php echo $ds->is_pos; ?>">
-	<!--
-	<input type="hidden" name="active" id="active" value="<?php echo $ds->active; ?>">
--->
-	<input type="hidden" name="is_consignment" id="is_consignment" value="<?php echo $ds->is_consignment; ?>">
-</form>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label no-padding-right">ชื่อคลัง</label>
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+			<input type="text" class="form-control input-sm" value="<?php echo $ds->name; ?>" disabled />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label no-padding-right">ประเภทคลัง</label>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-12">
+			<select class="form-control input-sm" name="role" id="role">
+				<option value="">กรุณาเลือก</option>
+				<?php echo select_warehouse_role($ds->role); ?>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label no-padding-right">มูลค่าสูงสุด</label>
+		<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-12">
+			<input type="text" class="form-control input-sm" value="<?php echo number($ds->limit_amount, 2); ?>" disabled />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label no-padding-right">Default Bin Location</label>
+		<div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-12">
+			<input type="text" class="form-control input-sm" id="default-zone-code" value="<?php echo $ds->default_zone; ?>" />
+		</div>
+		<div class="col-lg-5 col-md-6 col-sm-6 col-xs-12 hidden-xs">
+			<input type="text" class="form-control input-sm" id="default-zone-name" value="<?php echo empty($ds->default_zone) ? '' : zone_name($ds->default_zone ?? ''); ?>" readonly />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">ฝากขายเทียม</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="is_consignment" type="checkbox" value="1" <?php echo is_checked($ds->is_consignment, '1'); ?> onchange="toggleOption($(this))" />
+				<span class="lbl margin-left-0" data-lbl="NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YES"></span>
+			</label>
+			<input type="hidden" name="is_consignment" id="is-consignment" value="<?php echo $ds->is_consignment; ?>" />
+		</div>
+	</div>
+
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">อนุญาติให้ขาย</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="sell" type="checkbox" value="1" <?php echo is_checked($ds->sell, '1'); ?> onchange="toggleOption($(this))" />
+				<span class="lbl margin-left-0" data-lbl="NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YES"></span>
+			</label>
+			<input type="hidden" name="sell" id="sell" value="<?php echo $ds->sell; ?>" />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">อนุญาติให้จัด</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="prepare" type="checkbox" value="1" <?php echo is_checked($ds->prepare, '1'); ?> onchange="toggleOption($(this))" />
+				<span class="lbl margin-left-0" data-lbl="NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YES"></span>
+			</label>
+			<input type="hidden" name="prepare" id="prepare" value="<?php echo $ds->prepare; ?>" />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">อนุญาติให้ยืม</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="lend" type="checkbox" value="1" <?php echo is_checked($ds->lend, '1'); ?> onchange="toggleOption($(this))" />
+				<span class="lbl margin-left-0" data-lbl="NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YES"></span>
+			</label>
+			<input type="hidden" name="lend" id="lend" value="<?php echo $ds->lend; ?>" />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">อนุญาติให้ติดลบ</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="auz" type="checkbox" value="1" <?php echo is_checked($ds->auz, '1'); ?> onchange="toggleOption($(this))" />
+				<span class="lbl margin-left-0" data-lbl="NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YES"></span>
+			</label>
+			<input type="hidden" name="auz" id="auz" value="<?php echo $ds->auz; ?>" />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">POS API</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="is_pos" type="checkbox" value="1" <?php echo is_checked($ds->is_pos, '1'); ?> onchange="toggleOption($(this))" />
+				<span class="lbl margin-left-0" data-lbl="NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YES"></span>
+			</label>
+			<input type="hidden" name="is_pos" id="is-pos" value="<?php echo $ds->is_pos; ?>" />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">Auto Shipping</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<input class="ace ace-switch ace-switch-7" data-name="auto_shipping" type="checkbox" value="1" <?php echo is_checked($ds->auto_shipping, '1'); ?> onchange="toggleOption($(this))" />
+				<span class="lbl margin-left-0" data-lbl="NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YES"></span>
+			</label>
+			<input type="hidden" name="auto_shipping" id="auto-shipping" value="<?php echo $ds->auto_shipping; ?>" />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-6 control-label control-label-xs no-padding-right">สถานะ</label>
+		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-6 text-right-xs">
+			<label style="padding-top:5px; margin-bottom:0px;">
+				<?php if ($ds->active == 1) : ?>
+					<span class="lbl green"><i class="fa fa-check fa-lg"></i>&nbsp;&nbsp;Active</span>
+				<?php else : ?>
+					<span class="lbl red"><i class="fa fa-times fa-lg"></i>&nbsp;&nbsp;Inactive</span>
+				<?php endif; ?>
+			</label>
+		</div>
+	</div>
+
+	<div class="divider-hidden"></div>
+	<div class="divider-hidden"></div>
+	<div class="divider-hidden"></div>
+
+	<div class="form-group">
+		<div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
+			<button type="button" class="btn btn-white btn-success btn-100 btn-block-xs" onclick="update()"><i class="fa fa-save"></i>&nbsp; Save</button>
+		</div>
+	</div>
+	<input type="hidden" name="code" id="code" value="<?php echo $ds->code; ?>">
+</div>
 
 <script src="<?php echo base_url(); ?>scripts/masters/warehouse.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

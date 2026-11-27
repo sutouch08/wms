@@ -227,7 +227,8 @@ class Auto_confirm_order extends CI_Controller
     {
       if($sc === TRUE)
       {
-        if( ! empty($order->reference) && ($order->channels_code == '0009' OR $order->channels_code == 'SHOPEE' OR $order->channels_code == 'LAZADA'))
+        $ch = ['0009', 'SHOPEE', 'LAZADA'];
+        if( ! empty($order->reference) && in_array($order->channels_code, $ch) && ! $order->auto_shipping)
         {
           if($this->is_cancel($order->reference, $order->channels_code, $order->shop_id))
           {

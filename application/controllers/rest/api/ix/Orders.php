@@ -16,7 +16,7 @@ class Orders extends REST_Controller
   public $checkBackorder = FALSE;
   public $sync_api_stock = FALSE;
   private $type = 'ORDER';
-  public $order_code = NULL;
+  public $order_code = '';
 
   public function __construct()
   {
@@ -68,8 +68,7 @@ class Orders extends REST_Controller
     $start_date = now(TRUE);
     $sc = TRUE;
     $action = 'create';
-    $this->api_path = $this->api_path."/create";
-    //--- Get raw post data
+    $this->api_path = $this->api_path."/create";   
     $json = file_get_contents("php://input");
 
     if( ! $this->api)
@@ -102,7 +101,7 @@ class Orders extends REST_Controller
       $this->response($arr, 400);
     }
 
-    $data = json_decode($json);
+    $data = json_decode($json ?? '{}');
 
     if(empty($data))
     {
@@ -169,6 +168,7 @@ class Orders extends REST_Controller
     $role = 'S';
     $bookcode = getConfig('BOOK_CODE_ORDER');
     $warehouse_code = (isset($data->warehouse) && ! empty($data->warehouse)) ? $data->warehouse : getConfig('IX_WAREHOUSE');
+    $ix_warehouse = getConfig('IX_WAREHOUSE');
     $customer = NULL;
     $zone_code = NULL;
     $channels_code = empty($data->channel) ? NULL : $data->channel;
@@ -185,7 +185,7 @@ class Orders extends REST_Controller
     $tax_status = empty($data->tax_status) ? 0 : ($data->tax_status == 'Y' ? 1 : 0);
     $is_etax = empty($data->ETAX) ? 0 : ($data->ETAX == 'Y' && $tax_status == 1 ? 1 : 0);
     $bill_to = empty($data->bill_to) ? NULL : (array) $data->bill_to;
-    $customer_ref = empty(trim($data->customer_ref)) ? NULL : get_null(trim($data->customer_ref));
+    $customer_ref = empty(trim($data->customer_ref ?? '')) ? NULL : get_null(trim($data->customer_ref ?? ''));
 
     $taxType = array(
       'NIDN' => 'NIDN', //-- บุคคลธรรมดา
@@ -355,7 +355,7 @@ class Orders extends REST_Controller
     }
 
     //---- for check duplicate order number
-    $order = $this->orders_model->get_active_order_by_reference(trim($data->order_number));
+    $order = $this->orders_model->get_active_order_by_reference(trim($data->order_number ?? ''));
 
     if($sc === TRUE && ! empty($order))
     {
@@ -630,17 +630,13 @@ class Orders extends REST_Controller
         }
       }
 
-      $is_wms = 0;
-
-      //---- id_sender
+      $is_wms = 0;      
       $spx_id = getConfig('SPX_ID');
       $sender = $this->sender_model->get_id($data->shipping);
       $id_sender = empty($sender) ? NULL : $sender;
       $id_address = NULL;
-
-      //--- order code gen จากระบบ
+      $auto_shipping = $warehouse->auto_shipping ?? 0;            
       $order_code = empty($order) ? $this->get_new_code($date_add, $role) : $order->code;
-
       $tracking = get_null($data->tracking_no);
       $tracking_ref = empty($data->tracking_ref) ? NULL : $data->tracking_ref;
 
@@ -700,7 +696,8 @@ class Orders extends REST_Controller
           'postcode'=> get_null($bill_to->postcode),
           'phone'=> get_null($bill_to->phone),
           'email'=> get_null($bill_to->email),
-          'shop_id' => $shop_id
+          'shop_id' => $shop_id,
+          'auto_shipping' => $auto_shipping
         );
       }
       else
@@ -745,7 +742,8 @@ class Orders extends REST_Controller
           'postcode'=> get_null($bill_to->postcode),
           'phone'=> get_null($bill_to->phone),
           'email'=> get_null($bill_to->email),
-          'shop_id' => $shop_id
+          'shop_id' => $shop_id,
+          'auto_shipping' => $auto_shipping
         );
       }
 
@@ -858,18 +856,18 @@ class Orders extends REST_Controller
 
                 //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
                 $arr = array(
-                  "order_code"	=> $order_code,
-                  "style_code"		=> $item->style_code,
-                  "product_code"	=> $item->code,
-                  "product_name"	=> $item->name,
-                  "cost"  => $item->cost,
+                  "order_code" => $order_code,
+                  "style_code" => $item->style_code,
+                  "product_code" => $item->code,
+                  "product_name" => $item->name,
+                  "cost" => $item->cost,
                   "price"	=> $rs->price, //--- price bef disc
-                  "qty"		=> $rs->qty,
+                  "qty" => $rs->qty,
                   "discount1"	=> $is_mkp ? round($disc, 2) : round(discountAmountToPercent($rs->discount, $rs->qty, $rs->price), 2).' %',
                   "discount2" => 0,
                   "discount3" => 0,
                   "discount_amount" => $rs->discount, //--- discount per item * qty
-                  "total_amount"	=> round($rs->amount, 2),
+                  "total_amount" => round($rs->amount, 2),
                   "id_rule"	=> NULL,
                   "is_count" => $item->count_stock,
                   "is_api" => 1,
@@ -891,7 +889,7 @@ class Orders extends REST_Controller
                     $total_sku[$item->code] = 1;
                   }
 
-                  if($item->count_stock && $is_reserv && ! empty($shop_id))
+                  if($item->count_stock && $is_reserv && ! empty($shop_id) && ($warehouse_code == $ix_warehouse))
                   {
                     $this->reserv_stock_model->deduct_reserv_qty($item->code, $rs->qty, $warehouse_code, $is_mkp, $shop_id);
                   }
@@ -916,10 +914,10 @@ class Orders extends REST_Controller
                     }
                   }
 
-                  if($this->sync_api_stock && $item->count_stock && $item->is_api && ! $is_pre_order)
+                  if(($warehouse_code == $ix_warehouse) && $this->sync_api_stock && $item->count_stock && $item->is_api && ! $is_pre_order)
           				{
                     $sync_stock[] = (object) array('code' => $item->code, 'rate' => $item->api_rate);
-          				}
+          				}                  
                 }
               } //--- end if item
             }  //--- endforeach add details
@@ -1056,7 +1054,7 @@ class Orders extends REST_Controller
           'status' => 'success',
           'message' => 'success',
           'order_code' => $order_code,
-          'url' => $site //site_url("orders/orders/edit_order/{$order_code}")
+          'url' => $site
         );
 
         if($this->logs_json)
@@ -1079,11 +1077,10 @@ class Orders extends REST_Controller
           $this->ix_api_logs_model->add_logs($logs);
         }
 
-        if($this->sync_api_stock && ! empty($sync_stock))
+        if($this->sync_api_stock && ! empty($sync_stock) && ($warehouse_code == $ix_warehouse))
         {
           $this->load->library('wrx_stock_api');
-          $warehouse_code = getConfig('IX_WAREHOUSE');
-
+          
           $i = 0;
           $j = 0;
 
@@ -1103,7 +1100,7 @@ class Orders extends REST_Controller
 
           foreach($items as $item)
           {
-            $this->wrx_stock_api->update_available_stock($item, $warehouse_code);
+            $this->wrx_stock_api->update_available_stock($item, $ix_warehouse);
           }
         }
 

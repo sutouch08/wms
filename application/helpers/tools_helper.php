@@ -464,6 +464,27 @@ function set_error($key, $name = "data")
 	$ci->error = (!empty($error[$key]) ? $error[$key] : "Unknow error.");
 }
 
+function get_error($key, $name = "data")
+{
+	$error = array(
+		'insert' => "Insert {$name} failed.",
+		'update' => "Update {$name} failed.",
+		'delete' => "Delete {$name} failed.",
+		'permission' => "You don't have permission to perform this operation.",
+		'required' => "Missing required parameter.",
+		'exists' => "'{$name}' already exists.",
+		'status' => "Invalid document status",
+		'notfound' => "Document number not found",
+		'transection' => "Unable to delete {$name} because transections exists or link to other module."
+	);
+
+	if(!empty($key))
+	{
+		return isset($error[$key ?? '']) ? $error[$key] : $key;
+	}
+	
+	return "Unknown error.";
+}
 
 function set_message($message)
 {

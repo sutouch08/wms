@@ -6,7 +6,7 @@ class Order_details extends PS_Controller
 	public $menu_group_code = 'RE';
   public $menu_sub_group_code = 'REAUDIT';
 	public $title = 'รายงานสถานะเอกสารขาออก แสดงรายละเอียด';
-  public $filter;
+ 
   public function __construct()
   {
     parent::__construct();
@@ -23,9 +23,9 @@ class Order_details extends PS_Controller
   public function index()
   {
     $ds = array(
-      'channels_list' => $this->channels_model->get_data(),
-      'payment_list' => $this->payment_methods_model->get_data(),
-      'warehouse_list' => $this->warehouse_model->get_sell_warehouse_list()
+      'channels_list' => $this->channels_model->get_all(),
+      'payment_list' => $this->payment_methods_model->get_all(),
+      'warehouse_list' => $this->warehouse_model->get_all_warehouse()
     );
 
     $this->load->view('report/audit/report_order_details', $ds);

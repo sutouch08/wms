@@ -73,7 +73,7 @@
 			<label>คลัง</label>
 	    <select class="form-control input-sm edit" name="warehouse" id="warehouse" disabled>
 				<option value="">เลือกคลัง</option>
-				<?php echo select_sell_warehouse($order->warehouse_code); ?>
+				<?php echo select_warehouse($order->warehouse_code); ?>
 			</select>
 	  </div>
 		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">

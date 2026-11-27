@@ -40,8 +40,8 @@ function zone_name($code)
 {
   $ci =& get_instance();
   $ci->load->model('masters/zone_model');
-
-  return $ci->zone_model->get_name($code);  
+  $name = $ci->zone_model->get_name($code); 
+  return empty($name) ? $code : $name;
 }
 
  ?>

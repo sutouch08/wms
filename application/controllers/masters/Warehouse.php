@@ -14,6 +14,7 @@ class Warehouse extends PS_Controller
     $this->home = base_url().'masters/warehouse';
     $this->load->model('masters/warehouse_model');
     $this->load->helper('warehouse');
+    $this->load->helper('zone');    
   }
 
   public function index()
@@ -27,7 +28,8 @@ class Warehouse extends PS_Controller
       'prepare' => get_filter('prepare', 'wh_prepare', 'all'),
       'lend' => get_filter('lend', 'wh_lend', 'all'),
       'auz' => get_filter('auz', 'wh_auz', 'all'),
-      'is_pos' => get_filter('is_pos', 'wh_is_pos', 'all')
+      'is_pos' => get_filter('is_pos', 'wh_is_pos', 'all'),
+      'auto_shipping' => get_filter('auto_shipping', 'wh_auto_shipping', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -74,17 +76,77 @@ class Warehouse extends PS_Controller
   }
 
 
+  function get_zone_code_and_name($whsCode)
+  {
+    $txt = trim($_REQUEST['term'] ?? '');
+    $this->db->select('code, name')->where('warehouse_code', $whsCode);
+
+    if($txt != '*')
+    {
+      $this->db->group_start()->like('code', $txt)->or_like('name', $txt)->group_end();
+    }
+    
+    $rs = $this->db->order_by('code', 'ASC')->limit(50)->get('zone');
+
+    if($rs->num_rows() > 0)
+    {
+      $ds = [];
+
+      foreach($rs->result() as $r)
+      {
+        $ds[] = $r->code.' | '. (empty($r->name) ? $r->code : $r->name);
+      }
+
+      echo json_encode($ds);
+      return;
+    }
+    
+    echo json_encode(['not found']);
+  }
+
 
   public function update()
+  {    
+    $ds = json_decode($this->input->post('data') ?? '{}');
+
+    if(empty($ds) || empty($ds->code))
+    {
+      echo get_error('required');
+      exit;
+    }
+    
+    $code = $ds->code;
+
+    $arr = array(
+      'role' => $ds->role,
+      'default_zone' => get_null($ds->default_zone),
+      'sell' => $ds->sell,
+      'prepare' => $ds->prepare,
+      'lend' => $ds->lend,
+      'auz' => $ds->auz,      
+      'is_consignment' => get_null($ds->is_consignment),
+      'is_pos' => $ds->is_pos == 1 ? 1 : 0,
+      'auto_shipping' => $ds->auto_shipping == 1 ? 1 : 0,
+      'update_user' => $this->_user->uname
+    );
+
+    if( ! $this->warehouse_model->update($code, $arr))
+    {
+      echo get_error('update');
+      exit;
+    }
+
+    echo 'success';
+  }
+
+  public function updatex()
   {
     if($this->pm->can_edit)
     {
       if($this->input->post('code'))
       {
         $code = $this->input->post('code');
-
-        $active = $this->input->post('active');
-
+        
         $arr = array(
           'role' => $this->input->post('role'),
           'sell' => $this->input->post('sell'),
@@ -335,7 +397,7 @@ class Warehouse extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('wh_code', 'wh_role', 'is_consignment', 'wh_active', 'wh_sell', 'wh_prepare', 'wh_auz', 'wh_lend', 'wh_is_pos');
+    $filter = array('wh_code', 'wh_role', 'is_consignment', 'wh_active', 'wh_sell', 'wh_prepare', 'wh_auz', 'wh_lend', 'wh_is_pos', 'wh_auto_shipping');
     clear_filter($filter);
   }
 

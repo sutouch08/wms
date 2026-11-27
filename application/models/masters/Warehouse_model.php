@@ -121,6 +121,11 @@ class Warehouse_model extends CI_Model
       $this->db->where('warehouse.is_pos', $ds['is_pos']);
     }
 
+    if (isset($ds['auto_shipping']) && $ds['auto_shipping'] != 'all')
+    {
+      $this->db->where('warehouse.auto_shipping', $ds['auto_shipping']);
+    }
+
     if(isset($ds['is_consignment']) && $ds['is_consignment'] != 'all')
     {
       if($ds['is_consignment'] == 1)
@@ -186,6 +191,11 @@ class Warehouse_model extends CI_Model
       $this->db->where('warehouse.is_pos', $ds['is_pos']);
     }
 
+    if(isset($ds['auto_shipping']) && $ds['auto_shipping'] != 'all')
+    {
+      $this->db->where('warehouse.auto_shipping', $ds['auto_shipping']);
+    }
+
     if(isset($ds['is_consignment']) && $ds['is_consignment'] != 'all')
     {
       if($ds['is_consignment'] == 1)
@@ -223,7 +233,7 @@ class Warehouse_model extends CI_Model
   public function get_sell_warehouse_list()
   {
     $rs = $this->db
-    ->where_in('role', [1, 2, 3])
+    ->where('role', 1)
     ->where('active', 1)
     ->where('sell', 1)
     ->order_by('position', 'ASC')
@@ -313,6 +323,7 @@ class Warehouse_model extends CI_Model
     ->where('active', 1)
     ->order_by('code', 'ASC')
     ->get('warehouse');
+    
     if($rs->num_rows() > 0)
     {
       return $rs->result();
